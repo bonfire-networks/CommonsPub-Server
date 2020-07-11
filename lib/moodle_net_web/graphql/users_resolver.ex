@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   Performs the GraphQL User queries.
   """
   alias MoodleNetWeb.GraphQL.UploadResolver
+
   alias MoodleNet.{
     Access,
     Activities,
@@ -13,17 +14,19 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Follows,
     GraphQL,
     Repo,
-    Users,
+    Users
   }
+
   alias MoodleNet.GraphQL.{
     FetchFields,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     ResolveFields,
     ResolvePage,
     ResolvePages,
-    ResolveRootPage,
+    ResolveRootPage
   }
+
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Follows.Follow
@@ -49,49 +52,48 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def search_follows(_, _, _), do: {:ok, []}
 
   def user(%{user_id: id}, info) do
-    Users.one join: :actor, preload: :actor,
-      id: id, user: GraphQL.current_user(info)
+    Users.one(join: :actor, preload: :actor, id: id, user: GraphQL.current_user(info))
   end
+
+  def user(%{username: name}, info) do
+    Users.one(join: :actor, preload: :actor, username: name, user: GraphQL.current_user(info))
+  end
+
   # def user(%{preferred_username: name}, info), do: Users.one(username: name)
 
-  def user_edge(%Me{}=me, _, _info), do: {:ok, me.user}
+  def user_edge(%Me{} = me, _, _info), do: {:ok, me.user}
 
-  def users(%{}=page_opts, info) do
-    ResolveRootPage.run(
-      %ResolveRootPage{
-        module: __MODULE__,
-        fetcher: :fetch_users,
-        page_opts: page_opts,
-        info: info,
-        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # followers
-      }
-    )
+  def users(%{} = page_opts, info) do
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_users,
+      page_opts: page_opts,
+      info: info,
+      # followers
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
   end
 
   def fetch_users(page_opts, info) do
-    FetchPage.run(
-      %FetchPage{
-        queries: Users.Queries,
-        query: User,
-        # cursor_fn: Users.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
-        data_filters: [:default],
-        # data_filters: [:default, page: [desc: [followers: page_opts]]],
-      }
-    )
+    FetchPage.run(%FetchPage{
+      queries: Users.Queries,
+      query: User,
+      # cursor_fn: Users.cursor(:followers),
+      page_opts: page_opts,
+      base_filters: [user: GraphQL.current_user(info)],
+      data_filters: [:default]
+      # data_filters: [:default, page: [desc: [followers: page_opts]]],
+    })
   end
 
   def comments_edge(%User{id: id}, page_opts, info) do
-    ResolvePages.run(
-      %ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_comments_edge,
-        context: id,
-        page_opts: page_opts,
-        info: info,
-      }
-    )
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_comments_edge,
+      context: id,
+      page_opts: page_opts,
+      info: info
+    })
   end
 
   # def fetch_comments_edge({page_opts, info}, ids) do
@@ -112,16 +114,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_comments_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    FetchPage.run(
-      %FetchPage{
-        queries: CommentsQueries,
-        query: Comment,
-        cursor_fn: &(&1.id),
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids],
-        data_filters: [order: :timeline_desc],
-      }
-    )
+
+    FetchPage.run(%FetchPage{
+      queries: CommentsQueries,
+      query: Comment,
+      cursor_fn: & &1.id,
+      page_opts: page_opts,
+      base_filters: [user: user, creator: ids]
+      # data_filters: [order: :timeline_desc]
+    })
   end
 
   def email_edge(me, _, _), do: {:ok, me.user.local_user.email}
@@ -131,18 +132,16 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_instance_admin_edge(me, _, _), do: {:ok, me.user.local_user.is_instance_admin}
 
   def collection_follows_edge(%{id: id}, page_opts, info) do
-    ResolvePages.run(
-      %ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_collection_follows_edge,
-        context: id,
-        page_opts: page_opts,
-        info: info,
-        single_opts: %{default_limit: 10, max_limit: 15},
-        batch_opts: %{default_limit: 3, max_limit: 10},
-        deep_opts: %{default_limit: 3, max_limit: 10},
-      }
-    )
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_collection_follows_edge,
+      context: id,
+      page_opts: page_opts,
+      info: info,
+      single_opts: %{default_limit: 10, max_limit: 15},
+      batch_opts: %{default_limit: 3, max_limit: 10},
+      deep_opts: %{default_limit: 3, max_limit: 10}
+    })
   end
 
   # def fetch_collection_follows_edge({page_opts, info}, ids) do
@@ -162,30 +161,27 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_collection_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    FetchPage.run(
-      %FetchPage{
-        queries: Follows.Queries,
-        query: Follows.Follow,
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids, join: :context, table: Collection],
-        data_filters: [page: [desc: [created: page_opts]], preload: :context],
-      }
-    )
+
+    FetchPage.run(%FetchPage{
+      queries: Follows.Queries,
+      query: Follows.Follow,
+      page_opts: page_opts,
+      base_filters: [user: user, creator: ids, join: :context, table: Collection],
+      data_filters: [page: [desc: [created: page_opts]], preload: :context]
+    })
   end
 
-  def community_follows_edge(%{id: id}, %{}=page_opts, info) do
-    ResolvePages.run(
-      %ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_community_follows_edge,
-        context: id,
-        page_opts: page_opts,
-        info: info,
-        single_opts: %{default_limit: 10, max_limit: 15},
-        batch_opts: %{default_limit: 3, max_limit: 10},
-        deep_opts: %{default_limit: 3, max_limit: 10},
-      }
-    )
+  def community_follows_edge(%{id: id}, %{} = page_opts, info) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_community_follows_edge,
+      context: id,
+      page_opts: page_opts,
+      info: info,
+      single_opts: %{default_limit: 10, max_limit: 15},
+      batch_opts: %{default_limit: 3, max_limit: 10},
+      deep_opts: %{default_limit: 3, max_limit: 10}
+    })
   end
 
   # def fetch_community_follows_edge({page_opts, info}, ids) do
@@ -205,32 +201,29 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_community_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    FetchPage.run(
-      %FetchPage{
-        queries: Follows.Queries,
-        query: Follows.Follow,
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids, join: :context, table: Community],
-        data_filters: [page: [desc: [created: page_opts]], preload: :context],
-      }
-    )
+
+    FetchPage.run(%FetchPage{
+      queries: Follows.Queries,
+      query: Follows.Follow,
+      page_opts: page_opts,
+      base_filters: [user: user, creator: ids, join: :context, table: Community],
+      data_filters: [page: [desc: [created: page_opts]], preload: :context]
+    })
   end
 
   ## followed users
-  
-  def user_follows_edge(%{id: id}, %{}=page_opts, info) do
-    ResolvePages.run(
-      %ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_user_follows_edge,
-        context: id,
-        page_opts: page_opts,
-        info: info,
-        single_opts: %{default_limit: 10, max_limit: 15},
-        batch_opts: %{default_limit: 3, max_limit: 10},
-        deep_opts: %{default_limit: 3, max_limit: 10},
-      }
-    )
+
+  def user_follows_edge(%{id: id}, %{} = page_opts, info) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_user_follows_edge,
+      context: id,
+      page_opts: page_opts,
+      info: info,
+      single_opts: %{default_limit: 10, max_limit: 15},
+      batch_opts: %{default_limit: 3, max_limit: 10},
+      deep_opts: %{default_limit: 3, max_limit: 10}
+    })
   end
 
   # def fetch_user_follows_edge({page_opts, info}, ids) do
@@ -251,112 +244,118 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_user_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    FetchPage.run(
-      %FetchPage{
-        queries: Follows.Queries,
-        query: Follow,
-        cursor_fn: &[&1.id],
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids, join: :context, table: User],
-        data_filters: [page: [desc: [created: page_opts]], preload: :context],
-      }
-    )
+
+    FetchPage.run(%FetchPage{
+      queries: Follows.Queries,
+      query: Follow,
+      cursor_fn: &[&1.id],
+      page_opts: page_opts,
+      base_filters: [user: user, creator: ids, join: :context, table: User],
+      data_filters: [page: [desc: [created: page_opts]], preload: :context]
+    })
   end
 
-  def inbox_edge(%User{}=user, page_opts, info) do
+  def inbox_edge(%User{} = user, page_opts, info) do
     with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info),
          :ok <- GraphQL.not_in_list_or_empty_page(info),
          :ok <- GraphQL.equals_or_not_permitted(user.id, current_user.id) do
-      ResolvePage.run(
-        %ResolvePage{
-          module: __MODULE__,
-          fetcher: :fetch_inbox_edge,
-          context: user.inbox_id,
-          page_opts: page_opts,
-          info: info,
-        }
-      )
+      user_inbox_edge(user, page_opts, info)
     end
+  end
+
+  def user_inbox_edge(%User{} = user, page_opts, info) do
+    ResolvePage.run(%ResolvePage{
+      module: __MODULE__,
+      fetcher: :fetch_inbox_edge,
+      context: user.inbox_id,
+      page_opts: page_opts,
+      info: info
+    })
   end
 
   def fetch_inbox_edge(page_opts, info, id) do
-    with {:ok, %User{}=user} <- GraphQL.current_user_or_empty_page(info) do
+    with {:ok, %User{} = user} <- GraphQL.current_user_or_empty_page(info) do
+      # IO.inspect(user)
       tables = Users.default_inbox_query_contexts()
-      Repo.transact_with fn ->
+
+      # IO.inspect(fetch_inbox_edge_tables: tables)
+
+      Repo.transact_with(fn ->
         with {:ok, subs} <- Users.feed_subscriptions(user) do
-          ids = [id | Enum.map(subs, &(&1.feed_id))]
-          FetchPage.run(
-            %FetchPage{
-              queries: Activities.Queries,
-              query: Activities.Activity,
-              page_opts: page_opts,
-              base_filters: [deleted: false, feed_timeline: ids, table: tables],
-              data_filters: [page: [desc: [created: page_opts]], preload: :context],
-            }
-          )
+          ids = [id | Enum.map(subs, & &1.feed_id)]
+
+          # IO.inspect(
+          FetchPage.run(%FetchPage{
+            queries: Activities.Queries,
+            query: Activities.Activity,
+            page_opts: page_opts,
+            base_filters: [deleted: false, feed_timeline: ids, table: tables],
+            data_filters: [page: [desc: [created: page_opts]], preload: :context]
+          })
+
+          # )
         end
-      end
+      end)
     end
   end
 
-  def outbox_edge(%User{outbox_id: id}, page_opts, info) do
+  def outbox_edge(%User{outbox_id: _id} = user, page_opts, info) do
     with :ok <- GraphQL.not_in_list_or_empty_page(info) do
-      ResolvePage.run(
-        %ResolvePage{
-          module: __MODULE__,
-          fetcher: :fetch_outbox_edge,
-          context: id,
-          page_opts: page_opts,
-          info: info,
-        }
-      )
+      user_outbox_edge(user, page_opts, info)
     end
+  end
+
+  def user_outbox_edge(%User{outbox_id: id}, page_opts, info) do
+    ResolvePage.run(%ResolvePage{
+      module: __MODULE__,
+      fetcher: :fetch_outbox_edge,
+      context: id,
+      page_opts: page_opts,
+      info: info
+    })
   end
 
   def fetch_outbox_edge(page_opts, _info, id) do
     tables = Users.default_outbox_query_contexts()
-    FetchPage.run(
-      %FetchPage{
-        queries: Activities.Queries,
-        query: Activities.Activity,
-        page_opts: page_opts,
-        base_filters: [deleted: false, feed_timeline: id, table: tables],
-        data_filters: [page: [desc: [created: page_opts]], preload: :context],
-      }          
-    )
+
+    FetchPage.run(%FetchPage{
+      queries: Activities.Queries,
+      query: Activities.Activity,
+      page_opts: page_opts,
+      base_filters: [deleted: false, feed_timeline: id, table: tables],
+      data_filters: [page: [desc: [created: page_opts]], preload: :context]
+    })
   end
 
   def follow_edge(follow, _, _), do: {:ok, follow}
 
   def creator_edge(%{creator_id: id}, _, info) do
-    ResolveFields.run(
-      %ResolveFields{
-        module: __MODULE__,
-        fetcher: :fetch_creator_edge,
-        context: id,
-        info: info,
-      }
-    )
+    ResolveFields.run(%ResolveFields{
+      module: __MODULE__,
+      fetcher: :fetch_creator_edge,
+      context: id,
+      info: info
+    })
   end
 
   def fetch_creator_edge(info, ids) do
     user = GraphQL.current_user(info)
-    FetchFields.run(
-      %FetchFields{
-        queries: Users.Queries,
-        query: User,
-        group_fn: &(&1.id),
-        filters: [id: ids, user: user, join: :actor, preload: :actor],
-      }
-    )
+
+    FetchFields.run(%FetchFields{
+      queries: Users.Queries,
+      query: User,
+      group_fn: & &1.id,
+      filters: [id: ids, user: user, join: :actor, preload: :actor]
+    })
   end
 
-  def last_activity_edge(_parent,_,_info), do: {:ok, DateTime.utc_now()}
+  def last_activity_edge(_parent, _, _info), do: {:ok, DateTime.utc_now()}
 
   ### Mutations
 
   def create_user(%{user: attrs} = params, info) do
     extra = %{is_public: true, peer_id: nil}
+
     Repo.transact_with(fn ->
       with :ok <- GraphQL.guest_only(info),
            {:ok, user} <- Users.register(Map.merge(attrs, extra)),
@@ -366,7 +365,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       end
     end)
   end
-  
+
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(user, params, info),
@@ -382,6 +381,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       {:ok, true}
     end
   end
+
   def delete(%{i_am_sure: false}, _info) do
     {:error, "Now is not the time to have second thoughts."}
   end
@@ -393,6 +393,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
           with {:ok, token} <- Access.create_token(user, password) do
             {:ok, %{token: token.id, me: Me.new(user)}}
           end
+
         _ ->
           Argon2.no_user_verify([])
           GraphQL.invalid_credential()
@@ -424,7 +425,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def reset_password(%{token: token, password: password}, info) do
     with :ok <- GraphQL.guest_only(info),
-    	 {:ok, user} <- Users.claim_password_reset(token, password),
+         {:ok, user} <- Users.claim_password_reset(token, password),
          {:ok, token} <- Access.unsafe_put_token(user) do
       {:ok, %{token: token.id, me: Me.new(user)}}
     end
@@ -440,5 +441,4 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       end)
     end
   end
-
 end

@@ -5,7 +5,7 @@ defmodule MoodleNet.Resources do
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Common, Feeds, Flags, Likes, Repo, Threads}
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.FeedPublisher
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Resources.{Resource, Queries}
   alias MoodleNet.Threads
@@ -45,7 +45,6 @@ defmodule MoodleNet.Resources do
     end)
   end
 
-
   defp insert_activity(creator, resource, attrs) do
     Activities.create(creator, resource, attrs)
   end
@@ -54,7 +53,8 @@ defmodule MoodleNet.Resources do
     Repo.insert(Resource.create_changeset(creator, collection, attrs))
   end
 
-  @spec update(User.t(), Resource.t(), attrs :: map) :: {:ok, Resource.t()} | {:error, Changeset.t()}
+  @spec update(User.t(), Resource.t(), attrs :: map) ::
+          {:ok, Resource.t()} | {:error, Changeset.t()}
   def update(%User{}, %Resource{} = resource, attrs) when is_map(attrs) do
     with {:ok, updated} <- Repo.update(Resource.update_changeset(resource, attrs)),
          :ok <- ap_publish("update", resource) do
@@ -67,9 +67,10 @@ defmodule MoodleNet.Resources do
   end
 
   @spec soft_delete(User.t(), Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
-  def soft_delete(%User{}=user, %Resource{} = resource) do
+  def soft_delete(%User{} = user, %Resource{} = resource) do
     Repo.transact_with(fn ->
-      resource = Repo.preload(resource, [collection: [:actor]])
+      resource = Repo.preload(resource, collection: [:actor])
+
       with {:ok, deleted} <- Common.soft_delete(resource),
            :ok <- chase_delete(user, deleted.id),
            :ok <- ap_publish("delete", resource) do
@@ -78,14 +79,17 @@ defmodule MoodleNet.Resources do
     end)
   end
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:select, :id} | filters], deleted_at: DateTime.utc_now())
-        with :ok <- chase_delete(user, ids) do
-          ap_publish("delete", ids)
-        end
-      end), do: :ok
+           Repo.transact_with(fn ->
+             {_, ids} =
+               update_by(user, [{:select, :id} | filters], deleted_at: DateTime.utc_now())
+
+             with :ok <- chase_delete(user, ids) do
+               ap_publish("delete", ids)
+             end
+           end),
+         do: :ok
   end
 
   defp chase_delete(user, ids) do
@@ -98,7 +102,7 @@ defmodule MoodleNet.Resources do
   end
 
   defp publish(_creator, collection, _resource, activity) do
-    community = Repo.preload(collection, :community).community
+    _community = Repo.preload(collection, :community).community
     feeds = [collection.outbox_id, Feeds.instance_outbox_id()]
     FeedActivities.publish(activity, feeds)
   end
@@ -115,5 +119,4 @@ defmodule MoodleNet.Resources do
   end
 
   defp ap_publish(_, _), do: :ok
-
 end

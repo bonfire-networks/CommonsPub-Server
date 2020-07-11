@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Profile.Profiles do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{Activities, Actors, Common, Feeds, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias Profile
@@ -10,8 +10,8 @@ defmodule Profile.Profiles do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
-  alias Pointers.Pointer
   alias Pointers
+  alias Pointers.Pointer
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -105,7 +105,7 @@ defmodule Profile.Profiles do
   end
 
   @doc "Takes a Pointer to something and creates a Profile based on it"
-  def add_profile_to(%User{} = user, %{} = pointer) do
+  def add_profile_to(%User{} = user, %Pointer{} = pointer) do
     thing = MoodleNet.Meta.Pointers.follow!(pointer)
 
     if(is_nil(thing.profile_id)) do
@@ -113,6 +113,11 @@ defmodule Profile.Profiles do
     else
       {:ok, %{thing.profile | profileistic: thing}}
     end
+  end
+
+  def add_profile_to(%User{} = user, pointer_id) when is_binary(pointer_id) do
+    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: pointer_id)
+    add_profile_to(user, pointer)
   end
 
   @doc "Takes anything and creates a Profile based on it"
@@ -191,7 +196,7 @@ defmodule Profile.Profiles do
     })
   end
 
-  defp ap_publish(_, _, _), do: :ok
+  defp ap_publish(_, _, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(User.t(), Profile.t(), attrs :: map) ::

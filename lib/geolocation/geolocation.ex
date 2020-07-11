@@ -7,6 +7,7 @@ defmodule Geolocation do
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Feeds.Feed
 
   @type t :: %__MODULE__{}
 

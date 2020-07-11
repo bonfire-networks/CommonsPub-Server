@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Tag.GraphQL.TagSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias MoodleNetWeb.GraphQL.{CommonResolver}
   alias Tag.GraphQL.{TagResolver}
 
   object :tag_queries do
@@ -25,19 +25,19 @@ defmodule Tag.GraphQL.TagSchema do
   end
 
   object :tag_mutations do
-    @desc "Create a tag out of something else"
-    field :make_taggable, :tag do
-      arg(:pointer_id, :string)
-      resolve(&TagResolver.make_pointer_taggable/2)
-    end
+    #   @desc "Create a tag out of something else"
+    #   field :make_taggable, :tag do
+    #     arg(:pointer_id, :string)
+    #     resolve(&TagResolver.make_pointer_taggable/2)
+    #   end
   end
 
   @desc "A tag could be a category or hashtag"
   object :tag do
-    @doc "The numeric primary key of the tag"
+    @desc "The numeric primary key of the tag"
     field(:id, :string)
 
-    @doc "The ID of the corresponding TaxonomyTag, if any."
+    @desc "The ID of the corresponding TaxonomyTag, if any."
     field(:taxonomy_tag_id, :integer)
 
     field(:prefix, :string)

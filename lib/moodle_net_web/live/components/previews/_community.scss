@@ -1,0 +1,32 @@
+.community__preview {
+  border: var(--border);
+  border-radius: var(--m1);
+  display: flex;
+  padding: var(--m2);
+  align-items: center;
+}
+
+.community__preview:hover {
+  background-color: aliceblue;
+}
+
+
+
+.community__preview .preview__image {
+  height: 40px;
+  width: 40px;
+  background-color: antiquewhite;
+  border-radius: var(--m2);
+}
+
+.community__preview .preview__info {
+  flex: 1;
+}
+.community__preview .preview__info h3 {
+  font-weight: 500;
+  margin: 0;
+  margin-left: var(--m2);
+  letter-spacing: .5px;
+  font-size: 16px;
+  color: var(--darker)
+}

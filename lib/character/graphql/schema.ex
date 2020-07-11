@@ -6,16 +6,16 @@ defmodule Character.GraphQL.Schema do
   GraphQL character fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
+
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
-    Character.GraphQL.Resolver,
     CommonResolver,
     FlagsResolver,
     FollowsResolver,
     LikesResolver,
     ThreadsResolver,
     UsersResolver,
-    UploadResolver,
+    # UploadResolver,
     CommunitiesResolver,
     CollectionsResolver
   }
@@ -28,29 +28,26 @@ defmodule Character.GraphQL.Schema do
     Threads.Comment
   }
 
-  alias Character.GraphQL.Resolver
+  # alias Character.GraphQL.Resolver
 
   object :character_queries do
-
     @desc "Get a character by id. You usually would query for a type associated with character, rather than characters directly."
     field :character, :character do
-      arg :character_id, non_null(:string)
-      resolve &Character.GraphQL.Resolver.character/2
+      arg(:character_id, non_null(:string))
+      resolve(&Character.GraphQL.Resolver.character/2)
     end
 
     @desc "Get list of characters. You usually would query for a type associated with character, rather than characters directly."
     field :characters, non_null(:characters_page) do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      arg :facets, list_of(non_null(:string))
-      resolve &Character.GraphQL.Resolver.characters/2
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      arg(:facets, list_of(non_null(:string)))
+      resolve(&Character.GraphQL.Resolver.characters/2)
     end
-
   end
 
   object :character_mutations do
-
     # @desc "Create a character. You usually wouldn't do this directly."
     # field :create_character, :character do
     #   arg :characteristic_id, :string
@@ -68,10 +65,9 @@ defmodule Character.GraphQL.Schema do
 
     @desc "Create a Character to represent something (which already exists, pass the ID passed as context) in feeds and federation"
     field :characterise, :character do
-      arg :context_id, non_null(:string)
-      resolve &Character.GraphQL.Resolver.characterise/2
+      arg(:context_id, non_null(:string))
+      resolve(&Character.GraphQL.Resolver.characterise/2)
     end
-
   end
 
   @desc """
@@ -79,7 +75,7 @@ defmodule Character.GraphQL.Schema do
   """
   object :character do
     @desc "An instance-local UUID identifying the character. Not to be confused with the associated thing's ID (available under characteristic.id)"
-    field :id, non_null(:string)
+    field(:id, non_null(:string))
 
     # @desc "A reference to the thing that this Character represents"
     # field :characteristic_id, :string
@@ -88,21 +84,21 @@ defmodule Character.GraphQL.Schema do
     # end
 
     @desc "A friendly name for the type of thing this character represents, eg. Circle, Location, Tag..."
-    field :facet, non_null(:string)
+    field(:facet, non_null(:string))
 
     @desc "A url for the character, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &ActorsResolver.canonical_url_edge/3
+      resolve(&ActorsResolver.canonical_url_edge/3)
     end
-    
+
     @desc "An instance-unique identifier shared with users and communities"
     field :preferred_username, non_null(:string) do
-      resolve &ActorsResolver.preferred_username_edge/3
+      resolve(&ActorsResolver.preferred_username_edge/3)
     end
 
     @desc "A preferred username + the host domain"
     field :display_username, non_null(:string) do
-      resolve &ActorsResolver.display_username_edge/3
+      resolve(&ActorsResolver.display_username_edge/3)
     end
 
     # @desc "A name field"
@@ -126,46 +122,48 @@ defmodule Character.GraphQL.Schema do
 
     @desc "Whether the character is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &ActorsResolver.is_local_edge/3
+      resolve(&ActorsResolver.is_local_edge/3)
     end
+
     @desc "Whether the character is public"
     field :is_public, non_null(:boolean) do
-      resolve &CommonResolver.is_public_edge/3
+      resolve(&CommonResolver.is_public_edge/3)
     end
+
     @desc "Whether an instance admin has hidden the character"
     field :is_disabled, non_null(:boolean) do
-      resolve &CommonResolver.is_disabled_edge/3
+      resolve(&CommonResolver.is_disabled_edge/3)
     end
 
     @desc "When the character was created"
     field :created_at, non_null(:string) do
-      resolve &CommonResolver.created_at_edge/3
+      resolve(&CommonResolver.created_at_edge/3)
     end
 
     @desc "When the character was last updated"
-    field :updated_at, non_null(:string)
+    field(:updated_at, non_null(:string))
 
     @desc """
     When the character or a resource in it was last updated or a
     thread or a comment was created or updated
     """
     field :last_activity, non_null(:string) do
-      resolve &Character.GraphQL.Resolver.last_activity_edge/3
+      resolve(&Character.GraphQL.Resolver.last_activity_edge/3)
     end
 
     @desc "The current user's like of this character, if any"
     field :my_like, :like do
-      resolve &LikesResolver.my_like_edge/3
+      resolve(&LikesResolver.my_like_edge/3)
     end
 
     @desc "The current user's follow of this character, if any"
     field :my_follow, :follow do
-      resolve &FollowsResolver.my_follow_edge/3
+      resolve(&FollowsResolver.my_follow_edge/3)
     end
 
-     @desc "The current user's flag of the character, if any"
+    @desc "The current user's flag of the character, if any"
     field :my_flag, :flag do
-      resolve &FlagsResolver.my_flag_edge/3
+      resolve(&FlagsResolver.my_flag_edge/3)
     end
 
     # @desc "The primary language the character speaks"
@@ -175,20 +173,20 @@ defmodule Character.GraphQL.Schema do
 
     @desc "The user who created the character"
     field :creator, :user do
-      resolve &UsersResolver.creator_edge/3
+      resolve(&UsersResolver.creator_edge/3)
     end
 
     @desc "The parent of the character"
     field :context, :character_tropes do
-      resolve &CommonResolver.context_edge/3
+      resolve(&CommonResolver.context_edge/3)
     end
 
     @desc "Any communities linked under this character"
     field :communities, :communities_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &CommunitiesResolver.communities_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&CommunitiesResolver.communities_edge/3)
     end
 
     # @desc "The total number of collections in the character, including private ones"
@@ -198,18 +196,18 @@ defmodule Character.GraphQL.Schema do
 
     @desc "Any circles created under this character"
     field :circles, :circles_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &Circle.GraphQL.Resolver.circles_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&Circle.GraphQL.Resolver.circles_edge/3)
     end
 
     @desc "Any collections created under this character"
     field :collections, :collections_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &CommunitiesResolver.collections_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&CommunitiesResolver.collections_edge/3)
     end
 
     # @desc "The total number of resources in the collection, including private ones"
@@ -219,34 +217,32 @@ defmodule Character.GraphQL.Schema do
 
     @desc "Any resources posted under this character, most recent last"
     field :resources, :resources_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &CollectionsResolver.resources_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&CollectionsResolver.resources_edge/3)
     end
 
-    @desc "Any tags linked under this character"
-    field :tags, :tags_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &Taxonomy.GraphQL.TagResolver.character_tags_edge/3
-    end
+    # @desc "Any tags linked under this character"
+    # field :tags, :tags_page do
+    #   arg(:limit, :integer)
+    #   arg(:before, list_of(non_null(:cursor)))
+    #   arg(:after, list_of(non_null(:cursor)))
+    #   resolve(&Taxonomy.GraphQL.TaxonomyResolver.character_tags_edge/3)
+    # end
 
     @desc "Total number of followers, including those we can't see"
     field :follower_count, :integer do
-      resolve &FollowsResolver.follower_count_edge/3
+      resolve(&FollowsResolver.follower_count_edge/3)
     end
-
 
     @desc "Subscriptions users have to the character"
     field :followers, :follows_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &FollowsResolver.followers_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&FollowsResolver.followers_edge/3)
     end
-
 
     # @desc "Tags users have applied to the resource, most recently created first"
     # field :taggings, :taggings_page do
@@ -261,59 +257,85 @@ defmodule Character.GraphQL.Schema do
     first. Does not include threads created on resources.
     """
     field :threads, :threads_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &ThreadsResolver.threads_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&ThreadsResolver.threads_edge/3)
     end
 
     @desc "Activities on the character, most recent first"
     field :outbox, :activities_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &Character.GraphQL.Resolver.outbox_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&Character.GraphQL.Resolver.outbox_edge/3)
     end
-
   end
 
   object :characters_page do
-    field :page_info, non_null(:page_info)
-    field :edges, non_null(list_of(non_null(:character)))
-    field :total_count, non_null(:integer)
+    field(:page_info, non_null(:page_info))
+    field(:edges, non_null(list_of(non_null(:character))))
+    field(:total_count, non_null(:integer))
   end
 
   input_object :character_input do
-    field :preferred_username, :string
-    field :name, non_null(:string)
-    field :summary, :string
+    field(:preferred_username, :string)
+    field(:name, non_null(:string))
+    field(:summary, :string)
     # field :primary_language_id, :string
   end
 
   input_object :character_update_input do
-    field :name, non_null(:string)
-    field :summary, :string
+    field(:name, non_null(:string))
+    field(:summary, :string)
     # field :primary_language_id, :string
   end
 
-
-
-  @doc "Types of things that can be characters" #TODO generate this based on available modules and/or config
+  # TODO generate this based on available modules and/or config
+  @doc "Types of things that can be characters"
   union :character_tropes do
-    description "Any kind of character" 
-    types [:collection, :community, :circle, :resource, :thread, :comment, :spatial_thing, :tag, :character]
-    resolve_type fn
-      %Collection{}, _ -> :collection
-      %Community{},  _ -> :community
-      %Circle{},       _ -> :circle
-      %Resource{},   _ -> :resource
-      %Thread{},   _ -> :thread
-      %Comment{},   _ -> :comment
-      %Geolocation{},   _ -> :spatial_thing
-      %Tag.Taggable{},   _ -> :tag
-      %Character{},   _ -> :character
-      # %{},   _ -> :unexpected_character_trope 
-    end
-  end
+    description("Any kind of character")
 
+    types([
+      :collection,
+      :community,
+      :circle,
+      :resource,
+      :thread,
+      :comment,
+      :spatial_thing,
+      :tag,
+      :character
+    ])
+
+    resolve_type(fn
+      %Collection{}, _ ->
+        :collection
+
+      %Community{}, _ ->
+        :community
+
+      %Circle{}, _ ->
+        :circle
+
+      %Resource{}, _ ->
+        :resource
+
+      %Thread{}, _ ->
+        :thread
+
+      %Comment{}, _ ->
+        :comment
+
+      %Geolocation{}, _ ->
+        :spatial_thing
+
+      %Tag.Taggable{}, _ ->
+        :tag
+
+      %Character{}, _ ->
+        :character
+        # %{},   _ -> :unexpected_character_trope
+    end)
+  end
 end

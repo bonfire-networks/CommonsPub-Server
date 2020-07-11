@@ -6,17 +6,17 @@ defmodule MoodleNet.Common.Changeset do
 
   alias Ecto.Changeset
   alias Ecto.ULID
-  
+
   alias MoodleNet.Localisation
   alias MoodleNet.Mail.Checker
 
+  @doc "Generates the primary ID for an object, and sets the canonical URL based on that"
   def cast_object(changeset) do
     cast_object(changeset, Changeset.get_field(changeset, :canonical_url))
   end
-  
+
   defp cast_object(cs, x) when not is_nil(x), do: cs
 
-  @doc "Generates the primary ID for an object, and sets the canonical URL based on that"
   defp cast_object(cs, _) do
     id = ULID.generate()
     Changeset.put_change(cs, :id, id)
@@ -25,22 +25,22 @@ defmodule MoodleNet.Common.Changeset do
 
   @doc "Validates a country code is one of the ones we know about"
   def validate_country_code(changeset, field) do
-    Changeset.validate_change changeset, field, fn _, code ->
+    Changeset.validate_change(changeset, field, fn _, code ->
       case Localisation.country(code) do
-	{:ok, _} -> []
-	_ -> [{field, "must be a recognised country code"}]
+        {:ok, _} -> []
+        _ -> [{field, "must be a recognised country code"}]
       end
-    end
+    end)
   end
 
   @doc "Validates a language code is one of the ones we know about"
   def validate_language_code(changeset, field) do
-    Changeset.validate_change changeset, field, fn _, code ->
+    Changeset.validate_change(changeset, field, fn _, code ->
       case Localisation.language(code) do
-	{:ok, _} -> []
-	_ -> [{field, "must be a recognised language code"}]
+        {:ok, _} -> []
+        _ -> [{field, "must be a recognised language code"}]
       end
-    end
+    end)
   end
 
   @spec validate_http_url(Changeset.t(), atom) :: Changeset.t()
@@ -106,7 +106,7 @@ defmodule MoodleNet.Common.Changeset do
   def claim_changeset(it, column \\ :claimed_at, error \\ "was already claimed"),
     do: soft_delete_changeset(it, column, error)
 
-#  @spec soft_delete_changeset(Changeset.t(), atom, any) :: Changeset.t()
+  #  @spec soft_delete_changeset(Changeset.t(), atom, any) :: Changeset.t()
   @doc "Creates a changeset for deleting an entity"
   def soft_delete_changeset(it, column \\ :deleted_at, error \\ "was already deleted") do
     cs = Changeset.cast(it, %{}, [])
@@ -168,9 +168,8 @@ defmodule MoodleNet.Common.Changeset do
   def change_synced_timestamps(changeset, bool_field, on_field, off_field, default \\ true)
 
   def change_synced_timestamps(changeset, bool_field, on_field, off_field, default)
-  when is_atom(bool_field) and is_atom(on_field)
-  and is_atom(off_field) and is_boolean(default) do
-
+      when is_atom(bool_field) and is_atom(on_field) and
+             is_atom(off_field) and is_boolean(default) do
     case Changeset.fetch_change(changeset, bool_field) do
       {:ok, val} ->
         case val do
@@ -178,32 +177,38 @@ defmodule MoodleNet.Common.Changeset do
             changeset
             |> Changeset.put_change(on_field, DateTime.utc_now())
             |> Changeset.put_change(off_field, nil)
+
           false ->
             changeset
             |> Changeset.put_change(on_field, nil)
             |> Changeset.put_change(off_field, DateTime.utc_now())
         end
+
       :error ->
         case Changeset.fetch_field(changeset, bool_field) do
-          {:changes, _} -> changeset
-          {:data, _} -> changeset
+          {:changes, _} ->
+            changeset
+
+          {:data, _} ->
+            changeset
+
           :error ->
             cs = Changeset.put_change(changeset, bool_field, default)
             change_synced_timestamps(cs, bool_field, on_field, off_field, default)
         end
     end
-
   end
 
-  def validate_exactly_one(changeset, [column|_]=columns, message) do
-    sum = Enum.reduce(columns, 0, fn field, acc ->
-      if is_nil(Changeset.get_field(changeset, field)),
-        do: acc,
-        else: acc + 1
-    end)
+  def validate_exactly_one(changeset, [column | _] = columns, message) do
+    sum =
+      Enum.reduce(columns, 0, fn field, acc ->
+        if is_nil(Changeset.get_field(changeset, field)),
+          do: acc,
+          else: acc + 1
+      end)
+
     if sum == 1,
       do: changeset,
       else: Changeset.add_error(changeset, column, message)
   end
-
 end

@@ -1,3 +1,5 @@
+## IS THIS DEPRECATED?
+
 # Import all plugins from `rel/plugins`
 # They can then be used by adding `plugin MyPlugin` to
 # either an environment, or release definition, where
@@ -8,14 +10,13 @@
 |> Enum.map(&Code.eval_file(&1))
 
 use Distillery.Releases.Config,
-    # This sets the default release built by `mix release`
-    default_release: :default,
-    # This sets the default environment used by `mix release`
-    default_environment: Mix.env()
+  # This sets the default release built by `mix release`
+  default_release: :default,
+  # This sets the default environment used by `mix release`
+  default_environment: Mix.env()
 
 # For a full list of config options for both releases
 # and environments, visit https://hexdocs.pm/distillery/config/distillery.html
-
 
 # You may define one or more environments in this file,
 # an environment's settings will override those of a release
@@ -23,10 +24,10 @@ use Distillery.Releases.Config,
 # and environment configuration is called a profile
 
 environment :prod do
-  set include_erts: true
-  set include_src: false
-  set cookie: :"f]:Y%u(BHQ^?HOM:GIZAhlMk/bYCf?Ig4Di7*T%hZkaB2vBgUb&/c}vZ.jTN$/A{"
-  set vm_args: "rel/vm.args"
+  set(include_erts: true)
+  set(include_src: false)
+  set(cookie: :"f]:Y%u(BHQ^?HOM:GIZAhlMk/bYCf?Ig4Di7*T%hZkaB2vBgUb&/c}vZ.jTN$/A{")
+  set(vm_args: "rel/vm.args")
 end
 
 # You may define one or more releases in this file.
@@ -35,21 +36,32 @@ end
 # will be used by default
 
 release :moodle_net do
-  set version: current_version(:moodle_net)
-  set applications: [
-    :runtime_tools
-  ]
-  set config_providers: [
-    {Distillery.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
-  ]
-  set overlays: [
-    {:copy, "rel/config/config.exs", "etc/config.exs"}
-  ]
-  set commands: [
-    migrate_db: "rel/commands/migrate_db.sh",
-    create_db: "rel/commands/create_db.sh",
-    drop_db: "rel/commands/drop_db.sh",
-    seed_db: "rel/commands/seed_db.sh",
-  ]
-end
+  set(version: current_version(:moodle_net))
 
+  set(
+    applications: [
+      :runtime_tools
+    ]
+  )
+
+  set(
+    config_providers: [
+      {Distillery.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
+    ]
+  )
+
+  set(
+    overlays: [
+      {:copy, "rel/config/config.exs", "etc/config.exs"}
+    ]
+  )
+
+  set(
+    commands: [
+      migrate_db: "rel/commands/migrate_db.sh",
+      create_db: "rel/commands/create_db.sh",
+      drop_db: "rel/commands/drop_db.sh",
+      seed_db: "rel/commands/seed_db.sh"
+    ]
+  )
+end

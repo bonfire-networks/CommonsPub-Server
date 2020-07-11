@@ -1,0 +1,87 @@
+<div class="page__fullContent">
+  <section class="page__discussion">
+    <div class="discussion__hero">
+      <div class="suphero">
+        <div class="suphero__left named-avatar">
+          <i class="feather-edit"></i>
+          <h3>Discussion</h3>
+        </div>
+        <div class="suphero__actions">
+          <a href="#reply" class="button reply">Reply</a>
+          <%# <button class="button follow">Subscribe</button> %>
+          <details class="more__dropdown">
+            <summary>
+              <i class="feather-more-horizontal"></i>
+            </summary>
+            <ul class="dropdown__list">
+              <li><button class="button-link" >Report</button></li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </div>
+    <div class="discussion__layout">
+      <div>
+        <div class="wrapper__discussion">
+          <div class="discussion__main">
+            <div class="hero__head">
+              <h1 class="head__title"><%= e(@thread, :name, e(@main_comment, :name, "A discussion")) %></h1>
+              <div class="head__meta">
+                <div class="meta__status">Open</div>
+                <div class="meta__info">
+                  17 Comments - 29 Starred
+                </div>
+              </div>
+            </div>
+            <div class="head__mainComment">
+              <div class="component__activity">
+                <div class="activity__info">
+                  <a href="/@<%= e(@main_comment, :creator, :actor, :preferred_username, "deleted") %>">
+                  <img src="<%= e(@main_comment, :creator, :icon_url, "") %>" alt="icon" />
+                </a>
+                <div class="info__meta">
+                  <div class="meta__action">
+                    <a href="/@<%= e(@main_comment, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@main_comment, :creator, :name, "Somebody") %></a>
+                </div>
+                <div class="meta__secondary">
+                  <%= e(@main_comment, :published_at, "one day") %>
+                </div>
+              </div>
+            </div>
+            <div class="activity__preview">
+              <div class="comment__preview">
+                <div class="markdown-body">
+                  <%= markdown(@main_comment.content) %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="discussion__replies">
+        <% for comment <- @comments do %>
+
+          <%= live_component(
+              @socket,
+              DiscussionCommentLive,
+              id: "discussion-activity-#{comment.id}",
+              activity: comment
+            )
+          %>
+          <% end %>
+        <div id="reply" class="discussion__reply">
+          <form phx-submit="reply">
+
+          <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+                    <div class="reply__box">
+                      <textarea name="content" placeholder="Write a reply"></textarea>
+                      <button>Comment</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>

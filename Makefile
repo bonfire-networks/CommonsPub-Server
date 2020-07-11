@@ -11,11 +11,13 @@ APP_BUILD ?= `git rev-parse --short HEAD`
 
 init: 
 	@echo "Running build scripts for $(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
+	@chmod 700 .erlang.cookie 
 
 help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 build_without_cache: init ## Build the Docker image
+	@cp lib/*/overlay/* rel/overlays/
 	@docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
@@ -25,6 +27,7 @@ build_without_cache: init ## Build the Docker image
 	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
 build: init ## Build the Docker image using previous cache
+	@cp lib/*/overlay/* rel/overlays/
 	@docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
@@ -69,17 +72,15 @@ dev-exports: init ## Load env vars from a dotenv file
 dev-pull: init ## Build the dev image
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) pull 
 
-dev-build: init pull ## Build the dev image
+dev-build: init dev-pull ## Build the dev image
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build 
 
 dev-rebuild: init ## Rebuild the dev image (without cache)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build --no-cache
 
 dev-deps: init ## Prepare dev dependencies
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.rebar --force
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.get
-
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force && mix local.rebar --force && mix deps.get
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm install --prefix assets
 dev-db-up: init ## Start the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
 
@@ -131,6 +132,7 @@ manual-deps: init ## Prepare dependencies (without Docker)
 	mix local.hex --force
 	mix local.rebar --force
 	mix deps.get
+	npm install --prefix assets
 
 manual-db: init ## Create or reset the DB (without Docker)
 	mix ecto.reset
@@ -143,6 +145,10 @@ good-tests: init
 
 vf-tests: init
 	mix test lib/value_flows/{geolocation}/tests.ex 
+
+prepare: init ## Run the app in Docker
+	docker-compose pull 
+	docker-compose build 
 
 run: init ## Run the app in Docker
 	docker-compose up 

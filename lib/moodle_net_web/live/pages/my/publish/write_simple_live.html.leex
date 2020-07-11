@@ -1,0 +1,14 @@
+<section class="page__write">
+  <form action="#" phx-change="tag_suggest" phx-submit="post" class="mainContent_write">
+    <input id="name" name="name" placeholder="<%= @title_placeholder %>" />
+    <textarea id="content" name="content" placeholder="<%= @summary_placeholder %>"></textarea>
+    <button class="button-primary" type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
+  </form>
+</section>
+<div id="autocomplete-dropdown" style="top: 90px; left: 378.5px; position: absolute; display: block;">
+  <ul>
+    <%= for match <- @matches do %>
+      <li data-tag="<%= match %>" phx-hook="TagPick" data-search="<%= @tag_search %>" data-target="<%= @tag_target %>" ><%= r(tag_match(match, @tag_search)) %></li>
+    <% end %>
+  </ul>
+</div>

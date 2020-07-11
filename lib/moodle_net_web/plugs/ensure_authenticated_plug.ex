@@ -22,10 +22,11 @@ defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlug do
         |> put_resp_content_type("application/json")
         |> send_resp(403, Jason.encode!(%{error: "Invalid credentials."}))
         |> halt()
+
       "html" ->
         conn
         |> put_flash(:error, "You must be logged in to access to this page")
-        |> redirect(to: "/")
+        |> redirect(to: "/my/login")
         |> halt()
     end
   end

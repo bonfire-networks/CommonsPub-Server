@@ -1,13 +1,21 @@
 defmodule Taxonomy.TaxonomyTags do
-  import Ecto.Query
+  # import Ecto.Query
   alias Ecto.Changeset
-  alias MoodleNet.{Common, GraphQL, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
+
+  alias MoodleNet.{
+    # Common, GraphQL,
+    GraphQL.Page,
+    Common.Contexts,
+    Repo
+  }
+
+  # alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
   # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
   alias MoodleNet.Users.User
   alias Taxonomy.TaxonomyTag
   alias Taxonomy.TaxonomyTag.Queries
-  alias Character.Characters
+
+  # alias Character.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -152,7 +160,7 @@ defmodule Taxonomy.TaxonomyTags do
   # TODO: take the user who is performing the update
   @spec update(User.t(), TaxonomyTag.t(), attrs :: map) ::
           {:ok, TaxonomyTag.t()} | {:error, Changeset.t()}
-  def update(%User{} = user, %TaxonomyTag{} = tag, attrs) do
+  def update(%User{} = _user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
       #  {:ok, character} <- Character.update(user, tag.character, attrs)
       # :ok <- publish(tag, :updated)

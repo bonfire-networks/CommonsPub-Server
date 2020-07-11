@@ -2,7 +2,15 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.Geolocations do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{
+    Activities,
+    Actors,
+    # Common,
+    Feeds,
+    Follows,
+    Repo
+  }
+
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias Geolocation
@@ -138,6 +146,7 @@ defmodule Geolocation.Geolocations do
 
   defp insert_geolocation(creator, context, actor, attrs) do
     cs = Geolocation.create_changeset(creator, context, actor, attrs)
+
     with {:ok, item} <- Repo.insert(cs) do
       {:ok, %{item | actor: actor, context: context}}
     end
@@ -173,15 +182,15 @@ defmodule Geolocation.Geolocations do
     end
   end
 
-  defp publish(geolocation, :updated) do
-    # TODO: wrong if edited by admin
-    ap_publish("update", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
-  end
+  # defp publish(geolocation, :updated) do
+  #   # TODO: wrong if edited by admin
+  #   ap_publish("update", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
+  # end
 
-  defp publish(geolocation, :deleted) do
-    # TODO: wrong if edited by admin
-    ap_publish("delete", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
-  end
+  # defp publish(geolocation, :deleted) do
+  #   # TODO: wrong if edited by admin
+  #   ap_publish("delete", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
+  # end
 
   defp ap_publish(verb, context_id, user_id, nil) do
     job_result =
@@ -193,17 +202,17 @@ defmodule Geolocation.Geolocations do
     with {:ok, _} <- job_result, do: :ok
   end
 
-  defp ap_publish(_, _, _), do: :ok
+  defp ap_publish(_, _, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(User.t(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def update(%User{} = user, %Geolocation{} = geolocation, attrs) do
+  def update(%User{} = _user, %Geolocation{} = geolocation, attrs) do
     # Repo.transact_with(fn ->
     #   geolocation = Repo.preload(geolocation, :community)
     #   with {:ok, geolocation} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
     #        {:ok, actor} <- Actors.update(user, geolocation.actor, attrs),
-    #        :ok <- publish(geolocation, :updated) do 
+    #        :ok <- publish(geolocation, :updated) do
     #     {:ok, %{ geolocation | actor: actor }}
     #   end
     # end)

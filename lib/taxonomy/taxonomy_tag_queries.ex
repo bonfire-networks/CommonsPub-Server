@@ -7,9 +7,12 @@ defmodule Taxonomy.TaxonomyTag.Queries do
   alias Taxonomy.TaxonomyTag
 
   def query(TaxonomyTag) do
-    from(t in TaxonomyTag, as: :tag,
-      left_join: pt in assoc(t, :parent_tag), as: :parent_tag,
-      left_join: tb in assoc(t, :taggable), as: :taggable
+    from(t in TaxonomyTag,
+      as: :tag,
+      left_join: pt in assoc(t, :parent_tag),
+      as: :parent_tag,
+      left_join: tb in assoc(t, :taggable),
+      as: :taggable
     )
   end
 
@@ -87,7 +90,7 @@ defmodule Taxonomy.TaxonomyTag.Queries do
 
   def filter(q, {:limit, limit}), do: limit(q, ^limit)
 
-  def filter(q, {:user, user}), do: q
+  def filter(q, {:user, _user}), do: q
 
   # pagination
 

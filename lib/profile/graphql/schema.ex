@@ -6,51 +6,39 @@ defmodule Profile.GraphQL.Schema do
   GraphQL profile fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
+
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
-    Profile.GraphQL.Resolver,
+    # Profile.GraphQL.Resolver,
     CommonResolver,
     FlagsResolver,
-    FollowsResolver,
+    # FollowsResolver,
     LikesResolver,
-    ThreadsResolver,
+    # ThreadsResolver,
     UsersResolver,
-    UploadResolver,
-    CommunitiesResolver,
-    CollectionsResolver
+    UploadResolver
+    # CommunitiesResolver,
+    # CollectionsResolver
   }
-
-  alias MoodleNet.{
-    Communities.Community,
-    Collections.Collection,
-    Resources.Resource,
-    Threads.Thread,
-    Threads.Comment
-  }
-
-  alias Profile.GraphQL.Resolver
 
   object :profile_queries do
-
     @desc "Get a profile by id. You usually would query for a type associated with profile, rather than profiles directly."
     field :profile, :profile do
-      arg :profile_id, non_null(:string)
-      resolve &Profile.GraphQL.Resolver.profile/2
+      arg(:profile_id, non_null(:string))
+      resolve(&Profile.GraphQL.Resolver.profile/2)
     end
 
     @desc "Get list of profiles. You usually would query for a type associated with profile, rather than profiles directly."
     field :profiles, non_null(:profiles_page) do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      arg :facets, list_of(non_null(:string))
-      resolve &Profile.GraphQL.Resolver.profiles/2
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      arg(:facets, list_of(non_null(:string)))
+      resolve(&Profile.GraphQL.Resolver.profiles/2)
     end
-
   end
 
   object :profile_mutations do
-
     # @desc "Create a profile. You usually wouldn't do this directly."
     # field :create_profile, :profile do
     #   arg :profileistic_id, :string
@@ -68,10 +56,9 @@ defmodule Profile.GraphQL.Schema do
 
     @desc "Create a Profile to represent something (which already exists, pass the ID passed as context) in feeds and federation"
     field :add_profile_to, :profile do
-      arg :context_id, non_null(:string)
-      resolve &Profile.GraphQL.Resolver.add_profile_to/2
+      arg(:context_id, non_null(:string))
+      resolve(&Profile.GraphQL.Resolver.add_profile_to/2)
     end
-
   end
 
   @desc """
@@ -79,7 +66,7 @@ defmodule Profile.GraphQL.Schema do
   """
   object :profile do
     @desc "An instance-local UUID identifying the profile. Not to be confused with the associated thing's ID (available under profileistic.id)"
-    field :id, non_null(:string)
+    field(:id, non_null(:string))
 
     # @desc "A reference to the thing that this Profile represents"
     # field :profileistic_id, :string
@@ -89,69 +76,69 @@ defmodule Profile.GraphQL.Schema do
 
     @desc "A url for the profile, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &ActorsResolver.canonical_url_edge/3
+      resolve(&ActorsResolver.canonical_url_edge/3)
     end
-    
+
     @desc "An instance-unique identifier shared with users and communities"
     field :preferred_username, non_null(:string) do
-      resolve &ActorsResolver.preferred_username_edge/3
+      resolve(&ActorsResolver.preferred_username_edge/3)
     end
 
     @desc "A preferred username + the host domain"
     field :display_username, non_null(:string) do
-      resolve &ActorsResolver.display_username_edge/3
+      resolve(&ActorsResolver.display_username_edge/3)
     end
 
     @desc "A name field"
-    field :name, non_null(:string)
+    field(:name, non_null(:string))
 
     @desc "Possibly biographical information"
-    field :summary, :string
+    field(:summary, :string)
 
     @desc "An avatar or icon url"
     field :icon, :content do
-      resolve &UploadResolver.icon_content_edge/3
+      resolve(&UploadResolver.icon_content_edge/3)
     end
 
     @desc "A background image url"
     field :image, :content do
-      resolve &UploadResolver.image_content_edge/3
+      resolve(&UploadResolver.image_content_edge/3)
     end
 
     @desc "A JSON document containing more info beyond the default fields"
-    field :extra_info, :json
+    field(:extra_info, :json)
 
     @desc "Whether the profile is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &ActorsResolver.is_local_edge/3
+      resolve(&ActorsResolver.is_local_edge/3)
     end
+
     @desc "Whether the profile is public"
     field :is_public, non_null(:boolean) do
-      resolve &CommonResolver.is_public_edge/3
+      resolve(&CommonResolver.is_public_edge/3)
     end
+
     @desc "Whether an instance admin has hidden the profile"
     field :is_disabled, non_null(:boolean) do
-      resolve &CommonResolver.is_disabled_edge/3
+      resolve(&CommonResolver.is_disabled_edge/3)
     end
 
     @desc "When the profile was created"
     field :created_at, non_null(:string) do
-      resolve &CommonResolver.created_at_edge/3
+      resolve(&CommonResolver.created_at_edge/3)
     end
 
     @desc "When the profile was last updated"
-    field :updated_at, non_null(:string)
-
+    field(:updated_at, non_null(:string))
 
     @desc "The current user's like of this profile, if any"
     field :my_like, :like do
-      resolve &LikesResolver.my_like_edge/3
+      resolve(&LikesResolver.my_like_edge/3)
     end
 
-
-     @desc "The current user's flag of the profile, if any"
+    @desc "The current user's flag of the profile, if any"
     field :my_flag, :flag do
-      resolve &FlagsResolver.my_flag_edge/3
+      resolve(&FlagsResolver.my_flag_edge/3)
     end
 
     # @desc "The primary language the profile speaks"
@@ -161,29 +148,28 @@ defmodule Profile.GraphQL.Schema do
 
     @desc "The user who created the profile"
     field :creator, :user do
-      resolve &UsersResolver.creator_edge/3
+      resolve(&UsersResolver.creator_edge/3)
     end
 
     @desc "Total number of likers, including those we can't see"
     field :liker_count, :integer do
-      resolve &LikesResolver.liker_count_edge/3
+      resolve(&LikesResolver.liker_count_edge/3)
     end
-
 
     @desc "Likes users have made of the profile"
     field :likers, :likes_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &LikesResolver.likers_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&LikesResolver.likers_edge/3)
     end
 
     @desc "Flags users have made about the profile, most recently created first"
     field :flags, :flags_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &FlagsResolver.flags_edge/3
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&FlagsResolver.flags_edge/3)
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
@@ -193,28 +179,24 @@ defmodule Profile.GraphQL.Schema do
     #   arg :after, list_of(non_null(:cursor))
     #   resolve &CommonResolver.taggings_edge/3
     # end
-
-
   end
 
   object :profiles_page do
-    field :page_info, non_null(:page_info)
-    field :edges, non_null(list_of(non_null(:profile)))
-    field :total_count, non_null(:integer)
+    field(:page_info, non_null(:page_info))
+    field(:edges, non_null(list_of(non_null(:profile))))
+    field(:total_count, non_null(:integer))
   end
 
   input_object :profile_input do
-    field :preferred_username, :string
-    field :name, non_null(:string)
-    field :summary, :string
+    field(:preferred_username, :string)
+    field(:name, non_null(:string))
+    field(:summary, :string)
     # field :primary_language_id, :string
   end
 
   input_object :profile_update_input do
-    field :name, non_null(:string)
-    field :summary, :string
+    field(:name, non_null(:string))
+    field(:summary, :string)
     # field :primary_language_id, :string
   end
-
-
 end

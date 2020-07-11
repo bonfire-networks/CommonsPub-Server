@@ -7,9 +7,20 @@ defmodule MoodleNetWeb.PageController do
   use MoodleNetWeb, :controller
 
   def index(conn, _params) do
-    url = Application.fetch_env!(:moodle_net, :frontend_base_url)
+    url =
+      if System.get_env("LIVEVIEW_ENABLED", "true") == "true" do
+        "/instance"
+      else
+        Application.fetch_env!(:moodle_net, :frontend_base_url)
+      end
+
     conn
     |> put_status(:moved_permanently)
     |> redirect(external: url)
+  end
+
+  def api(conn, _params) do
+    conn
+    |> redirect(external: "/api/explore")
   end
 end

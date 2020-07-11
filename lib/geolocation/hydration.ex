@@ -9,9 +9,9 @@ defmodule Geolocation.GraphQL.Hydration do
 
   alias Circle
 
-  def hydrate(blueprint) do
+  def hydrate() do
     %{
-      spatial_thing: %{ 
+      spatial_thing: %{
         canonical_url: [
           resolve: &ActorsResolver.canonical_url_edge/3
         ],
@@ -20,9 +20,9 @@ defmodule Geolocation.GraphQL.Hydration do
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
-        ],
+        ]
       },
-      geolocation_query: %{ 
+      geolocation_query: %{
         spatial_thing: [
           resolve: &Geolocation.GraphQL.geolocation/2
         ],
@@ -40,7 +40,7 @@ defmodule Geolocation.GraphQL.Hydration do
       },
       geo_scope: [
         resolve_type: &__MODULE__.resolve_context_type/2
-      ],
+      ]
     }
   end
 

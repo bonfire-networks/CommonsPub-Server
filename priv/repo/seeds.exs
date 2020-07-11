@@ -5,7 +5,7 @@
 import MoodleNet.Test.Faking
 
 admin = %{
-  email: "root@moodlenet.local",
+  email: "root@localhost.dev",
   password: "password",
   preferred_username: "root",
   name: "root",

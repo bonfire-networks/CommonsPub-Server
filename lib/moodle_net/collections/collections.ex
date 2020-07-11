@@ -14,11 +14,12 @@ defmodule MoodleNet.Collections do
     Likes,
     Repo,
     Resources,
-    Threads,
+    Threads
   }
-  alias MoodleNet.Collections.{Collection,  Queries}
+
+  alias MoodleNet.Collections.{Collection, Queries}
   alias MoodleNet.Communities.Community
-  alias MoodleNet.FeedPublisher
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
@@ -33,9 +34,9 @@ defmodule MoodleNet.Collections do
   @doc "Retrieves a list of collections by arbitrary filters."
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Collection, filters))}
 
-  @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
+  @spec create(User.t(), Community.t(), attrs :: map) ::
+          {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
-
     attrs = Actors.prepare_username(attrs)
 
     Repo.transact_with(fn ->
@@ -53,7 +54,8 @@ defmodule MoodleNet.Collections do
     end)
   end
 
-  @spec create_remote(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
+  @spec create_remote(User.t(), Community.t(), attrs :: map) ::
+          {:ok, Collection.t()} | {:error, Changeset.t()}
   def create_remote(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
@@ -86,13 +88,15 @@ defmodule MoodleNet.Collections do
 
   defp insert_collection(creator, community, actor, attrs) do
     cs = Collection.create_changeset(creator, community, actor, attrs)
-    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
+    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{coll | actor: actor}}
   end
 
-  @spec update(User.t(), %Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
-  def update(%User{}=user, %Collection{} = collection, attrs) do
+  @spec update(User.t(), %Collection{}, attrs :: map) ::
+          {:ok, Collection.t()} | {:error, Changeset.t()}
+  def update(%User{} = user, %Collection{} = collection, attrs) do
     Repo.transact_with(fn ->
       collection = Repo.preload(collection, :community)
+
       with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
            {:ok, actor} <- Actors.update(user, collection.actor, attrs),
            collection = %{collection | actor: actor},
@@ -106,7 +110,7 @@ defmodule MoodleNet.Collections do
     Repo.update_all(Queries.query(Collection, filters), set: updates)
   end
 
-  def soft_delete(%User{}=user, %Collection{} = collection) do
+  def soft_delete(%User{} = user, %Collection{} = collection) do
     Repo.transact_with(fn ->
       with {:ok, collection} <- Common.soft_delete(collection),
            %{collection: colls, feed: feeds} = deleted_ids([collection]),
@@ -119,25 +123,32 @@ defmodule MoodleNet.Collections do
 
   @delete_by_filters [select: :delete, deleted: false]
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(user, @delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
-        %{collection: collection, feed: feed} = deleted_ids(ids)
-        with :ok <- chase_delete(user, collection, feed) do
-          ap_publish("delete", collection)
-        end
-      end), do: :ok
+           Repo.transact_with(fn ->
+             {_, ids} =
+               update_by(user, @delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
+
+             %{collection: collection, feed: feed} = deleted_ids(ids)
+
+             with :ok <- chase_delete(user, collection, feed) do
+               ap_publish("delete", collection)
+             end
+           end),
+         do: :ok
   end
 
   defp deleted_ids(records) do
     Enum.reduce(records, %{collection: [], feed: []}, fn
       %{id: id, inbox_id: nil, outbox_id: nil}, acc ->
         Map.put(acc, :collection, [id | acc.collection])
+
       %{id: id, inbox_id: nil, outbox_id: o}, acc ->
         Map.merge(acc, %{collection: [id | acc.collection], feed: [o | acc.feed]})
+
       %{id: id, inbox_id: i, outbox_id: nil}, acc ->
         Map.merge(acc, %{collection: [id | acc.collection], feed: [i | acc.feed]})
+
       %{id: id, inbox_id: i, outbox_id: o}, acc ->
         Map.merge(acc, %{collection: [id | acc.collection], feed: [i, o | acc.feed]})
     end)
@@ -157,6 +168,7 @@ defmodule MoodleNet.Collections do
   end
 
   defp chase_delete(user, collections, []), do: chase_delete(user, collections)
+
   defp chase_delete(user, collections, feeds) do
     with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, collections)
   end
@@ -169,9 +181,12 @@ defmodule MoodleNet.Collections do
 
   defp publish(creator, community, collection, activity) do
     feeds = [
-      community.outbox_id, creator.outbox_id,
-      collection.outbox_id, Feeds.instance_outbox_id(),
+      community.outbox_id,
+      creator.outbox_id,
+      collection.outbox_id,
+      Feeds.instance_outbox_id()
     ]
+
     FeedActivities.publish(activity, feeds)
   end
 
@@ -180,11 +195,10 @@ defmodule MoodleNet.Collections do
     :ok
   end
 
-  defp ap_publish(verb, %{actor: %{peer_id: nil}}=collection) do
+  defp ap_publish(verb, %{actor: %{peer_id: nil}} = collection) do
     APPublishWorker.enqueue(verb, %{"context_id" => collection.id})
     :ok
   end
 
   defp ap_publish(_, _), do: :ok
-
 end

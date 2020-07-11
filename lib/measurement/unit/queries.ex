@@ -3,23 +3,27 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Unit.Queries do
   alias Measurement.Unit
-  alias Measurement.Unit.Units
-  alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users
+  # alias Measurement.Unit.Units
+  alias MoodleNet.Follows.{
+    Follow
+    # FollowerCount
+  }
+
+  # alias MoodleNet.Users
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Unit) do
-    from c in Unit, as: :unit
+    from(c in Unit, as: :unit)
   end
 
   def query(:count) do
-    from c in Unit, as: :unit
+    from(c in Unit, as: :unit)
   end
 
   def query(q, filters), do: filter(query(q), filters)
-  
+
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
@@ -34,17 +38,21 @@ defmodule Measurement.Unit.Queries do
   end
 
   def join_to(q, :context, jq) do
-    join q, jq, [unit: c], c2 in assoc(c, :context), as: :context
+    join(q, jq, [unit: c], c2 in assoc(c, :context), as: :context)
   end
 
   def join_to(q, {:context_follow, follower_id}, jq) do
-    join q, jq, [context: c], f in Follow, as: :context_follow,
+    join(q, jq, [context: c], f in Follow,
+      as: :context_follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
   end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [unit: c], f in Follow, as: :follow,
+    join(q, jq, [unit: c], f in Follow,
+      as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
   end
 
   # def join_to(q, :follower_count, jq) do
@@ -64,7 +72,7 @@ defmodule Measurement.Unit.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted]
+    filter(q, [:deleted])
   end
 
   ## by join
@@ -76,6 +84,7 @@ defmodule Measurement.Unit.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
   def filter(q, {:user, nil}), do: filter(q, ~w(disabled private)a)
+
   def filter(q, {:user, %User{id: id}}) do
     q
     |> join_to(follow: id)
@@ -83,65 +92,68 @@ defmodule Measurement.Unit.Queries do
     |> filter(~w(disabled)a)
   end
 
-
   ## by status
-  
+
   def filter(q, :deleted) do
-    where q, [unit: c], is_nil(c.deleted_at)
+    where(q, [unit: c], is_nil(c.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where q, [unit: c], is_nil(c.disabled_at)
+    where(q, [unit: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do
-    where q, [unit: c], not is_nil(c.published_at)
+    where(q, [unit: c], not is_nil(c.published_at))
   end
 
   ## by field values
 
   def filter(q, {:cursor, [count, id]})
-  when is_integer(count) and is_binary(id) do
-    where q,[unit: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [unit: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
   end
 
   def filter(q, {:cursor, [count, id]})
-  when is_integer(count) and is_binary(id) do
-    where q,[unit: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [unit: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
+    )
   end
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [unit: c], c.id == ^id
+    where(q, [unit: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [unit: c], c.id in ^ids
+    where(q, [unit: c], c.id in ^ids)
   end
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where q, [unit: c], c.context_id == ^id
+    where(q, [unit: c], c.context_id == ^id)
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [unit: c], c.context_id in ^ids
+    where(q, [unit: c], c.context_id in ^ids)
   end
-
-
 
   ## by ordering
 
   def filter(q, {:order, :id}) do
-    filter q, order: [desc: :id]
+    filter(q, order: [desc: :id])
   end
 
   def filter(q, {:order, [desc: :id]}) do
-    order_by q, [unit: c, id: id],
+    order_by(q, [unit: c, id: id],
       desc: coalesce(id.count, 0),
       desc: c.id
+    )
   end
-
 
   # grouping and counting
 
@@ -157,7 +169,6 @@ defmodule Measurement.Unit.Queries do
     select(q, [unit: c], {field(c, ^key), count(c.id)})
   end
 
-
   # pagination
 
   def filter(q, {:limit, limit}) do
@@ -166,6 +177,7 @@ defmodule Measurement.Unit.Queries do
 
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
+
     q
     |> where([unit: c], c.id >= ^a)
     |> limit(^limit)
@@ -199,6 +211,5 @@ defmodule Measurement.Unit.Queries do
   #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
   # end
 
-  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
+  # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 end

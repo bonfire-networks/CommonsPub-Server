@@ -5,14 +5,20 @@ defmodule MoodleNet.Users.Gravatar do
   @moduledoc """
   Gravatar utils
   """
-  @uri %URI{
-    scheme: "https",
-    host: "s.gravatar.com",
-    query: "d=identicon&r=g&s=80"
-  }
 
-  def url(email) when is_binary(email) do
-    %{@uri | path: path(email)} |> URI.to_string()
+  def url(email) do
+    url(email, "retro", 80)
+  end
+
+  def url(email, style, width) when is_binary(email) do
+    uri = %URI{
+      scheme: "https",
+      host: "s.gravatar.com",
+      query: "d=" <> style <> "&r=g&s=" <> to_string(width),
+      path: path(email)
+    }
+
+    uri |> URI.to_string()
   end
 
   defp path(email), do: "/avatar/#{hash(email)}"

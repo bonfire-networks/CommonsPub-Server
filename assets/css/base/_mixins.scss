@@ -1,0 +1,423 @@
+// --------------------------------
+
+// Typography
+
+// --------------------------------
+
+// edit font rendering -> tip: use for light text on dark backgrounds
+@mixin fontSmooth {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// crop top space on text elements - caused by line height
+@mixin lhCrop($line-height, $capital-letter: 1) {
+  &::before {
+    content: '';
+    display: block;
+    height: 0;
+    width: 0;
+    margin-top: calc((#{$capital-letter} - #{$line-height}) * 0.5em);
+  }
+}
+
+// edit text unit and type scale on a component level
+@mixin textUnit($text-unit, $text-scale-ratio: 1.2) { 
+  --text-xs: calc((#{$text-unit} / #{$text-scale-ratio}) / #{$text-scale-ratio});
+  --text-sm: calc(var(--text-xs) * #{$text-scale-ratio});
+  --text-md: calc(var(--text-sm) * #{$text-scale-ratio} * #{$text-scale-ratio});
+  --text-lg: calc(var(--text-md) * #{$text-scale-ratio});
+  --text-xl: calc(var(--text-lg) * #{$text-scale-ratio});
+  --text-xxl: calc(var(--text-xl) * #{$text-scale-ratio});
+  --text-xxxl: calc(var(--text-xxl) * #{$text-scale-ratio});
+  --text-xxxxl: calc(var(--text-xxxl) * #{$text-scale-ratio});
+  font-size: $text-unit;
+}
+
+// --------------------------------
+
+// Spacing
+
+// --------------------------------
+
+// edit space unit on a component level
+@mixin spaceUnit($space-unit) {
+  --space-unit:  #{$space-unit};
+  --space-xxxxs: calc(0.125 * #{$space-unit});
+  --space-xxxs:  calc(0.25 * #{$space-unit});
+  --space-xxs:   calc(0.375 * #{$space-unit});
+  --space-xs:    calc(0.5 * #{$space-unit});
+  --space-sm:    calc(0.75 * #{$space-unit});
+  --space-md:    calc(1.25 * #{$space-unit});
+  --space-lg:    calc(2 * #{$space-unit});
+  --space-xl:    calc(3.25 * #{$space-unit});
+  --space-xxl:   calc(5.25 * #{$space-unit});
+  --space-xxxl:  calc(8.5 * #{$space-unit});
+  --space-xxxxl: calc(13.75 * #{$space-unit});
+  --component-padding: var(--space-md);
+}
+
+// --------------------------------
+
+// Reset
+
+// --------------------------------
+
+// reset user agent style
+@mixin reset {
+  background-color: transparent;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  line-height: inherit;
+  appearance: none;
+}
+
+// --------------------------------
+
+// Colors
+
+// --------------------------------
+
+// define HSL color variable
+@mixin defineColorHSL($color, $hue, $saturation, $lightness){
+  #{$color}: unquote("hsl(#{$hue}, #{$saturation}, #{$lightness})");#{$color}-h: #{$hue};#{$color}-s: #{$saturation};#{$color}-l: #{$lightness};
+}
+
+// return color with different opacity value
+@function alpha($color, $opacity){
+  $color: str-replace($color, 'var(');
+  $color: str-replace($color, ')');
+  $color-h: var(#{$color+'-h'});
+  $color-s: var(#{$color+'-s'});
+  $color-l: var(#{$color+'-l'});
+  @return hsla($color-h, $color-s, $color-l, $opacity);
+}
+
+// return color with different lightness value
+@function lightness($color, $lightnessMultiplier){
+  $color: str-replace($color, 'var(');
+  $color: str-replace($color, ')');
+  $color-h: var(#{$color+'-h'});
+  $color-s: var(#{$color+'-s'});
+  $color-l: var(#{$color+'-l'});
+  @return hsl($color-h, $color-s, calc(#{$color-l} * #{$lightnessMultiplier}));
+}
+
+// replace substring with another string
+// credits: https://css-tricks.com/snippets/sass/str-replace-function/
+@function str-replace($string, $search, $replace: '') {
+  $index: str-index($string, $search);
+  @if $index {
+    @return str-slice($string, 1, $index - 1) + $replace + str-replace(str-slice($string, $index + str-length($search)), $search, $replace);
+  }
+  @return $string;
+}
+
+// --------------------------------
+
+// Accessibility
+
+// --------------------------------
+
+// hide - content made available only to screen readers
+@mixin srHide {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+}
+
+// show
+@mixin srShow {
+  position: static;
+  clip: auto;
+  clip-path: none;
+}
+
+// --------------------------------
+
+// Grid & Layout
+
+// --------------------------------
+
+$grid-columns: 12 !default;
+
+// used to round width to a number with 2 decimal places - used for IE fallback
+@function round-width ($i) {
+  $width : floor(100% * $i * 100/ $grid-columns) / 100;
+  @return $width;
+}
+
+// used to create the auto-size columns of the grid system (.col class)
+@mixin autoSizedColumn {
+  flex-grow: 1;
+  flex-basis: 0;
+  max-width: 100%;
+}
+
+// CSS Grid Layout fallback
+@mixin gridFallback($gap: null) {
+  display: flex;
+  flex-wrap: wrap;
+  @if( $gap == null ) {
+    $gap: var(--space-md);
+  }
+
+  margin: calc(#{$gap} * -1) 0 0 calc(#{$gap} * -1);
+
+  > * {
+    padding: #{$gap} 0 0 #{$gap};
+    background-clip: content-box;
+  }
+
+  @supports (grid-area: auto) {
+    margin: 0;
+
+    > * {
+      padding: 0;
+      max-width: none!important;
+    }
+  }
+}
+
+@mixin column($width) {
+  @if unit($width) != '%' {
+    $width: $width * 100%;
+  }
+  flex-basis: #{$width};
+  max-width: #{$width};
+}
+
+// --------------------------------
+
+// CSS Triangle
+
+// --------------------------------
+
+@mixin triangle ($direction: up, $width: 12px, $color: red) {
+  width: 0;
+  height: 0;
+  border: $width solid transparent;
+
+  @if( $direction == left ) {
+    border-right-color: $color;
+  } @else if( $direction == right ) {
+    border-left-color: $color;
+  } @else if( $direction == down ) {
+    border-top-color: $color;
+  } @else {
+    border-bottom-color: $color;
+  }
+}
+
+
+@mixin truncate($width){
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: $width;
+}
+
+
+// TEMPLATES
+@mixin content {
+  display: grid;
+  grid-template-rows: 60px 1fr;
+  height: 100vh;
+}
+
+@mixin content_header {
+  display: flex;
+  height: 60px;
+  align-items: center;
+  margin-bottom: var(--m3);
+  padding: 0 var(--m3);
+  background: var(--color-primary-alt);
+  border-bottom: var(--border);
+  border-left: var(--border);
+  margin-bottom: 0;
+  .suphero__actions  {
+    display: flex;
+    align-items: center;
+      .follow {
+        margin-right: var(--m3);
+      }
+  }
+  
+  .suphero__actions button {
+    margin: 0;
+  }
+  
+  .suphero__actions a:first-of-type {
+    margin: 0;
+    margin-right: var(--m3);
+  }  
+}
+
+@mixin content_two_sides {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  max-width: 900px;
+  margin: 0 auto;
+  grid-column-gap: var(--m3);
+  margin-top: var(--m3);
+  .mainContent__selected {
+    width: calc(900px - 290px);
+    border: none;
+    padding: var(--m3);
+    border: 1px solid #e4e4e4;
+    height: fit-content;
+    box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
+    border-radius: 6px;
+  }
+}
+
+@mixin content_navigation {
+  border-top: 0;
+  border-bottom: 0;
+  background: white;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #e4e4e4;
+  height: fit-content;
+  box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
+  height: max-content;
+  a {
+    display: block;
+    height: 50px;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--m2);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 50px;
+    align-items: center;
+    i {
+      margin-right: var(--m2);
+    }
+    &.active {
+      font-weight: 500;
+      &:before {
+        position: absolute;
+        content: "";
+        top: var(--m2);
+        bottom: var(--m2);
+        width: 4px;
+        height: auto;
+        background-color: var(--color-primary);
+        display: block;
+        left: -8px;
+      }
+    }
+  }
+}
+
+
+// DROPDOWN
+@mixin icon-dropdown($orientation: "left") {
+  position: relative;
+  font-size: 20px;
+  /* background: #7effd4; */
+  border-radius: 3px;
+  width: 34px;
+  height: 34px;
+  place-content: center;
+  align-items: center;
+  text-align: center;
+  line-height: 34px;
+  cursor: pointer;
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary {
+    list-style: none;
+  }
+  .dropdown__list {
+    &:before {
+      position: absolute;
+      display: inline-block;
+      content: "";
+      top: -16px;
+      @if ($orientation == "right") {
+        right: 9px;
+        left: auto;
+      } @else {
+        left: 9px;
+        right: auto;
+      }
+      border: 8px solid transparent;
+      border-bottom-color: rgba(27, 31, 35, 0.15);
+    }
+    &:after {
+      top: -14px;
+      @if ($orientation == "right") {
+        right: 10px;
+        left: auto;
+      } @else {
+        left: 10px;
+        right: auto;
+      }
+      border: 7px solid transparent;
+      border-bottom-color: #fff;
+      position: absolute;
+      display: inline-block;
+      content: "";
+    }
+    position: absolute;
+    top: 100%;
+    @if ($orientation == "right") {
+      right: 0;
+      left: auto
+    } @else {
+      left: 0;
+    }
+    z-index: 100;
+    width: 160px;
+    margin: 0;
+    padding: 0;
+    margin-top: var(--m1);
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+    li {
+      color: var(--color-surface);
+      display: block;
+      border-bottom: var(--border);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      &:last-child {
+        border-bottom: none;
+      }
+      &:hover {
+        background-color: lightness(var(--color-primary), 1.6);
+      }
+      button {
+        height: auto;
+        padding: 0;
+        width: 100%;
+        text-align: left;
+        padding: 0 var(--m2);
+        font-weight: 500;
+        color: var(--color-surface);
+      }
+      a {
+        font-weight: 500;
+        display: block;
+        width: 100%;
+        color: var(--color-surface);
+        text-align: left;
+        padding: 0 var(--m2);
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

@@ -1,8 +1,8 @@
 defmodule MoodleNet.Workers.Utils do
-
   require Logger
-  
+
   defp get_log_level(key)
+
   defp get_log_level(key) when is_atom(key) do
     Application.get_env(:moodle_net, key, [])
     |> Keyword.get(:log_level, :warn)
@@ -12,10 +12,10 @@ defmodule MoodleNet.Workers.Utils do
   def configure_logger(key \\ MoodleNet.Workers, overrides \\ []) do
     overrides
     |> Keyword.put_new_lazy(:log_level, fn -> get_log_level(key) end)
-    |> Logger.configure() 
+    |> Logger.configure()
   end
 
-  def run_with_debug(module, fun, job, arg) when is_function(fun,1) do
+  def run_with_debug(module, fun, job, arg) when is_function(fun, 1) do
     try do
       configure_logger(module)
       fun.(arg)
@@ -30,11 +30,11 @@ defmodule MoodleNet.Workers.Utils do
     end
   end
 
-  if Mix.env in [:dev, :test] do
-    defp debug_exception(module, exception, job, stacktrace),
+  if Mix.env() in [:dev, :test] do
+    defp debug_exception(_module, _exception, job, stacktrace),
       do: debug_log(job, stacktrace)
 
-    defp debug_throw(module, thrown, job, stacktrace),
+    defp debug_throw(_module, _thrown, job, stacktrace),
       do: debug_log(job, stacktrace)
   else
     defp debug_exception(module, exception, job, stacktrace) do
@@ -68,8 +68,7 @@ defmodule MoodleNet.Workers.Utils do
 
   defp debug_log(job, stacktrace) do
     Logger.error("[ActivityWorker] Job failed!")
-    # IO.puts(Exception.format_stacktrace(stacktrace))
-    # IO.inspect(job: job)
+    IO.inspect(job: job)
+    IO.puts(Exception.format_stacktrace(stacktrace))
   end
-
 end

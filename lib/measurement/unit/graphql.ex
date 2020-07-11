@@ -4,54 +4,57 @@ defmodule Measurement.Unit.GraphQL do
   require Logger
 
   alias MoodleNet.{
-    Activities,
+    # Activities,
     GraphQL,
-    Repo,
+    Repo
   }
+
   alias MoodleNet.GraphQL.{
-    CommonResolver,
+    # CommonResolver,
     ResolveField,
-    ResolveFields,
-    ResolvePage,
-    ResolvePages,
+    # ResolveFields,
+    # ResolvePage,
+    # ResolvePages,
     ResolveRootPage,
-    FetchPage,
-    FetchPages,
+    FetchPage
+    # FetchPages
   }
+
   # alias MoodleNet.Resources.Resource
-  alias MoodleNet.Common.Enums
+  # alias MoodleNet.Common.Enums
   alias MoodleNet.Meta.Pointers
 
-  alias ValueFlows.Simulate
+  # alias ValueFlows.Simulate
   alias Measurement.Unit
   alias Measurement.Unit.Units
   alias Measurement.Unit.Queries
 
-  import_sdl path: "lib/measurement/measurement.gql"
+  import_sdl(path: "lib/measurement/measurement.gql")
 
   ## resolvers
 
   def unit(%{id: id}, info) do
-    ResolveField.run(
-      %ResolveField{
-        module: __MODULE__,
-        fetcher: :fetch_unit,
-        context: id,
-        info: info,
-      }
-    )
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_unit,
+      context: id,
+      info: info
+    })
+  end
+
+  def all_units(_, _, _) do
+    {:ok, Units.many(nil)}
   end
 
   def units(page_opts, info) do
-    ResolveRootPage.run(
-      %ResolveRootPage{
-        module: __MODULE__,
-        fetcher: :fetch_units,
-        page_opts: page_opts,
-        info: info,
-        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # popularity
-      }
-    )
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_units,
+      page_opts: page_opts,
+      info: info,
+      # popularity
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
   end
 
   ## fetchers
@@ -65,15 +68,13 @@ defmodule Measurement.Unit.GraphQL do
 
   # FIXME
   def fetch_units(page_opts, info) do
-    FetchPage.run(
-      %FetchPage{
-        queries: Queries,
-        query: Unit,
-        cursor_fn: &(&1.id),
-        page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
-      }
-    )
+    FetchPage.run(%FetchPage{
+      queries: Queries,
+      query: Unit,
+      cursor_fn: & &1.id,
+      page_opts: page_opts,
+      base_filters: [user: GraphQL.current_user(info)]
+    })
   end
 
   # def fetch_community_edge(_, ids) do
@@ -94,7 +95,8 @@ defmodule Measurement.Unit.GraphQL do
     end)
   end
 
-  def create_unit(%{unit: attrs}, info) do # without context/scope
+  # without context/scope
+  def create_unit(%{unit: attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            attrs = Map.merge(attrs, %{is_public: true}),
@@ -116,21 +118,22 @@ defmodule Measurement.Unit.GraphQL do
           unit.creator_id == user.id ->
             {:ok, u} = Units.update(unit, changes)
             {:ok, %{unit: u}}
-          true -> GraphQL.not_permitted("update")
+
+          true ->
+            GraphQL.not_permitted("update")
         end
       end
     end)
   end
 
-
   # TEMP
-  def all_units(_, _, _) do
-    {:ok, Simulate.long_list(&Simulate.unit/0)}
-  end
+  # def all_units(_, _, _) do
+  #   {:ok, Simulate.long_list(&Simulate.unit/0)}
+  # end
 
-  def a_unit(%{id: id}, info) do
-    {:ok, Simulate.unit()}
-  end
+  # def a_unit(%{id: id}, info) do
+  #   {:ok, Simulate.unit()}
+  # end
 
   # context validation
 
@@ -146,4 +149,3 @@ defmodule Measurement.Unit.GraphQL do
     Keyword.fetch!(Application.get_env(:moodle_net, Units), :valid_contexts)
   end
 end
-

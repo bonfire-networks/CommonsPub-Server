@@ -5,33 +5,33 @@ defmodule Measurement.Hydration do
 
   alias Circle
 
-  def hydrate(blueprint) do
+  def hydrate() do
     %{
-      unit_context: [ 
-        resolve_type: &__MODULE__.resolve_context_type/2,
+      unit_context: [
+        resolve_type: &__MODULE__.resolve_context_type/2
       ],
       unit: %{
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3,
-        ],
+          resolve: &CommonResolver.context_edge/3
+        ]
       },
       measure: %{
         has_unit: [
-          resolve: &Measurement.Measure.GraphQL.has_unit_edge/3,
+          resolve: &Measurement.Measure.GraphQL.has_unit_edge/3
         ]
       },
       measurement_query: %{
         units: [
           resolve: &Measurement.Unit.GraphQL.units/2
         ],
-        units_pages: [
-          resolve: &Measurement.Unit.GraphQL.all_units/2
-        ],
+        # units_pages: [
+        #   resolve: &Measurement.Unit.GraphQL.all_units/3
+        # ],
         unit: [
           resolve: &Measurement.Unit.GraphQL.unit/2
         ],
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3,
+          resolve: &CommonResolver.context_edge/3
         ],
         measures: [
           resolve: &Measurement.Measure.GraphQL.measures/2
@@ -56,7 +56,7 @@ defmodule Measurement.Hydration do
         update_measure: [
           resolve: &Measurement.Measure.GraphQL.update_measure/2
         ]
-      },
+      }
     }
   end
 

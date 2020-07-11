@@ -81,6 +81,7 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_integration, "~> 0.8.0"},
       {:phoenix_ecto, "~> 4.0"},
+      {:phoenix_live_view, "~> 0.13.2"},
       {:floki, "~> 0.26.0", override: true},
       # File storage
       {:belt, git: "https://github.com/commonspub/belt"},
@@ -132,7 +133,7 @@ defmodule MoodleNet.Mixfile do
       {
         :http_signatures,
         # activity signing
-        git: "https://git.pleroma.social/pleroma/http_signatures.git"
+        git: "https://git.pleroma.social/pleroma/elixir-libraries/http_signatures"
       },
       # job queue
       {:oban, "~> 1.2.0"},
@@ -141,13 +142,18 @@ defmodule MoodleNet.Mixfile do
       # caching
       {:cachex, "~> 3.2"},
       # CommonsPub:
-      {:pointers, "~> 0.2.1"},
-      # {:pointers,
-      #  git: "https://github.com/commonspub/pointers.git", branch: "cascade-pointer-deletes"},
-      # {:pointers, path: "uploads/many-pointers"},
-      # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
+      {:earmark, "~> 1.4"},
+      {:slugger, "~> 0.3"},
+      # {:pointers, "~> 0.2.2"},
+      {
+        :pointers,
+        # git: "https://github.com/commonspub/pointers.git", branch: "main"
+        git: "https://github.com/mayel/pointers.git", branch: "table-names-mn"
+      },
+      # {:pointers, path: "uploads/many-pointers"},
+      # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
       # {:mint, github: "ericmj/mint", branch: "master"},
