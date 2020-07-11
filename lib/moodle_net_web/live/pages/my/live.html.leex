@@ -12,6 +12,10 @@
             to: "/~/communities",
             class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
           %>
+      <%= live_patch link_body("Discussions", "feather-users"),
+            to: "/~/discussions",
+            class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
+          %>
     </div>
     <div class="mainContent__selected">
       <%= cond do %>
@@ -37,6 +41,20 @@
                 my_communities: @my_communities,
                 selected_tab: @selected_tab,
                 id: :communities
+              ) %>
+        <% @selected_tab == "discussions" -> %>
+        <%= live_component(
+                @socket,
+                MoodleNetWeb.My.MyDiscussionsLive,
+                current_user: @current_user,
+                selected_tab: @selected_tab,
+                id: :discussions,
+                threads: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#my-discussions"
               ) %>
         <% true -> %>
         <%= live_component(

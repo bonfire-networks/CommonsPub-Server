@@ -16,7 +16,7 @@
 
 .guest__container {
   overflow-y: scroll;
-  height: calc(100vh - 50px) ;
+  height: calc(100vh - 50px);
 }
 
 .page.guest {
@@ -152,7 +152,6 @@
   align-items: center;
   display: flex;
 }
-
 
 .settings__panel {
   background-color: #f7f6f3;
@@ -293,7 +292,6 @@
           }
         }
       }
-
     }
     .panel__item {
       font-size: 15px;
@@ -348,7 +346,7 @@
 
 .drawer__profile {
   @include icon-dropdown("right");
-  color: #fff
+  color: #fff;
 }
 
 .general__details {
@@ -378,7 +376,7 @@
       margin-left: 16px;
       width: 280px;
       border-radius: 8px;
-      box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
+      box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
       background: #f9f9f9;
       font-size: 14px;
     }
@@ -386,7 +384,7 @@
   .menu__right {
     display: flex;
     a {
-      margin-left: var(--m2)
+      margin-left: var(--m2);
     }
   }
 }
@@ -406,7 +404,8 @@
     .panel__item {
       margin-left: var(--m2);
     }
-    .box__info {
+    .box__info,
+    .box__info a {
       display: flex;
       align-items: center;
       img {
@@ -436,14 +435,13 @@
       margin-left: var(--m2);
       font-size: 16px;
       font-weight: 500;
-
     }
   }
   input {
     max-width: 468px;
     width: 100%;
     margin: 6px 44px;
-    box-shadow: 0 2px 4px -0.75px rgba(0,0,0,.1);
+    box-shadow: 0 2px 4px -0.75px rgba(0, 0, 0, 0.1);
     background: white;
   }
   .feather-grid {
@@ -457,7 +455,6 @@
     transition: background 0.2s ease-in;
     &:hover {
       background-color: lightness(var(--color-primary), 0.6);
-      
     }
   }
 }

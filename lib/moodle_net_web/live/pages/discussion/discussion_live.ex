@@ -70,7 +70,7 @@ defmodule MoodleNetWeb.DiscussionLive do
       {:noreply,
        socket
        #  |> put_flash(:info, "Replied!")
-       |> redirect(to: "/«" <> socket.assigns.thread.id)}
+       |> redirect(to: "/!" <> socket.assigns.thread.id <> "/discuss")}
     end
   end
 end

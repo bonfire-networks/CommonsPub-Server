@@ -9,7 +9,7 @@ defmodule MoodleNet.Threads.Comments do
   alias MoodleNet.Communities.Community
   # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.{Pointer, Pointers}
+  alias Pointers.Pointer
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, CommentsQueries, Thread}
   alias MoodleNet.Users.User
@@ -96,10 +96,10 @@ defmodule MoodleNet.Threads.Comments do
 
         Repo.transact_with(fn ->
           with {:ok, comment} <- insert(creator, thread, attrs),
-               thread = preload_ctx(thread),
+               #  thread = preload_ctx(thread), #FIXME
                act_attrs = %{verb: "created", is_local: comment.is_local},
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
-               thread = preload_ctx(thread),
+               #  thread = preload_ctx(thread),
                :ok <- publish(creator, thread, comment, activity),
                :ok <- ap_publish("create", comment) do
             {:ok, comment}
@@ -117,8 +117,10 @@ defmodule MoodleNet.Threads.Comments do
       nil ->
         case thread.context do
           %Pointer{} = pointer ->
-            context = Pointers.follow!(pointer)
-            %{thread | context: %{thread.context | pointed: context}}
+            follow_ctx(thread, pointer)
+
+          %MoodleNet.Meta.Pointer{} = pointer ->
+            follow_ctx(thread, pointer)
 
           nil ->
             thread
@@ -130,6 +132,12 @@ defmodule MoodleNet.Threads.Comments do
       _ ->
         thread
     end
+  end
+
+  def follow_ctx(thread, pointer) do
+    # FIXME, causes protocol Enumerable not implemented for %MoodleNet.Meta.Pointer
+    context = MoodleNet.Meta.Pointers.follow!(pointer)
+    %{thread | context: %{thread.context | pointed: context}}
   end
 
   @spec update(User.t(), Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}

@@ -181,7 +181,7 @@ defmodule MoodleNetWeb.Router do
     live "/~/profile", MemberLive
     live "/~/settings", SettingsLive
     live "/~/settings/:tab", SettingsLive
-    live "/~/write", My.Publish.WriteLive
+    live "/~/write", My.Post.WriteLive
     live "/~/:tab", My.Live
 
     live "/~/proto", My.ProtoProfileLive

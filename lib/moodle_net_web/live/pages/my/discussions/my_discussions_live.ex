@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
+defmodule MoodleNetWeb.My.MyDiscussionsLive do
   use MoodleNetWeb, :live_component
 
   # import MoodleNetWeb.Helpers.Common
@@ -28,29 +28,22 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
 
   defp fetch(socket, assigns) do
     # IO.inspect(assigns.user)
-
     page_opts = %{limit: 10}
+
+    opts = [user: assigns.current_user, creator_or_participant: assigns.current_user.id]
 
     filters = [
       page: [desc: [last_comment: page_opts]]
-      # join: :first_comment,
+      # join: :comments
       # preload: :first_comment
     ]
 
     {:ok, threads} =
-      MoodleNetWeb.GraphQL.ThreadsResolver.fetch_creator_threads_edge(
+      MoodleNetWeb.GraphQL.ThreadsResolver.list_creator_threads(
         page_opts,
-        %{context: %{current_user: assigns.current_user}},
-        assigns.user.id,
+        opts,
         filters
       )
-
-    # MoodleNetWeb.GraphQL.ThreadsResolver.creator_threads_edge(
-    #   %{creator: assigns.user.id},
-    #   %{limit: 3},
-    #   %{context: %{current_user: assigns.current_user},
-    # }
-    # )
 
     IO.inspect(threads)
 

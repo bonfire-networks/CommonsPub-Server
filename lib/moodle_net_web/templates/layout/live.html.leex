@@ -10,48 +10,50 @@
     <div class="header__right">
       <%= if @current_user do %>
         <div class="box__info">
-          <img src="<%= e(@current_user, :icon_url, "") %>" />
-          <h3 ><%= e(@current_user, :name, "Me") %></h3>
-          <details class="drawer__profile" >
-            <summary class="user__dropdown">
-              <i class="feather-more-horizontal"></i>
-            </summary>
-            <ul class="dropdown__list">
-              <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-              <li><a href="/~/settings">Settings</a></li>
-              <li><a href="#">Logout</a></li>
-            </ul>
-          </details>
-        </div>
-      <% end %>
-      <%= if @current_user == nil do %>
-        <div class="panel__item">
-          <a class="button" href="/~/login">
-            <i class="feather-log-in"></i> Log in
-          </a>
-        </div>
-        <div class="panel__item">
-          <a class="button" href="/~/signup">
-            <i class="feather-zap"></i> Sign up
-          </a>
-        </div>
-      <% end %>
-    </div>
+          <a href="/@<%= e(@current_user, :actor, :preferred_username, "") %>">
+            <img src="<%= e(@current_user, :icon_url, "") %>" />
+          <h3><%= e(@current_user, :name, "Me") %></h3>
+        </a>
+        <details class="drawer__profile" >
+          <summary class="user__dropdown">
+            <i class="feather-more-horizontal"></i>
+          </summary>
+          <ul class="dropdown__list">
+            <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
+            <li><a href="/~/settings">Settings</a></li>
+            <li><a href="#">Logout</a></li>
+          </ul>
+        </details>
+      </div>
+    <% end %>
+    <%= if @current_user == nil do %>
+      <div class="panel__item">
+        <a class="button" href="/~/login">
+          <i class="feather-log-in"></i> Log in
+        </a>
+      </div>
+      <div class="panel__item">
+        <a class="button" href="/~/signup">
+          <i class="feather-zap"></i> Sign up
+        </a>
+      </div>
+    <% end %>
   </div>
-  <div  class="page <%= if !@current_user , do: "guest", else: "logged" %>">
-    <%= if @current_user do %>
-      <%= live_component(
+</div>
+<div  class="page <%= if !@current_user , do: "guest", else: "logged" %>">
+  <%= if @current_user do %>
+    <%= live_component(
           @socket,
           MoodleNetWeb.My.MySidebar,
           current_user: @current_user,
           my_communities: @my_communities,
           id: :my_sidebar
         ) %>
-    <% end %>
-    <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
-      <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
-      <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
-      <%= @inner_content %>
-    </section>
-  </div>
+  <% end %>
+  <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
+    <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+    <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+    <%= @inner_content %>
+  </section>
+</div>
 </div>

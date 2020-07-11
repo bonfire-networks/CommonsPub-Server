@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
         <%= markdown(@comment.content) %>
       </div>
       <div class="preview__actions">
-        <button class="button"><i class="feather-message-square"></i> Reply</button>
+    <a href="/!<%= e(@comment, :thread_id, "") %>/discuss#<%= e(@comment, :id, "") %>"        <button class="button"><i class="feather-message-square"></i> Reply</button></a>
         <button class="button"><i class="feather-bookmark"></i> Bookmark</button>
         <details class="more__dropdown">
             <summary>

@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.My.Publish.WriteLive do
+defmodule MoodleNetWeb.My.Post.WriteLive do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
@@ -59,7 +59,7 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
   end
 
   def handle_event("post", %{"content" => content} = data, socket) do
-    IO.inspect(data, label: "DATA")
+    IO.inspect(data, label: "POST DATA")
 
     if(is_nil(content) or is_nil(socket.assigns.current_user)) do
       {:noreply,
@@ -70,7 +70,7 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
 
       comment = input_to_atoms(data)
 
-      thread =
+      {:ok, thread} =
         MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
           %{comment: comment},
           %{context: %{current_user: socket.assigns.current_user}}
@@ -80,7 +80,7 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
        socket
        |> put_flash(:info, "Published!")
        # change redirect
-       |> redirect(to: "/«" <> thread.id)}
+       |> redirect(to: "/!" <> thread.id <> "/discuss")}
     end
   end
 
