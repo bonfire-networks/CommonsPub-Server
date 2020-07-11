@@ -274,7 +274,27 @@
         line-height: 30px;
       }
     }
+    .communities__wrapper {
+      position: relative;
+      .communities_new {
+        position: absolute;
+        top: 0;
+        right: var(--m2);
+        margin: 0;
+        .new-community {
+          width: 28px;
+          min-width: 28px;
+          height: 28px;
+          padding: 0;
+          display: grid;
+          place-content: center;
+          i {
+            font-size: 16px;
+          }
+        }
+      }
 
+    }
     .panel__item {
       font-size: 15px;
       padding: var(--m1) var(--m3);
