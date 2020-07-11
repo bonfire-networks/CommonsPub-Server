@@ -3,12 +3,8 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 defmodule MoodleNet.Repo.Migrations.Character do
   use Ecto.Migration
+  import Pointers.Migration
 
-  def up do
-    Character.Migrations.up()
-  end
-
-  def down do
-    Character.Migrations.down()
-  end
+  def change(index_opts \\ []),
+    do: Character.Migrations.migrate(index_opts, direction())
 end
