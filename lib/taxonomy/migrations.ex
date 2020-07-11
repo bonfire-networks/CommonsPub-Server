@@ -2,8 +2,9 @@ defmodule Taxonomy.Migrations do
   use Ecto.Migration
 
   require Logger
-  alias Ecto.ULID
-  alias MoodleNet.Repo
+
+  # alias Ecto.ULID
+  # alias MoodleNet.Repo
 
   @extension_path "lib/taxonomy"
 
@@ -47,30 +48,25 @@ defmodule Taxonomy.Migrations do
     flush()
   end
 
-  def remove_pointer do # cleanup deprecated stuff
+  # cleanup deprecated stuff
+  def remove_pointer do
     table = "taxonomy_tag"
 
     alter table(table) do
-      remove_if_exists :pointer_id, :uuid
+      remove_if_exists(:pointer_id, :uuid)
     end
 
     Pointers.Migration.drop_pointer_trigger(table)
     MoodleNet.ReleaseTasks.remove_meta_table(table)
-
   end
-
 
   def up do
     execute("DROP TABLE IF EXISTS taxonomy_tags CASCADE")
     try_dotsql_execute("tags.schema.sql")
     try_dotsql_execute("data/sql/tags.data.sql")
-
-
   end
 
   def down do
     try_dotsql_execute("tags.down.sql")
   end
-
-
 end

@@ -5,7 +5,7 @@
 defmodule Search.Indexing do
   require Logger
 
-  alias ActivityPub.HTTP
+  # alias ActivityPub.HTTP
 
   # create a new index
   def create_index(index_name) do

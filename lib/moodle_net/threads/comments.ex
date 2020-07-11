@@ -175,7 +175,7 @@ defmodule MoodleNet.Threads.Comments do
     end
   end
 
-  defp publish(creator, thread, _comment, activity, context) do
+  defp publish(creator, thread, _comment, activity, _context) do
     feeds =
       context_feeds(thread.context.pointed) ++
         [

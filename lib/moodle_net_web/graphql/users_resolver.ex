@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias MoodleNet.GraphQL.{
     FetchFields,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     ResolveFields,
     ResolvePage,
     ResolvePages,
@@ -299,7 +299,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def outbox_edge(%User{outbox_id: id} = user, page_opts, info) do
+  def outbox_edge(%User{outbox_id: _id} = user, page_opts, info) do
     with :ok <- GraphQL.not_in_list_or_empty_page(info) do
       user_outbox_edge(user, page_opts, info)
     end

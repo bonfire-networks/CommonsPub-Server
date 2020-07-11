@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   }
 
   alias MoodleNetWeb.Helpers.{
-    Profiles,
+    # Profiles,
     Account,
     Communities
   }
@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   This initializes the socket assigns
   """
   def init_assigns(
-        params,
+        _params,
         %{
           "auth_token" => auth_token,
           "current_user" => current_user
@@ -77,7 +77,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def init_assigns(
-        params,
+        _params,
         %{
           "auth_token" => auth_token
         } = session,
@@ -100,7 +100,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:my_communities, communities)
   end
 
-  def init_assigns(params, session, %Phoenix.LiveView.Socket{} = socket) do
+  def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
     socket
     |> assign(:current_user, nil)
   end

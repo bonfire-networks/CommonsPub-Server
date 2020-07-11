@@ -6,13 +6,13 @@ defmodule Tag.GraphQL.TagResolver do
   alias MoodleNet.{GraphQL, Repo}
 
   alias MoodleNet.GraphQL.{
-    CommonResolver,
+    # CommonResolver,
     FetchFields,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     ResolveField,
     ResolveFields,
-    ResolvePage,
+    # ResolvePage,
     ResolvePages,
     ResolveRootPage
   }
@@ -50,18 +50,18 @@ defmodule Tag.GraphQL.TagResolver do
 
   ## fetchers
 
-  def fetch_tag(info, id) do
+  def fetch_tag(_info, id) do
     Taggables.get(id)
   end
 
-  def fetch_tag_via_taxonomy(info, tid) do
+  def fetch_tag_via_taxonomy(_info, tid) do
     Taggables.one(
       # user: GraphQL.current_user(info),
       taxonomy_tag_id: tid
     )
   end
 
-  def fetch_tags(page_opts, info) do
+  def fetch_tags(page_opts, _info) do
     FetchPage.run(%FetchPage{
       queries: Taggable.Queries,
       query: Taggable,
@@ -115,7 +115,7 @@ defmodule Tag.GraphQL.TagResolver do
     })
   end
 
-  def tagged_things_edges(%Taggable{things: things} = tag, %{} = page_opts, info) do
+  def tagged_things_edges(%Taggable{things: _things} = tag, %{} = page_opts, info) do
     tag = Repo.preload(tag, :things)
     # pointers = for %{id: tid} <- tag.things, do: tid
     pointers =

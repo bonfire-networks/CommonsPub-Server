@@ -6,13 +6,13 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   alias MoodleNet.{GraphQL, Repo}
 
   alias MoodleNet.GraphQL.{
-    CommonResolver,
+    # CommonResolver,
     FetchFields,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     ResolveField,
     ResolveFields,
-    ResolvePage,
+    # ResolvePage,
     ResolvePages,
     ResolveRootPage
   }
@@ -50,7 +50,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
 
   ## fetchers
 
-  def fetch_tag(info, id) do
+  def fetch_tag(_info, id) do
     TaxonomyTags.get(id)
   end
 
@@ -87,7 +87,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   end
 
   # fallback for when there's no more parents
-  def parent_tag(%{} = tag, _, info) do
+  def parent_tag(%{} = _tag, _, _info) do
     # IO.inspect(no_parent_tag: tag)
     {:ok, nil}
   end

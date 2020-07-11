@@ -11,6 +11,7 @@ defmodule Search.Meili do
     {:ok, req} = api(:get, object, index_path)
     res = Jason.decode!(req.body)
     # IO.inspect(res)
+    res
   end
 
   def search(string, index_path) do

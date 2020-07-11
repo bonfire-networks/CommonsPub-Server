@@ -2,7 +2,7 @@ defmodule Profile.Migrations do
   use Ecto.Migration
   import Pointers.Migration
 
-  @meta_tables [] ++ ~w(profile)
+  # @meta_tables [] ++ ~w(profile)
 
   def up do
     # a profile is a group actor that is home to resources

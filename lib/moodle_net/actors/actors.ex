@@ -33,31 +33,31 @@ defmodule MoodleNet.Actors do
   end
 
   # FIXME
-  @doc "creates a new actor with one of two possible usernames"
-  def create(
-        %{
-          :preferred_username => preferred_username,
-          :alternative_username => alternative_username
-        } = attrs
-      )
-      when is_map(attrs) do
-    IO.inspect(is_username_available?(preferred_username))
-    IO.inspect(is_username_available?(alternative_username))
+  #  @doc "creates a new actor with one of two possible usernames"
+  # def create(
+  #       %{
+  #         :preferred_username => preferred_username,
+  #         :alternative_username => alternative_username
+  #       } = attrs
+  #     )
+  #     when is_map(attrs) do
+  #   IO.inspect(is_username_available?(preferred_username))
+  #   IO.inspect(is_username_available?(alternative_username))
 
-    if(is_username_available?(preferred_username)) do
-      attrs =
-        attrs
-        |> Map.put("preferred_username", alternative_username)
-    end
+  #   if(is_username_available?(preferred_username)) do
+  #     attrs =
+  #       attrs
+  #       |> Map.put("preferred_username", alternative_username)
+  #   end
 
-    attrs =
-      attrs
-      |> Map.delete(:alternative_username)
+  #   attrs =
+  #     attrs
+  #     |> Map.delete(:alternative_username)
 
-    IO.inspect(attrs)
+  #   IO.inspect(attrs)
 
-    create(attrs)
-  end
+  #   create(attrs)
+  # end
 
   @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
@@ -147,7 +147,7 @@ defmodule MoodleNet.Actors do
     prefix <> uname
   end
 
-  def display_username(%{actor_id: actor_id} = obj, prefix) do
+  def display_username(%{actor_id: _actor_id} = obj, prefix) do
     obj = Repo.preload(obj, :actor)
     display_username(obj, prefix)
   end

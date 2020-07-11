@@ -32,12 +32,11 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   alias MoodleNet.Access.{
     MalformedAuthorizationHeaderError,
-    Token,
+    # Token,
     TokenNotFoundError
   }
 
   alias MoodleNet.Users.User
-
 
   def init(opts), do: opts
 
@@ -94,8 +93,8 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   defp get_token_by_param(conn) do
     case conn.params["auth_token"] do
+      nil -> {:error, TokenNotFoundError.new()}
       token -> {:ok, token}
-      _ -> {:error, TokenNotFoundError.new()}
     end
   end
 
@@ -104,7 +103,6 @@ defmodule MoodleNetWeb.Plugs.Auth do
   end
 
   defp put_current_user(conn, %User{} = user, token) do
-
     conn
     |> Conn.assign(:current_user, user)
     |> Conn.assign(:auth_token, token)

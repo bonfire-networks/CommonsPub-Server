@@ -1,13 +1,17 @@
 defmodule Tag.TagThings do
-  import Ecto.Query
-  alias Ecto.Changeset
-  alias MoodleNet.{Common, GraphQL, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
+  # import Ecto.Query
+  # alias Ecto.Changeset
+  alias MoodleNet.{
+    # Common, GraphQL,
+    Repo
+  }
+
   # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Users.User
   alias Tag.Taggable
-  alias Tag.Taggable.Queries
-  alias Character.Characters
+
+  # alias Tag.Taggable.Queries
+  # alias Character.Characters
 
   ## mutations
 
@@ -36,6 +40,6 @@ defmodule Tag.TagThings do
     IO.inspect(tag_things_insert: tag)
     IO.inspect(tag_things_insert: things)
     cs = Taggable.tag_things_changeset(tag, things)
-    with {:ok, taggable} <- Repo.update(cs), do: {:ok, nil}
+    with {:ok, _taggable} <- Repo.update(cs), do: {:ok, nil}
   end
 end

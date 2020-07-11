@@ -42,19 +42,19 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   def activity_verb_object(%{verb: verb, context_type: context_type} = activity) do
     cond do
-      activity.context_type == "flag" ->
-        "flagged a " <> activity.context_type
+      context_type == "flag" ->
+        "flagged a " <> context_type
 
-      activity.context_type == "like" ->
-        "starred a " <> activity.context_type
+      context_type == "like" ->
+        "starred a " <> context_type
 
-      activity.context_type == "follow" ->
-        "followed a " <> activity.context_type
+      context_type == "follow" ->
+        "followed a " <> context_type
 
-      activity.context_type == "resource" ->
-        "added a " <> activity.context_type
+      context_type == "resource" ->
+        "added a " <> context_type
 
-      activity.context_type == "comment" ->
+      context_type == "comment" ->
         cond do
           !is_nil(activity.context.reply_to_id) and !is_nil(activity.context.name) ->
             "replied to " <> activity.context.name
@@ -69,26 +69,26 @@ defmodule MoodleNetWeb.Helpers.Activites do
             "started a discussion"
         end
 
-      activity.verb == "created" ->
-        "created a " <> activity.context_type
+      verb == "created" ->
+        "created a " <> context_type
 
-      activity.verb == "updated" ->
-        "updated a " <> activity.context_type
+      verb == "updated" ->
+        "updated a " <> context_type
 
       true ->
-        "acted on a " <> activity.context_type
+        "acted on a " <> context_type
     end
   end
 
-  def activity_verb_object(%{verb: verb} = activity) do
+  def activity_verb_object(%{verb: verb}) do
     verb <> " something"
   end
 
-  def activity_verb_object(%{context_type: context_type} = activity) do
+  def activity_verb_object(%{context_type: context_type}) do
     "did " <> context_type
   end
 
-  def activity_verb_object(activity) do
+  def activity_verb_object(_) do
     "did something"
   end
 end

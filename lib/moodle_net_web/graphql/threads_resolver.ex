@@ -6,10 +6,10 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   alias MoodleNet.GraphQL.{
     FetchPage,
-    FetchPages,
+    # FetchPages,
     ResolveField,
-    ResolvePages,
-    ResolveRootPage
+    ResolvePages
+    # ResolveRootPage
   }
 
   alias MoodleNet.Meta.Pointers
