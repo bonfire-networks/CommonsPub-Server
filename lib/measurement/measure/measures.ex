@@ -2,18 +2,21 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Measure.Measures do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{
+    # Activities, Actors, Common, Feeds, Follows,
+    Repo
+  }
+
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias Measurement.{Measure, Unit}
   alias Measurement.Measure.Queries
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Feeds.FeedActivities
+  # alias MoodleNet.Communities.Community
+  # alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
-
 
   @doc """
   Retrieves a single collection by arbitrary filters.
@@ -32,11 +35,10 @@ defmodule Measurement.Measure.Measures do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Measure, filters))}
 
   def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
+      when is_function(group_fn, 1) do
     {:ok, fields} = many(filters)
     {:ok, Fields.new(fields, group_fn)}
   end
-
 
   @doc """
   Retrieves an Page of units according to various filters
@@ -45,10 +47,12 @@ defmodule Measurement.Measure.Measures do
   * GraphQL resolver single-parent resolution
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+
+  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
     base_q = Queries.query(Measure, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
+
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
@@ -60,10 +64,26 @@ defmodule Measurement.Measure.Measures do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
+
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Measure,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
+    Contexts.pages(
+      Queries,
+      Measure,
+      cursor_fn,
+      group_fn,
+      page_opts,
+      base_filters,
+      data_filters,
+      count_filters
+    )
   end
 
   ## mutations
@@ -72,10 +92,10 @@ defmodule Measurement.Measure.Measures do
   def create(%User{} = creator, %Unit{} = unit, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, item} <- insert_measure(creator, unit, attrs) do
-          #  act_attrs = %{verb: "created", is_local: true},
-          #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-          #  :ok <- publish(creator, community, item, activity, :created),
-          # do
+        #  act_attrs = %{verb: "created", is_local: true},
+        #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+        #  :ok <- publish(creator, community, item, activity, :created),
+        # do
         {:ok, %{item | unit: unit}}
       end
     end)
@@ -114,8 +134,8 @@ defmodule Measurement.Measure.Measures do
   def update(%Measure{} = measure, attrs) do
     Repo.transact_with(fn ->
       with {:ok, measure} <- Repo.update(Measure.update_changeset(measure, attrs)) do
-          #  :ok <- publish(measure, :updated) do
-        {:ok,  measure }
+        #  :ok <- publish(measure, :updated) do
+        {:ok, measure}
       end
     end)
   end
@@ -128,5 +148,4 @@ defmodule Measurement.Measure.Measures do
   #     end
   #   end)
   # end
-
 end

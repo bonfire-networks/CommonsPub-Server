@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.LoginLive do
   #   {:noreply, socket}
   # end
 
-  def handle_event("login", %{"login" => login, "password" => password} = args, socket) do
+  def handle_event("login", %{"login" => login, "password" => password} = _args, socket) do
     # IO.inspect(args, label: "LOGIN DATA")
 
     session = MoodleNetWeb.Helpers.Account.create_session(%{login: login, password: password})

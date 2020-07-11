@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Tag.GraphQL.TagResolver do
-  @moduledoc "GraphQL tag and Country queries"
+  @moduledoc "GraphQL tag/taggable queries"
   alias MoodleNet.{GraphQL, Repo}
 
   alias MoodleNet.GraphQL.{

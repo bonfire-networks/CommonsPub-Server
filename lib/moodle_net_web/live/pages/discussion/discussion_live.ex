@@ -2,8 +2,13 @@ defmodule MoodleNetWeb.DiscussionLive do
   use MoodleNetWeb, :live_view
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.GraphQL.{ThreadsResolver, CommentsResolver}
-  alias MoodleNetWeb.Helpers.{Account, Discussions}
-  alias MoodleNetWeb.Component.{CommentPreviewLive}
+
+  alias MoodleNetWeb.Helpers.{
+    # Account,
+    Discussions
+  }
+
+  # alias MoodleNetWeb.Component.{CommentPreviewLive}
   alias MoodleNetWeb.Discussion.DiscussionCommentLive
 
   def mount(%{"id" => id} = params, session, socket) do
@@ -52,7 +57,7 @@ defmodule MoodleNetWeb.DiscussionLive do
 
       comment = input_to_atoms(data)
 
-      comment =
+      _comment =
         MoodleNetWeb.GraphQL.CommentsResolver.create_reply(
           %{
             thread_id: socket.assigns.thread.id,

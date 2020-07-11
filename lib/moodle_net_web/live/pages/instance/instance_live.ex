@@ -1,10 +1,10 @@
 defmodule MoodleNetWeb.InstanceLive do
   use MoodleNetWeb, :live_view
-  alias MoodleNetWeb.Helpers.{Profiles}
+  # alias MoodleNetWeb.Helpers.{Profiles}
   import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Component.{
-    HeaderLive,
+    # HeaderLive,
     AboutLive,
     TabNotFoundLive
   }
@@ -17,6 +17,7 @@ defmodule MoodleNetWeb.InstanceLive do
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
+
     {:ok,
      socket
      |> assign(

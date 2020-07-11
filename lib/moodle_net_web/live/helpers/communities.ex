@@ -9,13 +9,6 @@ defmodule MoodleNetWeb.Helpers.Communities do
     CommunitiesResolver
   }
 
-  alias MoodleNet.GraphQL.{
-    FetchPage,
-    FetchPages,
-    ResolveField,
-    ResolvePages
-  }
-
   import MoodleNetWeb.Helpers.Common
 
   def prepare(community, %{image: _} = preload) do
@@ -84,7 +77,7 @@ defmodule MoodleNetWeb.Helpers.Communities do
     end
   end
 
-  def community_load(socket, page_params, preload) do
+  def community_load(_socket, page_params, preload) do
     # IO.inspect(socket)
 
     username = e(page_params, "username", nil)
@@ -122,6 +115,6 @@ defmodule MoodleNetWeb.Helpers.Communities do
         &prepare(&1, %{icon: true, image: true, actor: true})
       )
 
-    # IO.inspect(communities)
+    communities
   end
 end

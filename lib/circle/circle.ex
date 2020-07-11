@@ -73,6 +73,8 @@ defmodule Circle do
 
   defp common_changeset(changeset) do
     changeset
+    |> change_public()
+    |> change_disabled()
   end
 
   ### behaviour callbacks

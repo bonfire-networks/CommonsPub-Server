@@ -6,7 +6,8 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   Resolver functions shared between actor types.
   """
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Instance
+
+  # alias MoodleNet.Instance
 
   # import Absinthe.Resolution.Helpers, only: [batch: 3]
 

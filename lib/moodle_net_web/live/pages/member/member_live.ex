@@ -13,15 +13,15 @@ defmodule MoodleNetWeb.MemberLive do
   }
 
   alias MoodleNetWeb.Component.{
-    HeaderLive,
+    # HeaderLive,
     HeroProfileLive,
     AboutLive,
     TabNotFoundLive
   }
 
-  alias MoodleNet.{
-    Repo
-  }
+  # alias MoodleNet.{
+  #   Repo
+  # }
 
   # FIXME
   # def mount(%{auth_token: auth_token}, socket) do
@@ -66,7 +66,7 @@ defmodule MoodleNetWeb.MemberLive do
      )}
   end
 
-  def handle_event("follow", data, socket) do
+  def handle_event("follow", _data, socket) do
     f =
       MoodleNetWeb.GraphQL.FollowsResolver.create_follow(%{context_id: socket.assigns.user.id}, %{
         context: %{current_user: socket.assigns.current_user}

@@ -9,7 +9,6 @@ defmodule Character.GraphQL.Schema do
 
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
-    Character.GraphQL.Resolver,
     CommonResolver,
     FlagsResolver,
     FollowsResolver,

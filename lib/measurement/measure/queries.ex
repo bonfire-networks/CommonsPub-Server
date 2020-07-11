@@ -2,19 +2,18 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Measure.Queries do
-
   alias Measurement.Measure
-  alias Measurement.Measure.Measures
+  # alias Measurement.Measure.Measures
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Measure) do
-    from c in Measure, as: :measure
+    from(c in Measure, as: :measure)
   end
 
   def query(:count) do
-    from c in Measure, as: :measure
+    from(c in Measure, as: :measure)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -32,7 +31,6 @@ defmodule Measurement.Measure.Queries do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
   end
 
-
   ### filter/2
 
   ## by many
@@ -44,7 +42,7 @@ defmodule Measurement.Measure.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted]
+    filter(q, [:deleted])
   end
 
   ## by join
@@ -56,7 +54,7 @@ defmodule Measurement.Measure.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
-  def filter(q, {:user, %User{id: id}}) do
+  def filter(q, {:user, %User{id: _id}}) do
     q
     |> where([measure: c], not is_nil(c.published_at))
     |> filter(~w(disabled)a)
@@ -70,41 +68,39 @@ defmodule Measurement.Measure.Queries do
   ## by status
 
   def filter(q, :deleted) do
-    where q, [measure: c], is_nil(c.deleted_at)
+    where(q, [measure: c], is_nil(c.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where q, [measure: c], is_nil(c.disabled_at)
+    where(q, [measure: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do
-    where q, [measure: c], not is_nil(c.published_at)
+    where(q, [measure: c], not is_nil(c.published_at))
   end
 
   ## by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [measure: c], c.id == ^id
+    where(q, [measure: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [measure: c], c.id in ^ids
+    where(q, [measure: c], c.id in ^ids)
   end
-
-
 
   ## by ordering
 
   def filter(q, {:order, :id}) do
-    filter q, order: [desc: :id]
+    filter(q, order: [desc: :id])
   end
 
   def filter(q, {:order, [desc: :id]}) do
-    order_by q, [measure: c, id: id],
+    order_by(q, [measure: c, id: id],
       desc: coalesce(id.count, 0),
       desc: c.id
+    )
   end
-
 
   # grouping and counting
 
@@ -120,7 +116,6 @@ defmodule Measurement.Measure.Queries do
     select(q, [measure: c], {field(c, ^key), count(c.id)})
   end
 
-
   # pagination
 
   def filter(q, {:limit, limit}) do
@@ -129,6 +124,7 @@ defmodule Measurement.Measure.Queries do
 
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
+
     q
     |> where([measure: c], c.id >= ^a)
     |> limit(^limit)
@@ -144,6 +140,5 @@ defmodule Measurement.Measure.Queries do
     filter(q, limit: limit + 1)
   end
 
-  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
+  # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 end

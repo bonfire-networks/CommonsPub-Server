@@ -6,10 +6,6 @@ defmodule MoodleNetWeb.My.TimelineLive do
   }
 
   alias MoodleNetWeb.GraphQL.{
-    InstanceResolver
-  }
-
-  alias MoodleNetWeb.GraphQL.{
     UsersResolver
   }
 

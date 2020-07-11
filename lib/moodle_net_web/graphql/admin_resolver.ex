@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.AdminResolver do
   def deactivate_user(%{id: id}, info) do
     with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
          {:ok, actor} <- Actor.get_cached_by_local_id(id),
-         {:ok, actor} <- Actor.deactivate(actor),
+         {:ok, _actor} <- Actor.deactivate(actor),
          {:ok, user} <- find(id),
          {:ok, user} <- Users.update_remote(user, %{is_disabled: true}) do
       {:ok, user}
@@ -38,6 +38,4 @@ defmodule MoodleNetWeb.GraphQL.AdminResolver do
   defp find(id) do
     Users.one(id: id, join: :actor, join: :local_user, preload: :all)
   end
-
-
 end

@@ -60,7 +60,7 @@
       </div>
 
       <div class="discussion__replies">
-        <%= for comment <- @comments do %>
+        <% for comment <- @comments do %>
 
           <%= live_component(
               @socket,
@@ -69,7 +69,7 @@
               activity: comment
             )
           %>
-          <%= end %>
+          <% end %>
         <div id="reply" class="discussion__reply">
           <form phx-submit="reply">
 
@@ -79,10 +79,9 @@
                       <button>Comment</button>
                     </form>
                   </div>
-
-                  </div>
                 </div>
               </div>
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
+      </div>

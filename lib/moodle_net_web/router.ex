@@ -136,16 +136,6 @@ defmodule MoodleNetWeb.Router do
     post "/shared_inbox", ActivityPubController, :inbox
   end
 
-  pipeline :browser do
-    plug :accepts, ["html"]
-    plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
-    plug :fetch_session
-    plug MoodleNetWeb.Plugs.Auth
-    plug MoodleNetWeb.Plugs.SetLocale
-  end
-
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
     get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo

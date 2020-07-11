@@ -2,12 +2,13 @@ defmodule MoodleNetWeb.My.Live do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Profiles}
+
+  # alias MoodleNetWeb.Helpers.{Profiles}
 
   alias MoodleNetWeb.My.TimelineLive
 
   alias MoodleNetWeb.Component.{
-    HeaderLive,
+    # HeaderLive,
     TabNotFoundLive
   }
 

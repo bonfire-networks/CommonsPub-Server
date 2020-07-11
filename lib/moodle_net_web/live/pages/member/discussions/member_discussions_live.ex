@@ -1,13 +1,13 @@
 defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
   use MoodleNetWeb, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  # import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Component.{
     DiscussionPreviewLive
   }
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  # alias MoodleNetWeb.Helpers.{Profiles}
 
   # def mount(socket) do
   #   {
@@ -29,7 +29,6 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
   defp fetch(socket, assigns) do
     # IO.inspect(assigns.user)
     {:ok, threads} =
-      user =
       MoodleNetWeb.GraphQL.ThreadsResolver.creator_threads_edge(
         %{creator: assigns.user.id},
         %{limit: 3},

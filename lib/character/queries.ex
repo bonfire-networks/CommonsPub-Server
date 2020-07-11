@@ -2,8 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Character.Queries do
-
-  alias MoodleNet.Users
+  # alias MoodleNet.Users
   alias Character
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
@@ -11,16 +10,15 @@ defmodule Character.Queries do
   import Ecto.Query
 
   def query(Character) do
-    from c in Character, as: :character,
-      join: a in assoc(c, :actor), as: :actor
+    from(c in Character, as: :character, join: a in assoc(c, :actor), as: :actor)
   end
 
   def query(:count) do
-    from c in Character, as: :character
+    from(c in Character, as: :character)
   end
 
   def query(q, filters), do: filter(query(q), filters)
-  
+
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
@@ -35,23 +33,28 @@ defmodule Character.Queries do
   end
 
   def join_to(q, :context, jq) do
-    join q, jq, [character: c], c2 in assoc(c, :context), as: :context
+    join(q, jq, [character: c], c2 in assoc(c, :context), as: :context)
   end
 
   def join_to(q, {:context_follow, follower_id}, jq) do
-    join q, jq, [context: c], f in Follow, as: :context_follow,
+    join(q, jq, [context: c], f in Follow,
+      as: :context_follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
   end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [character: c], f in Follow, as: :follow,
+    join(q, jq, [character: c], f in Follow,
+      as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
   end
 
   def join_to(q, :follower_count, jq) do
-    join q, jq, [character: c],
-      f in FollowerCount, on: c.id == f.context_id,
+    join(q, jq, [character: c], f in FollowerCount,
+      on: c.id == f.context_id,
       as: :follower_count
+    )
   end
 
   ### filter/2
@@ -65,7 +68,7 @@ defmodule Character.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted, preload: :actor]
+    filter(q, [:deleted, preload: :actor])
   end
 
   ## by join
@@ -77,7 +80,7 @@ defmodule Character.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
-  def filter(q, {:user, %User{id: id} = user}) do
+  def filter(q, {:user, %User{id: id} = _user}) do
     q
     |> join_to(follow: id)
     |> where([character: o, follow: f], not is_nil(o.published_at) or not is_nil(f.id))
@@ -88,69 +91,75 @@ defmodule Character.Queries do
   end
 
   ## by status
-  
+
   def filter(q, :deleted) do
-    where q, [character: o], is_nil(o.deleted_at)
+    where(q, [character: o], is_nil(o.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where q, [character: o], is_nil(o.disabled_at)
+    where(q, [character: o], is_nil(o.disabled_at))
   end
 
   def filter(q, :private) do
-    where q, [character: o], not is_nil(o.published_at) 
+    where(q, [character: o], not is_nil(o.published_at))
   end
 
   ## by field values
 
   def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
-  when is_integer(count) and is_binary(id) do
-    where q,[character: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [character: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
   end
 
   def filter(q, {:cursor, [followers: {:lte, [count, id]}]})
-  when is_integer(count) and is_binary(id) do
-    where q,[character: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [character: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
+    )
   end
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [character: c], c.id == ^id
+    where(q, [character: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [character: c], c.id in ^ids
+    where(q, [character: c], c.id in ^ids)
   end
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where q, [character: c], c.context_id == ^id
+    where(q, [character: c], c.context_id == ^id)
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [character: c], c.context_id in ^ids
+    where(q, [character: c], c.context_id in ^ids)
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where q, [actor: a], a.preferred_username == ^username
+    where(q, [actor: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where q, [actor: a], a.preferred_username in ^usernames
+    where(q, [actor: a], a.preferred_username in ^usernames)
   end
 
   ## by ordering
 
   def filter(q, {:order, :followers_desc}) do
-    filter q, order: [desc: :followers]
+    filter(q, order: [desc: :followers])
   end
 
   def filter(q, {:order, [desc: :followers]}) do
-    order_by q, [character: c, follower_count: fc],
+    order_by(q, [character: c, follower_count: fc],
       desc: coalesce(fc.count, 0),
       desc: c.id
+    )
   end
-
 
   # grouping and counting
 
@@ -167,11 +176,11 @@ defmodule Character.Queries do
   end
 
   def filter(q, {:preload, :actor}) do
-    preload q, [actor: a], actor: a
+    preload(q, [actor: a], actor: a)
   end
 
   def filter(q, {:preload, :context}) do
-    preload q, [context: c], context: c
+    preload(q, [context: c], context: c)
   end
 
   # pagination
@@ -182,6 +191,7 @@ defmodule Character.Queries do
 
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
+
     q
     |> where([character: c], c.id >= ^a)
     |> limit(^limit)
@@ -200,21 +210,20 @@ defmodule Character.Queries do
   def filter(q, {:page, [desc: [followers: page_opts]]}) do
     q
     |> filter(join: :follower_count, order: [desc: :followers])
-    |> page(page_opts, [desc: :followers])
+    |> page(page_opts, desc: :followers)
     |> select(
       [character: c, actor: a, follower_count: fc],
       %{c | follower_count: coalesce(fc.count, 0), actor: a}
     )
   end
 
-  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
-    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
+    filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)
   end
 
-  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
-    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  defp page(q, %{before: cursor, limit: limit}, desc: :followers) do
+    filter(q, cursor: [followers: {:gte, cursor}], limit: limit + 2)
   end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
 end

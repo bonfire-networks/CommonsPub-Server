@@ -9,7 +9,6 @@ defmodule Circle.GraphQL.Schema do
 
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
-    Circle.GraphQL.Resolver,
     # CommonResolver,
     # FlagsResolver,
     # FollowsResolver,

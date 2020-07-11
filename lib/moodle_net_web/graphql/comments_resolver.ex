@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   alias MoodleNet.{GraphQL, Repo, Threads}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Flags.Flag
+  # alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Communities.Community
+  # alias MoodleNet.Flags.Flag
   alias MoodleNet.GraphQL.{FetchFields, FetchPage, ResolveFields, ResolvePages}
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Resources.Resource
+  # alias MoodleNet.Meta.Pointers
+  # alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Comments, Thread}
 
   def comment(%{comment_id: id}, %{context: %{current_user: user}}) do
@@ -98,11 +98,11 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
   ## mutations
 
-  defp validate_thread_context(%Collection{}), do: :ok
-  defp validate_thread_context(%Community{}), do: :ok
-  defp validate_thread_context(%Flag{}), do: :ok
-  defp validate_thread_context(%Resource{}), do: :ok
-  defp validate_thread_context(_), do: GraphQL.not_permitted("create")
+  # defp validate_thread_context(%Collection{}), do: :ok
+  # defp validate_thread_context(%Community{}), do: :ok
+  # defp validate_thread_context(%Flag{}), do: :ok
+  # defp validate_thread_context(%Resource{}), do: :ok
+  # defp validate_thread_context(_), do: GraphQL.not_permitted("create")
 
   def create_reply(%{thread_id: thread_id, in_reply_to_id: reply_to, comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do

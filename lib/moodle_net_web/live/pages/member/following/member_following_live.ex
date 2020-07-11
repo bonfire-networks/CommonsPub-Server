@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
   use MoodleNetWeb, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  # import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Profiles}
 
   alias MoodleNetWeb.Component.UserPreviewLive
@@ -18,7 +18,6 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
   defp fetch_users_from_context(user) do
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.context_id)
     MoodleNet.Meta.Pointers.follow!(pointer) |> Profiles.prepare(%{icon: true, actor: true})
-
   end
 
   defp fetch(socket, assigns) do
@@ -29,7 +28,9 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
         %{limit: 3},
         %{context: %{current_user: assigns.current_user}}
       )
-      followings = Enum.map(
+
+    followings =
+      Enum.map(
         users.edges,
         &fetch_users_from_context(&1)
       )

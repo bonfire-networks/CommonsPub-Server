@@ -4,24 +4,24 @@ defmodule Measurement.Unit.GraphQL do
   require Logger
 
   alias MoodleNet.{
-    Activities,
+    # Activities,
     GraphQL,
     Repo
   }
 
   alias MoodleNet.GraphQL.{
-    CommonResolver,
+    # CommonResolver,
     ResolveField,
-    ResolveFields,
-    ResolvePage,
-    ResolvePages,
+    # ResolveFields,
+    # ResolvePage,
+    # ResolvePages,
     ResolveRootPage,
-    FetchPage,
-    FetchPages
+    FetchPage
+    # FetchPages
   }
 
   # alias MoodleNet.Resources.Resource
-  alias MoodleNet.Common.Enums
+  # alias MoodleNet.Common.Enums
   alias MoodleNet.Meta.Pointers
 
   # alias ValueFlows.Simulate

@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.SettingsLive do
   use MoodleNetWeb, :live_view
   import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Profiles}
+  # alias MoodleNetWeb.Helpers.{Profiles}
   alias MoodleNetWeb.GraphQL.UsersResolver
 
   alias MoodleNetWeb.SettingsLive.{
@@ -39,16 +39,16 @@ defmodule MoodleNetWeb.SettingsLive do
   def handle_event("post", data, socket) do
     params = input_to_atoms(data)
 
-    {:ok, edit_profile} =
+    {:ok, _edit_profile} =
       UsersResolver.update_profile(params, %{
         context: %{current_user: socket.assigns.current_user}
       })
 
-    # IO.inspect(edit_profile)
+    # IO.inspect(_edit_profile)
 
     {:noreply,
      socket
-     |> put_flash(:info, "Published!")
+     |> put_flash(:info, "Saved!")
      |> redirect(to: "/my/profile")}
   end
 

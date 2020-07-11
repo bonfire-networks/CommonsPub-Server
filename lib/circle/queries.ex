@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Circle.Queries do
-  alias MoodleNet.Users
+  # alias MoodleNet.Users
   alias Circle
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
@@ -91,7 +91,7 @@ defmodule Circle.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
-  def filter(q, {:user, %User{id: id} = user}) do
+  def filter(q, {:user, %User{id: id} = _user}) do
     q
     |> join_to(follow: id)
     |> where([circle: o, character: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))

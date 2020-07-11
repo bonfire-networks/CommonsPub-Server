@@ -7,11 +7,11 @@ defmodule Measurement.Measure.GraphQL do
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,
-    ResolvePage,
-    ResolvePages,
+    # ResolvePage,
+    # ResolvePages,
     ResolveRootPage,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     FetchFields
   }
 
@@ -80,7 +80,7 @@ defmodule Measurement.Measure.GraphQL do
 
   # mutations
 
-  def create_measures(attrs, info, fields) do
+  def create_measures(attrs, _info, fields) do
     Repo.transact_with(fn ->
       attrs
       |> Map.take(fields)
@@ -99,7 +99,7 @@ defmodule Measurement.Measure.GraphQL do
         when items: [Map.t()],
              func: (Map.t(), any -> {:ok, any} | {:error, term})
   def map_ok_error(items, func) do
-    Enum.reduce_while(%{}, fn acc, {field_name, item} ->
+    Enum.reduce_while(items, fn acc, {field_name, item} ->
       case func.(acc, item) do
         {:ok, val} ->
           {:cont, Map.put(acc, field_name, val)}

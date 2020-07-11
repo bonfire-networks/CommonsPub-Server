@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.My.SidebarCommunitiesLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
     {

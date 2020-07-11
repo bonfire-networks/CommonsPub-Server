@@ -25,11 +25,11 @@ defmodule Tag.GraphQL.TagSchema do
   end
 
   object :tag_mutations do
-    @desc "Create a tag out of something else"
-    field :make_taggable, :tag do
-      arg(:pointer_id, :string)
-      resolve(&TagResolver.make_pointer_taggable/2)
-    end
+    #   @desc "Create a tag out of something else"
+    #   field :make_taggable, :tag do
+    #     arg(:pointer_id, :string)
+    #     resolve(&TagResolver.make_pointer_taggable/2)
+    #   end
   end
 
   @desc "A tag could be a category or hashtag"

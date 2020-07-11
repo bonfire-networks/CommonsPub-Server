@@ -10,11 +10,12 @@ defmodule Profile do
 
   alias Ecto.Changeset
   alias Profile
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Feeds.Feed
+  # alias MoodleNet.Actors.Actor
+  # alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.Content
-  alias Pointers.Pointer
+
+  # alias Pointers.Pointer
 
   @type t :: %__MODULE__{}
 

@@ -5,13 +5,6 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
   alias MoodleNetWeb.GraphQL.UsersResolver
 
-  alias MoodleNet.GraphQL.{
-    FetchPage,
-    FetchPages,
-    ResolveField,
-    ResolvePages
-  }
-
   import MoodleNetWeb.Helpers.Common
 
   def prepare(profile, %{image: _} = preload) do
@@ -33,21 +26,6 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     prepare(profile, preload, 50)
   end
 
-  def prepare(profile, %{icon: _} = preload, icon_size) do
-    profile =
-      if(Map.has_key?(profile, "icon_url")) do
-        profile
-      else
-        profile
-        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
-      end
-
-    prepare(
-      profile,
-      Map.delete(preload, :icon)
-    )
-  end
-
   def prepare(profile, preload) do
     profile =
       if(Map.has_key?(profile, :__struct__)) do
@@ -65,6 +43,21 @@ defmodule MoodleNetWeb.Helpers.Profiles do
       end
 
     prepare(profile)
+  end
+
+  def prepare(profile, %{icon: _} = preload, icon_size) do
+    profile =
+      if(Map.has_key?(profile, "icon_url")) do
+        profile
+      else
+        profile
+        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
+      end
+
+    prepare(
+      profile,
+      Map.delete(preload, :icon)
+    )
   end
 
   def prepare(profile) do

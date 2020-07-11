@@ -3,7 +3,8 @@ defmodule MoodleNetWeb.CommunityLive do
 
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Communities}
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+
+  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias MoodleNetWeb.CommunityLive.{
     CommunityDiscussionsLive,
@@ -13,14 +14,10 @@ defmodule MoodleNetWeb.CommunityLive do
   }
 
   alias MoodleNetWeb.Component.{
-    HeaderLive,
-    HeroProfileLive,
+    # HeaderLive,
+    # HeroProfileLive,
     AboutLive,
     TabNotFoundLive
-  }
-
-  alias MoodleNet.{
-    Repo
   }
 
   # FIXME
@@ -45,7 +42,7 @@ defmodule MoodleNetWeb.CommunityLive do
     community =
       Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
 
-    IO.inspect(community, label: "COMMUNITY")
+    # IO.inspect(community, label: "COMMUNITY")
 
     {:noreply,
      assign(socket,
@@ -55,11 +52,11 @@ defmodule MoodleNetWeb.CommunityLive do
      )}
   end
 
-  def handle_params(%{} = params, url, socket) do
+  def handle_params(%{} = params, _url, socket) do
     community =
       Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
 
-    IO.inspect(community, label: "community")
+    # IO.inspect(community, label: "community")
 
     {:noreply,
      assign(socket,

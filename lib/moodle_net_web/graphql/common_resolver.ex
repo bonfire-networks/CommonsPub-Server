@@ -4,7 +4,16 @@
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias Ecto.ULID
   alias MoodleNet.GraphQL
-  alias MoodleNet.GraphQL.{Fields, Pages, FetchFields, FetchPage, ResolveFields, ResolvePages}
+
+  alias MoodleNet.GraphQL.{
+    Fields,
+    # Pages,
+    # FetchFields,
+    # FetchPage,
+    ResolveFields,
+    ResolvePages
+  }
+
   alias MoodleNet.Likes.Like
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Flags.Flag
@@ -13,7 +22,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
-  def context_edge(%{context_id: id}, _, %{context: %{schema: schema}} = info) do
+  def context_edge(%{context_id: id}, _, %{context: %{schema: _schema}} = info) do
     context_edge =
       ResolveFields.run(%ResolveFields{
         module: __MODULE__,
@@ -29,7 +38,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   @doc """
   Fetch a context without batching
   """
-  def context_edge(%{context_id: id}, _, info) do
+  def context_edge(%{context_id: id}, _, _) do
     fetch_context_edge(nil, id).data[id]
   end
 
@@ -60,7 +69,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     context_edges
   end
 
-  def fetch_context_edges(page_opts, info, ids) do
+  def fetch_context_edges(_page_opts, _info, ids) do
     # IO.inspect(context_ids: ids)
     flattened_ids = flatten(ids)
     # IO.inspect(flattened: flattened_ids)
