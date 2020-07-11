@@ -4,25 +4,24 @@ defmodule Geolocation.GraphQL do
   require Logger
 
   alias MoodleNet.{
-    Activities,
+    # Activities,
     GraphQL,
-    Repo,
-    Meta.Pointers
+    Repo
   }
 
   alias MoodleNet.GraphQL.{
-    ResolvePage,
+    # ResolvePage,
     ResolvePages,
     ResolveField,
-    ResolveFields,
+    # ResolveFields,
     ResolveRootPage,
-    FetchPage,
-    FetchPages,
-    CommonResolver
+    FetchPage
+    # FetchPages,
+    # CommonResolver
   }
 
   # alias MoodleNet.Resources.Resource
-  alias MoodleNet.Common.Enums
+  # alias MoodleNet.Common.Enums
 
   alias Geolocation
   alias Geolocation.Geolocations
@@ -94,36 +93,21 @@ defmodule Geolocation.GraphQL do
     })
   end
 
-  def fetch_outbox_edge({page_opts, info}, id) do
-    user = info.context.current_user
+  # def fetch_outbox_edge(page_opts, info, id) do
+  #   user = info.context.current_user
 
-    {:ok, box} =
-      Activities.page(
-        & &1.id,
-        & &1.id,
-        page_opts,
-        feed: id,
-        table: default_outbox_query_contexts()
-      )
+  #   Activities.page(
+  #     & &1.id,
+  #     page_opts,
+  #     feed: id,
+  #     table: default_outbox_query_contexts()
+  #   )
+  # end
 
-    box
-  end
-
-  def fetch_outbox_edge(page_opts, info, id) do
-    user = info.context.current_user
-
-    Activities.page(
-      & &1.id,
-      page_opts,
-      feed: id,
-      table: default_outbox_query_contexts()
-    )
-  end
-
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Geolocations)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
-  end
+  # defp default_outbox_query_contexts() do
+  #   Application.fetch_env!(:moodle_net, Geolocations)
+  #   |> Keyword.fetch!(:default_outbox_query_contexts)
+  # end
 
   ## finally the mutations...
 

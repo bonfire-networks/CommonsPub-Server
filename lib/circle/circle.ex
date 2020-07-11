@@ -12,9 +12,6 @@ defmodule Circle do
   alias Ecto.Changeset
   alias Circle
   alias Character
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.Content
   alias Pointers.Pointer
   alias MoodleNet.Actors.Actor
 
@@ -22,19 +19,17 @@ defmodule Circle do
 
   # C1RC1E0FPE0P1EAND0RC1RC1ES
   pointable_schema do
-    # belongs_to(:character, Character)
-
     # joined fields from Profile
     field(:name, :string, virtual: true)
     field(:summary, :string, virtual: true)
     field(:updated_at, :utc_datetime_usec, virtual: true)
 
-    # joined via Character
+    # mixins
     has_one(:profile, Profile, foreign_key: :id)
-    # joined via Character
     has_one(:character, Character, foreign_key: :id)
+
     # joined via Character
-    has_one(:actor, Actor)
+    has_one(:actor, Actor, foreign_key: :id)
 
     # points to the parent Thing of this Character
     belongs_to(:context, Pointer)
@@ -56,6 +51,7 @@ defmodule Circle do
     # |> Changeset.change(
     #   id: Ecto.ULID.generate()
     #   )
+    |> Changeset.cast(attrs, @cast)
     |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
@@ -65,6 +61,7 @@ defmodule Circle do
     # |> Changeset.change(
     #   id: Ecto.ULID.generate()
     #   )
+    |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
 

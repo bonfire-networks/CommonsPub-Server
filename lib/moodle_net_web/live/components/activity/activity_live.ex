@@ -6,7 +6,8 @@ defmodule MoodleNetWeb.Component.ActivityLive do
   alias MoodleNetWeb.Component.StoryPreviewLive
   alias MoodleNetWeb.Component.CommentPreviewLive
   alias MoodleNetWeb.Component.CommunityPreviewLive
-  alias MoodleNetWeb.Component.DiscussionPreviewLive
+
+  # alias MoodleNetWeb.Component.DiscussionPreviewLive
 
   alias MoodleNetWeb.Helpers.{Activites}
 

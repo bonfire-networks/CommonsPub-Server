@@ -20,7 +20,7 @@ defmodule MoodleNet.Communities do
   }
 
   alias MoodleNet.Communities.{Community, Queries}
-  alias MoodleNet.FeedPublisher
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker

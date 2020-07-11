@@ -1,20 +1,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Measure do
-
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Actors.Actor
+  # alias MoodleNet.Actors.Actor
   alias Measurement.Unit
 
   @type t :: %__MODULE__{}
 
   table_schema "measurement_measure" do
     # FIXME: invalid atom naming convention
-    field :has_numerical_value, :float
+    field(:has_numerical_value, :float)
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
@@ -32,10 +31,10 @@ defmodule Measurement.Measure do
   @cast @required ++ ~w()a
 
   def create_changeset(
-    %User{} = creator,
-    %Unit{} = unit,
-    attrs
-  ) do
+        %User{} = creator,
+        %Unit{} = unit,
+        attrs
+      ) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)

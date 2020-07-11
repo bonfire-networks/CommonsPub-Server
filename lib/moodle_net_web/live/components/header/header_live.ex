@@ -3,11 +3,9 @@ defmodule MoodleNetWeb.Component.HeaderLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.GraphQL.{
-    UsersResolver
-  }
+  # alias MoodleNetWeb.GraphQL.{UsersResolver}
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  # alias MoodleNetWeb.Helpers.{Profiles}
 
   def mount(socket) do
     {:ok,

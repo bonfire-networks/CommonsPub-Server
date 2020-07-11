@@ -9,7 +9,6 @@ defmodule ActivityPubWeb.RedirectController.React do
   """
 
   use ActivityPubWeb, :controller
-  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Comment
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community

@@ -7,7 +7,7 @@ defmodule MoodleNet.Threads.Comments do
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
-  alias MoodleNet.FeedPublisher
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Resources.Resource

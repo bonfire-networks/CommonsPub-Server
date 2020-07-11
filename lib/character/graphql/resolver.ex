@@ -10,27 +10,35 @@ defmodule Character.GraphQL.Resolver do
   }
 
   alias MoodleNet.GraphQL.{
-    Flow,
+    # Flow,
     FetchFields,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     ResolveField,
     ResolvePage,
-    ResolvePages,
+    # ResolvePages,
     ResolveRootPage
   }
 
   alias Character
-  alias Character.{Characters, Queries}
+
+  alias Character.{
+    Characters
+    # Queries
+  }
+
   alias MoodleNet.Resources.Resource
-  alias MoodleNet.Common.Enums
+  # alias MoodleNet.Common.Enums
   alias Pointers
 
   ## resolvers
 
-  def character(%{character: character}, _, info) do
-    character = Repo.preload(character, :actor)
-    {:ok, character}
+  def character(%{character: character}, _, _info) do
+    {:ok, Repo.preload(character, :actor)}
+  end
+
+  def character(%{character_id: id}, _, info) do
+    character(%{character_id: id}, info)
   end
 
   def character(%{character_id: id}, info) do
@@ -42,15 +50,6 @@ defmodule Character.GraphQL.Resolver do
       info: info
     })
   end
-
-  def character(%{character_id: id}, _, info) do
-    character(%{character_id: id}, info)
-  end
-
-  # def character(opts, _, info) do
-  #   # IO.inspect(opts)
-  #   {:ok, nil}
-  # end
 
   def characters(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
@@ -86,9 +85,9 @@ defmodule Character.GraphQL.Resolver do
 
   # def characteristic_edge(%Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
-  def resource_count_edge(%Character{id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
-  end
+  # def resource_count_edge(%Character{id: id}, _, info) do
+  #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
+  # end
 
   def fetch_resource_count_edge(_, ids) do
     FetchFields.run(%FetchFields{
@@ -193,19 +192,19 @@ defmodule Character.GraphQL.Resolver do
   #   |> GraphQL.response(info)
   # end
 
-  defp validate_character_context(pointer) do
-    if Pointers.table!(pointer).schema in valid_contexts() do
-      :ok
-    else
-      GraphQL.not_permitted()
-    end
-  end
+  # defp validate_character_context(pointer) do
+  #   if Pointers.table!(pointer).schema in valid_contexts() do
+  #     :ok
+  #   else
+  #     GraphQL.not_permitted()
+  #   end
+  # end
 
-  defp valid_contexts do
-    Keyword.fetch!(Application.get_env(:moodle_net, Characters), :valid_contexts)
-  end
+  # defp valid_contexts do
+  #   Keyword.fetch!(Application.get_env(:moodle_net, Characters), :valid_contexts)
+  # end
 
-  def creator_edge(%{character: %{creator_id: id}}, _, info) do
-    ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
-  end
+  # def creator_edge(%{character: %{creator_id: id}}, _, info) do
+  #   ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
+  # end
 end

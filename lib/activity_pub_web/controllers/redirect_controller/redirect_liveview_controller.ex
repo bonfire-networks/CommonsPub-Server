@@ -9,7 +9,6 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
   """
 
   use ActivityPubWeb, :controller
-  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Thread
   alias MoodleNet.Threads.Comment
   alias MoodleNet.Collections.Collection
@@ -96,7 +95,7 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
 
     case ActivityPub.Adapter.get_actor_by_username(username) do
       {:ok, %User{} = actor} ->
-        redirect(conn, external: frontend_base <> "/@" <> username)
+        redirect(conn, external: frontend_base <> "/@" <> actor.preferred_username)
 
       {:ok, %Collection{} = actor} ->
         redirect(conn, external: frontend_base <> "/collections/" <> actor.id)
