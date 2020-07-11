@@ -46,6 +46,7 @@
       </a>
     </div>
   </nav>
+  <div class="communities__wrapper">
   <details open>
     <summary>Communities</summary>
     <nav class="general__details">
@@ -58,6 +59,24 @@
               ) %>
     </nav>
   </details>
+  <div class="communities_new">
+  <details class="dialog__container">
+    <summary class="button new-community"><i class="feather-plus"></i></summary>
+    <dialog open class="dialog dialog__newCommunity">
+      <header class="dialog__header">Create a new community</header>
+      <section class="dialog__content">
+        <form phx-submit="new_community" phx-target="<%= @myself %>">
+          <input name="name" placeholder="Type the community name..." />
+          <textarea name="summary" placeholder="Describe your community..."></textarea>
+          <footer class="dialog__footer">
+            <button value="default">Confirm</button>
+          </footer>
+        </form>
+      </section>
+    </dialog>
+  </details>
+</div>
+  </div>
   <details>
     <summary>Direct Messages</summary>
     <nav class="general__details">
@@ -82,23 +101,6 @@
         <h3>ValueFlows UI components</h3>
       </div>
     </nav>
-  </details>
-</div>
-<div class="content__bottom">
-  <details class="dialog__container">
-    <summary class="button new-community">Create a new community</summary>
-    <dialog open class="dialog dialog__newCommunity">
-      <header class="dialog__header">Create a new community</header>
-      <section class="dialog__content">
-        <form phx-submit="new_community" phx-target="<%= @myself %>">
-          <input name="name" placeholder="Type the community name..." />
-          <textarea name="summary" placeholder="Describe your community..."></textarea>
-          <footer class="dialog__footer">
-            <button id="confirmBtn" value="default">Confirm</button>
-          </footer>
-        </form>
-      </section>
-    </dialog>
   </details>
 </div>
 </nav>

@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
                   <form>
                     <textarea placeholder="Describe the reason..."></textarea>
                     <footer class="dialog__footer">
-                      <button id="confirmBtn" value="default">Confirm</button>
+                      <button value="default">Confirm</button>
                     </footer>
                   </form>
                 </section>
