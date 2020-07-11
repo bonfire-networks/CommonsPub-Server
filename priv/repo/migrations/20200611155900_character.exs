@@ -5,15 +5,10 @@ defmodule MoodleNet.Repo.Migrations.Character do
   use Ecto.Migration
 
   def up do
-
     Character.Migrations.up()
-
   end
 
   def down do
-
     Character.Migrations.down()
-
   end
-
 end
