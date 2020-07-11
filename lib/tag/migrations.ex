@@ -3,6 +3,8 @@ defmodule Tag.Migrations do
   import Pointers.Migration
 
   def up() do
+    pointer = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
+
     create_pointable_table(:tags, "TAGSCANBECATEG0RY0RHASHTAG") do
       # eg. @ or + or #
       add(:prefix, :string)
@@ -10,7 +12,7 @@ defmodule Tag.Migrations do
       # eg. community who curates this tag
       add(
         :context_id,
-        references(Pointers.Config.pointer_table(), on_update: :update_all, on_delete: :nilify_all)
+        references(pointer, on_update: :update_all, on_delete: :nilify_all)
       )
 
       # eg. Mamals is a parent of Cat
@@ -28,7 +30,7 @@ defmodule Tag.Migrations do
     create_if_not_exists table(:tags_things, primary_key: false) do
       add(
         :pointer_id,
-        references(Pointers.Config.pointer_table(), on_update: :update_all, on_delete: :delete_all)
+        references(pointer, on_update: :update_all, on_delete: :delete_all)
       )
 
       add(:tag_id, references(:tags, on_update: :update_all, on_delete: :delete_all))
