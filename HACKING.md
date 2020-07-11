@@ -1,6 +1,6 @@
 # Developer FAQ
 
-*These instructions are for hacking on the backend. If you wish to deploy in production, please refer to our [Deployment Guide](./DEPLOY.md)!*
+_These instructions are for hacking on the backend. If you wish to deploy in production, please refer to our [Deployment Guide](./DEPLOY.md)!_
 
 Hello, potential contributor! :-)
 
@@ -8,20 +8,18 @@ This is a work in progress guide to getting up and running as a developer. Pleas
 
 Happy hacking!
 
-
 ## Getting set up
 
 There are three options. The easy option should work the best for most
 users:
 
-
 ### Option 1 (the easy way) - fully managed via docker-compose
 
 1. Dependencies:
 
-* `make`
-* Docker
-* Docker Compose (recent version)
+- `make`
+- Docker
+- Docker Compose (recent version)
 
 2. From a fresh checkout, download the dependencies and setup the database:
 
@@ -46,15 +44,14 @@ make dev
 
 #### Forwarded ports
 
-* `4000` - http listener
-* `5432` - postgres database server
-
+- `4000` - http listener
+- `5432` - postgres database server
 
 ### Option 2 (the middle ground) - docker-managed database
 
 Dependencies:
 
-* A recent elixir version (1.8.0+)
+- A recent elixir version (1.8.0+)
 
 The app takes some configuration in the form of environment
 variables so we don't need to rebuild the docker images to change the
@@ -97,42 +94,39 @@ same steps as option 2, except:
 1. After setting the environment with `eval $(make dev-exports)`, you
    will need to export the following variables in the environment to
    match the configuration of your database:
-   * `DATABASE_HOST`
-   * `POSTGRES_USER`
-   * `POSTGRES_PASSWORD`
-   * `POSTGRES_DB`
+
+   - `DATABASE_HOST`
+   - `POSTGRES_USER`
+   - `POSTGRES_PASSWORD`
+   - `POSTGRES_DB`
 
 2. You will not need to run `make dev-db-up`
 
-
 ## Running
 
-By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ 
+By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/
 
 The frontend is (in a [seperate repo](https://gitlab.com/CommonsPub/Client).
 
 If you haven't set up transactional emails, while in development, you can access emails (such as signup validation) at `/sent_emails`.
 
-
 ## Documentation
 
-The code is somewhat documented inline. You can generate HTML docs (using `Exdoc`) by running `mix docs`. 
-
+The code is somewhat documented inline. You can generate HTML docs (using `Exdoc`) by running `mix docs`.
 
 ## Internationalisation
 
 The backend code currently has very few translatable strings, basically error messages transactional emails:
 
-*   Email subject lines in `MoodleNet.Email` (eg: [moodle_net/email.ex#L8](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net/email.ex#L8))
-*   Email templates in [moodle_net_web/email/](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net_web/email/templates/)
-*   Errors passed through Gettext in `MoodleNetWeb.ErrorHelpers` and `MoodleNetWeb.GraphQL.Errors`
+- Email subject lines in `MoodleNet.Email` (eg: [moodle_net/email.ex#L8](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net/email.ex#L8))
+- Email templates in [moodle_net_web/email/](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net_web/email/templates/)
+- Errors passed through Gettext in `MoodleNetWeb.ErrorHelpers` and `MoodleNetWeb.GraphQL.Errors`
 
 The locale is set using the `MoodleNetWeb.Plugs.SetLocale` plug which checks the header or a param.
 
-If you've added any localisable fields, you should run `mix gettext.extract` to extract them into `/priv/gettext/en/LC_MESSAGES/`. Upload those files to the translation system (eg. Transifex). 
+If you've added any localisable fields, you should run `mix gettext.extract` to extract them into `/priv/gettext/en/LC_MESSAGES/`. Upload those files to the translation system (eg. Transifex).
 
 If you've downloaded or received new translated files, copy them to the approriate languages folder(s) in `/priv/gettext/` before rebuilding the app.
-
 
 ## What happens when I get this error?
 
@@ -144,7 +138,7 @@ Example:
 ** (Mix) Package fetch failed and no cached copy available (https://repo.hex.pm/tarballs/distillery-2.0.12.tar)
 ```
 
-In this case, distillery made a new release and retired the old
+In this case, distillery (as an example of a dependency) made a new release and retired the old
 release from hex. The new version (`2.0.14`) is quite close to the
 version we were depending on (`2.0.12`), so we chose to upgrade:
 
@@ -170,7 +164,7 @@ be larger in the `dev` environment:
 2. Find the database configuration (search for `MoodleNet.Repo`).
 3. Add `timeout: 60_000` to the list of options.
 
-The finished result  should look like this (did you remember to add a
+The finished result should look like this (did you remember to add a
 comma at the end of the `pool_size` line?):
 
 ```
@@ -200,16 +194,16 @@ which is what this section is here to provide.
 
 Feature goals:
 
-* Flexibility for developers and deployments.
-* Integrated federation with the existing fediverse.
+- Flexibility for developers and deployments.
+- Integrated federation with the existing fediverse.
 
 Operational goals:
 
-* Easy to set up and run.
-* Light on resources for small deployments.
-* Scalable for large deployments.
+- Easy to set up and run.
+- Light on resources for small deployments.
+- Scalable for large deployments.
 
-Operationally, there's a tension between wanting to be able to scale 
+Operationally, there's a tension between wanting to be able to scale
 instances and not wanting to burden small instances with
 high resource requirements or difficult setup.
 
@@ -232,11 +226,11 @@ for not asking.
 
 At the top level, there are four seperate namespaces:
 
-* `MoodleNet` - Main application logic, schemas etc.
-* `MoodleNetWeb` - Phoenix/Absinthe webapp + GraphQL API for `MoodleNet`.
-* `ActivityPub` - ActivityPub federation stack
-* `ActivityPubWeb` - Phoenix webapp / ActivityPub API for `ActivityPub`.
-* There are new namespaces being added for extensions such as Taxonomy, Geolocation, Measurements, ValueFlows, etc.
+- `MoodleNet` - Main application logic, schemas etc.
+- `MoodleNetWeb` - Phoenix/Absinthe webapp + GraphQL API for `MoodleNet`.
+- `ActivityPub` - ActivityPub federation stack
+- `ActivityPubWeb` - Phoenix webapp / ActivityPub API for `ActivityPub`.
+- There are new namespaces being added for extensions such as Taxonomy, Geolocation, Measurements, ValueFlows, etc.
 
 MoodleNet and MoodleNetWeb are primarily maintained by @jjl with help from @antoniskalou.
 
@@ -249,62 +243,62 @@ ActivityPub and ActivityPubWeb are primarily maintained by @karenkonou.
 The `MoodleNet` namespace is occupied mostly by contexts. These are
 top level modules which comprise a grouping of:
 
-* A top level library module
-* Additional library modules
-* OTP services
-* Ecto schemas
+- A top level library module
+- Additional library modules
+- OTP services
+- Ecto schemas
 
 Here are the current contexts:
 
-* `MoodleNet.Access` (for managing and querying email whitelists)
-* `MoodleNet.Activities` (for managing and querying activities, the unit of a feed)
-* `MoodleNet.Actors` (a shared abstraction over users, communities and collections)
-* `MoodleNet.Collections` (for managing and querying collections of resources)
-* `MoodleNet.Communities` (for managing and querying communities)
-* `MoodleNet.Features` (for managing and querying featured content)
-* `MoodleNet.Feeds` (for managing and querying feeds)
-* `MoodleNet.Flags` (for managing and querying flags)
-* `MoodleNet.Follows` (for managing and querying follows)
-* `MoodleNet.Instance` (for managing the local instance)
-* `MoodleNet.Mail` (for rendering and sending emails)
-* `MoodleNet.Meta` (for managing and querying references to content in many tables)
-* `MoodleNet.OAuth` (for OAuth functionality)
-* `MoodleNet.Peers` (for managing remote hosts)
-* `MoodleNet.Resources` (for managing and querying the resources in collections)
-* `MoodleNet.Threads` (for managing and querying threads and comments)
-* `MoodleNet.Users` (for managing and querying both local and remote users)
-* `MoodleNet.Uploads` (for managing uploaded content)
+- `MoodleNet.Access` (for managing and querying email whitelists)
+- `MoodleNet.Activities` (for managing and querying activities, the unit of a feed)
+- `MoodleNet.Actors` (a shared abstraction over users, communities and collections)
+- `MoodleNet.Collections` (for managing and querying collections of resources)
+- `MoodleNet.Communities` (for managing and querying communities)
+- `MoodleNet.Features` (for managing and querying featured content)
+- `MoodleNet.Feeds` (for managing and querying feeds)
+- `MoodleNet.Flags` (for managing and querying flags)
+- `MoodleNet.Follows` (for managing and querying follows)
+- `MoodleNet.Instance` (for managing the local instance)
+- `MoodleNet.Mail` (for rendering and sending emails)
+- `MoodleNet.Meta` (for managing and querying references to content in many tables)
+- `MoodleNet.OAuth` (for OAuth functionality)
+- `MoodleNet.Peers` (for managing remote hosts)
+- `MoodleNet.Resources` (for managing and querying the resources in collections)
+- `MoodleNet.Threads` (for managing and querying threads and comments)
+- `MoodleNet.Users` (for managing and querying both local and remote users)
+- `MoodleNet.Uploads` (for managing uploaded content)
 
 #### Additional Libraries
 
-* `MoodleNet.Application` (OTP application)
-* `MoodleNet.ActivityPub` (ActivityPub integration)
-* `MoodleNet.Algolia` (Mothership search)
-* `MoodleNet.Common` (stuff that gets used everywhere)
-* `MoodleNet.GraphQL` (GraphQL abstractions)
-* `MoodleNet.MediaProxy` (for fetching remote media)
-* `MoodleNet.MetadataScraper` (for scraping metadata from a URL)
-* `MoodleNet.Queries` (Helpers for making queries)
-* `MoodleNet.Queries` (Helpers for making queries)
-* `MoodleNet.ReleaseTasks` (OTP release tasks)
-* `MoodleNet.Repo` (Ecto repository)
-* `MoodleNet.Workers` (background tasks)
+- `MoodleNet.Application` (OTP application)
+- `MoodleNet.ActivityPub` (ActivityPub integration)
+- `MoodleNet.Algolia` (Mothership search)
+- `MoodleNet.Common` (stuff that gets used everywhere)
+- `MoodleNet.GraphQL` (GraphQL abstractions)
+- `MoodleNet.MediaProxy` (for fetching remote media)
+- `MoodleNet.MetadataScraper` (for scraping metadata from a URL)
+- `MoodleNet.Queries` (Helpers for making queries)
+- `MoodleNet.Queries` (Helpers for making queries)
+- `MoodleNet.ReleaseTasks` (OTP release tasks)
+- `MoodleNet.Repo` (Ecto repository)
+- `MoodleNet.Workers` (background tasks)
 
 ### `MoodleNetWeb`
 
 TODO
 
-* Endpoint
-* Router
-* Controllers
-* Views
-* Plugs
-* GraphQL
-  * Schemas
-  * Resolvers
-  * Middleware
-  * Pipeline
-  * Flows
+- Endpoint
+- Router
+- Controllers
+- Views
+- Plugs
+- GraphQL
+  - Schemas
+  - Resolvers
+  - Middleware
+  - Pipeline
+  - Flows
 
 ### Naming
 
@@ -314,11 +308,9 @@ claim our scheme is the best, but we do strive for consistency.
 
 Naming rules:
 
-* Context names all begin `MoodleNet.` and are named in plural where possible.
-* Everything within a context begins with the context name and a `.`
-* Ecto schemas should be named in the singular
-* Database tables should be named in the singular
-* Acronyms in module names should be all uppercase
-* OTP services should have the `Service` suffix (without a preceding `.`)
-
-
+- Context names all begin `MoodleNet.` and are named in plural where possible.
+- Everything within a context begins with the context name and a `.`
+- Ecto schemas should be named in the singular
+- Database tables should be named in the singular
+- Acronyms in module names should be all uppercase
+- OTP services should have the `Service` suffix (without a preceding `.`)

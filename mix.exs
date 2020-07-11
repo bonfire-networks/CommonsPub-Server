@@ -65,7 +65,11 @@ defmodule MoodleNet.Mixfile do
   defp deps do
     # graphql
     [
-      {:absinthe, git: "https://github.com/absinthe-graphql/absinthe", override: true},
+      {
+        :absinthe,
+        "~> 1.5"
+        # git: "https://github.com/absinthe-graphql/absinthe", override: true,
+      },
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_error_payload, "~> 1.0"},
       # webserver
@@ -75,14 +79,14 @@ defmodule MoodleNet.Mixfile do
       # security (CORS)
       {:cors_plug, "~> 2.0"},
       # phoenix
-      {:phoenix, "~> 1.5.3"},
+      {:phoenix, "~> 1.5"},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_html, "~> 2.14"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_integration, "~> 0.8.0"},
+      {:phoenix_integration, "~> 0.8"},
       {:phoenix_ecto, "~> 4.0"},
-      {:phoenix_live_view, "~> 0.13.2"},
-      {:floki, "~> 0.26.0", override: true},
+      {:phoenix_live_view, "~> 0.14"},
+      {:floki, "~> 0.27", override: true},
       # File storage
       {:belt, git: "https://github.com/commonspub/belt"},
       # File format parsing
@@ -92,16 +96,16 @@ defmodule MoodleNet.Mixfile do
       # {:ecto_sql, "~> 3.3.4", override: true},
       {:ecto, "~> 3.4", override: true},
       {:ecto_sql, "~> 3.4", override: true},
-      {:postgrex, "~> 0.14"},
+      {:postgrex, "~> 0.15"},
       {:ecto_ulid, git: "https://github.com/irresponsible/ecto-ulid", branch: "moodlenet"},
       # crypto
       # Username reservation
       {:cloak_ecto, "~> 1.0"},
       # Password hashing
-      {:argon2_elixir, "~> 2.0"},
+      {:argon2_elixir, "~> 2.3"},
       # Outbound HTTP
       {:hackney, "~> 1.16"},
-      {:tesla, "~> 1.2"},
+      {:tesla, "~> 1.3"},
       # Email
       # sending
       {:bamboo, "~> 1.5"},
