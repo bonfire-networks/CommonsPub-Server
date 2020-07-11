@@ -34,8 +34,6 @@ defmodule MoodleNetWeb.My.MyDiscussionsLive do
 
     filters = [
       page: [desc: [last_comment: page_opts]]
-      # join: :comments
-      # preload: :first_comment
     ]
 
     {:ok, threads} =

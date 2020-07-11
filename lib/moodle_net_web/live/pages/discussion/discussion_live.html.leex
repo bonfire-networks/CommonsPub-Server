@@ -57,20 +57,10 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="discussion__replies">
-        <%= for comment <- @comments do %>
+                <%= if is_nil(@reply_to) do %>
 
-          <%= live_component(
-              @socket,
-              DiscussionCommentLive,
-              id: "discussion-activity-#{comment.id}",
-              activity: comment
-            )
-          %>
-          <% end %>
-        <div id="reply" class="discussion__reply">
+      <div id="reply" class="discussion__reply">
           <form phx-submit="reply">
 
           <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
@@ -79,9 +69,23 @@
                       <button>Comment</button>
                     </form>
                   </div>
-                </div>
+                <% end %>
+              </div>
+              <div class="discussion__replies">
+                <%= for comment <- @comments do %>
+                  <%= live_component(
+              @socket,
+              DiscussionCommentLive,
+              id: "discussion-activity-#{comment.id}",
+              activity: comment,
+              current_user: @current_user,
+              reply_to: @reply_to
+            )
+          %>
+                <% end %>
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+    </div>

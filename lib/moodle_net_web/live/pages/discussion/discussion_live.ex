@@ -11,12 +11,33 @@ defmodule MoodleNetWeb.DiscussionLive do
   # alias MoodleNetWeb.Component.{CommentPreviewLive}
   alias MoodleNetWeb.Discussion.DiscussionCommentLive
 
-  def mount(%{"id" => id} = params, session, socket) do
+  def mount(%{"id" => thread_id} = params, session, socket) do
     socket = init_assigns(params, session, socket)
+    {:ok, socket}
+  end
+
+  # def handle_params(%{"id" => thread_id, "do" => "discuss"} = params, session, socket) do
+  #   {:ok,
+  #   socket
+  #   |> push_redirect(to: "/!" <> thread_id <> "/discuss")}
+  # end
+
+  def handle_params(
+        %{"id" => thread_id, "sub_id" => comment_id} = params,
+        session,
+        socket
+      ) do
+    {:noreply,
+     assign(socket,
+       reply_to: comment_id
+     )}
+  end
+
+  def handle_params(%{"id" => thread_id} = params, session, socket) do
     current_user = socket.assigns.current_user
 
     {:ok, thread} =
-      ThreadsResolver.thread(%{thread_id: id}, %{
+      ThreadsResolver.thread(%{thread_id: thread_id}, %{
         context: %{current_user: current_user}
       })
 
@@ -36,9 +57,10 @@ defmodule MoodleNetWeb.DiscussionLive do
 
     [head | tail] = comments_edges
 
-    {:ok,
+    {:noreply,
      assign(socket,
-       current_user: current_user,
+       #  current_user: current_user,
+       reply_to: nil,
        thread: thread,
        main_comment: head,
        comments: tail
@@ -70,7 +92,7 @@ defmodule MoodleNetWeb.DiscussionLive do
       {:noreply,
        socket
        #  |> put_flash(:info, "Replied!")
-       |> redirect(to: "/!" <> socket.assigns.thread.id <> "/discuss")}
+       |> push_patch(to: "/!" <> socket.assigns.thread.id <> "/discuss")}
     end
   end
 end

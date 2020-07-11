@@ -179,7 +179,7 @@ defmodule MoodleNet.Threads.Queries do
 
   def filter(q, {:page, [desc: [created: page_opts]]}) do
     q
-    |> filter(join: :last_comment, join: :follower_count, order: [desc: :created])
+    |> filter(join: :follower_count, order: [desc: :created])
     |> page(page_opts, desc: :created)
     |> select([thread: t, follower_count: fc], %{t | follower_count: coalesce(fc.count, 0)})
   end

@@ -94,7 +94,7 @@
                   ) %>
           </div>
           <% @selected_tab == "discussions" ->  %>
-          <h3 class="area__title">discussions started by <%= @user.name %></h3>
+          <h3 class="area__title">Posts</h3>
           <div class="selected__area">
             <%= live_component(
                     @socket,

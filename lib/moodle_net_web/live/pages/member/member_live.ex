@@ -80,6 +80,6 @@ defmodule MoodleNetWeb.MemberLive do
      socket
      |> put_flash(:info, "Followed!")
      # change redirect
-     |> redirect(to: "/@" <> socket.assigns.user.username)}
+     |> push_patch(to: "/@" <> socket.assigns.user.username)}
   end
 end

@@ -37,11 +37,11 @@ defmodule MoodleNetWeb.My.MySidebar do
          socket
          |> put_flash(:info, "Community created !")
          # change redirect
-         |> redirect(to: "/&" <> community.actor.preferred_username)}
+         |> push_redirect(to: "/&" <> community.actor.preferred_username)}
       else
         {:noreply,
          socket
-         |> redirect(to: "/instance/communities/")}
+         |> push_redirect(to: "/instance/communities/")}
       end
     end
   end

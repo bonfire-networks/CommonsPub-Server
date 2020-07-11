@@ -168,7 +168,9 @@ defmodule MoodleNetWeb.Router do
     # live "/+:username", CharacterLive
     # live "/+:username/:tab", CharacterLive
 
-    live "/!:id/discuss", DiscussionLive
+    live "/!:id/:do/:sub_id", DiscussionLive
+    live "/!:id/:do", DiscussionLive
+    live "/!:id", DiscussionLive
 
     live "/~/login", LoginLive
     live "/~/signup", SignupLive

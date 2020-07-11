@@ -20,4 +20,17 @@
       comment: @activity
     ) %>
   </div>
+
+  <%= if @activity.id == @reply_to do %>
+
+    <div id="reply" class="discussion__reply">
+    <form phx-submit="reply">
+
+    <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+    <div class="reply__box">
+      <textarea name="content" placeholder="Write a reply"></textarea>
+      <button>Comment</button>
+    </form>
+  </div>
+<% end %>
 </div>

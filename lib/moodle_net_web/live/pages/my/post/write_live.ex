@@ -80,7 +80,7 @@ defmodule MoodleNetWeb.My.Post.WriteLive do
        socket
        |> put_flash(:info, "Published!")
        # change redirect
-       |> redirect(to: "/!" <> thread.id <> "/discuss")}
+       |> push_redirect(to: "/!" <> thread.id)}
     end
   end
 

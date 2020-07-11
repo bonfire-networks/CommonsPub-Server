@@ -31,17 +31,18 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
 
     page_opts = %{limit: 10}
 
+    opts = [user: assigns.current_user, creator: assigns.user.id]
+
     filters = [
-      page: [desc: [last_comment: page_opts]]
+      page: [desc: [created: page_opts]]
       # join: :first_comment,
       # preload: :first_comment
     ]
 
     {:ok, threads} =
-      MoodleNetWeb.GraphQL.ThreadsResolver.fetch_creator_threads_edge(
+      MoodleNetWeb.GraphQL.ThreadsResolver.list_creator_threads(
         page_opts,
-        %{context: %{current_user: assigns.current_user}},
-        assigns.user.id,
+        opts,
         filters
       )
 

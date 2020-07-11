@@ -49,7 +49,7 @@ defmodule MoodleNetWeb.SettingsLive do
     {:noreply,
      socket
      |> put_flash(:info, "Saved!")
-     |> redirect(to: "/~/profile")}
+     |> push_redirect(to: "/~/profile")}
   end
 
   # def handle_params(%{} = params, url, socket) do
