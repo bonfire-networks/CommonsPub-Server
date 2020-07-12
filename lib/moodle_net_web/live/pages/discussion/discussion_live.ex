@@ -47,7 +47,7 @@ defmodule MoodleNetWeb.DiscussionLive do
 
     # TODO: tree of replies & pagination
     {:ok, comments} =
-      CommentsResolver.comments_edge(thread, %{}, %{
+      CommentsResolver.comments_edge(thread, %{limit: 10}, %{
         context: %{current_user: current_user}
       })
 

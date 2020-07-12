@@ -102,3 +102,36 @@
 .discussion__reply .reply__box textarea {
   min-height: 160px;
 }
+
+
+.preview__fork {
+  margin-top: 8px;
+  border-radius: 6px;
+  border: var(--border);
+  .comment__fork {
+    font-size: 14px;
+    place-content: center;
+    display: grid;
+    border-top: var(--border);
+    padding: 8px 0;
+  }
+}
+.preview__replies_to_comment {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  
+  .comment__avatar_link {
+    margin-right: 8px;
+    height: 24px;
+    img {
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+    }
+  }
+  p {
+    font-size: 14px;
+  }
+}

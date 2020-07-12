@@ -10,9 +10,9 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
       </div>
       <div class="preview__actions">
       <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "") do %>
-          <button class="button"><i class="feather-message-square"></i> Reply</button>
+          <button class="button"><i class="feather-message-square"></i><span>Reply</span></button>
           <% end %>
-        <button class="button"><i class="feather-bookmark"></i> Bookmark</button>
+        <button class="button"><i class="feather-bookmark"></i><span>Bookmark</span></button>
         <details class="more__dropdown">
             <summary>
               <i class="feather-more-horizontal"></i>

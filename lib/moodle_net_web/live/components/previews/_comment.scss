@@ -3,6 +3,14 @@
   align-items: center;
   margin-top: var(--m2);
   button {
+    color: lightness(var(--color-surface), 2.5);
     margin-right: var(--m3);
+    font-weight: 500;
+    display: flex;
+    place-content: center;
+    align-items: center;
+    i {
+      margin-right: var(--m1);
+    }
   }
 }
