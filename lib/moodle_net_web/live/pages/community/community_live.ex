@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.CommunityLive do
     community =
       Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
 
-    # IO.inspect(community, label: "COMMUNITY")
+    IO.inspect(community, label: "COMMUNITY")
 
     {:noreply,
      assign(socket,

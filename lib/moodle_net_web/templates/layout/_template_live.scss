@@ -399,6 +399,47 @@
   z-index: 99;
   display: flex;
   justify-content: space-between;
+  .aside {
+    aside {
+      h2 {
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 24px;
+      }
+    position: absolute;
+    z-index: 1000000;
+    background-color: #fff;
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
+    box-sizing: border-box;
+    outline: none;
+    overflow-y: auto;
+    visibility: visible;
+    pointer-events: auto;
+    top: 0;
+    left: 0;
+    right: auto;
+    height: 100vh;
+    -webkit-transform-origin: top left;
+    -ms-transform-origin: top left;
+    transform-origin: top left;
+    -webkit-animation-duration: .18s;
+    animation-duration: .18s;
+    -webkit-animation-timing-function: ease;
+    animation-timing-function: ease;
+      position: fixed;
+      box-shadow: rgba(0, 0, 0, 0.22) 0px 25.6px 57.6px 0px, rgba(0, 0, 0, 0.18) 0px 4.8px 14.4px 0px;
+      padding: 16px;
+      .aside__app {
+        margin-bottom: 16px;
+        border: var(--border);
+        padding: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+    }
+  }
   .header__right {
     align-self: center;
     display: flex;

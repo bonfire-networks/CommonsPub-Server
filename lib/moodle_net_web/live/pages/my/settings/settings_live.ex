@@ -8,6 +8,7 @@ defmodule MoodleNetWeb.SettingsLive do
     SettingsNavigationLive,
     SettingsGeneralLive,
     SettingsInstanceLive,
+    SettingsFlagsLive,
     SettingsInvitesLive
   }
 
