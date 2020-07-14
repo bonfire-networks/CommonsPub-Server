@@ -6,8 +6,6 @@ defmodule Tag.TagThings do
     Repo
   }
 
-  # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
-  # alias MoodleNet.Users.User
   alias Tag.Taggable
 
   # alias Tag.Taggable.Queries

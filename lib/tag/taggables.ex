@@ -10,8 +10,6 @@ defmodule Tag.Taggables do
     Common.Contexts
   }
 
-  # alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
-  # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
   alias MoodleNet.Users.User
   alias Tag.Taggable
   alias Tag.Taggable.Queries

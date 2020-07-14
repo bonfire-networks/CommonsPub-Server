@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   alias MoodleNet.Access.{
     MalformedAuthorizationHeaderError,
-    # Token,
+    Token,
     TokenNotFoundError
   }
 
@@ -45,28 +45,51 @@ defmodule MoodleNetWeb.Plugs.Auth do
   def call(conn, opts) do
     case Map.get(conn.assigns, :current_user) do
       nil ->
-        with {:ok, token} <- get_token(conn),
-             {:ok, token} <- Access.fetch_token_and_user(token),
-             :ok <- Access.verify_token(token, get_now(opts)) do
-          login(conn, token.user, token)
-        else
-          {:error, error} ->
-            Conn.assign(conn, :auth_error, error)
-            |> clear_session
-        end
+        try_login(conn, opts)
 
       _ ->
         conn
     end
   end
 
-  defp get_now(opts), do: Keyword.get(opts, :now) || DateTime.utc_now()
+  defp get_now(opts) do
+    if Map.has_key?(opts, :now) do
+      Keyword.get(opts, :now)
+    else
+      DateTime.utc_now()
+    end
+  end
 
-  @doc false
-  def login(conn, user, token) do
-    # IO.inspect(login_user: user)
-    # IO.inspect(login_token: token)
+  def try_login(conn, opts \\ %{}) do
+    with {:ok, token} <- get_token(conn) do
+      login(conn, token, opts)
+    else
+      {:error, error} -> auth_error(conn, error)
+    end
+  end
 
+  def login(conn, %Token{} = token, opts) do
+    with :ok <- Access.verify_token(token, get_now(opts)) do
+      logged_in(conn, token.user, token)
+    else
+      {:error, error} -> auth_error(conn, error)
+    end
+  end
+
+  def login(conn, token, opts \\ %{}) do
+    with {:ok, token} <- Access.fetch_token_and_user(token) do
+      login(conn, token)
+    else
+      {:error, error} -> auth_error(conn, error)
+    end
+  end
+
+  defp auth_error(conn, error) do
+    Conn.assign(conn, :auth_error, error)
+    |> clear_session
+  end
+
+  defp logged_in(conn, user, %Token{} = token) do
     conn
     |> put_current_user(user, token)
     |> Conn.put_session(:auth_token, token.id)
@@ -122,5 +145,11 @@ defmodule MoodleNetWeb.Plugs.Auth do
     |> Conn.delete_session(:auth_token)
     |> Conn.assign(:current_user, nil)
     |> Conn.assign(:auth_token, nil)
+  end
+
+  def confirm_email(conn, token) do
+    {ok, res} = MoodleNetWeb.GraphQL.UsersResolver.confirm_email(%{token: token}, %{})
+    # IO.inspect(res)
+    login(conn, res.token, %{})
   end
 end

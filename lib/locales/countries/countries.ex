@@ -6,9 +6,6 @@ defmodule Locales.Countries do
     Repo
   }
 
-  # alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
-  # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
-  # alias MoodleNet.Users.User
   alias Locales.Country
   alias Locales.Countries.Queries
 

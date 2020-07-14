@@ -6,7 +6,6 @@ defmodule MoodleNet.Likes do
   # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
-  alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
 
@@ -20,12 +19,15 @@ defmodule MoodleNet.Likes do
 
   defp publish(creator, %{outbox_id: context_outbox_id}, %Like{} = like, verb) do
     attrs = %{verb: verb, is_local: like.is_local}
+
     with {:ok, activity} <- Activities.create(creator, like, attrs) do
       FeedActivities.publish(activity, [creator.outbox_id, context_outbox_id])
     end
   end
+
   defp publish(creator, _context, %Like{} = like, verb) do
     attrs = %{verb: verb, is_local: like.is_local}
+
     with {:ok, activity} <- Activities.create(creator, like, attrs) do
       FeedActivities.publish(activity, [creator.outbox_id])
     end
@@ -47,8 +49,9 @@ defmodule MoodleNet.Likes do
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
   """
   def create(liker, liked, fields)
-  def create(%User{} = liker, %Pointer{} = liked, fields) do
-    create(liker, Pointers.follow!(liked), fields)
+
+  def create(%User{} = liker, %Pointers.Pointer{} = liked, fields) do
+    create(liker, MoodleNet.Meta.Pointers.follow!(liked), fields)
   end
 
   def create(%User{} = liker, %{__struct__: ctx} = liked, fields) do
@@ -80,7 +83,7 @@ defmodule MoodleNet.Likes do
   end
 
   @spec soft_delete(User.t(), Like.t()) :: {:ok, Like.t()} | {:error, any}
-  def soft_delete(%User{}=user, %Like{} = like) do
+  def soft_delete(%User{} = user, %Like{} = like) do
     Repo.transact_with(fn ->
       with {:ok, like} <- Common.soft_delete(like),
            :ok <- chase_delete(user, like.id),
@@ -90,14 +93,19 @@ defmodule MoodleNet.Likes do
     end)
   end
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
-        with :ok <- chase_delete(user, ids) do
-          ap_publish("delete", ids)
-        end
-      end), do: :ok
+           Repo.transact_with(fn ->
+             {_, ids} =
+               update_by(user, [{:select, :id}, {:deleted, false} | filters],
+                 deleted_at: DateTime.utc_now()
+               )
+
+             with :ok <- chase_delete(user, ids) do
+               ap_publish("delete", ids)
+             end
+           end),
+         do: :ok
   end
 
   defp chase_delete(user, ids) do
@@ -108,5 +116,4 @@ defmodule MoodleNet.Likes do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
-
 end

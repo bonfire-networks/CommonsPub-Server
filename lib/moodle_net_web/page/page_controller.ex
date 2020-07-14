@@ -29,4 +29,10 @@ defmodule MoodleNetWeb.PageController do
     |> MoodleNetWeb.Plugs.Auth.logout()
     |> redirect(external: "/")
   end
+
+  def confirm_email(conn, params) do
+    conn
+    |> MoodleNetWeb.Plugs.Auth.confirm_email(params["token"])
+    |> redirect(external: "/")
+  end
 end

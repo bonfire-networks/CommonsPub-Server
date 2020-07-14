@@ -9,8 +9,6 @@ defmodule Taxonomy.TaxonomyTags do
     Repo
   }
 
-  # alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
-  # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
   alias MoodleNet.Users.User
   alias Taxonomy.TaxonomyTag
   alias Taxonomy.TaxonomyTag.Queries

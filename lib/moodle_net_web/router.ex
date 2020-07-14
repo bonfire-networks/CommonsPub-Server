@@ -139,6 +139,7 @@ defmodule MoodleNetWeb.Router do
   scope "/" do
     pipe_through :browser
     get "/", MoodleNetWeb.PageController, :index
+    get "/confirm-email/:token", MoodleNetWeb.PageController, :confirm_email
     get "/logout", MoodleNetWeb.PageController, :logout
     get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
   end
@@ -189,5 +190,28 @@ defmodule MoodleNetWeb.Router do
     live "/~/:tab", My.Live
 
     live "/~/proto", My.ProtoProfileLive
+  end
+
+  def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
+    IO.inspect(info)
+
+    msg =
+      if Map.has_key?(reason, :message) and !is_nil(reason.message) and
+           String.length(reason.message) > 0 do
+        reason.message
+      else
+        if Map.has_key?(reason, :term) and Map.has_key?(reason.term, :message) do
+          reason.term.message
+        else
+          ""
+        end
+      end
+
+    send_resp(
+      conn,
+      conn.status,
+      "Sorry! " <>
+        msg <> "... Please try another way, or get in touch with the site admin."
+    )
   end
 end

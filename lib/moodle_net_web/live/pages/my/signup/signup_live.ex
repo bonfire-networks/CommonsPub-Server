@@ -36,17 +36,27 @@ defmodule MoodleNetWeb.SignupLive do
       input = input_to_atoms(data)
       IO.inspect(input)
 
-      {:ok, user} = MoodleNetWeb.GraphQL.UsersResolver.create_user(%{user: input}, %{})
+      case MoodleNetWeb.GraphQL.UsersResolver.create_user(%{user: input}, %{}) do
+        {:ok, user} ->
+          # IO.inspect(user)
 
-      IO.inspect(user)
+          {:noreply,
+           socket
+           |> put_flash(
+             :info,
+             "Signed up! Please check your email inbox (and spam folder) to activate your account."
+           )
+           |> redirect(to: "/")}
 
-      {:noreply,
-       socket
-       |> put_flash(
-         :info,
-         "Signed up! Please check your email inbox (and spam folder) to activate your account."
-       )
-       |> redirect(to: "/")}
+        {:error, err} ->
+          IO.inspect(err)
+
+          # TODO: display the error
+          {:noreply, assign(socket, :notice, "Something went wrong...")}
+
+        _ ->
+          {:noreply, assign(socket, :notice, "Something went wrong!")}
+      end
     end
   end
 
