@@ -66,9 +66,11 @@ defmodule MoodleNet.Mixfile do
       {:absinthe_error_payload, "~> 1.0"},
       # webserver
       {:cowboy, "~> 2.6"},
+      {:cowlib, "~> 2.8", override: true},
       {:plug_cowboy, "~> 2.2"},
       {:plug, "~> 1.10"},
       {:cors_plug, "~> 2.0"}, # security (CORS)
+      {:castore, "~> 0.1"},
       # phoenix
       {:phoenix, "~> 1.5.3"},
       {:phoenix_pubsub, "~> 2.0"},
@@ -94,8 +96,12 @@ defmodule MoodleNet.Mixfile do
       {:cloak_ecto, "~> 1.0"}, # Username reservation
       {:argon2_elixir, "~> 2.0"}, # Password hashing
       # Outbound HTTP
-      {:hackney, "~> 1.15.2"},
-      {:tesla, "~> 1.2"},
+      {:gun,
+       github: "ninenines/gun", ref: "e1a69b36b180a574c0ac314ced9613fdd52312cc", override: true},
+      {:tesla,
+      git: "https://git.pleroma.social/pleroma/elixir-libraries/tesla.git",
+      ref: "61b7503cef33f00834f78ddfafe0d5d9dec2270b",
+      override: true},
       # Email
       {:bamboo, "~> 1.5"}, # sending
       {:bamboo_smtp, "~> 2.1.0"}, # generic smtp backend
@@ -108,7 +114,10 @@ defmodule MoodleNet.Mixfile do
       {:jason, "~> 1.2"},    # json
       {:gettext, "~> 0.18"}, # localisation
       {:recase, "~> 0.5"},   # camel/snake/kebabification
-      {:furlex, git: "https://gitlab.com/moodlenet/servers/furlex"}, # webpage summary
+      {:furlex,
+      git: "https://gitlab.com/moodlenet/servers/furlex",
+      ref: "589c6a2e15e97606c53f86b466087192de3680fa"}, # webpage summary
+      {:fast_html, "~> 1.0"}, #html parser
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git",
       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
