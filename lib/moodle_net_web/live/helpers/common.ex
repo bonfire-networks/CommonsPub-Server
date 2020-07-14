@@ -12,9 +12,17 @@ defmodule MoodleNetWeb.Helpers.Common do
     Communities
   }
 
+  def strlen(thing) do
+    if !is_nil(thing) do
+      String.length(thing)
+    else
+      0
+    end
+  end
+
   @doc "Returns a value, or a fallback if not present"
   def e(key, fallback) do
-    if(!is_nil(key)) do
+    if(strlen(key) > 0) do
       key
     else
       fallback

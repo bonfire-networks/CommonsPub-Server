@@ -79,7 +79,7 @@ defmodule MoodleNet.GraphQL do
   defp lazy({:error, value}), do: {:error, value}
   defp lazy(value), do: {:ok, value}
 
-  def guest_only(%Resolution{} = info) do
+  def guest_only(%{} = info) do
     case current_user(info) do
       nil -> :ok
       _user -> not_permitted()

@@ -110,13 +110,19 @@ defmodule MoodleNet.Actors do
     |> String.replace(~r/--+/, "-")
   end
 
-  def prepare_username(%{:preferred_username => _} = attrs) do
-    Map.put(attrs, :preferred_username, atomise_username(attrs.preferred_username))
+  def prepare_username(%{:preferred_username => preferred_username} = attrs)
+      when not is_nil(preferred_username) and preferred_username != "" do
+    Map.put(attrs, :preferred_username, atomise_username(preferred_username))
   end
 
   # if no username set, autocreate from name
-  def prepare_username(attrs) do
+  def prepare_username(%{:name => name} = attrs)
+      when not is_nil(name) and name != "" do
     Map.put(attrs, :preferred_username, atomise_username(Map.get(attrs, :name)))
+  end
+
+  def prepare_username(attrs) do
+    attrs
   end
 
   def display_username(%MoodleNet.Communities.Community{} = obj) do

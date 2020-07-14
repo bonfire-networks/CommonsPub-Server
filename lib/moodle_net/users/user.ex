@@ -41,16 +41,15 @@ defmodule MoodleNet.Users.User do
     timestamps()
   end
 
-  @register_required ~w(name)a
-  @register_cast @register_required ++
-    ~w(id name summary location website extra_info icon_id image_id is_public)a  ++
-    ~w(is_disabled inbox_id outbox_id)a
+  # @register_required ~w(name)a
+  @register_cast ~w(id name summary location website extra_info icon_id image_id is_public)a ++
+                   ~w(is_disabled inbox_id outbox_id)a
 
   @doc "Create a changeset for registration"
   def register_changeset(%Actor{id: id, peer_id: peer_id}, %{} = attrs) do
     %User{}
     |> Changeset.cast(attrs, @register_cast)
-    |> Changeset.validate_required(@register_required)
+    # |> Changeset.validate_required(@register_required)
     |> Changeset.change(actor_id: id)
     |> common_changeset()
     |> local_changeset(is_nil(peer_id))
@@ -63,8 +62,8 @@ defmodule MoodleNet.Users.User do
   end
 
   @update_cast [] ++
-    ~w(name summary location website extra_info icon_id image_id is_public)a ++
-    ~w(is_disabled inbox_id outbox_id)a
+                 ~w(name summary location website extra_info icon_id image_id is_public)a ++
+                 ~w(is_disabled inbox_id outbox_id)a
 
   @doc "Update the attributes for a user"
   def update_changeset(%User{} = user, attrs) do
@@ -87,8 +86,8 @@ defmodule MoodleNet.Users.User do
     |> Changeset.validate_length(:location, max: 140)
     |> Changeset.validate_length(:website, max: 255)
   end
-  defp local_changeset(changeset, false), do: changeset
 
+  defp local_changeset(changeset, false), do: changeset
 
   ### behaviour callbacks
 
@@ -97,5 +96,4 @@ defmodule MoodleNet.Users.User do
   def queries_module, do: Users.Queries
 
   def follow_filters, do: [join: :actor, preload: :actor]
-
 end
