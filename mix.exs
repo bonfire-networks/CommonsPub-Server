@@ -22,7 +22,7 @@ defmodule MoodleNet.Mixfile do
       docs: [
         main: "readme", # The first page to display from the docs
         logo: "assets/static/images/moodlenet-logo.png",
-        extras: ["README.md", "HACKING.md", "DEPLOY.md", "MRF.md", "docs/GRAPHQL.md"] # extra pages to include
+        extras: ["README.md", "HACKING.md", "DEPLOY.md", "MRF.md", "docs/GRAPHQL.md", "ARCHITECTURE.md"] # extra pages to include
       ],
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test]
