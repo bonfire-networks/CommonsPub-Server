@@ -9,22 +9,13 @@
     <input placeholder="Search in the fediverse..." />
     <div class="header__right">
       <%= if @current_user do %>
-        <div class="box__info">
-          <a href="/@<%= e(@current_user, :actor, :preferred_username, "") %>">
-            <img src="<%= e(@current_user, :icon_url, "") %>" />
-          <h3><%= e(@current_user, :name, "Me") %></h3>
-        </a>
-        <details class="drawer__profile" >
-          <summary class="user__dropdown">
-            <i class="feather-more-horizontal"></i>
-          </summary>
-          <ul class="dropdown__list">
-            <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-            <li><a href="/~/settings">Settings</a></li>
-            <li><a href="#">Logout</a></li>
-          </ul>
-        </details>
-      </div>
+          <%= live_component(
+          @socket,
+          MoodleNetWeb.My.MyHeader,
+          current_user: @current_user,
+          id: :my_header
+        ) %>
+
     <% end %>
     <%= if @current_user == nil do %>
       <div class="panel__item">

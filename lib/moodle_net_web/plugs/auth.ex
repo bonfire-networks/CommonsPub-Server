@@ -52,8 +52,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
         else
           {:error, error} ->
             Conn.assign(conn, :auth_error, error)
-            |> Conn.assign(:current_user, nil)
-            |> Conn.assign(:auth_token, nil)
+            |> clear_session
         end
 
       _ ->
@@ -72,6 +71,16 @@ defmodule MoodleNetWeb.Plugs.Auth do
     |> put_current_user(user, token)
     |> Conn.put_session(:auth_token, token.id)
     |> Conn.configure_session(renew: true)
+  end
+
+  def logout(conn) do
+    with {:ok, token} <- get_token(conn),
+         {:ok, token} <- Access.fetch_token_and_user(token) do
+      Access.hard_delete(token)
+    end
+
+    conn
+    |> clear_session
   end
 
   # @specp get_token(Conn.t) :: {:ok, binary} | {:error, term}
@@ -106,5 +115,12 @@ defmodule MoodleNetWeb.Plugs.Auth do
     conn
     |> Conn.assign(:current_user, user)
     |> Conn.assign(:auth_token, token)
+  end
+
+  defp clear_session(conn) do
+    conn
+    |> Conn.delete_session(:auth_token)
+    |> Conn.assign(:current_user, nil)
+    |> Conn.assign(:auth_token, nil)
   end
 end

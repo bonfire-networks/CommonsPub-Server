@@ -46,4 +46,8 @@ defmodule MoodleNetWeb.Helpers.Account do
       %{token: token.id, current_user: Me.new(user)}
     end
   end
+
+  def logout(socket) do
+    Access.hard_delete(socket.assigns.auth_token)
+  end
 end

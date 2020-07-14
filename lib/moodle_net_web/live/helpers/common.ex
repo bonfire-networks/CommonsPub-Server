@@ -69,7 +69,7 @@ defmodule MoodleNetWeb.Helpers.Common do
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
-    Logger.info(session_preloaded: session)
+    # Logger.info(session_preloaded: session)
 
     socket
     |> assign(:auth_token, fn -> auth_token end)
@@ -83,11 +83,11 @@ defmodule MoodleNetWeb.Helpers.Common do
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
-    Logger.info(session_load: session)
+    # Logger.info(session_load: session)
 
     current_user = Account.current_user(session["auth_token"])
 
-    IO.inspect(session_loaded_user: current_user)
+    # IO.inspect(session_loaded_user: current_user)
 
     communities =
       if(current_user) do

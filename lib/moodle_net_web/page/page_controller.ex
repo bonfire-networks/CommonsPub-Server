@@ -23,4 +23,10 @@ defmodule MoodleNetWeb.PageController do
     conn
     |> redirect(external: "/api/explore")
   end
+
+  def logout(conn, _params) do
+    conn
+    |> MoodleNetWeb.Plugs.Auth.logout()
+    |> redirect(external: "/")
+  end
 end

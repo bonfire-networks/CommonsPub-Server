@@ -137,7 +137,9 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/" do
+    pipe_through :browser
     get "/", MoodleNetWeb.PageController, :index
+    get "/logout", MoodleNetWeb.PageController, :logout
     get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
   end
 
