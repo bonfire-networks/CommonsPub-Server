@@ -8,7 +8,7 @@ defmodule MoodleNet.Peers do
 
   * ActivityPub
 
-  A `MoodleNet.Peers.Peer` is created from a MoodleNet.Meta.Pointer`
+  A `MoodleNet.Peers.Peer` is created from a Pointers.Pointer`
   as the `MoodleNet.Meta.Peer` participates in the Meta abstraction
 
   """
@@ -57,5 +57,4 @@ defmodule MoodleNet.Peers do
     |> Queries.filter(filters)
     |> Repo.delete_all()
   end
-
 end

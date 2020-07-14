@@ -24,6 +24,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     comment
     |> Map.merge(%{published_at: from_now})
     |> Map.merge(%{creator: creator})
+    |> Map.merge(%{comments: []})
   end
 
   def prepare_thread(thread) do

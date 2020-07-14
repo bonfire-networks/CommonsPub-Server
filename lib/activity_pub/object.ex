@@ -22,7 +22,7 @@ defmodule ActivityPub.Object do
     field(:data, :map)
     field(:local, :boolean, default: true)
     field(:public, :boolean)
-    belongs_to(:mn_pointer, MoodleNet.Meta.Pointer, type: ULID)
+    belongs_to(:mn_pointer, Pointers.Pointer, type: ULID)
 
     timestamps()
   end

@@ -104,8 +104,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert %ActivityPub.Object{} =
                object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
 
-      assert {:ok, %MoodleNet.Meta.Pointer{}} =
-               MoodleNet.Meta.Pointers.one(id: object.mn_pointer_id)
+      assert {:ok, %Pointers.Pointer{}} = MoodleNet.Meta.Pointers.one(id: object.mn_pointer_id)
     end
   end
 

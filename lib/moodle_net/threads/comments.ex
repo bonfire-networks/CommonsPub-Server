@@ -119,9 +119,6 @@ defmodule MoodleNet.Threads.Comments do
           %Pointer{} = pointer ->
             follow_ctx(thread, pointer)
 
-          %MoodleNet.Meta.Pointer{} = pointer ->
-            follow_ctx(thread, pointer)
-
           nil ->
             thread
 
@@ -135,7 +132,7 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   def follow_ctx(thread, pointer) do
-    # FIXME, causes protocol Enumerable not implemented for %MoodleNet.Meta.Pointer
+    # FIXME, causes protocol Enumerable not implemented for %Pointers.Pointer
     context = MoodleNet.Meta.Pointers.follow!(pointer)
     %{thread | context: %{thread.context | pointed: context}}
   end

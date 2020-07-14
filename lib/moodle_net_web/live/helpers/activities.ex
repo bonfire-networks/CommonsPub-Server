@@ -37,58 +37,141 @@ defmodule MoodleNetWeb.Helpers.Activites do
     activity
     |> Map.merge(%{published_at: from_now})
     |> Map.merge(%{creator: creator})
-    |> Map.merge(%{verb_object: activity_verb_object(activity)})
+    |> Map.merge(%{display_verb: display_activity_verb(activity)})
+    |> Map.merge(%{display_object: display_activity_object(activity)})
+    |> Map.merge(%{activity_url: activity_url(activity)})
   end
 
-  def activity_verb_object(%{verb: verb, context_type: context_type} = activity) do
+  def activity_url(%{
+        context: %MoodleNet.Communities.Community{
+          actor: %{preferred_username: preferred_username}
+        }
+      })
+      when not is_nil(preferred_username) do
+    "/&" <> preferred_username
+  end
+
+  def activity_url(%{
+        context: %MoodleNet.Users.User{
+          actor: %{preferred_username: preferred_username}
+        }
+      })
+      when not is_nil(preferred_username) do
+    "/@" <> preferred_username
+  end
+
+  def activity_url(%{
+        context: %{
+          actor: %{preferred_username: preferred_username}
+        }
+      })
+      when not is_nil(preferred_username) do
+    "/+" <> preferred_username
+  end
+
+  def activity_url(%{context: %{thread_id: thread_id, id: comment_id, reply_to_id: is_reply}})
+      when not is_nil(thread_id) and not is_nil(is_reply) do
+    "/!" <> thread_id <> "/discuss/" <> comment_id <> "#reply"
+  end
+
+  def activity_url(%{context: %{thread_id: thread_id}}) when not is_nil(thread_id) do
+    "/!" <> thread_id
+  end
+
+  def activity_url(%{context: %{canonical_url: canonical_url}}) when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def activity_url(%{context: %{actor: %{canonical_url: canonical_url}}})
+      when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def activity_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def activity_url(activity) do
+    IO.inspect(activity)
+    "#unsupported-by-activity_url/1"
+  end
+
+  def display_activity_verb(%{verb: verb, context_type: context_type} = activity) do
     cond do
       context_type == "flag" ->
-        "flagged a " <> context_type
+        "flagged"
 
       context_type == "like" ->
-        "starred a " <> context_type
+        "starred"
 
       context_type == "follow" ->
-        "followed a " <> context_type
+        "followed"
 
       context_type == "resource" ->
-        "added a " <> context_type
+        "added"
 
       context_type == "comment" ->
         cond do
           !is_nil(activity.context.reply_to_id) and !is_nil(activity.context.name) ->
-            "replied to " <> activity.context.name
+            "replied to:"
 
           activity.context.reply_to_id ->
-            "replied to a discussion"
+            "replied to"
 
           activity.context.name ->
-            "started a discussion: " <> activity.context.name
+            "posted:"
 
           true ->
-            "started a discussion"
+            "started"
         end
 
       verb == "created" ->
-        "created a " <> context_type
+        "created"
 
       verb == "updated" ->
-        "updated a " <> context_type
+        "updated"
 
       true ->
-        "acted on a " <> context_type
+        "acted on"
     end
   end
 
-  def activity_verb_object(%{verb: verb}) do
-    verb <> " something"
+  def display_activity_verb(%{verb: verb}) do
+    verb
   end
 
-  def activity_verb_object(%{context_type: context_type}) do
-    "did " <> context_type
+  def display_activity_verb(%{context_type: context_type}) do
+    "acted on"
   end
 
-  def activity_verb_object(_) do
-    "did something"
+  def display_activity_verb(_) do
+    "did"
+  end
+
+  def display_activity_object(%{verb: verb, context_type: context_type} = activity) do
+    cond do
+      context_type == "comment" ->
+        cond do
+          activity.context.name ->
+            activity.context.name
+
+          true ->
+            "a discussion"
+        end
+
+      # activity.context.name ->
+      #   "a " <> context_type <> ": " <> activity.context.name
+
+      true ->
+        "a " <> context_type
+    end
+  end
+
+  def display_activity_object(%{context_type: context_type}) do
+    "a " <> context_type
+  end
+
+  def display_activity_object(_) do
+    "something"
   end
 end

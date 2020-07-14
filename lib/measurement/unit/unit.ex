@@ -5,7 +5,7 @@ defmodule Measurement.Unit do
 
   alias Ecto.Changeset
   # alias MoodleNet.Actors.Actor
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
   alias MoodleNet.Users.User
 
   # alias Measurement.Unit

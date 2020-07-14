@@ -6,8 +6,10 @@
 <div class="info__meta">
   <div class="meta__action">
     <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@activity, :creator, :name, "Somebody") %></a>
-    <!-- p><a href="<%= e(@activity, :context, :canonical_url, "") %>"><%= e(@activity, :verb_object, "did something") %></a></p -->
-    <p><%= e(@activity, :verb_object, "did something") %></p>
+    <p>
+      <%= e(@activity, :display_verb, "acted on") %>
+      <a data-phx-link="redirect" data-phx-link-state="push" href="<%= e(@activity, :activity_url, "#unknown") %>"><%= e(@activity, :display_object, "something") %></a>
+    </p>
   </div>
   <div class="meta__secondary">
     <%= e(@activity, :published_at, "one day") %>

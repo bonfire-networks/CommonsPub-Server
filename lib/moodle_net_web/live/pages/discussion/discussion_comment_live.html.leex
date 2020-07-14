@@ -1,45 +1,76 @@
-<div id="<%= e(@activity, :id, "") %>" class="component__activity">
+
+<div id="<%= e(@comment, :id, "") %>" class="component__activity <%= if @comment.id == @reply_to, do: "highlight" %>">
+<%= if @comment.id == @reply_to, do: r("<span id=reply></span>") %>
   <div class="activity__info">
-    <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>">
-      <img src="<%= e(@activity, :creator, :icon_url, "") %>" alt="icon" />
+    <a href="/@<%= e(@comment, :creator, :actor, :preferred_username, "deleted") %>">
+      <img src="<%= e(@comment, :creator, :icon_url, "") %>" alt="icon" />
     </a>
   <div class="info__meta">
     <div class="meta__action">
-      <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@activity, :creator, :name, "Somebody") %></a>
+      <a href="/@<%= e(@comment, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@comment, :creator, :name, "Somebody") %></a>
       <p>replied</p>
     </div>
     <div class="meta__secondary">
-      <%= e(@activity, :published_at, "one day") %>
+      <%= e(@comment, :published_at, "one day") %>
     </div>
   </div>
 </div>
-  <div class="activity__preview">
-    <%= live_component(
-      @socket,
-      CommentPreviewLive,
-      comment: @activity
-    ) %>
-  </div>
-  <div class="preview__fork">
-    <div class="preview__replies_to_comment">
-      <a class="comment__avatar_link" href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>">
-        <img src="<%= e(@activity, :creator, :icon_url, "") %>" alt="icon" />
-      </a>
-      <p>this is a fake reply to the above comment...</p>
+
+<div class="activity__preview">
+  <%= live_component(
+    @socket,
+    CommentPreviewLive,
+    comment: @comment
+  ) %>
+</div>
+
+<%= if length(@comment.comments)>0 do %>
+
+  <%= if @comment.id == @reply_to do %>
+    <div class="discussion__replies">
+    <%= for reply <- @comment.comments do %>
+      <%= live_component(
+        @socket,
+        DiscussionCommentLive,
+        id: "discussion-activity-#{reply.id}",
+        comment: reply,
+        current_user: @current_user,
+        reply_to: @reply_to
+      )%>
+    <% end %>
     </div>
-    <div class="comment__fork">View full thread (8)</div>
-  </div>
+  <% end %>
 
-  <%= if @activity.id == @reply_to do %>
+  <%= if @comment.id != @reply_to do %>
 
-    <div id="reply" class="discussion__reply">
+    <div class="preview__fork">
+    <%= for reply <- @comment.comments do %>
+      <div class="preview__replies_to_comment">
+        <a class="comment__avatar_link" href="/@<%= e(reply, :creator, :actor, :preferred_username, "deleted") %>">
+          <img src="<%= e(reply, :creator, :icon_url, "") %>" alt="icon" />
+        </a>
+        <p><%= e(reply, :content, "") %></p>
+      </div>
+      <% end %>
+      <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
+        <div class="comment__fork">View full thread <%# (<%= length(@comment.comments) %></div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= if @comment.id == @reply_to do %>
+
+  <div id="reply" class="discussion__reply">
     <form phx-submit="reply">
 
     <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
     <div class="reply__box">
+      <input name="reply_to" value="<%= @reply_to %>" hidden="hidden"/>
       <textarea name="content" placeholder="Write a reply"></textarea>
       <button>Comment</button>
     </form>
   </div>
 <% end %>
+
 </div>

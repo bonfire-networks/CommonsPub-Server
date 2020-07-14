@@ -13,9 +13,11 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def comment(comment) do
     comment = Repo.preload(comment, thread: :context)
 
+    # IO.inspect(publish_comment: comment)
+
     context =
       if(comment.thread.context) do
-        Pointers.follow!(comment.thread.context)
+        MoodleNet.Meta.Pointers.follow!(comment.thread.context)
       end
 
     context_ap_id =
@@ -23,8 +25,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
         Utils.get_object_ap_id(context)
       end
 
-    IO.inspect(publish_comment: comment)
-    IO.inspect(publish_comment_id: Utils.generate_object_ap_id(comment))
+    # IO.inspect(publish_comment_id: Utils.generate_object_ap_id(comment))
 
     with nil <- ActivityPub.Object.get_by_pointer_id(comment.id),
          #  context_ap_id <- Utils.get_object_ap_id(context),

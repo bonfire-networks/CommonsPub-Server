@@ -9,7 +9,7 @@ defmodule MoodleNet.Activities.Activity do
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Feeds.FeedActivity
   alias MoodleNet.Users.User
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
   alias Ecto.Changeset
 
   @type t :: %Activity{}
@@ -17,7 +17,7 @@ defmodule MoodleNet.Activities.Activity do
   table_schema "mn_activity" do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
-    has_many :feed_activities, FeedActivity
+    has_many(:feed_activities, FeedActivity)
     field(:canonical_url, :string)
     field(:verb, :string)
     field(:is_local, :boolean)
@@ -30,8 +30,8 @@ defmodule MoodleNet.Activities.Activity do
   @required ~w(verb is_local)a
   @cast @required ++ ~w(canonical_url is_public)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id}, %{}=attrs)
-  when is_binary(creator_id) and is_binary(context_id) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, %{} = attrs)
+      when is_binary(creator_id) and is_binary(context_id) do
     %Activity{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
@@ -61,5 +61,4 @@ defmodule MoodleNet.Activities.Activity do
   def queries_module, do: Activities.Queries
 
   def follow_filters, do: []
-
 end

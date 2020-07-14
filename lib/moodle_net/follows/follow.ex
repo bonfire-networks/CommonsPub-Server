@@ -8,7 +8,7 @@ defmodule MoodleNet.Follows.Follow do
 
   alias Ecto.Changeset
   alias MoodleNet.Follows
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
   alias MoodleNet.Users.User
 
   @type t :: %__MODULE__{}
@@ -66,5 +66,4 @@ defmodule MoodleNet.Follows.Follow do
   def queries_module, do: Follows.Queries
 
   def follow_filters, do: []
-
 end

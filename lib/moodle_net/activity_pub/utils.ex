@@ -52,8 +52,13 @@ defmodule MoodleNet.ActivityPub.Utils do
     reply_id = Map.get(comment, :reply_to_id)
 
     if reply_id do
-      object = ActivityPub.Object.get_cached_by_pointer_id(reply_id)
-      object.data["id"]
+      case ActivityPub.Object.get_cached_by_pointer_id(reply_id) do
+        nil ->
+          nil
+
+        object ->
+          object.data["id"]
+      end
     else
       nil
     end

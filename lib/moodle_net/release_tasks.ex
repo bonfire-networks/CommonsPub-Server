@@ -126,7 +126,7 @@ defmodule MoodleNet.ReleaseTasks do
   end
 
   defp seed_repo(repo) do
-     # Run the seed script if it exists
+    # Run the seed script if it exists
     seed_script = priv_path_for(repo, "seeds.exs")
 
     if File.exists?(seed_script) do
@@ -234,20 +234,23 @@ defmodule MoodleNet.ReleaseTasks do
 
     tt = Repo.one(from(x in MoodleNet.Meta.Table, where: x.table == ^table))
 
-    if(!is_nil(tt) and !is_nil(tt.id)) do {_rows_deleted, _} = Repo.delete_all(from(x in MoodleNet.Meta.Pointer, where: x.table_id == ^tt.id)) end
+    if(!is_nil(tt) and !is_nil(tt.id)) do
+      {_rows_deleted, _} =
+        Repo.delete_all(from(x in Pointers.Pointer, where: x.table_id == ^tt.id))
+    end
 
     {_rows_deleted, _} = Repo.delete_all(from(x in Meta.Table, where: x.table == ^table))
-
   end
 
-  @deleted_user %{ id: Users.deleted_user_id(),
-                   peer_id: nil,
-                   preferred_username: "deleted",
-                   name: "(deleted user)",
-                   summary: "This user has deleted their account.",
-                   location: "A black hole.",
-                   website: "https://moodle.net/" }
-  
-  def create_deleted_user(), do: Users.register(@deleted_user)
+  @deleted_user %{
+    id: Users.deleted_user_id(),
+    peer_id: nil,
+    preferred_username: "deleted",
+    name: "(deleted user)",
+    summary: "This user has deleted their account.",
+    location: "A black hole.",
+    website: "https://moodle.net/"
+  }
 
+  def create_deleted_user(), do: Users.register(@deleted_user)
 end

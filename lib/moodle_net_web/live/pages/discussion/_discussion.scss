@@ -20,14 +20,13 @@
   @include icon-dropdown("right");
 }
 
-
 .discussion__layout {
   @include content_two_sides;
   grid-template-columns: 1fr;
 }
 
 .discussion__navigation {
-  @include content_navigation
+  @include content_navigation;
 }
 
 .wrapper__discussion {
@@ -61,7 +60,7 @@
   color: var(--lighter);
   border-radius: 4px;
   font-size: 13px;
-  margin-right: var(--m2)
+  margin-right: var(--m2);
 }
 
 .head__meta .meta__info {
@@ -74,7 +73,7 @@
   background: #fff;
   border: var(--border);
   border-radius: 4px;
-  margin-bottom: var(--m3)
+  margin-bottom: var(--m3);
 }
 
 .discussion__reply {
@@ -83,7 +82,6 @@
   form {
     display: flex;
     width: 100%;
-    
   }
 }
 
@@ -103,7 +101,6 @@
   min-height: 160px;
 }
 
-
 .preview__fork {
   margin-top: 8px;
   border-radius: 6px;
@@ -121,7 +118,7 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: 6px;
-  
+
   .comment__avatar_link {
     margin-right: 8px;
     height: 24px;
@@ -134,4 +131,8 @@
   p {
     font-size: 14px;
   }
+}
+
+.component__activity.highlight {
+  background: aliceblue;
 }

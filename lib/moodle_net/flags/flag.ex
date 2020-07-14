@@ -13,7 +13,7 @@ defmodule MoodleNet.Flags.Flag do
 
   alias MoodleNet.Flags
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
   alias MoodleNet.Users.User
   alias Ecto.Changeset
 
@@ -45,6 +45,7 @@ defmodule MoodleNet.Flags.Flag do
   end
 
   defp maybe_community(changeset, nil), do: changeset
+
   defp maybe_community(changeset, %{id: id}) do
     changeset
     |> Changeset.put_change(:community_id, id)
@@ -58,5 +59,4 @@ defmodule MoodleNet.Flags.Flag do
   def queries_module, do: Flags.Queries
 
   def follow_filters, do: []
-
 end
