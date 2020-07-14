@@ -40,14 +40,14 @@ defmodule MoodleNetWeb.DiscussionLive do
     # IO.inspect(tree: tree)
 
     # [head | tail] = tree
-    # {id, main_comment} = Enum.fetch!(tree, 0)
+    {main_comment_id, main_comment} = Enum.fetch!(tree, 0)
 
     # IO.inspect(main_comment: main_comment)
 
     {:ok,
      assign(socket,
        #  current_user: current_user,
-       reply_to: nil,
+       reply_to: main_comment_id,
        thread: thread,
        #  main_comment: main_comment,
        comments: tree
@@ -123,8 +123,8 @@ defmodule MoodleNetWeb.DiscussionLive do
       reply_to_id =
         if !is_nil(socket.assigns.reply_to) do
           socket.assigns.reply_to
-        else
-          socket.assigns.main_comment.id
+          # else
+          #   socket.assigns.main_comment.id
         end
 
       {:ok, comment} =

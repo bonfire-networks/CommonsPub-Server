@@ -108,6 +108,30 @@ defmodule MoodleNet.Threads.Comments do
     end
   end
 
+  def create_reply(
+        %User{} = creator,
+        %Thread{} = thread,
+        attrs
+      ) do
+    cond do
+      not is_nil(thread.locked_at) ->
+        {:error, NotPermittedError.new("create")}
+
+      true ->
+        Repo.transact_with(fn ->
+          with {:ok, comment} <- insert(creator, thread, attrs),
+               #  thread = preload_ctx(thread), #FIXME
+               act_attrs = %{verb: "created", is_local: comment.is_local},
+               {:ok, activity} <- Activities.create(creator, comment, act_attrs),
+               #  thread = preload_ctx(thread),
+               :ok <- publish(creator, thread, comment, activity),
+               :ok <- ap_publish("create", comment) do
+            {:ok, comment}
+          end
+        end)
+    end
+  end
+
   defp insert(creator, thread, attrs) do
     Repo.insert(Comment.create_changeset(creator, thread, attrs))
   end

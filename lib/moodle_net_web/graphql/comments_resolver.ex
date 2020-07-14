@@ -104,7 +104,8 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   # defp validate_thread_context(%Resource{}), do: :ok
   # defp validate_thread_context(_), do: GraphQL.not_permitted("create")
 
-  def create_reply(%{thread_id: thread_id, in_reply_to_id: reply_to, comment: attrs}, info) do
+  def create_reply(%{thread_id: thread_id, in_reply_to_id: reply_to, comment: attrs}, info)
+      when not is_nil(reply_to) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, thread} <-
@@ -113,6 +114,18 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
                Comments.one(hidden: false, deleted: false, published: true, id: reply_to),
              attrs = Map.put(attrs, :is_local, true) do
           Comments.create_reply(user, thread, parent, attrs)
+        end
+      end)
+    end
+  end
+
+  def create_reply(%{thread_id: thread_id, comment: attrs}, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+      Repo.transact_with(fn ->
+        with {:ok, thread} <-
+               Threads.one(hidden: false, deleted: false, published: true, id: thread_id),
+             attrs = Map.put(attrs, :is_local, true) do
+          Comments.create_reply(user, thread, attrs)
         end
       end)
     end
