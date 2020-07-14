@@ -9,7 +9,7 @@
   <div class="info__meta">
     <div class="meta__action">
       <a href="/@<%= e(@comment, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@comment, :creator, :name, "Somebody") %></a>
-      <p>replied</p>
+      <%# <p>replied</p> %>
     </div>
     <div class="meta__secondary">
       <%= e(@comment, :published_at, "one day") %>
