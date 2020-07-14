@@ -26,6 +26,8 @@
   display: flex;
   a {
     font-weight: 500;
+    font-size: 14px;
+    color: var(--color-surface);
   }
 }
 
@@ -46,6 +48,12 @@
 
 .inline__replies {
   margin-top: var(--m2);
+  .activity__comment {
+    padding-left: 0;
+    &:before {
+      left: 15px;
+    }
+  }
 }
 
 .activity__comment {
