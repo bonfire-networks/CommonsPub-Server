@@ -86,9 +86,9 @@
 }
 
 .discussion__reply img {
-  width: 48px;
-  height: 48px;
-  border-radius: 48px;
+  width: 32px;
+  height: 32px;
+  border-radius: 32px;
 }
 
 .discussion__reply .reply__box {
@@ -134,5 +134,7 @@
 }
 
 .component__activity.highlight {
-  background: aliceblue;
+  &:before {
+    background-color: lightness(var(--color-surface), 1.1);
+  }
 }

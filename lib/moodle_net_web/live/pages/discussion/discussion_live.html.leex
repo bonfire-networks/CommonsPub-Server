@@ -45,9 +45,7 @@
               )%>
             <% end %>
 
-
-              <%= if is_nil(@reply_to) do %>
-
+            <%= if is_nil(@reply_to) do %>
               <div id="reply" class="discussion__reply">
                 <form phx-submit="reply">
                   <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
@@ -58,6 +56,7 @@
                   </form>
                 </div>
               <% end %>
+
             </div>
           </div>
         </div>

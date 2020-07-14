@@ -42,3 +42,49 @@
 .component__activity .activity__preview {
   margin-top: var(--m2)
 }
+
+
+.inline__replies {
+  margin-top: var(--m2);
+}
+
+.activity__comment {
+  position: relative;
+  padding: 0 var(--m3);
+  border-bottom: 0;
+  padding-bottom: var(--m3);
+  &:before {
+    position: absolute;
+    content: "";
+    left: 30px;
+    top: 46px;
+    bottom: 0px;
+    width: 2px;
+    background-color: #edeff1;
+    display: block;
+  }
+  .all__info {
+    margin-left: var(--m2);
+    flex: 1;
+    margin-top: var(--m2);
+    .activity__preview {
+      margin-top: var(--m1);
+    }
+  }
+  .activity__info {
+    align-items: end;
+    padding-top: var(--m2);
+    img {
+      width: 32px;
+      height: 32px;
+    }
+  }
+  .info__meta {
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+    .meta__secondary {
+      margin-left: var(--m2);
+    }
+  }
+}

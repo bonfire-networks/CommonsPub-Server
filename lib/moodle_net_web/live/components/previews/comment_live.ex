@@ -9,33 +9,24 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
         <%= markdown(@comment.content) %>
       </div>
       <div class="preview__actions">
-      <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
-          <button class="button"><i class="feather-message-square"></i><span>Reply</span></button>
-          <% end %>
-        <button class="button"><i class="feather-bookmark"></i><span>Bookmark</span></button>
-        <details class="more__dropdown">
-            <summary>
-              <i class="feather-more-horizontal"></i>
-            </summary>
-            <ul class="dropdown__list">
-              <li>
-              <details class="dialog__container member">
-              <summary class="button-link" >Report</summary>
-              <dialog open class="dialog dialog__report">
-                <header class="dialog__header">Report this comment</header>
-                <section class="dialog__content">
-                  <form>
-                    <textarea placeholder="Describe the reason..."></textarea>
-                    <footer class="dialog__footer">
-                      <button value="default">Confirm</button>
-                    </footer>
-                  </form>
-                </section>
-              </dialog>
-            </details>
-              </li>
-            </ul>
-          </details>
+        <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
+          <button class="button-link"><i class="feather-message-square"></i><span>Reply</span></button>
+        <% end %>
+        <button class="button-link"><i class="feather-star"></i><span>Like</span></button>
+        <details class="dialog__container member">
+        <summary class="button-link" >Report</summary>
+        <dialog open class="dialog dialog__report">
+          <header class="dialog__header">Report this comment</header>
+          <section class="dialog__content">
+            <form>
+              <textarea placeholder="Describe the reason..."></textarea>
+              <footer class="dialog__footer">
+                <button value="default">Confirm</button>
+              </footer>
+            </form>
+          </section>
+        </dialog>
+      </details>
       </div>
     </div>
     """
