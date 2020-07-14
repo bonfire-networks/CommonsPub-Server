@@ -1,6 +1,7 @@
 
-<div id="<%= e(@comment, :id, "") %>" class="component__activity <%= if @comment.id == @reply_to, do: "highlight" %>">
+<div id="comment-<%= e(@comment, :id, "") %>" class="component__activity <%= if @comment.id == @reply_to, do: "highlight" %>">
 <%= if @comment.id == @reply_to, do: r("<span id=reply></span>") %>
+
   <div class="activity__info">
     <a href="/@<%= e(@comment, :creator, :actor, :preferred_username, "deleted") %>">
       <img src="<%= e(@comment, :creator, :icon_url, "") %>" alt="icon" />
@@ -32,7 +33,7 @@
       <%= live_component(
         @socket,
         DiscussionCommentLive,
-        id: "discussion-activity-#{reply.id}",
+        id: "comment-#{reply.id}",
         comment: reply,
         current_user: @current_user,
         reply_to: @reply_to
@@ -45,12 +46,15 @@
 
     <div class="preview__fork">
     <%= for reply <- @comment.comments do %>
-      <div class="preview__replies_to_comment">
-        <a class="comment__avatar_link" href="/@<%= e(reply, :creator, :actor, :preferred_username, "deleted") %>">
-          <img src="<%= e(reply, :creator, :icon_url, "") %>" alt="icon" />
-        </a>
-        <p><%= e(reply, :content, "") %></p>
-      </div>
+      <%= live_component(
+        @socket,
+        DiscussionSubCommentLive,
+        id: "comment-#{reply.id}",
+        comment: reply,
+        current_user: @current_user,
+        reply_to: @reply_to,
+        sublevel: 5
+      )%>
       <% end %>
       <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
         <div class="comment__fork">View full thread <%# (<%= length(@comment.comments) %></div>

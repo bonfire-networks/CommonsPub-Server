@@ -38,7 +38,7 @@
               <%= live_component(
                 @socket,
                 DiscussionCommentLive,
-                id: "discussion-activity-#{comment.id}",
+                id: "comment-#{comment.id}",
                 comment: comment,
                 current_user: @current_user,
                 reply_to: @reply_to

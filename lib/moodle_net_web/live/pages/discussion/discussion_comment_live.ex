@@ -7,4 +7,5 @@ defmodule MoodleNetWeb.Discussion.DiscussionCommentLive do
   }
 
   alias MoodleNetWeb.Discussion.DiscussionCommentLive
+  alias MoodleNetWeb.Discussion.DiscussionSubCommentLive
 end
