@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
   use MoodleNetWeb, :live_component
 
-  alias MoodleNetWeb.Helpers.{Communities}
+  alias MoodleNetWeb.Helpers.{Communities, Profiles}
 
   alias MoodleNetWeb.GraphQL.{
     CommunitiesResolver
@@ -30,7 +30,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
     communities_list =
       Enum.map(
         communities.edges,
-        &Communities.prepare(&1, %{icon: true, image: true, actor: true})
+        &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
       )
 
     assign(socket,

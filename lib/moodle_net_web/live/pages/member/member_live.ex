@@ -32,36 +32,40 @@ defmodule MoodleNetWeb.MemberLive do
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
 
+    user =
+      Profiles.user_load(socket, params, %{
+        image: true,
+        icon: true,
+        actor: true,
+        is_followed_by: socket.assigns.current_user
+      })
+
     {:ok,
      socket
      |> assign(
        page_title: "User",
        me: false,
        selected_tab: "about",
+       user: user,
        current_user: socket.assigns.current_user
      )}
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    user = Profiles.user_load(socket, params)
-
     {:noreply,
      assign(socket,
-       selected_tab: tab,
-       user: user,
-       current_user: socket.assigns.current_user
+       selected_tab: tab
+       #  current_user: socket.assigns.current_user
      )}
   end
 
   def handle_params(%{} = params, url, socket) do
-    logged_url = url =~ "my/profile"
-
-    user = Profiles.user_load(socket, params)
+    # logged_url = url =~ "my/profile"
 
     {:noreply,
      assign(socket,
-       me: logged_url,
-       user: user,
+       #  me: logged_url
+       #  user: user,
        current_user: socket.assigns.current_user
      )}
   end
@@ -72,14 +76,30 @@ defmodule MoodleNetWeb.MemberLive do
         context: %{current_user: socket.assigns.current_user}
       })
 
-    IO.inspect(f)
+    # IO.inspect(f)
 
     # TODO: error handling
 
     {:noreply,
      socket
      |> put_flash(:info, "Followed!")
-     # change redirect
+     |> assign(user: socket.assigns.user |> Map.merge(%{is_followed: true}))
      |> push_patch(to: "/@" <> socket.assigns.user.username)}
+  end
+
+  def handle_event("unfollow", _data, socket) do
+    uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.user.id)
+
+    IO.inspect(uf)
+
+    # TODO: error handling
+
+    {
+      :noreply,
+      socket
+      |> assign(user: socket.assigns.user |> Map.merge(%{is_followed: false}))
+      |> put_flash(:info, "Unfollowed...")
+      |> push_patch(to: "/@" <> socket.assigns.user.username)
+    }
   end
 end

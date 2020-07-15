@@ -7,7 +7,11 @@
           <h3><%= @community.name %></h3>
         </div>
         <div class="suphero__actions">
-          <button class="button follow">Join</button>
+          <%= if @community.is_followed do %>
+            <button class="button follow" phx-click="follow">Leave</button>
+          <% else %>
+            <button class="button follow" phx-click="unfollow">Join</button>
+          <% end %>
           <details class="more__dropdown">
             <summary>
               <i class="feather-more-horizontal"></i>
@@ -35,27 +39,27 @@
       </div>
     </div>
     <div class="community__layout">
-        <%= cond do %>
-          <% @selected_tab == "about" ->  %>
-          <div class="mainContent__selected">
-            <div class="selected__area">
-              <div class="area__community-hero">
-                <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
-                <h1><%= @community.name %></h1>
-                <h4><%= e(@community, :display_username, e(@community, :actor, :preferred_username, "")) %>
-                </div>
-                <%= live_component(
+      <%= cond do %>
+        <% @selected_tab == "about" ->  %>
+        <div class="mainContent__selected">
+          <div class="selected__area">
+            <div class="area__community-hero">
+              <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
+              <h1><%= @community.name %></h1>
+              <h4><%= e(@community, :display_username, e(@community, :actor, :preferred_username, "")) %>
+              </div>
+              <%= live_component(
                       @socket,
                       AboutLive,
                       description: @community.summary
                     )
                   %>
-              </div>
             </div>
-            <% @selected_tab == "timeline" ->  %>
-            <div class="mainContent__selected">
-              <h3 class="area__title">timeline</h3>
-              <%= live_component(
+          </div>
+          <% @selected_tab == "timeline" ->  %>
+          <div class="mainContent__selected">
+            <h3 class="area__title">timeline</h3>
+            <%= live_component(
                   @socket,
                   CommunityActivitiesLive,
                   community: @community,
@@ -69,10 +73,9 @@
                   before: [],
                   pagination_target: "#community-activities"
                 ) %>
-            </div>
-            <% @selected_tab == "discussions" ->  %>
-
-            <%= live_component(
+          </div>
+          <% @selected_tab == "discussions" ->  %>
+          <%= live_component(
                 @socket,
                 CommunityDiscussionsLive,
                 community: @community,
@@ -86,10 +89,10 @@
                 before: [],
                 pagination_target: "#community-threads"
               ) %>
-            <% @selected_tab == "members" ->  %>
-            <div class="mainContent__selected">
-              <h3 class="area__title">members</h3>
-              <%= live_component(
+          <% @selected_tab == "members" ->  %>
+          <div class="mainContent__selected">
+            <h3 class="area__title">members</h3>
+            <%= live_component(
                   @socket,
                   CommunityMembersLive,
                   community: @community,
@@ -103,15 +106,15 @@
                   before: [],
                   pagination_target: "#community-members"
                 ) %>
-              </div>
-            <% true -> %>
-            <div class="mainContent__selected">
-              <%= live_component(
+          </div>
+          <% true -> %>
+          <div class="mainContent__selected">
+            <%= live_component(
                     @socket,
                     TabNotFoundLive
                 ) %>
-              </div>
-          <% end %>
+          </div>
+        <% end %>
         <div class="community__navigation">
           <%= live_patch link_body("About", "feather-book-open"),
                 to: "/&" <> @community.actor.preferred_username <> "/about",

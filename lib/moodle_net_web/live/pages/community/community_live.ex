@@ -29,38 +29,43 @@ defmodule MoodleNetWeb.CommunityLive do
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
 
+    community =
+      Communities.community_load(socket, params, %{
+        icon: true,
+        image: true,
+        actor: true,
+        is_followed_by: socket.assigns.current_user
+      })
+
     {:ok,
      socket
      |> assign(
        page_title: "Community",
        selected_tab: "about",
+       community: community,
        current_user: socket.assigns.current_user
      )}
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    community =
-      Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
-
-    IO.inspect(community, label: "COMMUNITY")
+    # IO.inspect(community, label: "COMMUNITY")
 
     {:noreply,
      assign(socket,
-       selected_tab: tab,
-       community: community,
-       current_user: socket.assigns.current_user
+       selected_tab: tab
+       #  current_user: socket.assigns.current_user
      )}
   end
 
   def handle_params(%{} = params, _url, socket) do
-    community =
-      Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
+    # community =
+    # Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
 
     # IO.inspect(community, label: "community")
 
     {:noreply,
      assign(socket,
-       community: community,
+       #  community: community,
        current_user: socket.assigns.current_user
      )}
   end

@@ -7,23 +7,22 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
   import MoodleNetWeb.Helpers.Common
 
-  def prepare(profile, %{image: _} = preload) do
-    profile =
-      if(Map.has_key?(profile, "image_url")) do
-        profile
-      else
-        profile
-        |> Map.merge(%{image_url: image(profile, :image, "identicon", 700)})
-      end
-
-    prepare(
-      profile,
-      Map.delete(preload, :image)
-    )
-  end
-
   def prepare(profile, %{icon: _} = preload) do
     prepare(profile, preload, 50)
+  end
+
+  def prepare(profile, %{image: _} = preload) do
+    prepare(profile, preload, 700)
+  end
+
+  def prepare(profile, %{is_followed_by: current_user} = preload) do
+    followed_bool = is_followed_by(current_user, profile.id)
+
+    prepare(
+      profile
+      |> Map.merge(%{is_followed: followed_bool}),
+      Map.delete(preload, :is_followed_by)
+    )
   end
 
   def prepare(profile, preload) do
@@ -45,23 +44,14 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     prepare(profile)
   end
 
-  def prepare(profile, %{icon: _} = preload, icon_size) do
-    profile =
-      if(Map.has_key?(profile, "icon_url")) do
-        profile
-      else
-        profile
-        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
-      end
-
-    prepare(
-      profile,
-      Map.delete(preload, :icon)
-    )
-  end
-
   def prepare(profile) do
     prepare_website(prepare_username(profile))
+  end
+
+  def prepare_username(profile) do
+    profile
+    |> Map.merge(%{username: e(profile, :actor, :preferred_username, "deleted")})
+    |> Map.merge(%{display_username: MoodleNet.Actors.display_username(profile)})
   end
 
   def prepare_website(profile) do
@@ -77,10 +67,58 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     end
   end
 
-  def prepare_am_following(my_user, target_id) do
-    IO.inspect(
-      prepare_am_following:
-        MoodleNetWeb.GraphQL.FollowsResolver.fetch_my_follow_edge(my_user, nil, target_id)
+  def is_followed_by(current_user, profile_id) when not is_nil(current_user) do
+    is_followed_by(
+      MoodleNetWeb.GraphQL.FollowsResolver.fetch_my_follow_edge(current_user, nil, profile_id)
+    )
+  end
+
+  def is_followed_by(_, _) do
+    false
+  end
+
+  defp is_followed_by(%{data: data}) when data == %{} do
+    false
+  end
+
+  defp is_followed_by(map) do
+    true
+  end
+
+  def unfollow(current_user, followed_id) do
+    {:ok, follow} =
+      MoodleNet.Follows.one(deleted: false, creator: current_user.id, context: followed_id)
+
+    MoodleNet.Follows.soft_delete(current_user, follow)
+  end
+
+  def prepare(profile, %{icon: _} = preload, icon_size) do
+    profile =
+      if(Map.has_key?(profile, "icon_url")) do
+        profile
+      else
+        profile
+        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
+      end
+
+    prepare(
+      profile,
+      Map.delete(preload, :icon)
+    )
+  end
+
+  def prepare(profile, %{image: _} = preload, image_size) do
+    profile =
+      if(Map.has_key?(profile, "image_url")) do
+        profile
+      else
+        profile
+        |> Map.merge(%{image_url: image(profile, :image, "identicon", image_size)})
+      end
+
+    prepare(
+      profile,
+      Map.delete(preload, :image)
     )
   end
 
@@ -112,7 +150,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
             context: %{current_user: socket.assigns.current_user}
           })
 
-        prepare_am_following(socket.assigns.current_user, user.id)
+        # is_followed_by(socket.assigns.current_user, user.id)
 
         {:ok, user}
       end
