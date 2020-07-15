@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.MemberLive.MemberCommunitiesLive do
         after: [],
         before: [],
         # activities: [],
-        pagination_target: "member_communities"
+        pagination_target: "#member_communities"
       )
       #  |> fetch(), temporary_assigns: [activities: []]
     }

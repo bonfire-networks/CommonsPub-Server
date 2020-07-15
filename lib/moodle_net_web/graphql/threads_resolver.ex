@@ -98,7 +98,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     FetchPage.run(%FetchPage{
       queries: Threads.Queries,
       query: Thread,
-      cursor_fn: Threads.cursor(cursor_type),
+      # cursor_fn: Threads.cursor(cursor_type),
       page_opts: page_opts,
       base_filters: base_filters,
       data_filters: data_filters

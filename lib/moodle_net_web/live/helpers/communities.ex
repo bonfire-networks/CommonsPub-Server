@@ -28,16 +28,36 @@ defmodule MoodleNetWeb.Helpers.Communities do
   end
 
   def user_communities(for_user, current_user) do
+    user_communities(for_user, current_user, 10)
+  end
+
+  def user_communities(for_user, current_user, limit) do
+    communities_from_edges(user_communities_follows(for_user, current_user, limit))
+  end
+
+  def user_communities_follows(for_user, current_user) do
+    user_communities_follows(for_user, current_user, 5)
+  end
+
+  def user_communities_follows(for_user, current_user, limit) do
+    user_communities_follows(for_user, current_user, limit, [])
+  end
+
+  def user_communities_follows(for_user, current_user, limit, page_after) do
     {:ok, communities} =
       UsersResolver.community_follows_edge(
         for_user,
-        %{limit: 10},
+        %{limit: limit, after: page_after},
         %{context: %{current_user: current_user}}
       )
 
     # IO.inspect(my_follows: communities)
 
-    # FIXME: communities should be joined rather than queried one by one
+    communities
+  end
+
+  def communities_from_edges(communities) do
+    # FIXME: communities should be joined to edges rather than queried seperately
     communities =
       Enum.map(
         communities.edges,

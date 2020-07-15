@@ -13,13 +13,3 @@
           %>
   <% end %>
 </div>
-<%= if @has_next_page do %>
-  <div class="pagination">
-    <button
-        class="button--outline"
-        phx-click="load-more"
-        phx-target="<%= @pagination_target %>">
-      load more
-    </button>
-  </div>
-<% end %>

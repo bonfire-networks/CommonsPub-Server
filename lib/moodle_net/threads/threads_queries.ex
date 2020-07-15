@@ -186,9 +186,10 @@ defmodule MoodleNet.Threads.Queries do
 
   def filter(q, {:page, [desc: [last_comment: page_opts]]}) do
     q
-    |> filter(join: :last_comment, join: :follower_count, order: [desc: :last_comment])
+    |> filter(join: :last_comment, order: [desc: :last_comment])
     |> page(page_opts, desc: :last_comment)
-    |> select([thread: t, follower_count: fc], %{t | follower_count: coalesce(fc.count, 0)})
+
+    # |> select([thread: t, last_comment: lc], %{t | last_comment_created: lc.id})
   end
 
   def filter(q, {:page, [desc: [followers: page_opts]]}) do
@@ -204,6 +205,22 @@ defmodule MoodleNet.Threads.Queries do
 
   defp page(q, %{before: cursor, limit: limit}, desc: :followers) do
     filter(q, cursor: [followers: {:gte, cursor}], limit: limit + 2)
+  end
+
+  defp page(q, %{after: cursor, limit: limit}, asc: :created) do
+    filter(q, id: {:gte, cursor}, limit: limit + 2)
+  end
+
+  defp page(q, %{after: cursor, limit: limit}, desc: :created) do
+    filter(q, id: {:lte, cursor}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: cursor, limit: limit}, asc: :created) do
+    filter(q, id: {:lte, cursor}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: cursor, limit: limit}, desc: :created) do
+    filter(q, id: {:gte, cursor}, limit: limit + 2)
   end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)

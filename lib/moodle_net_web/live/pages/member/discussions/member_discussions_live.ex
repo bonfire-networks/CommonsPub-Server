@@ -43,7 +43,8 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
       MoodleNetWeb.GraphQL.ThreadsResolver.list_creator_threads(
         page_opts,
         opts,
-        filters
+        filters,
+        [:created]
       )
 
     # MoodleNetWeb.GraphQL.ThreadsResolver.creator_threads_edge(

@@ -10,7 +10,7 @@ defmodule MoodleNet.Threads do
   def cursor(:created), do: &[&1.id]
 
   # FIXME
-  def cursor(:last_comment), do: &[&1.id]
+  # def cursor(:last_comment), do: &[&1.id]
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
 

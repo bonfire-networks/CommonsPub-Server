@@ -97,15 +97,21 @@ defmodule MoodleNetWeb.Helpers.Common do
 
     # IO.inspect(session_loaded_user: current_user)
 
-    communities =
+    communities_follows =
       if(current_user) do
-        Communities.user_communities(current_user, current_user)
+        Communities.user_communities_follows(current_user, current_user)
+      end
+
+    my_communities =
+      if(communities_follows) do
+        Communities.communities_from_edges(communities_follows)
       end
 
     socket
     |> assign(:auth_token, auth_token)
     |> assign(:current_user, current_user)
-    |> assign(:my_communities, communities)
+    |> assign(:my_communities, my_communities)
+    |> assign(:my_communities_page_info, communities_follows.page_info)
   end
 
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do

@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.My.MyDiscussionsLive do
 
   defp fetch(socket, assigns) do
     # IO.inspect(assigns.user)
-    page_opts = %{limit: 10, after: assigns.after}
+    page_opts = %{limit: 20, after: assigns.after}
     IO.inspect(page_opts)
 
     opts = [user: assigns.current_user, creator_or_participant: assigns.current_user.id]
@@ -55,7 +55,8 @@ defmodule MoodleNetWeb.My.MyDiscussionsLive do
     )
   end
 
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
+  # TODO: pagination
+  # def handle_event("load-more", _, %{assigns: assigns} = socket) do
+  #   {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
+  # end
 end

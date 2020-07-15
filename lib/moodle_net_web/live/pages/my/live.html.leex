@@ -39,8 +39,12 @@
                 MoodleNetWeb.My.MyCommunitiesLive,
                 current_user: @current_user,
                 my_communities: @my_communities,
+                my_communities_page_info: @my_communities_page_info,
                 selected_tab: @selected_tab,
-                id: :communities
+                id: :my_communities,
+                has_next_page: @my_communities_page_info.has_next_page,
+                after: e(@my_communities_page_info, :after, []),
+                before: e(@my_communities_page_info, :before, [])
               ) %>
         <% @selected_tab == "discussions" -> %>
         <%= live_component(
