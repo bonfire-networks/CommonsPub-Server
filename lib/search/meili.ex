@@ -7,23 +7,23 @@ defmodule Search.Meili do
 
   alias ActivityPub.HTTP
 
-  def search(%{} = object, index_path) do
-    {:ok, req} = api(:get, object, index_path)
+  def search(string_or_params) do
+    search(string_or_params, "search")
+  end
+
+  def search(%{} = params, index_path) do
+    {:ok, req} = api(:get, params, index_path)
     res = Jason.decode!(req.body)
     # IO.inspect(res)
     res
   end
 
-  def search(string, index_path) do
+  def search(string, index) do
     object = %{
       q: string
     }
 
-    search(object, index_path)
-  end
-
-  def search(string) do
-    search(string, "/search/search")
+    search(object, "/" <> index <> "/search")
   end
 
   def push_object(object) do
@@ -32,6 +32,22 @@ defmodule Search.Meili do
 
   def push_object(object, index_path) do
     api(:put, object, index_path)
+  end
+
+  def settings(object, index) do
+    post(object, "/" <> index <> "/settings")
+  end
+
+  def set_attributes(attrs, index) do
+    settings(%{attributesForFaceting: attrs}, index)
+  end
+
+  def post(object) do
+    push_object(object, "")
+  end
+
+  def post(object, index_path) do
+    api(:post, object, index_path)
   end
 
   def api(http_method, object, index_path) do

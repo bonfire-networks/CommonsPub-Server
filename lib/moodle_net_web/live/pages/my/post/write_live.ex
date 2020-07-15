@@ -87,7 +87,7 @@ defmodule MoodleNetWeb.My.Post.WriteLive do
   end
 
   def do_tag_search(socket, tag_search, tag_prefix) do
-    tag_results = tag_lookup(tag_search)
+    tag_results = tag_lookup(tag_search, tag_prefix)
 
     IO.inspect(tag_prefix: tag_prefix)
     IO.inspect(tag_results: tag_results)
@@ -120,12 +120,21 @@ defmodule MoodleNetWeb.My.Post.WriteLive do
     end
   end
 
-  def tag_lookup(tag_search) do
-    search = Search.Meili.search(tag_search)
+  def tag_lookup(tag_search, "+") do
+    do_tag_lookup(tag_search, "taxonomy_tags_tree")
+  end
+
+  def tag_lookup(tag_search, _) do
+    do_tag_lookup(tag_search, "search")
+  end
+
+  def do_tag_lookup(tag_search, index) do
+    search = Search.Meili.search(tag_search, index)
 
     if(Map.has_key?(search, "hits") and length(search["hits"])) do
-      hits = Enum.map(search["hits"], &tag_hit_prepare/1)
-      Enum.filter(hits, & &1)
+      search["hits"]
+      # hits = Enum.map(search["hits"], &tag_hit_prepare/1)
+      # Enum.filter(hits, & &1)
     end
   end
 
@@ -137,7 +146,14 @@ defmodule MoodleNetWeb.My.Post.WriteLive do
   end
 
   def tag_suggestion_display(hit, tag_search) do
-    [head | tail] = String.split(e(hit, "name", ""), tag_search)
-    List.to_string([head, "<span>", tag_search, "</span>", tail])
+    name = e(hit, "name", e(hit, "label", e(hit, "preferredUsername", "")))
+
+    if name =~ tag_search do
+      [head | tail] = String.split(name, tag_search, parts: 2, trim: true)
+
+      List.to_string([head, "<span>", tag_search, "</span>", tail])
+    else
+      name
+    end
   end
 end

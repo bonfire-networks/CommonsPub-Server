@@ -48,7 +48,7 @@ services:
   #     - "8080:8080"
   #     - "9080:9080"
   search:
-    image: getmeili/meilisearch
+    image: getmeili/meilisearch:latest
     ports:
       - "7700:7700"
     volumes:
