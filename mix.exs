@@ -70,6 +70,7 @@ defmodule MoodleNet.Mixfile do
       {:plug_cowboy, "~> 2.2"},
       {:plug, "~> 1.10"},
       {:cors_plug, "~> 2.0"}, # security (CORS)
+      {:csv, "~> 2.3"},
       {:castore, "~> 0.1"},
       # phoenix
       {:phoenix, "~> 1.5.3"},
