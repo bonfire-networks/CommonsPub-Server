@@ -74,6 +74,7 @@
   border: var(--border);
   border-radius: 4px;
   margin-bottom: var(--m3);
+ 
 }
 
 .discussion__reply {
@@ -95,10 +96,60 @@
   margin-left: var(--m2);
   width: 100%;
   flex: 1;
+  border-radius: 4px;
+  border: var(--border);
+  #editor {
+    height: 150px;
+    padding: 0;
+    border-radius: 0;
+    border: none;
+    #editor-visual {
+      height: 150px;
+      overflow-y: scroll;
+    }
+    .ProseMirror-menubar {
+      padding: 8px 0;
+    }
+  }
+  .header__actions{
+    display: flex;
+    align-items: center;
+    background-color: #ececec;
+    border-radius: 0 0 4px 4px;
+    bottom: 0;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: row-reverse;
+    flex-direction: row-reverse;
+    height: 36px;
+    opacity: 1;
+    position: -webkit-sticky;
+    position: sticky;
+    z-index: 1;
+    padding: 4px;
+    .header__controls {
+      height: 34px;
+      border-radius: 4px;
+      place-content: center;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      &:hover {
+        background: #d5d5d5;
+      }
+    }
+    button {
+      margin-left: var(--m2);
+    }
+  }
 }
 
 .discussion__reply .reply__box textarea {
-  min-height: 160px;
+  border: none;
+  padding: 0;
+  height: inherit;
+  text-indent: var(--m2);
+  margin-top: var(--m2);
 }
 
 .preview__fork {

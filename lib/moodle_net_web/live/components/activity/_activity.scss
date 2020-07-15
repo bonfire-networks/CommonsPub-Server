@@ -24,6 +24,8 @@
 
 .component__activity .meta__action {
   display: flex;
+  align-items: center;
+  font-size: 14px
   a {
     font-weight: 500;
     font-size: 14px;
@@ -48,6 +50,8 @@
 
 .inline__replies {
   margin-top: var(--m2);
+
+
   .activity__comment {
     padding-left: 0;
     &:before {
@@ -75,6 +79,11 @@
     margin-left: var(--m2);
     flex: 1;
     margin-top: var(--m2);
+    .discussion__reply {
+      padding: var(--m2);
+      display: flex;
+      padding-left: 0;
+    }
     .activity__preview {
       margin-top: var(--m1);
     }
@@ -95,4 +104,15 @@
       margin-left: var(--m2);
     }
   }
+}
+
+.preview__more {
+  padding: var(--m2);
+  padding-left: 0;
+  @include text-gray;
+  color: lightness(var(--color-surface), 1.5);
+  font-size: 14px;
+  margin-top: var(--m2);
+  cursor: pointer;
+
 }

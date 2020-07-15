@@ -76,11 +76,12 @@ defmodule MoodleNetWeb.My.Post.WriteLive do
           %{context: %{current_user: socket.assigns.current_user}}
         )
 
+        IO.inspect(thread,  label: "THREAD")
       {:noreply,
        socket
        |> put_flash(:info, "Published!")
        # change redirect
-       |> push_redirect(to: "/!" <> thread.id)}
+       |> push_redirect(to: "/!" <> thread.thread_id)}
     end
   end
 
