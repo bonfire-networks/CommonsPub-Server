@@ -8,7 +8,7 @@
         </div>
         <div class="suphero__actions">
           <%= if @community.is_followed do %>
-            <button class="button follow" phx-click="follow">Leave</button>
+            <button class="button follow" phx-click="unfollow">Leave</button>
             <%= if @community.creator_id==@current_user.id do %>
               <details class="dialog__container">
                 <summary class="button new-community">Edit</summary>
@@ -27,7 +27,7 @@
               </details>
             <% end %>
           <% else %>
-            <button class="button follow" phx-click="unfollow">Join</button>
+            <button class="button follow" phx-click="follow">Join</button>
           <% end %>
           <details class="more__dropdown">
             <summary>

@@ -89,7 +89,6 @@ defmodule MoodleNetWeb.CommunityLive do
       )
 
     # IO.inspect(f)
-
     # TODO: error handling
 
     {
@@ -104,8 +103,7 @@ defmodule MoodleNetWeb.CommunityLive do
   def handle_event("unfollow", _data, socket) do
     uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.community.id)
 
-    IO.inspect(uf)
-
+    # IO.inspect(uf)
     # TODO: error handling
 
     {
@@ -136,7 +134,7 @@ defmodule MoodleNetWeb.CommunityLive do
         )
 
       # TODO: handle errors
-      IO.inspect(community, label: "community updated")
+      # IO.inspect(community, label: "community updated")
 
       if(community) do
         community =
