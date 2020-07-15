@@ -215,9 +215,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # field :primary_language_id, :string
     field :author, :string
     field :extra_info, :json
-    field :subject, :string
-    field :level, :string
-    field :language, :string
+    field :subject, non_null(:string)
+    field :level, non_null(:string)
+    field :language, non_null(:string)
     field :type, :string
   end
 
