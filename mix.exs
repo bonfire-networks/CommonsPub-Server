@@ -154,7 +154,8 @@ defmodule MoodleNet.Mixfile do
       {
         :pointers,
         # git: "https://github.com/commonspub/pointers.git", branch: "main"
-        git: "https://github.com/mayel/pointers.git", ref: "table-names-mn"
+        git: "https://github.com/mayel/pointers.git",
+        ref: "7b6798f5989b7a935287a195c417720a9db4d5b6"
       },
       # {:pointers, path: "uploads/many-pointers"},
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
