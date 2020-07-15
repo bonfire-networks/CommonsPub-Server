@@ -22,9 +22,10 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
 
   defp fetch(socket, assigns) do
     {:ok, users} =
-      UsersResolver.users(%{after: assigns.after, limit: 3}, %{
+      UsersResolver.users(%{after: assigns.after, limit: 10}, %{
         context: %{current_user: assigns.current_user}
       })
+
     members = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
 
     assign(socket,

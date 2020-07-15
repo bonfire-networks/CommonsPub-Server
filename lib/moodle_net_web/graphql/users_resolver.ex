@@ -75,14 +75,16 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def fetch_users(page_opts, info) do
+    IO.inspect(page_opts)
+
     FetchPage.run(%FetchPage{
       queries: Users.Queries,
       query: User,
-      # cursor_fn: Users.cursor(:followers),
+      cursor_fn: Users.cursor(:created),
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)],
-      data_filters: [:default]
-      # data_filters: [:default, page: [desc: [followers: page_opts]]],
+      # data_filters: [:default]
+      data_filters: [:default, page: [desc: [created: page_opts]]]
     })
   end
 

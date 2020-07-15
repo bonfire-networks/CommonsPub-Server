@@ -42,6 +42,8 @@ defmodule MoodleNet.Users do
 
   alias Ecto.Changeset
 
+  def cursor(:created), do: &[&1.id]
+
   @deleted_user_id "REA11YVERYDE1ETED1DENT1TY1"
   def deleted_user_id(), do: @deleted_user_id
 
