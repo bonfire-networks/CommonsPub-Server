@@ -49,34 +49,34 @@
                 sublevel: 5
               )%>
         <% end %>
-        <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply-"<>e(@comment, :id, "") do %>
+        <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
           <div class="comment__fork">View full thread <%# (<%= length(@comment.comments) %></div>
         <% end %>
       </div>
     <% end %>
   <% end %>
   <%= if @comment.id == @reply_to do %>
-    <div id="reply-`<%= @comment.id %>`" class="discussion__reply">
-                <form phx-submit="reply">
-                  <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
-    <div class="reply__box">
-      <div id="editor" phx-hook="MarkdownEditor">
-        <textarea id="content" name="content" placeholder="Write a reply..."></textarea>
-        <div id="editor-visual" phx-ignore="true">
-          <div id="editor-markdown"></div>
+    <div id="reply" class="discussion__reply">
+      <form phx-submit="reply">
+        <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+        <div class="reply__box">
+          <div id="editor" phx-hook="MarkdownEditor">
+            <textarea id="content" name="content" placeholder="Write a reply..."></textarea>
+            <div id="editor-visual" phx-ignore="true">
+              <div id="editor-markdown"></div>
+            </div>
+          </div>
+          <div class="header__actions">
+            <button>Comment</button>
+            <div class="header__controls">
+              <input name="editor-style" id="editor-style" type="checkbox" class="switch">
+              <label for="editor-style">Use visual editor </label>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="header__actions">
-        <button>Comment</button>
-        <div class="header__controls">
-          <input name="editor-style" id="editor-style" type="checkbox" class="switch">
-          <label for="editor-style">Use visual editor </label>
-        </div>
-      </div>
+      </form>
     </div>
-  </form>
-</div>
-<% end %>
+  <% end %>
 </div>
 </div>
 </div>

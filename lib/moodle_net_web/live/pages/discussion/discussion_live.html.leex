@@ -7,7 +7,7 @@
           <h3><%= e(@thread, :name, "A discussion") %></h3>
         </div>
         <div class="suphero__actions">
-          <%= live_patch to: "/!"<> e(@thread, :id, "")<>"#reply-"<>e(@thread, :id, ""), class: "button reply" do %>Reply<% end %>
+          <%= live_patch to: "/!"<> e(@thread, :id, "")<>"#reply", class: "button reply" do %>Reply<% end %>
           <%# <button class="button follow">Subscribe</button> %>
           <details class="more__dropdown">
             <summary>
@@ -31,7 +31,8 @@
                 <div class="meta__info">17 Comments - 29 Starred</div>
               </div>
             </div>
-              <div id="reply-`<%= e(@thread, :id, "") %>`" class="discussion__reply">
+            <%= if !@reply_to do %>
+              <div id="reply" class="discussion__reply">
                 <form phx-submit="reply">
                   <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
                   <div class="reply__box">
@@ -44,16 +45,17 @@
                     <div class="header__actions">
                       <button>Comment</button>
                       <div class="header__controls">
-                          <input name="editor-style" id="editor-style" type="checkbox" class="switch">
-                          <label for="editor-style">Use visual editor </label>
+                        <input name="editor-style" id="editor-style" type="checkbox" class="switch">
+                        <label for="editor-style">Use visual editor </label>
                       </div>
                     </div>
                   </div>
                 </form>
               </div>
-            </div>
+            <% end %>
+          </div>
           <div class="discussion__replies">
-              <%= for {comment_id, comment} <- @comments do %>
+            <%= for {comment_id, comment} <- @comments do %>
               <%= live_component(
                 @socket,
                 DiscussionCommentLive,
@@ -63,9 +65,9 @@
                 reply_to: @reply_to
               )%>
             <% end %>
-            </div>
           </div>
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
+</div>

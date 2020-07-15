@@ -8,6 +8,7 @@ defmodule MoodleNet.Threads do
   alias MoodleNet.Users.User
 
   def cursor(:created), do: &[&1.id]
+  def cursor(:last_comment), do: &[&1.id]
   def cursor(:followers), do: &[&1.follower_count, &1.id]
 
   def test_cursor(:created), do: &[&1["id"]]

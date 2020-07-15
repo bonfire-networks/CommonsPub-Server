@@ -28,7 +28,8 @@ defmodule MoodleNetWeb.My.MyDiscussionsLive do
 
   defp fetch(socket, assigns) do
     # IO.inspect(assigns.user)
-    page_opts = %{limit: 10}
+    page_opts = %{limit: 10, after: assigns.after}
+    IO.inspect(page_opts)
 
     opts = [user: assigns.current_user, creator_or_participant: assigns.current_user.id]
 
@@ -40,7 +41,8 @@ defmodule MoodleNetWeb.My.MyDiscussionsLive do
       MoodleNetWeb.GraphQL.ThreadsResolver.list_creator_threads(
         page_opts,
         opts,
-        filters
+        filters,
+        :last_comment
       )
 
     IO.inspect(threads)

@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
         <%= markdown(@comment.content) %>
       </div>
       <div class="preview__actions">
-        <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply-"<> e(@comment, :id, "") do %>
+        <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
           <button class="button-link"><i class="feather-message-square"></i><span>Reply</span></button>
         <% end %>
         <button class="button-link"><i class="feather-star"></i><span>Like</span></button>
