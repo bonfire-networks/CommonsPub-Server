@@ -26,8 +26,8 @@
 </section>
 <div id="autocomplete-dropdown" style="top: 90px; left: 378.5px; position: absolute; display: block;">
   <ul>
-    <%= for hit <- e(@tag_results, "hits", []) do %>
-      <li data-tag="<%= e(hit, "preferredUsername", "") %>" phx-hook="TagPick" data-search="<%= @tag_search %>" data-target="<%= @tag_target %>" ><%= r(tag_suggestion_display(hit, @tag_search)) %></li>
+    <%= for hit <- @tag_results do %>
+      <li data-tag="<%= e(hit, "preferredUsername", "") %>" phx-hook="TagPick" data-search="<%= @tag_search %>" data-target="<%= @tag_target %>" data-prefix="<%= @tag_prefix %>" ><%= r(tag_suggestion_display(hit, @tag_search)) %></li>
     <% end %>
   </ul>
 </div>
