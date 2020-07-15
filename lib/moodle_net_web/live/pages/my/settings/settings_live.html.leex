@@ -8,7 +8,7 @@
         </div>
         <div class="suphero__actions">
           <%= if is_map(@current_user) and @current_user.id==@current_user.id do %>
-            <a href="/~/profile">Profile</a>
+            <%= live_redirect to: "/~/profile" do %>Profile<% end %>
           <% else %>
             <button class="button follow">Follow</button>
             <details class="more__dropdown">
@@ -54,19 +54,19 @@
                 )  %>
           </div>
           <% @selected_tab == "flags" ->  %>
-            <div class="selected__area">
+          <div class="selected__area">
             <%= live_component(
                     @socket,
                     SettingsFlagsLive,
                     current_user: @current_user
                 ) %>
-            </div>
-            <% true -> %>
-            <%= live_component(
+          </div>
+          <% true -> %>
+          <%= live_component(
                     @socket,
                     TabNotFoundLive
                 ) %>
-          <% end %>
+        <% end %>
       </div>
       <div class="settings__navigation">
         <%= live_component(

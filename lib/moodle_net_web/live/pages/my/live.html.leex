@@ -5,7 +5,7 @@
     </div>
     <div class="mainContent__navigation home__navigation">
       <%= live_patch link_body("Timeline","feather-activity"),
-        to: "/~/timeline",
+        to: "/~",
         class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
       %>
       <%= live_patch link_body("My Communities", "feather-users"),

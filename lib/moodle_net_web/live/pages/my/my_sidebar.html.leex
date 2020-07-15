@@ -12,9 +12,9 @@
       <i class="feather-more-horizontal"></i>
     </summary>
     <ul class="dropdown__list">
-      <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-      <li><a href="/~/settings">Settings</a></li>
-      <li><a href="#">Logout</a></li>
+      <li><%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "me")  do %>Profile<% end %></li>
+      <li><%= live_redirect to: "/~/settings" do %>Settings<% end %></li>
+      <li><%= live_redirect to: "#" do %>Logout<% end %></li>
     </ul>
   </details>
 </div>
@@ -26,24 +26,24 @@
       <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
     </div> %>
       <div class="panel__item">
-        <a href="/~/timeline">
+        <%= live_redirect to: "/~" do %>
           <i class="feather-home"></i> Home
-        </a>
+        <% end %>
       </div>
       <div class="panel__item">
-        <a href="/instance">
+        <%= live_redirect to: "/instance" do %>
           <i class="feather-anchor"></i> Discover
-        </a>
+        <% end %>
       </div>
       <div class="panel__item">
-        <a href="/~/notifications">
+        <%= live_redirect to: "/~/notifications" do %>
           <i class="feather-bell"></i> Notifications
-        </a>
+        <% end %>
       </div>
       <div class="panel__item">
-        <a href="/~/write">
+        <%= live_redirect to: "/~/write" do %>
           <i class="feather-edit"></i> Write
-        </a>
+        <% end %>
       </div>
     </nav>
     <div class="communities__wrapper">

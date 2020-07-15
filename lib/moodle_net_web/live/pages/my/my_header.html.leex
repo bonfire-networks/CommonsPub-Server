@@ -1,17 +1,17 @@
 <div class="box__info">
-  <a href="/@<%= e(@current_user, :actor, :preferred_username, "") %>">
+  <%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "")  do %>
     <img src="<%= e(@current_user, :icon_url, "") %>" />
     <h3><%= e(@current_user, :name, "Me") %></h3>
-  </a>
+  <% end %>
   <details class="drawer__profile" >
     <summary class="user__dropdown">
       <i class="feather-more-horizontal"></i>
     </summary>
     <ul class="dropdown__list">
-      <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-      <li><a href="/~/settings">Settings</a></li>
+      <li><%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "me")  do %>Profile<% end %></li>
+      <li><%= live_redirect to: "/~/settings" do %>Settings<% end %></li>
       <li><a href="/logout">Logout</a>
-</li>
+      </li>
     </ul>
   </details>
 </div>

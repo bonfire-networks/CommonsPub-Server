@@ -1,14 +1,12 @@
-
 <div id="comment-<%= e(@comment, :id, "") %>">
   <div class="preview__replies_to_comment" style="margin-left: <%=@sublevel%>px">
-    <a class="comment__avatar_link" href="/@<%= e(@comment, :creator, :actor, :preferred_username, "deleted") %>">
+  <%= live_redirect to: "/@"<> e(@comment, :creator, :actor, :preferred_username, "deleted"), class: "comment__avatar_link" do %>
       <img src="<%= e(@comment, :creator, :icon_url, "") %>" alt="icon" />
-    </a>
-    <p><%= e(@comment, :content, "") %></p>
-  </div>
-
-  <%= for reply <- @comment.comments do %>
-      <%= live_component(
+<% end %>
+<p><%= e(@comment, :content, "") %></p>
+</div>
+<%= for reply <- @comment.comments do %>
+  <%= live_component(
         @socket,
         DiscussionSubCommentLive,
         id: "comment-#{reply.id}",
@@ -17,5 +15,5 @@
         reply_to: @reply_to,
         sublevel: @sublevel + 15
       )%>
-      <% end %>
+<% end %>
 </div>

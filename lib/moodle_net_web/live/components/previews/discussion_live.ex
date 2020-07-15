@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     # IO.inspect(assigns)
     ~L"""
     <div class="discussion__preview">
-      <a href="/!<%= @thread.id %>/discuss">
+      <%= live_redirect to: "/!"<> @thread.id <>"/discuss" do %>
         <h2 class="discussion__title"><%= e(@thread, :name, "Thread without title") %></h2>
         <div class="discussion__meta">
           <div class="meta__time">
@@ -41,7 +41,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
             </div>
           </div>
         </div>
-      </a>
+        <% end %>
     </div>
     """
   end
