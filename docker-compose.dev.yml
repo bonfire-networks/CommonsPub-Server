@@ -53,3 +53,5 @@ services:
       - "7700:7700"
     volumes:
       - "./data/search:/data.ms"
+    env_file:
+      - config/docker.dev.env

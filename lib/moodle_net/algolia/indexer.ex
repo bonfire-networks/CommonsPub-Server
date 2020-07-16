@@ -34,6 +34,8 @@ defmodule MoodleNet.Algolia.Indexer do
     else
       # otherwise index using CommonsPub Search extension (if available)
       if(Code.ensure_loaded?(Search.Indexing)) do
+        IO.inspect("index locally")
+
         if supported_type(object) do
           object
           |> format_object()

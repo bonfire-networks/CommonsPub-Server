@@ -4,16 +4,16 @@ defmodule Taxonomy.Migrations do
   require Logger
 
   # alias Ecto.ULID
-  # alias MoodleNet.Repo
+  alias MoodleNet.Repo
 
   @extension_path "lib/taxonomy"
 
-  def try_dotsql_execute(filename) do
+  def try_dotsql_execute(filename, mode) do
     path = "/opt/app/" <> filename
 
     case File.stat(path) do
       {:ok, _} ->
-        dotsql_execute(path)
+        dotsql_execute(path, mode)
 
       {:error, :enoent} ->
         Logger.info("SQL file for taxonomy module not found: " <> path)
@@ -22,7 +22,7 @@ defmodule Taxonomy.Migrations do
 
         case File.stat(path) do
           {:ok, _} ->
-            dotsql_execute(path)
+            dotsql_execute(path, mode)
 
           {:error, :enoent} ->
             Logger.info("SQL file for taxonomy module not found: " <> path)
@@ -30,22 +30,29 @@ defmodule Taxonomy.Migrations do
             path = filename
 
             case File.stat(path) do
-              {:ok, _} -> dotsql_execute(path)
+              {:ok, _} -> dotsql_execute(path, mode)
               {:error, :enoent} -> Logger.warn("SQL file for taxonomy module not found: " <> path)
             end
         end
     end
   end
 
-  def dotsql_execute(filename) do
+  def dotsql_execute(filename, mode) do
     sqlines = String.split(File.read!(filename), ";\n")
-    Enum.each(sqlines, &sql_execute/1)
+    Enum.each(sqlines, &sql_execute(&1, mode))
     flush()
   end
 
-  def sql_execute(sql) do
+  def sql_execute(sql, :migration) do
     execute(sql)
     flush()
+  end
+
+  def sql_execute(sql, :seed) do
+    Ecto.Adapters.SQL.query!(
+      Repo,
+      sql
+    )
   end
 
   # cleanup deprecated stuff
@@ -62,11 +69,15 @@ defmodule Taxonomy.Migrations do
 
   def up do
     execute("DROP TABLE IF EXISTS taxonomy_tags CASCADE")
-    try_dotsql_execute("tags.schema.sql")
-    try_dotsql_execute("data/sql/tags.data.sql")
+    try_dotsql_execute("tags.schema.sql", :migration)
+    ingest_data(:migration)
+  end
+
+  def ingest_data(mode) do
+    try_dotsql_execute("data/sql/tags.data.sql", mode)
   end
 
   def down do
-    try_dotsql_execute("tags.down.sql")
+    try_dotsql_execute("tags.down.sql", :migration)
   end
 end
