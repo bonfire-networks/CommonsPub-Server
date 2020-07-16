@@ -1,13 +1,16 @@
 defmodule MoodleNetWeb.SearchLive do
   use MoodleNetWeb, :live_view
+
   alias MoodleNetWeb.Component.{
     TabNotFoundLive
   }
+
   import MoodleNetWeb.Helpers.Common
 
-  def mount(%{"search" => search} = params, session, socket) do
+  def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
     IO.inspect(params, label: "PARAMS")
+
     {:ok,
      socket
      |> assign(
@@ -15,13 +18,14 @@ defmodule MoodleNetWeb.SearchLive do
        me: false,
        current_user: socket.assigns.current_user,
        selected_tab: "users",
-       search: search
+       search: ""
      )}
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     # IO.inspect(community, label: "COMMUNITY")
     IO.inspect(tab, label: "TAB")
+
     {:noreply,
      assign(socket,
        selected_tab: tab
@@ -29,7 +33,7 @@ defmodule MoodleNetWeb.SearchLive do
      )}
   end
 
-  def handle_params(%{} = params, _url, socket) do
+  def handle_params(params, _url, socket) do
     # community =
     # Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
 
@@ -50,6 +54,4 @@ defmodule MoodleNetWeb.SearchLive do
       <%= @name %>
     """
   end
-
-
 end

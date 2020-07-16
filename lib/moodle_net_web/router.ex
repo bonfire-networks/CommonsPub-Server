@@ -194,17 +194,17 @@ defmodule MoodleNetWeb.Router do
   end
 
   def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
-    IO.inspect(info)
-
     msg =
       if Map.has_key?(reason, :message) and !is_nil(reason.message) and
            String.length(reason.message) > 0 do
         reason.message
       else
-        if Map.has_key?(reason, :term) and Map.has_key?(reason.term, :message) do
+        if is_map(reason) and Map.has_key?(reason, :term) and is_map(reason.term) and
+             Map.has_key?(reason.term, :message) do
           reason.term.message
         else
-          ""
+          # IO.inspect(handle_error: info)
+          "An unhandled error has occured"
         end
       end
 

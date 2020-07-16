@@ -155,4 +155,34 @@ defmodule MoodleNetWeb.Helpers.Common do
   def input_to_atoms(data) do
     data |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end)
   end
+
+  def is_liked(current_user, context_id)
+      when not is_nil(current_user) and not is_nil(context_id) do
+    my_like =
+      LikesResolver.fetch_my_like_edge(
+        %{
+          context: %{current_user: current_user}
+        },
+        context_id
+      )
+
+    # IO.inspect(my_like: my_like)
+    is_liked(my_like)
+  end
+
+  def is_liked(_, _) do
+    false
+  end
+
+  defp is_liked(%{data: data}) when data == %{} do
+    false
+  end
+
+  defp is_liked(%{}) do
+    true
+  end
+
+  defp is_liked(_) do
+    false
+  end
 end

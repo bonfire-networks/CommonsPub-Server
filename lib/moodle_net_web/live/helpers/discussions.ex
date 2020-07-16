@@ -2,7 +2,8 @@ defmodule MoodleNetWeb.Helpers.Discussions do
   alias MoodleNet.{
     Repo
   }
-alias MoodleNetWeb.GraphQL.LikesResolver
+
+  alias MoodleNetWeb.GraphQL.LikesResolver
   alias MoodleNetWeb.Helpers.{Profiles}
 
   def prepare_comments(comments, current_user) do
@@ -18,6 +19,7 @@ alias MoodleNetWeb.GraphQL.LikesResolver
     creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
 
     liked_bool = is_liked(current_user, comment.id)
+
     {:ok, from_now} =
       Timex.shift(comment.published_at, minutes: -3)
       |> Timex.format("{relative}", :relative)
@@ -27,34 +29,7 @@ alias MoodleNetWeb.GraphQL.LikesResolver
     |> Map.merge(%{creator: creator})
     |> Map.merge(%{is_liked: liked_bool})
     |> Map.merge(%{comments: []})
-
-
   end
-
-  def is_liked(current_user, comment_id) when not is_nil(current_user) do
-    is_liked(
-      LikesResolver.my_like_edge(%{id: comment_id}, nil ,current_user )
-    )
-  end
-
-  def is_liked(_, _) do
-    false
-  end
-
-  defp is_liked(%{data: data}) when data == %{} do
-    false
-  end
-
-  # defp is_liked(%{:ok, nil}) do
-  #   false
-  # end
-
-  defp is_liked(map) do
-    IO.inspect(map)
-    true
-  end
-
-
 
   def prepare_thread(thread) do
     thread =

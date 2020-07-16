@@ -23,7 +23,6 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
     # IO.inspect(inbox_for: assigns.current_user)
     c = Discussions.prepare_comment(socket.assigns.comment, socket.assigns.current_user)
 
-
     # IO.inspect(inbox: inbox)
 
     assign(socket,
@@ -34,10 +33,11 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
 
   def handle_event("like", _data, socket) do
     {:ok, like} =
-      MoodleNetWeb.GraphQL.LikesResolver.fetch_my_like_edge(%{context: %{current_user: socket.assigns.current_user}}, socket.assigns.comment.id)
+      MoodleNetWeb.GraphQL.LikesResolver.create_like(%{context_id: socket.assigns.comment.id}, %{
+        context: %{current_user: socket.assigns.current_user}
+      })
 
-
-      IO.inspect(like, label: "LIKE")
+    IO.inspect(like, label: "LIKE")
 
     # IO.inspect(f)
     # TODO: error handling
@@ -51,7 +51,6 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
     }
   end
 
-
   def render(assigns) do
     ~L"""
     <div class="comment__preview">
@@ -62,7 +61,7 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
         <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
           <button class="button-link"><i class="feather-message-square"></i><span>Reply</span></button>
         <% end %>
-        <button phx-click="like" phx-target="<%= @myself %>" class="button-link"><i class="feather-star <%= if @comment.is_liked, do: 'liked', else: '' %>"></i><span>Like</span></button>
+        <button phx-click="like" phx-target="<%= @myself %>" class="button-link"><i class="feather-star <%= if @comment.is_liked, do: 'liked', else: '' %>"></i><span><%= if @comment.is_liked, do: 'Unlike', else: 'Like' %></i></span></button>
         <details class="dialog__container member">
         <summary class="button-link" >Report</summary>
         <dialog open class="dialog dialog__report">
