@@ -121,11 +121,11 @@ defmodule MoodleNetWeb.My.Post.WriteLive do
   end
 
   def tag_lookup(tag_search, "+") do
-    do_tag_lookup(tag_search, "taxonomy_tags_tree")
+    do_tag_lookup(tag_search, "taxonomy_tags")
   end
 
   def tag_lookup(tag_search, _) do
-    do_tag_lookup(tag_search, "search")
+    do_tag_lookup(tag_search, "public")
   end
 
   def do_tag_lookup(tag_search, index) do
@@ -149,7 +149,9 @@ defmodule MoodleNetWeb.My.Post.WriteLive do
     name = e(hit, "name", e(hit, "label", e(hit, "preferredUsername", "")))
 
     if name =~ tag_search do
-      [head | tail] = String.split(name, tag_search, parts: 2, trim: true)
+      split = String.split(name, tag_search, parts: 2, trim: false)
+      IO.inspect(split)
+      [head | tail] = split
 
       List.to_string([head, "<span>", tag_search, "</span>", tail])
     else

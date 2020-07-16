@@ -7,12 +7,14 @@ defmodule Search.Indexing do
 
   # alias ActivityPub.HTTP
 
+  @public_index "public"
+
   # create a new index
   def create_index(index_name) do
-    Search.Meili.push_object(%{uid: index_name})
+    Search.Meili.post(%{uid: index_name})
   end
 
-  # index something coming from old Algolia indexer
+  # index something coming in via old Algolia indexing module
   def maybe_index_object(%{"index_mothership_object_id" => _} = object) do
     index_for_search(Map.put(object, "id", object["index_mothership_object_id"]))
   end
@@ -24,19 +26,21 @@ defmodule Search.Indexing do
 
   # add to general instance search index
   def index_for_search(object) do
-    # IO.inspect(object)
-    index_object(object, "search")
+    IO.inspect(search_indexing: object)
+    index_object(object, @public_index, true)
   end
 
   # index something in an existing index
-  def index_object(object, index_name) do
-    index_objects([object], index_name)
+  def index_object(object, index_name, create_index_first \\ true) do
+    # IO.inspect(object)
+    index_objects([object], index_name, create_index_first)
   end
 
   # index several things in an existing index
-  def index_objects(object, index_name) do
+  def index_objects(objects, index_name, create_index_first \\ true) do
+    # IO.inspect(objects)
     # FIXME - should create the index only once
-    create_index(index_name)
-    Search.Meili.push_object(object, "/" <> index_name <> "/documents")
+    if create_index_first, do: create_index(index_name)
+    Search.Meili.put(objects, "/" <> index_name <> "/documents")
   end
 end

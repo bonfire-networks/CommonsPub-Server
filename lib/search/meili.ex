@@ -7,8 +7,10 @@ defmodule Search.Meili do
 
   alias ActivityPub.HTTP
 
+  @public_index "public"
+
   def search(string_or_params) do
-    search(string_or_params, "search")
+    search(string_or_params, @public_index)
   end
 
   def search(%{} = params, index_path) do
@@ -26,11 +28,11 @@ defmodule Search.Meili do
     search(object, "/" <> index <> "/search")
   end
 
-  def push_object(object) do
-    push_object(object, "")
+  def put(object) do
+    put(object, "")
   end
 
-  def push_object(object, index_path) do
+  def put(object, index_path) do
     api(:put, object, index_path)
   end
 
@@ -43,7 +45,7 @@ defmodule Search.Meili do
   end
 
   def post(object) do
-    push_object(object, "")
+    post(object, "")
   end
 
   def post(object, index_path) do
@@ -52,7 +54,7 @@ defmodule Search.Meili do
 
   def api(http_method, object, index_path) do
     search_instance = System.get_env("SEARCH_MEILI_INSTANCE", "search:7700")
-    api_key = System.get_env("SEARCH_MEILI_SECRET")
+    api_key = System.get_env("MEILI_MASTER_KEY")
 
     url = "http://#{search_instance}/indexes" <> index_path
 
@@ -67,7 +69,7 @@ defmodule Search.Meili do
 
     with {:ok, %{status: code} = ret} when code == 200 or code == 201 or code == 202 <-
            http_request(http_method, url, headers, object) do
-      IO.inspect(ret)
+      # IO.inspect(ret)
       {:ok, ret}
     else
       {_, message} ->
@@ -84,7 +86,9 @@ defmodule Search.Meili do
       get_url = url <> "?" <> query_str
       apply(HTTP, http_method, [get_url, headers])
     else
+      # IO.inspect(object)
       json = Jason.encode!(object)
+      # IO.inspect(json)
       apply(HTTP, http_method, [url, json, headers])
     end
   end
