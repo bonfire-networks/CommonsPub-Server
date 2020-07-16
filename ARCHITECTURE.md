@@ -47,4 +47,8 @@ This namespace contains the AP S2S REST API, the activity ingestion pipeline (`A
 
 ## ActivityPub MoodleNet interaction
 
+The callback functions defined in `ActivityPub.Adapter` are implemented in `MoodleNet.ActivityPub.Adapter`. Facilities for calling the ActivityPub API are implemented in `MoodleNet.ActivityPub.Publisher`. When implementing federation for a new object type it needs to be implemented both ways: both for outgoing federation in `MoodleNet.ActivityPub.Publisher` and for incoming federation in `MoodleNet.ActivityPub.Adapter`.
+
 ## The Mothership
+
+The Mothership is just a regular MoodleNet instance which gets forwarded public activities and then indexes them to algolia via the `MoodleNet.Algolia.Indexer` module.
