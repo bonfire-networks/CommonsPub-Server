@@ -30,9 +30,9 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    comments_edges = Discussions.prepare_comments(comments.edges)
+    comments_edges = Discussions.prepare_comments(comments.edges, current_user)
 
-    # IO.inspect(comments_edges, label: "COMMENTS")
+    IO.inspect(comments_edges, label: "COMMENTS")
 
     # tree = build_comment_thread_1(comments_edges)
     tree = build_comment_thread_2(comments_edges)

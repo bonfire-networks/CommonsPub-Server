@@ -1,6 +1,56 @@
 defmodule MoodleNetWeb.Component.CommentPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
+  import MoodleNetWeb.Helpers.{Common}
+  alias MoodleNetWeb.Helpers.Discussions
+
+  # def mount(params, session, socket) do
+  #   comment = Discussions.prepare_comment(socket.assigns.comment, socket.assigns.current_user)
+  #   {:ok, socket
+  #   |> assign(comment: comment,
+  #   current_user: socket.assigns.current_user)}
+  # end
+
+  def update(assigns, socket) do
+    {
+      :ok,
+      socket
+      |> assign(assigns)
+      |> fetch(assigns)
+    }
+  end
+
+  defp fetch(socket, assigns) do
+    # IO.inspect(inbox_for: assigns.current_user)
+    c = Discussions.prepare_comment(socket.assigns.comment, socket.assigns.current_user)
+
+
+    # IO.inspect(inbox: inbox)
+
+    assign(socket,
+      comment: c,
+      current_user: assigns.current_user
+    )
+  end
+
+  def handle_event("like", _data, socket) do
+    {:ok, like} =
+      MoodleNetWeb.GraphQL.LikesResolver.fetch_my_like_edge(%{context: %{current_user: socket.assigns.current_user}}, socket.assigns.comment.id)
+
+
+      IO.inspect(like, label: "LIKE")
+
+    # IO.inspect(f)
+    # TODO: error handling
+
+    {
+      :noreply,
+      socket
+      |> put_flash(:info, "Liked!")
+      # |> assign(community: socket.assigns.comment |> Map.merge(%{is_liked: true}))
+      #  |> push_patch(to: "/&" <> socket.assigns.community.username)
+    }
+  end
+
 
   def render(assigns) do
     ~L"""
@@ -12,7 +62,7 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
         <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
           <button class="button-link"><i class="feather-message-square"></i><span>Reply</span></button>
         <% end %>
-        <button class="button-link"><i class="feather-star"></i><span>Like</span></button>
+        <button phx-click="like" phx-target="<%= @myself %>" class="button-link"><i class="feather-star <%= if @comment.is_liked, do: 'liked', else: '' %>"></i><span>Like</span></button>
         <details class="dialog__container member">
         <summary class="button-link" >Report</summary>
         <dialog open class="dialog dialog__report">

@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     if(Map.has_key?(assigns, :thread)) do
       {:ok,
        assign(socket,
-         thread: Discussions.prepare_comment(assigns.thread)
+         thread: Discussions.prepare_comment(assigns.thread, assigns.current_user)
        )}
     else
       {:ok, assign(socket, thread: %{})}

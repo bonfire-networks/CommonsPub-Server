@@ -29,6 +29,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityDiscussionsLive do
 
     assign(socket,
       threads: threads.edges,
+      current_user: assigns.current_user,
       has_next_page: threads.page_info.has_next_page,
       after: threads.page_info.end_cursor,
       before: threads.page_info.start_cursor

@@ -29,7 +29,9 @@
                 live_component(
                   @socket,
                   CommentPreviewLive,
-                  comment: @activity.context
+                  comment: @activity.context,
+                  current_user: @current_user,
+                  id: @activity.context.id
                 )
               true ->
                 live_component(

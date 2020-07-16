@@ -18,7 +18,9 @@
     <%= live_component(
           @socket,
           CommentPreviewLive,
-          comment: @comment
+          current_user: @current_user,
+          comment: @comment,
+          id: @comment.id
         ) %>
   </div>
   <%= if length(@comment.comments)>0 do %>

@@ -50,7 +50,8 @@ defmodule MoodleNetWeb.CommunityLive.CommunityActivitiesLive do
       activities: outboxes.edges,
       has_next_page: outboxes.page_info.has_next_page,
       after: outboxes.page_info.end_cursor,
-      before: outboxes.page_info.start_cursor
+      before: outboxes.page_info.start_cursor,
+
     )
   end
 

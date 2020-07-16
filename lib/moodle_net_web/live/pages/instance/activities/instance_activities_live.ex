@@ -9,20 +9,17 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
     InstanceResolver
   }
 
-  # def mount(socket) do
-  #   {
-  #     :ok,
-  #     socket,
-  #     temporary_assigns: [
-  #       activities: [],
-  #       page: 1,
-  #       has_next_page: false,
-  #       after: [],
-  #       before: [],
-  #       pagination_target: "#instance-activities"
-  #     ]
-  #   }
-  # end
+  def mount(params, session, socket) do
+    IO.inspect(socket, label: "SOCKET")
+    {
+      :ok,
+      socket
+      |> assign(
+        current_user: socket.assigns.current_user
+      )
+      #  |> fetch(), temporary_assigns: [activities: []]
+    }
+  end
 
   def update(assigns, socket) do
     {
@@ -49,7 +46,8 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
       activities: outboxes.edges,
       has_next_page: outboxes.page_info.has_next_page,
       after: outboxes.page_info.end_cursor,
-      before: outboxes.page_info.start_cursor
+      before: outboxes.page_info.start_cursor,
+      current_user: assigns.current_user
     )
   end
 
@@ -60,6 +58,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   def render(assigns) do
     ~L"""
       <div id="instance-activities">
+
       <%= live_component(
         @socket,
         ActivitiesListLive,

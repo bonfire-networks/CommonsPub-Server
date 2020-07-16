@@ -8,7 +8,8 @@
               @socket,
               DiscussionPreviewLive,
               id: "thread-#{thread.id}",
-              thread: thread
+              thread: thread,
+              current_user: @current_user
             )
           %>
   <% end %>
