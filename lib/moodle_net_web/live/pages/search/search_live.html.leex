@@ -7,11 +7,61 @@
       </div>
     </div>
     <div class="member__layout">
-      <div class="mainContent__selected">
-        search
-      </div>
-      <div class="member__navigation">
-        test
+      <%= cond do %>
+        <% @selected_tab == "users" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">Users</h3>
+
+        </div>
+        <% @selected_tab == "communities" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">communities</h3>
+        </div>
+        <% @selected_tab == "discussions" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">discussions</h3>
+        </div>
+        <% @selected_tab == "hashtags" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">hashtags</h3>
+        </div>
+        <% true -> %>
+          <div class="mainContent__selected">
+            <%= live_component(
+                    @socket,
+                    TabNotFoundLive
+                ) %>
+          </div>
+        <% end %>
+      <div class="member__filters">
+        <div class="header__controls">
+          <input name="editor-style" id="editor-style" type="checkbox" class="switch">
+          <label for="editor-style">Search in my local instance </label>
+        </div>
+        <div class="search__navigation">
+          <%= live_patch link_body("Users", "feather-user"),
+            to: "/instance/search/" <> @search <> "/users",
+            class: if @selected_tab == "users", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body("Communities","feather-users"),
+            to: "/instance/search/" <> @search <> "/communities",
+            class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body("Discussions","feather-message-square"),
+            to: "/instance/search/" <> @search <> "/discussions",
+            class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body("Hashtags", "feather-hash"),
+            to: "/instance/search/" <> @search <> "/hashtags",
+            class: if @selected_tab == "hashtags", do: "navigation__item active", else: "navigation__item"
+          %>
+        </div>
+        <div class="additional__filters">
+          <div class="filters__item">
+            <label>Number of likes</label>
+            <input type="range" min="0" max="1000" step="5"  />
+          </div>
+        </div>
       </div>
     </section>
   </div>

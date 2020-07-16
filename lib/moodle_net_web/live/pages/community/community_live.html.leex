@@ -11,7 +11,7 @@
             <button class="button follow" phx-click="unfollow">Leave</button>
             <%= if @community.creator_id==@current_user.id do %>
               <details class="dialog__container">
-                <summary class="button new-community">Edit</summary>
+                <summary class="button button__edit__community">Edit</summary>
                 <dialog open class="dialog dialog__newCommunity">
                   <header class="dialog__header">Edit community</header>
                   <section class="dialog__content">
