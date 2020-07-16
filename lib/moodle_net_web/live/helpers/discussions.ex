@@ -3,7 +3,8 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     Repo
   }
 
-  alias MoodleNetWeb.GraphQL.LikesResolver
+  import MoodleNetWeb.Helpers.Common
+
   alias MoodleNetWeb.Helpers.{Profiles}
 
   def prepare_comments(comments, current_user) do
@@ -13,7 +14,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     )
   end
 
-  def prepare_comment(comment, current_user) do
+  def prepare_comment(%MoodleNet.Threads.Comment{} = comment, current_user) do
     comment = Repo.preload(comment, :creator)
 
     creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
@@ -29,6 +30,11 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     |> Map.merge(%{creator: creator})
     |> Map.merge(%{is_liked: liked_bool})
     |> Map.merge(%{comments: []})
+  end
+
+  def prepare_comment(comment, _) do
+    IO.inspect("comment already prepared")
+    comment
   end
 
   def prepare_thread(thread) do

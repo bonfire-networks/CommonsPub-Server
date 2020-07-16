@@ -12,6 +12,8 @@ defmodule MoodleNetWeb.Helpers.Common do
     Communities
   }
 
+  alias MoodleNetWeb.GraphQL.LikesResolver
+
   def strlen(thing) do
     if !is_nil(thing) do
       String.length(thing)

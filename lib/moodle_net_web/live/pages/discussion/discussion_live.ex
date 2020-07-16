@@ -30,6 +30,7 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
+    # comments_edges = comments.edges
     comments_edges = Discussions.prepare_comments(comments.edges, current_user)
 
     IO.inspect(comments_edges, label: "COMMENTS")
@@ -137,7 +138,8 @@ defmodule MoodleNetWeb.DiscussionLive do
           %{context: %{current_user: socket.assigns.current_user}}
         )
 
-      IO.inspect(comment, label:  "HERE")
+      IO.inspect(comment, label: "HERE")
+
       # TODO: error handling
 
       {:noreply,

@@ -21,9 +21,8 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
 
   defp fetch(socket, assigns) do
     # IO.inspect(inbox_for: assigns.current_user)
+    IO.inspect(c: socket.assigns.comment)
     c = Discussions.prepare_comment(socket.assigns.comment, socket.assigns.current_user)
-
-    # IO.inspect(inbox: inbox)
 
     assign(socket,
       comment: c,
