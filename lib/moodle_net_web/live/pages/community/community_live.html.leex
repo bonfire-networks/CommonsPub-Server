@@ -40,10 +40,10 @@
                   <dialog open class="dialog dialog__report">
                     <header class="dialog__header">Report <%= @community.name %></header>
                     <section class="dialog__content">
-                      <form>
-                        <textarea placeholder="Describe the reason..."></textarea>
+                      <form method="post" phx-submit="flag">
+                        <textarea name="message" placeholder="Describe the reason..."></textarea>
                         <footer class="dialog__footer">
-                          <button value="default">Confirm</button>
+                          <button type="submit" phx-disable-with="Checking..." value="default">Confirm</button>
                         </footer>
                       </form>
                     </section>
