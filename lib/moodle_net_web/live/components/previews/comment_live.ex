@@ -83,7 +83,7 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
         <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
           <button class="button-link"><i class="feather-message-square"></i><span>Reply</span></button>
         <% end %>
-        <button phx-click="like" phx-target="<%= @myself %>" class="button-link"><i class="feather-star <%= if @comment.is_liked, do: 'liked', else: '' %>"></i><span><%= if @comment.is_liked, do: 'Unlike', else: 'Like' %></i></span></button>
+        <button phx-click="like" phx-target="<%= @myself %>" class="button-link"><i class="feather-star <%= if e(@comment, :is_liked, false), do: 'liked', else: '' %>"></i><span><%= if e(@comment, :is_liked, false), do: 'Unlike', else: 'Like' %></i></span></button>
         <details class="dialog__container member">
         <summary class="button-link" >Report</summary>
         <dialog open class="dialog dialog__report">

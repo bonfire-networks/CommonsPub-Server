@@ -180,7 +180,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     false
   end
 
-  defp is_liked(%{}) do
+  defp is_liked(%{data: _}) do
     true
   end
 

@@ -50,6 +50,7 @@ defmodule MoodleNet.Threads.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity, context),
+           :ok <- index(comment, thread),
            :ok <- ap_publish("create", comment) do
         {:ok, %{comment | thread: thread}}
       end
@@ -64,6 +65,7 @@ defmodule MoodleNet.Threads.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity),
+           :ok <- index(comment, thread),
            :ok <- ap_publish("create", comment) do
         {:ok, %{comment | thread: thread}}
       end
@@ -101,6 +103,7 @@ defmodule MoodleNet.Threads.Comments do
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                #  thread = preload_ctx(thread),
                :ok <- publish(creator, thread, comment, activity),
+               :ok <- index(comment, thread),
                :ok <- ap_publish("create", comment) do
             {:ok, comment}
           end
@@ -125,6 +128,7 @@ defmodule MoodleNet.Threads.Comments do
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                #  thread = preload_ctx(thread),
                :ok <- publish(creator, thread, comment, activity),
+               :ok <- index(comment, thread),
                :ok <- ap_publish("create", comment) do
             {:ok, comment}
           end
@@ -251,4 +255,42 @@ defmodule MoodleNet.Threads.Comments do
   defp context_feeds(%Community{outbox_id: id}), do: [id]
   defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
   defp context_feeds(_), do: []
+
+  def index(comment, thread) do
+    # follower_count =
+    #   case MoodleNet.Follows.FollowerCounts.one(context: comment.id) do
+    #     {:ok, struct} -> struct.count
+    #     {:error, _} -> nil
+    #   end
+
+    # icon = MoodleNet.Uploads.remote_url_from_id(comment.icon_id)
+    # image = MoodleNet.Uploads.remote_url_from_id(comment.image_id)
+
+    canonical_url = MoodleNet.ActivityPub.Utils.get_object_canonical_url(comment)
+
+    object = %{
+      "index_type" => "Comment",
+      "id" => comment.id,
+      "reply_to_id" => comment.reply_to_id,
+      "thread" => %{
+        "id" => comment.thread_id,
+        "name" => thread.name
+      },
+      "canonical_url" => canonical_url,
+      # "followers" => %{
+      #   "totalCount" => follower_count
+      # },
+      # "icon" => icon,
+      # "image" => image,
+      "name" => comment.name,
+      "content" => comment.content,
+      "published_at" => comment.published_at,
+      # home instance of object:
+      "index_instance" => URI.parse(canonical_url).host
+    }
+
+    Search.Indexing.maybe_index_object(object)
+
+    :ok
+  end
 end

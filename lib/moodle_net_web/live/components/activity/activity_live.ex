@@ -3,14 +3,11 @@ defmodule MoodleNetWeb.Component.ActivityLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.StoryPreviewLive
-  alias MoodleNetWeb.Component.CommentPreviewLive
-  alias MoodleNetWeb.Component.CommunityPreviewLive
+  alias MoodleNetWeb.Component.PreviewLive
 
   # alias MoodleNetWeb.Component.DiscussionPreviewLive
 
   alias MoodleNetWeb.Helpers.{Activites}
-
 
   def update(assigns, socket) do
     if(Map.has_key?(assigns, :activity)) do
@@ -20,9 +17,11 @@ defmodule MoodleNetWeb.Component.ActivityLive do
          current_user: assigns.current_user
        )}
     else
-      {:ok, assign(socket,
-        activity: %{},
-        current_user: assigns.current_user)}
+      {:ok,
+       assign(socket,
+         activity: %{},
+         current_user: assigns.current_user
+       )}
     end
   end
 end
