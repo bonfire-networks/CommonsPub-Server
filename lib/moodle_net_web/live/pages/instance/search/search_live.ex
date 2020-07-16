@@ -1,11 +1,13 @@
 defmodule MoodleNetWeb.SearchLive do
   use MoodleNetWeb, :live_view
 
+  import MoodleNetWeb.Helpers.Common
+
   alias MoodleNetWeb.Component.{
     TabNotFoundLive
   }
 
-  import MoodleNetWeb.Helpers.Common
+  alias MoodleNetWeb.SearchLive.ResultsLive
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
@@ -17,13 +19,41 @@ defmodule MoodleNetWeb.SearchLive do
        page_title: "Search",
        me: false,
        current_user: socket.assigns.current_user,
-       selected_tab: "users",
-       search: ""
+       selected_tab: "all",
+       search: "",
+       hits: [],
+       num_hits: nil
+     )}
+  end
+
+  def handle_params(%{"search" => search, "tab" => tab} = params, _url, socket)
+      when search != "" do
+    IO.inspect(search, label: "SEARCH")
+    IO.inspect(tab, label: "TAB")
+
+    search = Search.Meili.search(search, "public")
+
+    IO.inspect(search)
+
+    hits =
+      if(Map.has_key?(search, "hits") and length(search["hits"])) do
+        # search["hits"]
+        hits = Enum.map(search["hits"], &search_hit_prepare/1)
+        # Enum.filter(hits, & &1)
+      end
+
+    IO.inspect(hits)
+
+    {:noreply,
+     assign(socket,
+       selected_tab: tab,
+       hits: hits,
+       num_hits: search["nbHits"]
+       #  current_user: socket.assigns.current_user
      )}
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    # IO.inspect(community, label: "COMMUNITY")
     IO.inspect(tab, label: "TAB")
 
     {:noreply,
@@ -53,5 +83,10 @@ defmodule MoodleNetWeb.SearchLive do
       <i class="<%= @icon %>"></i>
       <%= @name %>
     """
+  end
+
+  def search_hit_prepare(hit) do
+    # is this safe?
+    hit |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
   end
 end

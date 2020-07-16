@@ -158,8 +158,8 @@ defmodule MoodleNetWeb.Router do
     live "/instance", InstanceLive
 
     live "/instance/search", SearchLive
-    live "/instance/search/:search", SearchLive
-    live "/instance/search/:search/:tab", SearchLive
+    live "/instance/search/:tab", SearchLive
+    live "/instance/search/:tab/:search", SearchLive
 
     live "/instance/:tab", InstanceLive
 

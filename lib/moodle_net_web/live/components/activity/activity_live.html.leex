@@ -17,28 +17,14 @@
 </div>
 </div>
 <div class="activity__preview">
-  <%= if(Map.has_key?(@activity, :context_type)) do
-        cond do
-            @activity.context_type == "community" ->
-              live_component(
-                @socket,
-                CommunityPreviewLive,
-                community: @activity.context
-              )
-              @activity.context_type == "comment" ->
-                live_component(
-                  @socket,
-                  CommentPreviewLive,
-                  comment: @activity.context,
-                  current_user: @current_user,
-                  id: @activity.context.id
-                )
-              true ->
-                live_component(
-                  @socket,
-                  StoryPreviewLive
-                )
-            end
-          end %>
+  <%=
+    live_component(
+        @socket,
+        PreviewLive,
+        object: e(@activity, :context, %{}),
+        object_type: e(@activity, :context_type, nil),
+        current_user: @current_user
+      )
+  %>
 </div>
 </div>
