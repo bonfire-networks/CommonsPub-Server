@@ -23,8 +23,9 @@ defmodule MoodleNetWeb.Helpers.Communities do
       else
         {:ok, %{}}
       end
+      IO.inspect(preload, label: "sidaisd")
 
-    Profiles.prepare(community, preload)
+    Profiles.prepare(community, preload, 150)
   end
 
   def user_communities(for_user, current_user) do
