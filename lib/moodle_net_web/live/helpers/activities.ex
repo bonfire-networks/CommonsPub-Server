@@ -6,6 +6,20 @@ defmodule MoodleNetWeb.Helpers.Activites do
   alias MoodleNetWeb.Helpers.{Profiles}
 
   def prepare(%MoodleNet.Activities.Activity{} = activity) do
+    prepare_activity(activity)
+  end
+
+  def prepare(%MoodleNet.Likes.Like{} = activity) do
+    prepare_activity(activity)
+  end
+
+  def prepare(activity) do
+    activity
+  end
+
+  def prepare_activity(activity) do
+    MoodleNet.Repo.preload(activity, :context)
+
     activity =
       if(Map.has_key?(activity, :context_id) and !is_nil(activity.context_id)) do
         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: activity.context_id)
@@ -32,7 +46,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
       Timex.shift(activity.published_at, minutes: -3)
       |> Timex.format("{relative}", :relative)
 
-    # IO.inspect(activity)
+    # IO.inspect(prepare_activity: activity)
 
     activity
     |> Map.merge(%{published_at: from_now})
@@ -40,10 +54,6 @@ defmodule MoodleNetWeb.Helpers.Activites do
     |> Map.merge(%{display_verb: display_activity_verb(activity)})
     |> Map.merge(%{display_object: display_activity_object(activity)})
     |> Map.merge(%{activity_url: activity_url(activity)})
-  end
-
-  def prepare(activity) do
-    activity
   end
 
   def activity_url(%{
@@ -100,13 +110,17 @@ defmodule MoodleNetWeb.Helpers.Activites do
     "#unsupported-by-activity_url/1"
   end
 
+  def display_activity_verb(%MoodleNet.Likes.Like{}) do
+    "favourited"
+  end
+
   def display_activity_verb(%{verb: verb, context_type: context_type} = activity) do
     cond do
       context_type == "flag" ->
         "flagged"
 
       context_type == "like" ->
-        "starred"
+        "favourited"
 
       context_type == "follow" ->
         "followed"

@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     if(Map.has_key?(assigns, :thread)) do
       {:ok,
        assign(socket,
-         thread: Discussions.prepare_comment(assigns.thread, assigns.current_user)
+         thread: Discussions.prepare_thread(assigns.thread, assigns.current_user)
        )}
     else
       {:ok, assign(socket, thread: %{})}
@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
         <h2 class="discussion__title"><%= e(@thread, :name, "Thread without title") %></h2>
         <div class="discussion__meta">
           <div class="meta__time">
-            Started <%= @thread.published_at %> by <%= @thread.creator.name %>
+            Started <%= @thread.published_at %> by <%= e(@thread, :creator, :name, "an unknown person") %>
           </div>
           <div class="preview__meta">
             <div class="meta__item">

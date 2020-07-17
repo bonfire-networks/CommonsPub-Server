@@ -31,19 +31,20 @@ defmodule MoodleNetWeb.MemberLive.MemberLikesLive do
   end
 
   defp fetch(socket, assigns) do
-    {:ok, outboxes} =
+    {:ok, likes} =
       LikesResolver.likes_edge(
         %{id: assigns.user.id},
         %{after: assigns.after, limit: 10},
         %{context: %{current_user: assigns.current_user}}
       )
-      IO.inspect(outboxes, label: "LIKES:")
+
+    IO.inspect(likes, label: "LIKES:")
 
     assign(socket,
-      activities: outboxes.edges,
-      has_next_page: outboxes.page_info.has_next_page,
-      after: outboxes.page_info.end_cursor,
-      before: outboxes.page_info.start_cursor
+      activities: likes.edges,
+      has_next_page: likes.page_info.has_next_page,
+      after: likes.page_info.end_cursor,
+      before: likes.page_info.start_cursor
     )
   end
 

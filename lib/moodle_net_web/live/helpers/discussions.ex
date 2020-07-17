@@ -37,6 +37,21 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     comment
   end
 
+  def prepare_thread(thread, with_context) do
+    thread =
+      if(!is_nil(thread.context_id)) do
+        {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
+        context = MoodleNet.Meta.Pointers.follow!(pointer)
+
+        thread
+        |> Map.merge(%{context: context})
+      else
+        thread
+      end
+
+    prepare_thread(thread)
+  end
+
   def prepare_thread(thread) do
     thread =
       if(!is_nil(thread.context_id)) do

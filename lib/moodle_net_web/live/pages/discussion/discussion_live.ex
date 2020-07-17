@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    thread = Discussions.prepare_thread(thread)
+    thread = Discussions.prepare_thread(thread, true)
 
     # IO.inspect(thread, label: "THREAD")
 

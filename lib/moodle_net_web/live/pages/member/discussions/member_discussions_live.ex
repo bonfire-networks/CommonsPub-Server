@@ -54,7 +54,7 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
     # }
     # )
 
-    IO.inspect(threads)
+    # IO.inspect(threads)
 
     assign(socket,
       threads: threads.edges,
