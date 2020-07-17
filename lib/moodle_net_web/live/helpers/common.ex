@@ -96,7 +96,6 @@ defmodule MoodleNetWeb.Helpers.Common do
     # Logger.info(session_load: session)
 
     current_user = Account.current_user(session["auth_token"])
-
     # IO.inspect(session_loaded_user: current_user)
 
     communities_follows =
@@ -111,6 +110,8 @@ defmodule MoodleNetWeb.Helpers.Common do
 
     socket
     |> assign(:auth_token, auth_token)
+    |> assign(:show_title, false)
+    |> assign(:show_communities, false)
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)

@@ -58,7 +58,9 @@
             <%= live_component(
                     @socket,
                     SettingsFlagsLive,
-                    current_user: @current_user
+                    current_user: @current_user,
+                    id: :flags
+
                 ) %>
           </div>
           <% true -> %>

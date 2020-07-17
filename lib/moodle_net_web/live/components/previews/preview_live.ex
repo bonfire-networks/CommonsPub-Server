@@ -4,6 +4,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
 
   alias MoodleNetWeb.Component.StoryPreviewLive
   alias MoodleNetWeb.Component.CommentPreviewLive
+  alias MoodleNetWeb.Component.LikePreviewLive
   alias MoodleNetWeb.Component.CommunityPreviewLive
   alias MoodleNetWeb.Component.UnknownPreviewLive
 
@@ -23,6 +24,14 @@ defmodule MoodleNetWeb.Component.PreviewLive do
               live_component(
                 @socket,
                 CommentPreviewLive,
+                comment: @object,
+                current_user: @current_user,
+                id: @object.id
+              )
+            @object_type == "like" ->
+              live_component(
+                @socket,
+                LikePreviewLive,
                 comment: @object,
                 current_user: @current_user,
                 id: @object.id

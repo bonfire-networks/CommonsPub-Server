@@ -260,24 +260,25 @@
   }
   .drawer__menu {
     overflow-y: auto;
-    details {
-      margin-bottom: var(--m3);
-      summary {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #333333a3;
-        font-weight: 600;
-        padding: 0 var(--m3);
-        height: 30px;
-        line-height: 30px;
-      }
-      .handle {
-        cursor: pointer;
-      }
-    }
     .communities__wrapper {
       position: relative;
+        details {
+          margin-bottom: var(--m3);
+          summary {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #333333a3;
+            font-weight: 600;
+            padding: 0 var(--m3);
+            height: 30px;
+            line-height: 30px;
+          }
+          .handle {
+            cursor: pointer;
+          }
+        }
+
       .communities_new {
         position: absolute;
         top: 0;
@@ -320,10 +321,101 @@
       }
     }
     .menu__general {
-      padding-top: var(--m3);
-      padding-bottom: var(--m3);
-      border-bottom: var(--border);
-      margin-bottom: var(--m3);
+      padding: var(--m2);
+      .post__sub__actions {
+        display: flex;
+        justify-content: flex-end;
+        flex: 0 0 auto;
+        margin-top: var(--m2);
+      }
+      .general__post {
+        margin-bottom: var(--m4);
+        .post__toggle {
+          height: 0;
+          transform-origin: bottom;
+          opacity: 0;
+          visibility: hidden;
+          transition: height .4s ease,opacity .4s ease;
+          &.form__visible {
+            margin-bottom: var(--m2);
+            height: 36px;
+            margin-bottom: 11px;
+            opacity: 1;
+            visibility: visible;
+          }
+          input {
+            width: 100%;
+            box-sizing: border-box;
+          }
+          
+        }
+        .post__wrapper {
+          border: var(--border);
+          border-radius: 4px;
+        }
+        textarea {
+          border: none;
+          padding: var(--m2);
+          min-height: 150px;
+          border-radius: 4px 4px 0 0;
+          box-sizing: border-box;
+        }
+        .post__actions {
+          padding: var(--m2);
+          background: #ebebeb;
+          border-radius: 0 0 4px 4px;
+          display: flex;
+          flex: 0 0 auto;
+          margin-top: -5px;
+          details {
+            position: relative;
+            summary::-webkit-details-marker {
+              display: none;
+            }
+            summary {
+              list-style: none;
+              padding: 0;
+              height: 38px;
+              max-height: 38px;
+            }
+            .community__select {
+              position: absolute;
+              background-color: white;
+            }
+          }
+          .button-outline-only-icon {
+            &.active {
+              color: var(--color-primary);
+              a {
+                color: var(--color-primary);
+              }
+            }
+            padding: 0;
+            height: 32px;
+            width: 32px;
+            background: transparent;
+            box-shadow: none;
+            display: grid;
+            place-content: center;
+            margin-right: var(--m3);
+            font-size: 12px;
+            font-weight: 500;
+            color: lightness(var(--color-surface), 1.5);
+            a {
+              display: flex;
+              place-content: center;
+              color: lightness(var(--color-surface), 1.5); 
+            }
+            i {
+              font-size: 16px;
+              font-weight: 500;
+            }
+            &:hover {
+              background: #d7d7d7;
+            }
+          }
+        }
+      }
       .panel__item {
         a {
           font-weight: 400;
@@ -396,7 +488,7 @@
   height: 50px;
   background-color: var(--color-primary);
   position: relative;
-  z-index: 99;
+  z-index: 2;
   display: flex;
   justify-content: space-between;
   .aside {
@@ -445,6 +537,18 @@
     display: flex;
     align-items: center;
     margin-right: var(--m2);
+    .right__notification {
+      background: #358be1;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-content: center;
+      border-radius: 16px;
+      font-size: 18px;
+      color: #fff;
+      margin-right: var(--m3);
+      cursor: pointer;
+    }
     .panel__item {
       margin-left: var(--m2);
     }
@@ -468,6 +572,9 @@
   .header__left {
     display: flex;
     align-items: center;
+    .left__action {
+      margin-left: var(--m3)
+    }
     a {
       &:hover {
         text-decoration: none;

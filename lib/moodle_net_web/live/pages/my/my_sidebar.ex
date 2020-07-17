@@ -3,7 +3,6 @@ defmodule MoodleNetWeb.My.MySidebar do
 
   import MoodleNetWeb.Helpers.Common
 
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
     {
@@ -13,9 +12,56 @@ defmodule MoodleNetWeb.My.MySidebar do
     }
   end
 
-  def handle_event("new_community", %{"name" => name} = data, socket) do
-    IO.inspect(data, label: "DATA")
+  def handle_event("post", %{"content" => content} = data, socket) do
+    IO.inspect(data, label: "POST DATA")
 
+    if(is_nil(content) or is_nil(socket.assigns.current_user)) do
+      {:noreply,
+       socket
+       |> put_flash(:error, "Please write something...")}
+    else
+      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+
+      comment = input_to_atoms(data)
+
+      {:ok, thread} =
+        MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+          %{comment: comment},
+          %{context: %{current_user: socket.assigns.current_user}}
+        )
+
+      IO.inspect(thread, label: "THREAD")
+
+      {:noreply,
+       socket
+       |> put_flash(:info, "Published!")
+       # change redirect
+       |> push_redirect(to: "/!" <> thread.thread_id)}
+    end
+  end
+
+  def handle_event("title", _data, socket) do
+    IO.inspect("test")
+    {
+      :noreply,
+      socket
+      |> assign(
+        show_title: !socket.assigns.show_title
+      )
+    }
+  end
+
+  def handle_event("communities", _data ,socket) do
+    {
+      :noreply,
+      socket
+      |> assign(
+        show_communities: !socket.assigns.show_communities
+      )
+    }
+  end
+
+  def handle_event("new_community", %{"name" => name} = data, socket) do
     if(is_nil(name) or !Map.has_key?(socket.assigns, :current_user)) do
       {:noreply,
        socket

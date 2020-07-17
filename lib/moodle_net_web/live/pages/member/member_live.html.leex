@@ -62,9 +62,9 @@
                 %>
           </div>
           <% @selected_tab == "timeline" ->  %>
-          <h3 class="area__title">timeline of activities by <%= @user.name %></h3>
-          <div class="selected__area">
-            <%= live_component(
+            <h3 class="area__title">timeline of activities by <%= @user.name %></h3>
+            <div class="selected__area">
+              <%= live_component(
                     @socket,
                     MemberActivitiesLive,
                     user: @user,
@@ -77,6 +77,24 @@
                     after: [],
                     before: [],
                     pagination_target: "#member-activities"
+                  ) %>
+          </div>
+          <% @selected_tab == "likes" ->  %>
+            <h3 class="area__title">likes</h3>
+            <div class="selected__area">
+              <%= live_component(
+                    @socket,
+                    MemberLikesLive,
+                    user: @user,
+                    selected_tab: @selected_tab,
+                    id: :like,
+                    current_user: @current_user,
+                    activities: [],
+                    page: 1,
+                    has_next_page: false,
+                    after: [],
+                    before: [],
+                    pagination_target: "#member-likes"
                   ) %>
           </div>
           <% @selected_tab == "following" ->  %>

@@ -50,6 +50,29 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
     }
   end
 
+  def handle_event("flag", %{"message" => message} = _args, socket) do
+    {:ok, flag} =
+      MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
+        %{context_id: socket.assigns.comment.id,
+          message: message},
+        %{
+          context: %{current_user: socket.assigns.current_user}
+      })
+
+    IO.inspect(flag, label: "FLAG")
+
+    # IO.inspect(f)
+    # TODO: error handling
+
+    {
+      :noreply,
+      socket
+      |> put_flash(:info, "Liked!")
+      # |> assign(community: socket.assigns.comment |> Map.merge(%{is_liked: true}))
+      #  |> push_patch(to: "/&" <> socket.assigns.community.username)
+    }
+  end
+
   def render(assigns) do
     ~L"""
     <div class="comment__preview">
@@ -60,16 +83,16 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
         <%= live_patch to: "/!"<> e(@comment, :thread_id, e(@comment, :thread, :id, "")) <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
           <button class="button-link"><i class="feather-message-square"></i><span>Reply</span></button>
         <% end %>
-        <button phx-click="like" phx-target="<%= @myself %>" class="button-link"><i class="feather-star <%= if e(@comment, :is_liked, false), do: 'liked', else: '' %>"></i><span><%= if e(@comment, :is_liked, false), do: 'Unlike', else: 'Like' %></i></span></button>
+        <button phx-click="like" phx-target="<%= @myself %>" class="button-link"><%= if e(@comment, :is_liked, false), do: 'Unlike', else: 'Like' %></i></span></button>
         <details class="dialog__container member">
         <summary class="button-link" >Report</summary>
         <dialog open class="dialog dialog__report">
           <header class="dialog__header">Report this comment</header>
           <section class="dialog__content">
-            <form>
-              <textarea placeholder="Describe the reason..."></textarea>
+            <form method="post" phx-submit="flag" phx-target="<%= @myself %>">
+              <textarea name="message" placeholder="Describe the reason..."></textarea>
               <footer class="dialog__footer">
-                <button value="default">Confirm</button>
+                <button type="submit" phx-disable-with="Checking..." value="default">Confirm</button>
               </footer>
             </form>
           </section>
