@@ -51,6 +51,7 @@
 
     &:hover {
       background-color: lightness($bg, 0.98);
+      text-decoration: none;
     }
 
     &:focus {

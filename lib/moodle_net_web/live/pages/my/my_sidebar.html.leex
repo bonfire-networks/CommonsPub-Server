@@ -1,53 +1,37 @@
 <nav class="side__drawer">
-  <!--div class="profile__box" style="background-image: url(<%= e(@current_user, :image_url, "http://thepatternlibrary.com/img/r.png") %>)">
-        <input placeholder="Search..." />
-        <div class="box__info">
-          <img src="<%= e(@current_user, :icon_url, "") %>" />
-  <div class="box__meta">
-    <h3 ><%= e(@current_user, :name, "Me") %></h3>
-    <h4 ><%= e(@current_user, :username, "@me") %></h4>
-  </div>
-  <details class="drawer__profile" >
-    <summary class="user__dropdown">
-      <i class="feather-more-horizontal"></i>
-    </summary>
-    <ul class="dropdown__list">
-      <li><%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "me")  do %>Profile<% end %></li>
-      <li><%= live_redirect to: "/~/settings" do %>Settings<% end %></li>
-      <li><%= live_redirect to: "#" do %>Logout<% end %></li>
-    </ul>
-  </details>
-</div>
-</div -->
   <div class="drawer__menu">
     <nav class="menu__general">
-      <%# <div class="panel__item">
-      <input id="slide-sidebar" type="checkbox" role="button" />
-      <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
-    </div> %>
-      <div class="panel__item">
-        <%= live_redirect to: "/~" do %>
-          <i class="feather-home"></i> Home
-        <% end %>
-      </div>
-      <div class="panel__item">
-        <%= live_redirect to: "/instance" do %>
-          <i class="feather-anchor"></i> Discover
-        <% end %>
-      </div>
-      <div class="panel__item">
-        <%= live_redirect to: "/~/notifications" do %>
-          <i class="feather-bell"></i> Notifications
-        <% end %>
-      </div>
-      <div class="panel__item">
-        <%= live_redirect to: "/~/write" do %>
-          <i class="feather-edit"></i> Write
-        <% end %>
-      </div>
+      <form phx-submit="post" phx-target="<%= @myself %>" class="general__post">
+        <div class="post__toggle post__title <%= if @show_title, do: "form__visible", else: "" %>">
+          <input id="name" name="name"  type="text" placeholder="Choose a title">
+        </div>
+        <div class="post__toggle community__select <%= if @show_communities, do: "form__visible", else: "" %>">
+          <input list="communities" placeholder="select a community">
+          <datalist id="communities">
+            <%= for community <- @my_communities do %>
+              <option value="<%= e(community, :actor, :preferred_username, e(community, :id, "")) %>">
+            <% end %>
+          </datalist>
+        </div>
+        <div class="post__wrapper">
+          <textarea id="content" name="content" placeholder="What are you thinking"></textarea>
+          <div class="post__actions">
+            <div phx-click="title" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_title, do: "active", else: "" %>"><i class="feather-type"></i></div>
+            <div phx-click="communities" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_communities, do: "active", else: "" %>"><i class="feather-users"></i></div>
+            <div class="button-outline-only-icon">
+              <%= live_redirect to: "/~/write" do %>
+                <i class="feather-maximize"></i>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="post__sub__actions">
+          <button phx-disable-with="Posting..." type="submit">Publish</button>
+        </div>
+      </form>
     </nav>
     <div class="communities__wrapper">
-      <details open>
+      <details class="wrapper__details" open>
         <summary class="handle">Communities</summary>
         <nav class="general__details">
           <%= live_component(
@@ -77,30 +61,6 @@
         </details>
       </div>
     </div>
-    <details>
-      <summary class="handle">Direct Messages</summary>
-      <nav class="general__details">
-        <div class="panel__item">
-          <img src="https://picsum.photos/40" />
-          <h3>ValueFlows UI components</h3>
-        </div>
-        <div class="panel__item">
-          <img src="https://picsum.photos/40" />
-          <h3>ValueFlows UI components</h3>
-        </div>
-        <div class="panel__item">
-          <img src="https://picsum.photos/40" />
-          <h3>ValueFlows UI components</h3>
-        </div>
-        <div class="panel__item">
-          <img src="https://picsum.photos/40" />
-          <h3>ValueFlows UI components</h3>
-        </div>
-        <div class="panel__item">
-          <img src="https://picsum.photos/40" />
-          <h3>ValueFlows UI components</h3>
-        </div>
-      </nav>
-    </details>
+
   </div>
 </nav>
