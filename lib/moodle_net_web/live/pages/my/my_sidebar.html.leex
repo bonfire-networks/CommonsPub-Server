@@ -14,7 +14,7 @@
           </datalist>
         </div>
         <div class="post__wrapper">
-          <textarea id="content" name="content" placeholder="What are you thinking"></textarea>
+          <textarea id="sidebar-content" name="content" placeholder="What are you thinking"></textarea>
           <div class="post__actions">
             <div phx-click="title" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_title, do: "active", else: "" %>"><i class="feather-type"></i></div>
             <div phx-click="communities" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_communities, do: "active", else: "" %>"><i class="feather-users"></i></div>
