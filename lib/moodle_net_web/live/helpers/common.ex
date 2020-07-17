@@ -14,6 +14,9 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   alias MoodleNetWeb.GraphQL.LikesResolver
 
+  def strlen(%{} = obj) when obj == %{}, do: 0
+  def strlen(%{}), do: 1
+
   def strlen(thing) do
     if !is_nil(thing) do
       String.length(thing)
@@ -96,6 +99,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     # Logger.info(session_load: session)
 
     current_user = Account.current_user(session["auth_token"])
+
     # IO.inspect(session_loaded_user: current_user)
 
     communities_follows =
@@ -120,6 +124,27 @@ defmodule MoodleNetWeb.Helpers.Common do
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
     socket
     |> assign(:current_user, nil)
+  end
+
+  def prepare_context(thing) do
+    if(Map.has_key?(thing, :context_id) and !is_nil(thing.context_id)) do
+      MoodleNet.Repo.preload(thing, :context)
+
+      {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thing.context_id)
+      context = MoodleNet.Meta.Pointers.follow!(pointer)
+
+      type =
+        context.__struct__
+        |> Module.split()
+        |> Enum.at(-1)
+        |> String.downcase()
+
+      thing
+      |> Map.merge(%{context_type: type})
+      |> Map.merge(%{context: context})
+    else
+      thing
+    end
   end
 
   def image(community, field_name) do

@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
               CommunityPreviewLive,
               community: @object,
               current_user: @current_user,
-              id: @object.id
+              id: @preview_id
             )
             @object_type == "comment" ->
               live_component(
@@ -26,15 +26,15 @@ defmodule MoodleNetWeb.Component.PreviewLive do
                 CommentPreviewLive,
                 comment: @object,
                 current_user: @current_user,
-                id: @object.id
+                id: @preview_id
               )
             @object_type == "like" ->
               live_component(
                 @socket,
                 LikePreviewLive,
-                comment: @object,
+                like: @object,
                 current_user: @current_user,
-                id: @object.id
+                id: @preview_id
               )
             @object_type == "story" ->
               live_component(
@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
                 StoryPreviewLive,
                 story: @object,
                 current_user: @current_user,
-                id: @object.id
+                id: @preview_id
               )
             true ->
               live_component(
@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
                 UnknownPreviewLive,
                 object: @object,
                 current_user: @current_user,
-                id: e(@object, :id, nil)
+                id: @preview_id
               )
           end
          %>

@@ -3,32 +3,29 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
   import MoodleNetWeb.Helpers.{Common}
   alias MoodleNetWeb.Helpers.Discussions
 
-  # def mount(params, session, socket) do
-  #   comment = Discussions.prepare_comment(socket.assigns.comment, socket.assigns.current_user)
-  #   {:ok, socket
-  #   |> assign(comment: comment,
-  #   current_user: socket.assigns.current_user)}
+  # def update(%{comment: _} = assigns, socket) do
+  #   c = Discussions.prepare_comment(assigns.comment, assigns.current_user)
+  #   IO.inspect(update_comment: c)
+
+  #   {
+  #     :ok,
+  #     socket
+  #     |> assign(socket,
+  #       comment: c,
+  #       current_user: assigns.current_user
+  #     )
+  #   }
   # end
 
-  def update(assigns, socket) do
-    {
-      :ok,
-      socket
-      |> assign(assigns)
-      |> fetch(assigns)
-    }
-  end
-
-  defp fetch(socket, assigns) do
-    # IO.inspect(inbox_for: assigns.current_user)
-    IO.inspect(c: socket.assigns.comment)
-    c = Discussions.prepare_comment(socket.assigns.comment, socket.assigns.current_user)
-
-    assign(socket,
-      comment: c,
-      current_user: assigns.current_user
-    )
-  end
+  # def mount(comment, _, socket) do
+  #   {
+  #     :ok,
+  #     socket
+  #     |> assign(socket,
+  #       comment: comment
+  #     )
+  #   }
+  # end
 
   def handle_event("like", _data, socket) do
     {:ok, like} =
@@ -53,11 +50,11 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
   def handle_event("flag", %{"message" => message} = _args, socket) do
     {:ok, flag} =
       MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
-        %{context_id: socket.assigns.comment.id,
-          message: message},
+        %{context_id: socket.assigns.comment.id, message: message},
         %{
           context: %{current_user: socket.assigns.current_user}
-      })
+        }
+      )
 
     IO.inspect(flag, label: "FLAG")
 

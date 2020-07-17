@@ -3,40 +3,17 @@ defmodule MoodleNetWeb.Helpers.Activites do
     Repo
   }
 
+  import MoodleNetWeb.Helpers.Common
+
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def prepare(%MoodleNet.Activities.Activity{} = activity) do
-    prepare_activity(activity)
-  end
-
-  def prepare(%MoodleNet.Likes.Like{} = activity) do
-    prepare_activity(activity)
-  end
-
-  def prepare(activity) do
+  def prepare(%{display_verb: _} = activity) do
+    IO.inspect("activity already prepared")
     activity
   end
 
-  def prepare_activity(activity) do
-    MoodleNet.Repo.preload(activity, :context)
-
-    activity =
-      if(Map.has_key?(activity, :context_id) and !is_nil(activity.context_id)) do
-        {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: activity.context_id)
-        context = MoodleNet.Meta.Pointers.follow!(pointer)
-
-        type =
-          context.__struct__
-          |> Module.split()
-          |> Enum.at(-1)
-          |> String.downcase()
-
-        activity
-        |> Map.merge(%{context_type: type})
-        |> Map.merge(%{context: context})
-      else
-        activity
-      end
+  def prepare(activity) do
+    activity = prepare_context(activity)
 
     activity = Repo.preload(activity, :creator)
 
@@ -85,11 +62,24 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   def activity_url(%{context: %{thread_id: thread_id, id: comment_id, reply_to_id: is_reply}})
       when not is_nil(thread_id) and not is_nil(is_reply) do
+    activity_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
+  end
+
+  def activity_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
+      when not is_nil(thread_id) and not is_nil(is_reply) do
     "/!" <> thread_id <> "/discuss/" <> comment_id <> "#reply"
   end
 
   def activity_url(%{context: %{thread_id: thread_id}}) when not is_nil(thread_id) do
+    activity_url(%{thread_id: thread_id})
+  end
+
+  def activity_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
     "/!" <> thread_id
+  end
+
+  def activity_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+    canonical_url
   end
 
   def activity_url(%{context: %{canonical_url: canonical_url}}) when not is_nil(canonical_url) do
@@ -106,12 +96,16 @@ defmodule MoodleNetWeb.Helpers.Activites do
   end
 
   def activity_url(activity) do
-    IO.inspect(activity)
-    "#unsupported-by-activity_url/1"
+    IO.inspect(unsupported_by_activity_url: activity)
+    "#unsupported_by_activity_url"
   end
 
   def display_activity_verb(%MoodleNet.Likes.Like{}) do
     "favourited"
+  end
+
+  def display_activity_verb(%MoodleNet.Threads.Comment{}) do
+    "posted"
   end
 
   def display_activity_verb(%{verb: verb, context_type: context_type} = activity) do
@@ -177,8 +171,11 @@ defmodule MoodleNetWeb.Helpers.Activites do
             "a discussion"
         end
 
-      # activity.context.name ->
-      #   "a " <> context_type <> ": " <> activity.context.name
+      context_type == "like" ->
+        ""
+
+      activity.context.name ->
+        "a " <> context_type <> ": " <> activity.context.name
 
       true ->
         "a " <> context_type
