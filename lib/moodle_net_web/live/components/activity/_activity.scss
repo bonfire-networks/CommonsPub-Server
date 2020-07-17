@@ -9,9 +9,9 @@
 }
 
 .component__activity img {
-  width: 32px;
-  height: 32px;
-  border-radius: 32px;
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
 }
 
 .component__activity .info__meta {
@@ -36,12 +36,16 @@
 .component__activity .meta__action p {
   margin: 0;
   margin-left: 4px;
+  font-weight: 300;
 }
 
 .component__activity .meta__secondary {
   color: var(--gray);
+  margin-left:0;
+  margin-top: var(--m1);
+  color: #767676;
+  font-weight: 200;
   font-size: 13px;
-  font-weight: 400;
 }
 
 .component__activity .activity__preview {
@@ -103,6 +107,8 @@
     margin-left: 0;
     .meta__secondary {
       margin-left: var(--m2);
+      color: #767676;
+      font-weight: 200;
     }
   }
 }

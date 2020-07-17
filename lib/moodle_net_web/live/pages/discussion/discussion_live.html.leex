@@ -7,8 +7,7 @@
           <h3><%= e(@thread, :name, "A discussion") %></h3>
         </div>
         <div class="suphero__actions">
-          <%= live_patch to: "/!"<> e(@thread, :id, "")<>"#reply", class: "button reply" do %>Reply<% end %>
-          <%# <button class="button follow">Subscribe</button> %>
+          <button class="button follow">Subscribe</button>
           <details class="more__dropdown">
             <summary>
               <i class="feather-more-horizontal"></i>
@@ -52,6 +51,14 @@
                   </div>
                 </form>
               </div>
+              <% else %>
+              <div class="discussion__reply">
+                <div class="reply__link">
+                  <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+                  <%= live_patch to: "/!"<> e(@thread, :id, "")<>"#reply", class: "button reply" do %><div class="fake__input"> Reply</div><% end %>
+                </div>
+              </div>
+
             <% end %>
           </div>
           <div class="discussion__replies">

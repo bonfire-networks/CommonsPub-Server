@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.Component.LikePreviewLive do
           </p>
         </div>
         <div class="meta__secondary">
-          <%= e(@comment, :published_at, "one day") %>
+        · <%= e(@comment, :published_at, "one day") %>
         </div>
       </div>
       </div>

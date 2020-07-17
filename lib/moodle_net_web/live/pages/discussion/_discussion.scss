@@ -33,7 +33,7 @@
   min-width: 900px;
   .discussion__main {
     background: #fff;
-    border: var(--border);
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
     border-radius: 4px;
   }
 }
@@ -71,7 +71,7 @@
 .discussion__replies {
   margin-top: var(--m3);
   background: #fff;
-  border: var(--border);
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
   border-radius: 4px;
   margin-bottom: var(--m3);
  
@@ -80,6 +80,20 @@
 .discussion__reply {
   padding: var(--m3);
   display: flex;
+  .reply__link {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    a {
+      flex: 1;
+      margin-left: var(--m2);
+      .fake__input {
+        width: 100%;
+        font-weight: 400;
+        color: var(--color-surface);
+      }
+    }
+  }
   form {
     display: flex;
     width: 100%;
