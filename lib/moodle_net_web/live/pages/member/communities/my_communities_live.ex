@@ -55,7 +55,7 @@ defmodule MoodleNetWeb.MemberLive.MemberCommunitiesLive do
 
   def render(assigns) do
     ~L"""
-      <div id="member_communities">
+      <div id="member-communities">
         <div
         phx-update="append"
         data-page="<%= @page %>"
