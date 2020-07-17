@@ -50,7 +50,7 @@ defmodule MoodleNet.Threads.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity, context),
-           :ok <- index(comment, thread),
+           :ok <- index(comment, thread, creator),
            :ok <- ap_publish("create", comment) do
         {:ok, %{comment | thread: thread}}
       end
@@ -65,7 +65,7 @@ defmodule MoodleNet.Threads.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity),
-           :ok <- index(comment, thread),
+           :ok <- index(comment, thread, creator),
            :ok <- ap_publish("create", comment) do
         {:ok, %{comment | thread: thread}}
       end
@@ -103,7 +103,7 @@ defmodule MoodleNet.Threads.Comments do
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                #  thread = preload_ctx(thread),
                :ok <- publish(creator, thread, comment, activity),
-               :ok <- index(comment, thread),
+               :ok <- index(comment, thread, creator),
                :ok <- ap_publish("create", comment) do
             {:ok, comment}
           end
@@ -128,7 +128,7 @@ defmodule MoodleNet.Threads.Comments do
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                #  thread = preload_ctx(thread),
                :ok <- publish(creator, thread, comment, activity),
-               :ok <- index(comment, thread),
+               :ok <- index(comment, thread, creator),
                :ok <- ap_publish("create", comment) do
             {:ok, comment}
           end
@@ -256,7 +256,7 @@ defmodule MoodleNet.Threads.Comments do
   defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
   defp context_feeds(_), do: []
 
-  def index(comment, thread) do
+  def index(comment, thread, creator) do
     # follower_count =
     #   case MoodleNet.Follows.FollowerCounts.one(context: comment.id) do
     #     {:ok, struct} -> struct.count
@@ -275,6 +275,12 @@ defmodule MoodleNet.Threads.Comments do
       "thread" => %{
         "id" => comment.thread_id,
         "name" => thread.name
+      },
+      "creator" => %{
+        "id" => creator.id,
+        "name" => creator.name,
+        "preferred_username" => creator.actor.preferred_username,
+        "canonical_url" => creator.actor.canonical_url
       },
       "canonical_url" => canonical_url,
       # "followers" => %{

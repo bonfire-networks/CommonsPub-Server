@@ -1,6 +1,6 @@
 defmodule MoodleNetWeb.SearchLive.ResultsLive do
   use MoodleNetWeb, :live_component
-  alias MoodleNetWeb.Component.{PreviewLive}
+  alias MoodleNetWeb.Component.{ActivityLive, PreviewLive}
 
   import MoodleNetWeb.Helpers.Common
 
@@ -14,13 +14,25 @@ defmodule MoodleNetWeb.SearchLive.ResultsLive do
     class="selected__area">
       <%= for hit <- @hits do %>
         <%=
-        live_component(
-          @socket,
-          PreviewLive,
-          object: hit,
-          object_type: String.downcase(e(hit, :index_type, "")),
-          current_user: @current_user
-        )
+        if Map.has_key?(hit, :creator) do
+          activity = hit |> Map.merge(%{context_type: String.downcase(e(hit, :index_type, ""))})
+
+          live_component(
+            @socket,
+            ActivityLive,
+            id: "timeline-activity-#{hit.id}",
+            activity: activity,
+            current_user: @current_user
+          )
+        else
+          live_component(
+            @socket,
+            PreviewLive,
+            object: hit,
+            object_type: String.downcase(e(hit, :index_type, "")),
+            current_user: @current_user
+          )
+        end
         %>
       <% end %>
     </div>

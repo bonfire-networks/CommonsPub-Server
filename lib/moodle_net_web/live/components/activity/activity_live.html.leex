@@ -21,7 +21,7 @@
     live_component(
         @socket,
         PreviewLive,
-        object: e(@activity, :context, %{}),
+        object: e(@activity, :context, @activity),
         object_type: e(@activity, :context_type, nil),
         current_user: @current_user
       )

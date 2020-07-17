@@ -5,9 +5,9 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def prepare(activity) do
+  def prepare(%MoodleNet.Activities.Activity{} = activity) do
     activity =
-      if(!is_nil(activity.context_id)) do
+      if(Map.has_key?(activity, :context_id) and !is_nil(activity.context_id)) do
         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: activity.context_id)
         context = MoodleNet.Meta.Pointers.follow!(pointer)
 
@@ -40,6 +40,10 @@ defmodule MoodleNetWeb.Helpers.Activites do
     |> Map.merge(%{display_verb: display_activity_verb(activity)})
     |> Map.merge(%{display_object: display_activity_object(activity)})
     |> Map.merge(%{activity_url: activity_url(activity)})
+  end
+
+  def prepare(activity) do
+    activity
   end
 
   def activity_url(%{
