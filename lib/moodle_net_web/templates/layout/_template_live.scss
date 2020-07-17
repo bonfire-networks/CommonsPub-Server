@@ -549,6 +549,9 @@
       color: #fff;
       margin-right: var(--m3);
       cursor: pointer;
+      &:hover {
+        background: #347ac0;
+      }
     }
     .panel__item {
       margin-left: var(--m2);

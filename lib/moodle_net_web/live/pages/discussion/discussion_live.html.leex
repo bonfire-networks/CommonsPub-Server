@@ -36,10 +36,10 @@
                   <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
                   <div class="reply__box">
                     <div id="editor" phx-hook="MarkdownEditor">
-                      <textarea id="content" name="content" placeholder="Write a reply..."></textarea>
                       <div id="editor-visual" phx-ignore="true">
                         <div id="editor-markdown"></div>
                       </div>
+                      <textarea id="content" name="content" placeholder="Write a reply..."></textarea>
                     </div>
                     <div class="header__actions">
                       <button>Comment</button>
@@ -55,7 +55,7 @@
               <div class="discussion__reply">
                 <div class="reply__link">
                   <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
-                  <%= live_patch to: "/!"<> e(@thread, :id, "")<>"#reply", class: "button reply" do %><div class="fake__input"> Reply</div><% end %>
+                  <%= live_patch to: "/!"<> e(@thread, :id, "")<>"#reply", class: "button reply" do %><div class="fake__input"> Reply to the thread</div><% end %>
                 </div>
               </div>
 

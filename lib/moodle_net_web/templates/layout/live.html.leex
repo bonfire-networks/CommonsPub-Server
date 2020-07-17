@@ -16,12 +16,12 @@
       <%= live_redirect to: "/~" do %>
         <h3>CommonsPub</h3>
       <% end %>
-      <%= live_redirect to: "/instance" do %>
-        <h3 class="left__action">Discover</h3>
-      <% end %>
     </div>
     <input placeholder="Search in the fediverse..." />
     <div class="header__right">
+      <%= live_redirect to: "/instance" do %>
+      <span class="right__notification"><i class="feather-compass"></i></span>
+      <% end %>
       <span class="right__notification"><i class="feather-bell"></i></span>
       <%= if @current_user do %>
         <%= live_component(
