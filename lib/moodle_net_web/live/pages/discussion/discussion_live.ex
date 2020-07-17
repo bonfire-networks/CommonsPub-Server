@@ -33,17 +33,13 @@ defmodule MoodleNetWeb.DiscussionLive do
     # comments_edges = comments.edges
     comments_edges = Discussions.prepare_comments(comments.edges, current_user)
 
-    IO.inspect(comments_edges, label: "COMMENTS")
+    # IO.inspect(comments_edges, label: "COMMENTS")
 
-    # tree = build_comment_thread_1(comments_edges)
-    tree = build_comment_thread_2(comments_edges)
+    tree = Discussions.build_comment_tree(comments_edges)
 
     # IO.inspect(tree: tree)
 
-    # [head | tail] = tree
-    {main_comment_id, main_comment} = Enum.fetch!(tree, 0)
-
-    # IO.inspect(main_comment: main_comment)
+    {main_comment_id, _} = Enum.fetch!(tree, 0)
 
     {:ok,
      assign(socket,
@@ -53,42 +49,6 @@ defmodule MoodleNetWeb.DiscussionLive do
        #  main_comment: main_comment,
        comments: tree
      )}
-  end
-
-  def build_comment_thread_1(comments) do
-    comments
-    |> Enum.reverse()
-    |> Enum.reduce(%{}, fn foo, map ->
-      foo = %{foo | comments: Map.get(map, foo.id, [])}
-      Map.update(map, foo.reply_to_id, [foo], fn foos -> [foo | foos] end)
-    end)
-    |> Map.get(nil)
-    |> hd
-  end
-
-  def build_comment_thread_2(comments) do
-    comments =
-      comments
-      |> Enum.reverse()
-      |> Enum.map(&Map.from_struct/1)
-
-    lum = Enum.reduce(comments, %{}, &Map.put(&2, &1.id, &1))
-
-    # IO.inspect(lum)
-
-    comments
-    |> Enum.reduce(lum, fn
-      %{reply_to_id: nil} = comment, acc ->
-        acc
-
-      comment, acc ->
-        # IO.inspect(acc: acc)
-        # IO.inspect(comment: comment)
-
-        acc
-        |> update_in([comment.reply_to_id, :comments], &[acc[comment.id] | &1])
-        |> Map.delete(comment.id)
-    end)
   end
 
   def handle_params(

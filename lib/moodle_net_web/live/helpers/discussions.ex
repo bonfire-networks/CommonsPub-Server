@@ -76,4 +76,29 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     |> Map.merge(%{published_at: from_now})
     |> Map.merge(%{creator: creator})
   end
+
+  def build_comment_tree(comments) do
+    comments =
+      comments
+      |> Enum.reverse()
+      |> Enum.map(&Map.from_struct/1)
+
+    lum = Enum.reduce(comments, %{}, &Map.put(&2, &1.id, &1))
+
+    # IO.inspect(lum)
+
+    comments
+    |> Enum.reduce(lum, fn
+      %{reply_to_id: nil} = comment, acc ->
+        acc
+
+      comment, acc ->
+        # IO.inspect(acc: acc)
+        # IO.inspect(comment: comment)
+
+        acc
+        |> update_in([comment.reply_to_id, :comments], &[acc[comment.id] | &1])
+        |> Map.delete(comment.id)
+    end)
+  end
 end
