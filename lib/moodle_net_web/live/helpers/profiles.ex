@@ -1,11 +1,12 @@
 defmodule MoodleNetWeb.Helpers.Profiles do
-  alias MoodleNet.{
-    Repo
-  }
-
+  alias MoodleNet.{Repo}
   alias MoodleNetWeb.GraphQL.UsersResolver
-
   import MoodleNetWeb.Helpers.Common
+
+  def prepare(%{username: _} = profile) do
+    IO.inspect("profile already prepared")
+    profile
+  end
 
   def prepare(profile, %{icon: _} = preload) do
     prepare(profile, preload, 50)
