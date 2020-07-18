@@ -6,6 +6,7 @@ defmodule MoodleNet.Users do
   A Context for dealing with Users.
   """
   require Logger
+
   alias MoodleNet.{
     Access,
     Activities,
@@ -21,10 +22,12 @@ defmodule MoodleNet.Users do
     Likes,
     Repo,
     Resources,
-    Threads,
+    Threads
   }
+
   alias MoodleNet.Feeds.FeedSubscriptions
   alias MoodleNet.Mail.{Email, MailService}
+
   alias MoodleNet.Users.{
     EmailConfirmToken,
     LocalUser,
@@ -32,11 +35,14 @@ defmodule MoodleNet.Users do
     TokenAlreadyClaimedError,
     TokenExpiredError,
     Queries,
-    User,
+    User
   }
+
   alias MoodleNet.Workers.APPublishWorker
 
   alias Ecto.Changeset
+
+  def cursor(:created), do: &[&1.id]
 
   @deleted_user_id "REA11YVERYDE1ETED1DENT1TY1"
   def deleted_user_id(), do: @deleted_user_id
@@ -60,6 +66,8 @@ defmodule MoodleNet.Users do
   """
   @spec register(map, Keyword.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def register(attrs, opts \\ []) do
+    attrs = Actors.prepare_username(attrs)
+
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs) do
         case actor.peer_id do
@@ -78,8 +86,9 @@ defmodule MoodleNet.Users do
          attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
          {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
          {:ok, token} <- create_email_confirm_token(local_user) do
-      user = %{user | actor: actor, local_user: %{ local_user | email_confirm_tokens: [token]}}
+      user = %{user | actor: actor, local_user: %{local_user | email_confirm_tokens: [token]}}
       Logger.info("Minted confirmation token for user: #{token.id}")
+
       user
       |> Email.welcome(token)
       |> MailService.maybe_deliver_later()
@@ -126,8 +135,8 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.fetch(EmailConfirmToken, token),
            :ok <- validate_token(token, :confirmed_at, now),
            {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)),
-           {:ok, user} <- one( join: :actor, join: :local_user, preload: :all,
-                               local_user: token.local_user_id ),
+           {:ok, user} <-
+             one(join: :actor, join: :local_user, preload: :all, local_user: token.local_user_id),
            {:ok, user} <- confirm_email(user),
            :ok <- ap_publish("create", user) do
         {:ok, user}
@@ -146,7 +155,7 @@ defmodule MoodleNet.Users do
   def confirm_email(%User{} = user) do
     Repo.transact_with(fn ->
       with {:ok, local_user} <- Repo.update(LocalUser.confirm_email_changeset(user.local_user)) do
-        user = preload_actor(%{ user | local_user: local_user})
+        user = preload_actor(%{user | local_user: local_user})
         {:ok, user}
       end
     end)
@@ -155,9 +164,10 @@ defmodule MoodleNet.Users do
   @spec unconfirm_email(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def unconfirm_email(%User{} = user) do
     cs = LocalUser.unconfirm_email_changeset(user.local_user)
+
     Repo.transact_with(fn ->
       with {:ok, local_user} <- Repo.update(cs) do
-        user = preload_actor(%{ user | local_user: local_user })
+        user = preload_actor(%{user | local_user: local_user})
         {:ok, user}
       end
     end)
@@ -166,6 +176,7 @@ defmodule MoodleNet.Users do
   @spec request_password_reset(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def request_password_reset(%User{} = user) do
     cs = ResetPasswordToken.create_changeset(user.local_user)
+
     Repo.transact_with(fn ->
       with {:ok, token} <- Repo.insert(cs) do
         user
@@ -182,7 +193,7 @@ defmodule MoodleNet.Users do
   def claim_password_reset(token, password, now \\ DateTime.utc_now())
 
   def claim_password_reset(token, password, %DateTime{} = now)
-  when is_binary(password) do
+      when is_binary(password) do
     Repo.transact_with(fn ->
       with {:ok, token} <- Repo.fetch(ResetPasswordToken, token),
            :ok <- validate_token(token, :reset_at, now),
@@ -190,10 +201,12 @@ defmodule MoodleNet.Users do
            {:ok, user} <- one(preset: :local_user, local_user: token.local_user_id),
            {:ok, _token} <- Repo.update(ResetPasswordToken.claim_changeset(token)),
            {:ok, _} <- Repo.update(LocalUser.update_changeset(local_user, %{password: password})) do
-        user = preload_actor(%{ user | local_user: local_user })
+        user = preload_actor(%{user | local_user: local_user})
+
         user
         |> Email.password_reset()
         |> MailService.maybe_deliver_later()
+
         {:ok, user}
       end
     end)
@@ -223,7 +236,7 @@ defmodule MoodleNet.Users do
            {:ok, actor} <- Actors.update(user, user.actor, attrs),
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)),
            :ok <- ap_publish("update", user) do
-        user = %{ user | local_user: local_user, actor: actor }
+        user = %{user | local_user: local_user, actor: actor}
         {:ok, user}
       end
     end)
@@ -234,7 +247,7 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
            {:ok, actor} <- Actors.update(user, user.actor, attrs) do
-        user = %{ user | actor: actor }
+        user = %{user | actor: actor}
         {:ok, user}
       end
     end)
@@ -249,7 +262,7 @@ defmodule MoodleNet.Users do
            %{user: users, feed: feeds} = deleted_ids([user2]),
            :ok <- chase_delete(deleter, users, feeds),
            :ok <- ap_publish("delete", user) do
-        user = %{ user2 | local_user: local_user, actor: user.actor}
+        user = %{user2 | local_user: local_user, actor: user.actor}
         {:ok, user}
       end
     end)
@@ -259,10 +272,10 @@ defmodule MoodleNet.Users do
   def soft_delete(_deleter, %User{local_user: nil} = user) do
     Repo.transact_with(fn ->
       with {:ok, user2} <- Common.soft_delete(user),
-          %{user: users, feed: feeds} = deleted_ids([user2]),
+           %{user: users, feed: feeds} = deleted_ids([user2]),
            :ok <- chase_delete(user, users, feeds),
            :ok <- ap_publish("delete", user) do
-        user = %{ user2 | actor: user.actor }
+        user = %{user2 | actor: user.actor}
         {:ok, user}
       end
     end)
@@ -273,9 +286,9 @@ defmodule MoodleNet.Users do
   def soft_delete_remote(%User{} = user) do
     Repo.transact_with(fn ->
       with {:ok, user2} <- Common.soft_delete(user),
-          %{user: users, feed: feeds} = deleted_ids([user2]),
+           %{user: users, feed: feeds} = deleted_ids([user2]),
            :ok <- chase_delete(user, users, feeds) do
-        user = %{ user2 | actor: user.actor }
+        user = %{user2 | actor: user.actor}
         {:ok, user}
       end
     end)
@@ -283,34 +296,39 @@ defmodule MoodleNet.Users do
 
   @delete_by_filters [select: :delete, deleted: false]
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(@delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
-        %{user: users, feed: feeds} = deleted_ids(ids)
-        with :ok <- chase_delete(user, users, feeds) do
-          ap_publish("delete", ids)
-        end
-      end), do: :ok
+           Repo.transact_with(fn ->
+             {_, ids} = update_by(@delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
+             %{user: users, feed: feeds} = deleted_ids(ids)
+
+             with :ok <- chase_delete(user, users, feeds) do
+               ap_publish("delete", ids)
+             end
+           end),
+         do: :ok
   end
 
   defp deleted_ids(records) do
     Enum.reduce(records, %{user: [], feed: []}, fn
       %{id: id, inbox_id: nil, outbox_id: nil}, acc ->
         Map.put(acc, :user, [id | acc.user])
+
       %{id: id, inbox_id: nil, outbox_id: o}, acc ->
         Map.merge(acc, %{user: [id | acc.user], feed: [o | acc.feed]})
+
       %{id: id, inbox_id: i, outbox_id: nil}, acc ->
         Map.merge(acc, %{user: [id | acc.user], feed: [i | acc.feed]})
+
       %{id: id, inbox_id: i, outbox_id: o}, acc ->
         Map.merge(acc, %{user: [id | acc.user], feed: [i, o | acc.feed]})
     end)
   end
 
-
   # TODO: some of these queries could be combined if we modified the queries modules
   defp chase_delete(user, users, []) do
-    with :ok <- Activities.soft_delete_by(user, creator: users), # Not yet required but ok
+    # Not yet required but ok
+    with :ok <- Activities.soft_delete_by(user, creator: users),
          :ok <- Activities.soft_delete_by(user, context: users),
          :ok <- Blocks.soft_delete_by(user, creator: users),
          :ok <- Blocks.soft_delete_by(user, context: users),
@@ -329,6 +347,7 @@ defmodule MoodleNet.Users do
       :ok
     end
   end
+
   defp chase_delete(user, users, feeds) do
     with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, users, [])
   end
@@ -336,9 +355,10 @@ defmodule MoodleNet.Users do
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def make_instance_admin(%User{} = user) do
     cs = LocalUser.make_instance_admin_changeset(user.local_user)
+
     Repo.transact_with(fn ->
       with {:ok, local_user} <- Repo.update(cs) do
-        user = preload_actor(%{ user | local_user: local_user})
+        user = preload_actor(%{user | local_user: local_user})
         {:ok, user}
       end
     end)
@@ -347,9 +367,10 @@ defmodule MoodleNet.Users do
   @spec unmake_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def unmake_instance_admin(%User{} = user) do
     cs = LocalUser.unmake_instance_admin_changeset(user.local_user)
+
     Repo.transact_with(fn ->
       with {:ok, local_user} <- Repo.update(cs) do
-        user = preload_actor(%{ user | local_user: local_user})
+        user = preload_actor(%{user | local_user: local_user})
         {:ok, user}
       end
     end)
@@ -383,7 +404,7 @@ defmodule MoodleNet.Users do
     :ok
   end
 
-  defp ap_publish(verb, %{actor: %{peer_id: nil}}=user) do
+  defp ap_publish(verb, %{actor: %{peer_id: nil}} = user) do
     APPublishWorker.enqueue(verb, %{"context_id" => user.id})
     :ok
   end
@@ -401,5 +422,4 @@ defmodule MoodleNet.Users do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
-
 end

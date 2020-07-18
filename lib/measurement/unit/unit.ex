@@ -1,20 +1,20 @@
 defmodule Measurement.Unit do
-
   use MoodleNet.Common.Schema
-  
+
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Meta.Pointer
+  # alias MoodleNet.Actors.Actor
+  alias Pointers.Pointer
   alias MoodleNet.Users.User
-  alias Measurement.Unit
+
+  # alias Measurement.Unit
 
   @type t :: %__MODULE__{}
 
   table_schema "measurement_unit" do
-    field :label, :string
-    field :symbol, :string
+    field(:label, :string)
+    field(:symbol, :string)
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
@@ -46,19 +46,19 @@ defmodule Measurement.Unit do
   end
 
   def create_changeset(
-      %User{} = creator,
-      %{id: _} = context,
-      attrs
-    ) do
-  %Measurement.Unit{}
-  |> Changeset.cast(attrs, @cast)
-  |> Changeset.validate_required(@required)
-  |> Changeset.change(
-    creator_id: creator.id,
-    context_id: context.id,
-    is_public: true
-  )
-  |> common_changeset()
+        %User{} = creator,
+        %{id: _} = context,
+        attrs
+      ) do
+    %Measurement.Unit{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
+    |> Changeset.change(
+      creator_id: creator.id,
+      context_id: context.id,
+      is_public: true
+    )
+    |> common_changeset()
   end
 
   def update_changeset(%Measurement.Unit{} = unit, attrs) do
@@ -72,5 +72,4 @@ defmodule Measurement.Unit do
     |> change_public()
     |> change_disabled()
   end
-
 end

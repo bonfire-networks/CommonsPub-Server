@@ -21,11 +21,11 @@ defmodule MoodleNetWeb.LoginLive do
   #   {:noreply, socket}
   # end
 
-  def handle_event("login", %{"login" => login, "password" => password} = args, socket) do
-    IO.inspect(args, label: "LOGIN DATA")
+  def handle_event("login", %{"login" => login, "password" => password} = _args, socket) do
+    # IO.inspect(args, label: "LOGIN DATA")
 
     session = MoodleNetWeb.Helpers.Account.create_session(%{login: login, password: password})
-    IO.inspect(session: session)
+    IO.inspect(created_session: session)
 
     if(is_nil(session)) do
       {:noreply,
@@ -37,7 +37,7 @@ defmodule MoodleNetWeb.LoginLive do
       {:noreply,
        socket
        |> put_flash(:info, "Logged in!")
-       |> redirect(to: "/my/?auth_token=" <> session.token)}
+       |> redirect(to: "/~/?auth_token=" <> session.token)}
     end
   end
 end

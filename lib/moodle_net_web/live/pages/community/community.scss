@@ -16,6 +16,12 @@
   @include content_navigation
 }
 
+.button__edit__community {
+  padding: var(--m2) 0;
+  display: grid;
+  place-items: center;
+}
+
 .area__community-hero {
   margin-bottom: var(--m3);
   .community-hero__image {
@@ -33,4 +39,13 @@
 
 #community-discussions {
   margin: -16px;
+}
+
+.community__discussion__actions {
+  margin-bottom: var(--m2);
+  display: flex;
+  input {
+    flex: 1;
+    margin-right: var(--m3);
+  }
 }

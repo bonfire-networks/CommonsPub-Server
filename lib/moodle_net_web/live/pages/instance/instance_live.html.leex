@@ -8,7 +8,7 @@
             to: "/instance/about",
             class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
           %>
-      <%= live_patch link_body("Timeline","feather-activity"),
+      <%= live_patch link_body("Instance Timeline","feather-activity"),
             to: "/instance/timeline",
             class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
           %>
@@ -53,7 +53,13 @@
               InstanceMembersLive,
               selected_tab: @selected_tab,
               id: :members,
-              current_user: @current_user
+              current_user: @current_user,
+              members: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-members"
           ) %>
         <% @selected_tab == "communities" -> %>
         <%= live_component(
@@ -63,10 +69,10 @@
               id: :communities,
               current_user: @current_user,
               communities: [],
-              after: [],
-              before: [],
               page: 1,
               has_next_page: false,
+              after: [],
+              before: [],
               pagination_target: "#instance-communities"
           ) %>
         <% true -> %>

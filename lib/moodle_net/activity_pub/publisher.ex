@@ -13,9 +13,11 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def comment(comment) do
     comment = Repo.preload(comment, thread: :context)
 
+    # IO.inspect(publish_comment: comment)
+
     context =
       if(comment.thread.context) do
-        Pointers.follow!(comment.thread.context)
+        MoodleNet.Meta.Pointers.follow!(comment.thread.context)
       end
 
     context_ap_id =
@@ -23,8 +25,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
         Utils.get_object_ap_id(context)
       end
 
-    IO.inspect(publish_comment: comment)
-    IO.inspect(publish_comment_id: Utils.generate_object_ap_id(comment))
+    # IO.inspect(publish_comment_id: Utils.generate_object_ap_id(comment))
 
     with nil <- ActivityPub.Object.get_by_pointer_id(comment.id),
          #  context_ap_id <- Utils.get_object_ap_id(context),
@@ -165,7 +166,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
   ## For now we just delete the folow and return an error if the followed account is private.
   def follow(follow) do
-    follow = Repo.preload(follow, creator: :actor, context: [])
+    follow = Repo.preload(follow, creator: :actor, context: [:table])
 
     with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
          followed = Pointers.follow!(follow.context),

@@ -19,7 +19,7 @@ config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: System.get_env("POSTGRES_USER", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
-  database: "moodle_net_test",
+  database: "commonspub_test",
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 25
@@ -32,8 +32,7 @@ config :argon2_elixir,
 config :phoenix_integration,
   endpoint: MoodleNetWeb.Endpoint
 
-config :moodle_net, MoodleNet.Mail.MailService,
-  adapter: Bamboo.TestAdapter
+config :moodle_net, MoodleNet.Mail.MailService, adapter: Bamboo.TestAdapter
 
 config :moodle_net,
   base_url: "http://localhost:4001",
@@ -54,7 +53,8 @@ config :moodle_net, MoodleNet.OAuth,
 # Do not federate activities during tests
 config :moodle_net, :instance, federating: false
 
-config :moodle_net, Oban, queues: false #, prune: :disabled
+# , prune: :disabled
+config :moodle_net, Oban, queues: false
 
 config :moodle_net, MoodleNet.Uploads,
   directory: File.cwd!() <> "/test_uploads",

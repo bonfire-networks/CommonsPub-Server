@@ -2,11 +2,13 @@ defmodule Profile.Migrations do
   use Ecto.Migration
   import Pointers.Migration
 
-  @meta_tables [] ++ ~w(profile)
+  # @meta_tables [] ++ ~w(profile)
 
-  def up do
+  defp table_name(), do: Profile.__schema__(:source)
+
+  def migrate(index_opts, :up) do
     # a profile is a group actor that is home to resources
-    create_mixin_table(:profile) do
+    create_mixin_table(table_name()) do
       add(:name, :string)
       add(:summary, :text)
       add(:extra_info, :map)
@@ -21,14 +23,14 @@ defmodule Profile.Migrations do
     end
 
     # create_if_not_exists(index(:profile, :updated_at))
-    create_if_not_exists(index(:profile, :creator_id))
+    create_if_not_exists(index(:profile, :creator_id, index_opts))
     # create_if_not_exists index(:profile, :primary_language_id)
   end
 
-  def down do
+  def migrate(index_opts, :down) do
     # drop_if_exists(index(:profile, :updated_at))
-    drop_if_exists(index(:profile, :creator_id))
-    drop_if_exists(index(:profile, :primary_language_id))
-    drop_mixin_table(:profile)
+    drop_if_exists(index(table_name(), :creator_id, index_opts))
+    drop_if_exists(index(table_name(), :primary_language_id, index_opts))
+    drop_mixin_table(table_name())
   end
 end

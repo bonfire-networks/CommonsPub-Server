@@ -1,12 +1,19 @@
 defmodule Tag.Taggables do
-  import Ecto.Query
+  # import Ecto.Query
   alias Ecto.Changeset
-  alias MoodleNet.{Common, GraphQL, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
-  # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
+
+  alias MoodleNet.{
+    # Common,
+    # GraphQL,
+    Repo,
+    GraphQL.Page,
+    Common.Contexts
+  }
+
   alias MoodleNet.Users.User
   alias Tag.Taggable
   alias Tag.Taggable.Queries
+
   alias Character.Characters
 
   @facet_name "Tag"
@@ -102,7 +109,7 @@ defmodule Tag.Taggables do
     Repo.transact_with(fn ->
       # :ok <- publish(tag, :updated)
       with {:ok, tag} <- Repo.update(Taggable.update_changeset(tag, attrs)),
-           {:ok, character} <- Character.update(user, tag.character, attrs) do
+           {:ok, character} <- Characters.update(user, tag.character, attrs) do
         {:ok, %{tag | character: character}}
       end
     end)

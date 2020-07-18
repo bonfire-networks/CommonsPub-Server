@@ -112,7 +112,7 @@ defmodule Tag.Taggable.Queries do
     preload(q, [parent_tag: pt], parent_tag: pt)
   end
 
-  def filter(q, {:user, user}), do: q
+  def filter(q, {:user, _user}), do: q
 
   # pagination
 

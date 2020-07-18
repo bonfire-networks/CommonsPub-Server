@@ -7,7 +7,7 @@ defmodule MoodleNet.Common.Tag do
   import MoodleNet.Common.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
 
   @type t :: %__MODULE__{}
 

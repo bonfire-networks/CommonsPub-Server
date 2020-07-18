@@ -2,9 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Profile.Queries do
-  alias MoodleNet.Users
+  # alias MoodleNet.Users
   alias Profile
-  alias MoodleNet.Follows.{Follow, FollowerCount}
+  # alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -61,7 +61,7 @@ defmodule Profile.Queries do
   #   |> where([profile: o, follow: f], not is_nil(o.published_at) or not is_nil(f.id))
   # end
 
-  def filter(q, {:user, %User{id: id} = user}) do
+  def filter(q, {:user, %User{id: _id} = _user}) do
     q
     |> where([profile: o], not is_nil(o.published_at))
   end

@@ -5,12 +5,16 @@
     </div>
     <div class="mainContent__navigation home__navigation">
       <%= live_patch link_body("Timeline","feather-activity"),
-        to: "/my/timeline",
+        to: "/~",
         class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
       %>
-      <%= live_patch link_body("My Groups", "feather-users"),
-            to: "/my/groups",
-            class: if @selected_tab == "groups", do: "navigation__item active", else: "navigation__item"
+      <%= live_patch link_body("My Communities", "feather-users"),
+            to: "/~/communities",
+            class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
+          %>
+      <%= live_patch link_body("Discussions", "feather-users"),
+            to: "/~/discussions",
+            class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
           %>
     </div>
     <div class="mainContent__selected">
@@ -19,9 +23,42 @@
         <%= live_component(
                 @socket,
                 TimelineLive,
+                selected_tab: @selected_tab,
+                id: :timeline,
+                current_user: @current_user,
+                activities: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#my-timeline"
+              ) %>
+        <% @selected_tab == "communities" -> %>
+        <%= live_component(
+                @socket,
+                MoodleNetWeb.My.MyCommunitiesLive,
+                current_user: @current_user,
+                my_communities: @my_communities,
+                my_communities_page_info: @my_communities_page_info,
+                selected_tab: @selected_tab,
+                id: :my_communities,
+                has_next_page: @my_communities_page_info.has_next_page,
+                after: e(@my_communities_page_info, :after, []),
+                before: e(@my_communities_page_info, :before, [])
+              ) %>
+        <% @selected_tab == "discussions" -> %>
+        <%= live_component(
+                @socket,
+                MoodleNetWeb.My.MyDiscussionsLive,
                 current_user: @current_user,
                 selected_tab: @selected_tab,
-                id: :timeline
+                id: :discussions,
+                threads: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#my-discussions"
               ) %>
         <% true -> %>
         <%= live_component(

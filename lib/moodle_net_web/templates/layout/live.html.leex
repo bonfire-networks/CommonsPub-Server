@@ -1,122 +1,66 @@
-<div id="template" class="page <%= if !@current_user , do: "guest", else: "logged" %>">
-
-    <%= if @current_user do %>
-    <%# <input id="slide-sidebar" type="checkbox" role="button" />
-    <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label> %>
-    <nav class="side__drawer">
-      <div class="profile__box">
-        <input placeholder="Search..." />
-        <div class="box__info">
-          <img src="<%= e(@current_user, :icon_url, "") %>" />
-<div class="box__meta">
-  <h3 ><%= e(@current_user, :name, "Me") %></h3>
-  <h4 ><%= e(@current_user, :username, "@me") %></h4>
-</div>
-<details class="drawer__profile" >
-  <summary class="user__dropdown">
-    <i class="feather-more-horizontal"></i>
-  </summary>
-  <ul class="dropdown__list">
-    <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-              <li><a href="/my/settings">Settings</a></li>
-              <li><a href="#">Logout</a></li>
-            </ul>
-          </details>
+<div id="template" class="page__container">
+  <div class="cpub__header">
+    <div class="header__left">
+      <details class="dialog__container aside">
+        <summary class="aside__dialog"><i class="feather-grid"></i></summary>
+        <aside>
+          <h2>CommonsPub apps</h2>
+          <nav>
+            <div class="aside__app">commonspub</div>
+            <div class="aside__app">Mutual Aid</div>
+            <div class="aside__app">VoxPub</div>
+            <div class="aside__app">haha!</div>
+          </nav>
+        </aside>
+      </details>
+      <%= live_redirect to: "/~" do %>
+        <h3>CommonsPub</h3>
+      <% end %>
+    </div>
+    <input placeholder="Search in the fediverse..." />
+    <div class="header__right">
+      <%= live_redirect to: "/instance" do %>
+      <span class="right__notification"><i class="feather-compass"></i></span>
+      <% end %>
+      <span class="right__notification"><i class="feather-bell"></i></span>
+      <%= if @current_user do %>
+        <%= live_component(
+          @socket,
+          MoodleNetWeb.My.MyHeader,
+          current_user: @current_user,
+          id: :my_header
+        ) %>
+      <% end %>
+      <%= if @current_user == nil do %>
+        <div class="panel__item">
+          <%= live_redirect to: "/~/login", class: "button" do %>
+            <i class="feather-log-in"></i> Log in
+          <% end %>
         </div>
-      </div>
-      <div class="drawer__menu">
-        <nav class="menu__general">
-          <div class="panel__item">
-            <a href="/my/timeline">
-              <i class="feather-home"></i> Home
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/instance">
-              <i class="feather-anchor"></i> Discover
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/my/notifications">
-              <i class="feather-bell"></i> Notifications
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/my/write">
-              <i class="feather-edit"></i> Write
-            </a>
-          </div>
-        </nav>
-        <details>
-          <summary>Communities</summary>
-          <nav class="general__details">
-            <%= live_component(
-                @socket,
-                MoodleNetWeb.My.SidebarCommunitiesLive,
-                current_user: @current_user,
-                id: :_sidebar_communities,
-              ) %>
-          </nav>
-        </details>
-        <details>
-          <summary>Direct Messages</summary>
-          <nav class="general__details">
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-          </nav>
-        </details>
-      </div>
-      <div class="content__bottom">
-        <button class="button new-community">Create a new community</button>
-      </div>
-    </nav>
-<% end %>
-
-<%= if @current_user == nil do %>
-        <div class="guest__menu">
-          <div class="menu__left">
-            <div class="panel__item">
-              <a class="left__home" href="/">
-                <i class="feather-home"></i> <%=app_name%>
-              </a>
-            </div>
-            <input placeholder="search in the instance..." />
-          </div>
-            <div class="menu__right">
-              <div class="panel__item">
-                <a class="button" href="/my/login">
-                  <i class="feather-log-in"></i> Log in
-                </a>
-              </div>
-              <div class="panel__item">
-                <a class="button" href="/my/signup">
-                  <i class="feather-zap"></i> Sign up
-                </a>
-              </div>
-            </div>
+        <div class="panel__item">
+          <%= live_redirect to: "/~/signup", class: "button" do %>
+            <i class="feather-zap"></i> Sign up
+          <% end %>
         </div>
       <% end %>
-      <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
-        <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
-        <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
-        <%= @inner_content %>
-      </section>
     </div>
+  </div>
+  <div  class="page <%= if !@current_user , do: "guest", else: "logged" %>">
+    <%= if @current_user do %>
+      <%= live_component(
+          @socket,
+          MoodleNetWeb.My.MySidebar,
+          current_user: @current_user,
+          my_communities: @my_communities,
+          id: :my_sidebar,
+          show_title: @show_title,
+          show_communities: @show_communities
+        ) %>
+    <% end %>
+    <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
+      <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+      <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+      <%= @inner_content %>
+    </section>
+  </div>
+</div>

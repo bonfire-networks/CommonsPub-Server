@@ -3,33 +3,42 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Profile.GraphQL.Resolver do
   alias MoodleNet.{
-    Activities,
+    # Activities,
     GraphQL,
     Repo,
     Resources
   }
 
   alias MoodleNet.GraphQL.{
-    Flow,
+    # Flow,
     FetchFields,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     ResolveField,
-    ResolvePage,
-    ResolvePages,
+    # ResolvePage,
+    # ResolvePages,
     ResolveRootPage
   }
 
   alias Profile
-  alias Profile.{Profiles, Queries}
+
+  alias Profile.{
+    Profiles
+    # Queries
+  }
+
   alias MoodleNet.Resources.Resource
-  alias MoodleNet.Common.Enums
+  # alias MoodleNet.Common.Enums
   alias Pointers
 
   ## resolvers
 
-  def profile(%{profile: profile}, _, info) do
+  def profile(%{profile: profile}, _, _info) do
     {:ok, profile}
+  end
+
+  def profile(%{profile_id: id}, _, info) do
+    profile(%{profile_id: id}, info)
   end
 
   def profile(%{profile_id: id}, info) do
@@ -40,10 +49,6 @@ defmodule Profile.GraphQL.Resolver do
       context: id,
       info: info
     })
-  end
-
-  def profile(%{profile_id: id}, _, info) do
-    profile(%{profile_id: id}, info)
   end
 
   def profile(%{id: id}, info) do
@@ -89,9 +94,9 @@ defmodule Profile.GraphQL.Resolver do
 
   # def profileistic_edge(%Profile{profileistic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
-  def resource_count_edge(%Profile{id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
-  end
+  # def resource_count_edge(%Profile{id: id}, _, info) do
+  #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
+  # end
 
   def fetch_resource_count_edge(_, ids) do
     FetchFields.run(%FetchFields{
@@ -163,19 +168,19 @@ defmodule Profile.GraphQL.Resolver do
   #   |> GraphQL.response(info)
   # end
 
-  defp validate_profile_context(pointer) do
-    if Pointers.table!(pointer).schema in valid_contexts() do
-      :ok
-    else
-      GraphQL.not_permitted()
-    end
-  end
+  # defp validate_profile_context(pointer) do
+  #   if Pointers.table(pointer).schema in valid_contexts() do
+  #     :ok
+  #   else
+  #     GraphQL.not_permitted()
+  #   end
+  # end
 
-  defp valid_contexts do
-    Keyword.fetch!(Application.get_env(:moodle_net, Profiles), :valid_contexts)
-  end
+  # defp valid_contexts do
+  #   Keyword.fetch!(Application.get_env(:moodle_net, Profiles), :valid_contexts)
+  # end
 
-  def creator_edge(%{profile: %{creator_id: id}}, _, info) do
-    ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
-  end
+  # def creator_edge(%{profile: %{creator_id: id}}, _, info) do
+  #   ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
+  # end
 end

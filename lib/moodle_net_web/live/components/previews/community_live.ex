@@ -1,20 +1,20 @@
 defmodule MoodleNetWeb.Component.CommunityPreviewLive do
   use Phoenix.LiveComponent
-
-  def mount(community, _, socket) do
-    {:ok, assign(socket, community: community)}
-  end
+  import MoodleNetWeb.Helpers.Common
+  import MoodleNetWeb.Helpers.Profiles
 
   def render(assigns) do
     ~L"""
-    <a href="/&<%= @community.actor.preferred_username %>">
+    <%=
+      community = MoodleNetWeb.Helpers.Profiles.prepare(@community, %{icon: true, actor: true})
+      live_redirect to: "/&"<> e(community, :actor, :preferred_username, "deleted") do %>
       <div class="community__preview">
-        <div class="preview__image" style="background-image: url()"></div>
+        <div class="preview__image" style="background-image: url(<%= e(community, :icon_url, e(@community, :image_url, "")) %>)"></div>
         <div class="preview__info">
-          <h3><%= @community.name %></h3>
+          <h3><%= e(@community, :name, "Community") %></h3>
         </div>
       </div>
-    </a>
+    <% end %>
     """
   end
 end

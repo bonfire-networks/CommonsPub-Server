@@ -13,8 +13,9 @@ defmodule Character do
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.Content
-  alias Pointers.Pointer
+
+  # alias MoodleNet.Uploads.Content
+  # alias Pointers.Pointer
 
   @type t :: %__MODULE__{}
 

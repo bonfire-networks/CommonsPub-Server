@@ -33,31 +33,31 @@ defmodule MoodleNet.Actors do
   end
 
   # FIXME
-  @doc "creates a new actor with one of two possible usernames"
-  def create(
-        %{
-          :preferred_username => preferred_username,
-          :alternative_username => alternative_username
-        } = attrs
-      )
-      when is_map(attrs) do
-    IO.inspect(is_username_available?(preferred_username))
-    IO.inspect(is_username_available?(alternative_username))
+  #  @doc "creates a new actor with one of two possible usernames"
+  # def create(
+  #       %{
+  #         :preferred_username => preferred_username,
+  #         :alternative_username => alternative_username
+  #       } = attrs
+  #     )
+  #     when is_map(attrs) do
+  #   IO.inspect(is_username_available?(preferred_username))
+  #   IO.inspect(is_username_available?(alternative_username))
 
-    if(is_username_available?(preferred_username)) do
-      attrs =
-        attrs
-        |> Map.put("preferred_username", alternative_username)
-    end
+  #   if(is_username_available?(preferred_username)) do
+  #     attrs =
+  #       attrs
+  #       |> Map.put("preferred_username", alternative_username)
+  #   end
 
-    attrs =
-      attrs
-      |> Map.delete(:alternative_username)
+  #   attrs =
+  #     attrs
+  #     |> Map.delete(:alternative_username)
 
-    IO.inspect(attrs)
+  #   IO.inspect(attrs)
 
-    create(attrs)
-  end
+  #   create(attrs)
+  # end
 
   @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
@@ -110,12 +110,55 @@ defmodule MoodleNet.Actors do
     # |> String.replace(~r/--+/, "-")
   end
 
-  def prepare_username(%{:preferred_username => _} = attrs) do
-    Map.put(attrs, :preferred_username, atomise_username(attrs.preferred_username))
+  def prepare_username(%{:preferred_username => preferred_username} = attrs)
+      when not is_nil(preferred_username) and preferred_username != "" do
+    Map.put(attrs, :preferred_username, atomise_username(preferred_username))
   end
 
   # if no username set, autocreate from name
-  def prepare_username(attrs) do
+  def prepare_username(%{:name => name} = attrs)
+      when not is_nil(name) and name != "" do
     Map.put(attrs, :preferred_username, atomise_username(Map.get(attrs, :name)))
+  end
+
+  def prepare_username(attrs) do
+    attrs
+  end
+
+  def display_username(%MoodleNet.Communities.Community{} = obj) do
+    display_username(obj, "&")
+  end
+
+  def display_username(%MoodleNet.Collections.Collection{} = obj) do
+    display_username(obj, "+")
+  end
+
+  def display_username(%Tag.Taggable{} = obj) do
+    display_username(obj, "+")
+  end
+
+  def display_username(%MoodleNet.Users.User{} = obj) do
+    display_username(obj, "@")
+  end
+
+  def display_username(obj) do
+    display_username(obj, "@")
+  end
+
+  def display_username(%{actor: %Actor{peer_id: nil, preferred_username: uname}}, prefix) do
+    prefix <> uname <> "@" <> MoodleNet.Instance.hostname()
+  end
+
+  def display_username(%{actor: %Actor{preferred_username: uname}}, prefix) do
+    prefix <> uname
+  end
+
+  def display_username(%{actor_id: _actor_id} = obj, prefix) do
+    obj = Repo.preload(obj, :actor)
+    display_username(obj, prefix)
+  end
+
+  def display_username(%{}, _) do
+    nil
   end
 end

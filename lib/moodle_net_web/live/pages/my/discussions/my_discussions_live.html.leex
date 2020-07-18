@@ -1,0 +1,16 @@
+<div
+    id="my-discussions"
+    phx-update="append"
+    data-page="<%= @page %>"
+    class="selected__area">
+  <%= for thread <- @threads do %>
+    <%= live_component(
+              @socket,
+              DiscussionPreviewLive,
+              id: "thread-#{thread.id}",
+              thread: thread,
+              current_user: @current_user
+            )
+          %>
+  <% end %>
+</div>

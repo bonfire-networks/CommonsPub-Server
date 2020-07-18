@@ -1,39 +1,21 @@
 defmodule MoodleNetWeb.Helpers.Account do
+  require Logger
+
   alias MoodleNet.Access
   alias MoodleNet.Users
   alias MoodleNet.Users.{Me}
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def current_user_or(
-        fallback,
-        %{
-          "auth_token" => auth_token,
-          "current_user" => current_user
-        },
-        preload
-      ) do
-    Profiles.prepare(current_user, preload)
-  end
+  def current_user(auth_token) do
+    case MoodleNet.Access.fetch_token_and_user(auth_token) do
+      {:ok, session_token} ->
+        Logger.info(session_loaded: session_token)
 
-  def current_user_or(
-        fallback,
-        %{
-          "auth_token" => auth_token
-        },
-        preload
-      ) do
-    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(auth_token) do
-      current_user_or(
-        fallback,
-        %{
-          "auth_token" => auth_token,
-          "current_user" => session_token.user
-        },
-        preload
-      )
-    else
-      {:error, _} ->
-        fallback
+        Profiles.prepare(session_token.user, %{icon: true, image: true, actor: true})
+
+      {_, error} ->
+        Logger.info(session_fetch_error: error)
+        nil
     end
   end
 
@@ -64,4 +46,8 @@ defmodule MoodleNetWeb.Helpers.Account do
       %{token: token.id, current_user: Me.new(user)}
     end
   end
+
+  # def logout(socket) do
+  #   Access.hard_delete(socket.assigns.auth_token)
+  # end
 end

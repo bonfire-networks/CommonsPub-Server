@@ -4,7 +4,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.UploadResolver do
-  alias MoodleNet.GraphQL.{FetchFields, Fields, ResolveFields}
+  alias MoodleNet.GraphQL.{
+    FetchFields,
+    # Fields,
+    ResolveFields
+  }
+
   alias MoodleNet.{Uploads, Users}
   alias MoodleNet.Uploads.Content
 
@@ -16,8 +21,8 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   def upload(user, %{} = params, _info) do
     params
-    |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" end)
-    |> Enum.reduce_while(%{}, &(do_upload(user, &1, &2)))
+    |> Enum.reject(fn {_k, v} -> is_nil(v) or v == "" end)
+    |> Enum.reduce_while(%{}, &do_upload(user, &1, &2))
     |> case do
       {:error, _} = e -> e
       val -> {:ok, Enum.into(val, %{})}
@@ -48,26 +53,23 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id, info)
 
   def content_edge(id, info) when is_binary(id) do
-    ResolveFields.run(
-      %ResolveFields{
-        module: __MODULE__,
-        fetcher: :fetch_content_edge,
-        context: id,
-        info: info,
-      }
-    )
+    ResolveFields.run(%ResolveFields{
+      module: __MODULE__,
+      fetcher: :fetch_content_edge,
+      context: id,
+      info: info
+    })
   end
+
   def content_edge(_, _), do: {:ok, nil}
 
   def fetch_content_edge(_, ids) do
-    FetchFields.run(
-      %FetchFields{
-        queries: Uploads.Queries,
-        query: Content,
-        group_fn: &(&1.id),
-        filters: [deleted: false, published: true, id: ids],
-      }
-    )
+    FetchFields.run(%FetchFields{
+      queries: Uploads.Queries,
+      query: Content,
+      group_fn: & &1.id,
+      filters: [deleted: false, published: true, id: ids]
+    })
   end
 
   def is_public(%Content{} = upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
@@ -78,5 +80,4 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   def content_upload(%Content{content_upload: upload}, _, _info), do: {:ok, upload}
   def content_mirror(%Content{content_mirror: mirror}, _, _info), do: {:ok, mirror}
-
 end

@@ -42,7 +42,7 @@ defmodule Geolocation.Migrations do
 
     {_, _} = Repo.insert_all("mn_table", tables)
 
-    tables =
+    _tables =
       Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
         Map.put(acc, table, id)
       end)

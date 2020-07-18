@@ -12,18 +12,18 @@ defmodule MoodleNet.GraphQL do
   end
 
   @doc "Are we in a list (recursively)?"
-  def in_list?(%{context: %{schema: schema}} = info),
+  def in_list?(%{context: %{schema: _schema}} = info),
     do: Enum.any?(Resolution.path(info), &is_integer/1)
 
   @doc "If we're not actually going through Absinthe, assume not"
-  def in_list?(info), do: false
+  def in_list?(_), do: false
 
   @doc "How many lists are we in (recursively)?"
-  def list_depth(%{context: %{schema: schema}} = info),
+  def list_depth(%{context: %{schema: _schema}} = info),
     do: Enums.count_where(Resolution.path(info), &is_integer/1)
 
   @doc "If we're not actually going through Absinthe, assume top level"
-  def list_depth(info), do: 0
+  def list_depth(_), do: 0
 
   def parent_name(resolution) do
     resolution.path
@@ -57,7 +57,7 @@ defmodule MoodleNet.GraphQL do
   def not_in_list_or_empty_page(info), do: not_in_list_or(info, &empty_page/0)
 
   def current_user(%{context: context}), do: context.current_user
-  def current_user(info), do: nil
+  def current_user(_), do: nil
 
   def current_user_or(info, value), do: lazy_or(current_user(info), value)
 
@@ -79,7 +79,7 @@ defmodule MoodleNet.GraphQL do
   defp lazy({:error, value}), do: {:error, value}
   defp lazy(value), do: {:ok, value}
 
-  def guest_only(%Resolution{} = info) do
+  def guest_only(%{} = info) do
     case current_user(info) do
       nil -> :ok
       _user -> not_permitted()

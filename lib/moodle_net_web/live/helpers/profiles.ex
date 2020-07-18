@@ -1,50 +1,28 @@
 defmodule MoodleNetWeb.Helpers.Profiles do
-  alias MoodleNet.{
-    Repo
-  }
-
+  alias MoodleNet.{Repo}
   alias MoodleNetWeb.GraphQL.UsersResolver
-
-  alias MoodleNet.GraphQL.{
-    FetchPage,
-    FetchPages,
-    ResolveField,
-    ResolvePages
-  }
-
   import MoodleNetWeb.Helpers.Common
 
-  def prepare(profile, %{image: _} = preload) do
-    profile =
-      if(Map.has_key?(profile, "image_url")) do
-        profile
-      else
-        profile
-        |> Map.merge(%{image_url: image(profile, :image, "identicon", 700)})
-      end
-
-    prepare(
-      profile,
-      Map.delete(preload, :image)
-    )
+  def prepare(%{username: _} = profile) do
+    IO.inspect("profile already prepared")
+    profile
   end
 
   def prepare(profile, %{icon: _} = preload) do
     prepare(profile, preload, 50)
   end
 
-  def prepare(profile, %{icon: _} = preload, icon_size) do
-    profile =
-      if(Map.has_key?(profile, "icon_url")) do
-        profile
-      else
-        profile
-        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
-      end
+  def prepare(profile, %{image: _} = preload) do
+    prepare(profile, preload, 700)
+  end
+
+  def prepare(profile, %{is_followed_by: current_user} = preload) do
+    followed_bool = is_followed_by(current_user, profile.id)
 
     prepare(
-      profile,
-      Map.delete(preload, :icon)
+      profile
+      |> Map.merge(%{is_followed: followed_bool}),
+      Map.delete(preload, :is_followed_by)
     )
   end
 
@@ -68,7 +46,13 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   end
 
   def prepare(profile) do
-    prepare_website(profile)
+    prepare_website(prepare_username(profile))
+  end
+
+  def prepare_username(profile) do
+    profile
+    |> Map.merge(%{username: e(profile, :actor, :preferred_username, "deleted")})
+    |> Map.merge(%{display_username: MoodleNet.Actors.display_username(profile)})
   end
 
   def prepare_website(profile) do
@@ -84,6 +68,65 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     end
   end
 
+  def is_followed_by(current_user, profile_id) when not is_nil(current_user) do
+    is_followed_by(
+      MoodleNetWeb.GraphQL.FollowsResolver.fetch_my_follow_edge(current_user, nil, profile_id)
+    )
+  end
+
+  def is_followed_by(_, _) do
+    false
+  end
+
+  defp is_followed_by(%{data: data}) when data == %{} do
+    false
+  end
+
+  defp is_followed_by(map) do
+    true
+  end
+
+  def unfollow(current_user, followed_id) do
+    {:ok, follow} =
+      MoodleNet.Follows.one(deleted: false, creator: current_user.id, context: followed_id)
+
+    MoodleNet.Follows.soft_delete(current_user, follow)
+  end
+
+  def prepare(profile, %{icon: _} = preload, icon_size) do
+    profile =
+      if(Map.has_key?(profile, "icon_url")) do
+        profile
+      else
+        profile
+        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
+      end
+
+    prepare(
+      profile,
+      Map.delete(preload, :icon)
+    )
+  end
+
+  def prepare(profile, %{image: _} = preload, image_size) do
+    profile =
+      if(Map.has_key?(profile, "image_url")) do
+        profile
+      else
+        profile
+        |> Map.merge(%{image_url: image(profile, :image, "identicon", image_size)})
+      end
+
+    prepare(
+      profile,
+      Map.delete(preload, :image)
+    )
+  end
+
+  def user_load(socket, params) do
+    user_load(socket, params, %{image: true, icon: true, actor: true}, 150)
+  end
+
   def user_load(socket, page_params, preload) do
     user_load(socket, page_params, preload, 50)
   end
@@ -95,17 +138,22 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
     # load requested user
     {:ok, user} =
-      if(!is_nil(username)) do
-        UsersResolver.user(%{username: username}, %{
-          context: %{current_user: socket.assigns.current_user}
-        })
-      else
+      if(username == socket.assigns.current_user or is_nil(username)) do
         # fallback to current user
-        if(Map.has_key?(socket, :assigns) and Map.has_key?(socket.assigns, :current_user)) do
+        if(!is_nil(socket.assigns.current_user)) do
           {:ok, socket.assigns.current_user}
         else
           {:ok, %{}}
         end
+      else
+        {:ok, user} =
+          UsersResolver.user(%{username: username}, %{
+            context: %{current_user: socket.assigns.current_user}
+          })
+
+        # is_followed_by(socket.assigns.current_user, user.id)
+
+        {:ok, user}
       end
 
     prepare(user, preload, icon_width)

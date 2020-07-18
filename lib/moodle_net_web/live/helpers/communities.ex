@@ -3,84 +3,16 @@ defmodule MoodleNetWeb.Helpers.Communities do
     Repo
   }
 
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
-
-  alias MoodleNet.GraphQL.{
-    FetchPage,
-    FetchPages,
-    ResolveField,
-    ResolvePages
+  alias MoodleNetWeb.GraphQL.{
+    CommonResolver,
+    UsersResolver,
+    CommunitiesResolver
   }
 
   import MoodleNetWeb.Helpers.Common
+  alias MoodleNetWeb.Helpers.Profiles
 
-  def prepare(community, %{image: _} = preload) do
-    community =
-      if(Map.has_key?(community, "image_url")) do
-        community
-      else
-        community
-        |> Map.merge(%{image_url: image(community, :image, "identicon", 700)})
-      end
-
-    prepare(
-      community,
-      Map.delete(preload, :image)
-    )
-  end
-
-  def prepare(community, %{icon: _} = preload) do
-    community =
-      if(Map.has_key?(community, "icon_url")) do
-        community
-      else
-        community
-        |> Map.merge(%{icon_url: image(community, :icon)})
-      end
-
-    prepare(
-      community,
-      Map.delete(preload, :icon)
-    )
-  end
-
-  def prepare(community, preload) do
-    community =
-      if(Map.has_key?(community, :__struct__)) do
-        Enum.reduce(preload, community, fn field, community ->
-          {preload, included} = field
-
-          if(included) do
-            Map.merge(community, Repo.preload(community, preload))
-          else
-            community
-          end
-        end)
-      else
-        community
-      end
-
-    prepare(community)
-  end
-
-  def prepare(community) do
-    prepare_website(community)
-  end
-
-  def prepare_website(community) do
-    if(Map.has_key?(community, :website) and !is_nil(community.website)) do
-      url = MoodleNet.File.ensure_valid_url(community.website)
-
-      # IO.inspect(url)
-
-      community
-      |> Map.merge(%{website: url |> URI.to_string(), website_friendly: url.host})
-    else
-      community
-    end
-  end
-
-  def community_load(socket, page_params, preload) do
+  def community_load(_socket, page_params, preload) do
     # IO.inspect(socket)
 
     username = e(page_params, "username", nil)
@@ -91,7 +23,54 @@ defmodule MoodleNetWeb.Helpers.Communities do
       else
         {:ok, %{}}
       end
+      IO.inspect(preload, label: "sidaisd")
 
-    prepare(community, preload)
+    Profiles.prepare(community, preload, 150)
+  end
+
+  def user_communities(for_user, current_user) do
+    user_communities(for_user, current_user, 10)
+  end
+
+  def user_communities(for_user, current_user, limit) do
+    communities_from_edges(user_communities_follows(for_user, current_user, limit))
+  end
+
+  def user_communities_follows(for_user, current_user) do
+    user_communities_follows(for_user, current_user, 5)
+  end
+
+  def user_communities_follows(for_user, current_user, limit) do
+    user_communities_follows(for_user, current_user, limit, [])
+  end
+
+  def user_communities_follows(for_user, current_user, limit, page_after) do
+    {:ok, communities} =
+      UsersResolver.community_follows_edge(
+        for_user,
+        %{limit: limit, after: page_after},
+        %{context: %{current_user: current_user}}
+      )
+
+    # IO.inspect(my_follows: communities)
+
+    communities
+  end
+
+  def communities_from_edges(communities) do
+    # FIXME: communities should be joined to edges rather than queried seperately
+    communities =
+      Enum.map(
+        communities.edges,
+        &CommonResolver.context_edge(&1, nil, nil)
+      )
+
+    communities =
+      Enum.map(
+        communities,
+        &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
+      )
+
+    communities
   end
 end

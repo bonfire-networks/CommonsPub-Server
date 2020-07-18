@@ -6,7 +6,7 @@ defmodule MoodleNet.Blocks do
   alias MoodleNet.{Common, Repo}
   alias MoodleNet.Blocks.{Block, Queries}
   alias MoodleNet.Users.User
-  
+
   def one(filters), do: Repo.single(Queries.query(Block, filters))
 
   def many(filters), do: {:ok, Repo.all(Queries.query(Block, filters))}
@@ -26,7 +26,7 @@ defmodule MoodleNet.Blocks do
     Repo.update(Block.update_changeset(block, fields))
   end
 
-  def update_by(%User{}=user, filters, updates) do
+  def update_by(%User{} = _user, filters, updates) do
     Repo.update_all(Queries.query(Block, filters), set: updates)
   end
 
@@ -35,12 +35,16 @@ defmodule MoodleNet.Blocks do
     Common.soft_delete(block)
   end
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:deleted, false}, {:select, :id} | filters], deleted_at: DateTime.utc_now())
-        :ok
-      end), do: :ok
-  end
+           Repo.transact_with(fn ->
+             {_, _ids} =
+               update_by(user, [{:deleted, false}, {:select, :id} | filters],
+                 deleted_at: DateTime.utc_now()
+               )
 
+             :ok
+           end),
+         do: :ok
+  end
 end

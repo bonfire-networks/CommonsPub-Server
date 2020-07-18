@@ -7,9 +7,9 @@ defmodule MoodleNet.Threads.Comments do
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
-  alias MoodleNet.FeedPublisher
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.{Pointer, Pointers}
+  alias Pointers.Pointer
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, CommentsQueries, Thread}
   alias MoodleNet.Users.User
@@ -50,6 +50,7 @@ defmodule MoodleNet.Threads.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity, context),
+           :ok <- index(comment, thread, creator),
            :ok <- ap_publish("create", comment) do
         {:ok, %{comment | thread: thread}}
       end
@@ -64,6 +65,7 @@ defmodule MoodleNet.Threads.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity),
+           :ok <- index(comment, thread, creator),
            :ok <- ap_publish("create", comment) do
         {:ok, %{comment | thread: thread}}
       end
@@ -96,11 +98,37 @@ defmodule MoodleNet.Threads.Comments do
 
         Repo.transact_with(fn ->
           with {:ok, comment} <- insert(creator, thread, attrs),
-               thread = preload_ctx(thread),
+               #  thread = preload_ctx(thread), #FIXME
                act_attrs = %{verb: "created", is_local: comment.is_local},
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
-               thread = preload_ctx(thread),
+               #  thread = preload_ctx(thread),
                :ok <- publish(creator, thread, comment, activity),
+               :ok <- index(comment, thread, creator),
+               :ok <- ap_publish("create", comment) do
+            {:ok, comment}
+          end
+        end)
+    end
+  end
+
+  def create_reply(
+        %User{} = creator,
+        %Thread{} = thread,
+        attrs
+      ) do
+    cond do
+      not is_nil(thread.locked_at) ->
+        {:error, NotPermittedError.new("create")}
+
+      true ->
+        Repo.transact_with(fn ->
+          with {:ok, comment} <- insert(creator, thread, attrs),
+               #  thread = preload_ctx(thread), #FIXME
+               act_attrs = %{verb: "created", is_local: comment.is_local},
+               {:ok, activity} <- Activities.create(creator, comment, act_attrs),
+               #  thread = preload_ctx(thread),
+               :ok <- publish(creator, thread, comment, activity),
+               :ok <- index(comment, thread, creator),
                :ok <- ap_publish("create", comment) do
             {:ok, comment}
           end
@@ -117,8 +145,10 @@ defmodule MoodleNet.Threads.Comments do
       nil ->
         case thread.context do
           %Pointer{} = pointer ->
-            context = Pointers.follow!(pointer)
-            %{thread | context: %{thread.context | pointed: context}}
+            follow_ctx(thread, pointer)
+
+          nil ->
+            thread
 
           _ ->
             preload_ctx(Repo.preload(thread, :context))
@@ -127,6 +157,12 @@ defmodule MoodleNet.Threads.Comments do
       _ ->
         thread
     end
+  end
+
+  def follow_ctx(thread, pointer) do
+    # FIXME, causes protocol Enumerable not implemented for %Pointers.Pointer
+    context = MoodleNet.Meta.Pointers.follow!(pointer)
+    %{thread | context: %{thread.context | pointed: context}}
   end
 
   @spec update(User.t(), Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
@@ -172,7 +208,7 @@ defmodule MoodleNet.Threads.Comments do
     end
   end
 
-  defp publish(creator, thread, _comment, activity, context) do
+  defp publish(creator, thread, _comment, activity, _context) do
     feeds =
       context_feeds(thread.context.pointed) ++
         [
@@ -219,4 +255,48 @@ defmodule MoodleNet.Threads.Comments do
   defp context_feeds(%Community{outbox_id: id}), do: [id]
   defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
   defp context_feeds(_), do: []
+
+  def index(comment, thread, creator) do
+    # follower_count =
+    #   case MoodleNet.Follows.FollowerCounts.one(context: comment.id) do
+    #     {:ok, struct} -> struct.count
+    #     {:error, _} -> nil
+    #   end
+
+    # icon = MoodleNet.Uploads.remote_url_from_id(comment.icon_id)
+    # image = MoodleNet.Uploads.remote_url_from_id(comment.image_id)
+
+    canonical_url = MoodleNet.ActivityPub.Utils.get_object_canonical_url(comment)
+
+    object = %{
+      "index_type" => "Comment",
+      "id" => comment.id,
+      "reply_to_id" => comment.reply_to_id,
+      "thread" => %{
+        "id" => comment.thread_id,
+        "name" => thread.name
+      },
+      "creator" => %{
+        "id" => creator.id,
+        "name" => creator.name,
+        "preferred_username" => creator.actor.preferred_username,
+        "canonical_url" => creator.actor.canonical_url
+      },
+      "canonical_url" => canonical_url,
+      # "followers" => %{
+      #   "totalCount" => follower_count
+      # },
+      # "icon" => icon,
+      # "image" => image,
+      "name" => comment.name,
+      "content" => comment.content,
+      "published_at" => comment.published_at,
+      # home instance of object:
+      "index_instance" => URI.parse(canonical_url).host
+    }
+
+    Search.Indexing.maybe_index_object(object)
+
+    :ok
+  end
 end

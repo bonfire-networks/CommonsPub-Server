@@ -11,13 +11,21 @@ defmodule MoodleNetWeb.MemberLive.MemberNavigationLive do
       to: "/@" <> @username <> "/timeline",
       class: if @selected == "timeline", do: "navigation__item active", else: "navigation__item"
     %>
-    <%= live_patch link_body("Discussions", "feather-message-square"),
+    <%= live_patch link_body("Posts", "feather-message-square"),
       to: "/@" <> @username <> "/discussions",
       class: if @selected == "discussions", do: "navigation__item active", else: "navigation__item"
       %>
-    <%= live_patch link_body("Likes", "feather-file-text"),
+    <%= live_patch link_body("Communities", "feather-users"),
+      to: "/@" <> @username <> "/communities",
+      class: if @selected == "communities", do: "navigation__item active", else: "navigation__item"
+      %>
+    <%= live_patch link_body("Favorites", "feather-star"),
       to: "/@" <> @username <> "/likes",
       class: if @selected == "likes", do: "navigation__item active", else: "navigation__item"
+    %>
+    <%= live_patch link_body("Following", "feather-eye"),
+      to: "/@" <> @username <> "/following",
+      class: if @selected == "following", do: "navigation__item active", else: "navigation__item"
     %>
     """
   end

@@ -26,13 +26,15 @@ Hooks.TagPick = {
     console.log("TagPick mounted");
     this.el.addEventListener("click", (e) => {
       console.log("tag clicked");
-      const prefix = "+"; // TODO: support other triggers
-      if (this.el.dataset.target) {
+      if (this.el.dataset.target && this.el.dataset.prefix) {
+        console.log("prefix: " + this.el.dataset.prefix);
+        console.log("tag: " + this.el.dataset.tag);
         const f = document.getElementById(this.el.dataset.target);
-        var ta = f.value.split(prefix);
+        var ta = f.value.split(this.el.dataset.prefix);
+        console.log(ta);
         ta.pop();
         ta.push(this.el.dataset.tag + " "); // terminate with space
-        f.value = ta.join(prefix);
+        f.value = ta.join(this.el.dataset.prefix);
         document.getElementById("autocomplete-dropdown").innerHTML = "";
       }
     });

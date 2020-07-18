@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Taxonomy.GraphQL.TaxonomySchema do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias MoodleNetWeb.GraphQL.{CommonResolver}
   alias Taxonomy.GraphQL.{TaxonomyResolver}
 
   object :taxonomy_queries do
@@ -33,10 +33,10 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
   end
 
   object :taxonomy_tag do
-    @doc "The numeric primary key of the tag"
+    @desc "The numeric primary key of the tag"
     field(:id, :integer)
 
-    @doc "The ULID/pointer ID of the tag. Only exists once the tag is used in the app."
+    @desc "The ULID/pointer ID of the tag. Only exists once the tag is used in the app."
     field(:pointer_id, :string)
 
     field(:name, :string)

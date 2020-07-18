@@ -20,7 +20,7 @@ defmodule Geolocation.GraphQL.Hydration do
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
-        ],
+        ]
       },
       geolocation_query: %{
         spatial_thing: [
@@ -40,7 +40,7 @@ defmodule Geolocation.GraphQL.Hydration do
       },
       geo_scope: [
         resolve_type: &__MODULE__.resolve_context_type/2
-      ],
+      ]
     }
   end
 

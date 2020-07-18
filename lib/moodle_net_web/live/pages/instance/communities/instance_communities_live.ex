@@ -1,6 +1,8 @@
 defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
   use MoodleNetWeb, :live_component
 
+  alias MoodleNetWeb.Helpers.{Communities, Profiles}
+
   alias MoodleNetWeb.GraphQL.{
     CommunitiesResolver
   }
@@ -25,8 +27,14 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
 
     # IO.inspect(communities: communities)
 
+    communities_list =
+      Enum.map(
+        communities.edges,
+        &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
+      )
+
     assign(socket,
-      communities: communities.edges,
+      communities: communities_list,
       has_next_page: communities.page_info.has_next_page,
       after: communities.page_info.end_cursor,
       before: communities.page_info.start_cursor
@@ -39,7 +47,8 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
 
   def render(assigns) do
     ~L"""
-      <div id="instance-communities">
+      <div
+      id="instance-communities">
         <div
         phx-update="append"
         data-page="<%= @page %>"

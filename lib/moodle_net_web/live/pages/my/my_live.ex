@@ -2,12 +2,13 @@ defmodule MoodleNetWeb.My.Live do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Profiles}
+
+  # alias MoodleNetWeb.Helpers.{Profiles}
 
   alias MoodleNetWeb.My.TimelineLive
 
   alias MoodleNetWeb.Component.{
-    HeaderLive,
+    # HeaderLive,
     TabNotFoundLive
   }
 
@@ -30,7 +31,7 @@ defmodule MoodleNetWeb.My.Live do
   end
 
   def handle_params(_, _url, socket) do
-    {:noreply, socket}
+    {:noreply, assign(socket, selected_tab: "timeline")}
   end
 
   defp link_body(name, icon) do

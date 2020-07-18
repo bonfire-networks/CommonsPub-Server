@@ -136,18 +136,11 @@ defmodule MoodleNetWeb.Router do
     post "/shared_inbox", ActivityPubController, :inbox
   end
 
-  pipeline :browser do
-    plug :accepts, ["html"]
-    plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
-    plug :fetch_session
-    plug MoodleNetWeb.Plugs.Auth
-    plug MoodleNetWeb.Plugs.SetLocale
-  end
-
   scope "/" do
+    pipe_through :browser
     get "/", MoodleNetWeb.PageController, :index
+    get "/confirm-email/:token", MoodleNetWeb.PageController, :confirm_email
+    get "/logout", MoodleNetWeb.PageController, :logout
     get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
   end
 
@@ -164,6 +157,10 @@ defmodule MoodleNetWeb.Router do
     # TODO redirect to instance or user depending on logged in
     live "/instance", InstanceLive
 
+    live "/instance/search", SearchLive
+    live "/instance/search/:tab", SearchLive
+    live "/instance/search/:tab/:search", SearchLive
+
     live "/instance/:tab", InstanceLive
 
     live "/@:username", MemberLive
@@ -172,23 +169,50 @@ defmodule MoodleNetWeb.Router do
     live "/&:username", CommunityLive
     live "/&:username/:tab", CommunityLive
 
-    live "/«/:id", DiscussionLive
+    # live "/+:username", CharacterLive
+    # live "/+:username/:tab", CharacterLive
 
-    live "/my/login", LoginLive
-    live "/my/signup", SignupLive
-    live "/my/reset", ResetPasswordLive
-    live "/my/create-new-password", CreateNewPasswordLive
+    live "/!:id/:do/:sub_id", DiscussionLive
+    live "/!:id/:do", DiscussionLive
+    live "/!:id", DiscussionLive
+
+    live "/~/login", LoginLive
+    live "/~/signup", SignupLive
+    live "/~/reset", ResetPasswordLive
+    live "/~/create-new-password", CreateNewPasswordLive
 
     pipe_through :ensure_authenticated
 
-    live "/my", My.Live
-    live "/my/profile", MemberLive
-    live "/my/settings", SettingsLive
-    live "/my/settings/:tab", SettingsLive
-    live "/my/write", My.Publish.WriteLive
-    live "/my/:tab", My.Live
-    live "/my/write", My.Publish.WriteLive
+    live "/~", My.Live
+    live "/~/profile", MemberLive
+    live "/~/settings", SettingsLive
+    live "/~/settings/:tab", SettingsLive
+    live "/~/write", My.Post.WriteLive
+    live "/~/:tab", My.Live
 
-    live "/my/proto", My.ProtoProfileLive
+    live "/~/proto", My.ProtoProfileLive
+  end
+
+  def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
+    msg =
+      if Map.has_key?(reason, :message) and !is_nil(reason.message) and
+           String.length(reason.message) > 0 do
+        reason.message
+      else
+        if is_map(reason) and Map.has_key?(reason, :term) and is_map(reason.term) and
+             Map.has_key?(reason.term, :message) do
+          reason.term.message
+        else
+          # IO.inspect(handle_error: info)
+          "An unhandled error has occured"
+        end
+      end
+
+    send_resp(
+      conn,
+      conn.status,
+      "Sorry! " <>
+        msg <> "... Please try another way, or get in touch with the site admin."
+    )
   end
 end

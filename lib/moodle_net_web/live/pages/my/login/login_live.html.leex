@@ -4,16 +4,14 @@
     <div class="login__form">
       <h1>Log in</h1>
       <div class="form__wrapper">
-        <form action="#" phx-submit="login">
+        <form method="post" phx-submit="login">
           <input name="login" type="text" placeholder="Type your username or email..." />
           <input name="password" type="password" placeholder="Type your password..." />
           <button type="submit" phx-disable-with="Checking...">Sign in</button>
-
         </form>
-
-        <a href="#">Trouble logging in?</a>
+        <%= live_redirect to: "#" do %>Trouble logging in?<% end %>
       </div>
     </div>
     <div class="login__footer"></div>
-    </div>
   </div>
+</div>

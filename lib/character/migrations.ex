@@ -2,10 +2,12 @@ defmodule Character.Migrations do
   use Ecto.Migration
   import Pointers.Migration
 
-  def up do
+  defp table_name(), do: Character.__schema__(:source)
+
+  def migrate(index_opts, :up) do
     # a character is a group actor that is home to resources
-    create_mixin_table(:character) do
-      # add :characteristic_id, :uuid # points to the Thing that this Character represents
+    create_mixin_table(table_name()) do
+      # add table_name()istic_id, :uuid # points to the Thing that this Character represents
       # points to the Actor who plays this Character in the fediverse
       add(:actor_id, references("mn_actor", on_delete: :delete_all))
 
@@ -26,12 +28,12 @@ defmodule Character.Migrations do
       # timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
-    create_if_not_exists(index(:character, :updated_at))
-    create_if_not_exists(index(:character, :actor_id))
-    create_if_not_exists(index(:character, :creator_id))
+    # create_if_not_exists(index(table_name(), :updated_at, index_opts))
+    create_if_not_exists(index(table_name(), :actor_id, index_opts))
+    create_if_not_exists(index(table_name(), :creator_id, index_opts))
 
-    # create_if_not_exists index(:character, :context_id)
-    # create_if_not_exists index(:character, :primary_language_id)
+    # create_if_not_exists index(table_name(), :context_id)
+    # create_if_not_exists index(table_name(), :primary_language_id)
 
     :ok =
       execute("""
@@ -43,14 +45,14 @@ defmodule Character.Migrations do
       """)
   end
 
-  def down do
+  def migrate(index_opts, :down) do
     :ok = execute("drop view if exists character_last_activity")
 
-    drop_if_exists(index(:character, :updated_at))
-    drop_if_exists(index(:character, :actor_id))
-    drop_if_exists(index(:character, :creator_id))
-    drop_if_exists(index(:character, :community_id))
-    drop_if_exists(index(:character, :primary_language_id))
-    drop_mixin_table(:character)
+    drop_if_exists(index(table_name(), :updated_at, index_opts))
+    drop_if_exists(index(table_name(), :actor_id, index_opts))
+    drop_if_exists(index(table_name(), :creator_id, index_opts))
+    drop_if_exists(index(table_name(), :community_id, index_opts))
+    drop_if_exists(index(table_name(), :primary_language_id, index_opts))
+    drop_mixin_table(table_name())
   end
 end

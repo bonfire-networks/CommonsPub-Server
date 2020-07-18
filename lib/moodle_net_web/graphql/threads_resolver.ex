@@ -6,10 +6,10 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   alias MoodleNet.GraphQL.{
     FetchPage,
-    FetchPages,
+    # FetchPages,
     ResolveField,
-    ResolvePages,
-    ResolveRootPage
+    ResolvePages
+    # ResolveRootPage
   }
 
   alias MoodleNet.Meta.Pointers
@@ -85,14 +85,23 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   def fetch_creator_threads_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
 
+    list_creator_threads(
+      page_opts,
+      [user: user, creator: ids],
+      [page: [desc: [followers: page_opts]]],
+      [:followers]
+    )
+  end
+
+  def list_creator_threads(page_opts, base_filters, data_filters, cursor_type) do
     # IO.inspect(
     FetchPage.run(%FetchPage{
       queries: Threads.Queries,
       query: Thread,
-      cursor_fn: Threads.cursor(:followers),
+      # cursor_fn: Threads.cursor(cursor_type),
       page_opts: page_opts,
-      base_filters: [user: user, creator: ids],
-      data_filters: [page: [desc: [followers: page_opts]]]
+      base_filters: base_filters,
+      data_filters: data_filters
     })
 
     # )

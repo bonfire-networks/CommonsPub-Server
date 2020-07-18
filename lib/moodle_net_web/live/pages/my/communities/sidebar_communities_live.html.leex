@@ -1,8 +1,8 @@
-<%= for community <- @communities do %>
+<%= for community <- @my_communities do %>
   <div class="panel__item">
-    <a href="/&<%= e(community, :actor, :preferred_username, e(community, :id, ""))%>">
-      <img src="<%= e(community, :icon_url, e(community, :image_url, "https://picsum.photos/40"))%>" />
+    <%= live_redirect to: "/&"<> e(community, :actor, :preferred_username, e(community, :id, "")) do %>
+      <img src="<%= e(community, :icon_url, e(community, :image_url, ""))%>" />
       <h3><%= e(community, :name, "Community")%></h3>
-    </a>
+    <% end %>
   </div>
 <% end %>

@@ -1,17 +1,33 @@
 defmodule MoodleNetWeb.Helpers.Common do
   import Phoenix.LiveView
+  require Logger
 
   alias MoodleNet.{
     Repo
   }
 
   alias MoodleNetWeb.Helpers.{
-    Profiles
+    # Profiles,
+    Account,
+    Communities
   }
+
+  alias MoodleNetWeb.GraphQL.LikesResolver
+
+  def strlen(%{} = obj) when obj == %{}, do: 0
+  def strlen(%{}), do: 1
+
+  def strlen(thing) do
+    if !is_nil(thing) do
+      String.length(thing)
+    else
+      0
+    end
+  end
 
   @doc "Returns a value, or a fallback if not present"
   def e(key, fallback) do
-    if(!is_nil(key)) do
+    if(strlen(key) > 0) do
       key
     else
       fallback
@@ -59,14 +75,14 @@ defmodule MoodleNetWeb.Helpers.Common do
   This initializes the socket assigns
   """
   def init_assigns(
-        params,
+        _params,
         %{
           "auth_token" => auth_token,
           "current_user" => current_user
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
-    IO.inspect(session_preloaded: session)
+    # Logger.info(session_preloaded: session)
 
     socket
     |> assign(:auth_token, fn -> auth_token end)
@@ -74,29 +90,61 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def init_assigns(
-        params,
+        _params,
         %{
           "auth_token" => auth_token
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
-    IO.inspect(session_load: session)
+    # Logger.info(session_load: session)
 
-    current_user =
-      with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"]) do
-        Profiles.prepare(session_token.user, %{icon: true, actor: true})
+    current_user = Account.current_user(session["auth_token"])
+
+    # IO.inspect(session_loaded_user: current_user)
+
+    communities_follows =
+      if(current_user) do
+        Communities.user_communities_follows(current_user, current_user)
       end
 
-    IO.inspect(session_load_user: current_user)
+    my_communities =
+      if(communities_follows) do
+        Communities.communities_from_edges(communities_follows)
+      end
 
     socket
     |> assign(:auth_token, auth_token)
+    |> assign(:show_title, false)
+    |> assign(:show_communities, false)
     |> assign(:current_user, current_user)
+    |> assign(:my_communities, my_communities)
+    |> assign(:my_communities_page_info, communities_follows.page_info)
   end
 
-  def init_assigns(params, session, %Phoenix.LiveView.Socket{} = socket) do
+  def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
     socket
     |> assign(:current_user, nil)
+  end
+
+  def prepare_context(thing) do
+    if(Map.has_key?(thing, :context_id) and !is_nil(thing.context_id)) do
+      MoodleNet.Repo.preload(thing, :context)
+
+      {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thing.context_id)
+      context = MoodleNet.Meta.Pointers.follow!(pointer)
+
+      type =
+        context.__struct__
+        |> Module.split()
+        |> Enum.at(-1)
+        |> String.downcase()
+
+      thing
+      |> Map.merge(%{context_type: type})
+      |> Map.merge(%{context: context})
+    else
+      thing
+    end
   end
 
   def image(community, field_name) do
@@ -130,5 +178,39 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def image_gravatar(seed, style, size) do
     MoodleNet.Users.Gravatar.url(to_string(seed), style, size)
+  end
+
+  def input_to_atoms(data) do
+    data |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end)
+  end
+
+  def is_liked(current_user, context_id)
+      when not is_nil(current_user) and not is_nil(context_id) do
+    my_like =
+      LikesResolver.fetch_my_like_edge(
+        %{
+          context: %{current_user: current_user}
+        },
+        context_id
+      )
+
+    # IO.inspect(my_like: my_like)
+    is_liked(my_like)
+  end
+
+  def is_liked(_, _) do
+    false
+  end
+
+  defp is_liked(%{data: data}) when data == %{} do
+    false
+  end
+
+  defp is_liked(%{data: _}) do
+    true
+  end
+
+  defp is_liked(_) do
+    false
   end
 end

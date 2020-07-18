@@ -26,18 +26,22 @@ defmodule MoodleNet.Algolia.Indexer do
   defp supported_type(_), do: false
 
   def maybe_index_object(object) do
-    if !is_nil(check_envs()) and supported_type(object) do # if Algolia is configured, use that
+    # if Algolia is configured, use that
+    if !is_nil(check_envs()) and supported_type(object) do
       object
       |> format_object()
-      |> push_object() 
-    else 
-      if(Code.ensure_compiled?(Search.Indexing)) do # otherwise index using CommonsPub Search extension (if available)
+      |> push_object()
+    else
+      # otherwise index using CommonsPub Search extension (if available)
+      if(Code.ensure_loaded?(Search.Indexing)) do
+        IO.inspect("index locally")
+
         if supported_type(object) do
           object
           |> format_object()
-          |> Search.Indexing.maybe_index_object
+          |> Search.Indexing.maybe_index_object()
         else
-          Search.Indexing.maybe_index_object(object) 
+          Search.Indexing.maybe_index_object(object)
         end
       end
     end
@@ -61,7 +65,8 @@ defmodule MoodleNet.Algolia.Indexer do
     hash_url(object.canonical_url)
   end
 
-  def get_object_id(object) do # FIXME, this should only apply specificaly to actors
+  # FIXME, this should only apply specificaly to actors
+  def get_object_id(object) do
     hash_url(object.actor.canonical_url)
   end
 
@@ -125,7 +130,8 @@ defmodule MoodleNet.Algolia.Indexer do
   end
 
   def format_object(%Resource{} = resource) do
-    resource = Repo.preload(resource, [collection: [actor: [], community: [actor: []]], content: []])
+    resource =
+      Repo.preload(resource, collection: [actor: [], community: [actor: []]], content: [])
 
     likes_count =
       case LikerCounts.one(context: resource.id) do
@@ -135,7 +141,7 @@ defmodule MoodleNet.Algolia.Indexer do
 
     icon = Uploads.remote_url_from_id(resource.icon_id)
     resource_url = Uploads.remote_url_from_id(resource.content_id)
-    
+
     canonical_url = MoodleNet.ActivityPub.Utils.get_object_canonical_url(resource)
 
     %{

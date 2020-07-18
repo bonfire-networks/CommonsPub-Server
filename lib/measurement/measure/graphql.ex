@@ -7,11 +7,11 @@ defmodule Measurement.Measure.GraphQL do
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,
-    ResolvePage,
-    ResolvePages,
+    # ResolvePage,
+    # ResolvePages,
     ResolveRootPage,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     FetchFields
   }
 
@@ -80,7 +80,7 @@ defmodule Measurement.Measure.GraphQL do
 
   # mutations
 
-  def create_measures(attrs, info, fields) do
+  def create_measures(attrs, _info, fields) do
     Repo.transact_with(fn ->
       attrs
       |> Map.take(fields)

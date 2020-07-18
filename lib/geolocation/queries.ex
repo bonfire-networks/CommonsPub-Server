@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.Queries do
   alias Geolocation
-  alias Geolocation.Geolocations
+  # alias Geolocation.Geolocations
   alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users
+  # alias MoodleNet.Users
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query

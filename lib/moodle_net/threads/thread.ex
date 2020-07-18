@@ -9,9 +9,9 @@ defmodule MoodleNet.Threads.Thread do
   alias Ecto.Changeset
   alias MoodleNet.Follows.FollowerCount
   alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
   alias MoodleNet.Threads
-  alias MoodleNet.Threads.{LastComment, Thread}
+  alias MoodleNet.Threads.{LastComment, Comment, Thread}
   alias MoodleNet.Users.User
 
   table_schema "mn_thread" do
@@ -19,7 +19,9 @@ defmodule MoodleNet.Threads.Thread do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
     belongs_to(:outbox, Feed)
+    has_many(:comments, Comment)
     has_one(:follower_count, FollowerCount, foreign_key: :context_id)
+    has_one(:first_comment, FirstComment)
     has_one(:last_comment, LastComment)
     field(:ctx, :any, virtual: true)
     field(:canonical_url, :string)

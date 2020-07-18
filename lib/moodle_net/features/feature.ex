@@ -6,7 +6,7 @@ defmodule MoodleNet.Features.Feature do
   alias Ecto.Changeset
   alias MoodleNet.Features
   alias MoodleNet.Features.Feature
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
   alias MoodleNet.Users.User
 
   @type t :: %__MODULE__{}
@@ -31,7 +31,7 @@ defmodule MoodleNet.Features.Feature do
 
   @update_cast ~w(canonical_url)
 
-  def update_changeset(%Feature{}=feat, %{}=attrs) do
+  def update_changeset(%Feature{} = feat, %{} = attrs) do
     feat
     |> Changeset.cast(attrs, @update_cast)
   end
@@ -43,5 +43,4 @@ defmodule MoodleNet.Features.Feature do
   def queries_module, do: Features.Queries
 
   def follow_filters, do: []
-
 end

@@ -36,7 +36,7 @@ defmodule MoodleNet.GraphQL.ResolvePages do
   defp run(_other, info, rp), do: run_limit(rp, info, rp.deep_opts)
 
   # when running in Absinthe, do it async
-  defp run_full(%{context: %{schema: schema}} = rp, info, opts) do
+  defp run_full(%{context: %{schema: _schema}} = rp, info, opts) do
     with {:ok, opts} <- GraphQL.full_page_opts(rp.page_opts, rp.cursor_validators, opts) do
       async(fn ->
         apply(rp.module, rp.fetcher, [opts, Map.take(info, [:context]), rp.context])
@@ -44,6 +44,7 @@ defmodule MoodleNet.GraphQL.ResolvePages do
     end
   end
 
+  # when NOT running in Absinthe, just run it
   defp run_full(rp, info, opts) do
     with {:ok, opts} <- GraphQL.full_page_opts(rp.page_opts, rp.cursor_validators, opts) do
       apply(rp.module, rp.fetcher, [opts, Map.take(info, [:context]), rp.context])

@@ -27,7 +27,7 @@ defmodule MoodleNet.Follows do
 
   def create(follower, followed, fields, opts \\ [])
 
-  def create(%User{} = follower, %MoodleNet.Meta.Pointer{} = followed, %{} = fields, opts) do
+  def create(%User{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
     create(follower, MoodleNet.Meta.Pointers.follow!(followed), fields, opts)
   end
 
