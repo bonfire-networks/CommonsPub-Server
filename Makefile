@@ -81,8 +81,22 @@ dev-rebuild: init ## Rebuild the dev image (without cache)
 dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force && mix local.rebar --force && mix deps.get
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm install --prefix assets
+
+dev-dep-update: init ## Upgrade a dep, eg: `make dev-dep-update dep=plug` 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update $(cmd)
+
+dev-deps-update-all: init ## Upgrade all deps
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update --all
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm update --prefix assets && npm outdated --prefix assets
+
 dev-db-up: init ## Start the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
+
+dev-search-up: init ## Start the dev search index
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up search
+
+dev-services-up: init ## Start the dev DB & search index
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db search
 
 dev-db-admin: init ## Start the dev DB and dbeaver admin UI
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up dbeaver 

@@ -80,7 +80,7 @@ defmodule Measurement.Measure.GraphQL do
 
   # mutations
 
-  def create_measures(attrs, _info, fields) do
+  def create_measures(attrs, info, fields) do
     Repo.transact_with(fn ->
       attrs
       |> Map.take(fields)

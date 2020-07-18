@@ -23,10 +23,10 @@ services:
         target: /usr/share/dict/words
   db:
     image: postgis/postgis:12-3.0-alpine
-    # volumes:
-    #   - "./volumes/postgres:/var/lib/postgresql/data"
-    # ports:
-    #   - "5432:5432"
+    volumes:
+      - "./data/postgres:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
     env_file:
       - config/docker.dev.env
   dbeaver:

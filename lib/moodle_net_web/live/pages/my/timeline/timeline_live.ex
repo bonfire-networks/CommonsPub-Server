@@ -46,6 +46,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
       has_next_page: inbox.page_info.has_next_page,
       after: inbox.page_info.end_cursor,
       before: inbox.page_info.start_cursor
+
     )
   end
 
@@ -55,11 +56,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
 
   def render(assigns) do
     ~L"""
-    <<<<<<< HEAD
-    <div id="my_timeline">
-    =======
     <div id="my-timeline">
-    >>>>>>> feature/liveview
       <%= live_component(
         @socket,
         ActivitiesListLive,

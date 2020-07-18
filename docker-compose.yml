@@ -6,6 +6,7 @@ services:
     # $ make build
     # $ make tag_latest
     image: "commonspub/commonspub:latest"
+    restart: always
     ports:
       - "4000:4000" # you may want to comment this in production
       - "80:80"
@@ -14,7 +15,6 @@ services:
       - config/docker.env
     depends_on:
       - db
-      - search
     volumes:
       - type: bind
         source: ./uploads
@@ -27,9 +27,3 @@ services:
     #   - "5432:5432"
     env_file:
       - config/docker.env
-  search:
-    image: getmeili/meilisearch
-    ports:
-      - "7700:7700"
-    volumes:
-      - "./data/search:/data.ms"

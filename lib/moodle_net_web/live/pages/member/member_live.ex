@@ -77,7 +77,7 @@ defmodule MoodleNetWeb.MemberLive do
         context: %{current_user: socket.assigns.current_user}
       })
 
-    IO.inspect(f)
+     IO.inspect(f)
 
     # TODO: error handling
 
