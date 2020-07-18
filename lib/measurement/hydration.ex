@@ -22,17 +22,17 @@ defmodule Measurement.Hydration do
       },
       measurement_query: %{
         units: [
+          resolve: &Measurement.Unit.GraphQL.all_units/2
+        ],
+        units_pages: [
           resolve: &Measurement.Unit.GraphQL.units/2
         ],
-        # units_pages: [
-        #   resolve: &Measurement.Unit.GraphQL.all_units/3
-        # ],
         unit: [
           resolve: &Measurement.Unit.GraphQL.unit/2
         ],
-        in_scope_of: [
-          resolve: &CommonResolver.context_edge/3
-        ],
+        # in_scope_of: [
+        #   resolve: &CommonResolver.context_edge/3,
+        # ],
         measures: [
           resolve: &Measurement.Measure.GraphQL.measures/2
         ],

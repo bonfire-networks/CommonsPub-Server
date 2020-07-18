@@ -52,6 +52,8 @@ defmodule MoodleNet.Test.Fake do
   def date_of_birth(), do: Faker.Date.date_of_birth(18..99)
   @doc "Picks a date up to 300 days in the past, not including today"
   def past_date(), do: Faker.Date.backward(300)
+  @doc "Picks a datetime up to 300 days in the past, not including today"
+  def past_datetime(), do: Faker.DateTime.backward(300)
   @doc "Picks a date up to 300 days in the future, not including today"
   def future_date(), do: Faker.Date.forward(300)
   @doc "Picks a datetime up to 300 days in the future, not including today"

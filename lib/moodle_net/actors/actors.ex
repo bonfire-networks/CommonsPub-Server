@@ -104,10 +104,10 @@ defmodule MoodleNet.Actors do
   def atomise_username(username) when is_nil(username), do: nil
 
   def atomise_username(username) do
-    username
-    |> String.replace(@wordsplit_regex, "-")
-    |> String.replace(@replacement_regex, "")
-    |> String.replace(~r/--+/, "-")
+    Slugger.slugify(username)
+    # |> String.replace(@wordsplit_regex, "-")
+    # |> String.replace(@replacement_regex, "")
+    # |> String.replace(~r/--+/, "-")
   end
 
   def prepare_username(%{:preferred_username => preferred_username} = attrs)

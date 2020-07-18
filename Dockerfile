@@ -26,7 +26,7 @@ ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
 WORKDIR $HOME
 
 # dependencies for comeonin
-RUN apk add --no-cache build-base cmake curl git rust cargo
+RUN apk add --no-cache build-base cmake curl git rust cargo npm
 
 # Cache elixir deps
 COPY mix.exs mix.lock ./

@@ -34,9 +34,9 @@ type SpatialThing {
   alt: Float
 
   "A textual description or comment."
-  note: String,
+  note: String
 
-  geom: Json,
+  geom: Json
 
   ##############################################################################
   # inverse relationships and queries - FIXME

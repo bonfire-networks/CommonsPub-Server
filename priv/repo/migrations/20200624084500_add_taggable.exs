@@ -1,5 +1,5 @@
 defmodule MoodleNet.Repo.Migrations.AddTaggable do
-    use Ecto.Migration
+  use Ecto.Migration
 
   def up do
     # Pointers.Migration.create_main_pointer_trigger_function()
@@ -9,7 +9,7 @@ defmodule MoodleNet.Repo.Migrations.AddTaggable do
     Tag.Migrations.up()
   end
 
-    def down do
-      Tag.Migrations.down()
-    end
+  def down do
+    Tag.Migrations.down()
+  end
 end
