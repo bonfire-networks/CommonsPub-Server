@@ -33,19 +33,19 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
         case object do
           %ActivityPub.Object{} ->
             # try using generated AP id
-            object_redirect(conn, object)
+            object_redirect(conn, object, uuid)
 
           _ ->
             # try with request URL as AP id
             url = current_url(conn)
             IO.inspect(RedirectController_try_url: url)
             object = ActivityPub.Object.get_cached_by_ap_id(url)
-            object_redirect(conn, object)
+            object_redirect(conn, object, uuid)
         end
     end
   end
 
-  def object_redirect(conn, object) do
+  def object_redirect(conn, object, uuid) do
     frontend_base = MoodleNet.Config.get!(:base_url)
 
     case object do
@@ -61,11 +61,11 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
              {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
           object_pointer_redirect(conn, pointer)
         else
-          _e -> redirect(conn, external: "#{frontend_base}/404#pointer_not_found")
+          _e -> redirect(conn, external: "#{frontend_base}/404/ap_has_no_pointer/" <> uuid)
         end
 
       _ ->
-        redirect(conn, external: "#{frontend_base}/404#ap_not_found")
+        redirect(conn, external: "#{frontend_base}/404/ap_not_found/" <> uuid)
     end
   end
 
@@ -79,15 +79,24 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
         redirect(conn, external: frontend_base <> "/!" <> mn_object.id <> "/discuss")
 
       %Comment{} ->
-        redirect(conn, external: frontend_base <> "/!" <> mn_object.thread_id <> "/discuss")
+        redirect(conn,
+          external:
+            frontend_base <>
+              "/!" <> mn_object.thread_id <> "/discuss/" <> mn_object.id <> "#reply"
+        )
 
       %Resource{} ->
         redirect(conn,
           external: frontend_base <> "/+" <> mn_object.collection_id
         )
 
+      %{id: id} ->
+        redirect(conn,
+          external: frontend_base <> "/!" <> id
+        )
+
       _ ->
-        redirect(conn, external: "#{frontend_base}/404#unknown_type")
+        redirect(conn, external: "#{frontend_base}/404/pointer_not_found/" <> pointer)
     end
   end
 
@@ -95,17 +104,23 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
     frontend_base = MoodleNet.Config.get!(:frontend_base_url)
 
     case ActivityPub.Adapter.get_actor_by_username(username) do
-      {:ok, %User{} = actor} ->
-        redirect(conn, external: frontend_base <> "/@" <> actor.preferred_username)
+      {:ok, %User{preferred_username: preferred_username}} ->
+        redirect(conn, external: frontend_base <> "/@" <> preferred_username)
 
-      {:ok, %Collection{} = actor} ->
-        redirect(conn, external: frontend_base <> "/+" <> actor.id)
+      {:ok, %Community{preferred_username: preferred_username}} ->
+        redirect(conn, external: frontend_base <> "/&" <> preferred_username)
 
-      {:ok, %Community{} = actor} ->
-        redirect(conn, external: frontend_base <> "/&" <> actor.id)
+      {:ok, %{preferred_username: preferred_username}} ->
+        redirect(conn, external: frontend_base <> "/+" <> preferred_username)
 
-      {:error, _e} ->
-        redirect(conn, external: "#{frontend_base}/404")
+      {:ok, %{id: id}} ->
+        redirect(conn, external: frontend_base <> "/+" <> id)
+
+      {:ok, _} ->
+        redirect(conn, external: frontend_base <> "/+" <> username)
+
+      _ ->
+        redirect(conn, external: "#{frontend_base}/404/actor_not_found/" <> username)
     end
   end
 end
