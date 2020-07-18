@@ -2,17 +2,24 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Unit.Units do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{
+    # Activities,
+    # Actors,
+    # Common,
+    # Feeds,
+    # Follows,
+    Repo
+  }
+
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias Measurement.Unit
   alias Measurement.Unit.Queries
-  alias MoodleNet.Feeds.FeedActivities
+  # alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
-
 
   @doc """
   Retrieves a single collection by arbitrary filters.
@@ -31,11 +38,10 @@ defmodule Measurement.Unit.Units do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Unit, filters))}
 
   def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
+      when is_function(group_fn, 1) do
     {:ok, fields} = many(filters)
     {:ok, Fields.new(fields, group_fn)}
   end
-
 
   @doc """
   Retrieves an Page of units according to various filters
@@ -44,10 +50,12 @@ defmodule Measurement.Unit.Units do
   * GraphQL resolver single-parent resolution
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+
+  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
     base_q = Queries.query(Unit, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
+
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
@@ -59,35 +67,50 @@ defmodule Measurement.Unit.Units do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
+
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Unit,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
+    Contexts.pages(
+      Queries,
+      Unit,
+      cursor_fn,
+      group_fn,
+      page_opts,
+      base_filters,
+      data_filters,
+      count_filters
+    )
   end
 
   ## mutations
 
-
   @spec create(User.t(), attrs :: map) :: {:ok, Unit.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-
     Repo.transact_with(fn ->
       with {:ok, unit} <- insert_unit(creator, attrs) do
-           # act_attrs = %{verb: "created", is_local: true},
-           # {:ok, activity} <- Activities.create(creator, unit, act_attrs), #FIXME
-           # :ok <- publish(creator, unit, activity, :created) do
+        # act_attrs = %{verb: "created", is_local: true},
+        # {:ok, activity} <- Activities.create(creator, unit, act_attrs), #FIXME
+        # :ok <- publish(creator, unit, activity, :created) do
         {:ok, unit}
       end
     end)
   end
 
-  @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Unit.t()} | {:error, Changeset.t()}
+  @spec create(User.t(), context :: any, attrs :: map) ::
+          {:ok, Unit.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, unit} <- insert_unit(creator, context, attrs) do
-           # act_attrs = %{verb: "created", is_local: true},
-           # {:ok, activity} <- Activities.create(creator, unit, act_attrs), #FIXME
-           # :ok <- publish(creator, context, unit, activity, :created) do
+        # act_attrs = %{verb: "created", is_local: true},
+        # {:ok, activity} <- Activities.create(creator, unit, act_attrs), #FIXME
+        # :ok <- publish(creator, context, unit, activity, :created) do
         {:ok, unit}
       end
     end)
@@ -101,38 +124,47 @@ defmodule Measurement.Unit.Units do
     Repo.insert(Measurement.Unit.create_changeset(creator, context, attrs))
   end
 
-  defp publish(creator, unit, activity, :created) do
-    feeds = [
-      creator.outbox_id,
-      Feeds.instance_outbox_id(),
-    ]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(unit.id, creator.id)
-    end
-  end
-  defp publish(creator, context, unit, activity, :created) do
-    feeds = [
-      context.outbox_id, creator.outbox_id,
-      Feeds.instance_outbox_id(),
-    ]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(unit.id, creator.id)
-    end
-  end
-  defp publish(unit, :updated) do
-    ap_publish(unit.id, unit.creator_id) # TODO: wrong if edited by admin
-  end
-  defp publish(unit, :deleted) do
-    ap_publish(unit.id, unit.creator_id) # TODO: wrong if edited by admin
-  end
+  # defp publish(creator, unit, activity, :created) do
+  #   feeds = [
+  #     creator.outbox_id,
+  #     Feeds.instance_outbox_id()
+  #   ]
 
-  defp ap_publish(context_id, user_id) do
-    MoodleNet.FeedPublisher.publish(%{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
-  end
-  defp ap_publish(_, _, _), do: :ok
+  #   with :ok <- FeedActivities.publish(activity, feeds) do
+  #     ap_publish(unit.id, creator.id)
+  #   end
+  # end
+
+  # defp publish(creator, context, unit, activity, :created) do
+  #   feeds = [
+  #     context.outbox_id,
+  #     creator.outbox_id,
+  #     Feeds.instance_outbox_id()
+  #   ]
+
+  #   with :ok <- FeedActivities.publish(activity, feeds) do
+  #     ap_publish(unit.id, creator.id)
+  #   end
+  # end
+
+  # defp publish(unit, :updated) do
+  #   # TODO: wrong if edited by admin
+  #   ap_publish(unit.id, unit.creator_id)
+  # end
+
+  # defp publish(unit, :deleted) do
+  #   # TODO: wrong if edited by admin
+  #   ap_publish(unit.id, unit.creator_id)
+  # end
+
+  # defp ap_publish(context_id, user_id) do
+  #   MoodleNet.FeedPublisher.publish(%{
+  #     "context_id" => context_id,
+  #     "user_id" => user_id
+  #   })
+  # end
+
+  # defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(%Unit{}, attrs :: map) :: {:ok, Measurement.Unit.t()} | {:error, Changeset.t()}
@@ -148,5 +180,4 @@ defmodule Measurement.Unit.Units do
   #     end
   #   end)
   # end
-
 end

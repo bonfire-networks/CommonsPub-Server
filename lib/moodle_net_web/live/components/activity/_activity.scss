@@ -1,0 +1,133 @@
+.component__activity {
+  padding: var(--m3);
+  border-bottom: var(--border);
+}
+
+.component__activity .activity__info {
+  display: flex;
+  align-items: center;
+}
+
+.component__activity img {
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+}
+
+.component__activity .info__meta {
+  margin-left: var(--m2);
+  color: lightness(var(--color-surface), 1.2);
+  font-weight: 500;
+}
+
+.component__activity .meta__action {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: lightness(var(--color-surface), 1.2);
+  font-weight: 500;
+  a {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--color-surface);
+  }
+}
+
+.component__activity .meta__action p {
+  margin: 0;
+  margin-left: 4px;
+  font-weight: 300;
+}
+
+.component__activity .meta__secondary {
+  color: var(--gray);
+  margin-left:0;
+  margin-top: var(--m1);
+  color: #767676;
+  font-weight: 200;
+  font-size: 13px;
+}
+
+.component__activity .activity__preview {
+  margin-top: var(--m2)
+}
+
+
+.inline__replies {
+  margin-top: var(--m2);
+
+
+  .activity__comment {
+    padding-left: 0;
+    &:before {
+      left: 15px;
+    }
+  }
+}
+
+.activity__comment {
+  position: relative;
+  padding: 0 var(--m3);
+  border-bottom: 0;
+  padding-bottom: var(--m3);
+  &:before {
+    position: absolute;
+    content: "";
+    left: 30px;
+    top: 46px;
+    bottom: 0px;
+    width: 2px;
+    background-color: #edeff1;
+    display: block;
+  }
+  .all__info {
+    margin-left: var(--m2);
+    flex: 1;
+    margin-top: var(--m2);
+    .discussion__reply {
+      padding: var(--m2);
+      display: flex;
+      padding-left: 0;
+    }
+    .activity__preview {
+      margin-top: var(--m1);
+    }
+  }
+  .activity__info {
+    align-items: normal;
+    padding-top: var(--m2);
+    img {
+      width: 32px;
+      height: 32px;
+    }
+  }
+  .info__meta {
+    display: flex;
+    align-items: center;
+    margin-left: 0;
+    .meta__secondary {
+      margin-left: var(--m2);
+      color: #767676;
+      font-weight: 200;
+    }
+  }
+}
+
+.preview__more {
+  padding: var(--m2);
+  padding-left: 0;
+  @include text-gray;
+  color: lightness(var(--color-surface), 1.5);
+  font-size: 14px;
+  margin-top: var(--m2);
+  cursor: pointer;
+
+}
+
+.liked__activity {
+  border: var(--border);
+    border-radius: var(--m1);
+    /* display: flex; */
+    padding: var(--m2);
+    align-items: center;
+}

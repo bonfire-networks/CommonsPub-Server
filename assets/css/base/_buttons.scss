@@ -1,0 +1,165 @@
+// DEFAULT BUTTON MIXIN
+@mixin button($bg: var(--color-primary), $color: var(--color-primary-alt)) {
+  @include reset;
+  font-family: inherit;
+  border-radius: 5px;
+  background: $bg;
+  border: 1px solid lightness($bg, 0.8);
+  color: $color;
+  padding: var(--m2) var(--m3);
+  font-size: 1rem;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 100px;
+  white-space: nowrap;
+  vertical-align: middle;
+
+  cursor: pointer;
+  transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+  &:hover {
+    background: lightness($bg, 0.8);
+    text-decoration: none;
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px lightness($bg, 1.4);
+  }
+
+  &[disabled] {
+    color: #d2d5db;
+    background: #6c7589;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-classic(
+  $bg: var(--color-button-classic),
+  $color: var(--color-primary)
+) {
+  @include button($bg: var(--color-primary-alt), $color: var(--color-primary));
+  background-color: $bg;
+  border: 1px solid lightness($bg, 0.9);
+  box-shadow: 0 1px 0 lightness($bg, 0.9), inset 0 1px 0 lightness($bg, 0.98);
+  transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+
+  &:hover {
+    background-color: lightness($bg, 0.98);
+    text-decoration: none;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px lightness($bg, 0.96);
+  }
+}
+
+@mixin button-link($color: var(--color-primary)) {
+  background: var(--color-background);
+  color: $color;
+  border: none;
+  cursor: pointer;
+  &:hover {
+    background: inherit;
+    color: lightness($color, 0.8);
+  }
+}
+
+@mixin button-outline($bg: var(--color-primary), $color: var(--color-primary)) {
+  @include button($bg: $bg, $color: $color);
+  // border: 1px solid $bg;
+  box-shadow: 0 0 0px 1px $bg;
+  background: var(--color-background);
+  color: $color;
+  border: none;
+
+  &:hover {
+    background: var(--color-background);
+    color: lightness($color, 0.8);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px lightness($bg, 1.4);
+  }
+}
+
+// BUTTON ONLY ICON
+@mixin button-only-icon(
+  $bg: var(--color-primary),
+  $color: var(--color-primary-alt)
+) {
+  @include button($bg: $bg, $color: $color);
+  border: none;
+  display: flex;
+  padding: 6px 10px;
+  min-width: initial;
+  text-align: center;
+  & i {
+    font-size: 20px;
+  }
+}
+
+// BUTTON ONLY ICON
+@mixin button-outline-only-icon(
+  $bg: var(--color-primary),
+  $color: var(--color-primary)
+) {
+  @include button-only-icon($bg: $bg, $color: $color);
+  box-shadow: 0 0 0px 1px $bg;
+  background: var(--color-background);
+  color: $color;
+  border: none;
+
+  &:hover {
+    background: var(--color-background);
+    color: lightness($color, 0.8);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px lightness($bg, 1.4);
+  }
+  border: none;
+}
+
+/* ---- DEFAULT TAG AND CLASSES --- */
+
+button {
+  @include button();
+}
+
+.button {
+  @include button-classic();
+}
+
+.button-primary {
+  @include button();
+}
+
+.button-link {
+  @include button-link;
+}
+
+.button-outline {
+  @include button-outline();
+}
+
+.button-classic-only-icon {
+  @include button-classic;
+  min-width: auto;
+  width: auto;
+}
+
+.button-only-icon {
+  @include button-only-icon(
+    $bg: var(--color-primary),
+    $color: var(--color-primary-alt)
+  );
+}
+
+.button-outline-only-icon {
+  @include button-outline-only-icon(
+    $bg: var(--color-primary),
+    $color: var(--color-primary)
+  );
+}

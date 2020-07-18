@@ -7,11 +7,11 @@ defmodule Measurement.Measure.GraphQL do
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,
-    ResolvePage,
-    ResolvePages,
+    # ResolvePage,
+    # ResolvePages,
     ResolveRootPage,
     FetchPage,
-    FetchPages,
+    # FetchPages,
     FetchFields
   }
 

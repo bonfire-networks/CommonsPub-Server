@@ -2,24 +2,25 @@ defmodule Measurement.Hydration do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNetWeb.GraphQL.CommonResolver
-  alias Organisation
+
+  alias Circle
 
   def hydrate() do
     %{
       unit_context: [
-        resolve_type: &__MODULE__.resolve_context_type/2,
+        resolve_type: &__MODULE__.resolve_context_type/2
       ],
       unit: %{
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3,
-        ],
+          resolve: &CommonResolver.context_edge/3
+        ]
       },
       measure: %{
         has_unit: [
-          resolve: &Measurement.Measure.GraphQL.has_unit_edge/3,
+          resolve: &Measurement.Measure.GraphQL.has_unit_edge/3
         ]
       },
-      query: %{
+      measurement_query: %{
         units: [
           resolve: &Measurement.Unit.GraphQL.all_units/2
         ],
@@ -42,7 +43,7 @@ defmodule Measurement.Hydration do
           resolve: &Measurement.Measure.GraphQL.measure/2
         ]
       },
-      mutation: %{
+      measurement_mutation: %{
         create_unit: [
           resolve: &Measurement.Unit.GraphQL.create_unit/2
         ],
@@ -55,12 +56,12 @@ defmodule Measurement.Hydration do
         update_measure: [
           resolve: &Measurement.Measure.GraphQL.update_measure/2
         ]
-      },
+      }
     }
   end
 
   def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%Collection{}, _), do: :collection
-  def resolve_context_type(%Organisation{}, _), do: :organisation
-  # def resolve_context_type(%{}, _), do: :community
+  def resolve_context_type(%Circle{}, _), do: :circle
+  def resolve_context_type(%{}, _), do: :community
 end

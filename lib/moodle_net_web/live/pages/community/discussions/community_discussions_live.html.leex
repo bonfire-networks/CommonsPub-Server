@@ -1,0 +1,33 @@
+<div>
+<div class="community__discussion__actions">
+  <input placeholder="Search discussions..."/>
+  <button>New discussion</button>
+</div>
+<div class="mainContent__selected">
+  <h3 class="area__title">discussions</h3>
+  <div
+      id="community-discussions"
+      phx-update="append"
+      data-page="<%= @page %>"
+      class="selected__area"><%= for thread <- @threads do %>
+      <%= live_component(
+                @socket,
+                DiscussionPreviewLive,
+                id: "thread-#{thread.id}",
+                thread: thread,
+                current_use: @current_user
+              )
+            %>
+    <% end %></div>
+  <%= if @has_next_page do %>
+    <div class="pagination">
+      <button
+          class="button--outline"
+          phx-click="load-more"
+          phx-target="<%= @pagination_target %>">
+        load more
+      </button>
+    </div>
+  <% end %>
+</div>
+</div>

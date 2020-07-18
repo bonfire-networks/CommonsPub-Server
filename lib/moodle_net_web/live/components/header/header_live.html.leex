@@ -1,0 +1,17 @@
+<header class="page__header">
+  <div class="header__left">
+    <%= live_redirect to: "/~" do %>
+      <img src="<%=@app_icon%>" alt="<%=@app_name%>" />
+    <% end %>
+    <input placeholder="Search..." />
+    <%= live_redirect to: "/~", class: "button button-clear" do %>
+      My Timeline<% end %>
+  </div>
+  <div class="header__right">
+    <%= live_redirect to: "/write", class: "button" do %>
+      <i class="feather-file-text"></i> New story<% end %>
+    <div class="header__avatar">
+      <%= live_redirect to: "/~/profile" do %><img src="<%=e(@user, :icon_url, "") %>" /><% end %>
+    </div>
+  </div>
+</header>

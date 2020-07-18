@@ -4,30 +4,29 @@ defmodule Geolocation.GraphQL do
   require Logger
 
   alias MoodleNet.{
-    Activities,
+    # Activities,
     GraphQL,
-    Repo,
-    Meta.Pointers
+    Repo
   }
 
   alias MoodleNet.GraphQL.{
-    ResolvePage,
+    # ResolvePage,
     ResolvePages,
     ResolveField,
-    ResolveFields,
+    # ResolveFields,
     ResolveRootPage,
-    FetchPage,
-    FetchPages,
-    CommonResolver
+    FetchPage
+    # FetchPages,
+    # CommonResolver
   }
 
   # alias MoodleNet.Resources.Resource
-  alias MoodleNet.Common.Enums
+  # alias MoodleNet.Common.Enums
 
   alias Geolocation
   alias Geolocation.Geolocations
   alias Geolocation.Queries
-  alias Organisation
+  alias Circle
 
   # SDL schema import
 
@@ -94,44 +93,29 @@ defmodule Geolocation.GraphQL do
     })
   end
 
-  def fetch_outbox_edge({page_opts, info}, id) do
-    user = info.context.current_user
+  # def fetch_outbox_edge(page_opts, info, id) do
+  #   user = info.context.current_user
 
-    {:ok, box} =
-      Activities.page(
-        & &1.id,
-        & &1.id,
-        page_opts,
-        feed: id,
-        table: default_outbox_query_contexts()
-      )
+  #   Activities.page(
+  #     & &1.id,
+  #     page_opts,
+  #     feed: id,
+  #     table: default_outbox_query_contexts()
+  #   )
+  # end
 
-    box
-  end
-
-  def fetch_outbox_edge(page_opts, info, id) do
-    user = info.context.current_user
-
-    Activities.page(
-      & &1.id,
-      page_opts,
-      feed: id,
-      table: default_outbox_query_contexts()
-    )
-  end
-
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Geolocations)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
-  end
+  # defp default_outbox_query_contexts() do
+  #   Application.fetch_env!(:moodle_net, Geolocations)
+  #   |> Keyword.fetch!(:default_outbox_query_contexts)
+  # end
 
   ## finally the mutations...
 
   def create_geolocation(%{spatial_thing: attrs, in_scope_of: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: context_id),
-           context = Pointers.follow!(pointer),
+           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+           context = MoodleNet.Meta.Pointers.follow!(pointer),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, g} <- Geolocations.create(user, context, attrs) do
         {:ok, %{spatial_thing: g}}

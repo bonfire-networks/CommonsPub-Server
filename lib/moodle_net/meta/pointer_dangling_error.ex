@@ -6,11 +6,11 @@ defmodule MoodleNet.Meta.PointerDanglingError do
   @enforce_keys [:pointer]
   defstruct @enforce_keys
 
-  alias MoodleNet.Meta.Pointer
-  
-  @type t :: %__MODULE__{ pointer: Pointer.t() }
+  alias Pointers.Pointer
+
+  @type t :: %__MODULE__{pointer: Pointer.t()}
 
   @spec new(Pointer.t()) :: t()
   @doc "Create a new PointerDanglingError with the given Pointer pointer"
-  def new(%Pointer{}=pointer), do: %__MODULE__{pointer: pointer}
+  def new(%Pointer{} = pointer), do: %__MODULE__{pointer: pointer}
 end

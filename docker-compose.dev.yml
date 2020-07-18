@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   web:
@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: "Dockerfile.dev"
     ports:
-      - "4004:4000"
+      - "4004:4004"
     env_file:
       - config/docker.dev.env
     depends_on:
@@ -18,14 +18,25 @@ services:
       - type: bind
         source: .
         target: /opt/app
+      - type: bind
+        source: /usr/share/dict/words
+        target: /usr/share/dict/words
   db:
-    image: postgis/postgis:9.6-3.0-alpine
-    # volumes:
-    #   - "./volumes/postgres:/var/lib/postgresql/data"
+    image: postgis/postgis:12-3.0-alpine
+    volumes:
+      - "./data/postgres:/var/lib/postgresql/data"
     ports:
       - "5432:5432"
     env_file:
       - config/docker.dev.env
+  dbeaver:
+    image: dalongrong/cloudbeaver
+    ports:
+      - "8978:8978"
+    depends_on:
+      - db
+    # volumes:
+    #   - "/var/log/cloudbeaver.log:/var/log/cloudbeaver/server.log"
   # redis:
   #   image: redislabs/redisgraph
   #   ports:
@@ -37,8 +48,10 @@ services:
   #     - "8080:8080"
   #     - "9080:9080"
   search:
-    image: getmeili/meilisearch
+    image: getmeili/meilisearch:latest
     ports:
       - "7700:7700"
     volumes:
       - "./data/search:/data.ms"
+    env_file:
+      - config/docker.dev.env

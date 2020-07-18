@@ -2,17 +2,20 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Workers.GargageCollector do
-  use Oban.Worker, queue: "mn_garbage_collector",
-    max_attempts: 1, # If it fails, it fails
-    unique: [period: 600] # For emergencies only, once a week is better
+  use Oban.Worker,
+    queue: "mn_garbage_collector",
+    # If it fails, it fails
+    max_attempts: 1,
+    # For emergencies only, once a week is better
+    unique: [period: 600]
 
-  import Ecto.Query
+  # import Ecto.Query
 
   @impl Worker
   def perform(override_opts, _job) do
     opts = Map.new(Application.fetch_env!(:moodle_net, __MODULE__))
     opts = Enum.reduce(override_opts, opts, &option/2)
-    stats = %{mark: mark(opts), sweep: sweep(opts)}
+    _stats = %{mark: mark(opts), sweep: sweep(opts)}
     :ok
   end
 
@@ -22,7 +25,7 @@ defmodule MoodleNet.Workers.GargageCollector do
     Map.put(stats, context, phase(fn -> context.mark() end))
   end
 
-  defp sweep(%{sweep: sweep}=options), do: Enum.reduce(sweep, %{}, &sweep(options, &1, &2))
+  defp sweep(%{sweep: sweep} = options), do: Enum.reduce(sweep, %{}, &sweep(options, &1, &2))
 
   defp sweep(%{grace: grace}, context, stats) do
     Map.put(stats, context, phase(fn -> context.sweep(grace) end))
@@ -36,9 +39,11 @@ defmodule MoodleNet.Workers.GargageCollector do
   end
 
   defp option({"mark", v}, opts) when is_list(v), do: Map.put(opts, :mark, Enum.map(v, &module/1))
-  defp option({"sweep", v}, opts) when is_list(v), do: Map.put(opts, :sweep, Enum.map(v, &module/1))
+
+  defp option({"sweep", v}, opts) when is_list(v),
+    do: Map.put(opts, :sweep, Enum.map(v, &module/1))
+
   defp option({"grace", v}, opts) when is_integer(v), do: Map.put(opts, :grace, v)
 
   defp module(str), do: String.to_existing_atom(str)
-
 end

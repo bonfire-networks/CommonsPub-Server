@@ -10,7 +10,7 @@
 #
 ##
 
-union UnitContext = Community | Collection
+union UnitContext = Circle | Community | Collection
 
 """
 Defines the unit of time measured in a temporal `Duration`.

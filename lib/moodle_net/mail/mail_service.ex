@@ -12,18 +12,17 @@ defmodule MoodleNet.Mail.MailService do
     Application.get_env(:moodle_net, __MODULE__, [])
     |> Keyword.get(:adapter)
     |> case do
-         nil -> nil
-         other -> __MODULE__.deliver_later(mail)
-       end
+      nil -> nil
+      _other -> __MODULE__.deliver_later(mail)
+    end
   end
 
   def maybe_deliver_now(mail) do
     Application.get_env(:moodle_net, __MODULE__, [])
     |> Keyword.get(:adapter)
     |> case do
-         nil -> nil
-         other -> __MODULE__.deliver_now(mail)
-       end
+      nil -> nil
+      _other -> __MODULE__.deliver_now(mail)
+    end
   end
-
 end

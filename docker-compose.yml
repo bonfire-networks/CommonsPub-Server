@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   backend:
@@ -6,6 +6,7 @@ services:
     # $ make build
     # $ make tag_latest
     image: "commonspub/commonspub:latest"
+    restart: always
     ports:
       - "4000:4000" # you may want to comment this in production
       - "80:80"
@@ -19,7 +20,7 @@ services:
         source: ./uploads
         target: /var/www/uploads
   db:
-    image: postgis/postgis:9.6-3.0-alpine
+    image: postgis/postgis:12-3.0-alpine
     # volumes:
     #   - "./volumes/postgres:/var/lib/postgresql/data"
     # ports:

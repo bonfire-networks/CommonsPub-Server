@@ -1,0 +1,33 @@
+<div class="guest__container">
+<div class="standard__bg"></div>
+<div class="page__signup">
+    <div class="login__form">
+      <h1>Create a new account</h1>
+      <div class="form__wrapper">
+        <form method="post" phx-submit="signup">
+          <div class="form__container">
+            <label for="email">Email</label>
+            <input name="email" type="text" placeholder="Enter your email..." />
+          </div>
+          <div class="form__container">
+            <label for="name">Name</label>
+            <input name="name" placeholder="Enter your name or pseudonym..." />
+          </div>
+          <div class="form__container">
+            <label for="preferred_username">Username</label>
+            <input name="preferred_username" type="text" placeholder="Choose a username..." />
+          </div>
+          <div class="form__container">
+            <label for="password">Password</label>
+            <input name="password" type="password" placeholder="Enter a password..." />
+          </div>
+          <div class="form__container">
+            <input name="password2" type="password" placeholder="Repeat your password..." />
+          </div>
+          <button type="submit">Sign up</button>
+        </form>
+      </div>
+    </div>
+    <div class="login__footer"></div>
+    </div>
+</div>

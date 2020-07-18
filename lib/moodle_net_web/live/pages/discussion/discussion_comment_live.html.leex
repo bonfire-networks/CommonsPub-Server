@@ -1,0 +1,84 @@
+<div id="comment-<%= e(@comment, :id, "") %>" class="activity__comment component__activity <%= if @comment.id == @reply_to, do: "highlight" %>">
+<%= if @comment.id == @reply_to, do: r("<span id=reply></span>") %>
+
+  <div class="activity__info">
+    <%= live_redirect to: "/@"<> e(@comment, :creator, :actor, :preferred_username, "deleted")  do %>
+      <img src="<%= e(@comment, :creator, :icon_url, "") %>" alt="icon" />
+<% end %>
+<div class="all__info">
+  <div class="info__meta">
+    <div class="meta__action">
+      <%= live_redirect to: "/@"<> e(@comment, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@comment, :creator, :name, "Somebody") %><% end %>
+    </div>
+    <div class="meta__secondary">
+     · <%= e(@comment, :published_at, "one day") %>
+    </div>
+  </div>
+  <div class="activity__preview">
+    <%= live_component(
+          @socket,
+          CommentPreviewLive,
+          current_user: @current_user,
+          comment: @comment,
+          id: @comment.id
+        ) %>
+  </div>
+  <%= if length(@comment.comments)>0 do %>
+    <%= if @comment.id == @reply_to do %>
+      <div class="inline__replies">
+        <%= for reply <- @comment.comments do %>
+          <%= live_component(
+                @socket,
+                DiscussionCommentLive,
+                id: "comment-#{reply.id}",
+                comment: reply,
+                current_user: @current_user,
+                reply_to: @reply_to
+              )%>
+        <% end %>
+      </div>
+    <% end %>
+    <%= if @comment.id != @reply_to do %>
+      <div class="preview__fork">
+        <%= for reply <- @comment.comments do %>
+          <%= live_component(
+                @socket,
+                DiscussionSubCommentLive,
+                id: "comment-#{reply.id}",
+                comment: reply,
+                current_user: @current_user,
+                reply_to: @reply_to,
+                sublevel: 5
+              )%>
+        <% end %>
+        <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
+          <div class="comment__fork">View full thread <%# (<%= length(@comment.comments) %></div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+  <%= if @comment.id == @reply_to do %>
+    <div id="reply" class="discussion__reply">
+      <form phx-submit="reply">
+        <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+        <div class="reply__box">
+          <div id="editor" phx-hook="MarkdownEditor">
+            <textarea id="content" name="content" placeholder="Write a reply..."></textarea>
+            <div id="editor-visual" phx-ignore="true">
+              <div id="editor-markdown"></div>
+            </div>
+          </div>
+          <div class="header__actions">
+            <button>Comment</button>
+            <div class="header__controls">
+              <input name="editor-style" id="editor-style" type="checkbox" class="switch">
+              <label for="editor-style">Use visual editor </label>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  <% end %>
+</div>
+</div>
+</div>

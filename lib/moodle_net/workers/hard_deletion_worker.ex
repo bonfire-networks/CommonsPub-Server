@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Workers.HardDeletionWorker do
   use Oban.Worker, queue: "mn_hard_deletion", max_attempts: 1
-  import Ecto.Query
+
+  # import Ecto.Query
   # alias MoodleNet.{
   #   Actors,
   #   Collections,
@@ -27,8 +28,7 @@ defmodule MoodleNet.Workers.HardDeletionWorker do
     # Collections.hard_delete() # Community, Actor
     # Communities.hard_delete() # Actor
     # Users.hard_delete() # Actors
-    # Actors.hard_delete() 
+    # Actors.hard_delete()
     :ok
   end
-
 end

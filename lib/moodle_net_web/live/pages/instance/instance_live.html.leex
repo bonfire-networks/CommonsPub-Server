@@ -1,0 +1,86 @@
+<div class="page__mainContent">
+  <section class="instance">
+    <div class="instance__hero">
+      <h1><%= @hostname %></h1>
+    </div>
+    <div class="mainContent__navigation home__navigation">
+      <%= live_patch link_body("About", "feather-book-open"),
+            to: "/instance/about",
+            class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
+          %>
+      <%= live_patch link_body("Instance Timeline","feather-activity"),
+            to: "/instance/timeline",
+            class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
+          %>
+      <%= live_patch link_body("Communities", "feather-users"),
+            to: "/instance/communities",
+            class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
+          %>
+      <%= live_patch link_body("Members", "feather-user"),
+            to: "/instance/members",
+            class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
+          %>
+    </div>
+    <div class="mainContent__selected">
+      <%= cond do %>
+        <% @selected_tab == "about" ->  %>
+        <div class="selected__area instance__about">
+          <%= live_component(
+                  @socket,
+                  AboutLive,
+                  description: @description,
+                  id: :about
+                )
+              %>
+        </div>
+        <% @selected_tab == "timeline" -> %>
+        <%= live_component(
+                @socket,
+                InstanceActivitiesLive,
+                selected_tab: @selected_tab,
+                id: :timeline,
+                current_user: @current_user,
+                activities: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#instance-activities"
+              ) %>
+        <% @selected_tab == "members" -> %>
+        <%= live_component(
+              @socket,
+              InstanceMembersLive,
+              selected_tab: @selected_tab,
+              id: :members,
+              current_user: @current_user,
+              members: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-members"
+          ) %>
+        <% @selected_tab == "communities" -> %>
+        <%= live_component(
+              @socket,
+              InstanceCommunitiesLive,
+              selected_tab: @selected_tab,
+              id: :communities,
+              current_user: @current_user,
+              communities: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-communities"
+          ) %>
+        <% true -> %>
+        <%= live_component(
+              @socket,
+              TabNotFoundLive
+          ) %>
+      <% end %>
+    </div>
+  </section>
+</div>

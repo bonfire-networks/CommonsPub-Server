@@ -3,12 +3,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Blocks.Block do
   use MoodleNet.Common.Schema
+
   import MoodleNet.Common.Changeset,
     only: [change_public: 1, change_synced_timestamp: 3, change_muted: 1]
+
   alias Ecto.Changeset
   alias MoodleNet.Blocks
   alias MoodleNet.Blocks.Block
-  alias MoodleNet.Meta.{Pointer}
+  alias Pointers.Pointer
   alias MoodleNet.Users.User
 
   @type t :: %Block{}
@@ -67,5 +69,4 @@ defmodule MoodleNet.Blocks.Block do
   def queries_module, do: Blocks.Queries
 
   def follow_filters, do: []
-
 end

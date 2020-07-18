@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities do
   alias Ecto.Changeset
+
   alias MoodleNet.{
     Activities,
     Actors,
@@ -15,10 +16,11 @@ defmodule MoodleNet.Communities do
     Follows,
     Likes,
     Repo,
-    Threads,
+    Threads
   }
+
   alias MoodleNet.Communities.{Community, Queries}
-  alias MoodleNet.FeedPublisher
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
@@ -41,7 +43,6 @@ defmodule MoodleNet.Communities do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do
-
     attrs = Actors.prepare_username(attrs)
 
     Repo.transact_with(fn ->
@@ -52,8 +53,8 @@ defmodule MoodleNet.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
            :ok <- publish(creator, comm, activity),
-           :ok <- ap_publish("create", comm),
-           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(comm) do
+           :ok <- ap_publish("create", comm) do
+        MoodleNet.Algolia.Indexer.maybe_index_object(comm)
         {:ok, comm}
       end
     end)
@@ -68,6 +69,7 @@ defmodule MoodleNet.Communities do
            act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity) do
+        MoodleNet.Algolia.Indexer.maybe_index_object(comm)
         {:ok, comm}
       end
     end)
@@ -92,16 +94,17 @@ defmodule MoodleNet.Communities do
 
   defp insert_community(creator, actor, attrs) do
     with {:ok, community} <- Repo.insert(Community.create_changeset(creator, actor, attrs)) do
-      {:ok, %{ community | actor: actor }}
+      {:ok, %{community | actor: actor}}
     end
   end
 
-  @spec update(User.t(), %Community{}, attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
-  def update(%User{}=user, %Community{} = community, attrs) when is_map(attrs) do
+  @spec update(User.t(), %Community{}, attrs :: map) ::
+          {:ok, Community.t()} | {:error, Changeset.t()}
+  def update(%User{} = user, %Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
            {:ok, actor} <- Actors.update(user, community.actor, attrs),
-           community <- %{ comm | actor: actor },
+           community <- %{comm | actor: actor},
            :ok <- ap_publish("update", community) do
         {:ok, community}
       end
@@ -112,7 +115,7 @@ defmodule MoodleNet.Communities do
     Repo.update_all(Queries.query(Community, filters), set: updates)
   end
 
-  def soft_delete(%User{}=user, %Community{} = community) do
+  def soft_delete(%User{} = user, %Community{} = community) do
     Repo.transact_with(fn ->
       with {:ok, community} <- Common.soft_delete(community),
            %{community: comms, feed: feeds} = deleted_ids([community]),
@@ -123,25 +126,34 @@ defmodule MoodleNet.Communities do
     end)
   end
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:deleted, false}, {:select, :delete} | filters], deleted_at: DateTime.utc_now())
-        %{community: community, feed: feed} = deleted_ids(ids)
-        with :ok <- chase_delete(user, community, feed) do
-          ap_publish("delete", community)
-        end
-      end), do: :ok
+           Repo.transact_with(fn ->
+             {_, ids} =
+               update_by(user, [{:deleted, false}, {:select, :delete} | filters],
+                 deleted_at: DateTime.utc_now()
+               )
+
+             %{community: community, feed: feed} = deleted_ids(ids)
+
+             with :ok <- chase_delete(user, community, feed) do
+               ap_publish("delete", community)
+             end
+           end),
+         do: :ok
   end
 
   defp deleted_ids(records) do
     Enum.reduce(records, %{community: [], feed: []}, fn
       %{id: id, inbox_id: nil, outbox_id: nil}, acc ->
         Map.put(acc, :community, [id | acc.community])
+
       %{id: id, inbox_id: nil, outbox_id: o}, acc ->
         Map.merge(acc, %{community: [id | acc.community], feed: [o | acc.feed]})
+
       %{id: id, inbox_id: i, outbox_id: nil}, acc ->
         Map.merge(acc, %{community: [id | acc.community], feed: [i | acc.feed]})
+
       %{id: id, inbox_id: i, outbox_id: o}, acc ->
         Map.merge(acc, %{community: [id | acc.community], feed: [i, o | acc.feed]})
     end)
@@ -159,6 +171,7 @@ defmodule MoodleNet.Communities do
       :ok
     end
   end
+
   defp chase_delete(user, communities, feeds) do
     with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, communities, [])
   end
@@ -184,11 +197,11 @@ defmodule MoodleNet.Communities do
     APPublishWorker.batch_enqueue(verb, communities)
     :ok
   end
+
   defp ap_publish(verb, %{actor: %{peer_id: nil}} = community) do
     APPublishWorker.enqueue(verb, %{"context_id" => community.id})
     :ok
   end
 
   defp ap_publish(_, _), do: :ok
-
 end

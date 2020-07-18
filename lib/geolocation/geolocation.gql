@@ -10,14 +10,7 @@
 ##
 
 # Dynamically supplied by application
-union GeoScope = Collection | Community
-
-interface TestingHydrations { # temporary test
-  id: ID 
-}
-type TestPresent implements TestingHydrations {
-  id: ID 
-}
+union GeoScope = Collection | Community | Circle
 
 """
 A physical mappable location.

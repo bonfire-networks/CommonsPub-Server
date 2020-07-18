@@ -1,0 +1,28 @@
+<div id="my_communities">
+  <div
+  phx-update="append"
+  data-page="<%= @page %>"
+  class="selected__area">
+    <%= for community <- @my_communities do %>
+    <div class="preview__wrapper">
+      <%= live_component(
+            @socket,
+            CommunityPreviewLive,
+            id: "community-#{community.id}",
+            community: community
+          )
+        %>
+      </div>
+    <% end %>
+  </div>
+  <%= if @has_next_page do %>
+  <div class="pagination">
+    <button
+      class="button--outline"
+      phx-click="load-more"
+      phx-target="<%= @pagination_target %>">
+      load more
+    </button>
+  </div>
+  <% end %>
+</div>

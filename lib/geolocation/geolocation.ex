@@ -6,7 +6,8 @@ defmodule Geolocation do
   alias Ecto.Changeset
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
+  alias MoodleNet.Feeds.Feed
 
   @type t :: %__MODULE__{}
 

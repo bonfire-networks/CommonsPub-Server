@@ -4,11 +4,11 @@
 defmodule Locales.Language do
   use Ecto.Schema
 
-  alias Ecto.Changeset
+  # alias Ecto.Changeset
 
   @type t :: %__MODULE__{}
 
-  @primary_key{:id, :string, autogenerate: false}
+  @primary_key {:id, :string, autogenerate: false}
   schema "languages" do
     # field(:id, :string)
     field(:main_name, :string)
@@ -22,6 +22,4 @@ defmodule Locales.Language do
     field(:speakers_native_total, :integer)
     field(:rtl, :boolean)
   end
-
-
 end

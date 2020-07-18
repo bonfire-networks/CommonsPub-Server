@@ -1,0 +1,17 @@
+.member__filters {
+  .header__controls {
+    margin-bottom: var(--m3);
+  }
+}
+
+.search__navigation {
+  @include content_navigation
+}
+.additional__filters {
+  margin-top: var(--m3);
+  @include content_navigation;
+  .filters__item {
+    margin-top: var(--m2)
+  }
+
+}

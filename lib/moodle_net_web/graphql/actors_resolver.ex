@@ -6,9 +6,11 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   Resolver functions shared between actor types.
   """
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Instance
+
+  # alias MoodleNet.Instance
+
   # import Absinthe.Resolution.Helpers, only: [batch: 3]
-  
+
   @doc "Returns the canonical url for the actor"
   def canonical_url_edge(%{actor: %Actor{canonical_url: u}}, _, _), do: {:ok, u}
 
@@ -18,12 +20,7 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   @doc "Is this actor local to this instance?"
   def is_local_edge(%{actor: %Actor{peer_id: id}}, _, _), do: {:ok, is_nil(id)}
 
-  def display_username_edge(%{actor: %Actor{peer_id: nil, preferred_username: name}}, _, _) do
-    {:ok, name <> "@" <> Instance.hostname()}
+  def display_username_edge(obj, _, _) do
+    {:ok, MoodleNet.Actors.display_username(obj)}
   end
-
-  def display_username_edge(%{actor: %Actor{preferred_username: name}}, _, _) do
-    {:ok, name}
-  end
-
 end

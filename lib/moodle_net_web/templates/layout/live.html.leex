@@ -1,0 +1,66 @@
+<div id="template" class="page__container">
+  <div class="cpub__header">
+    <div class="header__left">
+      <details class="dialog__container aside">
+        <summary class="aside__dialog"><i class="feather-grid"></i></summary>
+        <aside>
+          <h2>CommonsPub apps</h2>
+          <nav>
+            <div class="aside__app">commonspub</div>
+            <div class="aside__app">Mutual Aid</div>
+            <div class="aside__app">VoxPub</div>
+            <div class="aside__app">haha!</div>
+          </nav>
+        </aside>
+      </details>
+      <%= live_redirect to: "/~" do %>
+        <h3>CommonsPub</h3>
+      <% end %>
+    </div>
+    <input placeholder="Search in the fediverse..." />
+    <div class="header__right">
+      <%= live_redirect to: "/instance" do %>
+      <span class="right__notification"><i class="feather-compass"></i></span>
+      <% end %>
+      <span class="right__notification"><i class="feather-bell"></i></span>
+      <%= if @current_user do %>
+        <%= live_component(
+          @socket,
+          MoodleNetWeb.My.MyHeader,
+          current_user: @current_user,
+          id: :my_header
+        ) %>
+      <% end %>
+      <%= if @current_user == nil do %>
+        <div class="panel__item">
+          <%= live_redirect to: "/~/login", class: "button" do %>
+            <i class="feather-log-in"></i> Log in
+          <% end %>
+        </div>
+        <div class="panel__item">
+          <%= live_redirect to: "/~/signup", class: "button" do %>
+            <i class="feather-zap"></i> Sign up
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <div  class="page <%= if !@current_user , do: "guest", else: "logged" %>">
+    <%= if @current_user do %>
+      <%= live_component(
+          @socket,
+          MoodleNetWeb.My.MySidebar,
+          current_user: @current_user,
+          my_communities: @my_communities,
+          id: :my_sidebar,
+          show_title: @show_title,
+          show_communities: @show_communities
+        ) %>
+    <% end %>
+    <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
+      <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+      <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+      <%= @inner_content %>
+    </section>
+  </div>
+</div>

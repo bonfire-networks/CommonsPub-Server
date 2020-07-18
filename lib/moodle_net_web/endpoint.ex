@@ -9,9 +9,18 @@ defmodule MoodleNetWeb.Endpoint do
   """
   use Phoenix.Endpoint, otp_app: :moodle_net
 
+  @session_options [
+    store: :cookie,
+    key: "_session_key",
+    signing_salt: "CqAoopA2"
+  ]
+
   if is_binary(System.get_env("SENTRY_DSN")) and is_binary(System.get_env("SENTRY_ENV")) do
     use Sentry.Phoenix.Endpoint
   end
+
+  # Liveview support
+  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
   if code_reloading? do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
@@ -22,12 +31,23 @@ defmodule MoodleNetWeb.Endpoint do
   plug(Plug.RequestId)
   plug(Plug.Logger)
 
+  plug Plug.Session, @session_options
+
   plug(MoodleNetWeb.Plugs.Static)
 
-  {max_file_size, _} = :moodle_net
-  |> Application.fetch_env!(MoodleNet.Uploads)
-  |> Keyword.fetch!(:max_file_size)
-  |> Integer.parse()
+  # Serve at "/" the static files from "priv/static" directory.
+  # Liveview customization
+  plug Plug.Static,
+    at: "/",
+    from: :moodle_net,
+    gzip: false,
+    only: ~w(css fonts images js favicon.ico robots.txt)
+
+  {max_file_size, _} =
+    :moodle_net
+    |> Application.fetch_env!(MoodleNet.Uploads)
+    |> Keyword.fetch!(:max_file_size)
+    |> Integer.parse()
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
@@ -38,13 +58,6 @@ defmodule MoodleNetWeb.Endpoint do
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)
-
-  plug(
-    Plug.Session,
-    store: :cookie,
-    key: "_moodle_net_key",
-    signing_salt: "CqAoopA2"
-  )
 
   plug(CORSPlug)
   plug(MoodleNetWeb.Router)

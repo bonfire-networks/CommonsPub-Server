@@ -10,14 +10,15 @@ defmodule MoodleNetWeb.Plugs.SetLocale do
 
   @locales Gettext.known_locales(MoodleNetWeb.Gettext)
 
-  @pinned ["en-gb", "en"]
+  # @pinned ["en-gb", "en"]
 
   def init(_opts), do: nil
 
   def call(conn, _) do
-    # (locale_from_params(conn) || locale_from_header(conn))
-    Enum.find(@pinned, nil, &Enum.member?(@locales, &1))
+    (locale_from_params(conn) || locale_from_header(conn))
+    # Enum.find(@pinned, nil, &Enum.member?(@locales, &1))
     |> set_locale()
+
     conn
   end
 

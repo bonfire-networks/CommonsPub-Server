@@ -1,25 +1,25 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.TagsSchema do
+defmodule MoodleNetWeb.GraphQL.TagSchema do
 
   use Absinthe.Schema.Notation
   # alias MoodleNet.Collections.Collection
   # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.{CommonResolver, TagsResolver}
+  # alias MoodleNetWeb.GraphQL.{CommonResolver, TagResolver}
 
   object :tags_queries do
     # field :tag, :tag do
     #   arg :tag_id, non_null(:string)
-    #   resolve &TagsResolver.tag/2
+    #   resolve &TagResolver.tag/2
     # end
     # field :tag_category, :tag_category do
     #   arg :tag_category_id, non_null(:string)
-    #   resolve &TagsResolver.tag_category/2
+    #   resolve &TagResolver.tag_category/2
     # end
     # field :tagging, :tagging do
     #   arg :tagging_id, non_null(:string)
-    #   resolve &TagsResolver.tagging/2
+    #   resolve &TagResolver.tagging/2
     # end
   end
 
@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.GraphQL.TagsSchema do
     # field :create_tagging, :tagging do
     #   arg :context_id, non_null(:string)
     #   arg :tag_id, non_null(:string)
-    #   resolve &TagsResolver.create_tagging/2
+    #   resolve &TagResolver.create_tagging/2
     # end
 
   end

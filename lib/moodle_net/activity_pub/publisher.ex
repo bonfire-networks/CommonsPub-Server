@@ -12,12 +12,25 @@ defmodule MoodleNet.ActivityPub.Publisher do
   # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
   def comment(comment) do
     comment = Repo.preload(comment, thread: :context)
-    context = Pointers.follow!(comment.thread.context)
+
+    # IO.inspect(publish_comment: comment)
+
+    context =
+      if(comment.thread.context) do
+        MoodleNet.Meta.Pointers.follow!(comment.thread.context)
+      end
+
+    context_ap_id =
+      if(context) do
+        Utils.get_object_ap_id(context)
+      end
+
+    # IO.inspect(publish_comment_id: Utils.generate_object_ap_id(comment))
 
     with nil <- ActivityPub.Object.get_by_pointer_id(comment.id),
-         object_ap_id <- Utils.get_object_ap_id(context),
+         #  context_ap_id <- Utils.get_object_ap_id(context),
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
-         {to, cc} <- Utils.determine_recipients(actor, context, comment),
+         {to, cc} <- Utils.determine_recipients(actor, comment, context),
          ap_id <- Utils.generate_object_ap_id(comment),
          object = %{
            "id" => ap_id,
@@ -28,18 +41,23 @@ defmodule MoodleNet.ActivityPub.Publisher do
            "attributedTo" => actor.ap_id,
            "type" => "Note",
            "inReplyTo" => Utils.get_in_reply_to(comment),
-           "context" => object_ap_id
+           "context" => context_ap_id
          },
          params = %{
            actor: actor,
            to: to,
            object: object,
-           context: object_ap_id,
+           context: context_ap_id,
            additional: %{
              "cc" => cc
            }
-         } do
-      ActivityPub.create(params, comment.id)
+         },
+         {:ok, activity} <-
+           ActivityPub.create(params, comment.id) do
+      Ecto.Changeset.change(comment, %{canonical_url: activity.object.data["id"]})
+      |> Repo.update()
+
+      {:ok, activity}
     else
       e -> {:error, e}
     end
@@ -148,7 +166,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
   ## For now we just delete the folow and return an error if the followed account is private.
   def follow(follow) do
-    follow = Repo.preload(follow, creator: :actor, context: [])
+    follow = Repo.preload(follow, creator: :actor, context: [:table])
 
     with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
          followed = Pointers.follow!(follow.context),

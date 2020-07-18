@@ -7,20 +7,27 @@ defmodule MoodleNet.ActivityPub.Utils do
   alias MoodleNet.Threads.Comments
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
-  def determine_recipients(actor, parent, comment) do
-    {to, cc} =
+  def determine_recipients(actor, comment) do
+    determine_recipients(actor, comment, [@public_uri], [actor.data["followers"]])
+  end
+
+  def determine_recipients(actor, comment, parent) do
+    if(is_map(parent) and Map.has_key?(parent, :id)) do
       case ActivityPub.Actor.get_cached_by_local_id(parent.id) do
         {:ok, parent_actor} ->
-          to = [parent_actor.ap_id, @public_uri]
-          cc = [actor.data["followers"]]
-          {to, cc}
+          determine_recipients(actor, comment, [parent_actor.ap_id, @public_uri], [
+            actor.data["followers"]
+          ])
 
         _ ->
-          to = [@public_uri]
-          cc = [actor.data["followers"]]
-          {to, cc}
+          determine_recipients(actor, comment)
       end
+    else
+      determine_recipients(actor, comment)
+    end
+  end
 
+  def determine_recipients(actor, comment, to, cc) do
     # this doesn't feel very robust
     to =
       unless is_nil(get_in_reply_to(comment)) do
@@ -31,7 +38,7 @@ defmodule MoodleNet.ActivityPub.Utils do
           |> Enum.filter(fn actor -> actor end)
           |> Enum.map(fn actor -> actor.ap_id end)
 
-        participants ++ to
+        (participants ++ to)
         |> Enum.dedup()
         |> List.delete(Map.get(Actor.get_by_local_id!(actor.id), :ap_id))
       else
@@ -45,8 +52,13 @@ defmodule MoodleNet.ActivityPub.Utils do
     reply_id = Map.get(comment, :reply_to_id)
 
     if reply_id do
-      object = ActivityPub.Object.get_cached_by_pointer_id(reply_id)
-      object.data["id"]
+      case ActivityPub.Object.get_cached_by_pointer_id(reply_id) do
+        nil ->
+          nil
+
+        object ->
+          object.data["id"]
+      end
     else
       nil
     end
@@ -143,5 +155,4 @@ defmodule MoodleNet.ActivityPub.Utils do
   def get_object_canonical_url(object) do
     ActivityPub.Utils.object_url(object)
   end
-
 end

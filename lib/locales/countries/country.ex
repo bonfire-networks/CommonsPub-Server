@@ -4,11 +4,11 @@
 defmodule Locales.Country do
   use Ecto.Schema
 
-  alias Ecto.Changeset
+  # alias Ecto.Changeset
 
   @type t :: %__MODULE__{}
 
-  @primary_key{:id, :string, autogenerate: false}
+  @primary_key {:id, :string, autogenerate: false}
   schema "countries" do
     # field(:id, :string)
     field(:name_eng, :string)
@@ -29,8 +29,5 @@ defmodule Locales.Country do
     field(:language_main, :string)
     field(:currency_id, :string)
     field(:main_tz, :string)
-
   end
-
-
 end

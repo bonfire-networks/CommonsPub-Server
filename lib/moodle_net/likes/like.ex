@@ -10,25 +10,25 @@ defmodule MoodleNet.Likes.Like do
   import MoodleNet.Common.Changeset, only: [change_public: 1]
   alias MoodleNet.Likes
   alias MoodleNet.Likes.Like
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
   alias MoodleNet.Users.User
   alias Ecto.Changeset
 
   table_schema "mn_like" do
-    belongs_to :creator, User
-    belongs_to :context, Pointer
-    field :canonical_url, :string
-    field :is_local, :boolean
-    field :is_public, :boolean, virtual: true
-    field :published_at, :utc_datetime_usec
-    field :deleted_at, :utc_datetime_usec
+    belongs_to(:creator, User)
+    belongs_to(:context, Pointer)
+    field(:canonical_url, :string)
+    field(:is_local, :boolean)
+    field(:is_public, :boolean, virtual: true)
+    field(:published_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
     timestamps()
   end
 
   @create_required ~w(is_local)a
   @create_cast @create_required ++ ~w(canonical_url is_public)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id}, %{}=fields) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, %{} = fields) do
     %Like{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.change(
@@ -44,7 +44,7 @@ defmodule MoodleNet.Likes.Like do
 
   @update_cast ~w(canonical_url is_public)a
 
-  def update_changeset(%Like{}=like, %{}=fields) do
+  def update_changeset(%Like{} = like, %{} = fields) do
     like
     |> Changeset.cast(fields, @update_cast)
     |> change_public()
@@ -57,5 +57,4 @@ defmodule MoodleNet.Likes.Like do
   def queries_module, do: Likes.Queries
 
   def follow_filters, do: []
-
 end
