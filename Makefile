@@ -92,6 +92,12 @@ dev-deps-update-all: init ## Upgrade all deps
 dev-db-up: init ## Start the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
 
+dev-search-up: init ## Start the dev search index
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up search
+
+dev-services-up: init ## Start the dev DB & search index
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db search
+
 dev-db-admin: init ## Start the dev DB and dbeaver admin UI
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up dbeaver 
 

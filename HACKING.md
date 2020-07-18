@@ -47,7 +47,7 @@ make dev
 - `4000` - http listener
 - `5432` - postgres database server
 
-### Option 2 (the middle ground) - docker-managed database
+### Option 2 (the middle ground) - docker-managed database & search index
 
 Dependencies:
 
@@ -68,10 +68,10 @@ You can then install the elixir deps:
 mix deps.get
 ```
 
-Launch the database (in a second shell, preferably):
+Launch the database & search index (in a second shell, preferably):
 
 ```
-make dev-db-up
+make dev-services-up
 ```
 
 And reset it:
