@@ -70,8 +70,11 @@ defmodule MoodleNet.ActivityPub.Publisher do
            "summary" => Map.get(resource, :summary),
            "type" => "Document",
            "tag" => resource.license,
-           "author" => Utils.create_author_object(resource)
+           "author" => Utils.create_author_object(resource),
            #  "mediaType" => resource.content.media_type
+           "subject" => Map.get(resource, :subject),
+           "level" => Map.get(resource, :level),
+           "language" => Map.get(resource, :language)
          },
          params = %{
            actor: actor,

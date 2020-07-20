@@ -140,7 +140,10 @@ defmodule MoodleNet.Algolia.Indexer do
       "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode16(),
       "url" => url,
       "author" => Map.get(resource, :author),
-      "mediaType" => resource.content.media_type
+      "mediaType" => resource.content.media_type,
+      "subject" => Map.get(resource, :subject),
+      "level" => Map.get(resource, :level),
+      "language" => Map.get(resource, :language)
     }
   end
 
