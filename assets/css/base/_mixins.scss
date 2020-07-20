@@ -260,13 +260,12 @@ $grid-columns: 12 !default;
 
 @mixin content_two_sides {
   display: grid;
-  grid-template-columns: 1fr 240px;
-  max-width: 900px;
+  grid-template-columns: 1fr 340px;
   margin: 0 auto;
   grid-column-gap: var(--m3);
   margin-top: var(--m3);
   .mainContent__selected {
-    width: calc(900px - 290px);
+    width: 600px;
     border: none;
     padding: var(--m3);
     box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
@@ -330,21 +329,28 @@ $grid-columns: 12 !default;
 // DROPDOWN
 @mixin icon-dropdown($orientation: "left") {
   position: relative;
-  font-size: 20px;
-  /* background: #7effd4; */
-  border-radius: 3px;
-  width: 34px;
-  height: 34px;
-  place-content: center;
-  align-items: center;
-  text-align: center;
-  line-height: 34px;
   cursor: pointer;
   summary::-webkit-details-marker {
     display: none;
   }
   summary {
     list-style: none;
+  }
+  &[open] {
+    & > summary:before {
+      content: " ";
+      background: rgba(0, 0, 0, 0.5);
+      display: block;
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+    &::before {
+      display: block;
+    }
   }
   .dropdown__list {
     &:before {
@@ -353,7 +359,7 @@ $grid-columns: 12 !default;
       content: "";
       top: -16px;
       @if ($orientation == "right") {
-        right: 9px;
+        right: 16px;
         left: auto;
       } @else {
         left: 9px;
@@ -365,7 +371,7 @@ $grid-columns: 12 !default;
     &:after {
       top: -14px;
       @if ($orientation == "right") {
-        right: 10px;
+        right: 17px;
         left: auto;
       } @else {
         left: 10px;
@@ -386,39 +392,43 @@ $grid-columns: 12 !default;
       left: 0;
     }
     z-index: 100;
-    width: 160px;
+    width: 260px;
     margin: 0;
     padding: 0;
-    margin-top: var(--m1);
+    margin-top: var(--m2);
     list-style: none;
     background-color: #fff;
     background-clip: padding-box;
     border: 1px solid #e1e4e8;
     border-radius: 6px;
+    padding: var(--m2);
     box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+    h2 {
+      margin: var(--m2) 0;
+    }
     li {
       color: var(--color-surface);
       display: block;
-      border-bottom: var(--border);
+      // border-bottom: var(--border);
       height: 40px;
       display: flex;
       align-items: center;
-      font-size: 14px;
+      font-size: 16px;
       &:last-child {
         border-bottom: none;
       }
       &:hover {
         background-color: lightness(var(--color-primary), 1.6);
       }
-      button {
-        height: auto;
-        padding: 0;
-        width: 100%;
-        text-align: left;
-        padding: 0 var(--m2);
-        font-weight: 500;
-        color: var(--color-surface);
-      }
+      // button {
+      //   height: auto;
+      //   padding: 0;
+      //   width: 100%;
+      //   text-align: left;
+      //   padding: 0 var(--m2);
+      //   font-weight: 500;
+      //   color: var(--color-surface);
+      // }
       a {
         font-weight: 500;
         display: block;

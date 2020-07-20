@@ -42,7 +42,10 @@ defmodule MoodleNetWeb.Helpers.Discussions do
       if(!is_nil(thread.context_id)) do
         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
         context = MoodleNet.Meta.Pointers.follow!(pointer)
-
+        context = Profiles.prepare(context, %{
+          icon: true,
+          image: true
+        }, 150)
         thread
         |> Map.merge(%{context: context})
       else
@@ -57,7 +60,10 @@ defmodule MoodleNetWeb.Helpers.Discussions do
       if(!is_nil(thread.context_id)) do
         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
         context = MoodleNet.Meta.Pointers.follow!(pointer)
-
+        context = Profiles.prepare(context, %{
+          icon: true,
+          image: true
+        }, 150)
         thread
         |> Map.merge(%{context: context})
       else

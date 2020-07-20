@@ -64,9 +64,8 @@
         </div>
       </div>
     </div>
-    <div class="community__layout">
       <%= if @selected_tab == "write" do %>
-          <div class="mainContent__all">
+          <div class="mainContent__all community__write">
             <h3 class="area__title">Start a new discussion</h3>
             <%= live_component(
               @socket,
@@ -78,6 +77,7 @@
             ) %>
           </div>
       <% else %>
+    <div class="community__layout">
           <%= cond do %>
             <% @selected_tab == "about" ->  %>
             <div class="mainContent__selected">
@@ -172,8 +172,8 @@
                     class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
                   %>
           </div>
-          <% end %>
         </div>
+      <% end %>
       </div>
     </section>
   </div>

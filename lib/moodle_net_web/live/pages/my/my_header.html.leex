@@ -3,9 +3,23 @@
     <img src="<%= e(@current_user, :icon_url, "") %>" />
     <h3><%= e(@current_user, :name, "Me") %></h3>
   <% end %>
+  <%= live_redirect to: "/instance" do %>
+    <span class="right__notification"><i class="feather-compass"></i></span>
+  <% end %>
   <details class="drawer__profile" >
     <summary class="user__dropdown">
-      <i class="feather-more-horizontal"></i>
+      <span class="right__notification"><i class="feather-plus"></i></span>
+    </summary>
+    <ul class="dropdown__list">
+      <h2>Create</h2>
+      <li phx-target="<%= @myself %>" phx-click="new-post"><i class="feather-edit-2"></i> New post</li>
+      <li phx-target="<%= @myself %>" phx-click="new-community"><i class="feather-users"></i> New community</li>
+    </ul>
+  </details>
+  <span class="right__notification"><i class="feather-bell"></i></span>
+  <details class="drawer__profile" >
+    <summary class="user__dropdown">
+      <span class="right__notification"><i class="feather-chevron-down"></i></span>
     </summary>
     <ul class="dropdown__list">
       <li><%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "me")  do %>Profile<% end %></li>
@@ -15,3 +29,64 @@
     </ul>
   </details>
 </div>
+
+<span><%= @new_post %></span>
+<span><%= @new_community %></span>
+
+<%= if @new_post == true do %>
+
+<div class="dialog__newcommunity">
+  <div phx-target="<%= @myself %>" phx-click="new-post" class="dialog__backdrop"></div>
+  <dialog open class="dialog dialog__newCommunity">
+    <header class="dialog__header">Create a new post</header>
+    <section class="dialog__content">
+      <form phx-submit="post" phx-target="<%= @myself %>" class="general__post">
+        <div class="post__toggle post__title <%= if @show_title, do: "form__visible", else: "" %>">
+          <input id="name" name="name"  type="text" placeholder="Choose a title">
+        </div>
+        <div class="post__toggle community__select <%= if @show_communities, do: "form__visible", else: "" %>">
+          <select class="select-css" autocomplete name="community" id="communities">
+            <option value="">Select a community...</option>
+            <%= for community <- @my_communities do %>
+              <option value="<%= community.id %>"><%= community.name %></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="post__wrapper">
+          <textarea id="sidebar-content" name="content" placeholder="What are you thinking"></textarea>
+          <div class="post__actions">
+            <div phx-click="title" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_title, do: "active", else: "" %>"><i class="feather-type"></i></div>
+            <div phx-click="communities" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_communities, do: "active", else: "" %>"><i class="feather-users"></i></div>
+            <div class="button-outline-only-icon">
+              <%= live_redirect to: "/~/write" do %>
+                <i class="feather-maximize"></i>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="post__sub__actions">
+          <button phx-disable-with="Posting..." type="submit">Publish</button>
+        </div>
+      </form>
+    </section>
+  </dialog>
+</div>
+<% end %>
+
+<%= if @new_community do %>
+<div class="dialog__newcommunity">
+  <div phx-target="<%= @myself %>" phx-click="nex-community" class="dialog__backdrop"></div>
+  <dialog open class="dialog dialog__newCommunity">
+    <header class="dialog__header">Create a new community</header>
+    <section class="dialog__content">
+      <form phx-submit="new_community" phx-target="<%= @myself %>">
+        <input name="name" placeholder="Type the community name..." />
+        <textarea name="summary" placeholder="Describe your community..."></textarea>
+        <footer class="dialog__footer">
+          <button value="default">Confirm</button>
+        </footer>
+      </form>
+    </section>
+  </dialog>
+</div>
+<% end %>

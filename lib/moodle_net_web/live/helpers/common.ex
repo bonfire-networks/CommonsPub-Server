@@ -83,7 +83,6 @@ defmodule MoodleNetWeb.Helpers.Common do
         %Phoenix.LiveView.Socket{} = socket
       ) do
     # Logger.info(session_preloaded: session)
-
     socket
     |> assign(:auth_token, fn -> auth_token end)
     |> assign(:current_user, fn -> current_user end)
@@ -116,6 +115,8 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:auth_token, auth_token)
     |> assign(:show_title, false)
     |> assign(:show_communities, false)
+    |> assign(:new_post, false)
+    |> assign(:new_community, false)
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)

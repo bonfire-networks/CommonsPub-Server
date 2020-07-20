@@ -4,6 +4,11 @@
 
 @import "../node_modules/nprogress/nprogress.css";
 
+
+html * {
+  box-sizing: border-box;
+}
+
 /* LiveView specific classes for your customizations */
 .invalid-feedback {
   color: #a94442;

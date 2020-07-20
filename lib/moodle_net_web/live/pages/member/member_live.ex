@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.MemberLive do
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
-
+    IO.inspect(socket.endpoint)
     user =
       Profiles.user_load(socket, params, %{
         image: true,

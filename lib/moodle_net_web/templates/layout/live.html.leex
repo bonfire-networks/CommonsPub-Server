@@ -17,18 +17,19 @@
         <h3>CommonsPub</h3>
       <% end %>
     </div>
-    <input placeholder="Search in the fediverse..." />
+    <input class="header__search" placeholder="Search in the fediverse..." />
     <div class="header__right">
-      <%= live_redirect to: "/instance" do %>
-      <span class="right__notification"><i class="feather-compass"></i></span>
-      <% end %>
-      <span class="right__notification"><i class="feather-bell"></i></span>
       <%= if @current_user do %>
         <%= live_component(
           @socket,
           MoodleNetWeb.My.MyHeader,
           current_user: @current_user,
-          id: :my_header
+          id: :my_header,
+          my_communities: @my_communities,
+          show_title: @show_title,
+          show_communities: @show_communities,
+          new_post: @new_post,
+          new_community: @new_community,
         ) %>
       <% end %>
       <%= if @current_user == nil do %>
@@ -52,9 +53,7 @@
           MoodleNetWeb.My.MySidebar,
           current_user: @current_user,
           my_communities: @my_communities,
-          id: :my_sidebar,
-          show_title: @show_title,
-          show_communities: @show_communities
+          id: :my_sidebar
         ) %>
     <% end %>
     <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">

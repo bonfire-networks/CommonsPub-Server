@@ -22,7 +22,6 @@
 
 .discussion__layout {
   @include content_two_sides;
-  grid-template-columns: 1fr;
 }
 
 .discussion__navigation {
@@ -30,7 +29,7 @@
 }
 
 .wrapper__discussion {
-  min-width: 900px;
+  min-width: calc(900px - 290px);
   .discussion__main {
     background: #fff;
     box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
@@ -202,4 +201,8 @@
   &:before {
     background-color: lightness(var(--color-surface), 1.1);
   }
+}
+
+.discussion__navigation {
+  @include content_navigation 
 }

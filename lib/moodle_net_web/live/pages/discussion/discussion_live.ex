@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.DiscussionLive do
       })
 
     thread = Discussions.prepare_thread(thread, true)
-
+    IO.inspect(thread, label: "THREAD")
     # IO.inspect(thread, label: "THREAD")
 
     # TODO: tree of replies & pagination
