@@ -9,7 +9,7 @@
           <input name="password" type="password" placeholder="Type your password..." />
           <button type="submit" phx-disable-with="Checking...">Sign in</button>
         </form>
-        <%= live_redirect to: "#" do %>Trouble logging in?<% end %>
+        <%= live_redirect to: "/~/reset" do %>Trouble logging in?<% end %>
       </div>
     </div>
     <div class="login__footer"></div>

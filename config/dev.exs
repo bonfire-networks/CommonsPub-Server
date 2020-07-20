@@ -95,7 +95,7 @@ config :moodle_net, MoodleNet.Repo,
   # types: MoodleNet.PostgresTypes,
   username: System.get_env("POSTGRES_USER", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
-  database: System.get_env("POSTGRES_DB", "moodle_net_dev"),
+  database: System.get_env("POSTGRES_DB", "commonspub_dev"),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool_size: 10
 

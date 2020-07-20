@@ -1,6 +1,7 @@
 <nav class="side__drawer">
   <div class="drawer__menu">
     <nav class="menu__general">
+
       <form phx-submit="post" phx-target="<%= @myself %>" class="general__post">
         <div class="post__toggle post__title <%= if @show_title, do: "form__visible", else: "" %>">
           <input id="name" name="name"  type="text" placeholder="Choose a title">
