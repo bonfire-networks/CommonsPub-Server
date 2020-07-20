@@ -12,8 +12,7 @@ defmodule MoodleNetWeb.My.MySidebar do
     }
   end
 
-  def handle_event("post", %{"content" => content} = data, socket) do
-    IO.inspect(data, label: "POST DATA")
+  def handle_event("post", %{"content" => content, "community" => community} = data, socket) do
 
     if(is_nil(content) or is_nil(socket.assigns.current_user)) do
       {:noreply,
@@ -21,22 +20,37 @@ defmodule MoodleNetWeb.My.MySidebar do
        |> put_flash(:error, "Please write something...")}
     else
       # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
-
       comment = input_to_atoms(data)
+      IO.inspect(community, label: "COMM CHOOSED")
 
-      {:ok, thread} =
-        MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
-          %{comment: comment},
-          %{context: %{current_user: socket.assigns.current_user}}
-        )
+      if (community == "") do
+        {:ok, thread} =
+          MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+            %{comment: comment},
+            %{context: %{current_user: socket.assigns.current_user}}
+          )
 
-      IO.inspect(thread, label: "THREAD")
+        {:noreply,
+         socket
+         |> put_flash(:info, "Published!")
+         # change redirect
+         |> push_redirect(to: "/!" <> thread.thread_id)}
 
-      {:noreply,
-       socket
-       |> put_flash(:info, "Published!")
-       # change redirect
-       |> push_redirect(to: "/!" <> thread.thread_id)}
+        else
+          {:ok, thread} =
+            MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+              %{context_id: community, comment: comment},
+              %{context: %{current_user: socket.assigns.current_user}}
+            )
+
+          {:noreply,
+           socket
+           |> put_flash(:info, "Published!")
+           # change redirect
+           |> push_redirect(to: "/!" <> thread.thread_id)}
+
+      end
+
     end
   end
 

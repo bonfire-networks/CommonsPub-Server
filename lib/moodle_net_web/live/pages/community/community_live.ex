@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.CommunityLive do
     CommunityDiscussionsLive,
     CommunityMembersLive,
     # CommunityNavigationLive,
+    CommunityWriteLive,
     CommunityActivitiesLive
   }
 
@@ -42,6 +43,7 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
+    IO.inspect(tab, label: "TAB")
     community =
       Communities.community_load(socket, params,
         %{icon: true,
@@ -59,6 +61,18 @@ defmodule MoodleNetWeb.CommunityLive do
      )}
   end
 
+  def handle_params(%{} = params, url, socket) do
+    community =
+      Communities.community_load(socket, params, %{icon: true, image: true, actor: true, is_followed_by: socket.assigns.current_user})
+
+    IO.inspect(community, label: "community")
+
+    {:noreply,
+     assign(socket,
+       community: community,
+       current_user: socket.assigns.current_user
+     )}
+  end
 
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
@@ -83,21 +97,6 @@ defmodule MoodleNetWeb.CommunityLive do
       #  |> push_patch(to: "/&" <> socket.assigns.community.username)
     }
   end
-
-
-  def handle_params(%{} = params, url, socket) do
-    community =
-      Communities.community_load(socket, params, %{icon: true, image: true, actor: true, is_followed_by: socket.assigns.current_user})
-
-    IO.inspect(community, label: "community")
-
-    {:noreply,
-     assign(socket,
-       community: community,
-       current_user: socket.assigns.current_user
-     )}
-  end
-
 
   def handle_event("follow", _data, socket) do
     f =

@@ -237,6 +237,9 @@ $grid-columns: 12 !default;
   border-bottom: var(--border);
   border-left: var(--border);
   margin-bottom: 0;
+  .suphero__left {
+    flex: 1;
+  }
   .suphero__actions  {
     display: flex;
     align-items: center;
@@ -270,6 +273,17 @@ $grid-columns: 12 !default;
     height: fit-content;
     border-radius: 6px;
   }
+}
+
+
+.mainContent__all {
+    width: 900px;
+    border: none;
+    background: #fff;
+    padding: var(--m3);
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+    height: fit-content;
+    border-radius: 6px;
 }
 
 @mixin content_navigation {

@@ -7,12 +7,12 @@
           <input id="name" name="name"  type="text" placeholder="Choose a title">
         </div>
         <div class="post__toggle community__select <%= if @show_communities, do: "form__visible", else: "" %>">
-          <input list="communities" placeholder="select a community">
-          <datalist id="communities">
+          <select class="select-css" autocomplete name="community" id="communities">
+            <option value="">Select a community...</option>
             <%= for community <- @my_communities do %>
-              <option value="<%= e(community, :actor, :preferred_username, e(community, :id, "")) %>">
+              <option value="<%= community.id %>"><%= community.name %></option>
             <% end %>
-          </datalist>
+          </select>
         </div>
         <div class="post__wrapper">
           <textarea id="sidebar-content" name="content" placeholder="What are you thinking"></textarea>
