@@ -179,7 +179,7 @@ defmodule MoodleNetWeb.Router do
     live "/~/login", LoginLive
     live "/~/signup", SignupLive
     live "/~/reset", ResetPasswordLive
-    live "/~/create-new-password", CreateNewPasswordLive
+    live "/~/create-new-password/:token", CreateNewPasswordLive
 
     pipe_through :ensure_authenticated
 
