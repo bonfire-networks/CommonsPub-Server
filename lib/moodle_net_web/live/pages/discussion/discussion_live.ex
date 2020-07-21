@@ -20,8 +20,12 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    thread = Discussions.prepare_thread(thread, true)
     IO.inspect(thread, label: "THREAD")
+    if thread.context_id == nil do
+      thread = Discussions.prepare_thread(thread)
+    else
+      thread = Discussions.prepare_thread(thread, true)
+    end
     # IO.inspect(thread, label: "THREAD")
 
     # TODO: tree of replies & pagination

@@ -21,6 +21,7 @@
     </div>
     <div class="discussion__layout">
         <div class="wrapper__discussion">
+          <div class="discussion__context"></div>
           <div class="discussion__main">
             <div class="hero__head">
               <h1 class="head__title"><%= e(@thread, :name,  "A discussion") %></h1>
@@ -76,11 +77,15 @@
         <div class="discussion__navigation">
           <div class="navigation__block">
             <h3 class="block__title">Context</h3>
-            <%= live_patch to: "/&" <> @thread.context.actor.preferred_username do %>
-            <div class="named-avatar">
-              <img alt="context-img" src="<%= @thread.context.image_url %>" />
-              <h3><%= @thread.context.name%></h3>
-            </div>
+            <%= if @thread.context_id !== nil do %>
+              <%= live_patch to: "/&" <> @thread.context.actor.preferred_username do %>
+              <div class="named-avatar">
+                <img alt="context-img" src="<%= @thread.context.image_url %>" />
+                <h3><%= @thread.context.name%></h3>
+              </div>
+              <% end %>
+              <% else %>
+              <div>Without context</div>
             <% end %>
           </div>
         </div>
