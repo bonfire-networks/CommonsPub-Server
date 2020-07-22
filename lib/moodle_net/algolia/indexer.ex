@@ -149,8 +149,9 @@ defmodule MoodleNet.Algolia.Indexer do
       "url" => resource_url,
       "author" => Map.get(resource, :author),
       "mediaType" => resource.content.media_type,
-      "categories" => resource.categories,
-      "tags" => resource.tags
+      "subject" => Map.get(resource, :subject),
+      "level" => Map.get(resource, :level),
+      "language" => Map.get(resource, :language)
     }
   end
 

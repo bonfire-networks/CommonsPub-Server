@@ -81,10 +81,7 @@ defmodule MoodleNet.Test.Fake do
   def website(), do: Faker.Internet.url()
   @doc "A verb to be used for an activity."
   def verb(), do: Faker.Util.pick(["created", "updated", "deleted"])
-  def categories(), do: [Faker.Commerce.product_name_product()]
-  def tags() do
-    [Faker.Commerce.product_name_adjective(), Faker.Commerce.product_name_adjective(), Faker.Commerce.product_name_adjective()]
-  end
+
   # Unique data
 
   @doc "Generates a random unique uuid"
@@ -254,8 +251,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_hidden, &falsehood/0)
-    |> Map.put_new_lazy(:categories, &categories/0)
-    |> Map.put_new_lazy(:tags, &tags/0)
   end
 
   def resource_input(base \\ %{}) do
@@ -263,6 +258,9 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("license", &license/0)
+    |> Map.put("subject", "2290")
+    |> Map.put("level", "1100")
+    |> Map.put("language", "English")
     # |> Map.put_new_lazy("freeAccess", &maybe_bool/0)
     # |> Map.put_new_lazy("publicAccess", &maybe_bool/0)
     # |> Map.put_new_lazy("learningResourceType", &learning_resource/0)
