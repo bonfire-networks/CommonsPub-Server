@@ -30,9 +30,6 @@ defmodule Measurement.Hydration do
         unit: [
           resolve: &Measurement.Unit.GraphQL.unit/2
         ],
-        # in_scope_of: [
-        #   resolve: &CommonResolver.context_edge/3,
-        # ],
         measures: [
           resolve: &Measurement.Measure.GraphQL.measures/2
         ],

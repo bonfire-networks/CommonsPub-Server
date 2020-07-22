@@ -31,7 +31,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
         info: info
       })
 
-    # IO.inspect(context_edge: context_edge)
     context_edge
   end
 

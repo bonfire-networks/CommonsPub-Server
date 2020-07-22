@@ -31,6 +31,8 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
+alias Measurement.Unit.Units
+
 hostname = System.get_env("HOSTNAME", "localhost")
 
 # LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html

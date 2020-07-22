@@ -82,7 +82,7 @@ defmodule Measurement.Unit.GraphQL do
   #   fields
   # end
 
-  def create_unit(%{unit: attrs, in_scope_of: context_id}, info) do
+  def create_unit(%{unit: %{in_scope_of: context_id} = attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
@@ -96,7 +96,7 @@ defmodule Measurement.Unit.GraphQL do
   end
 
   # without context/scope
-  def create_unit(%{unit: attrs}, info) do
+  def create_unit(%{unit: attrs} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            attrs = Map.merge(attrs, %{is_public: true}),
@@ -141,11 +141,11 @@ defmodule Measurement.Unit.GraphQL do
     if Pointers.table!(pointer).schema in valid_contexts() do
       :ok
     else
-      GraphQL.not_permitted()
+      GraphQL.not_permitted("in_scope_of")
     end
   end
 
   defp valid_contexts do
-    Keyword.fetch!(Application.get_env(:moodle_net, Units), :valid_contexts)
+    Keyword.fetch!(Application.fetch_env!(:moodle_net, Units), :valid_contexts)
   end
 end

@@ -46,7 +46,7 @@ defmodule Measurement.GraphQLTest do
 
       q = create_unit_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      vars = %{unit: unit_input(), in_scope_of: comm.id}
+      vars = %{unit: Map.put(unit_input(), :in_scope_of,  comm.id)}
       assert_unit(grumble_post_key(q, conn, :create_unit, vars)["unit"])
     end
   end
