@@ -142,6 +142,9 @@ dev-stop: init ## Stop the dev app
 dev-down: init ## Remove the dev app
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) down
 
+dev-docs: init ## Remove the dev app
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix docs
+
 manual-deps: init ## Prepare dependencies (without Docker)
 	mix local.hex --force
 	mix local.rebar --force

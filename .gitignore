@@ -5,7 +5,6 @@
 /deps
 /*.ez
 /.elixir_ls
-/doc 
 /assets/node_modules
 /priv/static
 .mix
@@ -17,6 +16,7 @@
 .cargo
 .npm
 .erlang.cookie
+docs/exdoc
 
 # Prevent committing custom emojis
 /priv/static/emoji/custom/*

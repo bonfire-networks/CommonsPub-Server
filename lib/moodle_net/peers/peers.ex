@@ -4,11 +4,9 @@
 defmodule MoodleNet.Peers do
   @moduledoc """
   Manages peers, servers with which we connect via synchronisation
-  protocols, currently:
+  protocols, currently: ActivityPub
 
-  * ActivityPub
-
-  A `MoodleNet.Peers.Peer` is created from a Pointers.Pointer`
+  A `MoodleNet.Peers.Peer` is created from a `Pointers.Pointer`
   as the `MoodleNet.Meta.Peer` participates in the Meta abstraction
 
   """

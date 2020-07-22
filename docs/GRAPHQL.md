@@ -1,4 +1,4 @@
-# MoodleNet GraphQL Guide
+# CommonsPub GraphQL Guide
 
 ## GraphQL Introduction
 
@@ -8,18 +8,20 @@ Let's start with a simple GraphQL query:
 query {
   greetings(limit: 10) {
     greeting
-    to { name }
+    to {
+      name
+    }
   }
 }
 ```
 
 Let's break this apart:
 
-* `query {}` is how you retrieve information from GraphQL.
-* `greetings` is a `field` within the query.
-* `greetings` takes a `limit` argument, a positive integer.
-* `greetings` has two fields, `greeting` and `to`.
-* `to` has one `field`, `name`.
+- `query {}` is how you retrieve information from GraphQL.
+- `greetings` is a `field` within the query.
+- `greetings` takes a `limit` argument, a positive integer.
+- `greetings` has two fields, `greeting` and `to`.
+- `to` has one `field`, `name`.
 
 This query is asking for a list of (up to) 10 greetings and the people
 they are for. Notice that the result of both `greetings` and `to` are
@@ -82,11 +84,11 @@ end
 
 There are a couple of interesting things about this:
 
-* Sprinklings of `not_null` to require that values be present (if you
+- Sprinklings of `not_null` to require that values be present (if you
   don't return them, absinthe will get upset).
-* Only two fields have explicit resolvers. Anything else will default
+- Only two fields have explicit resolvers. Anything else will default
   to a map key lookup (which is more often than not what you want).
-* `greeting.to_edge` has a `/3` resolver and `queries.greetings` a
+- `greeting.to_edge` has a `/3` resolver and `queries.greetings` a
   `/2` resolver.
 
 To understand the last one (and partially the middle one), we must
@@ -128,4 +130,3 @@ lookup, but you can override it with `resolve/1`. It may or may not
 have arguments. And all absinthe resolvers return an ok/error tuple.
 
 ## Patterns
-

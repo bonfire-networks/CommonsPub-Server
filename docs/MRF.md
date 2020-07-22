@@ -1,26 +1,26 @@
 # Message Rewrite Facility
 
-**WARNING: Due to how MoodleNet currently handles its configuration, MRF is only usable if you're building your own docker image.**
+**WARNING: Due to how this app currently handles its configuration, MRF is only usable if you're building your own docker image.**
 
 The Message Rewrite Facility (MRF) is a subsystem that is implemented as a series of hooks that allows the administrator to rewrite or discard messages.
 
 Possible uses include:
 
-* marking incoming messages with media from a given account or instance as sensitive
-* rejecting messages from a specific instance
-* rejecting reports (flags) from a specific instance
-* removing/unlisting messages from the public timelines
-* removing media from messages
-* sending only public messages to a specific instance
+- marking incoming messages with media from a given account or instance as sensitive
+- rejecting messages from a specific instance
+- rejecting reports (flags) from a specific instance
+- removing/unlisting messages from the public timelines
+- removing media from messages
+- sending only public messages to a specific instance
 
-The MRF provides user-configurable policies.  The default policy is `NoOpPolicy`, which disables the MRF functionality.  MoodleNet also includes an easy to use policy called `SimplePolicy` which maps messages matching certain pre-defined criterion to actions built into the policy module.
+The MRF provides user-configurable policies. The default policy is `NoOpPolicy`, which disables the MRF functionality. MoodleNet also includes an easy to use policy called `SimplePolicy` which maps messages matching certain pre-defined criterion to actions built into the policy module.
 It is possible to use multiple, active MRF policies at the same time.
 
 ## Using `SimplePolicy`
 
 `SimplePolicy` is capable of handling most common admin tasks.
 
-To use `SimplePolicy`, you must enable it.  Do so by adding the following to your `:instance` config object, so that it looks like this:
+To use `SimplePolicy`, you must enable it. Do so by adding the following to your `:instance` config object, so that it looks like this:
 
 ```
 config :moodle_net, :instance,
@@ -28,12 +28,12 @@ config :moodle_net, :instance,
   rewrite_policy: ActivityPub.MRF.SimplePolicy
 ```
 
-Once `SimplePolicy` is enabled, you can configure various groups in the `:mrf_simple` config object.  These groups are:
+Once `SimplePolicy` is enabled, you can configure various groups in the `:mrf_simple` config object. These groups are:
 
-* `media_removal`: Servers in this group will have media stripped from incoming messages.
-* `media_nsfw`: Servers in this group will have the #nsfw tag and sensitive setting injected into incoming messages which contain media.
-* `reject`: Servers in this group will have their messages rejected.
-* `report_removal`: Servers in this group will have their reports (flags) rejected.
+- `media_removal`: Servers in this group will have media stripped from incoming messages.
+- `media_nsfw`: Servers in this group will have the #nsfw tag and sensitive setting injected into incoming messages which contain media.
+- `reject`: Servers in this group will have their messages rejected.
+- `report_removal`: Servers in this group will have their reports (flags) rejected.
 
 Servers should be configured as lists.
 
@@ -55,11 +55,11 @@ config :moodle_net, :mrf_simple,
 
 ### Use with Care
 
-The effects of MRF policies can be very drastic.  It is important to use this functionality carefully.  Always try to talk to an admin before writing an MRF policy concerning their instance.
+The effects of MRF policies can be very drastic. It is important to use this functionality carefully. Always try to talk to an admin before writing an MRF policy concerning their instance.
 
 ## Writing your own MRF Policy
 
-As discussed above, the MRF system is a modular system that supports pluggable policies.  This means that an admin may write a custom MRF policy in Elixir or any other language that runs on the Erlang VM, by specifying the module name in the `rewrite_policy` config setting.
+As discussed above, the MRF system is a modular system that supports pluggable policies. This means that an admin may write a custom MRF policy in Elixir or any other language that runs on the Erlang VM, by specifying the module name in the `rewrite_policy` config setting.
 
 For example, here is a sample policy module which rewrites all messages to "new message content":
 
@@ -99,7 +99,7 @@ defmodule Site.RewritePolicy do
 end
 ```
 
-If you save this file as `lib/site/mrf/rewrite_policy.ex`, it will be included when you next rebuild MoodleNet.  You can enable it in the configuration like so:
+If you save this file as `lib/site/mrf/rewrite_policy.ex`, it will be included when you next rebuild MoodleNet. You can enable it in the configuration like so:
 
 ```
 config :moodle_net, :instance,
