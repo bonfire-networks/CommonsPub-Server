@@ -15,11 +15,15 @@ This codebase was forked from [MoodleNet](http://moodle.net/), which was origina
 
 ## Documentation
 
-- [Deploying an instance](https://gitlab.com/CommonsPub/Server/blob/develop/docs/DEPLOY.md).
+- [Deploying an instance](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/DEPLOY.md).
 
-- [Development setup](https://gitlab.com/CommonsPub/Server/blob/develop/docs/HACKING.md).
+- [Development setup](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/HACKING.md).
 
-- [Architecture overview](https://gitlab.com/CommonsPub/Server/blob/develop/docs/ARCHITECTURE.md).
+- [Architecture overview](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/ARCHITECTURE.md).
+
+- [GraphQL API quickstart](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/GRAPHQL.md).
+
+- [Federation message rewrite facility](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/MRF.md).
 
 ---
 
@@ -55,19 +59,9 @@ Avoid commiting directly to `flavour/commonspub` or any of the flavours.
 
 If you made changes to an extension used by a flavour, merge it into the appropriate flavour branche(s).
 
-If you made changes to core functionality (`MoodleNet[Web].*` namespaces), merge those (and only those) into `flavour/moodlenet`.
-
 #### Please **avoid mixing flavours!**
 
-For example, DO NOT merge from `flavour/commonspub`-->`flavour/moodlenet`.
-
-The only exception to this rule being that we DO merge changes from `flavour/moodlenet`-->`flavour/commonspub` since upstream MoodleNet development is still happening directly in core modules.
-
-#### Merging with upstream
-
-Regularly merge-request changes from `flavour/moodlenet` to [MoodleNet](https://gitlab.com/moodlenet/backend)'s `develop` branch.
-
-Regularly merge changes from [MoodleNet](https://gitlab.com/moodlenet/backend)'s `develop` branch to `flavour/moodlenet`.
+For example, DO NOT merge directly between `flavour/commonspub`<-->`flavour/zenpub` unless you use the `./cpub-merge-from-branch.sh` script.
 
 ---
 
