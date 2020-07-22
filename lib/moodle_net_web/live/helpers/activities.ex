@@ -12,16 +12,31 @@ defmodule MoodleNetWeb.Helpers.Activites do
     activity
   end
 
-  def prepare(activity) do
-    activity = prepare_context(activity)
-
+  def prepare(%{:__struct__ => activity}) do
     activity = Repo.preload(activity, :creator)
+    prepare_activity(activity)
+  end
+
+  def prepare(activity) do
+    prepare_activity(activity)
+  end
+
+  defp prepare_activity(activity) do
+    activity = prepare_context(activity)
 
     creator = Profiles.prepare(activity.creator, %{icon: true, actor: true})
 
-    {:ok, from_now} =
-      Timex.shift(activity.published_at, minutes: -3)
-      |> Timex.format("{relative}", :relative)
+    IO.inspect(activity.published_at)
+
+    from_now =
+      with {:ok, from_now} <-
+             Timex.shift(activity.published_at, minutes: -3)
+             |> Timex.format("{relative}", :relative) do
+        from_now
+      else
+        _ ->
+          ""
+      end
 
     # IO.inspect(prepare_activity: activity)
 

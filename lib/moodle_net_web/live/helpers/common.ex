@@ -14,16 +14,11 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   alias MoodleNetWeb.GraphQL.LikesResolver
 
+  def strlen(x) when is_nil(x), do: 0
   def strlen(%{} = obj) when obj == %{}, do: 0
   def strlen(%{}), do: 1
-
-  def strlen(thing) do
-    if !is_nil(thing) do
-      String.length(thing)
-    else
-      0
-    end
-  end
+  def strlen(x) when is_binary(x), do: String.length(x)
+  def strlen(x), do: length(x)
 
   @doc "Returns a value, or a fallback if not present"
   def e(key, fallback) do
