@@ -32,7 +32,7 @@
             <%= live_component(
                   @socket,
                   SettingsGeneralLive,
-                  current_user: @current_user
+                  assigns
                 )  %>
           </div>
           <% @selected_tab == "preferences" ->  %>

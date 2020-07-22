@@ -32,16 +32,25 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   defp do_upload(user, {field_name, content_input}, acc) do
     uploader = @uploader_fields[field_name]
 
+    IO.inspect(do_upload: [field_name, content_input])
+
     if uploader do
+      IO.inspect(try_upload: uploader)
+
       case Uploads.upload(uploader, user, content_input, %{}) do
         {:ok, content} ->
           field_id_name = String.to_existing_atom("#{field_name}_id")
+          IO.inspect(content: content)
+          IO.inspect(field_id_name: field_id_name)
 
           {:cont, Map.put(acc, field_id_name, content.id)}
 
         {:error, reason} ->
           # FIXME: delete other successful files on failure
           {:halt, {:error, reason}}
+
+        %{} ->
+          {:cont, acc}
       end
     else
       {:cont, acc}

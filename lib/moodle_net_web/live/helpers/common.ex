@@ -73,7 +73,8 @@ defmodule MoodleNetWeb.Helpers.Common do
         _params,
         %{
           "auth_token" => auth_token,
-          "current_user" => current_user
+          "current_user" => current_user,
+          "_csrf_token" => csrf_token
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
@@ -81,12 +82,14 @@ defmodule MoodleNetWeb.Helpers.Common do
     socket
     |> assign(:auth_token, fn -> auth_token end)
     |> assign(:current_user, fn -> current_user end)
+    |> assign(:csrf_token, fn -> csrf_token end)
   end
 
   def init_assigns(
         _params,
         %{
-          "auth_token" => auth_token
+          "auth_token" => auth_token,
+          "_csrf_token" => csrf_token
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
@@ -107,6 +110,7 @@ defmodule MoodleNetWeb.Helpers.Common do
       end
 
     socket
+    |> assign(:csrf_token, csrf_token)
     |> assign(:auth_token, auth_token)
     |> assign(:show_title, false)
     |> assign(:show_communities, false)
@@ -115,6 +119,18 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
+  end
+
+  def init_assigns(
+        _params,
+        %{
+          "_csrf_token" => csrf_token
+        } = session,
+        %Phoenix.LiveView.Socket{} = socket
+      ) do
+    socket
+    |> assign(:csrf_token, csrf_token)
+    |> assign(:current_user, nil)
   end
 
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
@@ -150,25 +166,58 @@ defmodule MoodleNetWeb.Helpers.Common do
     end
   end
 
-  def image(community, field_name) do
-    # style and size for icons
-    image(community, field_name, "retro", 50)
+  def image(thing) do
+    # style and size for images
+    image(thing, "retro", 50)
   end
 
-  def image(parent, field_name, style, size) do
-    if(Map.has_key?(parent, :__struct__)) do
-      parent = Repo.preload(parent, field_name)
-      img = Repo.preload(Map.get(parent, field_name), :content_upload)
+  def icon(thing) do
+    # style and size for icons
+    icon(thing, "retro", 50)
+  end
 
-      if(!is_nil(e(img, :content_upload, :url, nil))) do
-        # use uploaded image
-        img.content_upload.url
+  def image(parent, style, size) do
+    parent =
+      if(Map.has_key?(parent, :__struct__)) do
+        Repo.preload(parent, image: [:content_upload, :content_mirror])
       else
-        # otherwise external image
-        img = Repo.preload(Map.get(parent, field_name), :content_mirror)
+        parent
+      end
 
-        if(!is_nil(e(img, :content_mirror, :url, nil))) do
-          img.content_mirror.url
+    image_url(parent, :image, style, size)
+  end
+
+  def icon(parent, style, size) do
+    parent =
+      if(Map.has_key?(parent, :__struct__)) do
+        Repo.preload(parent, icon: [:content_upload, :content_mirror])
+      else
+        parent
+      end
+
+    image_url(parent, :icon, style, size)
+  end
+
+  defp image_url(parent, field_name, style, size) do
+    if(Map.has_key?(parent, :__struct__)) do
+      # IO.inspect(image_field: field_name)
+      # parent = Repo.preload(parent, field_name: [:content_upload, :content_mirror])
+      IO.inspect(image_parent: parent)
+
+      # img = Repo.preload(Map.get(parent, field_name), :content_upload)
+
+      img = e(parent, field_name, :content_upload, :path, nil)
+
+      if(!is_nil(img)) do
+        # use uploaded image
+        MoodleNet.Uploads.prepend_url(img)
+      else
+        # otherwise try external image
+        # img = Repo.preload(Map.get(parent, field_name), :content_mirror)
+        img = e(parent, field_name, :content_mirror, :url, nil)
+
+        if(!is_nil(img)) do
+          img
         else
           # or a gravatar
           image_gravatar(parent.id, style, size)
@@ -184,7 +233,15 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def input_to_atoms(data) do
-    data |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end)
+    data |> Map.new(fn {k, v} -> {maybe_str_to_atom(k), v} end)
+  end
+
+  def maybe_str_to_atom(str) do
+    try do
+      String.to_existing_atom(str)
+    rescue
+      ArgumentError -> str
+    end
   end
 
   def is_liked(current_user, context_id)

@@ -30,7 +30,12 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 config :moodle_net, MoodleNetWeb.Endpoint,
   http: [
     port: port,
-    protocol_options: [max_request_line_length: 8192, max_header_value_length: 8192]
+    protocol_options: [
+      max_request_line_length: 8192,
+      max_header_value_length: 8192,
+      max_header_name_length: 128,
+      max_headers: 120
+    ]
   ],
   protocol: "http",
   debug_errors: true,

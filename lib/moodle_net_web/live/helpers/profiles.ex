@@ -99,7 +99,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
         profile
       else
         profile
-        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
+        |> Map.merge(%{icon_url: icon(profile, "retro", icon_size)})
       end
 
     prepare(
@@ -114,7 +114,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
         profile
       else
         profile
-        |> Map.merge(%{image_url: image(profile, :image, "identicon", image_size)})
+        |> Map.merge(%{image_url: image(profile, "identicon", image_size)})
       end
 
     prepare(

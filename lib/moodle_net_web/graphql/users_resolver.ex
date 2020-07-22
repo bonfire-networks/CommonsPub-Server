@@ -370,8 +370,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, uploads} <- UploadResolver.upload(user, params, info),
-         attrs = Map.merge(attrs, uploads),
+         {:ok, uploads} <- IO.inspect(UploadResolver.upload(user, params, info)),
+         attrs = MoodleNetWeb.Helpers.Common.input_to_atoms(Map.merge(attrs, uploads)),
          {:ok, user} <- Users.update(user, attrs) do
       {:ok, Me.new(user)}
     end

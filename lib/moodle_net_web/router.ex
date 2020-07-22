@@ -145,9 +145,12 @@ defmodule MoodleNetWeb.Router do
   end
 
   pipeline :liveview do
-    plug :protect_from_forgery
     plug :fetch_live_flash
     plug MoodleNetWeb.Live.Plug
+  end
+
+  pipeline :protect_forgery do
+    plug :protect_from_forgery
   end
 
   scope "/", MoodleNetWeb do
@@ -184,11 +187,16 @@ defmodule MoodleNetWeb.Router do
 
     pipe_through :ensure_authenticated
 
+    post "/~/settings", My.SettingsUpload, :upload
+
+    # temporarily avoid CSRF for uploads until LV has a better approach
+    pipe_through :protect_forgery
+
     live "/~", My.Live
     live "/~/profile", MemberLive
+    live "/~/write", My.Post.WriteLive
     live "/~/settings", SettingsLive
     live "/~/settings/:tab", SettingsLive
-    live "/~/write", My.Post.WriteLive
     live "/~/:tab", My.Live
 
     live "/~/proto", My.ProtoProfileLive
