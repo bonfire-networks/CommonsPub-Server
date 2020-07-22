@@ -42,8 +42,8 @@ defmodule Measurement.Unit.GraphQL do
     })
   end
 
-  def all_units(_, _, _) do
-    {:ok, Units.many(nil)}
+  def all_units(_,  _) do
+    Units.many([:default])
   end
 
   def units(page_opts, info) do

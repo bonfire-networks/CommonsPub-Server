@@ -2,7 +2,7 @@
 defmodule Measurement.GraphQLTest do
   use MoodleNetWeb.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
+  import MoodleNet.Test.{Faking, Trendy}
   import Measurement.Test.Faking
   alias Measurement.{Units, Measures}
 
@@ -27,6 +27,18 @@ defmodule Measurement.GraphQLTest do
       conn = user_conn(user)
       vars = %{id: Ecto.ULID.generate()}
       assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
+    end
+  end
+
+  describe "units" do
+    test "fetches a list of units matching a query" do
+      user = fake_user!()
+      units = some(5, fn -> fake_unit!(user) end)
+
+      q = units_query()
+      conn = user_conn(user)
+      vars = %{start: List.first(units).id, limit: 2}
+      assert fetched = grumble_post_key(q, conn, :units, vars)
     end
   end
 
