@@ -108,7 +108,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
     my_communities =
       if(communities_follows) do
-        Communities.communities_from_edges(communities_follows)
+        Communities.user_communities(current_user, current_user)
       end
 
     socket
@@ -125,6 +125,13 @@ defmodule MoodleNetWeb.Helpers.Common do
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
     socket
     |> assign(:current_user, nil)
+  end
+
+  def contexts_fetch!(ids) do
+    with {:ok, ptrs} <-
+           MoodleNet.Meta.Pointers.many(id: MoodleNetWeb.GraphQL.CommonResolver.flatten(ids)) do
+      MoodleNet.Meta.Pointers.follow!(ptrs)
+    end
   end
 
   def prepare_context(thing) do

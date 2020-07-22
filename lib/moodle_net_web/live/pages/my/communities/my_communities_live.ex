@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.My.MyCommunitiesLive do
 
     my_communities =
       if(communities_follows) do
-        Communities.communities_from_edges(communities_follows)
+        Communities.communities_from_follows(communities_follows)
       end
 
     # IO.inspect(communities: my_communities)
