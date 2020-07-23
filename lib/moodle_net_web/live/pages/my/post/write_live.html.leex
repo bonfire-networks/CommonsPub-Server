@@ -11,6 +11,12 @@
           <label for="editor-style">Use visual editor </label>
         </div>
       </div>
+      <%= live_component(
+                @socket,
+                MoodleNetWeb.My.ContextSelect,
+                current_user: @current_user,
+                my_communities: @my_communities
+              ) %>
       <button class="button-primary" type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
     </header>
     <div class="write__content">

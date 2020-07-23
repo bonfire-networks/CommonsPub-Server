@@ -26,7 +26,7 @@ defmodule MoodleNet.File do
   """
   @spec extension(binary) :: binary
   def extension(filepath) do
-    filepath |> Path.extname |> String.downcase
+    filepath |> Path.extname() |> String.downcase()
   end
 
   @doc """
@@ -40,7 +40,7 @@ defmodule MoodleNet.File do
   @spec basename(binary) :: binary
   def basename(filepath) do
     case extension(filepath) do
-      ""  -> Path.basename(filepath)
+      "" -> Path.basename(filepath)
       ext -> Path.basename(filepath, ext)
     end
   end
@@ -63,19 +63,22 @@ defmodule MoodleNet.File do
     Path.join(System.tmp_dir(), filename)
   end
 
-
-  def ensure_valid_url(uri) when is_binary(uri), do: ensure_valid_url(URI.parse(uri)) 
-  def ensure_valid_url(uri = %URI{scheme: nil}), do: ensure_valid_url("http://#{to_string(uri)}") 
-  def ensure_valid_url(uri = %URI{path: nil}), do: ensure_valid_url("#{to_string(uri)}/") 
-  def ensure_valid_url(uri), do: uri
+  def ensure_valid_url(url) when is_binary(url), do: ensure_valid_url(URI.parse(url))
+  def ensure_valid_url(uri = %URI{host: nil}), do: ""
+  def ensure_valid_url(uri = %URI{host: ""}), do: ""
+  def ensure_valid_url(uri = %URI{scheme: nil}), do: ensure_valid_url("http://#{to_string(uri)}")
+  def ensure_valid_url(uri = %URI{path: nil}), do: ensure_valid_url("#{to_string(uri)}/")
+  def ensure_valid_url(%URI{} = uri), do: uri |> URI.to_string()
+  def ensure_valid_url(uri), do: ""
 
   def fix_relative_url("", _), do: nil
+
   def fix_relative_url(url, original_url) when is_binary(url) do
     case URI.parse(url) do
       %URI{host: nil} -> URI.merge(original_url, url) |> to_string()
       _ -> url
     end
   end
-  def fix_relative_url(nil, _), do: nil
 
+  def fix_relative_url(nil, _), do: nil
 end

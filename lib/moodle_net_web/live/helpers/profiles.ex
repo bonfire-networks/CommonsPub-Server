@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
       # IO.inspect(url)
 
       profile
-      |> Map.merge(%{website: url |> URI.to_string(), website_friendly: url.host})
+      |> Map.merge(%{website: url, website_friendly: URI.parse(url).host})
     else
       profile
     end

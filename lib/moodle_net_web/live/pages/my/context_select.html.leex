@@ -1,0 +1,9 @@
+<div class="community__select">
+  <label for="communities-link"><i class="feather-users"></i></label>
+  <select class="select-css" autocomplete name="context_id" id="communities-link">
+    <option value="">fediverse</option>
+    <%= for community <- @my_communities do %>
+      <option value="<%= community.id %>"><%= community.name %></option>
+    <% end %>
+  </select>
+</div>
