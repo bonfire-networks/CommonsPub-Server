@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityDiscussionsLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(threads, label: "Threads COMMUNITY:")
+    # IO.inspect(threads, label: "Threads COMMUNITY:")
 
     assign(socket,
       threads: threads.edges,

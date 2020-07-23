@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
     creator = Profiles.prepare(activity.creator, %{icon: true, actor: true})
 
-    IO.inspect(activity.published_at)
+    # IO.inspect(activity.published_at)
 
     from_now =
       with {:ok, from_now} <-

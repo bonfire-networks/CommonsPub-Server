@@ -32,7 +32,8 @@ defmodule MoodleNetWeb.Helpers.Common do
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
     if(is_map(map)) do
-      Map.get(map, key, fallback)
+      # attempt using key as atom or string
+      map_get(map, key, fallback)
     else
       fallback
     end
@@ -45,6 +46,40 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def e(map, key1, key2, key3, fallback) do
     e(e(map, key1, key2, %{}), key3, fallback)
+  end
+
+  @doc """
+  Attempt geting a value out of a map by atom key, or try with string key, or return a fallback
+  """
+  def map_get(map, key, fallback) when is_atom(key) do
+    Map.get(map, key, Map.get(map, Atom.to_string(key), fallback))
+  end
+
+  @doc """
+  Attempt geting a value out of a map by string key, or try with atom key (if it's an existing atom), or return a fallback
+  """
+  def map_get(map, key, fallback) when is_binary(key) do
+    Map.get(map, key, Map.get(map, maybe_str_to_atom(key), fallback))
+  end
+
+  def map_get(map, key, fallback) do
+    Map.get(map, key, fallback)
+  end
+
+  def maybe_str_to_atom(str) do
+    try do
+      String.to_existing_atom(str)
+    rescue
+      ArgumentError -> str
+    end
+  end
+
+  def input_to_atoms(data) do
+    data |> Map.new(fn {k, v} -> {maybe_str_to_atom(k), v} end)
+  end
+
+  def random_string(length) do
+    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
   end
 
   def r(html), do: Phoenix.HTML.raw(html)
@@ -229,18 +264,6 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def image_gravatar(seed, style, size) do
     MoodleNet.Users.Gravatar.url(to_string(seed), style, size)
-  end
-
-  def input_to_atoms(data) do
-    data |> Map.new(fn {k, v} -> {maybe_str_to_atom(k), v} end)
-  end
-
-  def maybe_str_to_atom(str) do
-    try do
-      String.to_existing_atom(str)
-    rescue
-      ArgumentError -> str
-    end
   end
 
   def is_liked(current_user, context_id)

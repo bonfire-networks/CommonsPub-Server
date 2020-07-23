@@ -20,12 +20,13 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    IO.inspect(thread, label: "THREAD")
+    # IO.inspect(thread, label: "THREAD")
     if thread.context_id == nil do
       thread = Discussions.prepare_thread(thread)
     else
       thread = Discussions.prepare_thread(thread, true)
     end
+
     # IO.inspect(thread, label: "THREAD")
 
     # TODO: tree of replies & pagination
@@ -74,7 +75,7 @@ defmodule MoodleNetWeb.DiscussionLive do
   end
 
   def handle_event("reply", %{"content" => content} = data, socket) do
-    IO.inspect(data, label: "DATA")
+    # IO.inspect(data, label: "DATA")
 
     if(is_nil(content) or is_nil(socket.assigns.current_user)) do
       {:noreply,
@@ -102,7 +103,7 @@ defmodule MoodleNetWeb.DiscussionLive do
           %{context: %{current_user: socket.assigns.current_user}}
         )
 
-      IO.inspect(comment, label: "HERE")
+      # IO.inspect(comment, label: "HERE")
 
       # TODO: error handling
 

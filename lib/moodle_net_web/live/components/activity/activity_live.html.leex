@@ -1,4 +1,8 @@
-<div id="activity-<%= e(@activity, :id, "") %>" class="component__activity">
+<%
+  activity_id = e(@activity, :id, random_string(6))
+  preview_id = activity_id <> "-"<> e(@activity, :context, :id, random_string(6))
+%>
+<div id="activity-<%= activity_id %>" class="component__activity">
       <div class="activity__info">
       <%= live_redirect to: "/@"<> e(@activity, :creator, :actor, :preferred_username, "deleted")  do %>
         <img src="<%= e(@activity, :creator, :icon_url, "") %>" alt="icon" />
@@ -26,7 +30,7 @@
         object: e(@activity, :context, @activity),
         object_type: e(@activity, :context_type, nil),
         current_user: @current_user,
-        preview_id: e(@activity, :id, :crypto.strong_rand_bytes(5)) <> "-"<> e(@activity, :context, :id, :crypto.strong_rand_bytes(5))
+        preview_id: preview_id
 
       )
   %>
