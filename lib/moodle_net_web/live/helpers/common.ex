@@ -202,21 +202,19 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def image(thing) do
-    # style and size for images
+    # gravatar style and size for fallback images
     image(thing, "retro", 50)
   end
 
   def icon(thing) do
-    # style and size for icons
+    # gravatar style and size for fallback icons
     icon(thing, "retro", 50)
   end
 
   def image(parent, style, size) do
     parent =
       if(Map.has_key?(parent, :__struct__)) do
-        Repo.preload(parent, image: [:content_upload, :content_mirror])
-      else
-        parent
+        maybe_preload(parent, image: [:content_upload, :content_mirror])
       end
 
     image_url(parent, :image, style, size)
@@ -225,9 +223,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   def icon(parent, style, size) do
     parent =
       if(Map.has_key?(parent, :__struct__)) do
-        Repo.preload(parent, icon: [:content_upload, :content_mirror])
-      else
-        parent
+        maybe_preload(parent, icon: [:content_upload, :content_mirror])
       end
 
     image_url(parent, :icon, style, size)
@@ -265,6 +261,36 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def image_gravatar(seed, style, size) do
     MoodleNet.Users.Gravatar.url(to_string(seed), style, size)
+  end
+
+  def maybe_preload(obj, preloads) do
+    Repo.preload(obj, preloads)
+  rescue
+    ArgumentError -> obj
+  end
+
+  def content_url(parent) do
+    parent =
+      if(Map.has_key?(parent, :__struct__)) do
+        maybe_preload(parent, content: [:content_upload, :content_mirror])
+      end
+
+    url = e(parent, :content, :content_upload, :path, nil)
+
+    if(!is_nil(url)) do
+      # use uploaded file
+      MoodleNet.Uploads.prepend_url(url)
+    else
+      # otherwise try external link
+      # img = Repo.preload(Map.get(parent, field_name), :content_mirror)
+      url = e(parent, :content, :content_mirror, :url, nil)
+
+      if(!is_nil(url)) do
+        url
+      else
+        ""
+      end
+    end
   end
 
   def is_liked(current_user, context_id)

@@ -146,6 +146,7 @@ defmodule MoodleNetWeb.My.MyHeader do
         %{
           "content" => %{"url" => url} = content,
           "name" => name,
+          "icon" => icon,
           "context_id" => context_id
         } = data,
         socket
@@ -163,7 +164,7 @@ defmodule MoodleNetWeb.My.MyHeader do
       if strlen(context_id) < 1 do
         {:ok, resource} =
           MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
-            %{resource: resource, content: content},
+            %{resource: resource, content: content, icon: icon},
             %{context: %{current_user: socket.assigns.current_user}}
           )
 
@@ -175,7 +176,7 @@ defmodule MoodleNetWeb.My.MyHeader do
       else
         {:ok, MoodleNetWeb} =
           MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
-            %{context_id: context_id, resource: resource, content: content},
+            %{context_id: context_id, resource: resource, content: content, icon: icon},
             %{context: %{current_user: socket.assigns.current_user}}
           )
 
