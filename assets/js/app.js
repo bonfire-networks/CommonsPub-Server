@@ -151,24 +151,6 @@ Hooks.MarkdownEditor = {
 //   updated(){ this.pending = this.page() }
 // }
 
-// Hooks.FormFileUpload = {
-//   mounted() {
-//     this.el.addEventListener("submit", (e) => {
-//       const form = new FormData(e.target);
-//       for (let [key, val] of form.entries()) {
-//         if (val instanceof File) {
-//           console.log(key);
-//           console.log(val);
-//           // is it safe to set during iteration?
-//           form.set(`${key}[name]`, val.name);
-//           form.set(`${key}[size]`, val.size);
-//           form.set(`${key}[content_type]`, val.type);
-//         }
-//       }
-//     });
-//   },
-// };
-
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");

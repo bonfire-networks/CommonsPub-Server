@@ -42,8 +42,6 @@ defmodule MoodleNetWeb.SettingsLive do
 
   def handle_event("profile_save", data, %{assigns: %{trigger_submit: trigger_submit}} = socket)
       when trigger_submit == true do
-    IO.inspect("saving a file")
-
     {
       :noreply,
       assign(socket, trigger_submit: false)
@@ -61,8 +59,6 @@ defmodule MoodleNetWeb.SettingsLive do
 
     cond do
       strlen(params.icon) > 0 or strlen(params.image) > 0 ->
-        IO.inspect("with file")
-
         {
           :noreply,
           assign(socket, trigger_submit: true)

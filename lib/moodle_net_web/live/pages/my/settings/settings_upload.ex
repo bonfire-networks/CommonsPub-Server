@@ -19,7 +19,6 @@ defmodule MoodleNetWeb.My.SettingsUpload do
 
   def upload(%{assigns: %{current_user: current_user}} = conn, params) do
     attrs = MoodleNetWeb.Helpers.Common.input_to_atoms(params)
-    IO.inspect(upload_attrs: attrs)
 
     # maybe_upload(params["profile"]["icon"], "icon")
     # maybe_upload(params["profile"]["image"], "image")
