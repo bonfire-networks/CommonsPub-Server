@@ -50,7 +50,6 @@ defmodule MoodleNetWeb.SettingsLive do
 
   def handle_event("profile_save", data, socket) do
     params = input_to_atoms(data)
-    IO.inspect(params)
 
     {:ok, _edit_profile} =
       UsersResolver.update_profile(params, %{
@@ -67,17 +66,11 @@ defmodule MoodleNetWeb.SettingsLive do
         }
 
       true ->
-        IO.inspect("without file")
-
         {:noreply,
          socket
          |> put_flash(:info, "Profile saved!")
          |> push_redirect(to: "/~/profile")}
     end
-  end
-
-  def upload_files(conn) do
-    IO.inspect("upload!")
   end
 
   # def handle_params(%{} = params, url, socket) do
