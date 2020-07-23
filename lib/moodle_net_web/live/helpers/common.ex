@@ -32,7 +32,8 @@ defmodule MoodleNetWeb.Helpers.Common do
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
     if(is_map(map)) do
-      Map.get(map, key, fallback)
+      # attempt using key as atom or string
+      Map.get(map, key, Map.get(map, Atom.to_string(key), fallback))
     else
       fallback
     end
@@ -45,6 +46,10 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def e(map, key1, key2, key3, fallback) do
     e(e(map, key1, key2, %{}), key3, fallback)
+  end
+
+  def random_string(length) do
+    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
   end
 
   def r(html), do: Phoenix.HTML.raw(html)

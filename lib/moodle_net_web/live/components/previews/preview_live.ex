@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
 
   def render(assigns) do
     ~L"""
+    <div id="preview-<%=@preview_id%>">
     <%=
       cond do
           @object_type == "community" ->
@@ -54,6 +55,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
               )
           end
          %>
+      </div>
     """
   end
 end
