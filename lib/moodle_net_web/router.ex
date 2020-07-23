@@ -187,8 +187,6 @@ defmodule MoodleNetWeb.Router do
 
     pipe_through :ensure_authenticated
 
-    post "/~/settings", My.SettingsUpload, :upload
-
     live "/~", My.Live
     live "/~/profile", MemberLive
     live "/~/write", My.Post.WriteLive
