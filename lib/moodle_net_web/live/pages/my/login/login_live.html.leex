@@ -4,10 +4,22 @@
     <div class="login__form">
       <h1>Log in</h1>
       <div class="form__wrapper">
-        <form method="post" phx-submit="login">
-          <input name="login" type="text" placeholder="Type your username or email..." />
-          <input name="password" type="password" placeholder="Type your password..." />
-          <button type="submit" phx-disable-with="Checking...">Sign in</button>
+
+        <%= f = form_for @changeset, "#",
+          phx_submit: "login",
+          phx_change: "validate"  %>
+          <div class="field">
+            <%= text_input f, :login,
+                              placeholder: "Type your username or email..."  %>
+            <%= error_tag f, :login %>
+          </div>
+          <div class="field">
+            <%= text_input f, :password,
+                              placeholder: "Type your password..."  %>
+            <%= error_tag f, :password %>
+
+          </div>
+          <button <%= if length(@changeset.errors) == 0, do: "", else: 'disabled' %> phx-disable-with="Logging...">Sign in</button>
         </form>
         <%= live_redirect to: "/~/reset" do %>Trouble logging in?<% end %>
       </div>
