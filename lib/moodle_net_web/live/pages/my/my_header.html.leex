@@ -12,8 +12,9 @@
     </summary>
     <ul class="dropdown__list">
       <h2>Create</h2>
-      <li phx-target="<%= @myself %>" phx-click="new-post"><i class="feather-edit"></i> New post</li>
-      <li phx-target="<%= @myself %>" phx-click="new-community"><i class="feather-users"></i> New community</li>
+
+      <li phx-target="<%= @myself %>" phx-click="toggle_post"><i class="feather-edit"></i> New post</li>
+      <li phx-target="<%= @myself %>" phx-click="toggle_community"><i class="feather-users"></i> New community</li>
     </ul>
   </details>
   <span class="right__notification"><i class="feather-bell"></i></span>
@@ -28,15 +29,12 @@
       </li>
     </ul>
   </details>
-</div>
 
-<span><%= @new_post %></span>
-<span><%= @new_community %></span>
 
-<%= if @new_post == true do %>
+<%= if @toggle_post == true do %>
 
-<div class="dialog__newcommunity">
-  <div phx-target="<%= @myself %>" phx-click="new-post" class="dialog__backdrop"></div>
+<div id="<%= @toggle_post %>" class="dialog__newcommunity">
+  <div phx-target="<%= @myself %>" phx-click="toggle_post" class="dialog__backdrop"></div>
   <dialog open class="dialog dialog__newCommunity">
     <header class="dialog__header">Create a new post</header>
     <section class="dialog__content">
@@ -73,9 +71,9 @@
 </div>
 <% end %>
 
-<%= if @new_community do %>
+<%= if @toggle_community do %>
 <div class="dialog__newcommunity">
-  <div phx-target="<%= @myself %>" phx-click="new-community" class="dialog__backdrop"></div>
+  <div phx-target="<%= @myself %>" phx-click="toggle_community" class="dialog__backdrop"></div>
   <dialog open class="dialog dialog__newCommunity">
     <header class="dialog__header">Create a new community</header>
     <section class="dialog__content">
@@ -90,3 +88,5 @@
   </dialog>
 </div>
 <% end %>
+
+</div>

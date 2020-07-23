@@ -27,9 +27,8 @@
           id: :my_header,
           my_communities: @my_communities,
           show_title: @show_title,
-          show_communities: @show_communities,
-          new_post: @new_post,
-          new_community: @new_community,
+          toggle_post: @toggle_post,
+          toggle_community: @toggle_community,
         ) %>
       <% end %>
       <%= if @current_user == nil do %>
