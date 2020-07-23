@@ -12,7 +12,7 @@ defmodule  MoodleNetWeb.LoginForm  do
     {%__MODULE__{}, @types}
     |> cast(attrs, [:login, :password])
     |> validate_required([:login, :password])
-    |> validate_length(:login, min: 6, max: 100)
+    |> validate_length(:login, min: 4, max: 100)
   end
 
  def send(changeset, %{"login" => login, "password" => password } = _params) do
