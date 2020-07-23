@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
         &fetch_users_from_context(&1)
       )
 
-    IO.inspect(users, label: "USER COMMUNITY")
+    # IO.inspect(users, label: "USER COMMUNITY")
     # following_users = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
     # IO.inspect(following_users, label: "USER COMMUNITY")
     assign(socket,
