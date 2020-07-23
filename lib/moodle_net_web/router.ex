@@ -152,6 +152,7 @@ defmodule MoodleNetWeb.Router do
 
   scope "/", MoodleNetWeb do
     pipe_through :browser
+    pipe_through :protect_forgery
     pipe_through :liveview
 
     # TODO redirect to instance or user depending on logged in
@@ -191,6 +192,15 @@ defmodule MoodleNetWeb.Router do
     live "/~/:tab", My.Live
 
     live "/~/proto", My.ProtoProfileLive
+  end
+
+  scope "/", MoodleNetWeb do
+    pipe_through :browser
+    pipe_through :ensure_authenticated
+
+    # temporarily don't use CSRF for uploads until LV has a better approach
+
+    post "/~/settings", My.SettingsUpload, :upload
   end
 
   def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do

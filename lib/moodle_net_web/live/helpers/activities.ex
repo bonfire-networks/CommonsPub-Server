@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
     activity
   end
 
-  def prepare(%{:__struct__ => activity}) do
+  def prepare(%{:__struct__ => _} = activity) do
     activity = Repo.preload(activity, :creator)
     prepare_activity(activity)
   end
