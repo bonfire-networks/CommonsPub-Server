@@ -6,14 +6,27 @@ defmodule MoodleNetWeb.My.MyHeader do
   # alias MoodleNetWeb.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
-    # IO.inspect(assigns)
-    # IO.inspect(socket)
-
     {
       :ok,
       socket
       |> assign(assigns)
     }
+  end
+
+  def handle_event("toggle_post", _data, socket) do
+    IO.inspect(socket.assigns.toggle_post)
+
+    {:noreply,
+     socket
+     |> assign(:toggle_post, !socket.assigns.toggle_post)}
+  end
+
+  def handle_event("toggle_community", _data, socket) do
+    {:noreply, assign(socket, :toggle_community, !socket.assigns.toggle_community)}
+  end
+
+  def handle_event("toggle_link", _data, socket) do
+    {:noreply, assign(socket, :toggle_link, !socket.assigns.toggle_link)}
   end
 
   def handle_event("post", %{"content" => content, "context_id" => context_id} = data, socket) do
@@ -59,24 +72,6 @@ defmodule MoodleNetWeb.My.MyHeader do
     IO.inspect("signout!")
   end
 
-  def handle_event("new-post", _data, socket) do
-    {:noreply,
-     socket
-     |> assign(new_post: !socket.assigns.new_post)}
-  end
-
-  def handle_event("new-community", _data, socket) do
-    {:noreply,
-     socket
-     |> assign(new_community: !socket.assigns.new_community)}
-  end
-
-  def handle_event("new-link", _data, socket) do
-    {:noreply,
-     socket
-     |> assign(new_link: !socket.assigns.new_link)}
-  end
-
   def handle_event("title", _data, socket) do
     IO.inspect("test")
 
@@ -84,14 +79,6 @@ defmodule MoodleNetWeb.My.MyHeader do
       :noreply,
       socket
       |> assign(show_title: !socket.assigns.show_title)
-    }
-  end
-
-  def handle_event("communities", _data, socket) do
-    {
-      :noreply,
-      socket
-      |> assign(show_communities: !socket.assigns.show_communities)
     }
   end
 

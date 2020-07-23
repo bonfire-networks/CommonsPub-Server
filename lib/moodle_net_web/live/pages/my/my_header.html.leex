@@ -11,10 +11,11 @@
       <span class="right__notification"><i class="feather-plus"></i></span>
     </summary>
     <ul class="dropdown__list">
-      <%# <h2>Create</h2> %>
-      <li phx-target="<%= @myself %>" phx-click="new-post"><i class="feather-edit"></i> New post</li>
-      <li phx-target="<%= @myself %>" phx-click="new-community"><i class="feather-users"></i> New community</li>
-      <li phx-target="<%= @myself %>" phx-click="new-link"><i class="feather-link"></i> Share link</li>
+      <h2>Create</h2>
+
+      <li phx-target="<%= @myself %>" phx-click="toggle_post"><i class="feather-edit"></i> Write a post</li>
+      <li phx-target="<%= @myself %>" phx-click="toggle_community"><i class="feather-users"></i> Start a community</li>
+      <li phx-target="<%= @myself %>" phx-click="toggle_link"><i class="feather-link"></i> Share a link</li>
     </ul>
   </details>
   <span class="right__notification"><i class="feather-bell"></i></span>
@@ -29,68 +30,70 @@
       </li>
     </ul>
   </details>
-</div>
 
-<span class="hidden"><%= @new_post %></span>
-<span class="hidden"><%= @new_community %></span>
 
-<%= if @new_post == true do %>
-  <div class="dialog__newcommunity">
-    <div phx-target="<%= @myself %>" phx-click="new-post" class="dialog__backdrop"></div>
-    <dialog open class="dialog dialog__newCommunity">
-      <header class="dialog__header">Create a new post</header>
-      <section class="dialog__content">
-        <form phx-submit="post" phx-target="<%= @myself %>" class="general__post">
-          <%= live_component(
-                @socket,
-                MoodleNetWeb.My.ContextSelect,
-                current_user: @current_user,
-                my_communities: @my_communities
-              ) %>
-          <div class="post__toggle post__title <%= if @show_title, do: "form__visible", else: "" %>">
-            <input id="name" name="name"  type="text" placeholder="Choose a title">
-          </div>
-          <div class="post__wrapper">
-            <textarea id="sidebar-content" name="content" placeholder="What are you thinking"></textarea>
-            <div class="post__actions">
-              <div phx-click="title" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_title, do: "active", else: "" %>"><i class="feather-type"></i></div>
-              <div class="button-outline-only-icon">
-                <%= live_redirect to: "/~/write" do %>
-                  <i class="feather-maximize"></i>
-                <% end %>
-              </div>
+<%= if @toggle_post == true do %>
+
+<div id="<%= @toggle_post %>" class="dialog__newcommunity">
+  <div phx-target="<%= @myself %>" phx-click="toggle_post" class="dialog__backdrop"></div>
+  <dialog open class="dialog dialog__newCommunity">
+    <header class="dialog__header">Create a new post</header>
+    <section class="dialog__content">
+      <form phx-submit="post" phx-target="<%= @myself %>" class="general__post">
+        <div class="community__select">
+          <label for="communities"><i class="feather-users"></i></label>
+          <select class="select-css" autocomplete name="community" id="communities">
+            <option value="">fediverse</option>
+            <%= for community <- @my_communities do %>
+              <option value="<%= community.id %>"><%= community.name %></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="post__toggle post__title <%= if @show_title, do: "form__visible", else: "" %>">
+          <input id="name" name="name"  type="text" placeholder="Choose a title">
+        </div>
+        <div class="post__wrapper">
+          <textarea id="sidebar-content" name="content" placeholder="What are you thinking"></textarea>
+          <div class="post__actions">
+            <div phx-click="title" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_title, do: "active", else: "" %>"><i class="feather-type"></i></div>
+            <div class="button-outline-only-icon">
+              <%= live_redirect to: "/~/write" do %>
+                <i class="feather-maximize"></i>
+              <% end %>
             </div>
           </div>
-          <div class="post__sub__actions">
-            <button phx-disable-with="Posting..." type="submit">Publish</button>
-          </div>
-        </form>
-      </section>
-    </dialog>
-  </div>
+        </div>
+        <div class="post__sub__actions">
+          <button phx-disable-with="Posting..." type="submit">Publish</button>
+        </div>
+      </form>
+    </section>
+  </dialog>
+</div>
 <% end %>
 
-<%= if @new_community do %>
-  <div class="dialog__newcommunity">
-    <div phx-target="<%= @myself %>" phx-click="new-community" class="dialog__backdrop"></div>
-    <dialog open class="dialog dialog__newCommunity">
-      <header class="dialog__header">Create a new community</header>
-      <section class="dialog__content">
-        <form phx-submit="new_community" phx-target="<%= @myself %>">
-          <input name="name" placeholder="Type the community name..." />
-          <textarea name="summary" placeholder="Describe your community..."></textarea>
-          <footer class="dialog__footer">
-            <button value="default">Confirm</button>
-          </footer>
-        </form>
-      </section>
-    </dialog>
-  </div>
+<%= if @toggle_community do %>
+<div class="dialog__newcommunity">
+  <div phx-target="<%= @myself %>" phx-click="toggle_community" class="dialog__backdrop"></div>
+  <dialog open class="dialog dialog__newCommunity">
+    <header class="dialog__header">Create a new community</header>
+    <section class="dialog__content">
+      <form phx-submit="new_community" phx-target="<%= @myself %>">
+        <input name="name" placeholder="Type the community name..." />
+        <textarea name="summary" placeholder="Describe your community..."></textarea>
+        <footer class="dialog__footer">
+          <button value="default">Confirm</button>
+        </footer>
+      </form>
+    </section>
+  </dialog>
+</div>
 <% end %>
 
-<%= if @new_link do %>
-  <div class="dialog_new_link">
-    <div phx-target="<%= @myself %>" phx-click="new-link" class="dialog__backdrop"></div>
+
+<%= if @toggle_link do %>
+  <div id="<%= @toggle_link %>" class="dialog_new_link">
+    <div phx-target="<%= @myself %>" phx-click="toggle_link" class="dialog__backdrop"></div>
     <dialog open class="dialog dialog__newLink">
       <header class="dialog__header">Share a link</header>
       <section class="dialog__content">
@@ -116,3 +119,5 @@
 </dialog>
 </div>
 <% end %>
+
+</div>
