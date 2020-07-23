@@ -189,9 +189,6 @@ defmodule MoodleNetWeb.Router do
 
     post "/~/settings", My.SettingsUpload, :upload
 
-    # temporarily avoid CSRF for uploads until LV has a better approach
-    pipe_through :protect_forgery
-
     live "/~", My.Live
     live "/~/profile", MemberLive
     live "/~/write", My.Post.WriteLive

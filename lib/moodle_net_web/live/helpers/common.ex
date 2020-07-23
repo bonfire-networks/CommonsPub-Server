@@ -202,7 +202,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     if(Map.has_key?(parent, :__struct__)) do
       # IO.inspect(image_field: field_name)
       # parent = Repo.preload(parent, field_name: [:content_upload, :content_mirror])
-      IO.inspect(image_parent: parent)
+      # IO.inspect(image_parent: parent)
 
       # img = Repo.preload(Map.get(parent, field_name), :content_upload)
 
