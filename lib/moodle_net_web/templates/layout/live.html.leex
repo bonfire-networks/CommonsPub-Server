@@ -23,13 +23,15 @@
         <%= live_component(
           @socket,
           MoodleNetWeb.My.MyHeader,
-          current_user: @current_user,
           id: :my_header,
+          current_user: @current_user,
           my_communities: @my_communities,
           show_title: @show_title,
           show_communities: @show_communities,
           new_post: @new_post,
           new_community: @new_community,
+          new_link: @new_link,
+          link_input: %{}
         ) %>
       <% end %>
       <%= if @current_user == nil do %>

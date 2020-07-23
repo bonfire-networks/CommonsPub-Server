@@ -1,73 +1,73 @@
-<div class="page__fullContent">
+<div id="<%=e(@community, :id, "")%>" class="page__fullContent">
   <section class="page__community">
     <div class="community__hero">
       <div class="suphero">
-          <div class="suphero__left">
-            <%= live_patch to: "/&" <> @community.actor.preferred_username <> "/about" do %>
-              <div class="named-avatar">
-                <img alt="profile pic" src="<%= e(@community, :icon_url, e(@community, :image_url, "")) %>" />
-                <h3><%= @community.name %></h3>
-              </div>
-            <% end %>
-          </div>
-        <div class="suphero__actions">
-          <%= if @community.is_followed do %>
-            <button class="button follow" phx-click="unfollow">Leave</button>
-            <%= if @community.creator_id==@current_user.id do %>
-              <details class="dialog__container">
-                <summary class="button button__edit__community">Edit</summary>
-                <dialog open class="dialog dialog__newCommunity">
-                  <header class="dialog__header">Edit community</header>
-                  <section class="dialog__content">
-                    <form phx-submit="edit_community">
-                      <input name="name" value="<%= @community.name %>" placeholder="Type the community name..." />
-                      <textarea name="summary" placeholder="Describe your community..."><%= @community.summary %></textarea>
-                      <footer class="dialog__footer">
-                        <button value="default">Confirm</button>
-                      </footer>
-                    </form>
-                  </section>
-                </dialog>
-              </details>
-            <% end %>
-          <% else %>
-            <button class="button follow" phx-click="follow">Join</button>
-          <% end %>
-          <details class="more__dropdown">
-            <summary>
-              <i class="feather-more-horizontal"></i>
-            </summary>
-            <ul class="dropdown__list">
-              <li>
-                <details class="dialog__container member">
-                  <summary class="button-link" >Report</summary>
-                  <dialog open class="dialog dialog__report">
-                    <header class="dialog__header">Report <%= @community.name %></header>
-                    <section class="dialog__content">
-                      <form method="post" phx-submit="flag">
-                        <textarea name="message" placeholder="Describe the reason..."></textarea>
-                        <footer class="dialog__footer">
-                          <button type="submit" phx-disable-with="Checking..." value="default">Confirm</button>
-                        </footer>
-                      </form>
-                    </section>
-                  </dialog>
-                </details>
-              </li>
-              <li>
-                <%= live_patch to: "/&" <> @community.actor.preferred_username <> "/write" do %>
-                  New discussion
-                <% end %>
-              </li>
-            </ul>
-          </details>
-        </div>
-      </div>
-    </div>
-      <%= if @selected_tab == "write" do %>
-          <div class="mainContent__all community__write">
-            <h3 class="area__title">Start a new discussion</h3>
-            <%= live_component(
+        <div class="suphero__left">
+          <%= live_patch to: "/&" <> e(@community, :actor, :preferred_username, "deleted") <> "/about" do %>
+            <div class="named-avatar">
+              <img alt="profile pic" src="<%= e(@community, :icon_url, e(@community, :image_url, "")) %>" />
+<h3><%= @community.name %></h3>
+</div>
+<% end %>
+</div>
+<div class="suphero__actions">
+  <%= if @community.is_followed do %>
+    <button class="button follow" phx-click="unfollow">Leave</button>
+    <%= if @community.creator_id==@current_user.id do %>
+      <details class="dialog__container">
+        <summary class="button button__edit__community">Edit</summary>
+        <dialog open class="dialog dialog__newCommunity">
+          <header class="dialog__header">Edit community</header>
+          <section class="dialog__content">
+            <form phx-submit="edit_community">
+              <input name="name" value="<%= @community.name %>" placeholder="Type the community name..." />
+              <textarea name="summary" placeholder="Describe your community..."><%= @community.summary %></textarea>
+              <footer class="dialog__footer">
+                <button value="default">Confirm</button>
+              </footer>
+            </form>
+          </section>
+        </dialog>
+      </details>
+    <% end %>
+  <% else %>
+    <button class="button follow" phx-click="follow">Join</button>
+  <% end %>
+  <details class="more__dropdown">
+    <summary>
+      <i class="feather-more-horizontal"></i>
+    </summary>
+    <ul class="dropdown__list">
+      <li>
+        <details class="dialog__container member">
+          <summary class="button-link" >Report</summary>
+          <dialog open class="dialog dialog__report">
+            <header class="dialog__header">Report <%= @community.name %></header>
+            <section class="dialog__content">
+              <form method="post" phx-submit="flag">
+                <textarea name="message" placeholder="Describe the reason..."></textarea>
+                <footer class="dialog__footer">
+                  <button type="submit" phx-disable-with="Checking..." value="default">Confirm</button>
+                </footer>
+              </form>
+            </section>
+          </dialog>
+        </details>
+      </li>
+      <li>
+        <%= live_patch to: "/&" <> @community.actor.preferred_username <> "/write" do %>
+          New discussion
+        <% end %>
+      </li>
+    </ul>
+  </details>
+</div>
+</div>
+</div>
+<%= if @selected_tab == "write" do %>
+  <div class="mainContent__all community__write">
+    <h3 class="area__title">Start a new discussion</h3>
+    <%= live_component(
               @socket,
               CommunityWriteLive,
               community: @community,
@@ -75,30 +75,30 @@
               id: :write,
               current_user: @current_user
             ) %>
-          </div>
-      <% else %>
-    <div class="community__layout">
-          <%= cond do %>
-            <% @selected_tab == "about" ->  %>
-            <div class="mainContent__selected">
-              <div class="selected__area">
-                <div class="area__community-hero">
-                  <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
-                  <h1><%= @community.name %></h1>
-                  <h4><%= e(@community, :display_username, e(@community, :actor, :preferred_username, "")) %>
-                  </div>
-                  <%= live_component(
+  </div>
+<% else %>
+  <div class="community__layout">
+    <%= cond do %>
+      <% @selected_tab == "about" ->  %>
+      <div class="mainContent__selected">
+        <div class="selected__area">
+          <div class="area__community-hero">
+            <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
+            <h1><%= @community.name %></h1>
+            <h4><%= e(@community, :display_username, e(@community, :actor, :preferred_username, "")) %>
+            </div>
+            <%= live_component(
                           @socket,
                           AboutLive,
                           description: @community.summary
                         )
                       %>
-                </div>
-              </div>
-              <% @selected_tab == "timeline" ->  %>
-              <div class="mainContent__selected">
-                <h3 class="area__title">timeline</h3>
-                <%= live_component(
+          </div>
+        </div>
+        <% @selected_tab == "timeline" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">timeline</h3>
+          <%= live_component(
                       @socket,
                       CommunityActivitiesLive,
                       community: @community,
@@ -112,9 +112,9 @@
                       before: [],
                       pagination_target: "#community-activities"
                     ) %>
-              </div>
-              <% @selected_tab == "discussions" ->  %>
-              <%= live_component(
+        </div>
+        <% @selected_tab == "discussions" ->  %>
+        <%= live_component(
                     @socket,
                     CommunityDiscussionsLive,
                     community: @community,
@@ -128,10 +128,10 @@
                     before: [],
                     pagination_target: "#community-threads"
                   ) %>
-              <% @selected_tab == "members" ->  %>
-              <div class="mainContent__selected">
-                <h3 class="area__title">members</h3>
-                <%= live_component(
+        <% @selected_tab == "members" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">members</h3>
+          <%= live_component(
                       @socket,
                       CommunityMembersLive,
                       community: @community,
@@ -145,35 +145,35 @@
                       before: [],
                       pagination_target: "#community-members"
                     ) %>
-              </div>
-              <% true -> %>
-              <div class="mainContent__selected">
-                <%= live_component(
+        </div>
+        <% true -> %>
+        <div class="mainContent__selected">
+          <%= live_component(
                         @socket,
                         TabNotFoundLive
                     ) %>
-              </div>
-            <% end %>
-            <div class="community__navigation">
-              <%= live_patch link_body("About", "feather-book-open"),
+        </div>
+      <% end %>
+      <div class="community__navigation">
+        <%= live_patch link_body("About", "feather-book-open"),
                     to: "/&" <> @community.actor.preferred_username <> "/about",
                     class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
                   %>
-              <%= live_patch link_body("Timeline","feather-activity"),
+        <%= live_patch link_body("Timeline","feather-activity"),
                     to: "/&" <> @community.actor.preferred_username <>  "/timeline",
                     class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
                   %>
-              <%= live_patch link_body("Discussions","feather-message-square"),
+        <%= live_patch link_body("Discussions","feather-message-square"),
                     to: "/&" <> @community.actor.preferred_username <>  "/discussions",
                     class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
                   %>
-              <%= live_patch link_body("Members", "feather-users"),
+        <%= live_patch link_body("Members", "feather-users"),
                     to: "/&" <> @community.actor.preferred_username <>  "/members",
                     class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
                   %>
-          </div>
-        </div>
-      <% end %>
       </div>
-    </section>
-  </div>
+    </div>
+  <% end %>
+</div>
+</section>
+</div>

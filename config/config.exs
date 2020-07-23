@@ -88,6 +88,8 @@ config :moodle_net, Communities,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
+config :moodle_net, Resources, valid_contexts: [Collection, Community, User]
+
 config :moodle_net, Features, valid_contexts: [Collection, Community]
 
 config :moodle_net, Flags,

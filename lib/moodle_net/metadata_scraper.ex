@@ -11,19 +11,23 @@ defmodule MoodleNet.MetadataScraper do
   @request_opts [follow_redirect: true]
 
   def fetch(url) when is_binary(url) do
+    url = MoodleNet.File.ensure_valid_url(url)
+    IO.inspect(scrape_url: url)
 
-    url = url |> MoodleNet.File.ensure_valid_url() |> URI.to_string
+    if url != "" do
+      file_info_res = TwinkleStar.from_uri(url, @request_opts)
 
-    file_info_res = url |> TwinkleStar.from_uri(@request_opts)
+      with {:ok, file_info} <- file_info_res do
+        data =
+          case unfurl(url, file_info) do
+            {:ok, data} -> data
+            {:error, _} -> %{}
+          end
 
-    with {:ok, file_info} <- file_info_res do
-      data =
-        case unfurl(url, file_info) do
-          {:ok, data} -> data
-          {:error, _} -> %{}
-        end
-
-      {:ok, Map.put(data, :media_type, file_info.media_type)}
+        {:ok, Map.put(data, :media_type, file_info.media_type)}
+      end
+    else
+      {:error, :invalid_or_missing_url}
     end
   end
 
@@ -118,5 +122,4 @@ defmodule MoodleNet.MetadataScraper do
 
   defp only_first([head | _]), do: head
   defp only_first(arg), do: arg
-
 end

@@ -6,8 +6,9 @@ defmodule MoodleNetWeb.My.MyHeader do
   # alias MoodleNetWeb.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
-    IO.inspect(assigns)
-    IO.inspect(socket)
+    # IO.inspect(assigns)
+    # IO.inspect(socket)
+
     {
       :ok,
       socket
@@ -15,9 +16,7 @@ defmodule MoodleNetWeb.My.MyHeader do
     }
   end
 
-
-  def handle_event("post", %{"content" => content, "community" => community} = data, socket) do
-
+  def handle_event("post", %{"content" => content, "context_id" => context_id} = data, socket) do
     if(is_nil(content) or is_nil(socket.assigns.current_user)) do
       {:noreply,
        socket
@@ -25,9 +24,10 @@ defmodule MoodleNetWeb.My.MyHeader do
     else
       # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
       comment = input_to_atoms(data)
-      IO.inspect(community, label: "COMM CHOOSED")
 
-      if (community == "") do
+      IO.inspect(context_id, label: "context_id CHOOSEN")
+
+      if strlen(context_id) < 1 do
         {:ok, thread} =
           MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
             %{comment: comment},
@@ -39,56 +39,59 @@ defmodule MoodleNetWeb.My.MyHeader do
          |> put_flash(:info, "Published!")
          # change redirect
          |> push_redirect(to: "/!" <> thread.thread_id)}
+      else
+        {:ok, thread} =
+          MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+            %{context_id: context_id, comment: comment},
+            %{context: %{current_user: socket.assigns.current_user}}
+          )
 
-        else
-          {:ok, thread} =
-            MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
-              %{context_id: community, comment: comment},
-              %{context: %{current_user: socket.assigns.current_user}}
-            )
-
-          {:noreply,
-           socket
-           |> put_flash(:info, "Published!")
-           # change redirect
-           |> push_redirect(to: "/!" <> thread.thread_id)}
-
+        {:noreply,
+         socket
+         |> put_flash(:info, "Published!")
+         # change redirect
+         |> push_redirect(to: "/!" <> thread.thread_id)}
       end
-
     end
   end
 
+  def handle_params(%{"signout" => name} = data, socket) do
+    IO.inspect("signout!")
+  end
 
   def handle_event("new-post", _data, socket) do
-
-    {:noreply, socket
-    |> assign(new_post: !socket.assigns.new_post )}
+    {:noreply,
+     socket
+     |> assign(new_post: !socket.assigns.new_post)}
   end
 
   def handle_event("new-community", _data, socket) do
+    {:noreply,
+     socket
+     |> assign(new_community: !socket.assigns.new_community)}
+  end
 
-    {:noreply, socket
-    |> assign(new_community: !socket.assigns.new_community )}
+  def handle_event("new-link", _data, socket) do
+    {:noreply,
+     socket
+     |> assign(new_link: !socket.assigns.new_link)}
   end
 
   def handle_event("title", _data, socket) do
     IO.inspect("test")
+
     {
       :noreply,
       socket
-      |> assign(
-        show_title: !socket.assigns.show_title
-      )
+      |> assign(show_title: !socket.assigns.show_title)
     }
   end
 
-  def handle_event("communities", _data ,socket) do
+  def handle_event("communities", _data, socket) do
     {
       :noreply,
       socket
-      |> assign(
-        show_communities: !socket.assigns.show_communities
-      )
+      |> assign(show_communities: !socket.assigns.show_communities)
     }
   end
 
@@ -123,7 +126,79 @@ defmodule MoodleNetWeb.My.MyHeader do
     end
   end
 
-  def handle_params(%{"signout" => name} = data, socket) do
-    IO.inspect("signout!")
+  def handle_event("fetch_link", %{"content" => %{"url" => url}} = data, socket)
+      when byte_size(url) > 5 do
+    if !Map.get(socket.assigns, :fetched_url) or url != Map.get(socket.assigns, :fetched_url) do
+      IO.inspect(fetch_url: url)
+
+      fetch =
+        with {:ok, fetch} <- MoodleNetWeb.GraphQL.MiscSchema.fetch_web_metadata(%{url: url}, nil) do
+          IO.inspect(scraped: fetch)
+          fetch
+        else
+          _ ->
+            %{}
+        end
+
+      {:noreply,
+       socket
+       |> assign(fetched_url: url, link_input: fetch)
+       |> put_flash(:info, "Fetched link !")}
+    else
+      IO.inspect(ignore_url: url)
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("fetch_link", _, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "share_link",
+        %{
+          "content" => %{"url" => url} = content,
+          "name" => name,
+          "context_id" => context_id
+        } = data,
+        socket
+      ) do
+    if(strlen(url) < 5 or strlen(name) < 3 or is_nil(socket.assigns.current_user)) do
+      {:noreply,
+       socket
+       |> put_flash(:error, "Please enter a valid link and give it a name...")}
+    else
+      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+      resource = input_to_atoms(data)
+
+      IO.inspect(context_id, label: "context_id CHOOSEN")
+
+      if strlen(context_id) < 1 do
+        {:ok, resource} =
+          MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
+            %{resource: resource, content: content},
+            %{context: %{current_user: socket.assigns.current_user}}
+          )
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Published!")
+         # change redirect
+         |> push_redirect(to: "/instance/timeline")}
+      else
+        {:ok, MoodleNetWeb} =
+          MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
+            %{context_id: context_id, resource: resource, content: content},
+            %{context: %{current_user: socket.assigns.current_user}}
+          )
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Published!")}
+
+        # change redirect
+        #  |> push_redirect(to: "/!" <> resource.id)}
+      end
+    end
   end
 end

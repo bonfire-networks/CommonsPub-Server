@@ -151,6 +151,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:show_communities, false)
     |> assign(:new_post, false)
     |> assign(:new_community, false)
+    |> assign(:new_link, false)
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
