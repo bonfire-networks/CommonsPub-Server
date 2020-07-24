@@ -6,7 +6,7 @@
   <%= live_redirect to: "/instance" do %>
     <span class="right__notification"><i class="feather-compass"></i></span>
   <% end %>
-  <details class="drawer__profile" >
+  <details class="drawer__profile ligth" >
     <summary class="user__dropdown">
       <span class="right__notification"><i class="feather-plus"></i></span>
     </summary>
@@ -19,15 +19,22 @@
     </ul>
   </details>
   <span class="right__notification"><i class="feather-bell"></i></span>
-  <details class="drawer__profile" >
+  <details class="drawer__profile ligth" >
     <summary class="user__dropdown">
       <span class="right__notification"><i class="feather-chevron-down"></i></span>
     </summary>
     <ul class="dropdown__list">
       <li><%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "me")  do %>Profile<% end %></li>
       <li><%= live_redirect to: "/~/settings" do %>Settings<% end %></li>
-      <li><a href="/logout">Logout</a>
+      <li>
+        <div class="theme-switch-wrapper">
+          <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <i class="feather-sun"></i>
+          </label>
+        </div>
       </li>
+      <li><a href="/logout">Logout</a></li>
     </ul>
   </details>
 

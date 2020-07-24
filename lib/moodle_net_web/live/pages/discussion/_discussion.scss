@@ -31,9 +31,10 @@
 .wrapper__discussion {
   min-width: calc(900px - 290px);
   .discussion__main {
-    background: #fff;
+    background: var(--color-surface);
     box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
-    border-radius: 4px;
+    border-radius: 6px;
+    color: var(--color-text);
   }
 }
 
@@ -45,6 +46,7 @@
 .hero__head .head__title {
   font-weight: 500;
   margin: 0;
+  color: var(--color-text);
 }
 
 .hero__head .head__meta {
@@ -69,7 +71,7 @@
 
 .discussion__replies {
   margin-top: var(--m3);
-  background: #fff;
+  background: var(--color-surface);
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
   border-radius: 4px;
   margin-bottom: var(--m3);
@@ -89,7 +91,7 @@
       .fake__input {
         width: 100%;
         font-weight: 400;
-        color: var(--color-surface);
+        color: var(--color-text);
       }
     }
   }
@@ -114,11 +116,11 @@
   #editor {
     height: 150px;
     padding: 0;
-    border-radius: 0;
+    border-radius: 4px 4px 0 0 ;
     border: none;
     #editor-visual {
       height: 150px;
-      overflow-y: scroll;
+      overflow-y: hidden;
     }
     .ProseMirror-menubar {
       padding: 8px 0;
@@ -127,14 +129,14 @@
   .header__actions{
     display: flex;
     align-items: center;
-    background-color: #ececec;
+    background-color: var(--color-border);
     border-radius: 0 0 4px 4px;
     bottom: 0;
     display: -ms-flexbox;
     display: flex;
     -ms-flex-direction: row-reverse;
     flex-direction: row-reverse;
-    height: 36px;
+    height: 46px;
     opacity: 1;
     position: -webkit-sticky;
     position: sticky;
@@ -147,8 +149,9 @@
       display: flex;
       align-items: center;
       padding: 0 8px;
+      color: var(--color-text-subtle);
       &:hover {
-        background: #d5d5d5;
+        background: var(--color-secondary);
       }
     }
     button {
@@ -162,7 +165,7 @@
   padding: 0;
   height: inherit;
   text-indent: var(--m2);
-  margin-top: var(--m2);
+    
 }
 
 .preview__fork {
@@ -194,12 +197,13 @@
   }
   p {
     font-size: 14px;
+    color: var(--color-text-subtle);
   }
 }
 
 .component__activity.highlight {
   &:before {
-    background-color: lightness(var(--color-surface), 1.1);
+    background-color: var(--color-secondary);
   }
 }
 
