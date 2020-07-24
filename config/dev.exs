@@ -130,10 +130,11 @@ config :moodle_net, MoodleNet.OAuth,
   scopes: "read,write,follow"
 
 {:ok, cwd} = File.cwd()
+uploads_dir = "/uploads"
 
 config :moodle_net, MoodleNet.Uploads,
-  directory: cwd <> "/uploads",
-  path: "/uploads",
-  base_url: base_url <> "/uploads"
+  directory: cwd <> uploads_dir,
+  path: uploads_dir,
+  uploads_base_url: base_url <> uploads_dir <> "/"
 
 config :moodle_net, MoodleNet.Workers.ActivityWorker, log_level: :warn

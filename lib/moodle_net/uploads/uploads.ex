@@ -274,7 +274,7 @@ defmodule MoodleNet.Uploads do
   end
 
   def base_url() do
-    Application.get_env(:moodle_net, __MODULE__) |> Keyword.fetch!(:base_url)
+    Application.get_env(:moodle_net, __MODULE__) |> Keyword.fetch!(:uploads_base_url)
   end
 
   def prepend_url(url) do
