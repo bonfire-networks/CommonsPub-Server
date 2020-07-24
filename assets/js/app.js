@@ -171,7 +171,7 @@ function switchTheme(e) {
         document.documentElement.setAttribute('data-theme', 'light');
     }
     else {
-        document.documentElement.setAttribute('data-theme', '');
+        document.documentElement.setAttribute('data-theme', 'dark');
     }    
 }
 

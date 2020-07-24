@@ -1,11 +1,19 @@
 .page__discussion {
   @include content;
-}
+  grid-template-rows: 60px 1fr 230px;
+    width: 960px;
+    margin: 0 auto;
+    margin-top:var(--m3);
+    height: 100%;
+    .layout__text {
+      background: var(--color-surface)
+    }
+  
+  }
 
 .discussion__hero {
-  width: 956px;
+  width: 100%;
   margin: 0 auto;
-  margin-top: 24px;
   .suphero {
     @include content_header;
     .button.reply {

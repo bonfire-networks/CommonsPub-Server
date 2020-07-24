@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="discussion__layout">
-        <div class="wrapper__discussion">
+      <div class="wrapper__discussion">
           <div class="discussion__context"></div>
           <div class="discussion__main">
             <div class="hero__head">
@@ -74,7 +74,7 @@
             <% end %>
           </div>
         </div>
-        <div class="discussion__navigation">
+      <div class="discussion__navigation">
           <div class="navigation__block">
             <h3 class="block__title">Context</h3>
             <%= if @thread.context_id !== nil do %>
@@ -89,6 +89,28 @@
             <% end %>
           </div>
         </div>
+    </div>
+    <div class="layout__text">
+      <div id="reply" class="discussion__reply">
+        <form phx-submit="reply">
+          <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+          <div class="reply__box">
+            <div id="editor" phx-hook="MarkdownEditor">
+              <div id="editor-visual" phx-ignore="true">
+                <div id="editor-markdown"></div>
+                <textarea id="content" name="content" placeholder="Write a reply..."></textarea>
+              </div>
+            </div>
+            <div class="header__actions">
+              <button>Comment</button>
+              <div class="header__controls">
+                <input name="editor-style" id="editor-style" type="checkbox" class="switch">
+                <label for="editor-style">Use visual editor </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </section>
 </div>
