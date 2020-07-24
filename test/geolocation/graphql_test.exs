@@ -62,6 +62,19 @@ defmodule Geolocation.GraphQLTest do
       vars = %{spatial_thing: geolocation_input(), in_scope_of: comm.id}
       assert_geolocation(grumble_post_key(q, conn, :create_spatial_thing, vars)["spatialThing"])
     end
+
+    test "creates a new geolocation with a mappable address" do
+      user = fake_user!()
+
+      q = create_geolocation_mutation()
+      conn = user_conn(user)
+      vars = %{spatial_thing: geolocation_input()}
+      vars = put_in(vars, [:spatial_thing, "mappableAddress"], "1221 Williamson St., Madison, WI 53703")
+      assert geo = grumble_post_key(q, conn, :create_spatial_thing, vars)["spatialThing"]
+      assert_geolocation(geo)
+      assert geo["lat"]
+      assert geo["long"]
+    end
   end
 
   describe "update_geolocation" do

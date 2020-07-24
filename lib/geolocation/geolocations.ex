@@ -99,6 +99,7 @@ defmodule Geolocation.Geolocations do
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
+           {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
            {:ok, item} <- insert_geolocation(creator, context, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -116,6 +117,7 @@ defmodule Geolocation.Geolocations do
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
+           {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
            {:ok, item} <- insert_geolocation(creator, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -182,16 +184,6 @@ defmodule Geolocation.Geolocations do
     end
   end
 
-  # defp publish(geolocation, :updated) do
-  #   # TODO: wrong if edited by admin
-  #   ap_publish("update", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
-  # end
-
-  # defp publish(geolocation, :deleted) do
-  #   # TODO: wrong if edited by admin
-  #   ap_publish("delete", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
-  # end
-
   defp ap_publish(verb, context_id, user_id, nil) do
     job_result =
       APPublishWorker.enqueue(verb, %{
@@ -238,4 +230,13 @@ defmodule Geolocation.Geolocations do
   end
 
   def populate_coordinates(%Geolocation{} = geo), do: geo
+
+  def resolve_mappable_address(%{mappable_address: address} = geo) when is_binary(address) do
+    with {:ok, coordinates} <- Geocoder.call(address) do
+      # TODO: should handle bounds
+      {:ok, %{geo | lat: coordinates.lat, long: coordinates.lon}}
+    end
+  end
+
+  def resolve_mappable_address(attrs), do: {:ok, attrs}
 end
