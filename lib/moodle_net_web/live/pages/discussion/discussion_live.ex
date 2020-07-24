@@ -61,16 +61,24 @@ defmodule MoodleNetWeb.DiscussionLive do
         session,
         socket
       ) do
+    {_, reply_comment} =  Enum.find(socket.assigns.comments, fn(element) ->
+      {_id, comment} = element
+      comment.id == comment_id
+    end)
+
+
     {:noreply,
      assign(socket,
-       reply_to: comment_id
+       reply_to: comment_id,
+       reply: reply_comment
      )}
   end
 
   def handle_params(%{"id" => thread_id} = params, session, socket) do
     {:noreply,
      assign(socket,
-       reply_to: nil
+       reply_to: nil,
+       reply: nil
      )}
   end
 
