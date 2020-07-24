@@ -30,15 +30,18 @@ defmodule Measurement.GraphQLTest do
     end
   end
 
-  describe "units" do
-    test "fetches a list of units matching a query" do
+  describe "unitsPages" do
+    test "fetches a page of units" do
       user = fake_user!()
       units = some(5, fn -> fake_unit!(user) end)
+      after_unit = List.first(units)
 
       q = units_query()
       conn = user_conn(user)
-      vars = %{start: List.first(units).id, limit: 2}
-      assert fetched = grumble_post_key(q, conn, :units, vars)
+      vars = %{after: after_unit.id, limit: 2}
+      assert [%{"edges" => fetched}] = grumble_post_key(q, conn, :unitsPages, vars)
+      assert Enum.count(fetched) == 2
+      assert List.first(fetched)["id"] == after_unit.id
     end
   end
 
