@@ -180,6 +180,21 @@ let liveSocket = new LiveSocket("/live", Socket, {
 
 console.log(csrfToken);
 
+
+// wip for theme swtiching
+const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+
+function switchTheme(e) {
+    if (e.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }
+    else {
+        document.documentElement.setAttribute('data-theme', '');
+    }    
+}
+
+toggleSwitch.addEventListener('change', switchTheme, false);
+
 // Show progress bar on live navigation and form submits
 window.addEventListener("phx:page-loading-start", (info) => NProgress.start());
 window.addEventListener("phx:page-loading-stop", (info) => NProgress.done());
