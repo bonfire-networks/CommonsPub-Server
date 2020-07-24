@@ -36,19 +36,21 @@
 
 
 
-:root[data-theme="dark"] {
+:root[data-theme="light"] {
  // color
- --color-background: #2E3440;
-  --color-background-dark: #24282f;
-  --color-surface: #3B4252;
-  --color-selection: #434C5E;
-  --color-border: #4C566A;
-  --color-text: #ECEFF4;
-  --color-text-subtle: #E5E9F0;
+  --color-background: #ECEFF4;
+  --color-background-dark: #dee3ea;
+  --color-surface: #D8DEE9;
+  --color-selection: #E5E9F0;
+  --color-border: #dee3ea;
+  --color-text: #2E3440;
+  --color-text-subtle: #3B4252;
   --color-primary: #88C0D0;
-  --color-primary-dark: #4d6c92;
+  --color-primary-dark:#6d9fad;
   --color-secondary: #81A1C1;
+  --color-secondary-dark: #6a849e;
   --color-tertiary: #5E81AC;
+  --color-tertiary-dark: #4d6c92;
   --color-error: #BF616A;
   --color-warning: #EBCB8B;
   --color-success: #A3BE8C;
