@@ -14,7 +14,8 @@ defmodule MoodleNetWeb.Component.ActivitiesListLive do
               ActivityLive,
               id: "timeline-activity-#{activity.id}",
               activity: activity,
-              current_user: @current_user
+              current_user: @current_user,
+              reply_link: nil
             )
           %>
       <% end %>
