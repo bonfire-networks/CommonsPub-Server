@@ -164,18 +164,18 @@ console.log(csrfToken);
 
 
 // wip for theme swtiching
-const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+// const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
 
-function switchTheme(e) {
-    if (e.target.checked) {
-        document.documentElement.setAttribute('data-theme', 'light');
-    }
-    else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    }    
-}
+// function switchTheme(e) {
+//     if (e.target.checked) {
+//         document.documentElement.setAttribute('data-theme', 'light');
+//     }
+//     else {
+//         document.documentElement.setAttribute('data-theme', 'dark');
+//     }    
+// }
 
-toggleSwitch.addEventListener('change', switchTheme, false);
+// toggleSwitch.addEventListener('change', switchTheme, false);
 
 // Show progress bar on live navigation and form submits
 window.addEventListener("phx:page-loading-start", (info) => NProgress.start());
