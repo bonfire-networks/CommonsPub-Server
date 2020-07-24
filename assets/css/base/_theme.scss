@@ -1,37 +1,79 @@
+
 :root {
   --fontPrimary: "Fira Sans";
   --fontSecondary: "Merriweather";
-  --color-background: hsl(120, 100%, 100%);
-  --color-surface: #3C3C3C;
-  --color-primary: hsl(210,97%,61%);
-  --color-primary-alt: hsl(120, 100%, 100%);
-  --color-success: #3DCC30;
-  --color-warning: yellow;
-  --color-error: red;
-  --m1: 4px;
-  --m2: 8px;
-  --m3: 16px;
-  --m4: 24px;
-  --border: 1px solid rgba(0,0,0,.1);
-  --avatar_xl: 150px;
-  --avatar_m: 34px;
-  --radius: 6px;
+
+  // color
+  --color-background: #2E3440;
+  --color-background-dark: #24282f;
+  --color-surface: #3B4252;
+  --color-selection: #434C5E;
+  --color-border: #4C566A;
+  --color-text: #ECEFF4;
+  --color-text-subtle: #E5E9F0;
+  --color-primary: #88C0D0;
+  --color-primary-dark:#6d9fad;
+  --color-secondary: #81A1C1;
+  --color-secondary-dark: #6a849e;
+  --color-tertiary: #5E81AC;
+  --color-tertiary-dark: #4d6c92;
+  --color-error: #BF616A;
+  --color-warning: #EBCB8B;
+  --color-success: #A3BE8C;
+  --color-weird: #B48EAD;
+
+
+    // spaces
+    --m1: 4px;
+    --m2: 8px;
+    --m3: 16px;
+    --m4: 24px;
+    --border: 1px solid var(--color-border);
+    --avatar_xl: 150px;
+    --avatar_m: 34px;
+    --radius: 6px;
 }
 
-:root, [data-theme="default"] {
-  --color-primary: hsl(210, 97%, 61%);
-  --color-primary-h: 210;
-  --color-primary-s: 97%;
-  --color-primary-l: 61%;
-  --color-button-classic: hsl(210,25%,98%);
-  --color-button-classic-h: 210;
-  --color-button-classic-s: 25%;
-  --color-button-classic-l: 98%;
-  --color-surface: hsl(0,0%,24%);
-  --color-surface-h: 0;
-  --color-surface-s: 0%;
-  --color-surface-l: 24%;
+
+
+:root[data-theme="dark"] {
+ // color
+ --color-background: #2E3440;
+  --color-background-dark: #24282f;
+  --color-surface: #3B4252;
+  --color-selection: #434C5E;
+  --color-border: #4C566A;
+  --color-text: #ECEFF4;
+  --color-text-subtle: #E5E9F0;
+  --color-primary: #88C0D0;
+  --color-primary-dark: #4d6c92;
+  --color-secondary: #81A1C1;
+  --color-tertiary: #5E81AC;
+  --color-error: #BF616A;
+  --color-warning: #EBCB8B;
+  --color-success: #A3BE8C;
+  --color-weird: #B48EAD;
+
+  
+
 }
+
+
+// :root, [data-theme="default"] {
+//   --color-primary: hsl(210, 97%, 61%);
+//   --color-primary-h: 210;
+//   --color-primary-s: 97%;
+//   --color-primary-l: 61%;
+//   --color-button-classic: hsl(210,25%,98%);
+//   --color-button-classic-h: 210;
+//   --color-button-classic-s: 25%;
+//   --color-button-classic-l: 98%;
+//   --color-surface: hsl(0,0%,24%);
+//   --color-surface-h: 0;
+//   --color-surface-s: 0%;
+//   --color-surface-l: 24%;
+// }
+
 
 /* PRIMARY */
 /* SECONDARY */

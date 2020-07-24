@@ -239,12 +239,17 @@ $grid-columns: 12 !default;
   margin-bottom: 0;
   .suphero__left {
     flex: 1;
+    color: var(--color-text);
   }
   .suphero__actions  {
     display: flex;
     align-items: center;
       .follow {
         margin-right: var(--m3);
+      }
+    
+      .dialog__container {
+        margin-right: var(--m2);
       }
   }
   
@@ -288,12 +293,13 @@ $grid-columns: 12 !default;
 @mixin content_navigation {
   border-top: 0;
   border-bottom: 0;
-  background: white;
+  background: var(--color-surface);
   padding: 8px;
   border-radius: 6px;
   height: fit-content;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
   height: max-content;
+  color: var(--color-text);
   a {
     display: block;
     height: 50px;
@@ -329,6 +335,7 @@ $grid-columns: 12 !default;
 // DROPDOWN
 @mixin icon-dropdown($orientation: "left") {
   position: relative;
+  color: var(--color-primary);
   cursor: pointer;
   summary::-webkit-details-marker {
     display: none;
