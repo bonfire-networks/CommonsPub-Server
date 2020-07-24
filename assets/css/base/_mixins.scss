@@ -223,7 +223,7 @@ $grid-columns: 12 !default;
 // TEMPLATES
 @mixin content {
   display: grid;
-  grid-template-rows: 60px 1fr;
+  grid-template-rows: 84px 1fr;
   height: 100vh;
 }
 
@@ -233,10 +233,10 @@ $grid-columns: 12 !default;
   align-items: center;
   margin-bottom: var(--m3);
   padding: 0 var(--m3);
-  background: var(--color-primary-alt);
-  border-bottom: var(--border);
-  border-left: var(--border);
+  background: var(--color-surface);
   margin-bottom: 0;
+  border-radius: 6px;
+  
   .suphero__left {
     flex: 1;
     color: var(--color-text);
