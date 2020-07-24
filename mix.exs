@@ -164,6 +164,8 @@ defmodule MoodleNet.Mixfile do
       # CommonsPub:
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
+      # geocoding
+      {:geocoder, "~> 1.0"},
       {:earmark, "~> 1.4"},
       {:slugger, "~> 0.3"},
       # {:pointers, "~> 0.2.2"},

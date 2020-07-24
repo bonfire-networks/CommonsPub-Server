@@ -76,28 +76,23 @@ defmodule Measurement.Test.Faking do
   end
 
   def units_query(options \\ []) do
-    params =
-      [
-        units_after: list_type(:cursor),
-        units_before: list_type(:cursor),
-        units_limit: :int
-      ] ++ Keyword.get(options, :params, [])
-
+    params = [
+      after: list_type(:cursor),
+      before: list_type(:cursor),
+      limit: :int
+    ] ++ Keyword.get(options, :params, [])
     gen_query(&units_subquery/1, [{:params, params} | options])
   end
 
   def units_subquery(options \\ []) do
     args = [
-      after: var(:units_after),
-      before: var(:units_before),
-      limit: var(:units_limit)
+      after: var(:after),
+      before: var(:before),
+      limit: var(:limit)
     ]
-
-    page_subquery(
-      :units,
-      &[:follower_count | unit_fields(&1)],
-      [{:args, args} | options]
-    )
+    page_subquery(:units_pages,
+      &unit_fields/1,
+      [{:args, args} | options])
   end
 
   def create_unit_mutation(options \\ []) do

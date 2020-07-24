@@ -37,17 +37,13 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
-    context_edges =
-      ResolvePages.run(%ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_context_edges,
-        context: ids,
-        page_opts: page_opts,
-        info: info
-      })
-
-    # IO.inspect(context_edges: context_edges)
-    context_edges
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_context_edges,
+      context: ids,
+      page_opts: page_opts,
+      info: info
+    })
   end
 
   def fetch_context_edges(_page_opts, _info, ids) do

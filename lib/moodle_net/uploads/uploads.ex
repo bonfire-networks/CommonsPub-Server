@@ -30,10 +30,9 @@ defmodule MoodleNet.Uploads do
           {:ok, Content.t()} | {:error, Changeset.t()}
   def upload(upload_def, %User{} = uploader, file, attrs) do
     file = MoodleNetWeb.Helpers.Common.input_to_atoms(file)
-    IO.inspect(file: file)
 
-    with {:ok, file} <- IO.inspect(parse_file(file)),
-         :ok <- IO.inspect(allow_media_type(upload_def, file)),
+    with {:ok, file} <- parse_file(file),
+         :ok <- allow_media_type(upload_def, file),
          {:ok, content} <- insert_content(upload_def, uploader, file, attrs),
          {:ok, url} <- remote_url(content) do
       {:ok, %{content | url: url}}
@@ -279,6 +278,8 @@ defmodule MoodleNet.Uploads do
   end
 
   def prepend_url(url) do
-    base_url() <> "/" <> url
+    base_url()
+    |> URI.merge(url)
+    |> URI.to_string()
   end
 end
