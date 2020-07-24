@@ -43,7 +43,7 @@ defmodule Geolocation.GeolocationsTest do
     test "creates a geolocation with a mappable address" do
       user = fake_user!()
 
-      attrs = Map.put(geolocation(), :mappable_address, "1221 Williamson St., Madison, WI 53703")
+      attrs = Map.put(geolocation(), :mappable_address, mappable_address())
       assert {:ok, geo} = Geolocations.create(user, attrs)
       assert_geolocation(geo)
       assert geo.lat
@@ -53,10 +53,24 @@ defmodule Geolocation.GeolocationsTest do
 
   describe "update" do
     test "update an exisitng geolocation" do
-      
+      user = fake_user!()
+      geo = fake_geolocation!(user)
+
+      assert {:ok, updated} = Geolocations.update(user, geo, geolocation())
+      assert_geolocation(updated)
+      assert updated.id == geo.id
+      assert updated != geo
     end
 
     test "update an existing geolocation with a mappable address" do
+      user = fake_user!()
+      geo = fake_geolocation!(user)
 
+      attrs = Map.put(geolocation(), :mappable_address, mappable_address())
+      assert {:ok, geo} = Geolocations.update(user, geo, attrs)
+      assert geo.lat
+      assert geo.long
+      assert geo.mappable_address == attrs[:mappable_address]
+    end
   end
 end

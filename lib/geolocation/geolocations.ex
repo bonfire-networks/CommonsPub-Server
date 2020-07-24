@@ -209,7 +209,8 @@ defmodule Geolocation.Geolocations do
     #   end
     # end)
 
-    with {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)) do
+     with {:ok, attrs} <- resolve_mappable_address(attrs),
+          {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)) do
       {:ok, populate_coordinates(item)}
     end
   end

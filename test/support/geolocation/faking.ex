@@ -12,6 +12,11 @@ defmodule Geolocation.Test.Faking do
 
   ## Geolocation
 
+  def mappable_address do
+    # guaranteed random
+    "1221 Williamson St., Madison, WI 53703"
+  end
+
   def geolocation(base \\ %{}) do
     base
     |> Map.put_new_lazy(:name, &Fake.name/0)

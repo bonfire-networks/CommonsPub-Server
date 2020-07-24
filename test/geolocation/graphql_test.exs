@@ -69,7 +69,7 @@ defmodule Geolocation.GraphQLTest do
       q = create_geolocation_mutation()
       conn = user_conn(user)
       vars = %{spatial_thing: geolocation_input()}
-      vars = put_in(vars, [:spatial_thing, "mappableAddress"], "1221 Williamson St., Madison, WI 53703")
+      vars = put_in(vars, [:spatial_thing, "mappableAddress"], mappable_address())
       assert geo = grumble_post_key(q, conn, :create_spatial_thing, vars)["spatialThing"]
       assert_geolocation(geo)
       assert geo["lat"]
@@ -85,6 +85,19 @@ defmodule Geolocation.GraphQLTest do
       q = update_geolocation_mutation()
       conn = user_conn(user)
       vars = %{spatial_thing: Map.put(geolocation_input(), "id", geo.id)}
+      assert_geolocation(grumble_post_key(q, conn, :update_spatial_thing, vars)["spatialThing"])
+    end
+
+    test "updates an existing geolocation with a mappable address" do
+      user = fake_user!()
+      geo = fake_geolocation!(user)
+
+      q = update_geolocation_mutation()
+      conn = user_conn(user)
+      vars = %{spatial_thing: Map.merge(geolocation_input(), %{
+        "id" => geo.id,
+        "mappableAddress" => mappable_address()
+      })}
       assert_geolocation(grumble_post_key(q, conn, :update_spatial_thing, vars)["spatialThing"])
     end
   end
