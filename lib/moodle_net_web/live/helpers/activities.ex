@@ -5,7 +5,9 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Profile  def prepare(%{display_verb: _} = activity, current_user) do
+  alias MoodleNetWeb.Helpers.{Profile}
+
+  def prepare(%{display_verb: _} = activity, current_user) do
     IO.inspect("activity already prepared")
     activity
   end
