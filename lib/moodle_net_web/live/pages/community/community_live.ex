@@ -15,7 +15,6 @@ defmodule MoodleNetWeb.CommunityLive do
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
-    HeroProfileLive,
     AboutLive,
     TabNotFoundLive
   }

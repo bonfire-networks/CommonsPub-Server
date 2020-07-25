@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.My.Post.WriteLive do
+defmodule MoodleNetWeb.My.WriteLive do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common

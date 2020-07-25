@@ -13,9 +13,9 @@
     <ul class="dropdown__list">
       <h2>Create</h2>
 
-      <li phx-target="<%= @myself %>" phx-click="toggle_post"><i class="feather-edit"></i> Write a post</li>
-      <li phx-target="<%= @myself %>" phx-click="toggle_community"><i class="feather-users"></i> Start a community</li>
-      <li phx-target="<%= @myself %>" phx-click="toggle_link"><i class="feather-link"></i> Share a link</li>
+      <li phx-target="#write_widget" phx-click="toggle_post"><i class="feather-edit"></i> Write a post</li>
+      <li phx-target="#new_community" phx-click="toggle_community"><i class="feather-users"></i> Start a community</li>
+      <li phx-target="#post_link" phx-click="toggle_link"><i class="feather-link"></i> Share a link</li>
     </ul>
   </details>
   <span class="right__notification"><i class="feather-bell"></i></span>
@@ -39,91 +39,33 @@
   </details>
 
 
-<%= if @toggle_post == true do %>
+  <%= live_component(
+      @socket,
+      MoodleNetWeb.My.WriteWidgetLive,
+      current_user: @current_user,
+      toggle_post: @toggle_post,
+      my_communities: @my_communities,
+      show_title: @show_title,
+      id: "write_widget"
+    ) %>
 
-<div id="<%= @toggle_post %>" class="dialog__newcommunity">
-  <div phx-target="<%= @myself %>" phx-click="toggle_post" class="dialog__backdrop"></div>
-  <dialog open class="dialog dialog__newCommunity">
-    <header class="dialog__header">Create a new post</header>
-    <section class="dialog__content">
-      <form phx-submit="post" phx-target="<%= @myself %>" class="general__post">
-        <%= live_component(
-                @socket,
-                MoodleNetWeb.My.ContextSelect,
-                current_user: @current_user,
-                my_communities: @my_communities
-              ) %>
-        <div class="post__toggle post__title <%= if @show_title, do: "form__visible", else: "" %>">
-          <input id="name" name="name"  type="text" placeholder="Choose a title">
-        </div>
-        <div class="post__wrapper">
-          <textarea id="sidebar-content" name="content" placeholder="What are you thinking"></textarea>
-          <div class="post__actions">
-            <div phx-click="title" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_title, do: "active", else: "" %>"><i class="feather-type"></i></div>
-            <div class="button-outline-only-icon">
-              <%= live_redirect to: "/~/write" do %>
-                <i class="feather-maximize"></i>
-              <% end %>
-            </div>
-          </div>
-        </div>
-        <div class="post__sub__actions">
-          <button phx-disable-with="Posting..." type="submit">Publish</button>
-        </div>
-      </form>
-    </section>
-  </dialog>
-</div>
-<% end %>
+  <%= live_component(
+      @socket,
+      MoodleNetWeb.My.NewCommunityLive,
+      current_user: @current_user,
+      toggle_community: @toggle_community,
+      my_communities: @my_communities,
+      id: "new_community"
+    ) %>
 
-<%= if @toggle_community do %>
-<div class="dialog__newcommunity">
-  <div phx-target="<%= @myself %>" phx-click="toggle_community" class="dialog__backdrop"></div>
-  <dialog open class="dialog dialog__newCommunity">
-    <header class="dialog__header">Create a new community</header>
-    <section class="dialog__content">
-      <form phx-submit="new_community" phx-target="<%= @myself %>">
-        <input name="name" placeholder="Type the community name..." />
-        <textarea name="summary" placeholder="Describe your community..."></textarea>
-        <footer class="dialog__footer">
-          <button value="default">Confirm</button>
-        </footer>
-      </form>
-    </section>
-  </dialog>
-</div>
-<% end %>
-
-
-<%= if @toggle_link do %>
-  <div id="<%= @toggle_link %>" class="dialog_new_link">
-    <div phx-target="<%= @myself %>" phx-click="toggle_link" class="dialog__backdrop"></div>
-    <dialog open class="dialog dialog__newLink">
-      <header class="dialog__header">Share a link</header>
-      <section class="dialog__content">
-        <form phx-change="fetch_link" phx-submit="share_link" phx-target="<%= @myself %>">
-         <%= live_component(
-                @socket,
-                MoodleNetWeb.My.ContextSelect,
-                current_user: @current_user,
-                my_communities: @my_communities
-              ) %>
-          <input name="content[url]" id="input_url" value="<%= e(@link_input, :url, "") %>" placeholder="Paste the URL..." required="required" />
-      <div class="link_inputs_extra">
-        <img src="<%= e(@link_input, :image, "") %>" style="float: left; width:150px; height:auto" />
-        <input name="icon[url]" value="<%= e(@link_input, :image, "") %>" type="hidden" />
-
-        <input name="name" value="<%=e(@link_input, :title, "")%>" placeholder="Enter a name or title for the link..." />
-        <textarea name="summary" placeholder="Describe the link..."><%=e(@link_input, :summary, "")%></textarea>
-        <input name="author" value="<%=e(@link_input, :author, e(@link_input, :source, ""))%>" placeholder="Enter the author or source of this content..." />
-        <footer class="dialog__footer">
-          <button value="default">Share</button>
-        </footer>
-      </div>
-    </form>
-  </section>
-</dialog>
-</div>
-<% end %>
+  <%= live_component(
+      @socket,
+      MoodleNetWeb.My.ShareLinkLive,
+      current_user: @current_user,
+      toggle_link: @toggle_link,
+      my_communities: @my_communities,
+      link_input: %{},
+      id: "post_link"
+    ) %>
 
 </div>
