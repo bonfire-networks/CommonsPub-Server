@@ -39,20 +39,16 @@
     </summary>
     <ul class="dropdown__list">
       <li>
-        <details class="dialog__container member">
-          <summary class="button-link" >Report</summary>
-          <dialog open class="dialog dialog__report">
-            <header class="dialog__header">Report <%= @community.name %></header>
-            <section class="dialog__content">
-              <form method="post" phx-submit="flag">
-                <textarea name="message" placeholder="Describe the reason..."></textarea>
-                <footer class="dialog__footer">
-                  <button type="submit" phx-disable-with="Checking..." value="default">Confirm</button>
-                </footer>
-              </form>
-            </section>
-          </dialog>
-        </details>
+      <%=
+        live_component(
+          @socket,
+          MoodleNetWeb.Component.FlagLive,
+          object: @community,
+          current_user: @current_user,
+          id: "flag-"<>@community.id,
+          flag_object_name: @community.name
+        )
+      %>
       </li>
       <li>
         <%= live_patch to: "/&" <> @community.actor.preferred_username <> "/write" do %>

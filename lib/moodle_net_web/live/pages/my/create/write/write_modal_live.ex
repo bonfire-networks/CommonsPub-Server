@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.My.WriteWidgetLive do
+defmodule MoodleNetWeb.My.WriteModalLive do
   use MoodleNetWeb, :live_component
 
   import MoodleNetWeb.Helpers.Common

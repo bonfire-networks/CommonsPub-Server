@@ -21,7 +21,18 @@
               <i class="feather-more-horizontal"></i>
             </summary>
             <ul class="dropdown__list">
-              <li><button class="button-link" >Report</button></li>
+              <li>
+                  <%=
+                    live_component(
+                      @socket,
+                      MoodleNetWeb.Component.FlagLive,
+                      object: @thread,
+                      current_user: @current_user,
+                      id: "flag-"<>@thread.id,
+                      flag_object_name: "this entire thread"
+                    )
+                  %>
+              </li>
             </ul>
           </details>
         </div>
@@ -48,10 +59,10 @@
           <div class="navigation__block">
             <h3 class="block__title">Context</h3>
             <%= if @thread.context_id !== nil do %>
-              <%= live_patch to: "/&" <> @thread.context.actor.preferred_username do %>
+              <%= live_patch to: "/&" <> e(@thread, :context, :actor, :preferred_username, "") do %>
               <div class="named-avatar">
-                <img alt="context-img" src="<%= @thread.context.image_url %>" />
-                <h3><%= @thread.context.name%></h3>
+                <img alt="context-img" src="<%= e(@thread, :context, :image_url, "") %>" />
+                <h3><%= e(@thread, :context, :name, "")%></h3>
               </div>
               <% end %>
               <% else %>

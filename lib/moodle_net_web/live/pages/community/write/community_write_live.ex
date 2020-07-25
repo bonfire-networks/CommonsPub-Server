@@ -1,7 +1,6 @@
 defmodule MoodleNetWeb.CommunityLive.CommunityWriteLive do
   use MoodleNetWeb, :live_component
 
-
   import MoodleNetWeb.Helpers.Common
   # alias MoodleNetWeb.Helpers.{Profiles, Account}
   # alias MoodleNetWeb.Component.HeaderLive
@@ -12,6 +11,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityWriteLive do
   def update(assigns, socket) do
     IO.inspect(assigns, label: "ASSIGN:")
     IO.inspect(socket, label: "SOCKET:")
+
     {:ok,
      socket
      |> assign(
@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityWriteLive do
        current_user: assigns.current_user,
        community: assigns.community,
        #  current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
-       meili_host: System.get_env("SEARCH_MEILI_INSTANCE", "localhost:7700"),
+       meili_host: System.get_env("SEARCH_MEILI_INSTANCE", "http://localhost:7700"),
        tag_search: nil,
        tag_results: [],
        tag_target: ""
@@ -38,6 +38,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityWriteLive do
 
       comment = input_to_atoms(data)
       IO.inspect(socket.assigns.community.id, label: "COMM: CHHOOOOOSED")
+
       {:ok, thread} =
         MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
           %{context_id: socket.assigns.community.id, comment: comment},
