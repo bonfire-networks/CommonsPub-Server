@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Component.HeroProfileLive do
+defmodule MoodleNetWeb.MemberLive.HeroProfileLive do
   use MoodleNetWeb, :live_component
 
   import MoodleNetWeb.Helpers.Common

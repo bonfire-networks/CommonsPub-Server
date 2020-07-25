@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.MemberLive do
 
   alias MoodleNetWeb.MemberLive.{
     MemberDiscussionsLive,
+    HeroProfileLive,
     MemberNavigationLive,
     MemberActivitiesLive,
     MemberCommunitiesLive,
@@ -15,7 +16,6 @@ defmodule MoodleNetWeb.MemberLive do
 
   alias MoodleNetWeb.Component.{
     # HeaderLive,
-    HeroProfileLive,
     AboutLive,
     TabNotFoundLive
   }

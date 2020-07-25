@@ -189,7 +189,7 @@ defmodule MoodleNetWeb.Router do
 
     live "/~", My.Live
     live "/~/profile", MemberLive
-    live "/~/write", My.Post.WriteLive
+    live "/~/write", My.WriteLive
     live "/~/settings", SettingsLive
     live "/~/settings/:tab", SettingsLive
     live "/~/:tab", My.Live
