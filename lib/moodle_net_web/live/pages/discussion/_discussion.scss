@@ -8,6 +8,7 @@
     row-gap: var(--m3);
     .layout__text {
       background: var(--color-surface);
+      border-radius: 6px;
       .text__inreplyto {
         background: var(--color-background-dark);
           color: var(--color-text-subtle);
@@ -133,6 +134,10 @@
 .discussion__reply {
   padding: var(--m3);
   display: flex;
+    .reply__meta {
+      align-self: flex-end;
+      display: flex;
+    }
   .reply__link {
     display: flex;
     flex: 1;
@@ -161,60 +166,18 @@
 
 .discussion__reply .reply__box {
   margin-left: var(--m2);
-  width: 100%;
-  flex: 1;
-  border-radius: 4px;
-  border: var(--border);
+    width: 100%;
+    flex: 1;
+    display: flex;
   #editor {
-    height: 60px;
-    padding: 0;
-    border-radius: 4px 4px 0 0 ;
-    border: none;
-    &:focus {
-      height: 60px;
-    }
-    #editor-visual {
-      height: 60px;
-      overflow-y: hidden;
-      &:focus {
-        height: 60px;
-      }
-    }
-    .ProseMirror-menubar {
-      padding: 8px 0;
-    }
+    flex:1;
+    min-height: 34px;
+    align-self:flex-end
   }
   .header__actions{
     display: flex;
-    align-items: center;
-    background-color: var(--color-border);
-    border-radius: 0 0 4px 4px;
-    bottom: 0;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-direction: row-reverse;
-    flex-direction: row-reverse;
-    height: 46px;
-    opacity: 1;
-    position: -webkit-sticky;
-    position: sticky;
-    z-index: 1;
-    padding: 4px;
-    .header__controls {
-      height: 34px;
-      border-radius: 4px;
-      place-content: center;
-      display: flex;
-      align-items: center;
-      padding: 0 8px;
-      color: var(--color-text-subtle);
-      &:hover {
-        background: var(--color-secondary);
-      }
-    }
-    button {
-      margin-left: var(--m2);
-    }
+    align-self: flex-end;
+    margin-left: 8px;
   }
 }
 

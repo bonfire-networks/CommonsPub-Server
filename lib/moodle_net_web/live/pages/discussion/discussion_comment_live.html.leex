@@ -22,7 +22,7 @@
           comment: @comment,
           id: @comment.id
         ) %>
-
+<%= if @actions == true do %>
     <%=
       live_component(
           @socket,
@@ -33,6 +33,7 @@
           id: "actions-"<>@comment.id
         )
     %>
+  <% end %>
   </div>
   <%= if length(@comment.comments)>0 do %>
     <%= if @comment.id == @reply_to do %>
@@ -44,7 +45,8 @@
                 id: "comment-#{reply.id}",
                 comment: reply,
                 current_user: @current_user,
-                reply_to: @reply_to
+                reply_to: @reply_to,
+                actions: false
               )%>
         <% end %>
       </div>

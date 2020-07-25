@@ -38,7 +38,8 @@
                 id: "comment-#{comment.id}",
                 comment: comment,
                 current_user: @current_user,
-                reply_to: @reply_to
+                reply_to: @reply_to,
+                actions: true
               )%>
             <% end %>
           </div>
@@ -72,20 +73,14 @@
         <% end %>
       <div id="reply" class="discussion__reply">
           <form phx-submit="reply">
+          <div class="reply__meta">
             <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+          </div>
             <div class="reply__box">
-              <div id="editor" phx-hook="MarkdownEditor">
-                <div id="editor-visual" phx-ignore="true">
-                  <div id="editor-markdown"></div>
-                  <textarea id="content" name="content" placeholder="Write a reply..."></textarea>
-                </div>
+              <div id="editor">
               </div>
               <div class="header__actions">
                 <button>Comment</button>
-                <div class="header__controls">
-                  <input name="editor-style" id="editor-style" type="checkbox" class="switch">
-                  <label for="editor-style">Use visual editor </label>
-                </div>
               </div>
             </div>
           </form>
