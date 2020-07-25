@@ -95,7 +95,6 @@ defmodule MoodleNetWeb.CommunityLive do
       :noreply,
       socket
       |> put_flash(:info, "Your flag will be revied by an admin!")
-      # |> assign(community: socket.assigns.comment |> Map.merge(%{is_liked: true}))
       #  |> push_patch(to: "/&" <> socket.assigns.community.username)
     }
   end

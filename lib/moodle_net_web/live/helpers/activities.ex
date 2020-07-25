@@ -5,7 +5,9 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Profile  def prepare(%{display_verb: _} = activity, current_user) do
+  alias MoodleNetWeb.Helpers.{Profiles}
+
+  def prepare(%{display_verb: _} = activity, current_user) do
     IO.inspect("activity already prepared")
     activity
   end
@@ -38,12 +40,9 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
     # IO.inspect(prepare_activity: activity)
 
-    liked_bool = is_liked(current_user, activity.context.id)
-
     activity
     |> Map.merge(%{published_at: from_now})
     |> Map.merge(%{creator: creator})
-    |> Map.merge(%{is_liked: liked_bool})
     |> Map.merge(%{display_verb: display_activity_verb(activity)})
     |> Map.merge(%{display_object: display_activity_object(activity)})
     |> Map.merge(%{activity_url: activity_url(activity)})

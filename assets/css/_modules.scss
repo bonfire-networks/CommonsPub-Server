@@ -2,11 +2,14 @@
 @import "./components/navigation";
 @import "./components/pagination";
 @import "./components/post/autocomplete";
+
 @import "../../lib/moodle_net_web/live/components/hero_profile/hero";
 @import "../../lib/moodle_net_web/templates/layout/template_live";
+
 @import "../../lib/moodle_net_web/live/components/previews/previews";
 @import "../../lib/moodle_net_web/live/components/activity/activity";
 @import "../../lib/moodle_net_web/live/components/about/about";
+
 @import "../../lib/moodle_net_web/live/pages/my/login/login";
 @import "../../lib/moodle_net_web/live/pages/my/signup/signup";
 @import "../../lib/moodle_net_web/live/pages/my/settings/settings";

@@ -1,0 +1,21 @@
+
+<div class="preview__actions">
+  <%= live_patch to: @reply_link do %>
+    <button class="button-link"><i class="feather-message-square"></i><span>Reply</span></button>
+  <% end %>
+  <button phx-click="like" phx-target="<%= @myself %>" class="button-link"><%= if @is_liked, do: 'Unlike', else: 'Like' %></button>
+  <details class="dialog__container member">
+    <summary class="button-link" >Report</summary>
+    <dialog open class="dialog dialog__report">
+      <header class="dialog__header">Report this comment</header>
+      <section class="dialog__content">
+        <form method="post" phx-submit="flag" phx-target="<%= @myself %>">
+          <textarea name="message" placeholder="Describe the reason..."></textarea>
+          <footer class="dialog__footer">
+            <button type="submit" phx-disable-with="Checking..." value="default">Confirm</button>
+          </footer>
+        </form>
+      </section>
+    </dialog>
+  </details>
+</div>

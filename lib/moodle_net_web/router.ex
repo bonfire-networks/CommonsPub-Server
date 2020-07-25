@@ -206,26 +206,28 @@ defmodule MoodleNetWeb.Router do
     post "/~/settings", My.SettingsUpload, :upload
   end
 
-  def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
-    msg =
-      if Map.has_key?(reason, :message) and !is_nil(reason.message) and
-           String.length(reason.message) > 0 do
-        reason.message
-      else
-        if is_map(reason) and Map.has_key?(reason, :term) and is_map(reason.term) and
-             Map.has_key?(reason.term, :message) do
-          reason.term.message
+  if Mix.env() != :dev do
+    def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
+      msg =
+        if Map.has_key?(reason, :message) and !is_nil(reason.message) and
+             String.length(reason.message) > 0 do
+          reason.message
         else
-          # IO.inspect(handle_error: info)
-          "An unhandled error has occured"
+          if is_map(reason) and Map.has_key?(reason, :term) and is_map(reason.term) and
+               Map.has_key?(reason.term, :message) do
+            reason.term.message
+          else
+            # IO.inspect(handle_error: info)
+            "An unhandled error has occured"
+          end
         end
-      end
 
-    send_resp(
-      conn,
-      conn.status,
-      "Sorry! " <>
-        msg <> "... Please try another way, or get in touch with the site admin."
-    )
+      send_resp(
+        conn,
+        conn.status,
+        "Sorry! " <>
+          msg <> "... Please try another way, or get in touch with the site admin."
+      )
+    end
   end
 end

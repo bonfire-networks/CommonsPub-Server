@@ -22,6 +22,17 @@
           comment: @comment,
           id: @comment.id
         ) %>
+
+    <%=
+      live_component(
+          @socket,
+          PreviewActionsLive,
+          object: @comment,
+          object_type: "comment",
+          current_user: @current_user,
+          id: "actions-"<>@comment.id
+        )
+    %>
   </div>
   <%= if length(@comment.comments)>0 do %>
     <%= if @comment.id == @reply_to do %>

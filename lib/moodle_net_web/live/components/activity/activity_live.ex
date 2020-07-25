@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.PreviewLive
+  alias MoodleNetWeb.Component.{PreviewLive, PreviewActionsLive}
 
   # alias MoodleNetWeb.Component.DiscussionPreviewLive
 
@@ -29,54 +29,5 @@ defmodule MoodleNetWeb.Component.ActivityLive do
          current_user: assigns.current_user
        )}
     end
-  end
-
-  def handle_event("like", _data, socket) do
-    {:ok, like} =
-      MoodleNetWeb.GraphQL.LikesResolver.create_like(
-        %{context_id: e(e(socket.assigns.activity, :context, socket.assigns.activity), :id, nil)},
-        %{
-          context: %{current_user: socket.assigns.current_user}
-        }
-      )
-
-    IO.inspect(like, label: "LIKE")
-
-    # IO.inspect(f)
-    # TODO: error handling
-
-    {
-      :noreply,
-      socket
-      |> put_flash(:info, "Liked!")
-      |> assign(activity: socket.assigns.activity |> Map.merge(%{is_liked: true}))
-      #  |> push_patch(to: "/&" <> socket.assigns.community.username)
-    }
-  end
-
-  def handle_event("flag", %{"message" => message} = _args, socket) do
-    {:ok, flag} =
-      MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
-        %{
-          context_id: e(e(socket.assigns.activity, :context, socket.assigns.activity), :id, nil),
-          message: message
-        },
-        %{
-          context: %{current_user: socket.assigns.current_user}
-        }
-      )
-
-    IO.inspect(flag, label: "FLAG")
-
-    # IO.inspect(f)
-    # TODO: error handling
-
-    {
-      :noreply,
-      socket
-      |> put_flash(:info, "Flagged!")
-      # |> assign(community: socket.assigns.comment |> Map.merge(%{is_liked: true}))
-      #  |> push_patch(to: "/&" <> socket.assigns.community.username)
-    }
   end
 end

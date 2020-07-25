@@ -213,7 +213,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def image(parent, style, size) do
     parent =
-      if(Map.has_key?(parent, :__struct__)) do
+      if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
         maybe_preload(parent, image: [:content_upload, :content_mirror])
       end
 
@@ -222,7 +222,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def icon(parent, style, size) do
     parent =
-      if(Map.has_key?(parent, :__struct__)) do
+      if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
         maybe_preload(parent, icon: [:content_upload, :content_mirror])
       end
 
@@ -230,7 +230,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   defp image_url(parent, field_name, style, size) do
-    if(Map.has_key?(parent, :__struct__)) do
+    if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
       # IO.inspect(image_field: field_name)
       # parent = Repo.preload(parent, field_name: [:content_upload, :content_mirror])
       # IO.inspect(image_parent: parent)

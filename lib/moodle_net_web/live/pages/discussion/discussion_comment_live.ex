@@ -3,7 +3,8 @@ defmodule MoodleNetWeb.Discussion.DiscussionCommentLive do
   import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Component.{
-    CommentPreviewLive
+    CommentPreviewLive,
+    PreviewActionsLive
   }
 
   alias MoodleNetWeb.Discussion.DiscussionCommentLive
