@@ -1,58 +1,20 @@
-defmodule MoodleNetWeb.CommunityLive.CommunityWriteLive do
+defmodule MoodleNetWeb.My.TagLive do
   use MoodleNetWeb, :live_component
 
   import MoodleNetWeb.Helpers.Common
-  # alias MoodleNetWeb.Helpers.{Profiles, Account}
-  # alias MoodleNetWeb.Component.HeaderLive
 
   # terminate tags with space
   @tag_terminator " "
 
-  def update(assigns, socket) do
-    IO.inspect(assigns, label: "ASSIGN:")
-    IO.inspect(socket, label: "SOCKET:")
-
+  def mount(socket) do
     {:ok,
      socket
      |> assign(
-       title_placeholder: "An optional title...",
-       summary_placeholder: "Write a story or get a discussion started!",
-       post_label: "Publish",
-       current_user: assigns.current_user,
-       community: assigns.community,
-       #  current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
        meili_host: System.get_env("SEARCH_MEILI_INSTANCE", "http://localhost:7700"),
        tag_search: nil,
        tag_results: [],
        tag_target: ""
      )}
-  end
-
-  def handle_event("post", %{"content" => content} = data, socket) do
-    if(is_nil(content) or is_nil(socket.assigns.current_user)) do
-      {:noreply,
-       socket
-       |> put_flash(:error, "Please write something...")}
-    else
-      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
-
-      comment = input_to_atoms(data)
-      IO.inspect(socket.assigns.community.id, label: "COMM: CHHOOOOOSED")
-
-      {:ok, thread} =
-        MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
-          %{context_id: socket.assigns.community.id, comment: comment},
-          %{context: %{current_user: socket.assigns.current_user}}
-        )
-
-      IO.inspect(thread, label: "THREAD")
-
-      {:noreply,
-       socket
-       |> put_flash(:info, "Published!")
-       # change redirect
-       |> push_redirect(to: "/!" <> thread.thread_id)}
-    end
   end
 
   def handle_event("tag_suggest", %{"content" => content}, socket)
@@ -134,23 +96,24 @@ defmodule MoodleNetWeb.CommunityLive.CommunityWriteLive do
     search = Search.Meili.search(tag_search, index)
 
     if(Map.has_key?(search, "hits") and length(search["hits"])) do
-      search["hits"]
-      # hits = Enum.map(search["hits"], &tag_hit_prepare/1)
-      # Enum.filter(hits, & &1)
+      # search["hits"]
+      hits = Enum.map(search["hits"], &tag_hit_prepare(&1, tag_search))
+      Enum.filter(hits, & &1)
     end
   end
 
-  def tag_hit_prepare(hit) do
+  def tag_hit_prepare(hit, tag_search) do
     # FIXME: do this by filtering Meili instead?
-    if !is_nil(hit["preferredUsername"]) do
+    if !is_nil(hit["preferredUsername"]) or !is_nil(hit["id"]) do
       hit
+      |> Map.merge(%{display: tag_suggestion_display(hit, tag_search)})
     end
   end
 
   def tag_suggestion_display(hit, tag_search) do
-    name = e(hit, "name", e(hit, "label", e(hit, "preferredUsername", "")))
+    name = e(hit, "name_crumbs", e(hit, "name", e(hit, "preferredUsername", nil)))
 
-    if name =~ tag_search do
+    if !is_nil(name) and name =~ tag_search do
       split = String.split(name, tag_search, parts: 2, trim: false)
       IO.inspect(split)
       [head | tail] = split

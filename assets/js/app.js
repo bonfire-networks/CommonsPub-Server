@@ -26,15 +26,15 @@ Hooks.TagPick = {
     console.log("TagPick mounted");
     this.el.addEventListener("click", (e) => {
       console.log("tag clicked");
-      const prefix = "+"; // TODO: support other triggers
-      if (this.el.dataset.target) {
-        const f = document.getElementById(this.el.dataset.target);
-        var ta = f.value.split(prefix);
-        ta.pop();
-        ta.push(this.el.dataset.tag + " "); // terminate with space
-        f.value = ta.join(prefix);
-        document.getElementById("autocomplete-dropdown").innerHTML = "";
-      }
+      var prefix = this.el.dataset.prefix || "@";
+      var f = document.getElementById(this.el.dataset.target || "content");
+      var dropdown =
+        this.el.parentNode.parentNode || document.getElementById("write_tag");
+      var ta = f.value.split(prefix);
+      ta.pop();
+      ta.push(this.el.dataset.tag + " "); // terminate with space
+      f.value = ta.join(prefix);
+      dropdown.innerHTML = "";
     });
   },
 };
@@ -162,7 +162,6 @@ let liveSocket = new LiveSocket("/live", Socket, {
 
 console.log(csrfToken);
 
-
 // wip for theme swtiching
 // const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
 
@@ -172,7 +171,7 @@ console.log(csrfToken);
 //     }
 //     else {
 //         document.documentElement.setAttribute('data-theme', 'dark');
-//     }    
+//     }
 // }
 
 // toggleSwitch.addEventListener('change', switchTheme, false);

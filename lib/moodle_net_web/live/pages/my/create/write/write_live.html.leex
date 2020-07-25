@@ -1,5 +1,5 @@
 <section class="page__write">
-  <form phx-change="tag_suggest" phx-submit="post" class="mainContent_write">
+  <form phx-change="tag_suggest" phx-target="#write_tag" phx-submit="post" class="mainContent_write">
     <header class="write__header">
       <div class="header__main">
         <div class="left__title">
@@ -30,10 +30,10 @@
     </div>
   </form>
 </section>
-<div id="autocomplete-dropdown" style="top: 90px; left: 378.5px; position: absolute; display: block;">
-  <ul>
-    <%= for hit <- @tag_results do %>
-      <li data-tag="<%= e(hit, "preferredUsername", "") %>" phx-hook="TagPick" data-search="<%= @tag_search %>" data-target="<%= @tag_target %>" data-prefix="<%= @tag_prefix %>" ><%= r(tag_suggestion_display(hit, @tag_search)) %></li>
-    <% end %>
-  </ul>
-</div>
+
+<%= live_component(
+    @socket,
+    MoodleNetWeb.My.TagLive,
+    current_user: @current_user,
+    id: "write_tag"
+  ) %>

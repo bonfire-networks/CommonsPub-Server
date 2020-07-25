@@ -1,0 +1,7 @@
+<div id="<%= @id %>" class="tag_autocomplete">
+  <ul>
+    <%= for hit <- @tag_results do %>
+      <li data-tag="<%= e(hit, "preferredUsername", e(hit, "id", "")) %>" phx-hook="TagPick" data-search="<%= @tag_search %>" data-target="<%= @tag_target %>" data-prefix="<%= @tag_prefix %>" ><%= r(hit.display) %></li>
+    <% end %>
+  </ul>
+</div>
