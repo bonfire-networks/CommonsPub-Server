@@ -3,9 +3,7 @@ defmodule MoodleNetWeb.Component.PreviewActionsLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.PreviewLive
-
-  # alias MoodleNetWeb.Component.DiscussionPreviewLive
+  alias MoodleNetWeb.Component.{PreviewLive, FlagLive}
 
   alias MoodleNetWeb.Helpers.{Activites}
 
@@ -22,7 +20,8 @@ defmodule MoodleNetWeb.Component.PreviewActionsLive do
        current_user: assigns.current_user,
        object: assigns.object,
        reply_link: reply_link,
-       is_liked: is_liked
+       is_liked: is_liked,
+       preview_id: assigns.preview_id
      )}
   end
 

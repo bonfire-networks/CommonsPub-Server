@@ -7,20 +7,16 @@
           <h3><%= @current_user.name %></h3>
         </div>
         <div class="suphero__actions">
-          <%= if is_map(@current_user) and @current_user.id==@current_user.id do %>
-            <%= live_redirect to: "/~/profile" do %>Profile<% end %>
-          <% else %>
-            <button class="button follow">Follow</button>
+            <%= live_redirect to: "/~/profile" do %>View my profile<% end %>
             <details class="more__dropdown">
               <summary>
                 <i class="feather-more-horizontal"></i>
               </summary>
               <ul class="dropdown__list">
-                <li><button class="button-link" >Report</button></li>
-                <li><button class="button-link" >Block</button></li>
+                <li><button class="button-link" >Download my data</button></li>
+                <li><button class="button-link" >Delete my account</button></li>
               </ul>
             </details>
-          <% end %>
         </div>
       </div>
     </div>

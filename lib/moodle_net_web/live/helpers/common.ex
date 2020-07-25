@@ -18,7 +18,8 @@ defmodule MoodleNetWeb.Helpers.Common do
   def strlen(%{} = obj) when obj == %{}, do: 0
   def strlen(%{}), do: 1
   def strlen(x) when is_binary(x), do: String.length(x)
-  def strlen(x), do: length(x)
+  def strlen(x) when is_list(x), do: length(x)
+  def strlen(x) when x > 0, do: 1
 
   @doc "Returns a value, or a fallback if not present"
   def e(key, fallback) do

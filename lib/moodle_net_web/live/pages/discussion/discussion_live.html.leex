@@ -21,7 +21,18 @@
               <i class="feather-more-horizontal"></i>
             </summary>
             <ul class="dropdown__list">
-              <li><button class="button-link" >Report</button></li>
+              <li>
+                  <%=
+                    live_component(
+                      @socket,
+                      MoodleNetWeb.Component.FlagLive,
+                      object: @thread,
+                      current_user: @current_user,
+                      id: "flag-"<>@thread.id,
+                      flag_object_name: "this entire thread"
+                    )
+                  %>
+              </li>
             </ul>
           </details>
         </div>
