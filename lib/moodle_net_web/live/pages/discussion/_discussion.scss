@@ -7,7 +7,30 @@
     height: calc(100vh - 80px);
     row-gap: var(--m3);
     .layout__text {
-      background: var(--color-surface)
+      background: var(--color-surface);
+      .text__inreplyto {
+        background: var(--color-background-dark);
+          color: var(--color-text-subtle);
+          padding: var(--m2);
+          font-size: 14px;
+          font-size: 14px;
+          font-weight: 400;
+          border-bottom: var(--border);
+          display: flex;
+          align-items: center;
+          .reply {
+            flex:1;
+            margin-right: 16px
+          }
+          i {
+            font-size: 20px;
+            margin-right: 16px;
+          }
+          p {
+            margin: 0;
+            margin-top: 4px;
+          }
+      }
     }
   
   }
@@ -67,6 +90,8 @@
   // @include content_two_sides;
   margin-top: 0;
   overflow-y: overlay;
+  background: var(--color-surface);
+    border-radius: 6px;
 }
 
 .discussion__navigation {
@@ -74,9 +99,7 @@
 }
 
 .wrapper__discussion {
-  min-width: calc(900px - 290px);
-  background: var(--color-surface);
-  border-radius: 6px;
+
   .discussion__main {
     background: var(--color-surface);
     box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);

@@ -60,8 +60,17 @@
         </div -->
     </div>
     <div class="layout__text">
-      <%= if !@reply_to do %>
-        <div id="reply" class="discussion__reply">
+        <%= if @reply != nil do %>
+          <div class="text__inreplyto">
+          <i class="feather-corner-up-left"></i>
+          <div class="reply">
+           <%= live_redirect to: "/@"<> e(@reply, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@reply, :creator, :name, "Somebody") %><% end %>
+          <p><%= @reply.content %></p>
+          </div>
+          <%= live_redirect to: "/!"<> @thread.id <> "/discuss"  do %><i class="feather-x-circle"></i><% end %>
+      </div>
+        <% end %>
+      <div id="reply" class="discussion__reply">
           <form phx-submit="reply">
             <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
             <div class="reply__box">
@@ -81,7 +90,6 @@
             </div>
           </form>
         </div>
-      <% end %>
     </div>
   </section>
 </div>
