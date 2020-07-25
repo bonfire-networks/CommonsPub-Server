@@ -192,7 +192,15 @@
 .preview__fork {
   margin-top: 8px;
   border-radius: 6px;
-  border: var(--border);
+  background: var(--color-selection);
+  & > a {
+    display: block;
+    background-color: var(--color-border);
+    border-radius: 0 0 6px 6px;
+  }
+  .fork__item {
+    padding: 4px 0 0;
+  }
   .comment__fork {
     font-size: 14px;
     place-content: center;
@@ -204,8 +212,9 @@
 .preview__replies_to_comment {
   display: flex;
   align-items: center;
-  padding: 2px 8px;
   border-radius: 6px;
+  padding: 0;
+  margin: 4px 8px 8px;
 
   .comment__avatar_link {
     margin-right: 8px;
@@ -219,6 +228,7 @@
   p {
     font-size: 14px;
     color: var(--color-text-subtle);
+    margin: 0;
   }
 }
 
