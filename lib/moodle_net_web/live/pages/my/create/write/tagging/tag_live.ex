@@ -12,8 +12,7 @@ defmodule MoodleNetWeb.My.TagLive do
      |> assign(
        meili_host: System.get_env("SEARCH_MEILI_INSTANCE", "http://localhost:7700"),
        tag_search: nil,
-       tag_results: [],
-       tag_target: ""
+       tag_results: []
      )}
   end
 
@@ -31,8 +30,6 @@ defmodule MoodleNetWeb.My.TagLive do
     if(found) do
       {:noreply,
        assign(socket,
-         # ID of the input, TODO: handle several inputs
-         tag_target: "content",
          tag_search: found.tag_search,
          tag_prefix: found.tag_prefix,
          tag_results: found.tag_results
@@ -107,6 +104,7 @@ defmodule MoodleNetWeb.My.TagLive do
     if !is_nil(hit["preferredUsername"]) or !is_nil(hit["id"]) do
       hit
       |> Map.merge(%{display: tag_suggestion_display(hit, tag_search)})
+      |> Map.merge(%{tag_as: e(hit, "preferredUsername", e(hit, "id", ""))})
     end
   end
 

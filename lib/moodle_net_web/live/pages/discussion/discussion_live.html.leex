@@ -88,8 +88,15 @@
             <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
           </div>
             <div class="reply__box">
-              <div id="editor">
-              </div>
+
+              <%= live_component(
+                @socket,
+                MoodleNetWeb.EditorLive,
+                current_user: @current_user,
+                content_placeholder: "Write a thoughtful comment...",
+                id: "comment_editor"
+              ) %>
+
               <div class="header__actions">
                 <button>Comment</button>
               </div>

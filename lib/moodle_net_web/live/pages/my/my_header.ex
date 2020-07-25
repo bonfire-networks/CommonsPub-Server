@@ -72,16 +72,6 @@ defmodule MoodleNetWeb.My.MyHeader do
     IO.inspect("signout!")
   end
 
-  def handle_event("title", _data, socket) do
-    IO.inspect("test")
-
-    {
-      :noreply,
-      socket
-      |> assign(show_title: !socket.assigns.show_title)
-    }
-  end
-
   def handle_event("new_community", %{"name" => name} = data, socket) do
     if(is_nil(name) or !Map.has_key?(socket.assigns, :current_user)) do
       {:noreply,

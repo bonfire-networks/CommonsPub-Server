@@ -14,9 +14,10 @@
 @import "../../lib/moodle_net_web/live/pages/my/settings/settings";
 @import "../../lib/moodle_net_web/live/pages/discussion/discussion";
 @import "../../lib/moodle_net_web/live/pages/my/create/write/write";
-@import "../../lib/moodle_net_web/live/pages/community/community.scss";
+@import "../../lib/moodle_net_web/live/pages/community/community";
 @import "../../lib/moodle_net_web/live/pages/member/member";
 @import "../../lib/moodle_net_web/live/pages/member/components/hero";
+@import "../../lib/moodle_net_web/live/pages/my/create/write/editors/prosemirror"; // TODO: load only if used
 
 @import "../../lib/moodle_net_web/live/pages/instance/instance";
 @import "../../lib/moodle_net_web/live/pages/instance/search/search";

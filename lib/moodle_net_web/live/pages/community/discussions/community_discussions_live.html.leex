@@ -1,9 +1,9 @@
 <div>
 <div class="community__discussion__actions">
   <input placeholder="Search discussions..."/>
-   <%= live_patch to: "/&" <> @community.actor.preferred_username <> "/write" do %>
-    <button >New discussion</button>
-  <% end %>
+    <a href="#" phx-target="#write_widget" phx-click="toggle_post">
+      <button >New discussion</button>
+    </a>
 </div>
 <div class="mainContent__selected">
   <h3 class="area__title">discussions</h3>

@@ -54,6 +54,7 @@ defmodule MoodleNetWeb.CommunityLive do
      assign(socket,
        selected_tab: tab,
        community: community,
+       current_context: community,
        current_user: socket.assigns.current_user
      )}
   end
@@ -72,6 +73,7 @@ defmodule MoodleNetWeb.CommunityLive do
     {:noreply,
      assign(socket,
        community: community,
+       current_context: community,
        current_user: socket.assigns.current_user
      )}
   end

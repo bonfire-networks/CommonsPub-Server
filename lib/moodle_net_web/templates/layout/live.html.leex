@@ -1,3 +1,8 @@
+<%= if @static_changed do %>
+  <script> window.location.reload() </script>
+<% end %>
+<script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@socket, "/js/app.js") %>"></script>
+
 <div id="template" class="page__container">
   <div class="cpub__header">
     <div class="header__left">
@@ -29,7 +34,8 @@
           show_title: @show_title,
           toggle_post: @toggle_post,
           toggle_community: @toggle_community,
-          toggle_link: @toggle_link
+          toggle_link: @toggle_link,
+          current_context: @current_context
         ) %>
       <% end %>
       <%= if @current_user == nil do %>

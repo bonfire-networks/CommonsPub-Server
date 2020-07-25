@@ -44,8 +44,10 @@
       MoodleNetWeb.My.WriteModalLive,
       current_user: @current_user,
       toggle_post: @toggle_post,
+      toggle_fullmodal: false,
       my_communities: @my_communities,
       show_title: @show_title,
+      current_context: @current_context,
       id: "write_widget"
     ) %>
 
@@ -64,6 +66,7 @@
       current_user: @current_user,
       toggle_link: @toggle_link,
       my_communities: @my_communities,
+      current_context: @current_context,
       link_input: %{},
       id: "post_link"
     ) %>

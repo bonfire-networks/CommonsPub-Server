@@ -10,7 +10,8 @@
                 @socket,
                 MoodleNetWeb.My.ContextSelect,
                 current_user: @current_user,
-                my_communities: @my_communities
+                my_communities: @my_communities,
+                current_context: @current_context
               ) %>
           <input name="content[url]" id="input_url" value="<%= e(@link_input, :url, "") %>" placeholder="Paste the URL..." required="required" />
       <div class="link_inputs_extra">

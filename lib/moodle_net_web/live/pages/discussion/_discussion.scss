@@ -1,40 +1,39 @@
 .page__discussion {
   @include content;
   grid-template-rows: 80px 1fr auto;
-    width: 960px;
-    margin: 0 auto;
-    margin-top:var(--m3);
-    height: calc(100vh - 80px);
-    row-gap: var(--m3);
-    .layout__text {
-      background: var(--color-surface);
-      border-radius: 6px;
-      .text__inreplyto {
-        background: var(--color-background-dark);
-          color: var(--color-text-subtle);
-          padding: var(--m2);
-          font-size: 14px;
-          font-size: 14px;
-          font-weight: 400;
-          border-bottom: var(--border);
-          display: flex;
-          align-items: center;
-          .reply {
-            flex:1;
-            margin-right: 16px
-          }
-          i {
-            font-size: 20px;
-            margin-right: 16px;
-          }
-          p {
-            margin: 0;
-            margin-top: 4px;
-          }
+  width: 960px;
+  margin: 0 auto;
+  margin-top: var(--m3);
+  height: calc(100vh - 80px);
+  row-gap: var(--m3);
+  .layout__text {
+    background: var(--color-surface);
+    border-radius: 6px;
+    .text__inreplyto {
+      background: var(--color-background-dark);
+      color: var(--color-text-subtle);
+      padding: var(--m2);
+      font-size: 14px;
+      font-size: 14px;
+      font-weight: 400;
+      border-bottom: var(--border);
+      display: flex;
+      align-items: center;
+      .reply {
+        flex: 1;
+        margin-right: 16px;
+      }
+      i {
+        font-size: 20px;
+        margin-right: 16px;
+      }
+      p {
+        margin: 0;
+        margin-top: 4px;
       }
     }
-  
   }
+}
 
 .discussion__hero {
   width: 100%;
@@ -42,7 +41,7 @@
   .suphero {
     @include content_header;
     height: auto;
-    margin:0;
+    margin: 0;
     .info__name {
       margin: 16px 0;
       display: flex;
@@ -56,9 +55,8 @@
       display: flex;
       margin-bottom: var(--m2);
       align-items: center;
-      
     }
-    
+
     .head__meta .meta__status {
       padding: var(--m1) var(--m3);
       background: var(--color-success);
@@ -67,7 +65,7 @@
       font-size: 13px;
       margin-right: var(--m2);
     }
-    
+
     .head__meta .meta__info {
       color: var(--gray);
       font-size: 13px;
@@ -92,7 +90,7 @@
   margin-top: 0;
   overflow-y: overlay;
   background: var(--color-surface);
-    border-radius: 6px;
+  border-radius: 6px;
 }
 
 .discussion__navigation {
@@ -100,10 +98,9 @@
 }
 
 .wrapper__discussion {
-
   .discussion__main {
     background: var(--color-surface);
-    box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
     border-radius: 6px;
     color: var(--color-text);
   }
@@ -120,24 +117,21 @@
   color: var(--color-text);
 }
 
-.hero__head 
-
-.discussion__replies {
+.hero__head .discussion__replies {
   margin-top: var(--m3);
   background: var(--color-surface);
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   margin-bottom: var(--m3);
- 
 }
 
 .discussion__reply {
   padding: var(--m3);
   display: flex;
-    .reply__meta {
-      align-self: flex-end;
-      display: flex;
-    }
+  .reply__meta {
+    align-self: flex-end;
+    display: flex;
+  }
   .reply__link {
     display: flex;
     flex: 1;
@@ -166,15 +160,15 @@
 
 .discussion__reply .reply__box {
   margin-left: var(--m2);
-    width: 100%;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  .editor {
     flex: 1;
-    display: flex;
-  #editor {
-    flex:1;
     min-height: 34px;
-    align-self:flex-end
+    align-self: flex-end;
   }
-  .header__actions{
+  .header__actions {
     display: flex;
     align-self: flex-end;
     margin-left: 8px;
@@ -186,7 +180,6 @@
   padding: 0;
   height: inherit;
   text-indent: var(--m2);
-    
 }
 
 .preview__fork {
@@ -229,5 +222,5 @@
 }
 
 .discussion__navigation {
-  @include content_navigation 
+  @include content_navigation;
 }

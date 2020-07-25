@@ -1,11 +1,11 @@
 
 
-<div id="new_community" class="dialog__newcommunity">
+<div id="new_community" class="dialog__create">
 
 <%= if @toggle_community do %>
 
   <div id="<%= @toggle_community %>" phx-target="<%= @myself %>" phx-click="toggle_community" class="dialog__backdrop"></div>
-  <dialog open class="dialog dialog__newCommunity">
+  <dialog open class="dialog dialog__create">
     <header class="dialog__header">Create a new community</header>
     <section class="dialog__content">
       <form phx-submit="new_community" phx-target="<%= @myself %>">

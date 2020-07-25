@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.My.TagMeiliLive do
+  @moduledoc """
+  Alternative approach to tagging, using JS to directly use Meili's API, rather than passing through Elixir
+  """
   use MoodleNetWeb, :live_component
 
   import MoodleNetWeb.Helpers.Common

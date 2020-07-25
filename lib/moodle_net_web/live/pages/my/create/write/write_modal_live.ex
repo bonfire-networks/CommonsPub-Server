@@ -5,13 +5,13 @@ defmodule MoodleNetWeb.My.WriteModalLive do
 
   # alias MoodleNetWeb.Helpers.{Profiles, Communities}
 
-  def update(assigns, socket) do
-    {
-      :ok,
-      socket
-      |> assign(assigns)
-    }
-  end
+  # def update(assigns, socket) do
+  #   {
+  #     :ok,
+  #     socket
+  #     |> assign(assigns)
+  #   }
+  # end
 
   def handle_event("toggle_post", _data, socket) do
     IO.inspect(socket.assigns.toggle_post)
@@ -19,6 +19,26 @@ defmodule MoodleNetWeb.My.WriteModalLive do
     {:noreply,
      socket
      |> assign(:toggle_post, !socket.assigns.toggle_post)}
+  end
+
+  def handle_event("toggle_title", _data, socket) do
+    IO.inspect("test")
+
+    {
+      :noreply,
+      socket
+      |> assign(show_title: !socket.assigns.show_title)
+    }
+  end
+
+  def handle_event("toggle_fullmodal", _data, socket) do
+    IO.inspect("test")
+
+    {
+      :noreply,
+      socket
+      |> assign(toggle_fullmodal: !socket.assigns.toggle_fullmodal)
+    }
   end
 
   def handle_event("post", %{"content" => content, "context_id" => context_id} = data, socket) do

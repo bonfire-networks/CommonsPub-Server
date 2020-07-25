@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.My.WriteLive do
      socket
      |> assign(
        title_placeholder: "An optional title...",
-       summary_placeholder: "Write a story or get a discussion started!",
+       content_placeholder: "Write a story or get a discussion started!",
        post_label: "Publish"
        #  current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
      )}

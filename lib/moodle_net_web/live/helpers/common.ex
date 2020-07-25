@@ -119,6 +119,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:auth_token, fn -> auth_token end)
     |> assign(:current_user, fn -> current_user end)
     |> assign(:csrf_token, fn -> csrf_token end)
+    |> assign(:static_changed, static_changed?(socket))
   end
 
   def init_assigns(
@@ -147,11 +148,13 @@ defmodule MoodleNetWeb.Helpers.Common do
 
     socket
     |> assign(:csrf_token, csrf_token)
+    |> assign(:static_changed, static_changed?(socket))
     |> assign(:auth_token, auth_token)
     |> assign(:show_title, false)
     |> assign(:toggle_post, false)
     |> assign(:toggle_community, false)
     |> assign(:toggle_link, false)
+    |> assign(:current_context, nil)
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
@@ -166,6 +169,7 @@ defmodule MoodleNetWeb.Helpers.Common do
       ) do
     socket
     |> assign(:csrf_token, csrf_token)
+    |> assign(:static_changed, static_changed?(socket))
     |> assign(:current_user, nil)
   end
 
