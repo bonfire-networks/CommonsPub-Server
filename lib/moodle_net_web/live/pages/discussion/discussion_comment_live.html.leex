@@ -52,19 +52,22 @@
         <% end %>
       </div>
     <% end %>
+
     <%= if @comment.id != @reply_to do %>
       <div class="preview__fork">
-        <%= for reply <- @comment.comments do %>
-          <%= live_component(
-                @socket,
-                DiscussionSubCommentLive,
-                id: "comment-#{reply.id}",
-                comment: reply,
-                current_user: @current_user,
-                reply_to: @reply_to,
-                sublevel: 5
-              )%>
-        <% end %>
+        <div class="fork__item">
+          <%= for reply <- @comment.comments do %>
+            <%= live_component(
+                  @socket,
+                  DiscussionSubCommentLive,
+                  id: "comment-#{reply.id}",
+                  comment: reply,
+                  current_user: @current_user,
+                  reply_to: @reply_to,
+                  sublevel: 5
+                )%>
+          <% end %>
+          </div>
         <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
           <div class="comment__fork">View full thread <%# (<%= length(@comment.comments) %></div>
         <% end %>
