@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.Component.PreviewActionsLive do
   alias MoodleNetWeb.Helpers.{Activites}
 
   def update(assigns, socket) do
-    is_liked = is_liked(assigns.current_user, assigns.object.id)
+    is_liked = is_liked(assigns.current_user, e(assigns, :object, :id, nil))
 
     reply_link =
       "/!" <>
