@@ -10,8 +10,8 @@ defmodule MoodleNetWeb.Component.ActivityLive do
   alias MoodleNetWeb.Helpers.{Activites}
 
   def update(assigns, socket) do
-    activity_id = e(@activity, :id, random_string(6))
-    preview_id = activity_id <> "-" <> e(@activity, :context, :id, random_string(6))
+    activity_id = e(assigns, :activity, :id, random_string(6))
+    preview_id = activity_id <> "-" <> e(assigns, :activity, :context, :id, random_string(6))
 
     if(Map.has_key?(assigns, :activity)) do
       reply_link =

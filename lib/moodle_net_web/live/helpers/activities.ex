@@ -7,13 +7,13 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def prepare(%{display_verb: _} = activity, current_user) do
+  def prepare(%{display_verb: _, display_object: _} = activity, current_user) do
     IO.inspect("activity already prepared")
     activity
   end
 
   def prepare(%{:__struct__ => _} = activity, current_user) do
-    activity = Repo.preload(activity, :creator)
+    activity = maybe_preload(activity, :creator)
     prepare_activity(activity, current_user)
   end
 
@@ -113,6 +113,10 @@ defmodule MoodleNetWeb.Helpers.Activites do
   def activity_url(activity) do
     IO.inspect(unsupported_by_activity_url: activity)
     "#unsupported_by_activity_url"
+  end
+
+  def display_activity_verb(%{display_verb: display_verb}) do
+    display_verb
   end
 
   def display_activity_verb(%MoodleNet.Likes.Like{}) do
