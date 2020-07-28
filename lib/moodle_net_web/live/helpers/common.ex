@@ -118,14 +118,15 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def maybe_preload(obj, preloads) do
-    IO.inspect(maybe_preload: obj)
     Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
+      IO.inspect(maybe_preload: obj)
       IO.inspect(arg_error_preload: preloads)
       obj
 
     MatchError ->
+      IO.inspect(maybe_preload: obj)
       IO.inspect(match_error_preload: preloads)
       obj
   end
