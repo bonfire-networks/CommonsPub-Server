@@ -17,7 +17,7 @@
 @import "../../lib/moodle_net_web/live/pages/community/community";
 @import "../../lib/moodle_net_web/live/pages/member/member";
 @import "../../lib/moodle_net_web/live/pages/member/components/hero";
-@import "../../lib/moodle_net_web/live/pages/my/create/write/editors/prosemirror"; // TODO: load only if used
+@import "../../lib/moodle_net_web/live/components/editors/prosemirror"; // TODO: load only if used
 
 @import "../../lib/moodle_net_web/live/pages/instance/instance";
 @import "../../lib/moodle_net_web/live/pages/instance/search/search";

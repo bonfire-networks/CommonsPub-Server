@@ -17,7 +17,7 @@ var md_last_content = null;
 
 ExtensionHooks.MarkdownEditor = {
   mounted() {
-    console.log("MarkdownEditor ready");
+    console.log("editor - prosemirror loading");
     // console.log(this.el);
 
     const el_raw = this.el.querySelector(".editor_textarea");
@@ -86,11 +86,11 @@ ExtensionHooks.MarkdownEditor = {
           enable_markdown();
         }
       });
+      el_visual_toggle.checked = true;
     }
 
     // now enable markdown
-    // style_switch.checked = true;
-    // enable_markdown(); // with does checking not suffise?
+    enable_markdown(); // with does checking not suffise?
   },
 };
 
