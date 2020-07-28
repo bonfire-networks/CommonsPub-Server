@@ -20,15 +20,8 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    # IO.inspect(thread, label: "THREAD")
-    if thread.context_id == nil do
       thread = Discussions.prepare_thread(thread)
-    else
-      thread = Discussions.prepare_thread(thread, true)
-    end
-
-    # IO.inspect(thread, label: "THREAD")
-
+      IO.inspect(thread, label: "Thread")
     # TODO: tree of replies & pagination
     {:ok, comments} =
       CommentsResolver.comments_edge(thread, %{limit: 15}, %{
@@ -61,11 +54,15 @@ defmodule MoodleNetWeb.DiscussionLive do
         session,
         socket
       ) do
+        IO.inspect(comment_id, label: "commenidt")
+
     {_, reply_comment} =  Enum.find(socket.assigns.comments, fn(element) ->
       {_id, comment} = element
+      IO.inspect(comment.id, label: "comment")
       comment.id == comment_id
     end)
 
+    IO.inspect(reply_comment, label: "test")
 
     {:noreply,
      assign(socket,

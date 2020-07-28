@@ -55,21 +55,25 @@
             <% end %>
           </div>
         </div>
-      <!-- div class="discussion__navigation">
+      <div class="discussion__navigation">
           <div class="navigation__block">
             <h3 class="block__title">Context</h3>
             <%= if @thread.context_id !== nil do %>
-              <%= live_patch to: "/&" <> e(@thread, :context, :actor, :preferred_username, "") do %>
-              <div class="named-avatar">
-                <img alt="context-img" src="<%= e(@thread, :context, :image_url, "") %>" />
-                <h3><%= e(@thread, :context, :name, "")%></h3>
+              <div class="block__context">
+                <%= live_patch to: "/&" <> e(@thread, :context, :actor, :preferred_username, "") do %>
+                <div class="named-avatar">
+                  <img  src="<%= e(@thread, :context, :image_url, "") %>" />
+                  <h3><%= e(@thread, :context, :name, "no context")%></h3>
+                </div>
+                <% end %>
+                <button>Join</button>
               </div>
-              <% end %>
+
               <% else %>
               <div>Without context</div>
             <% end %>
           </div>
-        </div -->
+        </div>
     </div>
     <div class="layout__text">
         <%= if @reply != nil do %>

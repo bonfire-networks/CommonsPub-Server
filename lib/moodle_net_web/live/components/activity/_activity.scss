@@ -44,6 +44,10 @@
   color: var(--color-text-subtle);
   font-weight: 200;
   font-size: 13px;
+  a {
+    color: var(--color-text-subtle);
+    font-weight: 200;
+  }
 }
 
 .component__activity .activity__preview {
@@ -114,6 +118,10 @@
       margin-left: var(--m2);
       color: var(--color-text-subtle);
       font-weight: 200;
+      a {
+        color: var(--color-text-subtle);
+        font-weight: 200;
+      }
     }
   }
 }

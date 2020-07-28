@@ -39,7 +39,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
       if(!is_nil(thread.context_id)) do
         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
         context = MoodleNet.Meta.Pointers.follow!(pointer)
-
+        IO.inspect(context, label: "COPNTEXT")
         context =
           Profiles.prepare(
             context,
@@ -71,9 +71,11 @@ defmodule MoodleNetWeb.Helpers.Discussions do
         thread
       end
 
+
     thread = maybe_preload(thread, :creator)
 
     creator = Profiles.prepare(thread.creator, %{icon: true, actor: true})
+
 
     {:ok, from_now} =
       Timex.shift(thread.published_at, minutes: -3)
@@ -82,6 +84,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     thread
     |> Map.merge(%{published_at: from_now})
     |> Map.merge(%{creator: creator})
+
   end
 
   def build_comment_tree(comments) do
