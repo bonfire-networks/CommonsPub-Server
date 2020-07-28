@@ -54,15 +54,12 @@ defmodule MoodleNetWeb.DiscussionLive do
         session,
         socket
       ) do
-        IO.inspect(comment_id, label: "commenidt")
 
     {_, reply_comment} =  Enum.find(socket.assigns.comments, fn(element) ->
       {_id, comment} = element
-      IO.inspect(comment.id, label: "comment")
       comment.id == comment_id
     end)
 
-    IO.inspect(reply_comment, label: "test")
 
     {:noreply,
      assign(socket,
@@ -108,7 +105,6 @@ defmodule MoodleNetWeb.DiscussionLive do
           %{context: %{current_user: socket.assigns.current_user}}
         )
 
-      IO.inspect(comment, label: "HERE")
 
       # TODO: error handling
 
