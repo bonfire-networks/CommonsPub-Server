@@ -108,7 +108,7 @@ defmodule MoodleNetWeb.DiscussionLive do
           %{context: %{current_user: socket.assigns.current_user}}
         )
 
-      # IO.inspect(comment, label: "HERE")
+      IO.inspect(comment, label: "HERE")
 
       # TODO: error handling
 
@@ -116,7 +116,8 @@ defmodule MoodleNetWeb.DiscussionLive do
        socket
        |> put_flash(:info, "Replied!")
        # redirect in order to reload comments, TODO: just add comment which was returned by resolver?
-       |> push_redirect(to: "/!" <> socket.assigns.thread.id <> "/discuss/" <> comment.id)}
+       |> push_redirect(to: "/!" <> socket.assigns.thread.id <> "/discuss/" <> comment.reply_to_id.id)
+    }
     end
   end
 end
