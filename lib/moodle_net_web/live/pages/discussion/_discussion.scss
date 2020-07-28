@@ -79,6 +79,14 @@
 
 .more__dropdown {
   @include icon-dropdown("right");
+  .dropdown__list {
+    right: -16px;
+  }
+  &[open] {
+    & > summary:before {
+      background: rgba(255, 255, 255, 0);
+    }
+  }
 }
 
 .discussion__layout {
@@ -172,8 +180,11 @@
   }
   .editor {
     flex: 1;
-    height: 34px;
     align-self: flex-end;
+    background: var(--color-text);
+    .ProseMirror {
+      min-height: 50px;
+    }
   }
   .header__actions {
     display: flex;

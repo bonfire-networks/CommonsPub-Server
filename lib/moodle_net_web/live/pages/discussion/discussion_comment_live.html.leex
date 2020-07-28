@@ -56,7 +56,7 @@
     <%= if @comment.id != @reply_to do %>
       <div class="preview__fork">
         <div class="fork__item">
-          <%= for reply <- @comment.comments do %>
+          <%= for reply <- Enum.take(@comment.comments, 3) do %>
             <%= live_component(
                   @socket,
                   DiscussionSubCommentLive,
@@ -69,7 +69,7 @@
           <% end %>
           </div>
         <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
-          <div class="comment__fork">View full thread <%# (<%= length(@comment.comments) %></div>
+          <div class="comment__fork">View full thread (<%= length(@comment.comments) %>)</div>
         <% end %>
       </div>
     <% end %>

@@ -17,12 +17,19 @@ defmodule MoodleNetWeb.MemberLive.HeroProfileLive do
             <h1><%= @user.name %></h1>
             <h4 class="info__username"><%= e(@user, :display_username, e(@user, :actor, :preferred_username, "")) %></h4>
             <div class="info__details">
+            <%= if @user.website do %>
               <div class="details__meta">
-              <a href="<%= @user.website %>" target="_blank">
-              <i class="feather-external-link"></i>
-              <%= e(@user, :website_friendly, "") %></a>
+                <a href="<%= @user.website %>" target="_blank">
+                  <i class="feather-external-link"></i>
+                  <%= e(@user, :website_friendly, "") %>
+                </a>
               </div>
-              <div class="details__meta"><i class="feather-map-pin"></i><%= @user.location %></div>
+              <% end %>
+              <%= if @user.location do %>
+                <div class="details__meta">
+                  <i class="feather-map-pin"></i><%= @user.location %>
+                </div>
+              <% end %>
             </div>
           </div>
         </div>
