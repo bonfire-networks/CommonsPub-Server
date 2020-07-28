@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
       # IO.inspect(url)
 
       profile
-      |> Map.merge(%{website: url |> URI.to_string(), website_friendly: url.host})
+      |> Map.merge(%{website: url, website_friendly: URI.parse(url).host})
     else
       profile
     end
@@ -99,7 +99,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
         profile
       else
         profile
-        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
+        |> Map.merge(%{icon_url: icon(profile, "retro", icon_size)})
       end
 
     prepare(
@@ -114,7 +114,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
         profile
       else
         profile
-        |> Map.merge(%{image_url: image(profile, :image, "identicon", image_size)})
+        |> Map.merge(%{image_url: image(profile, "identicon", image_size)})
       end
 
     prepare(

@@ -7,21 +7,36 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def prepare(%{display_verb: _} = activity) do
+  def prepare(%{display_verb: _} = activity, current_user) do
     IO.inspect("activity already prepared")
     activity
   end
 
-  def prepare(activity) do
-    activity = prepare_context(activity)
-
+  def prepare(%{:__struct__ => _} = activity, current_user) do
     activity = Repo.preload(activity, :creator)
+    prepare_activity(activity, current_user)
+  end
+
+  def prepare(activity, current_user) do
+    prepare_activity(activity, current_user)
+  end
+
+  defp prepare_activity(activity, current_user) do
+    activity = prepare_context(activity)
 
     creator = Profiles.prepare(activity.creator, %{icon: true, actor: true})
 
-    {:ok, from_now} =
-      Timex.shift(activity.published_at, minutes: -3)
-      |> Timex.format("{relative}", :relative)
+    # IO.inspect(activity.published_at)
+
+    from_now =
+      with {:ok, from_now} <-
+             Timex.shift(activity.published_at, minutes: -3)
+             |> Timex.format("{relative}", :relative) do
+        from_now
+      else
+        _ ->
+          ""
+      end
 
     # IO.inspect(prepare_activity: activity)
 

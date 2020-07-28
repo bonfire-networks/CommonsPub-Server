@@ -1,7 +1,9 @@
 <div>
 <div class="community__discussion__actions">
   <input placeholder="Search discussions..."/>
-  <button>New discussion</button>
+    <a href="#" phx-target="#write_widget" phx-click="toggle_post">
+      <button >New discussion</button>
+    </a>
 </div>
 <div class="mainContent__selected">
   <h3 class="area__title">discussions</h3>
@@ -15,7 +17,7 @@
                 DiscussionPreviewLive,
                 id: "thread-#{thread.id}",
                 thread: thread,
-                current_use: @current_user
+                current_user: @current_user
               )
             %>
     <% end %></div>

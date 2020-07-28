@@ -30,7 +30,12 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 config :moodle_net, MoodleNetWeb.Endpoint,
   http: [
     port: port,
-    protocol_options: [max_request_line_length: 8192, max_header_value_length: 8192]
+    protocol_options: [
+      max_request_line_length: 8192,
+      max_header_value_length: 8192,
+      max_header_name_length: 128,
+      max_headers: 120
+    ]
   ],
   protocol: "http",
   debug_errors: true,
@@ -95,7 +100,7 @@ config :moodle_net, MoodleNet.Repo,
   # types: MoodleNet.PostgresTypes,
   username: System.get_env("POSTGRES_USER", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
-  database: System.get_env("POSTGRES_DB", "moodle_net_dev"),
+  database: System.get_env("POSTGRES_DB", "commonspub_dev"),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool_size: 10
 
@@ -125,10 +130,11 @@ config :moodle_net, MoodleNet.OAuth,
   scopes: "read,write,follow"
 
 {:ok, cwd} = File.cwd()
+uploads_dir = "/uploads"
 
 config :moodle_net, MoodleNet.Uploads,
-  directory: cwd <> "/uploads",
-  path: "/uploads",
-  base_url: base_url <> "/uploads"
+  directory: cwd <> uploads_dir,
+  path: uploads_dir,
+  uploads_base_url: base_url <> uploads_dir <> "/"
 
 config :moodle_net, MoodleNet.Workers.ActivityWorker, log_level: :warn

@@ -1,3 +1,8 @@
+<%= if @static_changed do %>
+  <script> window.location.reload() </script>
+<% end %>
+<script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@socket, "/js/app.js") %>"></script>
+
 <div id="template" class="page__container">
   <div class="cpub__header">
     <div class="header__left">
@@ -17,18 +22,20 @@
         <h3>CommonsPub</h3>
       <% end %>
     </div>
-    <input placeholder="Search in the fediverse..." />
+    <input class="header__search" placeholder="Search in the fediverse..." />
     <div class="header__right">
-      <%= live_redirect to: "/instance" do %>
-      <span class="right__notification"><i class="feather-compass"></i></span>
-      <% end %>
-      <span class="right__notification"><i class="feather-bell"></i></span>
       <%= if @current_user do %>
         <%= live_component(
           @socket,
           MoodleNetWeb.My.MyHeader,
+          id: :my_header,
           current_user: @current_user,
-          id: :my_header
+          my_communities: @my_communities,
+          show_title: @show_title,
+          toggle_post: @toggle_post,
+          toggle_community: @toggle_community,
+          toggle_link: @toggle_link,
+          current_context: @current_context
         ) %>
       <% end %>
       <%= if @current_user == nil do %>
@@ -52,9 +59,7 @@
           MoodleNetWeb.My.MySidebar,
           current_user: @current_user,
           my_communities: @my_communities,
-          id: :my_sidebar,
-          show_title: @show_title,
-          show_communities: @show_communities
+          id: :my_sidebar
         ) %>
     <% end %>
     <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">

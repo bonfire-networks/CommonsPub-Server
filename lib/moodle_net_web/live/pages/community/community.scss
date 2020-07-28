@@ -3,6 +3,9 @@
 }
 
 .community__hero {
+  width: 956px;
+  margin: 0 auto;
+  margin-top: 24px;
   .suphero {
     @include content_header;
   }
@@ -48,4 +51,9 @@
     flex: 1;
     margin-right: var(--m3);
   }
+}
+
+.community__write {
+  margin: 0 auto;
+  margin-top: 24px;
 }

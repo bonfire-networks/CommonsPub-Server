@@ -3,8 +3,10 @@ defmodule MoodleNet.Repo.Migrations.AddCategoriesAndTagsResourceFields do
 
   def change do
       alter table("mn_resource") do
-      add :categories, {:array, :string}
-      add :tags, {:array, :string}
+      add :subject, :string
+      add :level, :string
+      add :language, :string
+      add :type, :string
     end
   end
 end

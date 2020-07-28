@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.Component.LikePreviewLive do
     ~L"""
       <%=
         like = prepare_context(@like)
-        IO.inspect(preview_like: like)
+        # IO.inspect(preview_like: like)
 
         live_component(
             @socket,

@@ -14,16 +14,12 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   alias MoodleNetWeb.GraphQL.LikesResolver
 
+  def strlen(x) when is_nil(x), do: 0
   def strlen(%{} = obj) when obj == %{}, do: 0
   def strlen(%{}), do: 1
-
-  def strlen(thing) do
-    if !is_nil(thing) do
-      String.length(thing)
-    else
-      0
-    end
-  end
+  def strlen(x) when is_binary(x), do: String.length(x)
+  def strlen(x) when is_list(x), do: length(x)
+  def strlen(x) when x > 0, do: 1
 
   @doc "Returns a value, or a fallback if not present"
   def e(key, fallback) do
@@ -37,7 +33,8 @@ defmodule MoodleNetWeb.Helpers.Common do
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
     if(is_map(map)) do
-      Map.get(map, key, fallback)
+      # attempt using key as atom or string
+      map_get(map, key, fallback)
     else
       fallback
     end
@@ -50,6 +47,40 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def e(map, key1, key2, key3, fallback) do
     e(e(map, key1, key2, %{}), key3, fallback)
+  end
+
+  @doc """
+  Attempt geting a value out of a map by atom key, or try with string key, or return a fallback
+  """
+  def map_get(map, key, fallback) when is_atom(key) do
+    Map.get(map, key, Map.get(map, Atom.to_string(key), fallback))
+  end
+
+  @doc """
+  Attempt geting a value out of a map by string key, or try with atom key (if it's an existing atom), or return a fallback
+  """
+  def map_get(map, key, fallback) when is_binary(key) do
+    Map.get(map, key, Map.get(map, maybe_str_to_atom(key), fallback))
+  end
+
+  def map_get(map, key, fallback) do
+    Map.get(map, key, fallback)
+  end
+
+  def maybe_str_to_atom(str) do
+    try do
+      String.to_existing_atom(str)
+    rescue
+      ArgumentError -> str
+    end
+  end
+
+  def input_to_atoms(data) do
+    data |> Map.new(fn {k, v} -> {maybe_str_to_atom(k), v} end)
+  end
+
+  def random_string(length) do
+    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
   end
 
   def r(html), do: Phoenix.HTML.raw(html)
@@ -78,21 +109,24 @@ defmodule MoodleNetWeb.Helpers.Common do
         _params,
         %{
           "auth_token" => auth_token,
-          "current_user" => current_user
+          "current_user" => current_user,
+          "_csrf_token" => csrf_token
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
     # Logger.info(session_preloaded: session)
-
     socket
     |> assign(:auth_token, fn -> auth_token end)
     |> assign(:current_user, fn -> current_user end)
+    |> assign(:csrf_token, fn -> csrf_token end)
+    |> assign(:static_changed, static_changed?(socket))
   end
 
   def init_assigns(
         _params,
         %{
-          "auth_token" => auth_token
+          "auth_token" => auth_token,
+          "_csrf_token" => csrf_token
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
@@ -109,21 +143,46 @@ defmodule MoodleNetWeb.Helpers.Common do
 
     my_communities =
       if(communities_follows) do
-        Communities.communities_from_edges(communities_follows)
+        Communities.user_communities(current_user, current_user)
       end
 
     socket
+    |> assign(:csrf_token, csrf_token)
+    |> assign(:static_changed, static_changed?(socket))
     |> assign(:auth_token, auth_token)
     |> assign(:show_title, false)
-    |> assign(:show_communities, false)
+    |> assign(:toggle_post, false)
+    |> assign(:toggle_community, false)
+    |> assign(:toggle_link, false)
+    |> assign(:current_context, nil)
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
   end
 
+  def init_assigns(
+        _params,
+        %{
+          "_csrf_token" => csrf_token
+        } = session,
+        %Phoenix.LiveView.Socket{} = socket
+      ) do
+    socket
+    |> assign(:csrf_token, csrf_token)
+    |> assign(:static_changed, static_changed?(socket))
+    |> assign(:current_user, nil)
+  end
+
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
     socket
     |> assign(:current_user, nil)
+  end
+
+  def contexts_fetch!(ids) do
+    with {:ok, ptrs} <-
+           MoodleNet.Meta.Pointers.many(id: MoodleNetWeb.GraphQL.CommonResolver.flatten(ids)) do
+      MoodleNet.Meta.Pointers.follow!(ptrs)
+    end
   end
 
   def prepare_context(thing) do
@@ -147,25 +206,54 @@ defmodule MoodleNetWeb.Helpers.Common do
     end
   end
 
-  def image(community, field_name) do
-    # style and size for icons
-    image(community, field_name, "retro", 50)
+  def image(thing) do
+    # gravatar style and size for fallback images
+    image(thing, "retro", 50)
   end
 
-  def image(parent, field_name, style, size) do
-    if(Map.has_key?(parent, :__struct__)) do
-      parent = Repo.preload(parent, field_name)
-      img = Repo.preload(Map.get(parent, field_name), :content_upload)
+  def icon(thing) do
+    # gravatar style and size for fallback icons
+    icon(thing, "retro", 50)
+  end
 
-      if(!is_nil(e(img, :content_upload, :url, nil))) do
+  def image(parent, style, size) do
+    parent =
+      if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
+        maybe_preload(parent, image: [:content_upload, :content_mirror])
+      end
+
+    image_url(parent, :image, style, size)
+  end
+
+  def icon(parent, style, size) do
+    parent =
+      if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
+        maybe_preload(parent, icon: [:content_upload, :content_mirror])
+      end
+
+    image_url(parent, :icon, style, size)
+  end
+
+  defp image_url(parent, field_name, style, size) do
+    if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
+      # IO.inspect(image_field: field_name)
+      # parent = Repo.preload(parent, field_name: [:content_upload, :content_mirror])
+      # IO.inspect(image_parent: parent)
+
+      # img = Repo.preload(Map.get(parent, field_name), :content_upload)
+
+      img = e(parent, field_name, :content_upload, :path, nil)
+
+      if(!is_nil(img)) do
         # use uploaded image
-        img.content_upload.url
+        MoodleNet.Uploads.prepend_url(img)
       else
-        # otherwise external image
-        img = Repo.preload(Map.get(parent, field_name), :content_mirror)
+        # otherwise try external image
+        # img = Repo.preload(Map.get(parent, field_name), :content_mirror)
+        img = e(parent, field_name, :content_mirror, :url, nil)
 
-        if(!is_nil(e(img, :content_mirror, :url, nil))) do
-          img.content_mirror.url
+        if(!is_nil(img)) do
+          img
         else
           # or a gravatar
           image_gravatar(parent.id, style, size)
@@ -180,8 +268,34 @@ defmodule MoodleNetWeb.Helpers.Common do
     MoodleNet.Users.Gravatar.url(to_string(seed), style, size)
   end
 
-  def input_to_atoms(data) do
-    data |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end)
+  def maybe_preload(obj, preloads) do
+    Repo.preload(obj, preloads)
+  rescue
+    ArgumentError -> obj
+  end
+
+  def content_url(parent) do
+    parent =
+      if(Map.has_key?(parent, :__struct__)) do
+        maybe_preload(parent, content: [:content_upload, :content_mirror])
+      end
+
+    url = e(parent, :content, :content_upload, :path, nil)
+
+    if(!is_nil(url)) do
+      # use uploaded file
+      MoodleNet.Uploads.prepend_url(url)
+    else
+      # otherwise try external link
+      # img = Repo.preload(Map.get(parent, field_name), :content_mirror)
+      url = e(parent, :content, :content_mirror, :url, nil)
+
+      if(!is_nil(url)) do
+        url
+      else
+        ""
+      end
+    end
   end
 
   def is_liked(current_user, context_id)

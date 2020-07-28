@@ -1,6 +1,6 @@
 _build/
 deps/
-doc/
+docs/exdoc
 .hex
 .mix
 .npm

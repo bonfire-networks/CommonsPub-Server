@@ -3,8 +3,16 @@
     <div class="discussion__hero">
       <div class="suphero">
         <div class="suphero__left named-avatar">
-          <i class="feather-edit"></i>
-          <h3><%= e(@thread, :name, "A discussion") %></h3>
+          <div class="left__info">
+            <div class="info__name">
+              <i class="feather-edit"></i>
+              <h3><%= e(@thread, :name, "A discussion") %></h3>
+            </div>
+            <div class="head__meta">
+              <div class="meta__status">Open</div>
+              <div class="meta__info">17 Comments - 29 Starred</div>
+            </div>
+          </div>
         </div>
         <div class="suphero__actions">
           <button class="button follow">Subscribe</button>
@@ -13,54 +21,26 @@
               <i class="feather-more-horizontal"></i>
             </summary>
             <ul class="dropdown__list">
-              <li><button class="button-link" >Report</button></li>
+              <li>
+                  <%=
+                    live_component(
+                      @socket,
+                      MoodleNetWeb.Component.FlagLive,
+                      object: @thread,
+                      current_user: @current_user,
+                      id: "flag-"<>@thread.id,
+                      flag_object_name: "this entire thread"
+                    )
+                  %>
+              </li>
             </ul>
           </details>
         </div>
       </div>
     </div>
     <div class="discussion__layout">
-      <div>
-        <div class="wrapper__discussion">
-          <div class="discussion__main">
-            <div class="hero__head">
-              <h1 class="head__title"><%= e(@thread, :name,  "A discussion") %></h1>
-              <div class="head__meta">
-                <div class="meta__status">Open</div>
-                <div class="meta__info">17 Comments - 29 Starred</div>
-              </div>
-            </div>
-            <%= if !@reply_to do %>
-              <div id="reply" class="discussion__reply">
-                <form phx-submit="reply">
-                  <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
-                  <div class="reply__box">
-                    <div id="editor" phx-hook="MarkdownEditor">
-                      <div id="editor-visual" phx-ignore="true">
-                        <div id="editor-markdown"></div>
-                        <textarea id="content" name="content" placeholder="Write a reply..."></textarea>
-                      </div>
-                    </div>
-                    <div class="header__actions">
-                      <button>Comment</button>
-                      <div class="header__controls">
-                        <input name="editor-style" id="editor-style" type="checkbox" class="switch">
-                        <label for="editor-style">Use visual editor </label>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
-              <% else %>
-              <div class="discussion__reply">
-                <div class="reply__link">
-                  <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
-                  <%= live_patch to: "/!"<> e(@thread, :id, "")<>"#reply", class: "button reply" do %><div class="fake__input"> Reply to the thread</div><% end %>
-                </div>
-              </div>
-
-            <% end %>
-          </div>
+      <div class="wrapper__discussion">
+          <div class="discussion__context"></div>
           <div class="discussion__replies">
             <%= for {comment_id, comment} <- @comments do %>
               <%= live_component(
@@ -69,12 +49,60 @@
                 id: "comment-#{comment.id}",
                 comment: comment,
                 current_user: @current_user,
-                reply_to: @reply_to
+                reply_to: @reply_to,
+                actions: true
               )%>
             <% end %>
           </div>
         </div>
+      <!-- div class="discussion__navigation">
+          <div class="navigation__block">
+            <h3 class="block__title">Context</h3>
+            <%= if @thread.context_id !== nil do %>
+              <%= live_patch to: "/&" <> e(@thread, :context, :actor, :preferred_username, "") do %>
+              <div class="named-avatar">
+                <img alt="context-img" src="<%= e(@thread, :context, :image_url, "") %>" />
+                <h3><%= e(@thread, :context, :name, "")%></h3>
+              </div>
+              <% end %>
+              <% else %>
+              <div>Without context</div>
+            <% end %>
+          </div>
+        </div -->
+    </div>
+    <div class="layout__text">
+        <%= if @reply != nil do %>
+          <div class="text__inreplyto">
+          <i class="feather-corner-up-left"></i>
+          <div class="reply">
+           <%= live_redirect to: "/@"<> e(@reply, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@reply, :creator, :name, "Somebody") %><% end %>
+          <p><%= @reply.content %></p>
+          </div>
+          <%= live_redirect to: "/!"<> @thread.id <> "/discuss"  do %><i class="feather-x-circle"></i><% end %>
       </div>
+        <% end %>
+      <div id="reply" class="discussion__reply">
+          <form phx-submit="reply">
+          <div class="reply__meta">
+            <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+          </div>
+            <div class="reply__box">
+
+              <%= live_component(
+                @socket,
+                MoodleNetWeb.EditorLive,
+                current_user: @current_user,
+                content_placeholder: "Write a thoughtful comment...",
+                id: "comment_editor"
+              ) %>
+
+              <div class="header__actions">
+                <button>Comment</button>
+              </div>
+            </div>
+          </form>
+        </div>
     </div>
   </section>
 </div>

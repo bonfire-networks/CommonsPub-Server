@@ -1,5 +1,6 @@
 defmodule MoodleNetWeb.SettingsLive do
   use MoodleNetWeb, :live_view
+
   import MoodleNetWeb.Helpers.Common
   # alias MoodleNetWeb.Helpers.{Profiles}
   alias MoodleNetWeb.GraphQL.UsersResolver
@@ -17,13 +18,15 @@ defmodule MoodleNetWeb.SettingsLive do
   }
 
   def mount(params, session, socket) do
+    IO.inspect(session)
     socket = init_assigns(params, session, socket)
 
     {:ok,
      socket
      |> assign(
        page_title: "Settings",
-       selected_tab: "general"
+       selected_tab: "general",
+       trigger_submit: false
        #  current_user: user,
        #  session: session_token
      )}
@@ -37,20 +40,52 @@ defmodule MoodleNetWeb.SettingsLive do
     {:noreply, socket}
   end
 
-  def handle_event("post", data, socket) do
-    params = input_to_atoms(data)
+  def handle_event("profile_save", data, %{assigns: %{trigger_submit: trigger_submit}} = socket)
+      when trigger_submit == true do
+    {
+      :noreply,
+      assign(socket, trigger_submit: false)
+    }
+  end
+
+  def handle_event("profile_save", params, socket) do
+    params = input_to_atoms(params)
 
     {:ok, _edit_profile} =
       UsersResolver.update_profile(params, %{
         context: %{current_user: socket.assigns.current_user}
       })
 
-    # IO.inspect(_edit_profile)
+    cond do
+      strlen(params.icon) > 0 or strlen(params.image) > 0 ->
+        {
+          :noreply,
+          assign(socket, trigger_submit: true)
+          |> put_flash(:info, "Details saved!")
+          #  |> push_redirect(to: "/~/profile")
+        }
 
-    {:noreply,
-     socket
-     |> put_flash(:info, "Saved!")
-     |> push_redirect(to: "/~/profile")}
+      true ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Profile saved!")
+         |> push_redirect(to: "/~/profile")}
+    end
+  end
+
+  def handle_event("invite", params, socket) do
+    params = input_to_atoms(params)
+
+    invite =
+      MoodleNetWeb.GraphQL.AdminResolver.send_invite(params, %{
+        context: %{current_user: socket.assigns.current_user}
+      })
+
+    IO.inspect(invite)
+
+    # TODO error handling
+
+    {:noreply, socket |> put_flash(:info, "Invite sent!")}
   end
 
   # def handle_params(%{} = params, url, socket) do

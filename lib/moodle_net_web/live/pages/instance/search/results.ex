@@ -30,7 +30,8 @@ defmodule MoodleNetWeb.SearchLive.ResultsLive do
             PreviewLive,
             object: hit,
             object_type: String.downcase(e(hit, :index_type, "")),
-            current_user: @current_user
+            current_user: @current_user,
+            preview_id: hit.id
           )
         end
         %>

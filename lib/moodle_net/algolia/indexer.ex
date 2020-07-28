@@ -20,26 +20,18 @@ defmodule MoodleNet.Algolia.Indexer do
       System.get_env("ALGOLIA_INDEX")
   end
 
-  defp supported_type(%Community{} = _object), do: true
-  defp supported_type(%Collection{} = _object), do: true
-  defp supported_type(%Resource{} = _object), do: true
-  defp supported_type(_), do: false
-
   def maybe_index_object(object) do
+    indexable_object = format_object(object)
     # if Algolia is configured, use that
-    if !is_nil(check_envs()) and supported_type(object) do
-      object
-      |> format_object()
-      |> push_object()
+    if !is_nil(check_envs()) and !is_nil(indexable_object) do
+      push_object(indexable_object)
     else
       # otherwise index using CommonsPub Search extension (if available)
       if(Code.ensure_loaded?(Search.Indexing)) do
         IO.inspect("index locally")
 
-        if supported_type(object) do
-          object
-          |> format_object()
-          |> Search.Indexing.maybe_index_object()
+        if !is_nil(indexable_object) do
+          Search.Indexing.maybe_index_object(indexable_object)
         else
           Search.Indexing.maybe_index_object(object)
         end
@@ -48,7 +40,7 @@ defmodule MoodleNet.Algolia.Indexer do
   end
 
   def maybe_delete_object(object) do
-    if check_envs() && supported_type(object) do
+    if check_envs() do
       object
       |> get_object_id()
       |> delete_object()
@@ -163,9 +155,14 @@ defmodule MoodleNet.Algolia.Indexer do
       "url" => resource_url,
       "author" => Map.get(resource, :author),
       "mediaType" => resource.content.media_type,
-      "categories" => resource.categories,
-      "tags" => resource.tags
+      "subject" => Map.get(resource, :subject),
+      "level" => Map.get(resource, :level),
+      "language" => Map.get(resource, :language)
     }
+  end
+
+  def format_object(_) do
+    nil
   end
 
   def push_object(object) do
@@ -188,6 +185,10 @@ defmodule MoodleNet.Algolia.Indexer do
         Logger.warn(inspect(message))
         :ok
     end
+  end
+
+  def delete_object(nil) do
+    Logger.warn("Couldn't get object ID in order to delete")
   end
 
   def delete_object(object_id) do

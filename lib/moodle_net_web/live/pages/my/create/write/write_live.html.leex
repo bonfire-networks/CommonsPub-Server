@@ -1,0 +1,38 @@
+<section class="page__write">
+  <form phx-change="tag_suggest" phx-target="#write_tag" phx-submit="post" class="mainContent_write">
+    <header class="write__header">
+      <div class="header__main">
+        <div class="left__title">
+          <i class="feather-edit-3"></i>
+          <h4>Write a new post</h4>
+        </div>
+        <div class="header__controls">
+          <input name="editor-style" type="checkbox" class="editor-style switch">
+          <label for="editor-style">Use visual editor </label>
+        </div>
+      </div>
+      <%= live_component(
+            @socket,
+            MoodleNetWeb.My.ContextSelect,
+            current_user: @current_user,
+            current_context: @current_context,
+            my_communities: @my_communities
+          ) %>
+      <button class="button-primary" type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
+    </header>
+    <div class="write__content">
+      <input type="text" class="write__title" id="name" name="name" placeholder="<%= @title_placeholder %>" />
+
+
+      <%= live_component(
+          @socket,
+          MoodleNetWeb.EditorLive,
+          current_user: @current_user,
+          content_placeholder: @content_placeholder,
+          id: "write_editor"
+        ) %>
+
+
+    </div>
+  </form>
+</section>

@@ -31,6 +31,8 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
+alias Measurement.Unit.Units
+
 hostname = System.get_env("HOSTNAME", "localhost")
 
 # LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
@@ -85,6 +87,8 @@ config :moodle_net, Collections,
 config :moodle_net, Communities,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
+
+config :moodle_net, Resources, valid_contexts: [Collection, Community, User]
 
 config :moodle_net, Features, valid_contexts: [Collection, Community]
 
@@ -263,7 +267,7 @@ config :phoenix, :json_library, Jason
 
 config :furlex, Furlex.Oembed, oembed_host: "https://oembed.com"
 
-config :tesla, adapter: Tesla.Adapter.Hackney
+config :tesla, adapter: Tesla.Adapter.Gun
 
 config :http_signatures, adapter: ActivityPub.Signature
 

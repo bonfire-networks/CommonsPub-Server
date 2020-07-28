@@ -7,18 +7,20 @@ defmodule MoodleNetWeb.SettingsLive.SettingsGeneralLive do
     <section class="settings__section">
         <div class="section__main">
           <h1>My profile</h1>
-          <form action="#" phx-submit="post">
+          <form action="/~/settings" phx-submit="profile_save" method="post" enctype="multipart/form-data" <%= if @trigger_submit, do: "phx-trigger-action" %>>
             <div class="section__item">
             <h4>Edit your background image</h4>
             <label class="file">
-              <input name="image" value="<%= e(@current_user, :image_url, "") %>" type="file" id="file" aria-label="File browser example">
+            <img src="<%= e(@current_user, :image_url, "") %>" style="width:50px; height:auto" />
+            <input name="image[upload]" type="file" id="image" aria-label="Image file selector" phx-update="ignore">
               <span class="file-custom"></span>
             </label>
           </div>
           <div class="section__item">
             <h4>Edit your avatar</h4>
             <label class="file">
-              <input name="icon" value="<%= e(@current_user, :icon_url, "") %>" type="file" id="file" aria-label="File browser example">
+              <img src="<%= e(@current_user, :icon_url, "") %>" style="width:50px; height:auto" />
+              <input name="icon[upload]" type="file" id="icon" aria-label="Icon file selector" phx-update="ignore">
               <span class="file-custom"></span>
             </label>
           </div>
@@ -32,7 +34,7 @@ defmodule MoodleNetWeb.SettingsLive.SettingsGeneralLive do
           </div>
           <div class="section__item">
           <h4>Edit your website</h4>
-              <input name="website" value="<%= @current_user.website %>" type="text" placeholder="Type a new website...">
+              <input name="profile[website]" value="<%= @current_user.website %>" type="text" placeholder="Type a new website...">
           </div>
           <div class="section__item">
           <h4>Edit your location</h4>
@@ -44,6 +46,7 @@ defmodule MoodleNetWeb.SettingsLive.SettingsGeneralLive do
           </div>
 
           <div class="section__actions">
+           <input type="hidden" name="_csrf_token" value="<%= @csrf_token %>"/>
             <button type="submit" phx-disable-with="Updating...">Update</button>
           </div>
         </form>

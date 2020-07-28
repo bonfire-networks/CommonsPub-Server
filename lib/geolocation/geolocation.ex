@@ -94,7 +94,6 @@ defmodule Geolocation do
   end
 
   defp validate_coordinates(changeset) do
-    # TODO: what has precedence?
     lat = Changeset.get_change(changeset, :lat)
     long = Changeset.get_change(changeset, :long)
 

@@ -94,6 +94,8 @@ input UnitCreateParams {
 
   "A standard display symbol for a unit of measure."
   symbol: String!
+
+  inScopeOf: ID
 }
 
 input UnitUpdateParams {
@@ -134,7 +136,7 @@ type MeasurementQuery {
 }
 
 type MeasurementMutation {
-  createUnit(unit: UnitCreateParams!, inScopeOf: ID): UnitResponse
+  createUnit(unit: UnitCreateParams!): UnitResponse
   updateUnit(unit: UnitUpdateParams!): UnitResponse
   deleteUnit(id: ID!): Boolean
 }

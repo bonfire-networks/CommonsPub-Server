@@ -1,70 +1,3 @@
-.mainContent_write {
-  display: grid;
-  grid-template-rows: 60px 1fr;
-  row-gap: var(--m3);
-  height: 100vh;
-  .write__header {
-    height: 60px;
-    border-bottom: var(--border);
-    display: flex;
-    align-items: center;
-    padding: 0 var(--m3);
-    .header__main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      .left__title {
-        display: flex;
-        align-items: center;
-        i {
-          margin-right: var(--m2);
-
-        }
-      }
-      .header__controls {
-        display: flex;
-        margin-left: var(--m3);
-      }
-    }
-  }
-}
-
-
-
-.write__content {
-  width: 760px;
-  margin: 0 auto;
-}
-
-.mainContent_write input[type="text"] {
-  display: block;
-  font-size: 32px;
-  font-weight: 600;
-  text-indent: 0px;
-  letter-spacing: 0.5px;
-  height: auto;
-  padding: var(--m2);
-  display: block;
-  border: none;
-  margin-bottom: var(--m3);
-  width: 100%;
-}
-
-.mainContent_write textarea {
-  display: block;
-  width: 100%;
-  min-height: 300px;
-  height: 100%;
-  background: transparent;
-  resize: none;
-  overflow: auto;
-  outline: none;
-}
-
-.mainContent_write textarea {
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-}
 .ProseMirror-menubar-wrapper {
   display: block;
   margin-bottom: 4px;
@@ -391,17 +324,6 @@ li.ProseMirror-selectednode:after {
 .ProseMirror-prompt-buttons {
   margin-top: 5px;
   display: none;
-}
-#editor,
-.editor {
-  background: white;
-  color: black;
-  background-clip: padding-box;
-  border-radius: 4px;
-  border: var(--border);
-  // padding: 5px 0;
-  height: calc(100% - 120px);
-
 }
 
 .ProseMirror p:first-child,

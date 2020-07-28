@@ -22,51 +22,28 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
-  def context_edge(%{context_id: id}, _, %{context: %{schema: _schema}} = info) do
-    context_edge =
-      ResolveFields.run(%ResolveFields{
-        module: __MODULE__,
-        fetcher: :fetch_context_edge,
-        context: id,
-        info: info
-      })
-
-    # IO.inspect(context_edge: context_edge)
-    context_edge
-  end
-
-  @doc """
-  Fetch a context without batching
-  """
-  def context_edge(%{context_id: id}, _, _) do
-    fetch_context_edge(nil, id).data[id]
+  def context_edge(%{context_id: id}, _, info) do
+    ResolveFields.run(%ResolveFields{
+      module: __MODULE__,
+      fetcher: :fetch_context_edge,
+      context: id,
+      info: info
+    })
   end
 
   def fetch_context_edge(_, ids) do
-    # IO.inspect(context_ids: ids)
-    flattened_ids = flatten(ids)
-    # IO.inspect(flattened: flattened_ids)
-    {:ok, ptrs} = Pointers.many(id: flattened_ids)
-    # IO.inspect(context_ptrs: ptrs)
-    ptsd = Pointers.follow!(ptrs)
-    # IO.inspect(context_ptsd: ptsd)
-    edge = Fields.new(ptsd, &Map.get(&1, :id))
-    # IO.inspect(edge: edge)
-    edge
+    {:ok, ptrs} = Pointers.many(id: flatten(ids))
+    Fields.new(Pointers.follow!(ptrs), &Map.get(&1,:id))
   end
 
   def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
-    context_edges =
-      ResolvePages.run(%ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_context_edges,
-        context: ids,
-        page_opts: page_opts,
-        info: info
-      })
-
-    # IO.inspect(context_edges: context_edges)
-    context_edges
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_context_edges,
+      context: ids,
+      page_opts: page_opts,
+      info: info
+    })
   end
 
   def fetch_context_edges(_page_opts, _info, ids) do

@@ -22,9 +22,18 @@ defmodule MoodleNet.Mixfile do
       docs: [
         # The first page to display from the docs
         main: "readme",
-        logo: "assets/static/images/moodlenet-logo.png",
+        logo: "assets/static/images/logo_commonspub.png",
         # extra pages to include
-        extras: ["README.md", "HACKING.md", "DEPLOY.md", "MRF.md"]
+        # extra pages to include
+        extras: [
+          "README.md",
+          "docs/HACKING.md",
+          "docs/DEPLOY.md",
+          "docs/MRF.md",
+          "docs/GRAPHQL.md",
+          "docs/ARCHITECTURE.md"
+        ],
+        output: "docs/exdoc"
       ],
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test]
@@ -75,6 +84,7 @@ defmodule MoodleNet.Mixfile do
       # webserver
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.2"},
+      {:cowlib, "~> 2.9", override: true},
       {:plug, "~> 1.10"},
       # security (CORS)
       {:cors_plug, "~> 2.0"},
@@ -99,14 +109,22 @@ defmodule MoodleNet.Mixfile do
       {:postgrex, "~> 0.15"},
       {:ecto_ulid, git: "https://github.com/irresponsible/ecto-ulid", branch: "moodlenet"},
       # crypto
+      {:castore, "~> 0.1"},
       # Username reservation
       {:cloak_ecto, "~> 1.0"},
       # Password hashing
       {:argon2_elixir, "~> 2.3"},
       # Outbound HTTP
       {:hackney, "~> 1.16"},
-      {:tesla, "~> 1.3"},
-      # Email
+      {:gun,
+       github: "ninenines/gun", ref: "e1a69b36b180a574c0ac314ced9613fdd52312cc", override: true},
+      {
+        :tesla,
+        git: "https://git.pleroma.social/pleroma/elixir-libraries/tesla.git",
+        ref: "61b7503cef33f00834f78ddfafe0d5d9dec2270b",
+        override: true
+      },
+      ## Email
       # sending
       {:bamboo, "~> 1.5"},
       # generic smtp backend
@@ -126,17 +144,15 @@ defmodule MoodleNet.Mixfile do
       {:gettext, "~> 0.18"},
       # camel/snake/kebabification
       {:recase, "~> 0.5"},
-      {
-        :furlex,
-        # webpage summary
-        git: "https://gitlab.com/moodlenet/servers/furlex",
-        ref: "d11dc0b9fffc69348849e0769f8828bd382de793"
-      },
+      # webpage info extraction
+      {:furlex,
+       git: "https://gitlab.com/moodlenet/servers/furlex",
+       ref: "589c6a2e15e97606c53f86b466087192de3680fa"},
       # html parser
       {:fast_html, "~> 1.0"},
+      # activitypub signing
       {
         :http_signatures,
-        # activity signing
         git: "https://git.pleroma.social/pleroma/elixir-libraries/http_signatures"
       },
       # job queue
@@ -148,6 +164,8 @@ defmodule MoodleNet.Mixfile do
       # CommonsPub:
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
+      # geocoding
+      {:geocoder, "~> 1.0"},
       {:earmark, "~> 1.4"},
       {:slugger, "~> 0.3"},
       # {:pointers, "~> 0.2.2"},
