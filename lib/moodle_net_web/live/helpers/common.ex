@@ -176,6 +176,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
     socket
     |> assign(:current_user, nil)
+    |> assign(:static_changed, static_changed?(socket))
   end
 
   def contexts_fetch!(ids) do
