@@ -7,8 +7,13 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-inline": "^20.0.0",
+    "@ckeditor/ckeditor5-basic-styles": "^20.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^23.0.0",
+    "@ckeditor/ckeditor5-editor-classic": "^20.0.0",
+    "@ckeditor/ckeditor5-essentials": "^20.0.0",
     "@ckeditor/ckeditor5-markdown-gfm": "^20.0.0",
+    "@ckeditor/ckeditor5-paragraph": "^20.0.0",
+    "@ckeditor/ckeditor5-theme-lark": "^20.0.0",
     "file-loader": "^6.0.0",
     "nprogress": "^0.2.0",
     "phoenix": "file:../deps/phoenix",

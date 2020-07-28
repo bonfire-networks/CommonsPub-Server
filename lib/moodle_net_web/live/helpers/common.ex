@@ -59,7 +59,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     fallback
   end
 
-  def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) when is_atom(key) do
+  def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) do
     IO.inspect("WARNING: cannot get from an unloaded key, trying to preload...")
     map_get(map, maybe_preload(map, key), fallback)
   end
