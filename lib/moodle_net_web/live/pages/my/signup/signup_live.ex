@@ -18,6 +18,10 @@ defmodule MoodleNetWeb.SignupLive do
     {:noreply, assign(socket, email: email)}
   end
 
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event(
         "signup",
         %{
