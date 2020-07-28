@@ -82,6 +82,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
           resource = Repo.preload(resource, [collection: :community])
           permitted? =
             user.local_user.is_instance_admin or
+            resource.creator_id ==user.id or
             resource.collection.creator_id ==user.id or
             resource.collection.community.creator_id == user.id
 
