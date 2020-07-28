@@ -172,8 +172,11 @@
   }
   .editor {
     flex: 1;
-    height: 34px;
     align-self: flex-end;
+    background: var(--color-text);
+    .ProseMirror {
+      min-height: 50px;
+    }
   }
   .header__actions {
     display: flex;
