@@ -49,6 +49,21 @@ defmodule MoodleNetWeb.Helpers.Common do
     e(e(map, key1, key2, %{}), key3, fallback)
   end
 
+  def e(map, key1, key2, key3, key4, fallback) do
+    e(e(map, key1, key2, key3, %{}), key4, fallback)
+  end
+
+  def map_get(%Ecto.Association.NotLoaded{} = map, key, fallback) when is_atom(key) do
+    IO.inspect("ERROR: cannot get key `#{key}` from an unloaded map:")
+    IO.inspect(map)
+    fallback
+  end
+
+  def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) when is_atom(key) do
+    IO.inspect("WARNING: cannot get from an unloaded key, trying to preload...")
+    map_get(map, maybe_preload(map, key), fallback)
+  end
+
   @doc """
   Attempt geting a value out of a map by atom key, or try with string key, or return a fallback
   """
@@ -100,6 +115,19 @@ defmodule MoodleNetWeb.Helpers.Common do
   # open outside links in a new tab
   def external_links(content) do
     Regex.replace(~r/(<a href=\"http.+\")>/U, content, "\\1 target=\"_blank\">")
+  end
+
+  def maybe_preload(obj, preloads) do
+    IO.inspect(maybe_preload: obj)
+    Repo.preload(obj, preloads)
+  rescue
+    ArgumentError ->
+      IO.inspect(arg_error_preload: preloads)
+      obj
+
+    MatchError ->
+      IO.inspect(match_error_preload: preloads)
+      obj
   end
 
   @doc """
@@ -188,23 +216,44 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def prepare_context(thing) do
     if(Map.has_key?(thing, :context_id) and !is_nil(thing.context_id)) do
-      MoodleNet.Repo.preload(thing, :context)
+      thing = maybe_preload(thing, :context)
+      IO.inspect(maybe_preloaded: thing)
 
-      {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thing.context_id)
-      context = MoodleNet.Meta.Pointers.follow!(pointer)
-
-      type =
-        context.__struct__
-        |> Module.split()
-        |> Enum.at(-1)
-        |> String.downcase()
-
-      thing
-      |> Map.merge(%{context_type: type})
-      |> Map.merge(%{context: context})
+      context_follow(thing, thing.context)
     else
       thing
     end
+  end
+
+  defp context_follow(thing, %Pointers.Pointer{} = pointer) do
+    context = MoodleNet.Meta.Pointers.follow!(pointer)
+
+    context_type(thing, context)
+  end
+
+  defp context_follow(thing, %{} = context) do
+    context_type(thing, context)
+  end
+
+  defp context_follow(%{context_id: nil} = thing, context) do
+    context_type(thing, context)
+  end
+
+  defp context_follow(%{context_id: context_id} = thing, _) do
+    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id)
+    context_follow(thing, pointer)
+  end
+
+  defp context_type(thing, context) do
+    type =
+      context.__struct__
+      |> Module.split()
+      |> Enum.at(-1)
+      |> String.downcase()
+
+    thing
+    |> Map.merge(%{context_type: type})
+    |> Map.merge(%{context: context})
   end
 
   def image(thing) do
@@ -238,10 +287,10 @@ defmodule MoodleNetWeb.Helpers.Common do
   defp image_url(parent, field_name, style, size) do
     if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
       # IO.inspect(image_field: field_name)
-      # parent = Repo.preload(parent, field_name: [:content_upload, :content_mirror])
+      # parent = maybe_preload(parent, field_name: [:content_upload, :content_mirror])
       # IO.inspect(image_parent: parent)
 
-      # img = Repo.preload(Map.get(parent, field_name), :content_upload)
+      # img = maybe_preload(Map.get(parent, field_name), :content_upload)
 
       img = e(parent, field_name, :content_upload, :path, nil)
 
@@ -250,14 +299,14 @@ defmodule MoodleNetWeb.Helpers.Common do
         MoodleNet.Uploads.prepend_url(img)
       else
         # otherwise try external image
-        # img = Repo.preload(Map.get(parent, field_name), :content_mirror)
+        # img = maybe_preload(Map.get(parent, field_name), :content_mirror)
         img = e(parent, field_name, :content_mirror, :url, nil)
 
         if(!is_nil(img)) do
           img
         else
           # or a gravatar
-          image_gravatar(parent.id, style, size)
+          image_gravatar(e(parent, :id, nil), style, size)
         end
       end
     else
@@ -267,12 +316,6 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def image_gravatar(seed, style, size) do
     MoodleNet.Users.Gravatar.url(to_string(seed), style, size)
-  end
-
-  def maybe_preload(obj, preloads) do
-    Repo.preload(obj, preloads)
-  rescue
-    ArgumentError -> obj
   end
 
   def content_url(parent) do

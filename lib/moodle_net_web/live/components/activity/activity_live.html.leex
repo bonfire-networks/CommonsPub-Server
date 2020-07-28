@@ -1,8 +1,4 @@
-<%
-  activity_id = e(@activity, :id, random_string(6))
-  preview_id = activity_id <> "-"<> e(@activity, :context, :id, random_string(6))
-%>
-<div id="activity-<%= activity_id %>" class="component__activity">
+<div id="activity-<%= @activity_id %>" class="component__activity">
       <div class="activity__info">
       <%= live_redirect to: "/@"<> e(@activity, :creator, :actor, :preferred_username, "deleted")  do %>
         <img src="<%= e(@activity, :creator, :icon_url, "") %>" alt="icon" />
@@ -30,11 +26,10 @@
         object: e(@activity, :context, @activity),
         object_type: e(@activity, :context_type, nil),
         current_user: @current_user,
-        preview_id: preview_id
+        preview_id: @preview_id
 
       )
   %>
-
   <%=
     live_component(
         @socket,
@@ -42,10 +37,9 @@
         object: e(@activity, :context, @activity),
         object_type: e(@activity, :context_type, nil),
         current_user: @current_user,
-        preview_id: preview_id,
-        id: "actions-"<>preview_id
+        preview_id: @preview_id,
+        id: "actions-"<>@preview_id
       )
   %>
-
 </div>
 </div>
