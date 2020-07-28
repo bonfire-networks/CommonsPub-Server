@@ -10,7 +10,6 @@
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   background: var(--color-surface); 
-  box-shadow: rgba(15, 17, 21, 0.25) 0px 4px 6px, rgba(15, 17, 21, 0.1) 0px 5px 7px;
 }
 
 .home__navigation {
@@ -36,7 +35,7 @@
   place-self: center;
   position: relative;
   cursor: pointer;
-  color: var(--darker);
+  color: var(--color-text);
   font-weight: 500;
   font-size: 14px;
   &:hover {text-decoration: none};

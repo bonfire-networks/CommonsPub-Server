@@ -223,8 +223,11 @@ $grid-columns: 12 !default;
 // TEMPLATES
 @mixin content {
   display: grid;
-  grid-template-rows: 84px 1fr;
+  grid-template-rows: 60px 1fr;
   height: 100vh;
+  width: 990px;
+  margin: 0 auto;
+  margin-top: var(--m4);
 }
 
 @mixin content_header {
@@ -265,12 +268,12 @@ $grid-columns: 12 !default;
 
 @mixin content_two_sides {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 312px;
   margin: 0 auto;
   grid-column-gap: var(--m3);
   margin-top: var(--m3);
   .mainContent__selected {
-    width: 600px;
+    width: 660px;
     border: none;
     padding: var(--m3);
     box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
