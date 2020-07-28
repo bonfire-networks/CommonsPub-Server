@@ -12,12 +12,13 @@
   }
   .dialog__container {
     .button-link {
-      color: --color-surface;
+      color: var(--color-primary);
       font-size: 14px;
+      display: inline;
     }
   }
   button {
-    color: --color-surface;
+    color: var(--color-primary);
     margin-right: var(--m3);
     font-weight: 500;
     display: flex;
