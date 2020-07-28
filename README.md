@@ -15,6 +15,8 @@ This codebase was forked from [MoodleNet](http://moodle.net/), which was origina
 
 ## Documentation
 
+Documentation is available in the `./docs` directory as well as inline in the code. You can also run `mix docs` (or `make dev-docs` if using docker) to generate HTML documentation from those, which will appear in `docs/exdoc`.
+
 - [Deploying an instance](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/DEPLOY.md)
 
 - [Development setup](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/HACKING.md)
@@ -24,8 +26,6 @@ This codebase was forked from [MoodleNet](http://moodle.net/), which was origina
 - [GraphQL API quickstart](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/GRAPHQL.md)
 
 - [Federation message rewrite facility](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/MRF.md)
-
-- Run `mix docs` (or `make dev-docs` if using docker) to generate documentation from the codebase comments, which will appear in `docs/exdoc`
 
 ---
 
