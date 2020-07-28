@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
   end
 
   def prepare_comment(%MoodleNet.Threads.Comment{} = comment, current_user) do
-    comment = Repo.preload(comment, :creator)
+    comment = maybe_preload(comment, :creator)
 
     creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
 
@@ -71,7 +71,9 @@ defmodule MoodleNetWeb.Helpers.Discussions do
         thread
       end
 
-    thread = Repo.preload(thread, :creator)
+
+    thread = maybe_preload(thread, :creator)
+
     creator = Profiles.prepare(thread.creator, %{icon: true, actor: true})
 
 

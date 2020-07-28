@@ -8,9 +8,18 @@ defmodule MoodleNetWeb.SignupLive do
     {:ok,
      socket
      |> assign(
+       email: "",
        app_name: Application.get_env(:moodle_net, :app_name),
        app_icon: Application.get_env(:moodle_net, :app_icon, "/images/sun_face.png")
      )}
+  end
+
+  def handle_params(%{"email" => email}, _url, socket) do
+    {:noreply, assign(socket, email: email)}
+  end
+
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
   end
 
   def handle_event(

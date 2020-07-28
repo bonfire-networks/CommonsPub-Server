@@ -1,13 +1,13 @@
 <div class="guest__container">
-<div class="standard__bg"></div>
-<div class="page__signup">
+  <div class="standard__bg"></div>
+  <div class="page__signup">
     <div class="login__form">
       <h1>Create a new account</h1>
       <div class="form__wrapper">
         <form method="post" phx-submit="signup">
           <div class="form__container">
             <label for="email">Email</label>
-            <input name="email" type="text" placeholder="Enter your email..." />
+            <input name="email" type="text" placeholder="Enter your email..." value="<%= @email %>" />
           </div>
           <div class="form__container">
             <label for="name">Name</label>
@@ -29,5 +29,5 @@
       </div>
     </div>
     <div class="login__footer"></div>
-    </div>
+  </div>
 </div>

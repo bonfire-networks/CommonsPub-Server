@@ -48,8 +48,8 @@ defmodule MoodleNetWeb.SettingsLive do
     }
   end
 
-  def handle_event("profile_save", data, socket) do
-    params = input_to_atoms(data)
+  def handle_event("profile_save", params, socket) do
+    params = input_to_atoms(params)
 
     {:ok, _edit_profile} =
       UsersResolver.update_profile(params, %{
@@ -71,6 +71,21 @@ defmodule MoodleNetWeb.SettingsLive do
          |> put_flash(:info, "Profile saved!")
          |> push_redirect(to: "/~/profile")}
     end
+  end
+
+  def handle_event("invite", params, socket) do
+    params = input_to_atoms(params)
+
+    invite =
+      MoodleNetWeb.GraphQL.AdminResolver.send_invite(params, %{
+        context: %{current_user: socket.assigns.current_user}
+      })
+
+    IO.inspect(invite)
+
+    # TODO error handling
+
+    {:noreply, socket |> put_flash(:info, "Invite sent!")}
   end
 
   # def handle_params(%{} = params, url, socket) do

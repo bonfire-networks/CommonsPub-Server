@@ -93,20 +93,20 @@ same steps as option 2, except:
 
 1. After setting the environment with `eval $(make dev-exports)`, you
    will need to export the following variables in the environment to
-   match the configuration of your database:
+   match the configuration of your own Postgres database server:
 
    - `DATABASE_HOST`
    - `POSTGRES_USER`
    - `POSTGRES_PASSWORD`
    - `POSTGRES_DB`
 
-2. You will not need to run `make dev-db-up`
+2. If you want search, you'll also need to setup a Meili server and export the relevant env variables.
+
+3. You will not need to run `make dev-services-up`
 
 ## Running
 
 By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/
-
-The frontend is (in a [seperate repo](https://gitlab.com/CommonsPub/Client).
 
 If you haven't set up transactional emails, while in development, you can access emails (such as signup validation) at `/sent_emails`.
 
