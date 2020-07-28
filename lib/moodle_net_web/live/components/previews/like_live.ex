@@ -28,15 +28,15 @@ defmodule MoodleNetWeb.Component.LikePreviewLive do
 
   def render(assigns) do
     ~L"""
-      <%=
-        IO.inspect(render: @like)
-        live_component(
+    <div class="like__preview">
+      <%=live_component(
             @socket,
             ActivityLive,
             activity: @like_context,
             current_user: e(@current_user, %{}),
           )
       %>
+      </div>
     """
   end
 end
