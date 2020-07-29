@@ -43,6 +43,9 @@ defmodule MoodleNetWeb.Tag.Autocomplete do
       |> Map.merge(%{
         "name" => e(hit, "name_crumbs", e(hit, "name", e(hit, "preferredUsername", nil)))
       })
+      |> Map.merge(%{
+        "link" => e(hit, "canonicalUrl", "#unknown-hit-url")
+      })
       |> tag_add_field(consumer, prefix, e(hit, "preferredUsername", e(hit, "id", "")))
       |> Map.drop(["name_crumbs"])
     end

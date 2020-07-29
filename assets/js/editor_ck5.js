@@ -88,7 +88,17 @@ ExtensionHooks.MarkdownEditor = {
         feeds: [
           {
             marker: "@",
-            feed: getFeedItems,
+            feed: getFeedItems_users,
+            itemRenderer: mentionItemRenderer,
+          },
+          {
+            marker: "&",
+            feed: getFeedItems_groups,
+            itemRenderer: mentionItemRenderer,
+          },
+          {
+            marker: "+",
+            feed: getFeedItems_extras,
             itemRenderer: mentionItemRenderer,
           },
         ],
@@ -105,10 +115,20 @@ ExtensionHooks.MarkdownEditor = {
   },
 };
 
-function getFeedItems(queryText) {
+function getFeedItems_users(queryText) {
+  return getFeedItems(queryText, "@");
+}
+function getFeedItems_groups(queryText) {
+  return getFeedItems(queryText, "&");
+}
+function getFeedItems_extras(queryText) {
+  return getFeedItems(queryText, "+");
+}
+
+function getFeedItems(queryText, prefix) {
   if (queryText && queryText.length > 0) {
     return new Promise((resolve) => {
-      fetch("/api/tag/autocomplete/ck5/@/" + queryText)
+      fetch("/api/tag/autocomplete/ck5/" + prefix + "/" + queryText)
         .then((response) => response.json())
         .then((data) => resolve(data))
         .catch((error) => {
