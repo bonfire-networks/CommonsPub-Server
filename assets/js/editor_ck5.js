@@ -1,14 +1,24 @@
 import ClassicEditor from "@ckeditor/ckeditor5-editor-classic/src/classiceditor";
 
-import Essentials from '@ckeditor/ckeditor5-essentials/src/essentials';
-import Bold from '@ckeditor/ckeditor5-basic-styles/src/bold';
-import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
-import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
-import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
-import Mention from '@ckeditor/ckeditor5-mention/src/mention';
-import Link from '@ckeditor/ckeditor5-link/src/link';
-import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
-// ...
+import Essentials from "@ckeditor/ckeditor5-essentials/src/essentials";
+import Bold from "@ckeditor/ckeditor5-basic-styles/src/bold";
+import Italic from "@ckeditor/ckeditor5-basic-styles/src/italic";
+// import Underline from "@ckeditor/ckeditor5-basic-styles/src/underline";
+import Code from "@ckeditor/ckeditor5-basic-styles/src/code";
+// import Strikethrough from "@ckeditor/ckeditor5-basic-styles/src/strikethrough";
+import Link from "@ckeditor/ckeditor5-link/src/link";
+import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
+import Heading from "@ckeditor/ckeditor5-heading/src/heading";
+
+import Indent from "@ckeditor/ckeditor5-indent/src/indent";
+import IndentBlock from "@ckeditor/ckeditor5-indent/src/indentblock";
+import BulletedList from "@ckeditor/ckeditor5-list/src/list";
+import NumberedList from "@ckeditor/ckeditor5-list/src/list";
+
+import TodoList from "@ckeditor/ckeditor5-list/src/todolist";
+import Mention from "@ckeditor/ckeditor5-mention/src/mention";
+
+import Autoformat from "@ckeditor/ckeditor5-autoformat/src/autoformat";
 
 import GFMDataProcessor from "@ckeditor/ckeditor5-markdown-gfm/src/gfmdataprocessor";
 // Or using the CommonJS version:
@@ -16,7 +26,7 @@ import GFMDataProcessor from "@ckeditor/ckeditor5-markdown-gfm/src/gfmdataproces
 
 let ExtensionHooks = {};
 
-// Simple plugin which loads the data processor.
+// Simple plugin which loads the github-flavoured-markdown data processor.
 function ck5Markdown(editor) {
   editor.data.processor = new GFMDataProcessor(editor.editing.view.document);
 }
@@ -28,75 +38,164 @@ ExtensionHooks.MarkdownEditor = {
     ClassicEditor.create(document.querySelector(".editor_textarea"), {
       plugins: [
         ck5Markdown,
-        Essentials, 
-        Paragraph, 
-        Mention, 
-        Bold, 
-        Italic, 
-        Underline, 
-        Strikethrough, 
-        Link 
+
+        Autoformat,
+
+        Essentials,
+        Paragraph,
+        Bold,
+        Italic,
+        // Underline,
+        // Strikethrough,
+        Link,
+        Heading,
+
+        Indent,
+        IndentBlock,
+        BulletedList,
+        NumberedList,
+
+        Mention,
+        MentionCustomization,
+
+        // TodoList,
       ],
       toolbar: {
         items: [
-            'bold', 'italic', 'underline', 'strikethrough', '|', 'link', '|', 'undo', 'redo'
-        ]
-    },
-    mention: {
-      feeds: [
+          "bold",
+          "italic",
+          // "underline",
+          // "strikethrough",
+          "|",
+          "code",
+          "|",
+          "link",
+          "|",
+          "heading",
+          "|",
+          "bulletedList",
+          "numberedList",
+          // "todoList",
+          "|",
+          "outdent",
+          "indent",
+          "|",
+          "undo",
+          "redo",
+        ],
+      },
+      mention: {
+        feeds: [
           {
-              marker: '@',
-              feed: [
-                  { id: '@cflores', avatar: 'm_1', name: 'Charles Flores' },
-                  { id: '@gjackson', avatar: 'm_2', name: 'Gerald Jackson' },
-                  { id: '@wreed', avatar: 'm_3', name: 'Wayne Reed' },
-                  { id: '@lgarcia', avatar: 'm_4', name: 'Louis Garcia' },
-                  { id: '@rwilson', avatar: 'm_5', name: 'Roy Wilson' },
-                  { id: '@mnelson', avatar: 'm_6', name: 'Matthew Nelson' },
-                  { id: '@rwilliams', avatar: 'm_7', name: 'Randy Williams' },
-                  { id: '@ajohnson', avatar: 'm_8', name: 'Albert Johnson' },
-                  { id: '@sroberts', avatar: 'm_9', name: 'Steve Roberts' },
-                  { id: '@kevans', avatar: 'm_10', name: 'Kevin Evans' },
-                  { id: '@mwilson', avatar: 'w_1', name: 'Mildred Wilson' },
-                  { id: '@mnelson', avatar: 'w_2', name: 'Melissa Nelson' },
-                  { id: '@kallen', avatar: 'w_3', name: 'Kathleen Allen' },
-                  { id: '@myoung', avatar: 'w_4', name: 'Mary Young' },
-                  { id: '@arogers', avatar: 'w_5', name: 'Ashley Rogers' },
-                  { id: '@dgriffin', avatar: 'w_6', name: 'Debra Griffin' },
-                  { id: '@dwilliams', avatar: 'w_7', name: 'Denise Williams' },
-                  { id: '@ajames', avatar: 'w_8', name: 'Amy James' },
-                  { id: '@randerson', avatar: 'w_9', name: 'Ruby Anderson' },
-                  { id: '@wlee', avatar: 'w_10', name: 'Wanda Lee' }
-              ],
+            marker: "@",
+            feed: getFeedItems,
+            itemRenderer: mentionItemRenderer,
           },
-          {
-              marker: '#',
-              feed: [
-                  '#american', '#asian', '#baking', '#breakfast', '#cake', '#caribbean',
-                  '#chinese', '#chocolate', '#cooking', '#dairy', '#delicious', '#delish',
-                  '#dessert', '#desserts', '#dinner', '#eat', '#eating', '#eggs', '#fish',
-                  '#food', '#foodgasm', '#foodie', '#foodporn', '#foods', '#french', '#fresh',
-                  '#fusion', '#glutenfree', '#greek', '#grilling', '#halal', '#homemade',
-                  '#hot', '#hungry', '#icecream', '#indian', '#italian', '#japanese', '#keto',
-                  '#korean', '#lactosefree', '#lunch', '#meat', '#mediterranean', '#mexican',
-                  '#moroccan', '#nom', '#nomnom', '#paleo', '#poultry', '#snack', '#spanish',
-                  '#sugarfree', '#sweet', '#sweettooth', '#tasty', '#thai', '#vegan',
-                  '#vegetarian', '#vietnamese', '#yum', '#yummy'
-              ]
-          }
-      ]
-    }
+        ],
+      },
     })
       .then((editor) => {
-        console.log("qui tutto bene")
+        console.log("qui tutto bene");
         window.editor = editor;
       })
       .catch((error) => {
-        console.log("nein")
+        console.log("nein");
         console.error("There was a problem initializing the editor.", error);
       });
   },
 };
+
+function getFeedItems(queryText) {
+  if (queryText && queryText.length > 0) {
+    return new Promise((resolve) => {
+      fetch("/api/tag/autocomplete/ck5/@/" + queryText)
+        .then((response) => response.json())
+        .then((data) => resolve(data))
+        .catch((error) => {
+          console.error("There has been a problem with the tag search:", error);
+        });
+    });
+  }
+}
+
+function MentionCustomization(editor) {
+  // The upcast converter will convert <a class="mention" href="" data-user-id="">
+  // elements to the model 'mention' attribute.
+  editor.conversion.for("upcast").elementToAttribute({
+    view: {
+      name: "a",
+      key: "data-mention",
+      classes: "mention",
+      attributes: {
+        href: true,
+        "data-user-id": true,
+      },
+    },
+    model: {
+      key: "mention",
+      value: (viewItem) => {
+        // The mention feature expects that the mention attribute value
+        // in the model is a plain object with a set of additional attributes.
+        // In order to create a proper object, use the toMentionAttribute helper method:
+        const mentionAttribute = editor.plugins
+          .get("Mention")
+          .toMentionAttribute(viewItem, {
+            // Add any other properties that you need.
+            link: viewItem.getAttribute("href"),
+            // userId: viewItem.getAttribute("data-user-id"),
+          });
+
+        return mentionAttribute;
+      },
+    },
+    converterPriority: "high",
+  });
+
+  // Downcast the model 'mention' text attribute to a view <a> element.
+  editor.conversion.for("downcast").attributeToElement({
+    model: "mention",
+    view: (modelAttributeValue, viewWriter) => {
+      // Do not convert empty attributes (lack of value means no mention).
+      if (!modelAttributeValue) {
+        return;
+      }
+
+      return viewWriter.createAttributeElement(
+        "a",
+        {
+          class: "mention",
+          "data-mention": modelAttributeValue.id,
+          // "data-user-id": modelAttributeValue.userId,
+          href: modelAttributeValue.link,
+        },
+        {
+          // Make mention attribute to be wrapped by other attribute elements.
+          priority: 20,
+          // Prevent merging mentions together.
+          id: modelAttributeValue.uid,
+        }
+      );
+    },
+    converterPriority: "high",
+  });
+}
+
+function mentionItemRenderer(item) {
+  const itemElement = document.createElement("span");
+
+  itemElement.classList.add("custom-item");
+  // itemElement.id = `mention-list-item-id-${item.userId}`;
+  itemElement.textContent = `${item.name} `;
+
+  const usernameElement = document.createElement("span");
+
+  usernameElement.classList.add("custom-item-username");
+  usernameElement.textContent = item.id;
+
+  itemElement.appendChild(usernameElement);
+
+  return itemElement;
+}
 
 // add hooks to LiveView
 Object.assign(liveSocket.hooks, ExtensionHooks);

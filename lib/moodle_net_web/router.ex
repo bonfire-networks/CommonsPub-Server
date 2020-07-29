@@ -205,6 +205,12 @@ defmodule MoodleNetWeb.Router do
     # temporarily don't use CSRF for uploads until LV has a better approach
 
     post "/~/settings", My.SettingsUpload, :upload
+
+    pipe_through :protect_forgery
+
+    get "/api/tag/autocomplete/:prefix/:search", Tag.Autocomplete, :get
+    get "/api/tag/autocomplete/:consumer/:prefix/:search", Tag.Autocomplete, :get
+    get "/api/taxonomy/test", Taxonomy.Utils, :get
   end
 
   if Mix.env() != :dev do

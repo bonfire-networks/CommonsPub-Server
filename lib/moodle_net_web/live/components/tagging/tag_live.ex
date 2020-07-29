@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.My.TagLive do
+defmodule MoodleNetWeb.Component.TagLive do
   use MoodleNetWeb, :live_component
 
   import MoodleNetWeb.Helpers.Common

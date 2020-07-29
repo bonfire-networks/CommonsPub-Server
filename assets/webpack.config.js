@@ -53,13 +53,13 @@ module.exports = (env, options) => {
               },
             },
           ],
-          exclude: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/
+          exclude: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
         },
         {
           // CommonsPub app styles
           test: /\.[s]?css$/,
           use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
-          exclude: /(\.module\.[a-z]+$)|(ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css)/
+          exclude: /(\.module\.[a-z]+$)|(ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css)/,
         },
         {
           // ck5 assets
@@ -96,7 +96,9 @@ module.exports = (env, options) => {
     },
     plugins: [
       new MiniCssExtractPlugin({ filename: "../css/app.css" }),
-      new CopyWebpackPlugin([{ from: "static/", to: "../" }]),
+      new CopyWebpackPlugin({
+        patterns: [{ from: "static/", to: "../" }],
+      }),
     ],
   };
 };

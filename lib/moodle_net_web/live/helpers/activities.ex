@@ -52,74 +52,70 @@ defmodule MoodleNetWeb.Helpers.Activites do
     end
   end
 
+  def activity_url(
+        %{
+          context: %Ecto.Association.NotLoaded{}
+        } = activity
+      ) do
+    activity = maybe_preload(activity, :context)
+    activity_url(activity)
+  end
+
   def activity_url(%{
-        context: %MoodleNet.Communities.Community{
-          actor: %{preferred_username: preferred_username}
-        }
+        context: %{} = context
+      }) do
+    context_url(context)
+  end
+
+  def activity_url(%{} = activity) do
+    context_url(activity)
+  end
+
+  def context_url(%MoodleNet.Communities.Community{
+        actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/&" <> preferred_username
   end
 
-  def activity_url(%{
-        context: %MoodleNet.Users.User{
-          actor: %{preferred_username: preferred_username}
-        }
+  def context_url(%MoodleNet.Users.User{
+        actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/@" <> preferred_username
   end
 
-  def activity_url(%{
-        context: %{
-          actor: %{preferred_username: preferred_username}
-        }
+  def context_url(%{
+        actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/+" <> preferred_username
   end
 
-  def activity_url(%{context: %{thread_id: thread_id, id: comment_id, reply_to_id: is_reply}})
-      when not is_nil(thread_id) and not is_nil(is_reply) do
-    activity_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
-  end
-
-  def activity_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
+  def context_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
       when not is_nil(thread_id) and not is_nil(is_reply) do
     "/!" <> thread_id <> "/discuss/" <> comment_id <> "#reply"
   end
 
-  def activity_url(%{context: %{thread_id: thread_id}}) when not is_nil(thread_id) do
-    activity_url(%{thread_id: thread_id})
-  end
-
-  def activity_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
+  def context_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
     "/!" <> thread_id
   end
 
-  def activity_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+  def context_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def activity_url(%{context: %{canonical_url: canonical_url}}) when not is_nil(canonical_url) do
-    canonical_url
-  end
-
-  def activity_url(%{context: %{actor: %{canonical_url: canonical_url}}})
+  def context_url(%{actor: %{canonical_url: canonical_url}})
       when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def activity_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
-    canonical_url
-  end
-
-  def activity_url(%{__struct__: module_name} = activity) do
+  def context_url(%{__struct__: module_name} = activity) do
     IO.inspect(unsupported_by_activity_url: module_name)
     "#unsupported_by_activity_url/" <> to_string(module_name)
   end
 
-  def activity_url(activity) do
+  def context_url(activity) do
     IO.inspect(unsupported_by_activity_url: activity)
     "#unsupported_by_activity_url"
   end
