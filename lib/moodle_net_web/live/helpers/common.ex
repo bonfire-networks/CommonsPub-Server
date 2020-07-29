@@ -117,7 +117,24 @@ defmodule MoodleNetWeb.Helpers.Common do
     Regex.replace(~r/(<a href=\"http.+\")>/U, content, "\\1 target=\"_blank\">")
   end
 
+  def date_from_now(date) do
+    with {:ok, from_now} <-
+           Timex.shift(date, minutes: -3)
+           |> Timex.format("{relative}", :relative) do
+      from_now
+    else
+      _ ->
+        ""
+    end
+  end
+
+  # def maybe_preload(obj, preloads) do
+
+  # end
+
   def maybe_preload(obj, preloads) do
+    # IO.inspect(maybe_preload_obj: obj)
+    # IO.inspect(maybe_preload_preloads: preloads)
     Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
@@ -128,6 +145,11 @@ defmodule MoodleNetWeb.Helpers.Common do
     MatchError ->
       IO.inspect(maybe_preload: obj)
       IO.inspect(match_error_preload: preloads)
+      obj
+
+    Protocol.UndefinedError ->
+      IO.inspect(maybe_preload: obj)
+      IO.inspect(protocol_undefined_error_preload: preloads)
       obj
   end
 
@@ -216,13 +238,17 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def prepare_context(thing) do
-    if(Map.has_key?(thing, :context_id) and !is_nil(thing.context_id)) do
+    if Map.has_key?(thing, :context_id) and !is_nil(thing.context_id) do
       thing = maybe_preload(thing, :context)
       IO.inspect(maybe_preloaded: thing)
 
       context_follow(thing, thing.context)
     else
-      thing
+      if Map.has_key?(thing, :context) do
+        context_follow(thing, thing.context)
+      else
+        thing
+      end
     end
   end
 
@@ -232,7 +258,8 @@ defmodule MoodleNetWeb.Helpers.Common do
     context_type(thing, context)
   end
 
-  defp context_follow(thing, %{} = context) do
+  defp context_follow(thing, %{id: id} = context) do
+    IO.inspect("cf2")
     context_type(thing, context)
   end
 
@@ -243,6 +270,11 @@ defmodule MoodleNetWeb.Helpers.Common do
   defp context_follow(%{context_id: context_id} = thing, _) do
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id)
     context_follow(thing, pointer)
+  end
+
+  defp context_type(%{context_type: context_type} = thing, context) do
+    thing
+    |> Map.merge(%{context: context})
   end
 
   defp context_type(thing, context) do

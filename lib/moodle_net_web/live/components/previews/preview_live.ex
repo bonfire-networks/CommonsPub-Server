@@ -12,6 +12,8 @@ defmodule MoodleNetWeb.Component.PreviewLive do
     ~L"""
     <div id="preview-<%=@preview_id%>">
     <%=
+      IO.inspect(preview_object_type: @object_type)
+      IO.inspect(preview_object: @object)
       cond do
           @object_type == "community" ->
             live_component(
@@ -42,6 +44,14 @@ defmodule MoodleNetWeb.Component.PreviewLive do
                 @socket,
                 StoryPreviewLive,
                 story: @object,
+                current_user: @current_user,
+                id: @preview_id
+              )
+            @object_type == "flag" ->
+              live_component(
+                @socket,
+                MoodleNetWeb.Component.FlagPreviewLive,
+                flag: @object,
                 current_user: @current_user,
                 id: @preview_id
               )
