@@ -6,15 +6,15 @@
           <%= live_patch to: "/&" <> e(@community, :actor, :preferred_username, "deleted") <> "/about" do %>
             <div class="named-avatar">
               <img alt="profile pic" src="<%= e(@community, :icon_url, e(@community, :image_url, "")) %>" />
-              <h3><%= @community.name %></h3>
-            </div>
-          <% end %>
-        </div>
-        <div class="suphero__actions">
-          <%= if @community.is_followed do %>
-            <button class="button follow" phx-click="unfollow">Leave</button>
-          <%= if @community.creator_id==@current_user.id do %>
-          <details class="dialog__container">
+<h3><%= @community.name %></h3>
+</div>
+<% end %>
+</div>
+<div class="suphero__actions">
+  <%= if @community.is_followed do %>
+    <button class="button follow" phx-click="unfollow">Leave</button>
+    <%= if @community.creator_id==@current_user.id do %>
+      <details class="dialog__container">
         <summary class="button button__edit__community">Edit</summary>
         <dialog open class="dialog dialog__create">
           <header class="dialog__header">Edit community</header>
@@ -39,7 +39,12 @@
     </summary>
     <ul class="dropdown__list">
       <li>
-      <%=
+        <a href="#" phx-target="#write_widget" phx-click="toggle_post">
+          New discussion
+        </a>
+      </li>
+      <li>
+        <%=
         live_component(
           @socket,
           MoodleNetWeb.Component.FlagLive,
@@ -51,9 +56,16 @@
       %>
       </li>
       <li>
-        <a href="#" phx-target="#write_widget" phx-click="toggle_post">
-        New discussion
-        </a>
+        <%=
+          live_component(
+            @socket,
+            MoodleNetWeb.Component.BlockLive,
+            object: @community,
+            current_user: @current_user,
+            id: "block-"<>@community.id,
+            block_object_name: @community.name
+          )
+        %>
       </li>
     </ul>
   </details>

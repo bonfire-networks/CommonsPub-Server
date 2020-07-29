@@ -1,0 +1,14 @@
+<details class="dialog__container member">
+  <summary class="button-link" >Block</summary>
+  <dialog open class="dialog dialog__report">
+    <header class="dialog__header">Block <%= @block_object_name %></header>
+    <section class="dialog__content">
+      <form method="post" phx-submit="block" phx-target="<%= @myself %>">
+        <textarea name="message" placeholder="Describe the reason (only visible to you and your instance admins)..."></textarea>
+        <footer class="dialog__footer">
+          <button type="submit" phx-disable-with="Checking..." value="default">Confirm</button>
+        </footer>
+      </form>
+    </section>
+  </dialog>
+</details>
