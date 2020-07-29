@@ -381,17 +381,33 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def create_session(%{email: email, password: password}, info) do
-    with :ok <- GraphQL.guest_only(info) do
-      case Users.one([:default, email: email]) do
-        {:ok, user} ->
-          with {:ok, token} <- Access.create_token(user, password) do
-            {:ok, %{token: token.id, me: Me.new(user)}}
-          end
+    login(email, password)
+  end
 
-        _ ->
-          Argon2.no_user_verify([])
-          GraphQL.invalid_credential()
-      end
+  def create_session(%{login: login, password: password}, info) do
+    login(login, password)
+  end
+
+  def login(login, password) do
+    case Users.one([:default, email: login]) do
+      {:ok, user} ->
+        user_create_session(user, password)
+
+      _ ->
+        case Users.one([:default, username: login]) do
+          {:ok, user} ->
+            user_create_session(user, password)
+
+          _ ->
+            Argon2.no_user_verify([])
+            GraphQL.invalid_credential()
+        end
+    end
+  end
+
+  defp user_create_session(user, password) do
+    with {:ok, token} <- Access.create_token(user, password) do
+      {:ok, %{token: token.id, me: Me.new(user)}}
     end
   end
 
