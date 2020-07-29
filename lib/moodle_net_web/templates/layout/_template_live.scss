@@ -9,6 +9,7 @@
   overflow: hidden;
   grid-template-columns: 260px 1fr;
   transition: transform 0.2s ease;
+  background-color: var(--color-background);
   &.full {
     grid-template-columns: 1fr;
   }
@@ -136,12 +137,14 @@
 // DRAWER
 
 .side__drawer {
-  width: 260px;
+  width: 244px;
   background: var(--color-background-dark);
-  box-shadow: 0 1px 1px var(--color-border);
-  border-right: 1px solid var(--color-selection);
-  min-height: 100vh;
-  height: 100vh;
+  margin: 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 2px 1px rgba(0,0,0,.4);
+  border: none;
+  min-height: calc(100vh - 76px);
+  height: calc(100vh - 76px);
   position: relative;
   transition: transform 0.2s ease;
   display: grid;

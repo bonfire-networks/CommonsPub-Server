@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.MemberLive.HeroProfileLive do
             <h1><%= @user.name %></h1>
             <h4 class="info__username"><%= e(@user, :display_username, e(@user, :actor, :preferred_username, "")) %></h4>
             <div class="info__details">
-            <%= if @user.website_friendly do %>
+            <%= if @user.website do %>
               <div class="details__meta">
                 <a href="<%= @user.website %>" target="_blank">
                   <i class="feather-external-link"></i>

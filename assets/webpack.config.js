@@ -53,11 +53,13 @@ module.exports = (env, options) => {
               },
             },
           ],
+          exclude: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/
         },
         {
           // CommonsPub app styles
           test: /\.[s]?css$/,
           use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+          exclude: /(\.module\.[a-z]+$)|(ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css)/
         },
         {
           // ck5 assets

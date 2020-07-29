@@ -5,11 +5,3 @@
   </div>
   <textarea id="<%= @id %>_content" class="editor_textarea" name="content" placeholder="<%= @content_placeholder %>"></textarea>
 </div>
-<%= live_component(
-    @socket,
-    MoodleNetWeb.My.TagLive,
-    current_user: @current_user,
-    id: "write_tag",
-    tag_target: @id <> "_content"
-
-  ) %>
