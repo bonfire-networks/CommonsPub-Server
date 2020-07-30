@@ -17,17 +17,18 @@ defmodule MoodleNetWeb.My.NewCollectionLive do
     {:noreply, assign(socket, :toggle_collection, !socket.assigns.toggle_collection)}
   end
 
-  def handle_event("new_collection", %{"name" => name} = data, socket) do
+  def handle_event("new_collection", %{"name" => name, "context_id" => context_id} = data, socket) do
     if(is_nil(name) or !Map.has_key?(socket.assigns, :current_user)) do
       {:noreply,
        socket
        |> put_flash(:error, "Please enter a name...")}
     else
       collection = input_to_atoms(data)
+      IO.inspect(data, label: "collection to create")
 
       {:ok, collection} =
         MoodleNetWeb.GraphQL.CollectionsResolver.create_collection(
-          %{collection: collection},
+          %{collection: collection, context_id: context_id},
           %{context: %{current_user: socket.assigns.current_user}}
         )
 

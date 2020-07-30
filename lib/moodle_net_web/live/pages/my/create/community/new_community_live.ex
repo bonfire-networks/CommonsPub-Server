@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.My.NewCommunityLive do
     {:noreply, assign(socket, :toggle_community, !socket.assigns.toggle_community)}
   end
 
-  def handle_event("new_community", %{"name" => name} = data, socket) do
+  def handle_event("new_community", %{"name" => name, "context_id" => context_id} = data, socket) do
     if(is_nil(name) or !Map.has_key?(socket.assigns, :current_user)) do
       {:noreply,
        socket
@@ -27,7 +27,7 @@ defmodule MoodleNetWeb.My.NewCommunityLive do
 
       {:ok, community} =
         MoodleNetWeb.GraphQL.CommunitiesResolver.create_community(
-          %{community: community},
+          %{community: community, context_id: context_id},
           %{context: %{current_user: socket.assigns.current_user}}
         )
 

@@ -3,7 +3,7 @@
   <div class="editor-visual" phx-ignore="true">
     <div id="<%= @id %>_markdown" class="editor_markdown"></div>
   </div>
-  <textarea id="<%= @id %>_content" class="editor_textarea" name="content" placeholder="<%= @content_placeholder %>"></textarea>
+  <textarea phx-change="tag_suggest" phx-target="#write_tag" id="<%= @id %>_content" class="editor_textarea" name="content" placeholder="<%= @content_placeholder %>"></textarea>
 </div>
 <%= live_component(
     @socket,

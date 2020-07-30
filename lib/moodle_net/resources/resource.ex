@@ -18,7 +18,7 @@ defmodule MoodleNet.Resources.Resource do
     belongs_to(:creator, User)
     # TODO: replace by context
     belongs_to(:collection, Collection)
-    belongs_to(:context, Pointer)
+    belongs_to(:context, Pointers.Pointer)
     belongs_to(:content, Content)
     belongs_to(:icon, Content)
 
@@ -53,7 +53,6 @@ defmodule MoodleNet.Resources.Resource do
           ~w(canonical_url is_public is_disabled license summary icon_id author subject level language type)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
-  @doc "Creates a changeset for insertion of a resource with the given attributes."
   def create_changeset(creator, %Collection{} = collection, attrs) do
     %Resource{}
     |> Changeset.cast(attrs, @cast)
@@ -69,6 +68,7 @@ defmodule MoodleNet.Resources.Resource do
     |> common_changeset()
   end
 
+  @doc "Creates a changeset for insertion of a resource with the given attributes."
   def create_changeset(creator, context, attrs) do
     %Resource{}
     |> Changeset.cast(attrs, @cast)

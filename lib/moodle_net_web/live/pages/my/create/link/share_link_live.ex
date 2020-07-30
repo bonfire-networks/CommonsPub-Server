@@ -55,8 +55,8 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
         } = data,
         socket
       ) do
+    IO.inspect(data, label: "DATAAAAAAAAAAAAA:")
 
-        IO.inspect(data, label: "DATAAAAAAAAAAAAA:")
     if(strlen(url) < 5 or strlen(name) < 3 or is_nil(socket.assigns.current_user)) do
       {:noreply,
        socket
@@ -67,34 +67,19 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
 
       IO.inspect(context_id, label: "context_id CHOOSEN")
 
-      if strlen(context_id) < 1 do
-        {:ok, resource} =
-          MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
-            %{resource: resource, content: content, icon: icon},
-            %{context: %{current_user: socket.assigns.current_user}}
-          )
+      {:ok, resource} =
+        MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
+          %{context_id: context_id, resource: resource, content: content, icon: icon},
+          %{context: %{current_user: socket.assigns.current_user}}
+        )
 
-        {:noreply,
-         socket
-         |> put_flash(:info, "Published!")
-         # change redirect
-         |> push_redirect(to: "/instance/timeline")}
-      else
-        {:ok, resource} =
-          MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
-            %{context_id: context_id, resource: resource, content: content, icon: icon},
-            %{context: %{current_user: socket.assigns.current_user}}
-          )
+      {:noreply,
+       socket
+       |> put_flash(:info, "Published!")
+       |> push_redirect(to: "/instance/timeline")}
 
-        {:noreply,
-         socket
-         |> put_flash(:info, "Published!")
-         |> push_redirect(to: "/instance/timeline")
-        }
-
-        # change redirect
-        #  |> push_redirect(to: "/!" <> resource.id)}
-      end
+      # change redirect
+      #  |> push_redirect(to: "/!" <> resource.id)}
     end
   end
 end

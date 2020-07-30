@@ -37,11 +37,13 @@ defmodule MoodleNet.Collections do
   @spec create(User.t(), Community.t(), attrs :: map) ::
           {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = community_or_context, attrs) when is_map(attrs) do
-    attrs = Actors.prepare_username(attrs)
-
     Repo.transact_with(fn ->
-      community_or_context = Repo.preload(community_or_context, :actor)
-      actor = community_or_context.actor
+      attrs = Actors.prepare_username(attrs)
+
+      # TODO: address activity to context's outbox/followers
+      community_or_context =
+        MoodleNetWeb.Helpers.Common.maybe_preload(community_or_context, :actor)
+
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
            {:ok, coll} <- insert_collection(creator, community_or_context, actor, coll_attrs),
@@ -56,11 +58,11 @@ defmodule MoodleNet.Collections do
     end)
   end
 
-  # Create without community
+  # Create without context
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    attrs = Actors.prepare_username(attrs)
-
     Repo.transact_with(fn ->
+      attrs = Actors.prepare_username(attrs)
+
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
            {:ok, coll} <- insert_collection(creator, actor, coll_attrs),
@@ -74,7 +76,6 @@ defmodule MoodleNet.Collections do
       end
     end)
   end
-
 
   @spec create_remote(User.t(), Community.t(), attrs :: map) ::
           {:ok, Collection.t()} | {:error, Changeset.t()}
@@ -108,9 +109,9 @@ defmodule MoodleNet.Collections do
     end
   end
 
-  defp insert_collection(creator, community, actor, attrs) do
-    cs = Collection.create_changeset(creator, community, actor, attrs)
-    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{coll | actor: actor}}
+  defp insert_collection(creator, context, actor, attrs) do
+    cs = Collection.create_changeset(creator, context, actor, attrs)
+    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{coll | actor: actor, context: context}}
   end
 
   defp insert_collection(creator, actor, attrs) do
@@ -206,9 +207,9 @@ defmodule MoodleNet.Collections do
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
-  defp publish(creator, community, collection, activity) do
+  defp publish(creator, community_or_context, collection, activity) do
     feeds = [
-      community.outbox_id,
+      community_or_context.outbox_id,
       creator.outbox_id,
       collection.outbox_id,
       Feeds.instance_outbox_id()

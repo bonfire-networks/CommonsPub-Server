@@ -11,7 +11,17 @@ defmodule MoodleNetWeb.Helpers.Collections do
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.Profiles
 
-  def collection_load(_socket, page_params, preload) do
+  def collection_load(_socket, page_params, %MoodleNet.Users.User{} = current_user) do
+    collection_load(_socket, page_params, %{
+      actor: true,
+      icon: false,
+      image: false,
+      context: true,
+      is_followed_by: current_user
+    })
+  end
+
+  def collection_load(_socket, page_params, %{} = preload) do
     # IO.inspect(socket)
 
     username = e(page_params, "username", nil)

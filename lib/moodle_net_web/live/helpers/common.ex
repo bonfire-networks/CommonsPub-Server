@@ -128,29 +128,33 @@ defmodule MoodleNetWeb.Helpers.Common do
     end
   end
 
-  # def maybe_preload(obj, preloads) do
-
-  # end
+  def maybe_preload(obj, :context) do
+    prepare_context(obj)
+  end
 
   def maybe_preload(obj, preloads) do
+    maybe_do_preload(obj, preloads)
+  end
+
+  defp maybe_do_preload(obj, preloads) do
     # IO.inspect(maybe_preload_obj: obj)
     # IO.inspect(maybe_preload_preloads: preloads)
-    Repo.preload(obj, preloads)
+    MoodleNet.Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
-      IO.inspect(maybe_preload: obj)
       IO.inspect(arg_error_preload: preloads)
+      IO.inspect(from_maybe_preload: obj)
       obj
 
     MatchError ->
-      IO.inspect(maybe_preload: obj)
       IO.inspect(match_error_preload: preloads)
+      IO.inspect(from_maybe_preload: obj)
       obj
 
-    Protocol.UndefinedError ->
-      IO.inspect(maybe_preload: obj)
-      IO.inspect(protocol_undefined_error_preload: preloads)
-      obj
+      # Protocol.UndefinedError ->
+      #   IO.inspect(protocol_undefined_error_preload: preloads)
+      #   IO.inspect(from_maybe_preload: obj)
+      #   obj
   end
 
   @doc """
@@ -240,7 +244,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def prepare_context(thing) do
     if Map.has_key?(thing, :context_id) and !is_nil(thing.context_id) do
-      thing = maybe_preload(thing, :context)
+      thing = maybe_do_preload(thing, :context)
       IO.inspect(maybe_preloaded: thing)
 
       context_follow(thing, thing.context)
@@ -404,5 +408,54 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   defp is_liked(_) do
     false
+  end
+
+  def context_url(%MoodleNet.Communities.Community{
+        actor: %{preferred_username: preferred_username}
+      })
+      when not is_nil(preferred_username) do
+    "/&" <> preferred_username
+  end
+
+  def context_url(%MoodleNet.Users.User{
+        actor: %{preferred_username: preferred_username}
+      })
+      when not is_nil(preferred_username) do
+    "/@" <> preferred_username
+  end
+
+  def context_url(%{
+        actor: %{preferred_username: preferred_username}
+      })
+      when not is_nil(preferred_username) do
+    "/+" <> preferred_username
+  end
+
+  def context_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
+      when not is_nil(thread_id) and not is_nil(is_reply) do
+    "/!" <> thread_id <> "/discuss/" <> comment_id <> "#reply"
+  end
+
+  def context_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
+    "/!" <> thread_id
+  end
+
+  def context_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def context_url(%{actor: %{canonical_url: canonical_url}})
+      when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def context_url(%{__struct__: module_name} = activity) do
+    IO.inspect(unsupported_by_activity_url: module_name)
+    "#unsupported_by_activity_url/" <> to_string(module_name)
+  end
+
+  def context_url(activity) do
+    IO.inspect(unsupported_by_activity_url: activity)
+    "#unsupported_by_activity_url"
   end
 end

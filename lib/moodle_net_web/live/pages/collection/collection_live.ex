@@ -6,8 +6,9 @@ defmodule MoodleNetWeb.CollectionLive do
   alias MoodleNetWeb.GraphQL.CollectionsResolver
 
   alias MoodleNetWeb.CommunityLive.{
-    CommunityWriteLive,
+    CommunityWriteLive
   }
+
   alias MoodleNetWeb.CollectionLive.{
     CollectionActivitiesLive,
     CollectionFollowersLive,
@@ -44,13 +45,7 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    collection =
-      Collections.collection_load(socket, params, %{
-        icon: false,
-        image: false,
-        actor: true,
-        is_followed_by: socket.assigns.current_user
-      })
+    collection = Collections.collection_load(socket, params, socket.assigns.current_user)
 
     {:noreply,
      assign(socket,
@@ -62,14 +57,9 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_params(%{} = params, url, socket) do
-    collection =
-      Collections.collection_load(socket, params, %{
-        actor: true,
-        icon: false,
-        image: false,
-        is_followed_by: socket.assigns.current_user
-      })
+    collection = Collections.collection_load(socket, params, socket.assigns.current_user)
 
+    IO.inspect(collection: collection)
 
     {:noreply,
      assign(socket,

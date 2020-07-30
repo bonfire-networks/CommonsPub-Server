@@ -1,5 +1,5 @@
 <section class="page__write">
-  <form phx-change="tag_suggest" phx-target="#write_tag" phx-submit="post" class="mainContent_write">
+  <form  phx-submit="post" class="mainContent_write">
     <header class="write__header">
       <div class="header__main">
         <div class="left__title">
@@ -22,8 +22,6 @@
     </header>
     <div class="write__content">
       <input type="text" class="write__title" id="name" name="name" placeholder="<%= @title_placeholder %>" />
-
-
       <%= live_component(
           @socket,
           MoodleNetWeb.EditorLive,
@@ -31,8 +29,6 @@
           content_placeholder: @content_placeholder,
           id: "write_editor"
         ) %>
-
-
     </div>
   </form>
 </section>

@@ -74,6 +74,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     end
   end
 
+  def create_resource(%{resource: attrs, context_id: nil}, info) do
+    create_resource(%{resource: attrs}, info)
+  end
+
   @doc """
   Create resource with any context
   """
