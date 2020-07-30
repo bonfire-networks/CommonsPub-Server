@@ -3,9 +3,6 @@
 }
 
 .community__hero {
-  width: 956px;
-  margin: 0 auto;
-  margin-top: 24px;
   .suphero {
     @include content_header;
   }
@@ -41,12 +38,14 @@
 }
 
 #community-discussions {
-  margin: -16px;
+  margin: 0 -16px;
 }
 
 .community__discussion__actions {
-  margin-bottom: var(--m2);
+  margin: 16px -16px 0;
+  padding: 0 16px 16px;
   display: flex;
+  border-bottom: var(--border);
   input {
     flex: 1;
     margin-right: var(--m3);

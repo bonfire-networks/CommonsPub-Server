@@ -39,7 +39,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   object :collections_mutations do
     @desc "Create a collection"
     field :create_collection, :collection do
-      arg(:community_id, non_null(:string))
+      arg(:context_id, :string)
+      arg(:community_id, :string)
       arg(:collection, non_null(:collection_input))
       arg(:icon, :upload_input)
       resolve(&CollectionsResolver.create_collection/2)

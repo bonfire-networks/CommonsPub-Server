@@ -39,6 +39,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
       if(!is_nil(thread.context_id)) do
         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
         context = MoodleNet.Meta.Pointers.follow!(pointer)
+        IO.inspect(context, label: "COPNTEXT")
 
         context =
           Profiles.prepare(

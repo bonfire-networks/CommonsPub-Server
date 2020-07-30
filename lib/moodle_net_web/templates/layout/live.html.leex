@@ -6,18 +6,6 @@
 <div id="template" class="page__container">
   <div class="cpub__header">
     <div class="header__left">
-      <details class="dialog__container aside">
-        <summary class="aside__dialog"><i class="feather-grid"></i></summary>
-        <aside>
-          <h2>CommonsPub apps</h2>
-          <nav>
-            <div class="aside__app">commonspub</div>
-            <div class="aside__app">Mutual Aid</div>
-            <div class="aside__app">VoxPub</div>
-            <div class="aside__app">haha!</div>
-          </nav>
-        </aside>
-      </details>
       <%= live_redirect to: "/~" do %>
         <h3>CommonsPub</h3>
       <% end %>
@@ -34,6 +22,7 @@
           show_title: @show_title,
           toggle_post: @toggle_post,
           toggle_community: @toggle_community,
+          toggle_collection: @toggle_collection,
           toggle_link: @toggle_link,
           current_context: @current_context
         ) %>

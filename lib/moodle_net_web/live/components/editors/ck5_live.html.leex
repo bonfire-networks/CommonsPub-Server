@@ -1,0 +1,15 @@
+<script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@socket, "/js/editor_ck5.js") %>"></script>
+<div id="<%= @id %>" class="editor" phx-hook="MarkdownEditor">
+  <div class="editor-visual" phx-ignore="true">
+    <div id="<%= @id %>_markdown" class="editor_markdown"></div>
+  </div>
+  <textarea phx-change="tag_suggest" phx-target="#write_tag" id="<%= @id %>_content" class="editor_textarea" name="content" placeholder="<%= @content_placeholder %>"></textarea>
+</div>
+<%= live_component(
+    @socket,
+    MoodleNetWeb.Component.TagLive,
+    current_user: @current_user,
+    id: "write_tag",
+    tag_target: @id <> "_content"
+
+  ) %>

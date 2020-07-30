@@ -108,6 +108,10 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   ## mutations
 
+  def create_thread(%{comment: attrs, context_id: nil}, info) do
+    create_thread(%{comment: attrs}, info)
+  end
+
   @doc "Create a thread in a community or other context"
   def create_thread(%{context_id: context_id, comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do

@@ -5,6 +5,9 @@ const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
+// ck5:
+const { styles } = require("@ckeditor/ckeditor5-dev-utils");
+
 module.exports = (env, options) => {
   const devMode = options.mode !== "production";
 
@@ -20,6 +23,7 @@ module.exports = (env, options) => {
       editor_prosemirror: glob
         .sync("./vendor/**/*.js")
         .concat(["./js/editor_prosemirror.js"]),
+      editor_ck5: glob.sync("./vendor/**/*.js").concat(["./js/editor_ck5.js"]),
     },
     output: {
       filename: "[name].js",
@@ -30,6 +34,7 @@ module.exports = (env, options) => {
     module: {
       rules: [
         {
+          // CommonsPub app JS
           test: /\.js$/,
           exclude: /node_modules/,
           use: {
@@ -37,6 +42,7 @@ module.exports = (env, options) => {
           },
         },
         {
+          // fonts
           test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
           use: [
             {
@@ -47,16 +53,52 @@ module.exports = (env, options) => {
               },
             },
           ],
+          exclude: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
         },
         {
+          // CommonsPub app styles
           test: /\.[s]?css$/,
           use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+          exclude: /(\.module\.[a-z]+$)|(ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css)/,
+        },
+        {
+          // ck5 assets
+          test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
+
+          use: ["raw-loader"],
+        },
+        {
+          // ck5 styles
+          test: /ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css$/,
+
+          use: [
+            {
+              loader: "style-loader",
+              options: {
+                injectType: "singletonStyleTag",
+                attributes: {
+                  "data-cke": true,
+                },
+              },
+            },
+            {
+              loader: "postcss-loader",
+              options: styles.getPostCssConfig({
+                themeImporter: {
+                  themePath: require.resolve("@ckeditor/ckeditor5-theme-lark"),
+                },
+                minify: true,
+              }),
+            },
+          ],
         },
       ],
     },
     plugins: [
       new MiniCssExtractPlugin({ filename: "../css/app.css" }),
-      new CopyWebpackPlugin([{ from: "static/", to: "../" }]),
+      new CopyWebpackPlugin({
+        patterns: [{ from: "static/", to: "../" }],
+      }),
     ],
   };
 };

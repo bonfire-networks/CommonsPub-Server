@@ -1,11 +1,7 @@
 .page__discussion {
   @include content;
-  grid-template-rows: 80px 1fr auto;
-  width: 960px;
-  margin: 0 auto;
-  margin-top: var(--m3);
-  height: calc(100vh - 80px);
-  row-gap: var(--m3);
+  grid-template-rows: 80px 1fr;
+  height: calc(100vh - 90px);
   .layout__text {
     background: var(--color-surface);
     border-radius: 6px;
@@ -83,21 +79,37 @@
 
 .more__dropdown {
   @include icon-dropdown("right");
+  .dropdown__list {
+    right: -16px;
+  }
+  &[open] {
+    & > summary:before {
+      background: rgba(255, 255, 255, 0);
+    }
+  }
 }
 
 .discussion__layout {
-  // @include content_two_sides;
-  margin-top: 0;
-  overflow-y: overlay;
-  background: var(--color-surface);
-  border-radius: 6px;
+ @include content_two_sides;
 }
 
 .discussion__navigation {
   @include content_navigation;
+  .navigation__block {
+    .block__context {
+      button {
+        width: 100%;
+      }
+    }
+  }
 }
 
 .wrapper__discussion {
+  width: 660px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-surface);
+  margin-bottom: 16px;
   .discussion__main {
     background: var(--color-surface);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
@@ -163,10 +175,16 @@
   width: 100%;
   flex: 1;
   display: flex;
+  .editor_container {
+    flex:1;
+  }
   .editor {
     flex: 1;
-    min-height: 34px;
     align-self: flex-end;
+    background: var(--color-text);
+    .ProseMirror {
+      min-height: 50px;
+    }
   }
   .header__actions {
     display: flex;
@@ -180,6 +198,8 @@
   padding: 0;
   height: inherit;
   text-indent: var(--m2);
+  padding: 8px;
+  font-size: 14px;
 }
 
 .preview__fork {

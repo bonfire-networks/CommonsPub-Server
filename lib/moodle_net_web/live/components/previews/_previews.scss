@@ -1,6 +1,8 @@
 @import "comment";
 @import "community";
+@import "collection";
 @import "discussion";
 @import "story";
 @import "user";
-@import "preview_actions"
+@import "preview_actions";
+@import "_like.scss";

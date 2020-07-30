@@ -290,6 +290,11 @@ config :pointers,
 config :pointers, Pointers.Pointer, source: "mn_pointer"
 config :pointers, Pointers.Table, source: "mn_table"
 
+config :moodle_net, :ux,
+  # prosemirror or ck5 as content editor:
+  # editor: "prosemirror"
+  editor: "ck5"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

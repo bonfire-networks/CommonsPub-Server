@@ -16,6 +16,10 @@
             to: "/instance/communities",
             class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
           %>
+      <%= live_patch link_body("Collections", "feather-folder"),
+            to: "/instance/collections",
+            class: if @selected_tab == "collections", do: "navigation__item active", else: "navigation__item"
+          %>
       <%= live_patch link_body("Members", "feather-user"),
             to: "/instance/members",
             class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
@@ -74,6 +78,20 @@
               after: [],
               before: [],
               pagination_target: "#instance-communities"
+          ) %>
+        <% @selected_tab == "collections" -> %>
+        <%= live_component(
+              @socket,
+              InstanceCollectionsLive,
+              selected_tab: @selected_tab,
+              id: :collections,
+              current_user: @current_user,
+              collections: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-collections"
           ) %>
         <% true -> %>
         <%= live_component(

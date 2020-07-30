@@ -59,8 +59,8 @@
 
 .mainContent__hero .info__username {
   margin-top: 4px;
-  /* font-size: 14px; */
-  /* color: var(--gray); */
+  font-size: 14px;
+  color: var(--color-text);
 }
 
 .mainContent__hero .info__details {
@@ -70,7 +70,9 @@
 
 .info__details .details__meta {
   margin-right: var(--m3);
-  @include text-gray()
+  color: var(--color-text-subtle);
+  font-size: 12px;
+
 }
 
 .info__details .details__meta i {

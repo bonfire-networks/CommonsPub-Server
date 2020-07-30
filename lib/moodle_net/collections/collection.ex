@@ -21,12 +21,14 @@ defmodule MoodleNet.Collections.Collection do
   table_schema "mn_collection" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
-    belongs_to(:community, Community) # TODO: replace by context
-    belongs_to(:context, Pointer)
+    # TODO: replace by context
+    belongs_to(:community, Community)
+    belongs_to(:context, Pointers.Pointer)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     # belongs_to(:primary_language, Language)
-    field(:follower_count, :any, virtual: true) # because it's keyed by pointer
+    # because it's keyed by pointer
+    field(:follower_count, :any, virtual: true)
     has_many(:resources, Resource)
     field(:name, :string)
     field(:summary, :string)
@@ -53,7 +55,43 @@ defmodule MoodleNet.Collections.Collection do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       creator_id: creator.id,
+      # commmunity parent is deprecated in favour of context
       community_id: community.id,
+      context_id: community.id,
+      actor_id: actor.id,
+      is_public: true
+    )
+    |> Changeset.validate_required(@required)
+    |> common_changeset()
+  end
+
+  def create_changeset(
+        %User{} = creator,
+        context,
+        %Actor{} = actor,
+        attrs
+      ) do
+    %Collection{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(
+      creator_id: creator.id,
+      context_id: context.id,
+      actor_id: actor.id,
+      is_public: true
+    )
+    |> Changeset.validate_required(@required)
+    |> common_changeset()
+  end
+
+  def create_changeset(
+        %User{} = creator,
+        %Actor{} = actor,
+        attrs
+      ) do
+    %Collection{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(
+      creator_id: creator.id,
       actor_id: actor.id,
       is_public: true
     )
@@ -80,5 +118,4 @@ defmodule MoodleNet.Collections.Collection do
   def queries_module, do: Collections.Queries
 
   def follow_filters, do: [join: :actor, preload: :actor]
-
 end

@@ -20,15 +20,8 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    # IO.inspect(thread, label: "THREAD")
-    if thread.context_id == nil do
       thread = Discussions.prepare_thread(thread)
-    else
-      thread = Discussions.prepare_thread(thread, true)
-    end
-
-    # IO.inspect(thread, label: "THREAD")
-
+      IO.inspect(thread, label: "Thread")
     # TODO: tree of replies & pagination
     {:ok, comments} =
       CommentsResolver.comments_edge(thread, %{limit: 15}, %{
@@ -61,6 +54,7 @@ defmodule MoodleNetWeb.DiscussionLive do
         session,
         socket
       ) do
+
     {_, reply_comment} =  Enum.find(socket.assigns.comments, fn(element) ->
       {_id, comment} = element
       comment.id == comment_id
@@ -111,7 +105,6 @@ defmodule MoodleNetWeb.DiscussionLive do
           %{context: %{current_user: socket.assigns.current_user}}
         )
 
-      # IO.inspect(comment, label: "HERE")
 
       # TODO: error handling
 
@@ -119,7 +112,8 @@ defmodule MoodleNetWeb.DiscussionLive do
        socket
        |> put_flash(:info, "Replied!")
        # redirect in order to reload comments, TODO: just add comment which was returned by resolver?
-       |> push_redirect(to: "/!" <> socket.assigns.thread.id <> "/discuss/" <> comment.id)}
+       |> push_redirect(to: "/!" <> socket.assigns.thread.id <> "/discuss/" <> comment.reply_to_id.id)
+    }
     end
   end
 end

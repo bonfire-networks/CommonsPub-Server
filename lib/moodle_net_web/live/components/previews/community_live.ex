@@ -3,9 +3,9 @@ defmodule MoodleNetWeb.Component.CommunityPreviewLive do
   import MoodleNetWeb.Helpers.Common
   import MoodleNetWeb.Helpers.Profiles
 
-  def mount(_, _session, socket) do
-    {:ok, assign(socket, current_user: socket.assigns.current_user)}
-  end
+  # def mount(_, _session, socket) do
+  #   {:ok, assign(socket, current_user: socket.assigns.current_user)}
+  # end
 
   def update(assigns, socket) do
     IO.inspect(community_pre_prep: assigns.community)
@@ -18,8 +18,8 @@ defmodule MoodleNetWeb.Component.CommunityPreviewLive do
     {:ok,
      socket
      |> assign(
-       community: community,
-       current_user: assigns.current_user
+       community: community
+       #  current_user: assigns.current_user
      )}
   end
 

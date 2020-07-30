@@ -59,7 +59,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     fallback
   end
 
-  def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) when is_atom(key) do
+  def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) do
     IO.inspect("WARNING: cannot get from an unloaded key, trying to preload...")
     map_get(map, maybe_preload(map, key), fallback)
   end
@@ -117,17 +117,44 @@ defmodule MoodleNetWeb.Helpers.Common do
     Regex.replace(~r/(<a href=\"http.+\")>/U, content, "\\1 target=\"_blank\">")
   end
 
+  def date_from_now(date) do
+    with {:ok, from_now} <-
+           Timex.shift(date, minutes: -3)
+           |> Timex.format("{relative}", :relative) do
+      from_now
+    else
+      _ ->
+        ""
+    end
+  end
+
+  def maybe_preload(obj, :context) do
+    prepare_context(obj)
+  end
+
   def maybe_preload(obj, preloads) do
-    IO.inspect(maybe_preload: obj)
-    Repo.preload(obj, preloads)
+    maybe_do_preload(obj, preloads)
+  end
+
+  defp maybe_do_preload(obj, preloads) do
+    # IO.inspect(maybe_preload_obj: obj)
+    # IO.inspect(maybe_preload_preloads: preloads)
+    MoodleNet.Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
       IO.inspect(arg_error_preload: preloads)
+      IO.inspect(from_maybe_preload: obj)
       obj
 
     MatchError ->
       IO.inspect(match_error_preload: preloads)
+      IO.inspect(from_maybe_preload: obj)
       obj
+
+      # Protocol.UndefinedError ->
+      #   IO.inspect(protocol_undefined_error_preload: preloads)
+      #   IO.inspect(from_maybe_preload: obj)
+      #   obj
   end
 
   @doc """
@@ -181,6 +208,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:show_title, false)
     |> assign(:toggle_post, false)
     |> assign(:toggle_community, false)
+    |> assign(:toggle_collection, false)
     |> assign(:toggle_link, false)
     |> assign(:current_context, nil)
     |> assign(:current_user, current_user)
@@ -215,13 +243,17 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def prepare_context(thing) do
-    if(Map.has_key?(thing, :context_id) and !is_nil(thing.context_id)) do
-      thing = maybe_preload(thing, :context)
+    if Map.has_key?(thing, :context_id) and !is_nil(thing.context_id) do
+      thing = maybe_do_preload(thing, :context)
       IO.inspect(maybe_preloaded: thing)
 
       context_follow(thing, thing.context)
     else
-      thing
+      if Map.has_key?(thing, :context) do
+        context_follow(thing, thing.context)
+      else
+        thing
+      end
     end
   end
 
@@ -231,7 +263,8 @@ defmodule MoodleNetWeb.Helpers.Common do
     context_type(thing, context)
   end
 
-  defp context_follow(thing, %{} = context) do
+  defp context_follow(thing, %{id: id} = context) do
+    IO.inspect("cf2")
     context_type(thing, context)
   end
 
@@ -242,6 +275,11 @@ defmodule MoodleNetWeb.Helpers.Common do
   defp context_follow(%{context_id: context_id} = thing, _) do
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id)
     context_follow(thing, pointer)
+  end
+
+  defp context_type(%{context_type: context_type} = thing, context) do
+    thing
+    |> Map.merge(%{context: context})
   end
 
   defp context_type(thing, context) do
@@ -370,5 +408,54 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   defp is_liked(_) do
     false
+  end
+
+  def context_url(%MoodleNet.Communities.Community{
+        actor: %{preferred_username: preferred_username}
+      })
+      when not is_nil(preferred_username) do
+    "/&" <> preferred_username
+  end
+
+  def context_url(%MoodleNet.Users.User{
+        actor: %{preferred_username: preferred_username}
+      })
+      when not is_nil(preferred_username) do
+    "/@" <> preferred_username
+  end
+
+  def context_url(%{
+        actor: %{preferred_username: preferred_username}
+      })
+      when not is_nil(preferred_username) do
+    "/+" <> preferred_username
+  end
+
+  def context_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
+      when not is_nil(thread_id) and not is_nil(is_reply) do
+    "/!" <> thread_id <> "/discuss/" <> comment_id <> "#reply"
+  end
+
+  def context_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
+    "/!" <> thread_id
+  end
+
+  def context_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def context_url(%{actor: %{canonical_url: canonical_url}})
+      when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def context_url(%{__struct__: module_name} = activity) do
+    IO.inspect(unsupported_by_activity_url: module_name)
+    "#unsupported_by_activity_url/" <> to_string(module_name)
+  end
+
+  def context_url(activity) do
+    IO.inspect(unsupported_by_activity_url: activity)
+    "#unsupported_by_activity_url"
   end
 end

@@ -9,6 +9,7 @@
   overflow: hidden;
   grid-template-columns: 260px 1fr;
   transition: transform 0.2s ease;
+  background-color: var(--color-background);
   &.full {
     grid-template-columns: 1fr;
   }
@@ -137,15 +138,14 @@
 
 .side__drawer {
   width: 260px;
-  background: var(--color-background-dark);
-  box-shadow: 0 1px 1px var(--color-border);
-  border-right: 1px solid var(--color-selection);
-  min-height: 100vh;
-  height: 100vh;
+  background: var(--color-surface);
+  border: none;
+  min-height: calc(100vh - 60px);
+  height: calc(100vh - 60px);
+  border: none;
   position: relative;
   transition: transform 0.2s ease;
   display: grid;
-
   .drawer__menu {
     overflow-y: auto;
     .communities__wrapper {
@@ -176,6 +176,7 @@
       cursor: pointer;
       display: flex;
       align-items: center;
+      margin-bottom: var(--m2);
       a {
         display: flex;
         flex: 1;

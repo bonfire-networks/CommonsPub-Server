@@ -1,0 +1,20 @@
+<div class="editor_container">
+  <%= if @editor=="prosemirror" do %>
+    <%= live_component(
+    @socket,
+    MoodleNetWeb.EditorLive.ProsemirrorLive,
+    current_user: @current_user,
+    content_placeholder: @content_placeholder,
+    id: @id<>"_prosemirror"
+  ) %>
+  <% end %>
+  <%= if @editor=="ck5" or is_nil(@editor) or @editor=="" do %>
+    <%= live_component(
+    @socket,
+    MoodleNetWeb.EditorLive.Ck5Live,
+    current_user: @current_user,
+    content_placeholder: @content_placeholder,
+    id: @id<>"_ck5"
+  ) %>
+  <% end %>
+</div>

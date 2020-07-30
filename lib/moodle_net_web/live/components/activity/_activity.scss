@@ -26,6 +26,7 @@
   font-size: 14px;
   color: var(--color-text-subtle);
   font-weight: 500;
+
   a {
     font-weight: 500;
     font-size: 14px;
@@ -37,6 +38,7 @@
   margin: 0;
   margin-left: 4px;
   font-weight: 300;
+  @include truncate(510px);
 }
 
 .component__activity .meta__secondary {
@@ -44,6 +46,10 @@
   color: var(--color-text-subtle);
   font-weight: 200;
   font-size: 13px;
+  a {
+    color: var(--color-text-subtle);
+    font-weight: 200;
+  }
 }
 
 .component__activity .activity__preview {
@@ -114,6 +120,10 @@
       margin-left: var(--m2);
       color: var(--color-text-subtle);
       font-weight: 200;
+      a {
+        color: var(--color-text-subtle);
+        font-weight: 200;
+      }
     }
   }
 }

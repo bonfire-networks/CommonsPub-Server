@@ -86,9 +86,13 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve(&UsersResolver.confirm_email/2)
     end
 
-    @desc "Log in"
+    @desc "Log in, works with both username and email"
     field :create_session, :auth_payload do
-      arg(:email, non_null(:string))
+      @desc "This field is deprecated, please use `login` instead"
+      arg(:email, :string)
+      @desc "Username or email"
+      arg(:login, :string)
+      @desc "Password in cleartext"
       arg(:password, non_null(:string))
       resolve(&UsersResolver.create_session/2)
     end
@@ -377,11 +381,11 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   input_object :update_profile_input do
-    field :email, :string
-    field :name, :string
-    field :summary, :string
-    field :location, :string
-    field :website, :string
+    field(:email, :string)
+    field(:name, :string)
+    field(:summary, :string)
+    field(:location, :string)
+    field(:website, :string)
     # field :primary_language_id, :string
     field(:wants_email_digest, :boolean)
     field(:wants_notifications, :boolean)

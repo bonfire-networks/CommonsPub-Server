@@ -66,7 +66,8 @@ defmodule MoodleNetWeb.MemberLive.MemberCommunitiesLive do
                   @socket,
                   CommunityPreviewLive,
                   id: "community-#{community.id}",
-                  community: community
+                  community: community,
+                  current_user: @current_user
                 )
               %>
             </div>

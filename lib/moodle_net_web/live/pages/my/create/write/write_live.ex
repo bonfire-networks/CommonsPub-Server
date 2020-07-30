@@ -19,7 +19,7 @@ defmodule MoodleNetWeb.My.WriteLive do
      )}
   end
 
-  def handle_event("post", %{"content" => content} = data, socket) do
+  def handle_event("post", %{"content" => content, "context_id" => context_id} = data, socket) do
     IO.inspect(data, label: "POST DATA")
 
     if(is_nil(content) or is_nil(socket.assigns.current_user)) do
@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.My.WriteLive do
 
       {:ok, thread} =
         MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
-          %{comment: comment},
+          %{context_id: context_id, comment: comment},
           %{context: %{current_user: socket.assigns.current_user}}
         )
 

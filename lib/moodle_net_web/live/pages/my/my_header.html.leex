@@ -12,9 +12,9 @@
     </summary>
     <ul class="dropdown__list">
       <h2>Create</h2>
-
       <li phx-target="#write_widget" phx-click="toggle_post"><i class="feather-edit"></i> Write a post</li>
       <li phx-target="#new_community" phx-click="toggle_community"><i class="feather-users"></i> Start a community</li>
+      <li phx-target="#new_collection" phx-click="toggle_collection"><i class="feather-folder"></i> Create a collection</li>
       <li phx-target="#post_link" phx-click="toggle_link"><i class="feather-link"></i> Share a link</li>
     </ul>
   </details>
@@ -37,8 +37,6 @@
       <li><a href="/logout">Logout</a></li>
     </ul>
   </details>
-
-
   <%= live_component(
       @socket,
       MoodleNetWeb.My.WriteModalLive,
@@ -50,16 +48,24 @@
       current_context: @current_context,
       id: "write_widget"
     ) %>
-
   <%= live_component(
       @socket,
       MoodleNetWeb.My.NewCommunityLive,
       current_user: @current_user,
       toggle_community: @toggle_community,
       my_communities: @my_communities,
+      current_context: @current_context,
       id: "new_community"
     ) %>
-
+  <%= live_component(
+      @socket,
+      MoodleNetWeb.My.NewCollectionLive,
+      current_user: @current_user,
+      toggle_collection: @toggle_collection,
+      my_communities: @my_communities,
+      current_context: @current_context,
+      id: "new_collection"
+    ) %>
   <%= live_component(
       @socket,
       MoodleNetWeb.My.ShareLinkLive,
@@ -70,5 +76,4 @@
       link_input: %{},
       id: "post_link"
     ) %>
-
 </div>

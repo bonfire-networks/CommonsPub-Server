@@ -1,0 +1,24 @@
+<div id="new_community" class="dialog__create">
+  <%= if @toggle_community do %>
+    <div id="<%= @toggle_community %>" phx-target="<%= @myself %>" phx-click="toggle_community" class="dialog__backdrop"></div>
+  <dialog open class="dialog dialog__create">
+    <header class="dialog__header">Create a new community</header>
+    <section class="dialog__content">
+      <form phx-submit="new_community" phx-target="<%= @myself %>">
+               <%= live_component(
+                @socket,
+                MoodleNetWeb.My.ContextSelect,
+                current_user: @current_user,
+                my_communities: @my_communities,
+                current_context: @current_context
+              ) %>
+        <input name="name" placeholder="Type the community name..." />
+    <textarea name="summary" placeholder="Describe your community..."></textarea>
+    <footer class="dialog__footer">
+      <button value="default">Confirm</button>
+    </footer>
+  </form>
+</section>
+</dialog>
+<% end %>
+</div>

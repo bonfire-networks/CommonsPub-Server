@@ -1,0 +1,15 @@
+<div class="navigation__block">
+  <h3 class="block__title">Context</h3>
+  <%= if @object.context_id !== nil and is_map(@object.context) do %>
+    <div class="block__context">
+      <%= live_patch to: context_url(@object.context) do %>
+        <div class="named-avatar">
+          <img  src="<%= e(@object, :context, :image_url, "") %>" />
+          <h3><%= e(@object, :context, :name, "unknown context")%></h3>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div>Without context</div>
+  <% end %>
+</div>
