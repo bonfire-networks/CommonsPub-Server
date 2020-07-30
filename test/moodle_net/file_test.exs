@@ -3,10 +3,10 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.FileTest do
+defmodule CommonsPub.Utils.FileTest do
   use ExUnit.Case, async: true
 
-  alias MoodleNet.File
+  alias CommonsPub.Utils.File
 
   describe "has_extension?/2" do
     @extensions ~w(jpg jpeg png)
@@ -15,24 +15,24 @@ defmodule MoodleNet.FileTest do
       paths = [
         "/some/path.jpg",
         "/some/path.jpeg",
-        "/some/path.png",
+        "/some/path.png"
       ]
 
       for path <- paths do
         assert File.has_extension?(path, @extensions),
-          "Expected file to have a valid extension: #{path}"
+               "Expected file to have a valid extension: #{path}"
       end
     end
 
     test "returns false with an invalid extension" do
       paths = [
         "/dir/some_file.exe",
-        "/dir/no_extension",
+        "/dir/no_extension"
       ]
 
       for path <- paths do
         refute File.has_extension?(path, @extensions),
-          "Expected file to have an invalid extension: #{path}"
+               "Expected file to have an invalid extension: #{path}"
       end
     end
   end
@@ -41,7 +41,7 @@ defmodule MoodleNet.FileTest do
     test "returns the file extension for a path" do
       valid_paths = %{
         "/home/someone/test.png" => ".png",
-        "./some_dir/myapp.exe"   => ".exe"
+        "./some_dir/myapp.exe" => ".exe"
       }
 
       for {filepath, expected} <- Map.to_list(valid_paths) do

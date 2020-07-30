@@ -14,14 +14,14 @@ defmodule MoodleNet.Test.Fake do
 
   @file_fixtures [
     "test/fixtures/images/150.png",
-    "test/fixtures/very-important.pdf",
+    "test/fixtures/very-important.pdf"
   ]
 
   @url_fixtures [
     "https://duckduckgo.com",
     "https://moodle.com/moodlenet",
     "https://en.wikipedia.org/wiki/Boeing_727#Specifications",
-    "https://upload.wikimedia.org/wikipedia/commons/5/57/B-727_Iberia_%28cropped%29.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/5/57/B-727_Iberia_%28cropped%29.jpg"
   ]
 
   @doc "Returns true"
@@ -62,6 +62,7 @@ defmodule MoodleNet.Test.Fake do
   def paragraph(), do: Faker.Lorem.paragraph()
   @doc "Generates random base64 text"
   def base64(), do: Faker.String.base64()
+
   # def primary_language(), do: "en"
 
   # Custom data
@@ -86,19 +87,20 @@ defmodule MoodleNet.Test.Fake do
   # Unique data
 
   @doc "Generates a random unique uuid"
-  def uuid(), do: unused(&Faker.UUID.v4/0, :uuid)
+  def uuid(), do: Zest.Faking.unused(&Faker.UUID.v4/0, :uuid)
   @doc "Generates a random unique ulid"
   def ulid(), do: Ecto.ULID.generate()
   @doc "Generates a random unique email"
-  def email(), do: unused(&Faker.Internet.email/0, :email)
+  def email(), do: Zest.Faking.unused(&Faker.Internet.email/0, :email)
   @doc "Generates a random domain name"
-  def domain(), do: unused(&Faker.Internet.domain_name/0, :domain)
+  def domain(), do: Zest.Faking.unused(&Faker.Internet.domain_name/0, :domain)
   @doc "Generates the first half of an email address"
-  def email_user(), do: unused(&Faker.Internet.user_name/0, :email_user)
+  def email_user(), do: Zest.Faking.unused(&Faker.Internet.user_name/0, :email_user)
   @doc "Picks a unique random url for an ap endpoint"
-  def ap_url_base(), do: unused(&url/0, :ap_url_base)
+  def ap_url_base(), do: Zest.Faking.unused(&url/0, :ap_url_base)
   @doc "Picks a unique preferred_username"
-  def preferred_username(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
+  def preferred_username(),
+    do: Zest.Faking.unused(&Faker.Internet.user_name/0, :preferred_username)
 
   @doc "Picks a random canonical url and makes it unique"
   def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()
@@ -107,7 +109,8 @@ defmodule MoodleNet.Test.Fake do
 
   def language(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &ulid/0) # todo: these can't both be right
+    # todo: these can't both be right
+    |> Map.put_new_lazy(:id, &ulid/0)
     |> Map.put_new_lazy(:iso_code2, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
@@ -116,7 +119,8 @@ defmodule MoodleNet.Test.Fake do
 
   def country(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &ulid/0) # todo: these can't both be right
+    # todo: these can't both be right
+    |> Map.put_new_lazy(:id, &ulid/0)
     |> Map.put_new_lazy(:iso_code2, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
@@ -262,6 +266,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put("subject", "2290")
     |> Map.put("level", "1100")
     |> Map.put("language", "English")
+
     # |> Map.put_new_lazy("freeAccess", &maybe_bool/0)
     # |> Map.put_new_lazy("publicAccess", &maybe_bool/0)
     # |> Map.put_new_lazy("learningResourceType", &learning_resource/0)
@@ -367,10 +372,11 @@ defmodule MoodleNet.Test.Fake do
     base
     |> Map.put_new_lazy(:upload, fn ->
       path = path()
+
       %Plug.Upload{
         path: path,
         filename: Path.basename(path),
-        content_type: content_type(),
+        content_type: content_type()
       }
     end)
   end

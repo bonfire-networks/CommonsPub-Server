@@ -4,6 +4,7 @@
 defmodule MoodleNet.Test.Faking do
   import ExUnit.Assertions
   alias MoodleNet.Test.Fake
+
   alias MoodleNet.{
     Access,
     Activities,
@@ -19,20 +20,21 @@ defmodule MoodleNet.Test.Faking do
     Users,
     Localisation,
     Resources,
-    Threads,
+    Threads
   }
+
   alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User
-  import MoodleNet.Test.Trendy
+  import CommonsPub.Utils.Trendy
 
   def fake_register_email_domain_access!(domain \\ Fake.domain())
-  when is_binary(domain) do
+      when is_binary(domain) do
     {:ok, wl} = Access.create_register_email_domain(domain)
     wl
   end
 
   def fake_register_email_access!(email \\ Fake.email())
-  when is_binary(email) do
+      when is_binary(email) do
     {:ok, wl} = Access.create_register_email(email)
     wl
   end
@@ -77,25 +79,28 @@ defmodule MoodleNet.Test.Faking do
     end
   end
 
-  def fake_token!(%User{}=user) do
+  def fake_token!(%User{} = user) do
     {:ok, token} = Access.unsafe_put_token(user)
     assert token.user_id == user.id
     token
   end
 
-  def fake_content!(%User{}=user, overrides \\ %{}) do
-    {:ok, content} = Uploads.upload(
-      MoodleNet.Uploads.ResourceUploader,
-      user,
-      Fake.content_input(overrides),
-      %{}
-    )
+  def fake_content!(%User{} = user, overrides \\ %{}) do
+    {:ok, content} =
+      Uploads.upload(
+        MoodleNet.Uploads.ResourceUploader,
+        user,
+        Fake.content_input(overrides),
+        %{}
+      )
+
     assert content.uploader_id == user.id
     content
   end
 
   def fake_community!(user, overrides \\ %{})
-  def fake_community!(%User{}=user, %{}=overrides) do
+
+  def fake_community!(%User{} = user, %{} = overrides) do
     {:ok, community} = Communities.create(user, Fake.community(overrides))
     assert community.creator_id == user.id
     community
@@ -108,9 +113,10 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
-    attrs = overrides
-    |> Fake.resource()
-    |> Map.put(:content_id, fake_content!(user, overrides).id)
+    attrs =
+      overrides
+      |> Fake.resource()
+      |> Map.put(:content_id, fake_content!(user, overrides).id)
 
     {:ok, resource} = Resources.create(user, collection, attrs)
     assert resource.creator_id == user.id
@@ -195,5 +201,4 @@ defmodule MoodleNet.Test.Faking do
     assert feature.context_id == context.id
     feature
   end
-
 end

@@ -114,7 +114,7 @@ Here are the current contexts:
 - `MoodleNet.MetadataScraper` (for scraping metadata from a URL)
 - `MoodleNet.Queries` (Helpers for making queries)
 - `MoodleNet.Queries` (Helpers for making queries)
-- `MoodleNet.ReleaseTasks` (OTP release tasks)
+- `CommonsPub.ReleaseTasks` (OTP release tasks)
 - `MoodleNet.Repo` (Ecto repository)
 - `MoodleNet.Workers` (background tasks)
 

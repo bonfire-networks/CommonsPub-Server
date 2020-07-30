@@ -11,7 +11,7 @@ defmodule MoodleNet.MetadataScraper do
   @request_opts [follow_redirect: true]
 
   def fetch(url) when is_binary(url) do
-    url = MoodleNet.File.ensure_valid_url(url)
+    url = CommonsPub.Utils.File.ensure_valid_url(url)
     IO.inspect(scrape_url: url)
 
     if url != "" do
@@ -73,7 +73,7 @@ defmodule MoodleNet.MetadataScraper do
     (get(data, :facebook, "image") || get(data, :twitter, "image") ||
        get(data, :other, "thumbnail_url"))
     |> only_first()
-    |> MoodleNet.File.fix_relative_url(original_url)
+    |> CommonsPub.Utils.File.fix_relative_url(original_url)
   end
 
   defp embed_code(data) do

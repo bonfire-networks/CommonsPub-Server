@@ -57,7 +57,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
   def prepare_website(profile) do
     if(Map.has_key?(profile, :website) and !is_nil(profile.website)) do
-      url = MoodleNet.File.ensure_valid_url(profile.website)
+      url = CommonsPub.Utils.File.ensure_valid_url(profile.website)
 
       # IO.inspect(url)
 
