@@ -2,7 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Unit.Queries do
-  alias Measurement.Unit
+  import MoodleNet.Common.Query, only: [match_admin: 0]
+  import Ecto.Query
+
   # alias Measurement.Unit.Units
   alias MoodleNet.Follows.{
     Follow
@@ -11,8 +13,7 @@ defmodule Measurement.Unit.Queries do
 
   # alias MoodleNet.Users
   alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
-  import Ecto.Query
+  alias Measurement.Unit
 
   def query(Unit) do
     from(c in Unit, as: :unit)

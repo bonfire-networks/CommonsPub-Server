@@ -115,6 +115,15 @@ defmodule Measurement.Test.Faking do
     |> gen_submutation(:update_unit, &unit_response_fields/1, options)
   end
 
+  def delete_unit_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_unit_submutation/1, options)
+  end
+
+  def delete_unit_submutation(_options \\ []) do
+    field(:delete_unit, args: [id: var(:id)])
+  end
+
   ### Unit assertion
 
   def assert_unit(unit) do

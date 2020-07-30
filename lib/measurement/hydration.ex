@@ -47,11 +47,8 @@ defmodule Measurement.Hydration do
         update_unit: [
           resolve: &Measurement.Unit.GraphQL.update_unit/2
         ],
-        create_measure: [
-          resolve: &Measurement.Measure.GraphQL.create_measure/2
-        ],
-        update_measure: [
-          resolve: &Measurement.Measure.GraphQL.update_measure/2
+        delete_unit: [
+          resolve: &Measurement.Unit.GraphQL.delete_unit/2
         ]
       }
     }

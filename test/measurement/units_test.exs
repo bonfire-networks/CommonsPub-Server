@@ -8,7 +8,7 @@ defmodule Measurement.UnitsTest do
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.Orderings
   import MoodleNetWeb.Test.Automaton
-  import MoodleNet.Common.Enums
+  import MoodleNet.Common.{Enums, NotFoundError}
   import Grumble
   import Zest
   alias MoodleNet.Test.Fake
@@ -33,6 +33,12 @@ defmodule Measurement.UnitsTest do
 
     test "returns NotFound if item is missing" do
       assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one(id: Fake.ulid())
+    end
+
+    test "returns NotFound if item is deleted" do
+      unit = fake_user!() |> fake_unit!()
+      assert {:ok, unit} = Units.soft_delete(unit)
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one([:default, id: unit.id])
     end
   end
 
@@ -66,6 +72,15 @@ defmodule Measurement.UnitsTest do
       unit = fake_unit!(user, comm, %{label: "Bottle Caps", symbol: "C"})
       assert {:ok, updated} = Units.update(unit, %{label: "Rad", symbol: "rad"})
       assert unit != updated
+    end
+  end
+
+  describe "soft_delete" do
+    test "deletes an existing unit" do
+      unit = fake_user!() |> fake_unit!()
+      refute unit.deleted_at
+      assert {:ok, deleted} = Units.soft_delete(unit)
+      assert deleted.deleted_at
     end
   end
 
