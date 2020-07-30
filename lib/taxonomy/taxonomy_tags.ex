@@ -72,6 +72,10 @@ defmodule Taxonomy.TaxonomyTags do
 
   @doc "Takes an existing TaxonomyTag and makes it a Taggable"
   def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
+  end
+
+  @doc "Takes an existing TaxonomyTag and makes it a Taggable"
+  def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
     Repo.transact_with(fn ->
       # add a Pointer ID
       with {:ok, tag} <- pointerise(user, tag) do

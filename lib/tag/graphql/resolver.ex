@@ -128,6 +128,17 @@ defmodule Tag.GraphQL.TagResolver do
     MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
+  def make_pointer_taggable(%{pointer_id: pointer_id}, info) do
+    Repo.transact_with(fn ->
+      with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id),
+           context = MoodleNet.Meta.Pointers.follow!(pointer),
+           {:ok, tag} <- Tag.Taggables.create(me, context, %{}) do
+        {:ok, tag}
+      end
+    end)
+  end
+
   # def tag(%{tag_id: id}, info) do
   #   {:ok, Fake.tag()}
   #   |> GraphQL.response(info)
