@@ -5,7 +5,9 @@ defmodule Measurement.GraphQLTest do
   import MoodleNet.Test.{Faking, Trendy}
   import Measurement.Test.Faking
   import MoodleNet.Test.Trendy, only: [some: 2]
-  alias Measurement.{Units, Measures}
+
+  alias Measurement.Measure.Measures
+  alias Measurement.Unit.Units
 
   describe "unit" do
     test "fetches an existing unit by ID" do
@@ -17,9 +19,14 @@ defmodule Measurement.GraphQLTest do
       assert_unit(grumble_post_key(q, conn, :unit, %{id: unit.id}))
     end
 
-    # TODO when soft-deletion is done
-    @tag :skip
     test "fails for deleted units" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      assert {:ok, unit} = Units.soft_delete(unit)
+
+      q = unit_query()
+      conn = user_conn(user)
+      assert [%{"status" => 404}] = grumble_post_errors(q, conn, %{id: unit.id})
     end
 
     test "fails if ID is missing" do
