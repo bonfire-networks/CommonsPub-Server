@@ -10,6 +10,7 @@ defmodule ValueFlows.Simulate do
   import Measurement.Simulate
 
   alias Geolocation.Geolocations
+  alias ValueFlows.Planning.Intent.Intents
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])
 
@@ -78,21 +79,5 @@ defmodule ValueFlows.Simulate do
 
     {:ok, intent} = Intents.create(user, measures, intent(overrides))
     intent
-  end
-
-  def geolocation(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:name, &name/0)
-    |> Map.put_new_lazy(:note, &summary/0)
-    # |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:is_public, &truth/0)
-    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
-    |> Map.put_new_lazy(:is_featured, &falsehood/0)
-    |> Map.merge(actor(base))
-  end
-
-  def geolocation!(user, community, overrides \\ %{}) when is_map(overrides) do
-    {:ok, geolocation} = Geolocations.create(user, community, geolocation(overrides))
-    geolocation
   end
 end

@@ -38,10 +38,15 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       user = fake_user!()
       unit = fake_unit!(user)
 
-      q = create_intent_mutation()
+      q = create_intent_mutation(fields: [
+        available_quantity: [:has_numerical_value, has_unit: [:id, :label]]
+      ])
       conn = user_conn(user)
       vars = %{intent: intent_input(unit)}
-      assert_intent(grumble_post_key(q, conn, :create_intent, vars)["intent"])
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["availableQuantity"]["hasNumericalValue"] ==
+        vars.intent["available_quantity"]["hasNumericalValue"]
     end
 
     test "creates a new intent given a scope" do
