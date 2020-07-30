@@ -42,8 +42,10 @@
 }
 
 .community__discussion__actions {
-  margin-bottom: var(--m2);
+  margin: 16px -16px 0;
+  padding: 0 16px 16px;
   display: flex;
+  border-bottom: var(--border);
   input {
     flex: 1;
     margin-right: var(--m3);

@@ -61,6 +61,22 @@ defmodule MoodleNet.Collections.Collection do
     |> common_changeset()
   end
 
+  def create_changeset(
+    %User{} = creator,
+    %Actor{} = actor,
+    attrs
+  ) do
+%Collection{}
+|> Changeset.cast(attrs, @cast)
+|> Changeset.change(
+  creator_id: creator.id,
+  actor_id: actor.id,
+  is_public: true
+)
+|> Changeset.validate_required(@required)
+|> common_changeset()
+end
+
   def update_changeset(%Collection{} = collection, attrs) do
     collection
     |> Changeset.cast(attrs, @cast)

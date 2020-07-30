@@ -36,16 +36,18 @@ defmodule MoodleNet.Collections do
 
   @spec create(User.t(), Community.t(), attrs :: map) ::
           {:ok, Collection.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
+  def create(%User{} = creator, %{} = community_or_context, attrs) when is_map(attrs) do
     attrs = Actors.prepare_username(attrs)
 
     Repo.transact_with(fn ->
+      community_or_context = Repo.preload(community_or_context, :actor)
+      actor = community_or_context.actor
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
-           {:ok, coll} <- insert_collection(creator, community, actor, coll_attrs),
+           {:ok, coll} <- insert_collection(creator, community_or_context, actor, coll_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
-           :ok <- publish(creator, community, coll, activity),
+           :ok <- publish(creator, community_or_context, coll, activity),
            :ok <- ap_publish("create", coll),
            :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(coll),
            {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
@@ -53,6 +55,26 @@ defmodule MoodleNet.Collections do
       end
     end)
   end
+
+  # Create without community
+  def create(%User{} = creator, attrs) when is_map(attrs) do
+    attrs = Actors.prepare_username(attrs)
+
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.create(attrs),
+           {:ok, coll_attrs} <- create_boxes(actor, attrs),
+           {:ok, coll} <- insert_collection(creator, actor, coll_attrs),
+           act_attrs = %{verb: "created", is_local: true},
+           {:ok, activity} <- Activities.create(creator, coll, act_attrs),
+           :ok <- publish(creator, coll, activity),
+           :ok <- ap_publish("create", coll),
+           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(coll),
+           {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
+        {:ok, coll}
+      end
+    end)
+  end
+
 
   @spec create_remote(User.t(), Community.t(), attrs :: map) ::
           {:ok, Collection.t()} | {:error, Changeset.t()}
@@ -88,6 +110,11 @@ defmodule MoodleNet.Collections do
 
   defp insert_collection(creator, community, actor, attrs) do
     cs = Collection.create_changeset(creator, community, actor, attrs)
+    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{coll | actor: actor}}
+  end
+
+  defp insert_collection(creator, actor, attrs) do
+    cs = Collection.create_changeset(creator, actor, attrs)
     with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{coll | actor: actor}}
   end
 
@@ -182,6 +209,16 @@ defmodule MoodleNet.Collections do
   defp publish(creator, community, collection, activity) do
     feeds = [
       community.outbox_id,
+      creator.outbox_id,
+      collection.outbox_id,
+      Feeds.instance_outbox_id()
+    ]
+
+    FeedActivities.publish(activity, feeds)
+  end
+
+  defp publish(creator, collection, activity) do
+    feeds = [
       creator.outbox_id,
       collection.outbox_id,
       Feeds.instance_outbox_id()

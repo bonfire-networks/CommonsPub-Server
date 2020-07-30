@@ -36,6 +36,18 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     )
   end
 
+
+  def collection(%{username: name}, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_collection_by_username,
+      context: name,
+      info: info
+    })
+  end
+
+
+
   def collections(page_opts, info) do
     ResolveRootPage.run(
       %ResolveRootPage{
@@ -56,6 +68,10 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       id: id,
       join: :actor, preload: :actor
     )
+  end
+
+  def fetch_collection_by_username(info, name) do
+    Collections.one([:default, username: name, user: GraphQL.current_user(info)])
   end
 
   def fetch_collections(page_opts, info) do
@@ -130,7 +146,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   #   count_query = Resources.Queries.query Resource,
   #     collection_id: ids,
   #     group_count: :collection_id
-    
+
   #   FetchPages.run(
   #     %FetchPages{
   #       cursor_fn: &[&1.id],
@@ -206,13 +222,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         page_opts: page_opts,
         base_filters: [deleted: false, feed_timeline: id, table: tables],
         data_filters: [page: [desc: [created: page_opts]], preload: :context],
-      }          
+      }
     )
   end
 
   ## finally the mutations...
 
-  def create_collection(%{collection: attrs, community_id: id} = params, info) do
+  def create_collection(%{collection: attrs, context_id: id} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, params, info),
@@ -225,6 +241,20 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       end
     end)
   end
+
+  # Create a collection without context
+  def create_collection(%{collection: attrs} = params, info) do
+      Repo.transact_with(fn ->
+        with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+             {:ok, uploads} <- UploadResolver.upload(user, params, info) do
+          attrs = attrs
+          |> Map.put(:is_public, true)
+          |> Map.merge(uploads)
+
+          Collections.create(user, attrs)
+        end
+      end)
+    end
 
   def update_collection(%{collection: changes, collection_id: id} = params, info) do
     Repo.transact_with(fn ->

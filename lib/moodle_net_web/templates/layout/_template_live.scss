@@ -137,18 +137,15 @@
 // DRAWER
 
 .side__drawer {
-  width: 244px;
-  background: var(--color-background-dark);
-  margin: 8px;
-  border-radius: 6px;
-  box-shadow: 0 2px 2px 1px rgba(0,0,0,.4);
+  width: 260px;
+  background: var(--color-surface);
   border: none;
-  min-height: calc(100vh - 76px);
-  height: calc(100vh - 76px);
+  min-height: calc(100vh - 60px);
+  height: calc(100vh - 60px);
+  border: none;
   position: relative;
   transition: transform 0.2s ease;
   display: grid;
-
   .drawer__menu {
     overflow-y: auto;
     .communities__wrapper {
@@ -179,6 +176,7 @@
       cursor: pointer;
       display: flex;
       align-items: center;
+      margin-bottom: var(--m2);
       a {
         display: flex;
         flex: 1;

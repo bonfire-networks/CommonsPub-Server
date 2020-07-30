@@ -2,15 +2,17 @@ defmodule MoodleNetWeb.CollectionLive do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Communities, Profiles}
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  alias MoodleNetWeb.Helpers.{Collections, Profiles}
+  alias MoodleNetWeb.GraphQL.CollectionsResolver
 
   alias MoodleNetWeb.CommunityLive.{
-    CommunityDiscussionsLive,
-    CommunityMembersLive,
-    # CommunityNavigationLive,
     CommunityWriteLive,
-    CommunityActivitiesLive
+  }
+  alias MoodleNetWeb.CollectionLive.{
+    CollectionActivitiesLive,
+    CollectionFollowersLive,
+    CollectionResourcesLive,
+    CollectionDiscussionsLive
   }
 
   alias MoodleNetWeb.Component.{
@@ -42,10 +44,10 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    community =
-      Communities.community_load(socket, params, %{
-        icon: true,
-        image: true,
+    collection =
+      Collections.collection_load(socket, params, %{
+        icon: false,
+        image: false,
         actor: true,
         is_followed_by: socket.assigns.current_user
       })
@@ -53,27 +55,26 @@ defmodule MoodleNetWeb.CollectionLive do
     {:noreply,
      assign(socket,
        selected_tab: tab,
-       community: community,
-       current_context: community,
+       collection: collection,
+       current_context: collection,
        current_user: socket.assigns.current_user
      )}
   end
 
   def handle_params(%{} = params, url, socket) do
-    community =
-      Communities.community_load(socket, params, %{
-        icon: true,
-        image: true,
+    collection =
+      Collections.collection_load(socket, params, %{
         actor: true,
+        icon: false,
+        image: false,
         is_followed_by: socket.assigns.current_user
       })
 
-    # IO.inspect(community, label: "community")
 
     {:noreply,
      assign(socket,
-       community: community,
-       current_context: community,
+       collection: collection,
+       current_context: collection,
        current_user: socket.assigns.current_user
      )}
   end
@@ -81,7 +82,7 @@ defmodule MoodleNetWeb.CollectionLive do
   def handle_event("flag", %{"message" => message} = _args, socket) do
     {:ok, flag} =
       MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
-        %{context_id: socket.assigns.community.id, message: message},
+        %{context_id: socket.assigns.collection.id, message: message},
         %{
           context: %{current_user: socket.assigns.current_user}
         }
@@ -103,7 +104,7 @@ defmodule MoodleNetWeb.CollectionLive do
   def handle_event("follow", _data, socket) do
     f =
       MoodleNetWeb.GraphQL.FollowsResolver.create_follow(
-        %{context_id: socket.assigns.community.id},
+        %{context_id: socket.assigns.collection.id},
         %{
           context: %{current_user: socket.assigns.current_user}
         }
@@ -116,13 +117,13 @@ defmodule MoodleNetWeb.CollectionLive do
       :noreply,
       socket
       |> put_flash(:info, "Joined!")
-      |> assign(community: socket.assigns.community |> Map.merge(%{is_followed: true}))
+      |> assign(collection: socket.assigns.collection |> Map.merge(%{is_followed: true}))
       #  |> push_patch(to: "/&" <> socket.assigns.community.username)
     }
   end
 
   def handle_event("unfollow", _data, socket) do
-    uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.community.id)
+    uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
 
     # IO.inspect(uf)
     # TODO: error handling
@@ -130,13 +131,12 @@ defmodule MoodleNetWeb.CollectionLive do
     {
       :noreply,
       socket
-      |> assign(community: socket.assigns.community |> Map.merge(%{is_followed: false}))
+      |> assign(collection: socket.assigns.collection |> Map.merge(%{is_followed: false}))
       |> put_flash(:info, "Left...")
-      # |> push_patch(to: "/&" <> socket.assigns.community.username)
     }
   end
 
-  def handle_event("edit_community", %{"name" => name} = data, socket) do
+  def handle_event("edit_collection", %{"name" => name} = data, socket) do
     # IO.inspect(data, label: "DATA")
 
     if(is_nil(name) or !Map.has_key?(socket.assigns, :current_user)) do
@@ -146,9 +146,9 @@ defmodule MoodleNetWeb.CollectionLive do
     else
       changes = input_to_atoms(data)
 
-      {:ok, community} =
-        MoodleNetWeb.GraphQL.CommunitiesResolver.update_community(
-          %{community: changes, community_id: socket.assigns.community.id},
+      {:ok, collection} =
+        MoodleNetWeb.GraphQL.CollectionsResolver.update_collection(
+          %{collection: changes, collection_id: socket.assigns.collection.id},
           %{
             context: %{current_user: socket.assigns.current_user}
           }
@@ -157,9 +157,9 @@ defmodule MoodleNetWeb.CollectionLive do
       # TODO: handle errors
       # IO.inspect(community, label: "community updated")
 
-      if(community) do
-        community =
-          Profiles.prepare(community, %{
+      if(collection) do
+        collection =
+          Profiles.prepare(collection, %{
             icon: true,
             image: true,
             actor: true,
@@ -169,8 +169,8 @@ defmodule MoodleNetWeb.CollectionLive do
         {
           :noreply,
           socket
-          |> assign(community: community)
-          |> put_flash(:info, "Community updated !")
+          |> assign(collection: collection)
+          |> put_flash(:info, "Collection updated !")
           # change redirect
         }
       else
