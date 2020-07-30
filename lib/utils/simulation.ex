@@ -1,4 +1,21 @@
 defmodule CommonsPub.Utils.Simulation do
+  # Basic data
+
+  @integer_min -32768
+  @integer_max 32767
+
+  @file_fixtures [
+    "test/fixtures/images/150.png",
+    "test/fixtures/very-important.pdf"
+  ]
+
+  @url_fixtures [
+    "https://duckduckgo.com",
+    "https://moodle.com/moodlenet",
+    "https://en.wikipedia.org/wiki/Boeing_727#Specifications",
+    "https://upload.wikimedia.org/wikipedia/commons/5/57/B-727_Iberia_%28cropped%29.jpg"
+  ]
+
   @doc "Returns true"
   def truth(), do: true
   @doc "Returns false"
@@ -79,4 +96,53 @@ defmodule CommonsPub.Utils.Simulation do
 
   @doc "Picks a random canonical url and makes it unique"
   def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()
+
+  # Widely useful schemas:
+
+  def actor(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
+    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:signing_key, &signing_key/0)
+  end
+
+  # utils
+
+  def short_count(), do: Faker.random_between(0, 3)
+  def med_count(), do: Faker.random_between(3, 9)
+  def long_count(), do: Faker.random_between(10, 25)
+  def short_list(gen), do: Faker.Util.list(short_count(), gen)
+  def med_list(gen), do: Faker.Util.list(med_count(), gen)
+  def long_list(gen), do: Faker.Util.list(long_count(), gen)
+  def one_of(gens), do: Faker.Util.pick(gens).()
+
+  def page_info(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:start_cursor, &uuid/0)
+    |> Map.put_new_lazy(:end_cursor, &uuid/0)
+    |> Map.put(:__struct__, MoodleNet.GraphQL.PageInfo)
+  end
+
+  def long_node_list(base \\ %{}, gen) do
+    base
+    |> Map.put_new_lazy(:page_info, &page_info/0)
+    |> Map.put_new_lazy(:total_count, &pos_integer/0)
+    |> Map.put_new_lazy(:nodes, fn -> long_list(gen) end)
+    |> Map.put(:__struct__, MoodleNet.GraphQL.NodeList)
+  end
+
+  def long_edge_list(base \\ %{}, gen) do
+    base
+    |> Map.put_new_lazy(:page_info, &page_info/0)
+    |> Map.put_new_lazy(:total_count, &pos_integer/0)
+    |> Map.put_new_lazy(:edges, fn -> long_list(fn -> edge(gen) end) end)
+    |> Map.put(:__struct__, MoodleNet.GraphQL.EdgeList)
+  end
+
+  def edge(base \\ %{}, gen) do
+    base
+    |> Map.put_new_lazy(:cursor, &uuid/0)
+    |> Map.put_new_lazy(:node, gen)
+    |> Map.put(:__struct__, MoodleNet.GraphQL.Edge)
+  end
 end

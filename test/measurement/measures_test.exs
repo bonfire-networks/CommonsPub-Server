@@ -4,7 +4,7 @@
 defmodule Measurement.MeasuresTest do
   use MoodleNetWeb.ConnCase, async: true
 
-  import MoodleNet.Test.Trendy
+  import CommonsPub.Utils.Trendy
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.Orderings
   import MoodleNetWeb.Test.Automaton
@@ -15,6 +15,8 @@ defmodule Measurement.MeasuresTest do
   alias MoodleNet.Test.Fake
 
   import Measurement.Test.Faking
+
+  import Measurement.Simulate
   alias Measurement.Measure
   alias Measurement.Measure.Measures
 

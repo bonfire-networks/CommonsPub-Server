@@ -4,10 +4,12 @@
 defmodule Measurement.Test.Faking do
   @moduledoc false
 
+  import Measurement.Simulate
+
   # import ExUnit.Assertions
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Trendy
+  import CommonsPub.Utils.Trendy
 
   import Grumble
 
@@ -16,41 +18,7 @@ defmodule Measurement.Test.Faking do
   alias Measurement.Measure.Measures
   alias Measurement.Unit.Units
 
-  @doc "A unit"
-  def unit_name(), do: Faker.Util.pick(["kilo", "liter"])
-  def unit_symbol(), do: Faker.Util.pick(["kg", "m"])
-
-  ### Start fake data functions
-
   ## Unit
-
-  def unit(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:label, &unit_name/0)
-    |> Map.put_new_lazy(:symbol, &unit_symbol/0)
-    |> Map.put_new_lazy(:is_public, &Fake.truth/0)
-    |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
-    |> Map.put_new_lazy(:is_featured, &Fake.falsehood/0)
-    |> Map.merge(Fake.actor(base))
-  end
-
-  def unit_input(base \\ %{}) do
-    base
-    |> Map.put_new_lazy("label", &unit_name/0)
-    |> Map.put_new_lazy("symbol", &unit_symbol/0)
-  end
-
-  def fake_unit!(user, context \\ nil, overrides \\ %{})
-
-  def fake_unit!(user, context, overrides) when is_nil(context) do
-    {:ok, unit} = Units.create(user, unit(overrides))
-    unit
-  end
-
-  def fake_unit!(user, context, overrides) do
-    {:ok, unit} = Units.create(user, context, unit(overrides))
-    unit
-  end
 
   ### Graphql fields
 
@@ -76,11 +44,13 @@ defmodule Measurement.Test.Faking do
   end
 
   def units_query(options \\ []) do
-    params = [
-      after: list_type(:cursor),
-      before: list_type(:cursor),
-      limit: :int
-    ] ++ Keyword.get(options, :params, [])
+    params =
+      [
+        after: list_type(:cursor),
+        before: list_type(:cursor),
+        limit: :int
+      ] ++ Keyword.get(options, :params, [])
+
     gen_query(&units_subquery/1, [{:params, params} | options])
   end
 
@@ -90,9 +60,12 @@ defmodule Measurement.Test.Faking do
       before: var(:before),
       limit: var(:limit)
     ]
-    page_subquery(:units_pages,
+
+    page_subquery(
+      :units_pages,
       &unit_fields/1,
-      [{:args, args} | options])
+      [{:args, args} | options]
+    )
   end
 
   def create_unit_mutation(options \\ []) do
@@ -152,21 +125,6 @@ defmodule Measurement.Test.Faking do
   end
 
   ## Measures
-  def measure(overrides \\ %{}) do
-    overrides
-    |> Map.put_new_lazy(:has_numerical_value, &Fake.integer/0)
-    |> Map.put_new_lazy(:is_public, &Fake.truth/0)
-  end
-
-  def measure_input(unit \\ nil, overrides \\ %{}) do
-    overrides = Map.put_new_lazy(overrides, "hasNumericalValue", &:rand.uniform/0)
-
-    if is_nil(unit) do
-      overrides
-    else
-      Map.put_new(overrides, "hasUnit", unit.id)
-    end
-  end
 
   def measure_fields(extra \\ []) do
     extra ++ ~w(id has_numerical_value)a
@@ -217,11 +175,6 @@ defmodule Measurement.Test.Faking do
   def update_measure_submutation(options \\ []) do
     [measure: var(:measure)]
     |> gen_submutation(:update_measure, &measure_response_fields/1, options)
-  end
-
-  def fake_measure!(user, unit, overrides \\ %{}) do
-    {:ok, measure} = Measures.create(user, unit, measure(overrides))
-    measure
   end
 
   def assert_measure(%Measure{} = measure) do

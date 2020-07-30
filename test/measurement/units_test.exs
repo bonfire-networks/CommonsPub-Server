@@ -4,16 +4,20 @@
 defmodule Measurement.UnitsTest do
   use MoodleNetWeb.ConnCase, async: true
 
-  import MoodleNet.Test.Trendy
+  import Measurement.Test.Faking
+
+  import CommonsPub.Utils.Trendy
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.Orderings
   import MoodleNetWeb.Test.Automaton
   import MoodleNet.Common.{Enums, NotFoundError}
+
   import Grumble
   import Zest
+
   alias MoodleNet.Test.Fake
 
-  import Measurement.Test.Faking
+  import Measurement.Simulate
   alias Measurement.Unit
   alias Measurement.Unit.Units
 

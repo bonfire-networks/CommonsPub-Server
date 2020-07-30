@@ -2,10 +2,11 @@
 defmodule Measurement.GraphQLTest do
   use MoodleNetWeb.ConnCase, async: true
 
-  import MoodleNet.Test.{Faking, Trendy}
+  import MoodleNet.Test.Faking
   import Measurement.Test.Faking
-  import MoodleNet.Test.Trendy, only: [some: 2]
+  import CommonsPub.Utils.Trendy
 
+  import Measurement.Simulate
   alias Measurement.Measure.Measures
   alias Measurement.Unit.Units
 
@@ -69,7 +70,7 @@ defmodule Measurement.GraphQLTest do
 
       q = create_unit_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      vars = %{unit: Map.put(unit_input(), :in_scope_of,  comm.id)}
+      vars = %{unit: Map.put(unit_input(), :in_scope_of, comm.id)}
       assert_unit(grumble_post_key(q, conn, :create_unit, vars)["unit"])
     end
   end
