@@ -2,11 +2,10 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Measure.Queries do
-  alias Measurement.Measure
-  # alias Measurement.Measure.Measures
-  alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
+  alias MoodleNet.Users.User
+  alias Measurement.{Measure, Unit}
 
   def query(Measure) do
     from(c in Measure, as: :measure)
@@ -63,6 +62,12 @@ defmodule Measurement.Measure.Queries do
   def filter(q, {:user, nil}) do
     q
     |> filter(~w(disabled private)a)
+  end
+
+  ## by unit
+
+  def filter(q, {:unit, %Unit{id: id}}) do
+    where(q, [measure: c], c.unit_id == ^id)
   end
 
   ## by status

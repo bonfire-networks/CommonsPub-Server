@@ -28,6 +28,7 @@ defmodule Measurement.Unit.GraphQL do
   alias Measurement.Unit
   alias Measurement.Unit.Units
   alias Measurement.Unit.Queries
+  alias Measurement.Measure.Measures
 
   import_sdl(path: "lib/measurement/measurement.gql")
 
@@ -60,10 +61,11 @@ defmodule Measurement.Unit.GraphQL do
   ## fetchers
 
   def fetch_unit(info, id) do
-    Units.one(
+    Units.one([
+      :default,
       user: GraphQL.current_user(info),
       id: id
-    )
+    ])
   end
 
   # FIXME
@@ -73,7 +75,7 @@ defmodule Measurement.Unit.GraphQL do
       query: Unit,
       cursor_fn: & &1.id,
       page_opts: page_opts,
-      base_filters: [user: GraphQL.current_user(info)]
+      base_filters: [:default, user: GraphQL.current_user(info)]
     })
   end
 
@@ -124,6 +126,43 @@ defmodule Measurement.Unit.GraphQL do
         end
       end
     end)
+  end
+
+  def delete_unit(%{id: id}, info) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, unit} <- unit(%{id: id}, info)  do
+        if allow_delete?(user, unit) do
+          with {:ok, _} <- Units.soft_delete(unit) do
+            {:ok, true}
+          end
+        else
+          GraphQL.not_permitted("delete")
+        end
+      end
+    end)
+  end
+
+  defp allow_delete?(user, unit) do
+    not dependent_measures?(unit) and allow_user_delete?(user, unit)
+  end
+
+  defp allow_user_delete?(user, unit) do
+    user.local_user.is_instance_admin or unit.creator_id == user.id
+  end
+
+  # TODO: provide a more helpful error message
+  defp dependent_measures?(%Unit{id: unit_id} = unit) do
+    {:ok, measures} =
+      Measures.many([:default, group_count: :unit_id, unit: unit])
+
+    n_measures =
+      case measures do
+        [{^unit_id, n_measures}] -> n_measures
+        [] -> 0
+      end
+
+    n_measures > 0
   end
 
   # TEMP
