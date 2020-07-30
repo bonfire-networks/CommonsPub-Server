@@ -1,0 +1,23 @@
+
+
+<div id="new_collection" class="dialog__create">
+
+<%= if @toggle_collection do %>
+
+  <div id="<%= @toggle_collection %>" phx-target="<%= @myself %>" phx-click="toggle_collection" class="dialog__backdrop"></div>
+  <dialog open class="dialog dialog__create">
+    <header class="dialog__header">Create a new collection</header>
+    <section class="dialog__content">
+      <form phx-submit="new_collection" phx-target="<%= @myself %>">
+        <input name="name" placeholder="Type the collection name..." />
+        <textarea name="summary" placeholder="Describe your collection..."></textarea>
+        <footer class="dialog__footer">
+          <button value="default">Confirm</button>
+        </footer>
+      </form>
+    </section>
+  </dialog>
+
+<% end %>
+
+</div>

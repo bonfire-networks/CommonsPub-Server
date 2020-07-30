@@ -204,6 +204,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:show_title, false)
     |> assign(:toggle_post, false)
     |> assign(:toggle_community, false)
+    |> assign(:toggle_collection, false)
     |> assign(:toggle_link, false)
     |> assign(:current_context, nil)
     |> assign(:current_user, current_user)

@@ -15,6 +15,7 @@
 
       <li phx-target="#write_widget" phx-click="toggle_post"><i class="feather-edit"></i> Write a post</li>
       <li phx-target="#new_community" phx-click="toggle_community"><i class="feather-users"></i> Start a community</li>
+      <li phx-target="#new_collection" phx-click="toggle_collection"><i class="feather-folder"></i> Create a collection</li>
       <li phx-target="#post_link" phx-click="toggle_link"><i class="feather-link"></i> Share a link</li>
     </ul>
   </details>
@@ -60,6 +61,14 @@
       id: "new_community"
     ) %>
 
+     <%= live_component(
+      @socket,
+      MoodleNetWeb.My.NewCollectionLive,
+      current_user: @current_user,
+      toggle_collection: @toggle_collection,
+      id: "new_collection"
+    ) %>
+
   <%= live_component(
       @socket,
       MoodleNetWeb.My.ShareLinkLive,
@@ -70,5 +79,7 @@
       link_input: %{},
       id: "post_link"
     ) %>
+
+
 
 </div>

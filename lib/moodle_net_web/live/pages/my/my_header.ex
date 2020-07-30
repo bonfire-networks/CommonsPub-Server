@@ -25,6 +25,10 @@ defmodule MoodleNetWeb.My.MyHeader do
     {:noreply, assign(socket, :toggle_community, !socket.assigns.toggle_community)}
   end
 
+  def handle_event("toggle_collection", _data, socket) do
+    {:noreply, assign(socket, :toggle_collection, !socket.assigns.toggle_collection)}
+  end
+
   def handle_event("toggle_link", _data, socket) do
     {:noreply, assign(socket, :toggle_link, !socket.assigns.toggle_link)}
   end
