@@ -3,7 +3,11 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   use MoodleNetWeb.ConnCase, async: true
 
   import MoodleNet.Test.Faking
+
+  import Measurement.Simulate
   import Measurement.Test.Faking
+
+  import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
   alias ValueFlows.Planning.Intent.Intents
@@ -31,8 +35,9 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       measures = %{
         resource_quantity: fake_measure!(user, unit),
         effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit),
+        available_quantity: fake_measure!(user, unit)
       }
+
       assert {:ok, intent} = Intents.create(user, measures, intent())
       assert_intent(intent)
       assert intent.resource_quantity_id == measures.resource_quantity.id
@@ -44,10 +49,11 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       user = fake_user!()
       unit = fake_unit!(user)
       another_user = fake_user!()
+
       measures = %{
         resource_quantity: fake_measure!(user, unit),
         effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit),
+        available_quantity: fake_measure!(user, unit)
       }
 
       assert {:ok, intent} = Intents.create(user, another_user, measures, intent())
@@ -66,8 +72,9 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
         resource_quantity: fake_measure!(user, unit),
         # don't update one of them
         # effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit),
+        available_quantity: fake_measure!(user, unit)
       }
+
       assert {:ok, updated} = Intents.update(intent, measures, intent())
       assert_intent(updated)
       assert intent != updated

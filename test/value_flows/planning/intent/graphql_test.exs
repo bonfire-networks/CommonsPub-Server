@@ -2,7 +2,11 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   use MoodleNetWeb.ConnCase, async: true
 
   import MoodleNet.Test.Faking
+
+  import Measurement.Simulate
   import Measurement.Test.Faking
+
+  import ValueFlows.Simulate
   import ValueFlows.Test.Faking
   alias ValueFlows.Planning.Intent.Intents
 
@@ -81,10 +85,15 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = update_intent_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      vars = %{intent: intent_input(unit, %{
-        "id" => intent.id,
-        "inScopeOf" => [another_user.id]
-      })}
+
+      vars = %{
+        intent:
+          intent_input(unit, %{
+            "id" => intent.id,
+            "inScopeOf" => [another_user.id]
+          })
+      }
+
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert [context] = resp["inScopeOf"]
       assert context["__typename"] == "User"
