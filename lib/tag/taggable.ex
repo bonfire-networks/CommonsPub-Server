@@ -19,8 +19,9 @@ defmodule Tag.Taggable do
     # eg. @ or + or #
     field(:prefix, :string)
 
-    # eg. community who curates this tag
+    # eg. agent who curates this tag, or Thing that is taggable
     belongs_to(:context, Pointers.Pointer, type: Ecto.ULID)
+
     # eg. Mamals is a parent of Cat
     belongs_to(:parent_tag, Taggable, type: Ecto.ULID)
     # eg. Olive Oil is the same as Huile d'olive
@@ -29,9 +30,10 @@ defmodule Tag.Taggable do
     # optionally where it came from in the taxonomy
     belongs_to(:taxonomy_tag, Taxonomy.TaxonomyTag, type: :integer)
 
-    # stores common fields like name/description
+    # Optionally, a profile and Character (if not using context)
+    ## stores common fields like name/description
     has_one(:profile, Profile, foreign_key: :id)
-    # allows it to be follow-able and federate activities
+    ## allows it to be follow-able and federate activities
     has_one(:character, Character, foreign_key: :id)
 
     field(:name, :string, virtual: true)
@@ -42,6 +44,13 @@ defmodule Tag.Taggable do
       unique: true,
       join_keys: [tag_id: :id, pointer_id: :id]
     )
+  end
+
+  def create_changeset(attrs, context) do
+    %Taggable{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(context_id: context.id)
+    |> common_changeset()
   end
 
   def create_changeset(attrs) do

@@ -26,7 +26,7 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
 
   object :taxonomy_mutations do
     @desc "Create a Character to represents this tag in feeds and federation"
-    field :make_taggable_taxonomy_tag, :tag do
+    field :make_taxonomy_tag_taggable, :tag do
       arg(:taxonomy_tag_id, :integer)
       resolve(&TaxonomyResolver.make_taggable_taxonomy_tag/2)
     end

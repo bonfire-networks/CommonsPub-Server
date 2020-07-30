@@ -74,6 +74,45 @@ defmodule Tag.Taggables do
 
   ## mutations
 
+  @doc """
+  Create a mini-taggable object that makes a Thing taggable
+  """
+  def create(%User{} = creator, context, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      attrs =
+        Map.put(
+          attrs,
+          :facet,
+          context.__struct__ |> to_string() |> String.split(".") |> List.last()
+        )
+
+      attrs = Map.put(attrs, :prefix, prefix(attrs.facet))
+
+      IO.inspect(attrs)
+
+      # TODO: check that the tag doesn't already exist (same context)
+
+      with {:ok, taggable} <- insert_taggable(attrs, context) do
+        {:ok, %{taggable | context: context}}
+      end
+    end)
+  end
+
+  def prefix("Community") do
+    "&"
+  end
+
+  def prefix("User") do
+    "@"
+  end
+
+  def prefix(_) do
+    "+"
+  end
+
+  @doc """
+  Create a brand-new taggable object, with own Profile and Character
+  """
   @spec create(User.t(), attrs :: map) :: {:ok, Taggable.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
@@ -94,6 +133,12 @@ defmodule Tag.Taggables do
     attrs = Map.put(attrs, :id, taggable.id)
     # IO.inspect(attrs)
     {:ok, attrs}
+  end
+
+  defp insert_taggable(attrs, context) do
+    # IO.inspect(insert_taggable: attrs)
+    cs = Taggable.create_changeset(attrs, context)
+    with {:ok, taggable} <- Repo.insert(cs), do: {:ok, taggable}
   end
 
   defp insert_taggable(attrs) do
