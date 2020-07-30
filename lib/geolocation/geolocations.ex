@@ -5,7 +5,7 @@ defmodule Geolocation.Geolocations do
   alias MoodleNet.{
     Activities,
     Actors,
-    # Common,
+    Common,
     Feeds,
     Follows,
     Repo
@@ -196,11 +196,9 @@ defmodule Geolocation.Geolocations do
 
   defp ap_publish(_, _, _), do: :ok
 
-  # TODO: take the user who is performing the update
   @spec update(User.t(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Geolocation{} = geolocation, attrs) do
-
      with {:ok, attrs} <- resolve_mappable_address(attrs),
           {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
           :ok <- ap_publish("update", item.id, user.id) do
@@ -208,14 +206,15 @@ defmodule Geolocation.Geolocations do
     end
   end
 
-  # def soft_delete(%Geolocation{} = geolocation) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, geolocation} <- Common.soft_delete(geolocation),
-  #          :ok <- publish(geolocation, :deleted) do
-  #       {:ok, geolocation}
-  #     end
-  #   end)
-  # end
+  @spec soft_delete(User.t(), Geolocation.t()) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  def soft_delete(%User{} = user, %Geolocation{} = geo) do
+    Repo.transact_with(fn ->
+      with {:ok, geo} <- Common.soft_delete(geo),
+           :ok <- ap_publish("delete", geo.id, user.id) do
+        {:ok, geo}
+      end
+    end)
+  end
 
   def populate_coordinates(%Geolocation{geom: geom} = geo) when not is_nil(geom) do
     {lat, long} = geo.geom.coordinates

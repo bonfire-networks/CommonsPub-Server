@@ -160,4 +160,21 @@ defmodule Geolocation.GraphQL do
       end
     end)
   end
+
+  def delete_geolocation(%{id: id}, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, geo} <- geolocation(%{id: id}, info),
+         :ok <- ensure_delete_allowed(user, geo),
+         {:ok, geo} <- Geolocations.soft_delete(user, geo) do
+      {:ok, true}
+    end
+  end
+
+  def ensure_delete_allowed(user, geo) do
+    if user.local_user.is_instance_admin or geo.creator_id == user.id do
+      :ok
+    else
+      GraphQL.not_permitted("delete")
+    end
+  end
 end

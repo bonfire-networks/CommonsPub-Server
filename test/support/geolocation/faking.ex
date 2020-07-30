@@ -21,7 +21,6 @@ defmodule Geolocation.Test.Faking do
     base
     |> Map.put_new_lazy(:name, &Fake.name/0)
     |> Map.put_new_lazy(:note, &Fake.summary/0)
-    |> Map.put_new_lazy(:lat, &Fake.integer/0)
     |> Map.put_new_lazy(:lat, &Faker.Address.latitude/0)
     |> Map.put_new_lazy(:long, &Faker.Address.longitude/0)
     |> Map.put_new_lazy(:is_public, &Fake.truth/0)
@@ -104,5 +103,14 @@ defmodule Geolocation.Test.Faking do
   def update_geolocation_submutation(options \\ []) do
     [spatial_thing: var(:spatial_thing)]
     |> gen_submutation(:update_spatial_thing, &geolocation_mutation_fields/1, options)
+  end
+
+  def delete_geolocation_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_geolocation_submutation/1, options)
+  end
+
+  def delete_geolocation_submutation(_options \\ []) do
+    field(:delete_spatial_thing, args: [id: var(:id)])
   end
 end

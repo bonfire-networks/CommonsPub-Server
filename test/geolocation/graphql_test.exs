@@ -40,9 +40,6 @@ defmodule Geolocation.GraphQLTest do
     end
   end
 
-  describe "geolocations" do
-  end
-
   describe "create_geolocation" do
     test "creates a new geolocation" do
       user = fake_user!()
@@ -68,7 +65,7 @@ defmodule Geolocation.GraphQLTest do
 
       q = create_geolocation_mutation()
       conn = user_conn(user)
-      vars = %{spatial_thing: geolocation_input()}
+      vars = %{spatial_thing: geolocation_input(%{"lat" => nil, "long" => nil})}
       vars = put_in(vars, [:spatial_thing, "mappableAddress"], mappable_address())
       assert geo = grumble_post_key(q, conn, :create_spatial_thing, vars)["spatialThing"]
       assert_geolocation(geo)
@@ -98,7 +95,39 @@ defmodule Geolocation.GraphQLTest do
         "id" => geo.id,
         "mappableAddress" => mappable_address()
       })}
-      assert_geolocation(grumble_post_key(q, conn, :update_spatial_thing, vars)["spatialThing"])
+      assert updated = grumble_post_key(q, conn, :update_spatial_thing, vars)["spatialThing"]
+      assert_geolocation(updated)
+      assert geo.lat != updated["lat"]
+      assert geo.long != updated["long"]
+    end
+  end
+
+  describe "delete_geolocation" do
+    test "deletes an existing geolocation" do
+      user = fake_user!()
+      geo = fake_geolocation!(user)
+
+      q = delete_geolocation_mutation()
+      conn = user_conn(user)
+      assert grumble_post_key(q, conn, :delete_spatial_thing, %{id: geo.id})
+    end
+
+    test "fails to delete a unit of another user unless an admin" do
+      q = delete_geolocation_mutation()
+      user = fake_user!()
+      guest = fake_user!()
+      admin = fake_user!(%{is_instance_admin: true})
+
+      geo = fake_geolocation!(user)
+      conn = user_conn(guest)
+      assert [%{"status" => 403}] = grumble_post_errors(q, conn, %{id: geo.id})
+      conn = user_conn(user)
+      assert grumble_post_key(q, conn, :delete_spatial_thing, %{id: geo.id})
+
+      # regenerate new to re-delete
+      geo = fake_geolocation!(user)
+      conn = user_conn(admin)
+      assert grumble_post_key(q, conn, :delete_spatial_thing, %{id: geo.id})
     end
   end
 end
