@@ -245,7 +245,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   def prepare_context(thing) do
     if Map.has_key?(thing, :context_id) and !is_nil(thing.context_id) do
       thing = maybe_do_preload(thing, :context)
-      IO.inspect(maybe_preloaded: thing)
+      IO.inspect(context_maybe_preloaded: thing)
 
       context_follow(thing, thing.context)
     else

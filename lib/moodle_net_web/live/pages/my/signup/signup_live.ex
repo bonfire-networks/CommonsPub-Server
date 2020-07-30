@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.SignupLive do
         } = data,
         socket
       ) do
-    IO.inspect(data, label: "SIGNUP DATA")
+    # IO.inspect(data, label: "SIGNUP DATA")
 
     if(
       strlen(email) < 5 or strlen(password) < 6 or
@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.SignupLive do
        socket
        |> put_flash(:error, "Please check your input and try again...")}
     else
-      input = input_to_atoms(data)
+      input = Map.drop(input_to_atoms(data), ["password2"])
       IO.inspect(input)
 
       case MoodleNetWeb.GraphQL.UsersResolver.create_user(%{user: input}, %{}) do

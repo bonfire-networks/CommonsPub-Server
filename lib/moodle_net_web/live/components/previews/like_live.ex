@@ -8,14 +8,17 @@ defmodule MoodleNetWeb.Component.LikePreviewLive do
   end
 
   def update(assigns, socket) do
-    IO.inspect(like_pre_prep: assigns.like)
+    # IO.inspect(like_pre_prep: assigns.like)
     like = prepare_context(assigns.like)
-    IO.inspect(like_post_prep: like)
+
+    # IO.inspect(like_post_prep: like)
 
     context =
       e(like, :context, %{})
       |> Map.merge(%{context_type: e(like, :context_type, nil)})
       |> Map.merge(%{display_verb: "created"})
+
+    # IO.inspect(like_context: context)
 
     {:ok,
      socket
