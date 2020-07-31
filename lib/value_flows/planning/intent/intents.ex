@@ -8,6 +8,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
 
+  alias Geolocation.Geolocations
   alias Measurement.Measure
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
@@ -99,15 +100,21 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   defp insert_intent(creator, measures, attrs) do
-    Intent.create_changeset(creator, attrs)
+    cs = Intent.create_changeset(creator, attrs)
     |> Intent.change_measures(measures)
-    |> Repo.insert()
+
+    with {:ok, cs} <- change_at_location(cs, attrs) do
+      Repo.insert(cs)
+    end
   end
 
   defp insert_intent(creator, context, measures, attrs) do
-    Intent.create_changeset(creator, context, attrs)
+    cs = Intent.create_changeset(creator, context, attrs)
     |> Intent.change_measures(measures)
-    |> Repo.insert()
+
+    with {:ok, cs} <- change_at_location(cs, attrs) do
+      Repo.insert(cs)
+    end
   end
 
   defp publish(creator, intent, activity, :created) do
@@ -147,24 +154,26 @@ defmodule ValueFlows.Planning.Intent.Intents do
   # TODO: take the user who is performing the update
   # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def update(%Intent{} = intent, measures, attrs) when is_map(measures) do
-    do_update(intent, measures, &Intent.update_changeset(&1, attrs))
+    do_update(intent, measures, attrs, &Intent.update_changeset(&1, attrs))
   end
 
   def update(%Intent{} = intent, %{id: id} = context, measures, attrs) when is_map(measures) do
-    do_update(intent, measures, &Intent.update_changeset(&1, context, attrs))
+    do_update(intent, measures, attrs, &Intent.update_changeset(&1, context, attrs))
   end
 
-  def do_update(intent, measures, changeset_fn) do
+  def do_update(intent, measures, attrs, changeset_fn) do
     Repo.transact_with(fn ->
       intent = Repo.preload(intent, [
-        :available_quantity, :resource_quantity, :effort_quantity
+          :available_quantity, :resource_quantity, :effort_quantity,
+          :at_location,
       ])
 
       cs = intent
       |> changeset_fn.()
       |> Intent.change_measures(measures)
 
-      with {:ok, intent} <- Repo.update(cs),
+      with {:ok, cs} <- change_at_location(cs, attrs),
+           {:ok, intent} <- Repo.update(cs),
            :ok <- publish(intent, :updated) do
         {:ok, intent}
       end
@@ -202,4 +211,11 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   end
 
+  defp change_at_location(changeset, %{at_location: id}) do
+    with {:ok, location} <- Geolocations.one([:default, id: id]) do
+      {:ok, Intent.change_at_location(changeset, location)}
+    end
+  end
+
+  defp change_at_location(changeset, _attrs), do: {:ok, changeset}
 end

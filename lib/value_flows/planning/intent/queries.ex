@@ -218,4 +218,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   #   preload q, [pointer: p], [receiver: p]
   # end
 
+  def filter(q, {:preload, :at_location}) do
+    preload q, [at_location: l], [at_location: l]
+  end
 end

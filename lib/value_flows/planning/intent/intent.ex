@@ -78,7 +78,7 @@ defmodule ValueFlows.Planning.Intent do
 
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note is_disabled)a
+  @cast @required ++ ~w(note at_location_id is_disabled)a
 
   def create_changeset(
         %User{} = creator,
@@ -133,9 +133,19 @@ defmodule ValueFlows.Planning.Intent do
     end)
   end
 
+  def change_at_location(changeset, %Geolocation{} = location) do
+    Changeset.change(changeset,
+      at_location: location,
+      at_location_id: location.id
+    )
+  end
+
   defp common_changeset(changeset) do
     changeset
     |> change_public()
     |> change_disabled()
+    |> Changeset.foreign_key_constraint(
+      :at_location_id, name: :vf_intent_at_location_id_fkey
+    )
   end
 end

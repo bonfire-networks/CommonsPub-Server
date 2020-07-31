@@ -15,7 +15,7 @@ defmodule Measurement.UnitsTest do
   import Grumble
   import Zest
 
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   import Measurement.Simulate
   alias Measurement.Unit
@@ -36,7 +36,7 @@ defmodule Measurement.UnitsTest do
     end
 
     test "returns NotFound if item is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one(id: Fake.ulid())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one(id: Simulation.ulid())
     end
 
     test "returns NotFound if item is deleted" do

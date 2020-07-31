@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.GraphQL do
+  use Absinthe.Schema.Notation
+  require Logger
   alias MoodleNet.{
     Activities,
     Communities,
@@ -29,9 +31,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   # SDL schema import
 
-  use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
-  require Logger
 
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
@@ -100,6 +100,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   @measure_fields [:resource_quantity, :effort_quantity, :available_quantity]
 
+  # FIXME: duplication!
   def create_intent(%{intent: %{in_scope_of: context_ids} = attrs}, info) when is_list(context_ids) do
     context_id = List.first(context_ids)
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
@@ -126,7 +127,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end)
   end
 
-  # FIXME: duplication!
   def update_intent(%{intent: %{in_scope_of: context_ids} = changes}, info) do
     context_id = List.first(context_ids)
 
@@ -148,7 +148,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end)
   end
 
-  def do_update(%{id: id} = changes, info, update_fn) do
+  defp do_update(%{id: id} = changes, info, update_fn) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, intent} <- intent(%{id: id}, info),
          :ok <- ensure_update_permission(user, intent),
@@ -189,5 +189,4 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     [User, Community, Organisation]
     # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
   end
-
 end

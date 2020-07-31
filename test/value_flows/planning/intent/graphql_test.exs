@@ -3,6 +3,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   import MoodleNet.Test.Faking
 
+  import Geolocation.Test.Faking
   import Measurement.Simulate
   import Measurement.Test.Faking
 
@@ -57,10 +58,23 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       q = create_intent_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       vars = %{intent: intent_input(unit, %{"inScopeOf" => [another_user.id]})}
-      assert resp = grumble_post_key(q, conn, :create_intent, vars)["intent"]
-      assert_intent(resp)
-      assert [context] = resp["inScopeOf"]
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert [context] = intent["inScopeOf"]
       assert context["__typename"] == "User"
+    end
+
+    test "creates a new intent with a location" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      geo = fake_geolocation!(user)
+
+      q = create_intent_mutation(fields: [atLocation: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"atLocation" => geo.id})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["atLocation"]["id"] == geo.id
     end
   end
 
@@ -102,6 +116,22 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert [context] = resp["inScopeOf"]
       assert context["__typename"] == "User"
+    end
+
+    test "updates an existing intent with a location" do
+      user = fake_user!()
+      geo = fake_geolocation!(user)
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+
+      q = update_intent_mutation(fields: [atLocation: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{
+        "id" => intent.id,
+        "atLocation" => geo.id
+      })}
+      assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
+      assert resp["atLocation"]["id"] == geo.id
     end
   end
 

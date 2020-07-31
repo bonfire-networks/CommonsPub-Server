@@ -4,10 +4,10 @@
 defmodule Geolocation.Test.Faking do
   @moduledoc false
 
+  import CommonsPub.Utils.Simulation
   import Grumble
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  alias MoodleNet.Test.Fake
   alias Geolocation.Geolocations
 
   ## Geolocation
@@ -19,22 +19,22 @@ defmodule Geolocation.Test.Faking do
 
   def geolocation(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:name, &Fake.name/0)
-    |> Map.put_new_lazy(:note, &Fake.summary/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:lat, &Faker.Address.latitude/0)
     |> Map.put_new_lazy(:long, &Faker.Address.longitude/0)
-    |> Map.put_new_lazy(:is_public, &Fake.truth/0)
-    |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
-    |> Map.merge(Fake.actor(base))
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+    |> Map.merge(actor(base))
   end
 
   def geolocation_input(base \\ %{}) do
     base
-    |> Map.put_new_lazy("name", &Fake.name/0)
-    |> Map.put_new_lazy("note", &Fake.summary/0)
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
     |> Map.put_new_lazy("lat", &Faker.Address.latitude/0)
     |> Map.put_new_lazy("long", &Faker.Address.longitude/0)
-    |> Map.put_new_lazy("alt", &Fake.pos_integer/0)
+    |> Map.put_new_lazy("alt", &pos_integer/0)
   end
 
   def fake_geolocation!(user, context \\ nil, overrides  \\ %{})
