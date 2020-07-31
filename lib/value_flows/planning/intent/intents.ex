@@ -73,48 +73,32 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{id: _id} = context, measures, attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, item} <- insert_intent(creator, context, measures, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-           :ok <- index(item),
-           :ok <- publish(creator, context, item, activity, :created)
-          do
-            {:ok, item}
-          end
+    do_create(creator, measures, attrs, fn ->
+      Intent.create_changeset(creator, context, attrs)
     end)
   end
 
   # @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, measures, attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, item} <- insert_intent(creator, measures, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-           :ok <- index(item),
-           :ok <- publish(creator, item, activity, :created)
-          do
-            {:ok, item}
-          end
+    do_create(creator, measures, attrs, fn ->
+      Intent.create_changeset(creator, attrs)
     end)
   end
 
-  defp insert_intent(creator, measures, attrs) do
-    cs = Intent.create_changeset(creator, attrs)
-    |> Intent.change_measures(measures)
+  def do_create(creator, measures, attrs, changeset_fn) do
+    Repo.transact_with(fn ->
+      cs = changeset_fn.()
+      |> Intent.change_measures(measures)
 
-    with {:ok, cs} <- change_at_location(cs, attrs) do
-      Repo.insert(cs)
-    end
-  end
-
-  defp insert_intent(creator, context, measures, attrs) do
-    cs = Intent.create_changeset(creator, context, attrs)
-    |> Intent.change_measures(measures)
-
-    with {:ok, cs} <- change_at_location(cs, attrs) do
-      Repo.insert(cs)
-    end
+      with {:ok, cs} <- change_at_location(cs, attrs),
+           {:ok, item} <- Repo.insert(cs),
+           act_attrs = %{verb: "created", is_local: true},
+           {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+           :ok <- index(item),
+           :ok <- publish(creator, item, activity, :created) do
+        {:ok, item}
+      end
+    end)
   end
 
   defp publish(creator, intent, activity, :created) do
