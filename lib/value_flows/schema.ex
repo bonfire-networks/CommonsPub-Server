@@ -7,6 +7,7 @@ defmodule ValueFlows.Schema do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
+  import_types Absinthe.Type.Custom
   import_sdl path: "lib/value_flows/schema.gql"
 
   @desc "A page of intents"

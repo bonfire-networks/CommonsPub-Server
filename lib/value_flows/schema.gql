@@ -910,15 +910,6 @@ input CommitmentUpdateParams {
 }
 
 
-
-"""
-The `DateTime` scalar type represents a DateTime value as specified by
-[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar DateTime
-
-
-
 """
 An observed economic flow, as opposed to a flow planned to happen in the future.
 This could reflect a change in the quantity of an economic resource. It is also
