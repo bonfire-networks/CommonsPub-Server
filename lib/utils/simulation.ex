@@ -46,10 +46,14 @@ defmodule CommonsPub.Utils.Simulation do
   def past_date(), do: Faker.Date.backward(300)
   @doc "Picks a datetime up to 300 days in the past, not including today"
   def past_datetime(), do: Faker.DateTime.backward(300)
+  @doc "Same as past_datetime, but as an ISO8601 formatted string."
+  def past_datetime_iso(), do: DateTime.to_iso8601(past_datetime())
   @doc "Picks a date up to 300 days in the future, not including today"
   def future_date(), do: Faker.Date.forward(300)
   @doc "Picks a datetime up to 300 days in the future, not including today"
   def future_datetime(), do: Faker.DateTime.forward(300)
+  @doc "Same as future_datetime, but as an ISO8601 formatted string."
+  def future_datetime_iso(), do: DateTime.to_iso8601(future_datetime())
   @doc "Generates a random paragraph"
   def paragraph(), do: Faker.Lorem.paragraph()
   @doc "Generates random base64 text"
