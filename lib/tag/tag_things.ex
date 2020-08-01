@@ -69,8 +69,8 @@ defmodule Tag.TagThings do
     Repo.transact_with(fn ->
       tag = Repo.preload(tag, :things)
 
-      with {:ok, r} <- tag_pointers_save(tag, things) do
-        {:ok, r}
+      with {:ok, taggable} <- tag_pointers_save(tag, things) do
+        {:ok, taggable}
       end
     end)
   end
@@ -79,6 +79,6 @@ defmodule Tag.TagThings do
     IO.inspect(tag_pointers_insert: tag)
     IO.inspect(tag_pointers_insert: things)
     cs = Taggable.tag_things_changeset(tag, things)
-    with {:ok, _taggable} <- Repo.update(cs), do: {:ok, true}
+    with {:ok, taggable} <- Repo.update(cs), do: {:ok, taggable}
   end
 end

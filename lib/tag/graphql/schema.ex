@@ -32,7 +32,7 @@ defmodule Tag.GraphQL.TagSchema do
     end
 
     @desc "Tag something with a tag (or a taggable pointer)"
-    field :tag, :boolean do
+    field :tag, :tag do
       arg(:thing_id, non_null(:string))
       arg(:taggable_id, non_null(:string))
       resolve(&TagResolver.tag_thing/2)

@@ -2,6 +2,7 @@
 defmodule ValueFlows.Planning.Intent.GraphQL do
   use Absinthe.Schema.Notation
   require Logger
+
   alias MoodleNet.{
     Activities,
     Communities,
@@ -9,6 +10,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Repo,
     User
   }
+
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,
@@ -17,8 +19,9 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     ResolveRootPage,
     FetchPage,
     FetchPages,
-    CommonResolver,
+    CommonResolver
   }
+
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
   alias MoodleNet.Meta.Pointers
@@ -38,26 +41,23 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   ## resolvers
 
   def intent(%{id: id}, info) do
-    ResolveField.run(
-      %ResolveField{
-        module: __MODULE__,
-        fetcher: :fetch_intent,
-        context: id,
-        info: info,
-      }
-    )
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_intent,
+      context: id,
+      info: info
+    })
   end
 
   def all_intents(page_opts, info) do
-    ResolveRootPage.run(
-      %ResolveRootPage{
-        module: __MODULE__,
-        fetcher: :fetch_intents,
-        page_opts: page_opts,
-        info: info,
-        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # popularity
-      }
-    )
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_intents,
+      page_opts: page_opts,
+      info: info,
+      # popularity
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
   end
 
   ## fetchers
@@ -67,23 +67,25 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
       :default,
       user: GraphQL.current_user(info),
       id: id,
+      preload: :tags
     ])
   end
 
   def fetch_intents(page_opts, info) do
-    FetchPage.run(
-      %FetchPage{
-        queries: Queries,
-        query: Intent,
-        # preload: :provider,
-        # cursor_fn: Intents.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [:default, user: GraphQL.current_user(info)],
-        # data_filters: [page: [desc: [followers: page_opts]]],
-      }
-    )
+    FetchPage.run(%FetchPage{
+      queries: Queries,
+      query: Intent,
+      # preload: [:provider, :receiver, :tags],
+      # cursor_fn: Intents.cursor(:followers),
+      page_opts: page_opts,
+      base_filters: [
+        :default,
+        # preload: [:provider, :receiver, :tags],
+        user: GraphQL.current_user(info)
+      ]
+      # data_filters: [page: [desc: [followers: page_opts]]],
+    })
   end
-
 
   def fetch_provider_edge(%{provider: id}, _, info) do
     # IO.inspect(id)
@@ -95,20 +97,30 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     CommonResolver.context_edge(%{context_id: id}, nil, info)
   end
 
+  def fetch_classifications_edge(%{tags: tags} = data, _, _) do
+    data = Repo.preload(data, tags: [character: [:actor]])
+    # IO.inspect(get_tags: data.tags)
+    urls = Enum.map(data.tags, & &1.character.actor.canonical_url)
+    # IO.inspect(urls)
+    {:ok, urls}
+  end
 
   ## finally the mutations...
 
   @measure_fields [:resource_quantity, :effort_quantity, :available_quantity]
 
   # FIXME: duplication!
-  def create_intent(%{intent: %{in_scope_of: context_ids} = attrs}, info) when is_list(context_ids) do
+  def create_intent(%{intent: %{in_scope_of: context_ids} = attrs}, info)
+      when is_list(context_ids) do
     context_id = List.first(context_ids)
+
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
-           {:ok, measures} <- Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
+           {:ok, measures} <-
+             Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, intent} <- Intents.create(user, context, measures, attrs) do
         {:ok, %{intent: intent}}
@@ -116,10 +128,20 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end)
   end
 
+  def classification_tag_from_urls(user, intent) do
+    # lookup tag from URL
+  end
+
+  def intent_tag(user, intent, taggable_id) do
+    tagged = Tag.TagThings.tag_thing(user, taggable_id, intent)
+    intent |> Map.merge(%{tagged: [tagged]})
+  end
+
   def create_intent(%{intent: attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, measures} <- Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
+           {:ok, measures} <-
+             Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, intent} <- Intents.create(user, measures, attrs) do
         {:ok, %{intent: intent}}
@@ -152,7 +174,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, intent} <- intent(%{id: id}, info),
          :ok <- ensure_update_permission(user, intent),
-         {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
+         {:ok, measures} <-
+           Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
          {:ok, intent} <- update_fn.(intent, measures) do
       {:ok, %{intent: intent}}
     end

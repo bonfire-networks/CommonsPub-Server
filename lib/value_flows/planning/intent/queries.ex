@@ -2,7 +2,6 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Queries do
-
   alias MoodleNet.Communities
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intents
@@ -12,15 +11,15 @@ defmodule ValueFlows.Planning.Intent.Queries do
   import Ecto.Query
 
   def query(Intent) do
-    from c in Intent, as: :intent
+    from(c in Intent, as: :intent)
   end
 
   def query(:count) do
-    from c in Intent, as: :intent
+    from(c in Intent, as: :intent)
   end
 
   def query(q, filters), do: filter(query(q), filters)
-  
+
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
@@ -35,12 +34,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def join_to(q, :context, jq) do
-    join q, jq, [intent: c], c2 in assoc(c, :context), as: :context
+    join(q, jq, [intent: c], c2 in assoc(c, :context), as: :context)
   end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [intent: c], f in Follow, as: :follow,
+    join(q, jq, [intent: c], f in Follow,
+      as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
   end
 
   # def join_to(q, :provider, jq) do
@@ -50,7 +51,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # def join_to(q, :receiver, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :receiver), as: :pointer
   # end
-
 
   # def join_to(q, :follower_count, jq) do
   #   join q, jq, [intent: c],
@@ -69,7 +69,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted]
+    filter(q, [:deleted])
     # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
   end
 
@@ -88,69 +88,73 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to([follow: id])
+    |> join_to(follow: id)
     |> where([intent: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
     |> filter(~w(disabled)a)
   end
 
   ## by status
-  
+
   def filter(q, :deleted) do
-    where q, [intent: c], is_nil(c.deleted_at)
+    where(q, [intent: c], is_nil(c.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where q, [intent: c], is_nil(c.disabled_at)
+    where(q, [intent: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do
-    where q, [intent: c], not is_nil(c.published_at)
+    where(q, [intent: c], not is_nil(c.published_at))
   end
 
   ## by field values
 
   def filter(q, {:cursor, [count, id]})
-  when is_integer(count) and is_binary(id) do
-    where q,[intent: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [intent: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
   end
 
   def filter(q, {:cursor, [count, id]})
-  when is_integer(count) and is_binary(id) do
-    where q,[intent: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [intent: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
+    )
   end
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [intent: c], c.id == ^id
+    where(q, [intent: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [intent: c], c.id in ^ids
+    where(q, [intent: c], c.id in ^ids)
   end
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where q, [intent: c], c.context_id == ^id
+    where(q, [intent: c], c.context_id == ^id)
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [intent: c], c.context_id in ^ids
+    where(q, [intent: c], c.context_id in ^ids)
   end
-
-
 
   ## by ordering
 
   def filter(q, {:order, :id}) do
-    filter q, order: [desc: :id]
+    filter(q, order: [desc: :id])
   end
 
   def filter(q, {:order, [desc: :id]}) do
-    order_by q, [intent: c, id: id],
+    order_by(q, [intent: c, id: id],
       desc: coalesce(id.count, 0),
       desc: c.id
+    )
   end
-
 
   # grouping and counting
 
@@ -166,7 +170,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
     select(q, [intent: c], {field(c, ^key), count(c.id)})
   end
 
-
   # pagination
 
   def filter(q, {:limit, limit}) do
@@ -175,6 +178,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
+
     q
     |> where([intent: c], c.id >= ^a)
     |> limit(^limit)
@@ -219,6 +223,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # end
 
   def filter(q, {:preload, :at_location}) do
-    preload q, [at_location: l], [at_location: l]
+    preload(q, [at_location: l], at_location: l)
   end
 end

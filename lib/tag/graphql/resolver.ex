@@ -128,6 +128,9 @@ defmodule Tag.GraphQL.TagResolver do
     MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
+  @doc """
+  You can use `tag_thing/2` directly instead
+  """
   def make_pointer_taggable(%{context_id: pointer_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
