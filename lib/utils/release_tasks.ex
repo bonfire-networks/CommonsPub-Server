@@ -200,6 +200,11 @@ defmodule CommonsPub.ReleaseTasks do
     Path.join([priv_dir, repo_underscore, filename])
   end
 
+  def user(username) do
+    {:ok, u} = Users.one(preset: :local_user, username: username)
+    u
+  end
+
   def soft_delete_community(id) do
     Repo.transact_with(fn ->
       {:ok, community} = Communities.one(id: id)
@@ -209,21 +214,21 @@ defmodule CommonsPub.ReleaseTasks do
 
   def user_set_email_confirmed(username) do
     Repo.transact_with(fn ->
-      {:ok, u} = Users.one(preset: :local_user, username: username)
+      u = user(username)
       Users.confirm_email(u)
     end)
   end
 
   def make_instance_admin(username) do
     Repo.transact_with(fn ->
-      {:ok, u} = Users.one(preset: :local_user, username: username)
+      u = user(username)
       Users.make_instance_admin(u)
     end)
   end
 
   def unmake_instance_admin(username) do
     Repo.transact_with(fn ->
-      {:ok, u} = Users.one(preset: :local_user, username: username)
+      u = user(username)
       Users.unmake_instance_admin(u)
     end)
   end

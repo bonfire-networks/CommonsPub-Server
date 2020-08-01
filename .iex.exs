@@ -6,7 +6,7 @@ alias ValueFlows, as: VF
 alias CommonsPub.ReleaseTasks
 import CommonsPub.ReleaseTasks
 
-import CommonsPub.Utils.Simulation
-import MoodleNet.Test.Faking
+alias CommonsPub.Utils.Simulation
+alias MoodleNet.Test.Faking
 
 IO.puts("[.iex.exs] aliased a few modules\n")

@@ -2,10 +2,12 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation do
-  use Pointers.Pointable,
-    otp_app: :moodle_net,
-    source: "organisation",
-    table_id: "01EAQ0ENYEFY2DZHATQWZ2AEEQ"
+  use MoodleNet.Common.Schema
+
+  # use Pointers.Pointable,
+  #   otp_app: :moodle_net,
+  #   source: "organisation",
+  #   table_id: "01EAQ0ENYEFY2DZHATQWZ2AEEQ"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
@@ -18,7 +20,9 @@ defmodule Organisation do
   @type t :: %__MODULE__{}
 
   # C1RC1E0FPE0P1EAND0RC1RC1ES
-  pointable_schema do
+  table_schema "organisation" do
+    # pointable_schema do
+
     # joined fields from Profile
     field(:name, :string, virtual: true)
     field(:summary, :string, virtual: true)

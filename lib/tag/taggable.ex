@@ -2,10 +2,13 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Tag.Taggable do
-  use Pointers.Pointable,
-    otp_app: :moodle_net,
-    source: "tags",
-    table_id: "TAGSCANBECATEG0RY0RHASHTAG"
+  use MoodleNet.Common.Schema
+  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+
+  # use Pointers.Pointable,
+  #   otp_app: :moodle_net,
+  #   source: "tags",
+  #   table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
   alias Ecto.Changeset
   alias Tag.Taggable
@@ -15,7 +18,11 @@ defmodule Tag.Taggable do
   @required ~w(prefix)a
   @cast @required ++ ~w(context_id parent_tag_id same_as_tag_id taxonomy_tag_id)a
 
-  pointable_schema do
+  table_schema "tags" do
+    # pointable_schema do
+
+    # field(:id, Pointers.ULID, autogenerate: true)
+
     # eg. @ or + or #
     field(:prefix, :string)
 
@@ -48,6 +55,7 @@ defmodule Tag.Taggable do
 
   def create_changeset(attrs, context) do
     %Taggable{}
+    # |> Changeset.change(id: Ecto.ULID.generate())
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(context_id: context.id)
     |> common_changeset()
@@ -55,6 +63,7 @@ defmodule Tag.Taggable do
 
   def create_changeset(attrs) do
     %Taggable{}
+    # |> Changeset.change(id: Ecto.ULID.generate())
     |> Changeset.cast(attrs, @cast)
     # |> Changeset.change(
     #   id: Ecto.ULID.generate()

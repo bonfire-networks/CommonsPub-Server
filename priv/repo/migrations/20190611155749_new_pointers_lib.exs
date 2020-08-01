@@ -1,21 +1,26 @@
 defmodule MoodleNet.Repo.Migrations.NewPointersLib do
   use Ecto.Migration
+  import Pointers.Migration
+  import Pointers.ULID.Migration
+
+  # NOTE: we're cheating here and backdating this migration to use new Pointers lib
 
   def up() do
-    # needed if we already have pointers
-    pointers_upgrade_table_key(:up)
+    # needed only if we already have pointers
+    # pointers_upgrade_table_key(:up)
+
+    # add pointers from lib
     inits(:up)
   end
 
   def down(), do: inits(:down)
 
-  import Pointers.Migration
-  import Pointers.ULID.Migration
-
   defp inits(dir) do
-    # init_pointers_ulid_extra(dir) # not needed if we already have pointers/ulid
+    # not needed if we already have pointers/ulid
+    init_pointers_ulid_extra(dir)
 
-    # init_pointers(dir) # this one is not optional (unless in this case, where we alreay have mn_table and mn_pointer?)
+    # this one is not optional
+    init_pointers(dir)
   end
 
   def pointers_upgrade_table_key(:up) do

@@ -173,9 +173,9 @@ defmodule MoodleNet.Mixfile do
         :pointers,
         # git: "https://github.com/commonspub/pointers.git", branch: "main"
         git: "https://github.com/mayel/pointers.git",
-        ref: "7b6798f5989b7a935287a195c417720a9db4d5b6"
+        ref: "4bbb56b75af70c86796c2ab8ae79179ac9992869"
+        # path: "uploads/pointers"
       },
-      # {:pointers, path: "uploads/many-pointers"},
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
