@@ -10,7 +10,7 @@
 ##
 
 # Dynamically supplied by application
-union GeoScope = Collection | Community | Organisation
+# union GeoScope = Collection | Community | Organisation
 
 """
 A physical mappable location.
@@ -50,7 +50,7 @@ type SpatialThing {
 
   canonicalUrl: String
   displayUsername: String
-  inScopeOf: GeoScope
+  inScopeOf: AnyContext
 }
 
 input SpatialThingCreateParams {

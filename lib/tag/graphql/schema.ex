@@ -56,6 +56,11 @@ defmodule Tag.GraphQL.TagSchema do
       resolve(&TagResolver.tag_children/3)
     end
 
+    @desc "The taggable object, or the context of this taggable"
+    field :context, :any_context do
+      resolve(&MoodleNet.GraphQL.CommonResolver.context_edge/3)
+    end
+
     @desc "The Character that represents this tag in feeds and federation"
     field :character, :character do
       resolve(&Character.GraphQL.Resolver.character/3)
