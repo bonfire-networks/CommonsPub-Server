@@ -70,57 +70,46 @@ defmodule Taxonomy.TaxonomyTags do
     )
   end
 
-  @doc "Takes an existing TaxonomyTag and makes it a Taggable"
-  def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
-  end
-
-  @doc "Takes an existing TaxonomyTag and makes it a Taggable"
+  @doc "Takes an existing TaxonomyTag and makes it a Taggable, if one doesn't already exist"
   def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
     Repo.transact_with(fn ->
       # add a Pointer ID
-      with {:ok, tag} <- pointerise(user, tag) do
-        {:ok, tag}
+      with {:ok, taggable} <- Tag.Taggables.one(taxonomy_tag_id: tag.id) do
+        {:ok, taggable}
+      else
+        _e -> pointerise(user, tag)
       end
     end)
   end
 
-  @doc "Takes an existing TaxonomyTag and adds a Pointer ID"
-  def pointerise(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag) do
-    if(!is_nil(parent_tag_id)) do
-      # there is a parent
-      {:ok, parent_tag} =
-        if(!Ecto.assoc_loaded?(tag.parent_tag)) do
-          # parent is not loaded
-          get(tag.parent_tag_id)
-        else
-          {:ok, tag.parent_tag}
-        end
+  defp pointerise(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)
+       when not is_nil(parent_tag_id) do
+    tag = Repo.preload(tag, :parent_tag)
+    parent_tag = tag.parent_tag
 
-      IO.inspect(pointerise_parent: parent_tag)
-      # pointerise the parent(s) first (recursively)
-      {:ok, parent_taggable} = pointerise(user, parent_tag)
-      IO.inspect(parent_taggable: parent_taggable)
+    IO.inspect(pointerise_parent: parent_tag)
 
-      create_tag =
-        if(parent_taggable) do
-          %{
-            tag
-            | parent_tag: parent_taggable,
-              parent_tag_id: parent_taggable.id
-          }
-        else
+    # pointerise the parent(s) first (recursively)
+    {:ok, parent_taggable} = pointerise(user, parent_tag)
+
+    IO.inspect(parent_taggable: parent_taggable)
+
+    create_tag =
+      if(parent_taggable) do
+        %{
           tag
-        end
+          | parent_tag: parent_taggable,
+            parent_tag_id: parent_taggable.id
+        }
+      else
+        tag
+      end
 
-      # finally pointerise the child(ren), in hierarchical order
-      pointerise_tag(user, create_tag)
-    else
-      # there's no parent, so just pointerise this one
-      pointerise_tag(user, tag)
-    end
+    # finally pointerise the child(ren), in hierarchical order
+    pointerise_tag(user, create_tag)
   end
 
-  def pointerise(%User{} = user, %TaxonomyTag{} = tag) do
+  defp pointerise(%User{} = user, %TaxonomyTag{} = tag) do
     pointerise_tag(user, tag)
   end
 

@@ -2,7 +2,7 @@
  Grouping around something to create a boundary or context, used for documenting,
 accounting, planning. Extended from the default of `Person | Organization`
 """
-union AccountingScope = AnyContext | Organization | Community | Collection
+union AccountingScope = Person | Organization | Community | Collection
 
 """
 An action verb defining the kind of event, commitment, or intent.
@@ -1567,7 +1567,7 @@ input EconomicResourceUpdateParams {
 union EventOrCommitment = EconomicEvent | Commitment
 
 """
- Only used for workaround mentioned in readme
+Only used for workaround mentioned in readme
 """
 scalar ExternalType
 

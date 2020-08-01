@@ -78,23 +78,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(Geolocation.GraphQL)
   import_types(ValueFlows.Schema)
 
-  union :any_context do
-    description("Any type of known object")
-    # TODO: autogenerate
-    types([:community, :collection, :resource, :comment, :flag, :follow, :like, :user])
-
-    resolve_type(fn
-      %MoodleNet.Collections.Collection{}, _ -> :collection
-      %MoodleNet.Threads.Comment{}, _ -> :comment
-      %MoodleNet.Communities.Community{}, _ -> :community
-      %MoodleNet.Resources.Resource{}, _ -> :resource
-      %MoodleNet.Flags.Flag{}, _ -> :flag
-      %MoodleNet.Follows.Follow{}, _ -> :follow
-      %MoodleNet.Likes.Like{}, _ -> :like
-      %MoodleNet.Users.User{}, _ -> :user
-    end)
-  end
-
   query do
     import_fields(:access_queries)
     import_fields(:activities_queries)

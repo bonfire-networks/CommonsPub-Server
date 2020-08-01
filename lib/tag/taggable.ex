@@ -26,16 +26,17 @@ defmodule Tag.Taggable do
     # eg. @ or + or #
     field(:prefix, :string)
 
-    # eg. agent who curates this tag, or Thing that is taggable
-    belongs_to(:context, Pointers.Pointer, type: Ecto.ULID)
-
     # eg. Mamals is a parent of Cat
     belongs_to(:parent_tag, Taggable, type: Ecto.ULID)
+
     # eg. Olive Oil is the same as Huile d'olive
     belongs_to(:same_as_tag, Taggable, type: Ecto.ULID)
 
     # optionally where it came from in the taxonomy
     belongs_to(:taxonomy_tag, Taxonomy.TaxonomyTag, type: :integer)
+
+    # Optionally, Thing that is taggable (if not using Profile/Character mixins)
+    belongs_to(:context, Pointers.Pointer, type: Ecto.ULID)
 
     # Optionally, a profile and Character (if not using context)
     ## stores common fields like name/description

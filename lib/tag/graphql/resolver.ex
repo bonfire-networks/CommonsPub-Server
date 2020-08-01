@@ -128,15 +128,54 @@ defmodule Tag.GraphQL.TagResolver do
     MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
-  def make_pointer_taggable(%{pointer_id: pointer_id}, info) do
+  def make_pointer_taggable(%{context_id: pointer_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id),
-           context = MoodleNet.Meta.Pointers.follow!(pointer),
-           {:ok, tag} <- Tag.Taggables.create(me, context, %{}) do
+           {:ok, tag} <- Tag.Taggables.maybe_make_taggable(pointer_id, %{}) do
         {:ok, tag}
       end
     end)
+  end
+
+  def tag_thing(%{thing_id: thing_id, taggable_id: taggable_id}, info) do
+    with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
+         tagged = Tag.TagThings.tag_thing(taggable_id, thing_id) do
+      tagged
+    end
+  end
+
+  def name(%{name: name, context_id: context_id}, _, info)
+      when is_nil(name) and not is_nil(context_id) do
+    # IO.inspect(context_id)
+
+    # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
+    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+         context = MoodleNet.Meta.Pointers.follow!(pointer) do
+      name = if Map.has_key?(context, :name), do: context.name
+      # IO.inspect(name)
+      {:ok, name}
+    end
+  end
+
+  def name(%{name: name}, _, info) do
+    {:ok, name}
+  end
+
+  def summary(%{summary: summary, context_id: context_id}, _, info)
+      when is_nil(summary) and not is_nil(context_id) do
+    # IO.inspect(context_id)
+
+    # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
+    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+         context = MoodleNet.Meta.Pointers.follow!(pointer) do
+      summary = if Map.has_key?(context, :summary), do: context.summary
+      # IO.inspect(summary)
+      {:ok, summary}
+    end
+  end
+
+  def summary(%{summary: summary}, _, info) do
+    {:ok, summary}
   end
 
   # def tag(%{tag_id: id}, info) do

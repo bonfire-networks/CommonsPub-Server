@@ -62,12 +62,13 @@ defmodule Taxonomy.TaxonomyTag.Queries do
     where(q, [tag: f], f.id in ^ids)
   end
 
+  def filter(q, {:id, id}) when is_binary(id) do
+    where(q, [tag: f], f.id == ^id)
+  end
+
   def filter(q, {:name, name}) when is_binary(name) do
     where(q, [tag: f], f.name == ^name)
   end
-
-  def filter(q, {:id, id}) when is_integer(id), do: where(q, [tag: c], c.id == ^id)
-  def filter(q, {:id, ids}) when is_list(ids), do: where(q, [tag: c], c.id in ^ids)
 
   # get children in taxonomy
   def filter(q, {:parent_tag, id}) when is_integer(id),

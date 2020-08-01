@@ -90,10 +90,10 @@ defmodule Tag.Taggable.Queries do
 
   # get children with character
   def filter(q, {:context, id}) when is_binary(id),
-    do: where(q, [tag: t, character: c], c.context_id == ^id)
+    do: where(q, [tag: t], t.context_id == ^id)
 
   def filter(q, {:context, ids}) when is_list(ids),
-    do: where(q, [tag: t, character: c], c.context_id in ^ids)
+    do: where(q, [tag: t], t.context_id in ^ids)
 
   # join with character
   def filter(q, :default) do

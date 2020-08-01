@@ -53,6 +53,20 @@ defmodule MoodleNetWeb.Helpers.Common do
     e(e(map, key1, key2, key3, %{}), key4, fallback)
   end
 
+  def is_numeric(str) do
+    case Float.parse(str) do
+      {_num, ""} -> true
+      _ -> false
+    end
+  end
+
+  def to_number(str) do
+    case Float.parse(str) do
+      {num, ""} -> num
+      _ -> 0
+    end
+  end
+
   def map_get(%Ecto.Association.NotLoaded{} = map, key, fallback) when is_atom(key) do
     IO.inspect("ERROR: cannot get key `#{key}` from an unloaded map:")
     IO.inspect(map)

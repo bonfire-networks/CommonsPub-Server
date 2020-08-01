@@ -3,58 +3,62 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Features.Feature
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.{Comment, Thread}
-  alias MoodleNet.Users.User
+
   alias MoodleNetWeb.GraphQL.CommonResolver
 
-  object :common_queries do
+  union :any_context do
+    description("Any type of known object")
+    # TODO: autogenerate
+    types([
+      :community,
+      :collection,
+      :resource,
+      :comment,
+      :flag,
+      :follow,
+      :like,
+      :user,
+      :organisation,
+      :spatial_thing,
+      :intent
+    ])
 
+    resolve_type(fn
+      %MoodleNet.Users.User{}, _ -> :user
+      %MoodleNet.Communities.Community{}, _ -> :community
+      %MoodleNet.Collections.Collection{}, _ -> :collection
+      %MoodleNet.Resources.Resource{}, _ -> :resource
+      %MoodleNet.Threads.Thread{}, _ -> :thread
+      %MoodleNet.Threads.Comment{}, _ -> :comment
+      %MoodleNet.Follows.Follow{}, _ -> :follow
+      %MoodleNet.Likes.Like{}, _ -> :like
+      %MoodleNet.Flags.Flag{}, _ -> :flag
+      %MoodleNet.Features.Feature{}, _ -> :feature
+      %Organisation{}, _ -> :organisation
+      %Geolocation{}, _ -> :spatial_thing
+      # %ValueFlows.Agent.Agents{}, _ -> :agent
+      # %ValueFlows.Agent.People{}, _ -> :person
+      # %ValueFlows.Agent.Organizations{}, _ -> :organization
+      %ValueFlows.Planning.Intent{}, _ -> :intent
+    end)
+  end
+
+  object :common_queries do
   end
 
   object :common_mutations do
-
     @desc "Delete more or less anything"
-    field :delete, :delete_context do
-     arg :context_id, non_null(:string)
-      resolve &CommonResolver.delete/2
+    field :delete, :any_context do
+      arg(:context_id, non_null(:string))
+      resolve(&CommonResolver.delete/2)
     end
-
   end
-
 
   @desc "Cursors for pagination"
   object :page_info do
-    field :start_cursor, list_of(non_null(:cursor))
-    field :end_cursor, list_of(non_null(:cursor))
-    field :has_previous_page, :boolean
-    field :has_next_page, :boolean
+    field(:start_cursor, list_of(non_null(:cursor)))
+    field(:end_cursor, list_of(non_null(:cursor)))
+    field(:has_previous_page, :boolean)
+    field(:has_next_page, :boolean)
   end
-
-  union :delete_context do
-    description "A thing that can be deleted"
-    types [
-      :collection, :comment, :community, :feature,
-      :follow, :flag, :like, :resource, :thread, :user,
-    ]
-    resolve_type fn
-      %Collection{}, _ -> :collection
-      %Comment{},    _ -> :comment
-      %Community{},  _ -> :community
-      %Feature{},    _ -> :feature
-      %Follow{},     _ -> :follow
-      %Flag{},       _ -> :flag
-      %Like{},       _ -> :like
-      %Resource{},   _ -> :resource
-      %Thread{},     _ -> :thread
-      %User{},       _ -> :user
-    end
-  end
-
 end

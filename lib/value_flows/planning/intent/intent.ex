@@ -150,4 +150,10 @@ defmodule ValueFlows.Planning.Intent do
       name: :vf_intent_at_location_id_fkey
     )
   end
+
+  def context_module, do: ValueFlows.Planning.Intent.Intents
+
+  def queries_module, do: ValueFlows.Planning.Intent.Queries
+
+  def follow_filters, do: [:default]
 end

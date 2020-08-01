@@ -75,27 +75,46 @@ defmodule Tag.Taggables do
   ## mutations
 
   @doc """
-  Create a mini-taggable object that makes a Thing taggable
+  Create a Taggable that makes an existing object (eg. Geolocation) taggable
   """
-  def create(%User{} = creator, context, attrs) when is_map(attrs) do
+  def maybe_make_taggable(pointer_id, attrs) when is_binary(pointer_id) do
+    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id),
+         context = MoodleNet.Meta.Pointers.follow!(pointer) do
+      maybe_make_taggable(context, attrs)
+    end
+  end
+
+  def maybe_make_taggable(%{} = context, attrs) do
     Repo.transact_with(fn ->
-      attrs =
-        Map.put(
-          attrs,
-          :facet,
-          context.__struct__ |> to_string() |> String.split(".") |> List.last()
-        )
-
-      attrs = Map.put(attrs, :prefix, prefix(attrs.facet))
-
-      IO.inspect(attrs)
-
-      # TODO: check that the tag doesn't already exist (same context)
-
-      with {:ok, taggable} <- insert_taggable(attrs, context) do
-        {:ok, %{taggable | context: context}}
+      with {:ok, taggable} <- Tag.Taggables.one(context: context.id) do
+        {:ok, taggable}
+      else
+        _e -> make_taggable(context, attrs)
       end
     end)
+  end
+
+  def maybe_make_taggable(context) do
+    maybe_make_taggable(context, %{})
+  end
+
+  defp make_taggable(context, attrs) do
+    attrs =
+      Map.put(
+        attrs,
+        :facet,
+        context.__struct__ |> to_string() |> String.split(".") |> List.last()
+      )
+
+    attrs = Map.put(attrs, :prefix, prefix(attrs.facet))
+
+    IO.inspect(attrs)
+
+    # TODO: check that the tag doesn't already exist (same context)
+
+    with {:ok, taggable} <- insert_taggable(attrs, context) do
+      {:ok, %{taggable | context: context}}
+    end
   end
 
   def prefix("Community") do
@@ -111,7 +130,7 @@ defmodule Tag.Taggables do
   end
 
   @doc """
-  Create a brand-new taggable object, with own Profile and Character
+  Create a brand-new taggable object, with info stored in Profile and Character mixins
   """
   @spec create(User.t(), attrs :: map) :: {:ok, Taggable.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
