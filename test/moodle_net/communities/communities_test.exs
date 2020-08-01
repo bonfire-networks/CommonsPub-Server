@@ -5,7 +5,7 @@ defmodule MoodleNet.CommunitiesTest do
   use MoodleNet.DataCase, async: true
 
   import MoodleNet.Test.Faking
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Communities
   alias MoodleNet.Communities.Community
@@ -14,17 +14,21 @@ defmodule MoodleNet.CommunitiesTest do
     test "returns a list of non-deleted communities" do
       user = fake_user!()
       all = for _ <- 1..5, do: fake_community!(user)
-      deleted = Enum.reduce(all, [], fn comm, acc ->
-        if Fake.bool() do
-          {:ok, comm} = Communities.soft_delete(user, comm)
-          [comm | acc]
-        else
-          acc
-        end
-      end)
+
+      deleted =
+        Enum.reduce(all, [], fn comm, acc ->
+          if Simulation.bool() do
+            {:ok, comm} = Communities.soft_delete(user, comm)
+            [comm | acc]
+          else
+            acc
+          end
+        end)
+
       {:ok, fetched} = Communities.many(deleted: false)
 
       assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
+
       for comm <- fetched do
         assert comm.actor
         assert comm.follower_count
@@ -46,8 +50,7 @@ defmodule MoodleNet.CommunitiesTest do
       user = fake_user!()
       community = fake_community!(user)
       assert {:ok, community} = Communities.soft_delete(user, community)
-      assert {:error, %NotFoundError{}} =
-        Communities.one(deleted: false, id: community.id)
+      assert {:error, %NotFoundError{}} = Communities.one(deleted: false, id: community.id)
     end
 
     # Everything is public currently
@@ -58,20 +61,21 @@ defmodule MoodleNet.CommunitiesTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %NotFoundError{}} = Communities.one(id: Fake.ulid())
+      assert {:error, %NotFoundError{}} = Communities.one(id: Simulation.ulid())
     end
-
   end
 
   describe "Communities.create/3" do
     test "creates a community valid attributes" do
       assert user = fake_user!()
-      attrs = Fake.community()
+      attrs = Simulation.community()
       assert {:ok, community} = Communities.create(user, attrs)
       assert community.name == attrs.name
       assert community.creator_id == user.id
+
       assert community.actor.preferred_username ==
-        String.replace(String.replace(attrs.preferred_username, ".", "-"), "_", "-")
+               String.replace(String.replace(attrs.preferred_username, ".", "-"), "_", "-")
+
       assert community.is_public == attrs.is_public
     end
 
@@ -83,7 +87,6 @@ defmodule MoodleNet.CommunitiesTest do
   end
 
   describe "Communities.update/2" do
-
     @tag :skip
     test "works for the creator of the community" do
       # assert user = fake_user!()

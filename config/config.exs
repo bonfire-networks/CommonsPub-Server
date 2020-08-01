@@ -93,10 +93,10 @@ config :moodle_net, Resources, valid_contexts: [Collection, Community, User]
 config :moodle_net, Features, valid_contexts: [Collection, Community]
 
 config :moodle_net, Flags,
-  valid_contexts: [Collection, Comment, Community, Resource, User, Circle, Character]
+  valid_contexts: [Collection, Comment, Community, Resource, User, Organisation, Character]
 
 config :moodle_net, Follows,
-  valid_contexts: [Collection, Community, Thread, User, Geolocation, Circle, Character]
+  valid_contexts: [Collection, Community, Thread, User, Geolocation, Organisation, Character]
 
 config :moodle_net, Likes, valid_contexts: [Collection, Community, Comment, Resource]
 
@@ -107,7 +107,7 @@ config :moodle_net, Threads,
     Flag,
     Resource,
     User,
-    Circle,
+    Organisation,
     Character,
     ValueFlows.Planning.Intent
   ]
@@ -117,12 +117,12 @@ config :moodle_net, Users,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Units, valid_contexts: [Circle, Community, Collection]
+config :moodle_net, Units, valid_contexts: [Organisation, Community, Collection]
 
-config :moodle_net, Circle, valid_contexts: [Circle, Community, Collection]
+config :moodle_net, Organisation, valid_contexts: [Organisation, Community, Collection]
 
 config :moodle_net, Character,
-  valid_contexts: [Character, Circle, Community, Collection],
+  valid_contexts: [Character, Organisation, Community, Collection],
   default_outbox_query_contexts: [
     Collection,
     Character,

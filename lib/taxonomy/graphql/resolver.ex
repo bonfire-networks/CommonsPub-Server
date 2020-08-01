@@ -161,12 +161,12 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   end
 
   # def tag(%{tag_id: id}, info) do
-  #   {:ok, Fake.tag()}
+  #   {:ok, Simulation.tag()}
   #   |> GraphQL.response(info)
   # end
 
   # def search_tag(%{query: id}, info) do
-  #   {:ok, Fake.long_node_list(&Fake.tag/0)}
+  #   {:ok, Simulation.long_node_list(&Simulation.tag/0)}
   #   |> GraphQL.response(info)
   # end
 end

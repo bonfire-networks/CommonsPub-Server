@@ -11,7 +11,7 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
   use ActivityPubWeb, :controller
   alias MoodleNet.Threads.Thread
   alias MoodleNet.Threads.Comment
-  alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User

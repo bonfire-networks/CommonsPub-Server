@@ -3,7 +3,7 @@ defmodule Measurement.Hydration do
   alias MoodleNet.Collections.Collection
   alias MoodleNetWeb.GraphQL.CommonResolver
 
-  alias Circle
+  alias Organisation
 
   def hydrate() do
     %{
@@ -56,6 +56,6 @@ defmodule Measurement.Hydration do
 
   def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%Collection{}, _), do: :collection
-  def resolve_context_type(%Circle{}, _), do: :circle
+  def resolve_context_type(%Organisation{}, _), do: :organisation
   def resolve_context_type(%{}, _), do: :community
 end

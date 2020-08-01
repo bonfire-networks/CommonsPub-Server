@@ -13,7 +13,7 @@ defmodule Measurement.Test.Faking do
 
   import Grumble
 
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
   alias Measurement.{Measure, Unit}
   alias Measurement.Measure.Measures
   alias Measurement.Unit.Units

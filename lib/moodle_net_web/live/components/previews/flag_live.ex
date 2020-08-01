@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.Component.FlagPreviewLive do
             @socket,
             ActivityLive,
             activity: Map.merge(@flag , %{display_verb: "created"}),
-            current_user: e(@current_user, %{}),
+            current_user: e(@current_user, %{})
           )
       %>
       </div>

@@ -3,7 +3,9 @@ defmodule Geolocation.GraphQLTest do
   use MoodleNetWeb.ConnCase, async: true
 
   import MoodleNet.Test.Faking
+
   import Geolocation.Test.Faking
+  import Geolocation.Simulate
   alias Geolocation.Geolocations
 
   describe "geolocation" do
@@ -91,10 +93,15 @@ defmodule Geolocation.GraphQLTest do
 
       q = update_geolocation_mutation()
       conn = user_conn(user)
-      vars = %{spatial_thing: Map.merge(geolocation_input(), %{
-        "id" => geo.id,
-        "mappableAddress" => mappable_address()
-      })}
+
+      vars = %{
+        spatial_thing:
+          Map.merge(geolocation_input(), %{
+            "id" => geo.id,
+            "mappableAddress" => mappable_address()
+          })
+      }
+
       assert updated = grumble_post_key(q, conn, :update_spatial_thing, vars)["spatialThing"]
       assert_geolocation(updated)
       assert geo.lat != updated["lat"]

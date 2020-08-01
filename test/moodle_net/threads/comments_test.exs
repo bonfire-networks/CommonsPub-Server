@@ -10,7 +10,7 @@ defmodule MoodleNet.Threads.CommentsTest do
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Threads
   alias MoodleNet.Threads.Comments
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   setup do
     user = fake_user!()
@@ -38,7 +38,7 @@ defmodule MoodleNet.Threads.CommentsTest do
     end
 
     test "returns not found if the thread is missing" do
-      assert {:error, %NotFoundError{}} = Threads.one(id: Fake.ulid())
+      assert {:error, %NotFoundError{}} = Threads.one(id: Simulation.ulid())
     end
 
     @tag :skip
@@ -54,7 +54,7 @@ defmodule MoodleNet.Threads.CommentsTest do
 
   describe "Threads.create/3" do
     test "creates a new thread with any parent", %{user: creator, parent: parent} do
-      attrs = Fake.thread()
+      attrs = Simulation.thread()
       assert {:ok, thread} = Threads.create(creator, parent, attrs)
       assert thread.canonical_url == attrs[:canonical_url]
     end
@@ -68,7 +68,7 @@ defmodule MoodleNet.Threads.CommentsTest do
   describe "Threads.update/2" do
     test "updates a thread with new attributes", %{user: creator, parent: parent} do
       thread = fake_thread!(creator, parent)
-      attrs = Fake.thread()
+      attrs = Simulation.thread()
       assert {:ok, updated_thread} = Threads.update(creator, thread, attrs)
       assert updated_thread != thread
       assert updated_thread.canonical_url == attrs.canonical_url
@@ -125,7 +125,7 @@ defmodule MoodleNet.Threads.CommentsTest do
 
   describe "Comments.create/3" do
     test "creates a new comment with a thread parent", %{user: creator, thread: thread} do
-      attrs = Fake.comment()
+      attrs = Simulation.comment()
       assert {:ok, comment} = Comments.create(creator, thread, attrs)
       assert comment.canonical_url == attrs.canonical_url
       assert comment.content == attrs.content
@@ -150,7 +150,7 @@ defmodule MoodleNet.Threads.CommentsTest do
                  context.user,
                  thread,
                  reply_to,
-                 Fake.comment()
+                 Simulation.comment()
                )
 
       assert comment.reply_to_id == reply_to.id
@@ -161,7 +161,7 @@ defmodule MoodleNet.Threads.CommentsTest do
       reply_to = fake_comment!(context.user, thread)
 
       assert {:error, %NotPermittedError{}} =
-        Comments.create_reply(context.user, thread, reply_to, Fake.comment())
+               Comments.create_reply(context.user, thread, reply_to, Simulation.comment())
     end
   end
 
@@ -169,7 +169,7 @@ defmodule MoodleNet.Threads.CommentsTest do
     test "updates a comment given valid attributes", %{user: creator, thread: thread} do
       comment = fake_comment!(creator, thread)
 
-      attrs = Fake.comment()
+      attrs = Simulation.comment()
       assert {:ok, updated_comment} = Comments.update(creator, comment, attrs)
       assert updated_comment != comment
       assert updated_comment.canonical_url == attrs.canonical_url

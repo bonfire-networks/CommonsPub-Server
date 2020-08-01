@@ -7,7 +7,7 @@ defmodule MoodleNet.FlagsTest do
   require Ecto.Query
   import MoodleNet.Test.Faking
   alias MoodleNet.Flags
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   setup do
     {:ok, %{user: fake_user!()}}
@@ -26,7 +26,7 @@ defmodule MoodleNet.FlagsTest do
   describe "flag/3" do
     test "a user can flag any meta object", %{user: flagger} do
       flagged = fake_meta!()
-      assert {:ok, flag} = Flags.create(flagger, flagged, Fake.flag())
+      assert {:ok, flag} = Flags.create(flagger, flagged, Simulation.flag())
       assert flag.creator_id == flagger.id
       assert flag.context_id == flagged.id
       assert flag.message
@@ -38,7 +38,7 @@ defmodule MoodleNet.FlagsTest do
       user = fake_user!()
       community = fake_community!(user)
       collection = fake_collection!(user, community)
-      assert {:ok, flag} = Flags.create(flagger, collection, community, Fake.flag())
+      assert {:ok, flag} = Flags.create(flagger, collection, community, Simulation.flag())
       assert flag.context_id == collection.id
       assert flag.community_id == community.id
     end
@@ -47,12 +47,11 @@ defmodule MoodleNet.FlagsTest do
   describe "soft_delete/1" do
     test "soft deletes a flag", %{user: flagger} do
       thing = fake_meta!()
-      assert {:ok, flag} = Flags.create(flagger, thing, Fake.flag())
+      assert {:ok, flag} = Flags.create(flagger, thing, Simulation.flag())
       refute flag.deleted_at
 
       assert {:ok, flag} = Flags.soft_delete(flagger, flag)
       assert flag.deleted_at
     end
   end
-
 end

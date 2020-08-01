@@ -3,11 +3,13 @@ defmodule Geolocation.GeolocationsTest do
   use MoodleNetWeb.ConnCase, async: true
 
   import MoodleNet.Test.Faking
+
   import Geolocation.Test.Faking
+  import Geolocation.Simulate
   alias Geolocation.Geolocations
 
   describe "one" do
-    test "fetches an existing circle" do
+    test "fetches an existing organisation" do
       user = fake_user!()
       comm = fake_community!(user)
       geo = fake_geolocation!(user, comm)
@@ -27,8 +29,9 @@ defmodule Geolocation.GeolocationsTest do
       geo = fake_geolocation!(user)
 
       assert {:ok, geo} = Geolocations.soft_delete(user, geo)
+
       assert {:error, %MoodleNet.Common.NotFoundError{}} =
-        Geolocations.one([:default, id: geo.id])
+               Geolocations.one([:default, id: geo.id])
     end
   end
 

@@ -43,7 +43,7 @@ defmodule Measurement.Unit.GraphQL do
     })
   end
 
-  def all_units(_,  _) do
+  def all_units(_, _) do
     {:error, "Use unitsPages instead."}
   end
 
@@ -131,7 +131,7 @@ defmodule Measurement.Unit.GraphQL do
   def delete_unit(%{id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, unit} <- unit(%{id: id}, info)  do
+           {:ok, unit} <- unit(%{id: id}, info) do
         if allow_delete?(user, unit) do
           with {:ok, _} <- Units.soft_delete(unit) do
             {:ok, true}
@@ -153,8 +153,7 @@ defmodule Measurement.Unit.GraphQL do
 
   # TODO: provide a more helpful error message
   defp dependent_measures?(%Unit{id: unit_id} = unit) do
-    {:ok, measures} =
-      Measures.many([:default, group_count: :unit_id, unit: unit])
+    {:ok, measures} = Measures.many([:default, group_count: :unit_id, unit: unit])
 
     n_measures =
       case measures do
@@ -167,7 +166,7 @@ defmodule Measurement.Unit.GraphQL do
 
   # TEMP
   # def all_units(_, _, _) do
-  #   {:ok, Simulate.long_list(&Simulate.unit/0)}
+  #   {:ok, long_list(&Simulate.unit/0)}
   # end
 
   # def a_unit(%{id: id}, info) do

@@ -26,7 +26,7 @@ defmodule Geolocation.GraphQL do
   alias Geolocation
   alias Geolocation.Geolocations
   alias Geolocation.Queries
-  alias Circle
+  alias Organisation
 
   # SDL schema import
 

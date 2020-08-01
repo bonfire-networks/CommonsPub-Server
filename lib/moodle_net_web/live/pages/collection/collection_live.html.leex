@@ -70,33 +70,24 @@
 <%= if @selected_tab == "write" do %>
   <div class="mainContent__all community__write">
     <h3 class="area__title">Start a new discussion</h3>
-    <%= live_component(
-              @socket,
-              CommunityWriteLive,
-              community: @collection,
-              selected_tab: @selected_tab,
-              id: :write,
-              current_user: @current_user
-            ) %>
-  </div>
-<% else %>
-  <div class="community__layout">
-    <%= cond do %>
-      <% @selected_tab == "about" ->  %>
-      <div class="mainContent__selected">
-        <div class="selected__area">
-          <%= live_component(
+  <% else %>
+    <div class="community__layout">
+      <%= cond do %>
+        <% @selected_tab == "about" ->  %>
+        <div class="mainContent__selected">
+          <div class="selected__area">
+            <%= live_component(
                 @socket,
                 AboutLive,
                 description: @collection.summary
               )
             %>
+          </div>
         </div>
-      </div>
-      <% @selected_tab == "timeline" ->  %>
-      <div class="mainContent__selected">
-        <h3 class="area__title">timeline</h3>
-        <%= live_component(
+        <% @selected_tab == "timeline" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">timeline</h3>
+          <%= live_component(
             @socket,
             CollectionActivitiesLive,
             collection: @collection,
@@ -110,11 +101,11 @@
             before: [],
             pagination_target: "#collection-activities"
           ) %>
-      </div>
-      <% @selected_tab == "resources" ->  %>
-      <div class="mainContent__selected">
-        <h3 class="area__title">Resources</h3>
-        <%= live_component(
+        </div>
+        <% @selected_tab == "resources" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">Resources</h3>
+          <%= live_component(
               @socket,
               CollectionResourcesLive,
               collection: @collection,
@@ -128,9 +119,9 @@
               before: [],
               pagination_target: "#collection-activities"
             ) %>
-      </div>
-      <% @selected_tab == "discussions" ->  %>
-      <%= live_component(
+        </div>
+        <% @selected_tab == "discussions" ->  %>
+        <%= live_component(
                     @socket,
                     CollectionDiscussionsLive,
                     collection: @collection,
@@ -144,10 +135,10 @@
                     before: [],
                     pagination_target: "#collection-threads"
                   ) %>
-      <% @selected_tab == "followers" ->  %>
-      <div class="mainContent__selected">
-        <h3 class="area__title">Followers</h3>
-        <%= live_component(
+        <% @selected_tab == "followers" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">Followers</h3>
+          <%= live_component(
                       @socket,
                       CollectionFollowersLive,
                       collection: @collection,
@@ -161,45 +152,45 @@
                       before: [],
                       pagination_target: "#collections-followers"
                     ) %>
-      </div>
-      <% true -> %>
-      <div class="mainContent__selected">
-        <%= live_component(
+        </div>
+        <% true -> %>
+        <div class="mainContent__selected">
+          <%= live_component(
                         @socket,
                         TabNotFoundLive
                     ) %>
-      </div>
-    <% end %>
-    <div class="community__navigation">
-      <%= live_component(
+        </div>
+      <% end %>
+      <div class="community__navigation">
+        <%= live_component(
                 @socket,
                 MoodleNetWeb.Component.ContextLive,
                 object: @collection,
                 current_user: @current_user
               )%>
-      <%= live_patch link_body("About", "feather-book-open"),
+        <%= live_patch link_body("About", "feather-book-open"),
           to: "/+" <> @collection.actor.preferred_username <> "/about",
           class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
         %>
-      <%= live_patch link_body("Timeline","feather-activity"),
+        <%= live_patch link_body("Timeline","feather-activity"),
           to: "/+" <> @collection.actor.preferred_username <>  "/timeline",
           class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
         %>
-      <%= live_patch link_body("Resources","feather-file"),
+        <%= live_patch link_body("Resources","feather-file"),
           to: "/+" <> @collection.actor.preferred_username <>  "/resources",
           class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
         %>
-      <%= live_patch link_body("Discussions","feather-message-square"),
+        <%= live_patch link_body("Discussions","feather-message-square"),
           to: "/+" <> @collection.actor.preferred_username <>  "/discussions",
           class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
         %>
-      <%= live_patch link_body("Followers", "feather-users"),
+        <%= live_patch link_body("Followers", "feather-users"),
           to: "/+" <> @collection.actor.preferred_username <>  "/followers",
           class: if @selected_tab == "followers", do: "navigation__item active", else: "navigation__item"
         %>
+      </div>
     </div>
-  </div>
-<% end %>
+  <% end %>
 </div>
 </section>
 </div>

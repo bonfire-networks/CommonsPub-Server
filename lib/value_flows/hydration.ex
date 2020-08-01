@@ -1,7 +1,8 @@
 defmodule ValueFlows.Hydration do
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
-    CommonResolver
+    CommonResolver,
+    UploadResolver
   }
 
   alias MoodleNet.Users.User

@@ -7,7 +7,7 @@ defmodule MoodleNet.ActorsTest do
   import MoodleNet.Test.Faking
   alias MoodleNet.{Actors, Repo}
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   def assert_actor_equal(actor, attrs) do
     assert actor.canonical_url == attrs[:canonical_url]
@@ -29,13 +29,13 @@ defmodule MoodleNet.ActorsTest do
     end
 
     test "fails if item is missing" do
-      assert {:error, %NotFoundError{}} = Actors.one(id: Fake.ulid())
+      assert {:error, %NotFoundError{}} = Actors.one(id: Simulation.ulid())
     end
   end
 
   describe "is_username_available?" do
     test "returns true if username is unused" do
-      assert Actors.is_username_available?(Fake.preferred_username())
+      assert Actors.is_username_available?(Simulation.preferred_username())
     end
 
     test "returns false if username is used" do
@@ -47,7 +47,7 @@ defmodule MoodleNet.ActorsTest do
   describe "create" do
     test "creates a new actor with a revision" do
       Repo.transaction(fn ->
-        attrs = Fake.actor()
+        attrs = Simulation.actor()
         assert {:ok, actor} = Actors.create(attrs)
         assert_actor_equal(actor, attrs)
       end)
@@ -55,7 +55,7 @@ defmodule MoodleNet.ActorsTest do
 
     # test "drops invalid characters from preferred_username" do
     #  Repo.transaction(fn ->
-    #    attrs = Fake.actor(%{preferred_username: "actor&name"})
+    #    attrs = Simulation.actor(%{preferred_username: "actor&name"})
     #    assert {:ok, actor} = Actors.create(attrs)
     #    assert actor.preferred_username == "actorname"
     #  end)
@@ -63,7 +63,7 @@ defmodule MoodleNet.ActorsTest do
 
     test "doesn't drop allowed characters from preferred_username" do
       Repo.transaction(fn ->
-        attrs = Fake.actor(%{preferred_username: "actor-name_underscore@instance.url"})
+        attrs = Simulation.actor(%{preferred_username: "actor-name_underscore@instance.url"})
         assert {:ok, actor} = Actors.create(attrs)
         assert actor.preferred_username == "actor-name_underscore@instance.url"
       end)
@@ -71,7 +71,7 @@ defmodule MoodleNet.ActorsTest do
 
     test "returns an error if there are missing required attributes" do
       Repo.transaction(fn ->
-        invalid_attrs = Map.delete(Fake.actor(), :preferred_username)
+        invalid_attrs = Map.delete(Simulation.actor(), :preferred_username)
         assert {:error, changeset} = Actors.create(invalid_attrs)
         assert Keyword.get(changeset.errors, :preferred_username)
       end)
@@ -83,7 +83,7 @@ defmodule MoodleNet.ActorsTest do
 
         assert {:error, changeset} =
                  %{preferred_username: actor.preferred_username}
-                 |> Fake.actor()
+                 |> Simulation.actor()
                  |> Actors.create()
 
         assert Keyword.get(changeset.errors, :preferred_username)
@@ -95,13 +95,13 @@ defmodule MoodleNet.ActorsTest do
     test "updates an existing actor with valid attributes" do
       Repo.transaction(fn ->
         user = fake_user!()
-        original_attrs = Fake.actor()
+        original_attrs = Simulation.actor()
         assert {:ok, actor} = Actors.create(original_attrs)
 
         updated_attrs =
           original_attrs
           |> Map.take(~w(preferred_username signing_key)a)
-          |> Fake.actor()
+          |> Simulation.actor()
 
         assert {:ok, actor} = Actors.update(user, actor, updated_attrs)
         assert_actor_equal(actor, updated_attrs)

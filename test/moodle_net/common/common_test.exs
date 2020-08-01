@@ -69,7 +69,7 @@ defmodule MoodleNet.CommonTest do
   #     tagged = fake_meta!()
 
   #     assert {:ok, tag} =
-  #              Common.tag(tagger, tagged, Fake.tag(%{is_public: true, name: "Testing"}))
+  #              Common.tag(tagger, tagged, Simulation.tag(%{is_public: true, name: "Testing"}))
 
   #     assert tag.published_at
   #     assert tag.name == "Testing"
@@ -85,7 +85,7 @@ defmodule MoodleNet.CommonTest do
   # describe "update_tag/2" do
   #   test "updates the attributes of an existing tag", %{user: tagger} do
   #     tagged = fake_meta!()
-  #     assert {:ok, tag} = Common.tag(tagger, tagged, Fake.tag(%{name: "Testy No.1"}))
+  #     assert {:ok, tag} = Common.tag(tagger, tagged, Simulation.tag(%{name: "Testy No.1"}))
   #     assert {:ok, updated_tag} = Common.update_tag(tag, %{name: "Testy Mc.Testface"})
   #     assert tag != updated_tag
   #   end
@@ -100,7 +100,7 @@ defmodule MoodleNet.CommonTest do
   # describe "untag/1" do
   #   test "removes a tag", %{user: tagger} do
   #     tagged = fake_meta!()
-  #     assert {:ok, tag} = Common.tag(tagger, tagged, Fake.tag())
+  #     assert {:ok, tag} = Common.tag(tagger, tagged, Simulation.tag())
   #     refute tag.deleted_at
   #     assert {:ok, tag} = Common.untag(tag)
   #     assert tag.deleted_at

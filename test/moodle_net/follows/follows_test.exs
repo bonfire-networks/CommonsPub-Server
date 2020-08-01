@@ -7,7 +7,7 @@ defmodule MoodleNet.FollowsTest do
   require Ecto.Query
   import MoodleNet.Test.Faking
   alias MoodleNet.Follows
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   setup do
     {:ok, %{user: fake_user!()}}
@@ -25,7 +25,7 @@ defmodule MoodleNet.FollowsTest do
     test "creates a follow for anything with an outbox", %{user: follower} do
       followed = fake_followable!()
 
-      attrs = Fake.follow(%{is_public: true, is_muted: false})
+      attrs = Simulation.follow(%{is_public: true, is_muted: false})
       assert {:ok, follow} = Follows.create(follower, followed, attrs)
 
       assert follow.creator_id == follower.id
@@ -36,7 +36,7 @@ defmodule MoodleNet.FollowsTest do
 
     # test "can mute a follow", %{user: follower} do
     #   followed = fake_meta!()
-    #   assert {:ok, follow} = Common.follow(follower, followed, Fake.follow(%{is_muted: true}))
+    #   assert {:ok, follow} = Common.follow(follower, followed, Simulation.follow(%{is_muted: true}))
     #   assert follow.muted_at
     # end
 
@@ -49,10 +49,13 @@ defmodule MoodleNet.FollowsTest do
   describe "update/2" do
     test "updates the attributes of an existing follow", %{user: follower} do
       followed = fake_followable!()
+
       assert {:ok, follow} =
-        Follows.create(follower, followed, Fake.follow(%{is_public: false}))
+               Follows.create(follower, followed, Simulation.follow(%{is_public: false}))
+
       assert {:ok, updated_follow} =
-        Follows.update(follower, follow, Fake.follow(%{is_public: true}))
+               Follows.update(follower, follow, Simulation.follow(%{is_public: true}))
+
       assert follow != updated_follow
     end
   end
@@ -60,12 +63,11 @@ defmodule MoodleNet.FollowsTest do
   describe "soft_delete/2" do
     test "removes a follower from a followed object", %{user: follower} do
       followed = fake_followable!()
-      assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
+      assert {:ok, follow} = Follows.create(follower, followed, Simulation.follow())
       refute follow.deleted_at
 
       assert {:ok, follow} = Follows.soft_delete(follower, follow)
       assert follow.deleted_at
     end
   end
-
 end

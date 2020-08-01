@@ -70,7 +70,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # Extension Modules
   import_types(Profile.GraphQL.Schema)
   import_types(Character.GraphQL.Schema)
-  import_types(Circle.GraphQL.Schema)
+  import_types(Organisation.GraphQL.Schema)
   import_types(Locales.GraphQL.Schema)
   import_types(Tag.GraphQL.TagSchema)
   import_types(Taxonomy.GraphQL.TaxonomySchema)
@@ -100,7 +100,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # Extension Modules
     import_fields(:profile_queries)
     import_fields(:character_queries)
-    import_fields(:circles_queries)
+    import_fields(:organisations_queries)
     import_fields(:tag_queries)
 
     # Taxonomy
@@ -133,7 +133,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # Extension Modules
     import_fields(:profile_mutations)
     import_fields(:character_mutations)
-    import_fields(:circles_mutations)
+    import_fields(:organisations_mutations)
     import_fields(:tag_mutations)
     import_fields(:taxonomy_mutations)
     # ValueFlows

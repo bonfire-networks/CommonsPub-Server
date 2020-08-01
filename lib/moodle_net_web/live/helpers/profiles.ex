@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   alias MoodleNetWeb.GraphQL.UsersResolver
   import MoodleNetWeb.Helpers.Common
 
-  def prepare(%{username: _} = profile) do
+  def prepare(%{username: username} = profile) do
     IO.inspect("profile already prepared")
     profile
   end

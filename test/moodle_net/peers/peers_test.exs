@@ -3,12 +3,12 @@ defmodule MoodleNet.PeersTest do
   alias MoodleNet.Peers
   # alias MoodleNet.Peers.Peer
   import MoodleNet.Test.Faking
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   describe "CRUD" do
     test "insertion and retrieval" do
       Repo.transaction(fn ->
-        attrs = Fake.peer()
+        attrs = Simulation.peer()
         assert {:ok, peer} = Peers.create(attrs)
         assert {:ok, peer2} = Peers.fetch(peer.id)
         assert Map.drop(peer, [:is_disabled]) == Map.drop(peer2, [:is_disabled])
@@ -23,7 +23,7 @@ defmodule MoodleNet.PeersTest do
           peer
           |> Map.from_struct()
           |> Map.delete(:ap_url_base)
-          |> Fake.peer()
+          |> Simulation.peer()
 
         assert {:ok, peer2} = Peers.update(peer, attrs)
         assert peer2.id == peer.id

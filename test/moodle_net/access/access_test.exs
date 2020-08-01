@@ -7,22 +7,33 @@ defmodule MoodleNet.AccessTest do
   import MoodleNet.Test.Faking
   alias Ecto.Changeset
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
   alias MoodleNet.Access
+
   alias MoodleNet.Access.{
     TokenExpiredError,
     TokenNotFoundError,
     UserEmailNotConfirmedError,
     RegisterEmailDomainAccess,
-    RegisterEmailAccess,
+    RegisterEmailAccess
   }
 
-  defp strip(user), do: Map.drop(user, [:actor, :email_confirm_tokens, :auth, :user, :local_user, :is_disabled, :is_public])
+  defp strip(user),
+    do:
+      Map.drop(user, [
+        :actor,
+        :email_confirm_tokens,
+        :auth,
+        :user,
+        :local_user,
+        :is_disabled,
+        :is_public
+      ])
 
   describe "MoodleNet.Access.create_register_email_domain/1" do
     test "can be found with find_register_email_domain after success" do
       Repo.transaction(fn ->
-        domain = Fake.domain()
+        domain = Simulation.domain()
 
         assert {:ok, %RegisterEmailDomainAccess{} = wl} =
                  Access.create_register_email_domain(domain)
@@ -34,7 +45,7 @@ defmodule MoodleNet.AccessTest do
 
     test "fails helpfully with invalid data" do
       Repo.transaction(fn ->
-        invalid = Fake.email()
+        invalid = Simulation.email()
         assert {:error, %Changeset{} = cs} = Access.create_register_email_domain(invalid)
         assert [{:domain, {"is of the wrong format", [validation: :format]}}] == cs.errors
       end)
@@ -44,7 +55,7 @@ defmodule MoodleNet.AccessTest do
   describe "MoodleNet.Access.create_register_email/1" do
     test "can be found with find_register_email after success" do
       Repo.transaction(fn ->
-        email = Fake.email()
+        email = Simulation.email()
         assert {:ok, %RegisterEmailAccess{} = wl} = Access.create_register_email(email)
         assert wl.email == email
         assert {:ok, wl} == Access.find_register_email(email)
@@ -54,7 +65,7 @@ defmodule MoodleNet.AccessTest do
     # TODO: validate emails better
     test "fails helpfully with invalid data" do
       Repo.transaction(fn ->
-        invalid = Fake.icon()
+        invalid = Simulation.icon()
         assert {:error, %Changeset{} = cs} = Access.create_register_email(invalid)
         assert [email: {"is of the wrong format", [validation: :format]}] == cs.errors
       end)
@@ -91,7 +102,7 @@ defmodule MoodleNet.AccessTest do
     test "returns true when the email's domain is accessed" do
       Repo.transaction(fn ->
         domain = fake_register_email_domain_access!().domain
-        email = Fake.email_user() <> "@" <> domain
+        email = Simulation.email_user() <> "@" <> domain
         assert true == Access.is_register_accessed?(email)
       end)
     end
@@ -105,7 +116,7 @@ defmodule MoodleNet.AccessTest do
 
     test "returns false when no access pertains to the email" do
       Repo.transaction(fn ->
-        assert false == Access.is_register_accessed?(Fake.email())
+        assert false == Access.is_register_accessed?(Simulation.email())
       end)
     end
   end
@@ -113,7 +124,7 @@ defmodule MoodleNet.AccessTest do
   describe "MoodleNet.Access.hard_delete!/1" do
     test "raises :function_clause when given input of the wrong type" do
       Repo.transaction(fn ->
-        assert :function_clause = catch_error(Access.hard_delete(Fake.ulid()))
+        assert :function_clause = catch_error(Access.hard_delete(Simulation.ulid()))
       end)
     end
 
@@ -131,7 +142,7 @@ defmodule MoodleNet.AccessTest do
         wl = fake_register_email_domain_access!()
         assert deleted(wl) == Access.hard_delete!(wl)
         assert {:error, %NotFoundError{} = e} = Access.find_register_email_domain(wl.domain)
-       end)
+      end)
     end
 
     test "can successfully delete a RegisterEmailAccess" do
@@ -160,13 +171,11 @@ defmodule MoodleNet.AccessTest do
       user = fake_user!(%{}, confirm_email: true)
       token = fake_token!(user)
       then = DateTime.add(token.created_at, 3600 * 24 * 15, :second)
-      assert {:error, %TokenExpiredError{}} =
-        Access.verify_token(token, then)
+      assert {:error, %TokenExpiredError{}} = Access.verify_token(token, then)
     end
   end
 
   describe "MoodleNet.Access.fetch_token_and_user/1" do
-
     test "works" do
       user = fake_user!(%{}, confirm_email: true)
       token = fake_token!(user)
@@ -183,11 +192,9 @@ defmodule MoodleNet.AccessTest do
       assert {:error, error} = Access.fetch_token_and_user(token.id <> token.id)
       assert %TokenNotFoundError{} = error
     end
-
   end
 
   describe "MoodleNet.Access.hard_delete/1" do
-
     test "works with a Token" do
       user = fake_user!(%{}, confirm_email: true)
       token = fake_token!(user)
@@ -202,11 +209,9 @@ defmodule MoodleNet.AccessTest do
     #   assert {:ok, auth2} = OAuth.hard_delete(auth)
     #   assert {:error, %NotFoundError{key: auth.id}} == OAuth.fetch_auth(auth.id)
     # end
-
   end
 
   describe "MoodleNet.OAuth.verify_user" do
-
     test "ok for a valid user" do
       user = fake_user!(%{}, confirm_email: true)
       assert :ok == Access.verify_user(user)
@@ -214,8 +219,7 @@ defmodule MoodleNet.AccessTest do
 
     test "errors for a user without a confirmed email" do
       user = fake_user!(%{}, confirm_email: false)
-      assert {:error, %UserEmailNotConfirmedError{}} =
-        Access.verify_user(user)
+      assert {:error, %UserEmailNotConfirmedError{}} = Access.verify_user(user)
     end
   end
 end

@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   import MoodleNet.Test.Faking
   import Grumble
   import Zest
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   describe "username_available" do
     test "works for a guest or a user" do
@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       q = username_available_query()
 
       for conn <- [json_conn(), user_conn(alice)] do
-        vars = %{username: Fake.preferred_username()}
+        vars = %{username: Simulation.preferred_username()}
         assert true == grumble_post_key(q, conn, :username_available, vars)
         vars = %{username: alice.actor.preferred_username}
         assert false == grumble_post_key(q, conn, :username_available, vars)

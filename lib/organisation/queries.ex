@@ -1,17 +1,17 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Circle.Queries do
+defmodule Organisation.Queries do
   # alias MoodleNet.Users
-  alias Circle
+  alias Organisation
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  def query(Circle) do
-    from(o in Circle,
-      as: :circle,
+  def query(Organisation) do
+    from(o in Organisation,
+      as: :organisation,
       join: p in assoc(o, :profile),
       as: :profile,
       join: c in assoc(o, :character),
@@ -27,7 +27,7 @@ defmodule Circle.Queries do
   end
 
   def query(:count) do
-    from(o in Circle, as: :circle)
+    from(o in Organisation, as: :organisation)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -46,7 +46,7 @@ defmodule Circle.Queries do
   end
 
   def join_to(q, :context, jq) do
-    join(q, jq, [circle: c], c2 in assoc(c, :context), as: :context)
+    join(q, jq, [organisation: c], c2 in assoc(c, :context), as: :context)
   end
 
   # def join_to(q, {:context_follow, follower_id}, jq) do
@@ -55,14 +55,14 @@ defmodule Circle.Queries do
   # end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [circle: o, character: c], f in Follow,
+    join(q, jq, [organisation: o, character: c], f in Follow,
       as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
     )
   end
 
   def join_to(q, :follower_count, jq) do
-    join(q, jq, [circle: o, character: c], f in FollowerCount,
+    join(q, jq, [organisation: o, character: c], f in FollowerCount,
       on: c.id == f.context_id,
       as: :follower_count
     )
@@ -94,7 +94,10 @@ defmodule Circle.Queries do
   def filter(q, {:user, %User{id: id} = _user}) do
     q
     |> join_to(follow: id)
-    |> where([circle: o, character: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where(
+      [organisation: o, character: c, follow: f],
+      not is_nil(c.published_at) or not is_nil(f.id)
+    )
   end
 
   def filter(q, {:user, nil}) do
@@ -104,15 +107,15 @@ defmodule Circle.Queries do
   ## by status
 
   def filter(q, :deleted) do
-    where(q, [character: c, circle: o], is_nil(c.deleted_at))
+    where(q, [character: c, organisation: o], is_nil(c.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where(q, [character: c, circle: o], is_nil(c.disabled_at))
+    where(q, [character: c, organisation: o], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do
-    where(q, [character: c, circle: o], not is_nil(c.published_at))
+    where(q, [character: c, organisation: o], not is_nil(c.published_at))
   end
 
   ## by field values
@@ -121,7 +124,7 @@ defmodule Circle.Queries do
       when is_integer(count) and is_binary(id) do
     where(
       q,
-      [circle: c, follower_count: fc],
+      [organisation: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
     )
   end
@@ -130,25 +133,25 @@ defmodule Circle.Queries do
       when is_integer(count) and is_binary(id) do
     where(
       q,
-      [circle: c, follower_count: fc],
+      [organisation: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
     )
   end
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where(q, [circle: c], c.id == ^id)
+    where(q, [organisation: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where(q, [circle: c], c.id in ^ids)
+    where(q, [organisation: c], c.id in ^ids)
   end
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where(q, [circle: c], c.context_id == ^id)
+    where(q, [organisation: c], c.context_id == ^id)
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where(q, [circle: c], c.community_id in ^ids)
+    where(q, [organisation: c], c.community_id in ^ids)
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
@@ -166,7 +169,7 @@ defmodule Circle.Queries do
   end
 
   def filter(q, {:order, [desc: :followers]}) do
-    order_by(q, [circle: c, follower_count: fc],
+    order_by(q, [organisation: c, follower_count: fc],
       desc: coalesce(fc.count, 0),
       desc: c.id
     )
@@ -179,11 +182,11 @@ defmodule Circle.Queries do
   end
 
   def filter(q, {:group, key}) when is_atom(key) do
-    group_by(q, [circle: c], field(c, ^key))
+    group_by(q, [organisation: c], field(c, ^key))
   end
 
   def filter(q, {:count, key}) when is_atom(key) do
-    select(q, [circle: c], {field(c, ^key), count(c.id)})
+    select(q, [organisation: c], {field(c, ^key), count(c.id)})
   end
 
   def filter(q, {:preload, :character}) do
@@ -212,13 +215,13 @@ defmodule Circle.Queries do
     limit = limit + 2
 
     q
-    |> where([circle: c], c.id >= ^a)
+    |> where([organisation: c], c.id >= ^a)
     |> limit(^limit)
   end
 
   def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
     q
-    |> where([circle: c], c.id <= ^b)
+    |> where([organisation: c], c.id <= ^b)
     |> filter(limit: limit + 2)
   end
 
@@ -231,7 +234,7 @@ defmodule Circle.Queries do
   #   |> filter(join: :follower_count, order: [desc: :followers])
   #   |> page(page_opts, [desc: :followers])
   #   |> select(
-  #     [circle: c, actor: a, follower_count: fc],
+  #     [organisation: c, actor: a, follower_count: fc],
   #     %{c | follower_count: coalesce(fc.count, 0), actor: a}
   #   )
   # end
@@ -241,12 +244,14 @@ defmodule Circle.Queries do
     |> page(page_opts, nil)
   end
 
-  def filter(q, {:id, id}) when is_binary(id), do: where(q, [circle: c], c.id == ^id)
-  def filter(q, {:id, ids}) when is_list(ids), do: where(q, [circle: c], c.id in ^ids)
-  def filter(q, {:context, id}) when is_binary(id), do: where(q, [circle: c], c.context_id == ^id)
+  def filter(q, {:id, id}) when is_binary(id), do: where(q, [organisation: c], c.id == ^id)
+  def filter(q, {:id, ids}) when is_list(ids), do: where(q, [organisation: c], c.id in ^ids)
+
+  def filter(q, {:context, id}) when is_binary(id),
+    do: where(q, [organisation: c], c.context_id == ^id)
 
   def filter(q, {:context, ids}) when is_list(ids),
-    do: where(q, [circle: c], c.context_id in ^ids)
+    do: where(q, [organisation: c], c.context_id in ^ids)
 
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
     filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)

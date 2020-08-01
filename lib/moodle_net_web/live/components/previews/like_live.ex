@@ -36,7 +36,7 @@ defmodule MoodleNetWeb.Component.LikePreviewLive do
             @socket,
             ActivityLive,
             activity: @like_context,
-            current_user: e(@current_user, %{}),
+            current_user: e(@current_user, %{})
           )
       %>
       </div>

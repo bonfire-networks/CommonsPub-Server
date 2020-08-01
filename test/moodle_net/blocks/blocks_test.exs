@@ -7,7 +7,7 @@ defmodule MoodleNet.BlocksTest do
   require Ecto.Query
   import MoodleNet.Test.Faking
   alias MoodleNet.Blocks
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   setup do
     {:ok, %{user: fake_user!()}}
@@ -28,7 +28,11 @@ defmodule MoodleNet.BlocksTest do
       blocked = fake_meta!()
 
       assert {:ok, block} =
-        Blocks.create(blocker, blocked, Fake.block(%{is_muted: true, is_blocked: true}))
+               Blocks.create(
+                 blocker,
+                 blocked,
+                 Simulation.block(%{is_muted: true, is_blocked: true})
+               )
 
       assert block.blocked_at
       # assert block.muted_at
@@ -38,8 +42,13 @@ defmodule MoodleNet.BlocksTest do
   describe "update_block/2" do
     test "updates the attributes of an existing block", %{user: blocker} do
       blocked = fake_meta!()
-      assert {:ok, block} = Blocks.create(blocker, blocked, Fake.block(%{is_blocked: false}))
-      assert {:ok, updated_block} = Blocks.update(blocker, block, Fake.block(%{is_blocked: true}))
+
+      assert {:ok, block} =
+               Blocks.create(blocker, blocked, Simulation.block(%{is_blocked: false}))
+
+      assert {:ok, updated_block} =
+               Blocks.update(blocker, block, Simulation.block(%{is_blocked: true}))
+
       assert block != updated_block
     end
   end
@@ -47,12 +56,14 @@ defmodule MoodleNet.BlocksTest do
   describe "soft_delete/1" do
     test "removes a block", %{user: blocker} do
       blocked = fake_meta!()
-      assert {:ok, block} = Blocks.create(blocker, blocked, Fake.block(%{is_blocked: false}))
+
+      assert {:ok, block} =
+               Blocks.create(blocker, blocked, Simulation.block(%{is_blocked: false}))
+
       refute block.deleted_at
 
       assert {:ok, block} = Blocks.soft_delete(blocker, block)
       assert block.deleted_at
     end
   end
-
 end

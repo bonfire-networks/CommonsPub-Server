@@ -2,8 +2,11 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   use MoodleNetWeb.ConnCase, async: true
 
   import MoodleNet.Test.Faking
+  import CommonsPub.Utils.Simulation
 
+  import Geolocation.Simulate
   import Geolocation.Test.Faking
+
   import Measurement.Simulate
   import Measurement.Test.Faking
 
@@ -39,15 +42,20 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       user = fake_user!()
       unit = fake_unit!(user)
 
-      q = create_intent_mutation(fields: [
-        available_quantity: [:has_numerical_value, has_unit: [:id, :label]]
-      ])
+      q =
+        create_intent_mutation(
+          fields: [
+            available_quantity: [:has_numerical_value, has_unit: [:id, :label]]
+          ]
+        )
+
       conn = user_conn(user)
       vars = %{intent: intent_input(unit)}
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(intent)
+
       assert intent["availableQuantity"]["hasNumericalValue"] ==
-        vars.intent["available_quantity"]["hasNumericalValue"]
+               vars.intent["available_quantity"]["hasNumericalValue"]
     end
 
     test "creates a new intent given a scope" do
@@ -126,10 +134,15 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = update_intent_mutation(fields: [atLocation: [:id]])
       conn = user_conn(user)
-      vars = %{intent: intent_input(unit, %{
-        "id" => intent.id,
-        "atLocation" => geo.id
-      })}
+
+      vars = %{
+        intent:
+          intent_input(unit, %{
+            "id" => intent.id,
+            "atLocation" => geo.id
+          })
+      }
+
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert resp["atLocation"]["id"] == geo.id
     end

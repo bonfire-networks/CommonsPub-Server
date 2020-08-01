@@ -91,7 +91,7 @@ defmodule Tag.GraphQL.TagSchema do
     types([
       :collection,
       :community,
-      :circle,
+      :organisation,
       :resource,
       :thread,
       :comment,
@@ -107,8 +107,8 @@ defmodule Tag.GraphQL.TagSchema do
       %MoodleNet.Communities.Community{}, _ ->
         :community
 
-      %Circle{}, _ ->
-        :circle
+      %Organisation{}, _ ->
+        :organisation
 
       %MoodleNet.Resources.Resource{}, _ ->
         :resource

@@ -11,7 +11,6 @@
 # ProcessSpecification
 
 defmodule ValueFlows.Planning.Intent do
-
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
@@ -27,13 +26,13 @@ defmodule ValueFlows.Planning.Intent do
   @type t :: %__MODULE__{}
 
   table_schema "vf_intent" do
-
     field(:name, :string)
     field(:note, :string)
     belongs_to(:image, Content)
 
-    belongs_to(:provider, Pointer) # TODO - use pointer like context?
-    belongs_to(:receiver, Pointer)
+    # TODO - use pointer like context?
+    belongs_to(:provider, Pointers.Pointer)
+    belongs_to(:receiver, Pointers.Pointer)
 
     belongs_to(:available_quantity, Measure, on_replace: :nilify)
     belongs_to(:resource_quantity, Measure, on_replace: :nilify)
@@ -43,8 +42,10 @@ defmodule ValueFlows.Planning.Intent do
     field(:has_end, :utc_datetime_usec)
     field(:has_point_in_time, :utc_datetime_usec)
     field(:due, :utc_datetime_usec)
-    
-    field(:resource_classified_as, {:array, :string}) # array of URI
+
+    # array of URI
+    field(:resource_classified_as, {:array, :string})
+
     # belongs_to(:resource_conforms_to, ResourceSpecification)
     # belongs_to(:resource_inventoried_as, EconomicResource)
 
@@ -57,14 +58,15 @@ defmodule ValueFlows.Planning.Intent do
 
     # belongs_to(:agreed_in, Agreement)
 
-    # inverse relationships 
+    # inverse relationships
     # has_many(:published_in, ProposedIntent)
     # has_many(:satisfied_by, Satisfaction)
 
     belongs_to(:creator, User)
-    belongs_to(:context, Pointer)
+    belongs_to(:context, Pointers.Pointer)
 
     field(:finished, :boolean, default: false)
+
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
     field(:is_public, :boolean, virtual: true)
@@ -75,7 +77,6 @@ defmodule ValueFlows.Planning.Intent do
 
     timestamps()
   end
-
 
   @required ~w(name is_public)a
   @cast @required ++ ~w(note at_location_id is_disabled)a
@@ -97,9 +98,9 @@ defmodule ValueFlows.Planning.Intent do
   end
 
   def create_changeset(
-      %User{} = creator,
-      attrs
-    ) do
+        %User{} = creator,
+        attrs
+      ) do
     %Intent{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
@@ -111,10 +112,10 @@ defmodule ValueFlows.Planning.Intent do
   end
 
   def update_changeset(
-    %Intent{} = intent,
-    %{id: _} = context,
-    attrs
-  ) do
+        %Intent{} = intent,
+        %{id: _} = context,
+        attrs
+      ) do
     intent
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(context_id: context.id)
@@ -145,7 +146,8 @@ defmodule ValueFlows.Planning.Intent do
     |> change_public()
     |> change_disabled()
     |> Changeset.foreign_key_constraint(
-      :at_location_id, name: :vf_intent_at_location_id_fkey
+      :at_location_id,
+      name: :vf_intent_at_location_id_fkey
     )
   end
 end

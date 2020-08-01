@@ -12,10 +12,9 @@ defmodule Measurement.MeasuresTest do
   import MoodleNet.Common.Enums
   import Grumble
   import Zest
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   import Measurement.Test.Faking
-
   import Measurement.Simulate
   alias Measurement.Measure
   alias Measurement.Measure.Measures

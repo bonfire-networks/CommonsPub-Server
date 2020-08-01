@@ -1,16 +1,16 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Circle do
+defmodule Organisation do
   use Pointers.Pointable,
     otp_app: :moodle_net,
-    source: "circle",
+    source: "organisation",
     table_id: "01EAQ0ENYEFY2DZHATQWZ2AEEQ"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias Circle
+  alias Organisation
   alias Character
   alias Pointers.Pointer
   alias MoodleNet.Actors.Actor
@@ -47,7 +47,7 @@ defmodule Circle do
         %{id: _} = context,
         attrs
       ) do
-    %Circle{}
+    %Organisation{}
     # |> Changeset.change(
     #   id: Ecto.ULID.generate()
     #   )
@@ -57,7 +57,7 @@ defmodule Circle do
   end
 
   def create_changeset(attrs) do
-    %Circle{}
+    %Organisation{}
     # |> Changeset.change(
     #   id: Ecto.ULID.generate()
     #   )
@@ -65,8 +65,8 @@ defmodule Circle do
     |> common_changeset()
   end
 
-  def update_changeset(%Circle{} = circle, attrs) do
-    circle
+  def update_changeset(%Organisation{} = organisation, attrs) do
+    organisation
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
@@ -79,9 +79,9 @@ defmodule Circle do
 
   ### behaviour callbacks
 
-  def context_module, do: Circle.Circles
+  def context_module, do: Organisation.Organisations
 
-  def queries_module, do: Circle.Queries
+  def queries_module, do: Organisation.Queries
 
   def follow_filters, do: [:default]
 end

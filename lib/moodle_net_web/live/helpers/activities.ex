@@ -1,8 +1,4 @@
 defmodule MoodleNetWeb.Helpers.Activites do
-  alias MoodleNet.{
-    Repo
-  }
-
   import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Helpers.{Profiles}

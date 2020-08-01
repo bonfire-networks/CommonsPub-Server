@@ -71,7 +71,7 @@ defmodule Character.GraphQL.Schema do
   end
 
   @desc """
-  A character is anything (Person, Group, Circle, Taxonomy Tag, Location, Thread, what-have-you...) which has a feed which can be followed, and can be tagged in other activities
+  A character is anything (Person, Group, Organisation, Taxonomy Tag, Location, Thread, what-have-you...) which has a feed which can be followed, and can be tagged in other activities
   """
   object :character do
     @desc "An instance-local UUID identifying the character. Not to be confused with the associated thing's ID (available under characteristic.id)"
@@ -83,7 +83,7 @@ defmodule Character.GraphQL.Schema do
     #   resolve &Character.GraphQL.Resolver.characteristic_edge/3
     # end
 
-    @desc "A friendly name for the type of thing this character represents, eg. Circle, Location, Tag..."
+    @desc "A friendly name for the type of thing this character represents, eg. Organisation, Location, Tag..."
     field(:facet, non_null(:string))
 
     @desc "A url for the character, may be to a remote instance"
@@ -194,12 +194,12 @@ defmodule Character.GraphQL.Schema do
     #   resolve &CommunitiesResolver.collection_count_edge/3
     # end
 
-    @desc "Any circles created under this character"
-    field :circles, :circles_page do
+    @desc "Any organisations created under this character"
+    field :organisations, :organisations_page do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&Circle.GraphQL.Resolver.circles_edge/3)
+      resolve(&Organisation.GraphQL.Resolver.organisations_edge/3)
     end
 
     @desc "Any collections created under this character"
@@ -299,7 +299,7 @@ defmodule Character.GraphQL.Schema do
     types([
       :collection,
       :community,
-      :circle,
+      :organisation,
       :resource,
       :thread,
       :comment,
@@ -315,8 +315,8 @@ defmodule Character.GraphQL.Schema do
       %Community{}, _ ->
         :community
 
-      %Circle{}, _ ->
-        :circle
+      %Organisation{}, _ ->
+        :organisation
 
       %Resource{}, _ ->
         :resource

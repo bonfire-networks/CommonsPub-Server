@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ActivitiesSchemaTest do
   use MoodleNetWeb.ConnCase, async: true
-  # alias MoodleNet.Test.Fake
+
+  # alias CommonsPub.Utils.Simulation
   # import MoodleNetWeb.Test.GraphQLAssertions
   # import MoodleNetWeb.Test.GraphQLFields
   # import MoodleNet.Test.Faking
@@ -36,5 +37,4 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchemaTest do
     test "placeholder" do
     end
   end
-
 end

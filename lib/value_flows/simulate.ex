@@ -9,7 +9,6 @@ defmodule ValueFlows.Simulate do
 
   import Measurement.Simulate
 
-  alias Geolocation.Geolocations
   alias ValueFlows.Planning.Intent.Intents
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])

@@ -44,14 +44,13 @@ defmodule MoodleNetWeb.CollectionLive.CollectionResourcesLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-      IO.inspect(resources, label: "RESOURCES:")
+    IO.inspect(resources, label: "RESOURCES:")
 
     assign(socket,
       resources: resources.edges,
       has_next_page: resources.page_info.has_next_page,
       after: resources.page_info.end_cursor,
-      before: resources.page_info.start_cursor,
-
+      before: resources.page_info.start_cursor
     )
   end
 

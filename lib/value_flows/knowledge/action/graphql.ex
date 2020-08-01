@@ -2,7 +2,10 @@
 defmodule ValueFlows.Knowledge.Action.GraphQL do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
+
+  import CommonsPub.Utils.Simulation
   alias ValueFlows.Simulate
+
   require Logger
 
   # import_sdl path: "lib/value_flows/graphql/schemas/knowledge.gql"
@@ -12,6 +15,6 @@ defmodule ValueFlows.Knowledge.Action.GraphQL do
   end
 
   def all_actions(_, _) do
-    {:ok, Simulate.long_list(&Simulate.action/0)}
+    {:ok, long_list(&Simulate.action/0)}
   end
 end

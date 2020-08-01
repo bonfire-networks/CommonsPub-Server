@@ -11,7 +11,7 @@ defmodule ValueFlows.Test.Faking do
   import Measurement.Test.Faking
   import Grumble
 
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
 
@@ -99,7 +99,7 @@ defmodule ValueFlows.Test.Faking do
     |> gen_mutation(&delete_intent_submutation/1, options)
   end
 
-  def delete_intent_submutation(options \\ []) do
+  def delete_intent_submutation(_options \\ []) do
     field(:delete_intent, args: [id: var(:id)])
   end
 end

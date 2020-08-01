@@ -2,7 +2,6 @@ defmodule Measurement.Simulate do
   import CommonsPub.Utils.Simulation
   import CommonsPub.Utils.Trendy
 
-  alias MoodleNet.Test.Fake
   alias Measurement.Unit.Units
   alias Measurement.Measure.Measures
 
