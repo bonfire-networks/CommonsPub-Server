@@ -73,13 +73,22 @@ defmodule Taxonomy.TaxonomyTags do
   @doc "Takes an existing TaxonomyTag and makes it a Taggable, if one doesn't already exist"
   def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
     Repo.transact_with(fn ->
-      # add a Pointer ID
-      with {:ok, taggable} <- Tag.Taggables.one(taxonomy_tag_id: tag.id) do
+      tag = Repo.preload(tag, :taggable)
+      tag = Repo.preload(tag, :parent_tag)
+
+      with {:ok, taggable} <- Map.get(tag, :taggable) do
+        # Tag.Taggables.one(taxonomy_tag_id: tag.id) do
         {:ok, taggable}
       else
         _e -> pointerise(user, tag)
       end
     end)
+  end
+
+  def make_taggable(%User{} = user, id) do
+    with {:ok, tag} <- get(id) do
+      make_taggable(user, tag)
+    end
   end
 
   defp pointerise(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)

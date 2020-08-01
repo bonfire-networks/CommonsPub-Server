@@ -8,37 +8,37 @@ defmodule Tag.TagThings do
 
   alias Tag.Taggable
 
-  def tag_things(tag, pointer_ids) when is_list(pointer_ids) do
+  def tag_things(user, tag, pointer_ids) when is_list(pointer_ids) do
     # requires a list of Pointer IDs
     with {:ok, pointers} <- MoodleNet.Meta.Pointers.many(ids: pointer_ids) do
-      tag_pointers(tag, pointers)
+      tag_pointers(user, tag, pointers)
     end
   end
 
-  def tag_thing(tag, pointer_id) when is_binary(pointer_id) do
+  def tag_thing(user, tag, pointer_id) when is_binary(pointer_id) do
     with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
       # thing = MoodleNet.Meta.Pointers.follow!(pointer)
-      tag_pointers(tag, [pointer])
+      tag_pointers(user, tag, [pointer])
     end
   end
 
-  def tag_thing(tag, %Pointers.Pointer{} = pointer) do
-    tag_pointers(tag, [pointer])
+  def tag_thing(user, tag, %Pointers.Pointer{} = pointer) do
+    tag_pointers(user, tag, [pointer])
   end
 
-  def tag_thing(tag, %{id: id}) do
-    tag_thing(tag, id)
+  def tag_thing(user, tag, %{id: id}) do
+    tag_thing(user, tag, id)
   end
 
-  defp tag_pointers(tag_id, things) when is_binary(tag_id) do
+  defp tag_pointers(user, tag_id, things) when is_binary(tag_id) do
     with {:ok, tag} <- get_tag(tag_id) do
       # with an existing tag
-      tag_pointers(tag, things)
+      tag_pointers(user, tag, things)
     else
       _e ->
-        with {:ok, tag} <- Tag.Taggables.maybe_make_taggable(tag_id) do
+        with {:ok, tag} <- maybe_make_taggable(user, tag_id) do
           # with an object that we made taggable
-          tag_pointers(tag, things)
+          tag_pointers(user, tag, things)
         else
           _e ->
             {:error, "Could not find that tag or taggable context"}
@@ -50,14 +50,22 @@ defmodule Tag.TagThings do
     if MoodleNetWeb.Helpers.Common.is_numeric(id) do
       # try with taxonomyTag?
       # Taxonomy.TaxonomyTags.one(id: id)
-      nil
+      {:error, "not a ULID"}
     else
       # use Taggable
       Tag.Taggables.one(id: id)
     end
   end
 
-  defp tag_pointers(%Taggable{} = tag, things) do
+  def maybe_make_taggable(user, id) do
+    if MoodleNetWeb.Helpers.Common.is_numeric(id) do
+      Taxonomy.TaxonomyTags.make_taggable(user, id)
+    else
+      Tag.Taggables.maybe_make_taggable(id)
+    end
+  end
+
+  defp tag_pointers(user, %Taggable{} = tag, things) do
     Repo.transact_with(fn ->
       tag = Repo.preload(tag, :things)
 

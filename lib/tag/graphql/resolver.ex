@@ -139,7 +139,7 @@ defmodule Tag.GraphQL.TagResolver do
 
   def tag_thing(%{thing_id: thing_id, taggable_id: taggable_id}, info) do
     with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-         tagged = Tag.TagThings.tag_thing(taggable_id, thing_id) do
+         tagged = Tag.TagThings.tag_thing(me, taggable_id, thing_id) do
       tagged
     end
   end
