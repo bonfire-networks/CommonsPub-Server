@@ -13,18 +13,19 @@
                 my_communities: @my_communities,
                 current_context: @current_context
               ) %>
-          <input name="content[url]" id="input_url" value="<%= e(@link_input, :url, "") %>" placeholder="Paste the URL..." required="required" />
-      <div class="link_inputs_extra">
-        <img src="<%= e(@link_input, :image, "") %>" style="float: left; width:150px; height:auto" />
-        <input name="icon[url]" value="<%= e(@link_input, :image, "") %>" type="hidden" />
-
-        <input name="name" value="<%=e(@link_input, :title, "")%>" placeholder="Enter a name or title for the link..." />
-        <textarea name="summary" placeholder="Describe the link..."><%=e(@link_input, :summary, "")%></textarea>
-        <input name="author" value="<%=e(@link_input, :author, e(@link_input, :source, ""))%>" placeholder="Enter the author or source of this content..." />
+          <input type="text" name="content[url]" id="input_url" value="<%= e(@link_input, :url, "") %>" placeholder="Paste the URL..." required="required" />
+      <div class="link__inputs_extra">
+        <img src="<%= e(@link_input, :image, "") %>" style="width:150px; height:150px" />
+        <div class="extra__fields">
+          <input name="icon[url]" value="<%= e(@link_input, :image, "") %>" type="hidden" />
+          <input type="text" name="name" value="<%=e(@link_input, :title, "")%>" placeholder="Enter a name or title for the link..." />
+          <textarea name="summary" placeholder="Describe the link..."><%=e(@link_input, :summary, "")%></textarea>
+          <input type="text" name="author" value="<%=e(@link_input, :author, e(@link_input, :source, ""))%>" placeholder="Enter the author or source of this content..." />
+        </div>
+        </div>
         <footer class="dialog__footer">
           <button value="default">Share</button>
         </footer>
-      </div>
     </form>
   </section>
 </dialog>
