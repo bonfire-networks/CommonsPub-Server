@@ -9,8 +9,8 @@
       <%= live_redirect to: "/~" do %>
         <h3>CommonsPub</h3>
       <% end %>
-    </div>
     <input class="header__search" placeholder="Search in the fediverse..." />
+    </div>
     <div class="header__right">
       <%= if @current_user do %>
         <%= live_component(
