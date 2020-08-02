@@ -148,6 +148,28 @@
   display: grid;
   .drawer__menu {
     overflow-y: auto;
+
+    .menu__link {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      margin-top: 24px;
+      &:hover{
+        background: var(--color-border);
+      }
+      span {
+        background: var(--color-tertiary);
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-content: center;
+        border-radius: 16px;
+        font-size: 18px;
+        color: #fff;
+        margin-right: var(--m2);
+        cursor: pointer;
+      }
+    }
     .communities__wrapper {
       position: relative;
       margin-top: var(--m3);

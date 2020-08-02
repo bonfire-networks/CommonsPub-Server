@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.MemberLive do
     HeroProfileLive,
     MemberNavigationLive,
     MemberActivitiesLive,
+    MemberAdsLive,
     MemberCommunitiesLive,
     MemberFollowingLive,
     MemberLikesLive

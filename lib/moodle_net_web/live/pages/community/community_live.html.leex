@@ -20,7 +20,7 @@
           <header class="dialog__header">Edit community</header>
           <section class="dialog__content">
             <form phx-submit="edit_community">
-              <input name="name" value="<%= @community.name %>" placeholder="Type the community name..." />
+              <input type="text" name="name" value="<%= @community.name %>" placeholder="Type the community name..." />
               <textarea name="summary" placeholder="Describe your community..."><%= @community.summary %></textarea>
               <footer class="dialog__footer">
                 <button value="default">Confirm</button>

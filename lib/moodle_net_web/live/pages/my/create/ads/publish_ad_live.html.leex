@@ -4,7 +4,7 @@
   <dialog open class="dialog dialog__create">
     <header class="dialog__header">Publish a new ad</header>
     <section class="dialog__content">
-      <form>
+      <form phx-submit="publish_ad" phx-target="<%= @myself %>">
         <div class="ads__type">
           <div class="type">
             <input type="radio" id="need" name="intent" value="need" checked>
@@ -15,8 +15,8 @@
             <label for="offer">I offer</label>
           </div>
         </div>
-        <input type="text" placeholder="Type an explicative title for your ad..." />
-        <textarea placeholder="Describe your ad..."></textarea>
+        <input name="name" type="text" placeholder="Type an explicative title for your ad..." />
+        <textarea name="note" placeholder="Describe your ad..."></textarea>
         <details>
           <summary>Additional info</summary>
           <div class="intent__additional">
@@ -28,6 +28,9 @@
                 current_context: @current_context
               ) %>
 
+          <div class="additional__hashtags">
+            <input type="text" multiple placeholder="Type one or more taxonomy...">
+          </div>
           <div class="additional__due">
             <input type="date">
           </div>

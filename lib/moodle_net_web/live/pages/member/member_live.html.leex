@@ -140,6 +140,24 @@
                     pagination_target: "#member-discussions"
                   ) %>
           </div>
+          <% @selected_tab == "ads" ->  %>
+          <h3 class="area__title">Ads</h3>
+          <div class="selected__area">
+            <%= live_component(
+                    @socket,
+                    MemberAdsLive,
+                    user: @user,
+                    selected_tab: @selected_tab,
+                    id: :ads,
+                    current_user: @current_user,
+                    members: [],
+                    page: 1,
+                    has_next_page: false,
+                    after: [],
+                    before: [],
+                    pagination_target: "#member-ads"
+                  ) %>
+          </div>
           <% @selected_tab == "communities" ->  %>
           <h3 class="area__title">communities <%= @user.name %> is following</h3>
           <div class="selected__area">

@@ -3,9 +3,6 @@
     <img src="<%= e(@current_user, :icon_url, "") %>" />
     <h3><%= e(@current_user, :name, "Me") %></h3>
   <% end %>
-  <%= live_redirect to: "/instance" do %>
-    <span class="right__notification"><i class="feather-compass"></i></span>
-  <% end %>
   <details class="drawer__profile ligth" >
     <summary class="user__dropdown">
       <span class="right__notification"><i class="feather-plus"></i></span>

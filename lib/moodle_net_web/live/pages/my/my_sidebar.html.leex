@@ -1,5 +1,11 @@
 <nav class="side__drawer">
   <div class="drawer__menu">
+    <%= live_redirect to: "/instance" do %>
+      <div class="menu__link">
+        <span class="right__notification"><i class="feather-compass"></i></span>
+        <h4>Discover</h4>
+      </div>
+    <% end %>
     <div class="communities__wrapper">
       <details class="wrapper__details" open>
         <summary class="handle">My Communities</summary>

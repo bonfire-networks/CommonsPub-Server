@@ -1,7 +1,39 @@
 <div class="page__mainContent">
   <section class="instance">
-    <div class="instance__hero">
-      <h1><%= @hostname %></h1>
+    <div class="instance__showreel communities">
+        <h2 class="area__title">Communities</h2>
+        <%= live_component(
+              @socket,
+              InstanceCommunitiesLive,
+              selected_tab: @selected_tab,
+              id: :communities,
+              current_user: @current_user,
+              communities: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-communities"
+          ) %>
+    </div>
+    <div class="instance__showreel collections">
+      <h2 class="area__title">Collections</h2>
+        <%= live_component(
+              @socket,
+              InstanceCollectionsLive,
+              selected_tab: @selected_tab,
+              id: :collections,
+              current_user: @current_user,
+              collections: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-collections"
+          ) %>
+    </div>
+    <div class="instance__showreel instance">
+
     </div>
     <div class="mainContent__navigation home__navigation">
       <%= live_patch link_body("About", "feather-book-open"),
@@ -11,14 +43,6 @@
       <%= live_patch link_body("Instance Timeline","feather-activity"),
             to: "/instance/timeline",
             class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
-          %>
-      <%= live_patch link_body("Communities", "feather-users"),
-            to: "/instance/communities",
-            class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
-          %>
-      <%= live_patch link_body("Collections", "feather-folder"),
-            to: "/instance/collections",
-            class: if @selected_tab == "collections", do: "navigation__item active", else: "navigation__item"
           %>
       <%= live_patch link_body("Members", "feather-user"),
             to: "/instance/members",
@@ -65,34 +89,8 @@
               before: [],
               pagination_target: "#instance-members"
           ) %>
-        <% @selected_tab == "communities" -> %>
-        <%= live_component(
-              @socket,
-              InstanceCommunitiesLive,
-              selected_tab: @selected_tab,
-              id: :communities,
-              current_user: @current_user,
-              communities: [],
-              page: 1,
-              has_next_page: false,
-              after: [],
-              before: [],
-              pagination_target: "#instance-communities"
-          ) %>
-        <% @selected_tab == "collections" -> %>
-        <%= live_component(
-              @socket,
-              InstanceCollectionsLive,
-              selected_tab: @selected_tab,
-              id: :collections,
-              current_user: @current_user,
-              collections: [],
-              page: 1,
-              has_next_page: false,
-              after: [],
-              before: [],
-              pagination_target: "#instance-collections"
-          ) %>
+
+
         <% true -> %>
         <%= live_component(
               @socket,
