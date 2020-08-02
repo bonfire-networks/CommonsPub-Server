@@ -1,3 +1,4 @@
+<%= if length(@my_communities) > 0 do %>
 <%= for community <- @my_communities do %>
   <div class="panel__item" id="community-<%= community.id %>">
     <%= live_redirect to: "/&"<> e(community, :actor, :preferred_username, e(community, :id, "")) do %>
@@ -5,4 +6,7 @@
       <h3><%= e(community, :name, "Community")%></h3>
     <% end %>
   </div>
+<% end %>
+<% else %>
+<div class="empty__communities">Empty, <span phx-target="#new_community" phx-click="toggle_community">create a new community<span></div>
 <% end %>

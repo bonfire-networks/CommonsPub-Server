@@ -16,6 +16,7 @@
       <li phx-target="#new_community" phx-click="toggle_community"><i class="feather-users"></i> Start a community</li>
       <li phx-target="#new_collection" phx-click="toggle_collection"><i class="feather-folder"></i> Create a collection</li>
       <li phx-target="#post_link" phx-click="toggle_link"><i class="feather-link"></i> Share a link</li>
+      <li phx-target="#publish_ad" phx-click="toggle_ad"><i class="feather-disc"></i> Publish an ad</li>
     </ul>
   </details>
   <span class="right__notification"><i class="feather-bell"></i></span>
@@ -75,5 +76,15 @@
       current_context: @current_context,
       link_input: %{},
       id: "post_link"
+    ) %>
+
+  <%= live_component(
+      @socket,
+      MoodleNetWeb.My.PublishAdLive,
+      current_user: @current_user,
+      toggle_ad: @toggle_ad,
+      my_communities: @my_communities,
+      current_context: @current_context,
+      id: "publish_ad"
     ) %>
 </div>

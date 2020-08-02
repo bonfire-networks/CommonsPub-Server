@@ -196,12 +196,26 @@
   }
 }
 
+.empty__communities {
+  background: var(--color-border);
+  margin: var(--m3);
+  padding: var(--m2);
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-secondary);
+  span {
+    text-decoration: underline;
+    color: var(--color-primary);
+    cursor: pointer;
+  }
+}
 .community__select {
   margin-bottom: var(--m2);
   height: 36px;
   border-radius: 6px;
-  padding-left: 8px;
-  background: #ebebeb;
+  padding-left: var(--m2);
+  background: var(--color-primary);
   display: inline-flex;
   align-items: center;
   label {
@@ -501,7 +515,7 @@
   }
 }
 .dialog__create {
-  input {
+  input[type="text"] {
     margin-bottom: var(--m2);
   }
 }

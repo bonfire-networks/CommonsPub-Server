@@ -33,6 +33,10 @@ defmodule MoodleNetWeb.My.MyHeader do
     {:noreply, assign(socket, :toggle_link, !socket.assigns.toggle_link)}
   end
 
+  def handle_event("toggle_ad", _data, socket) do
+    {:noreply, assign(socket, :toggle_ad, !socket.assigns.toggle_ad)}
+  end
+
   def handle_event("post", %{"content" => content, "context_id" => context_id} = data, socket) do
     if(is_nil(content) or is_nil(socket.assigns.current_user)) do
       {:noreply,

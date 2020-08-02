@@ -224,6 +224,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:toggle_community, false)
     |> assign(:toggle_collection, false)
     |> assign(:toggle_link, false)
+    |> assign(:toggle_ad, false)
     |> assign(:current_context, nil)
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)

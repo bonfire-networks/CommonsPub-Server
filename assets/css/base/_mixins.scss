@@ -345,6 +345,9 @@ $grid-columns: 12 !default;
   }
   summary {
     list-style: none;
+    &:focus {
+      outline: none;
+    }
   }
   &[open] {
     & > summary:before {
