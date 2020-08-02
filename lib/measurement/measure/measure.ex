@@ -6,7 +6,7 @@ defmodule Measurement.Measure do
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  # alias MoodleNet.Actors.Actor
+  # alias CommonsPub.Character
   alias Measurement.Unit
 
   @type t :: %__MODULE__{}

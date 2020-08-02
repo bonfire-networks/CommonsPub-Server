@@ -1,6 +1,5 @@
 defmodule ValueFlows.Hydration do
   alias MoodleNetWeb.GraphQL.{
-    ActorsResolver,
     CommonResolver,
     UploadResolver
   }
@@ -11,10 +10,10 @@ defmodule ValueFlows.Hydration do
   def hydrate() do
     agent_fields = %{
       canonical_url: [
-        resolve: &ActorsResolver.canonical_url_edge/3
+        resolve: &CommonsPub.Character.GraphQL.Resolver.canonical_url_edge/3
       ],
       display_username: [
-        resolve: &ActorsResolver.display_username_edge/3
+        resolve: &CommonsPub.Character.GraphQL.Resolver.display_username_edge/3
       ],
       image: [
         resolve: &UploadResolver.image_content_edge/3

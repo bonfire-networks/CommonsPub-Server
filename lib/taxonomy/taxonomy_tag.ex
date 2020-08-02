@@ -7,13 +7,12 @@ defmodule Taxonomy.TaxonomyTag do
   alias Ecto.Changeset
   alias Taxonomy.TaxonomyTag
 
-
   @type t :: %__MODULE__{}
   @required ~w(name)a
   @cast @required ++ ~w(summary parent_tag_id pointer_id)a
 
-
-  @primary_key{:id, :id, autogenerate: true} # primary key is an integer
+  # primary key is an integer
+  @primary_key {:id, :id, autogenerate: true}
   schema "taxonomy_tag" do
     # field(:id, :string)
     field(:name, :string)
@@ -25,18 +24,17 @@ defmodule Taxonomy.TaxonomyTag do
 
     # field(:pointer_id, Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
     # belongs_to(:pointer, Pointer, references: :pointer_id, type: Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
-    # has_one(:character, Character, references: :pointer_id, foreign_key: :characteristic_id)
+    # has_one(:character, CommonsPub.Character, references: :pointer_id, foreign_key: :characteristic_id)
   end
 
   def update_changeset(
-      %TaxonomyTag{} = tag,
-      attrs
-    ) do
-      tag
-      |> Changeset.cast(attrs, @cast)
-      |> common_changeset()
+        %TaxonomyTag{} = tag,
+        attrs
+      ) do
+    tag
+    |> Changeset.cast(attrs, @cast)
+    |> common_changeset()
   end
-
 
   defp common_changeset(changeset) do
     changeset
@@ -45,11 +43,9 @@ defmodule Taxonomy.TaxonomyTag do
     # |> change_disabled()
   end
 
-
   def context_module, do: Taxonomy.TaxonomyTags
 
   def queries_module, do: Taxonomy.TaxonomyTag.Queries
 
   def follow_filters, do: [:default]
-
 end

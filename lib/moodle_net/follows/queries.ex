@@ -2,8 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows.Queries do
-
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Character
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Follows.Follow
@@ -20,7 +19,8 @@ defmodule MoodleNet.Follows.Queries do
 
   def join_to(q, {jq, join}, _jq), do: join_to(q, join, jq)
 
-  def join_to(q, :context, jq), do: join(q, jq, [follow: f], c in assoc(f, :context), as: :context)
+  def join_to(q, :context, jq),
+    do: join(q, jq, [follow: f], c in assoc(f, :context), as: :context)
 
   def join_to(q, :community, jq) do
     join(q, jq, [follow: f], c in Community, as: :community, on: f.context_id == c.id)
@@ -30,9 +30,11 @@ defmodule MoodleNet.Follows.Queries do
     join(q, jq, [follow: f], c in Collection, as: :collection, on: f.context_id == c.id)
   end
 
-  def join_to(q, :user, jq), do: join(q, jq, [follow: f], u in User, as: :user, on: f.context_id == u.id)
+  def join_to(q, :user, jq),
+    do: join(q, jq, [follow: f], u in User, as: :user, on: f.context_id == u.id)
 
-  def join_to(q, :local_user, jq), do: join(q, jq, [user: u], assoc(u, :local_user), as: :local_user)
+  def join_to(q, :local_user, jq),
+    do: join(q, jq, [user: u], assoc(u, :local_user), as: :local_user)
 
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
@@ -42,24 +44,33 @@ defmodule MoodleNet.Follows.Queries do
   def filter(q, f) when is_function(f, 1), do: f.(q)
   def filter(q, {:function, f}) when is_function(f, 1), do: f.(q)
 
-  def filter(q, {:join,{rel, jq}}), do: join_to(q, rel, jq)
+  def filter(q, {:join, {rel, jq}}), do: join_to(q, rel, jq)
   def filter(q, {:join, rel}), do: join_to(q, rel)
 
   # TODO: but what? (it's a bit horrible)
   def filter(q, {:preset, {:search_follows, uid}}) do
     q
     |> filter(deleted: false, published: true, join: :community, join: :collection)
-    |> join(:left, [community: c, collection: d], a in Actor, as: :actor, on: c.actor_id == a.id or d.actor_id == a.id)
+    |> join(:left, [community: c, collection: d], a in Character,
+      as: :actor,
+      on: c.actor_id == a.id or d.actor_id == a.id
+    )
     |> where([actor: a], not is_nil(a.canonical_url))
-    |> select([follow: f, community: c, collection: d, actor: a],
-      %{ community_id: c.id, collection_id: d.id, follow_id: f.id,
-         canonical_url: a.canonical_url,
-         is_creator: c.creator_id == ^uid or d.creator_id == ^uid,
-      })
+    |> select(
+      [follow: f, community: c, collection: d, actor: a],
+      %{
+        community_id: c.id,
+        collection_id: d.id,
+        follow_id: f.id,
+        canonical_url: a.canonical_url,
+        is_creator: c.creator_id == ^uid or d.creator_id == ^uid
+      }
+    )
   end
 
   def filter(q, {:user, match_admin()}), do: filter(q, deleted: false)
   def filter(q, {:user, nil}), do: filter(q, deleted: false, published: true)
+
   def filter(q, {:user, %User{id: id}}) do
     q
     |> where([follow: f], not is_nil(f.published_at) or f.creator_id == ^id)
@@ -70,15 +81,23 @@ defmodule MoodleNet.Follows.Queries do
   def filter(q, {:deleted, :not_nil}), do: where(q, [follow: f], not is_nil(f.deleted_at))
   def filter(q, {:deleted, false}), do: where(q, [follow: f], is_nil(f.deleted_at))
   def filter(q, {:deleted, true}), do: where(q, [follow: f], not is_nil(f.deleted_at))
-  def filter(q, {:deleted, {:gte, %DateTime{}=time}}), do: where(q, [follow: f], f.deleted_at >= ^time)
-  def filter(q, {:deleted, {:lte, %DateTime{}=time}}), do: where(q, [follow: f], f.deleted_at <= ^time)
+
+  def filter(q, {:deleted, {:gte, %DateTime{} = time}}),
+    do: where(q, [follow: f], f.deleted_at >= ^time)
+
+  def filter(q, {:deleted, {:lte, %DateTime{} = time}}),
+    do: where(q, [follow: f], f.deleted_at <= ^time)
 
   def filter(q, {:published, nil}), do: where(q, [follow: f], is_nil(f.published_at))
   def filter(q, {:published, :not_nil}), do: where(q, [follow: f], not is_nil(f.published_at))
   def filter(q, {:published, false}), do: where(q, [follow: f], is_nil(f.published_at))
   def filter(q, {:published, true}), do: where(q, [follow: f], not is_nil(f.published_at))
-  def filter(q, {:published, {:gte, %DateTime{}=time}}), do: where(q, [follow: f], f.published_at >= ^time)
-  def filter(q, {:published, {:lte, %DateTime{}=time}}), do: where(q, [follow: f], f.published_at <= ^time)
+
+  def filter(q, {:published, {:gte, %DateTime{} = time}}),
+    do: where(q, [follow: f], f.published_at >= ^time)
+
+  def filter(q, {:published, {:lte, %DateTime{} = time}}),
+    do: where(q, [follow: f], f.published_at <= ^time)
 
   # by field values
 
@@ -88,15 +107,21 @@ defmodule MoodleNet.Follows.Queries do
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [follow: f], f.id in ^ids)
 
   def filter(q, {:context, id}) when is_binary(id), do: where(q, [follow: f], f.context_id == ^id)
-  def filter(q, {:context, ids}) when is_list(ids), do: where(q, [follow: f], f.context_id in ^ids)
+
+  def filter(q, {:context, ids}) when is_list(ids),
+    do: where(q, [follow: f], f.context_id in ^ids)
 
   def filter(q, {:creator, id}) when is_binary(id), do: where(q, [follow: f], f.creator_id == ^id)
-  def filter(q, {:creator, ids}) when is_list(ids), do: where(q, [follow: f], f.creator_id in ^ids)
+
+  def filter(q, {:creator, ids}) when is_list(ids),
+    do: where(q, [follow: f], f.creator_id in ^ids)
 
   ## foreign fields
 
   def filter(q, {:table, id}) when is_binary(id), do: where(q, [context: c], c.table_id == ^id)
-  def filter(q, {:table, name}) when is_atom(name), do: filter(q, {:table, TableService.lookup_id!(name)})
+
+  def filter(q, {:table, name}) when is_atom(name),
+    do: filter(q, {:table, TableService.lookup_id!(name)})
 
   def filter(q, {:table, tables}) when is_list(tables) do
     tables = TableService.lookup_ids!(tables)
@@ -119,15 +144,15 @@ defmodule MoodleNet.Follows.Queries do
 
   ## ops
 
-  def filter(q, {:order, [asc: :created]}), do: order_by(q, [follow: f], [asc: f.id])
-  def filter(q, {:order, [desc: :created]}), do: order_by(q, [follow: f], [desc: f.id])
+  def filter(q, {:order, [asc: :created]}), do: order_by(q, [follow: f], asc: f.id)
+  def filter(q, {:order, [desc: :created]}), do: order_by(q, [follow: f], desc: f.id)
 
   def filter(q, {:group_count, key}) when is_atom(key), do: filter(q, group: key, count: key)
-    
+
   def filter(q, {:group, key}) when is_atom(key), do: group_by(q, [follow: f], field(f, ^key))
 
   def filter(q, {:count, key}) when is_atom(key) do
-    select q, [follow: f], {field(f, ^key), count(f.id)}
+    select(q, [follow: f], {field(f, ^key), count(f.id)})
   end
 
   def filter(q, {:preload, :context}), do: preload(q, [context: c], context: c)
@@ -136,5 +161,4 @@ defmodule MoodleNet.Follows.Queries do
   def filter(q, {:limit, limit}), do: limit(q, ^limit)
 
   def filter(q, {:select, :id}), do: select(q, [follow: f], f.id)
-
 end

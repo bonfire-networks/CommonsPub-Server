@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Character.GraphQL.Resolver do
+defmodule CommonsPub.Character.GraphQL.Resolver do
   alias MoodleNet.{
     Activities,
     GraphQL,
@@ -20,9 +20,9 @@ defmodule Character.GraphQL.Resolver do
     ResolveRootPage
   }
 
-  alias Character
+  alias CommonsPub.Character
 
-  alias Character.{
+  alias CommonsPub.Character.{
     Characters
     # Queries
   }
@@ -34,7 +34,7 @@ defmodule Character.GraphQL.Resolver do
   ## resolvers
 
   def character(%{character: character}, _, _info) do
-    {:ok, Repo.preload(character, :actor)}
+    {:ok, Repo.preload(character, :character)}
   end
 
   def character(%{character_id: id}, _, info) do
@@ -68,14 +68,14 @@ defmodule Character.GraphQL.Resolver do
     Characters.one(
       user: GraphQL.current_user(info),
       id: id,
-      preload: :actor
+      preload: :character
     )
   end
 
   def fetch_characters(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: Character.Queries,
-      query: Character,
+      queries: CommonsPub.Character.Queries,
+      query: CommonsPub.Character,
       cursor_fn: Characters.cursor(:followers),
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)],
@@ -83,9 +83,9 @@ defmodule Character.GraphQL.Resolver do
     })
   end
 
-  # def characteristic_edge(%Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def characteristic_edge(%CommonsPub.Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
-  # def resource_count_edge(%Character{id: id}, _, info) do
+  # def resource_count_edge(%CommonsPub.Character{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
   # end
 
@@ -128,7 +128,7 @@ defmodule Character.GraphQL.Resolver do
   end
 
   defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Character)
+    Application.fetch_env!(:moodle_net, CommonsPub.Character)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
@@ -173,13 +173,13 @@ defmodule Character.GraphQL.Resolver do
   # def delete(%{character_id: id}, info) do
   #   # Repo.transact_with(fn ->
   #   #   with {:ok, user} <- GraphQL.current_user(info),
-  #   #        {:ok, actor} <- Users.fetch_actor(user),
+  #   #        {:ok, character} <- Users.fetch_actor(user),
   #   #        {:ok, character} <- Characters.fetch(id) do
   #   #     character = Repo.preload(character, :community)
   #   # 	permitted =
   #   # 	  user.is_instance_admin or
-  #   #       character.creator_id == actor.id or
-  #   #       character.community.creator_id == actor.id
+  #   #       character.creator_id == character.id or
+  #   #       character.community.creator_id == character.id
   #   # 	if permitted do
   #   # 	  with {:ok, _} <- Characters.soft_delete(character), do: {:ok, true}
   #   # 	else
@@ -205,6 +205,19 @@ defmodule Character.GraphQL.Resolver do
   # end
 
   # def creator_edge(%{character: %{creator_id: id}}, _, info) do
-  #   ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
+  #   CommonsPub.Character.GraphQL.Resolver.creator_edge(%{creator_id: id}, nil, info)
   # end
+
+  @doc "Returns the canonical url"
+  def canonical_url_edge(%{character: %Character{canonical_url: u}}, _, _), do: {:ok, u}
+
+  @doc "Returns the preferred_username "
+  def preferred_username_edge(%{character: %Character{preferred_username: u}}, _, _), do: {:ok, u}
+
+  @doc "Is this character local to this instance?"
+  def is_local_edge(%{character: %Character{peer_id: id}}, _, _), do: {:ok, is_nil(id)}
+
+  def display_username_edge(obj, _, _) do
+    {:ok, Characters.display_username(obj)}
+  end
 end

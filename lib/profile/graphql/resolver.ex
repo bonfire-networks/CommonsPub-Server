@@ -181,6 +181,6 @@ defmodule Profile.GraphQL.Resolver do
   # end
 
   # def creator_edge(%{profile: %{creator_id: id}}, _, info) do
-  #   ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
+  #   CommonsPub.Character.GraphQL.Resolver.creator_edge(%{creator_id: id}, nil, info)
   # end
 end

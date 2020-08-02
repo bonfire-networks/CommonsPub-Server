@@ -5,7 +5,7 @@
 
 defmodule ActivityPub.Actor do
   @moduledoc """
-  Functions for dealing with ActivityPub actors.
+  Functions for dealing with ActivityPub Characters.
   """
   require Ecto.Query
 

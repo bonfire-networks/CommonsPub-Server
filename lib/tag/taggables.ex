@@ -14,7 +14,7 @@ defmodule Tag.Taggables do
   alias Tag.Taggable
   alias Tag.Taggable.Queries
 
-  alias Character.Characters
+  alias CommonsPub.Character.Characters
 
   @facet_name "Tag"
 
@@ -142,7 +142,7 @@ defmodule Tag.Taggables do
       with {:ok, taggable} <- insert_taggable(attrs),
            {:ok, attrs} <- attrs_with_taggable(attrs, taggable),
            {:ok, profile} <- Profile.Profiles.create(creator, attrs),
-           {:ok, character} <- Character.Characters.create(creator, attrs) do
+           {:ok, character} <- CommonsPub.Character.Characters.create(creator, attrs) do
         {:ok, %{taggable | character: character, profile: profile}}
       end
     end)

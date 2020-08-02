@@ -11,14 +11,14 @@ defmodule MoodleNet.Users.User do
     only: [change_synced_timestamp: 3, change_public: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Character
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Uploads.Content
   alias MoodleNet.Users
   alias MoodleNet.Users.{LocalUser, User}
 
   table_schema "mn_user" do
-    belongs_to(:actor, Actor)
+    belongs_to(:actor, Character)
     belongs_to(:local_user, LocalUser)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
@@ -46,7 +46,7 @@ defmodule MoodleNet.Users.User do
                    ~w(is_disabled inbox_id outbox_id)a
 
   @doc "Create a changeset for registration"
-  def register_changeset(%Actor{id: id, peer_id: peer_id}, %{} = attrs) do
+  def register_changeset(%Character{id: id, peer_id: peer_id}, %{} = attrs) do
     %User{}
     |> Changeset.cast(attrs, @register_cast)
     # |> Changeset.validate_required(@register_required)
@@ -55,7 +55,7 @@ defmodule MoodleNet.Users.User do
     |> local_changeset(is_nil(peer_id))
   end
 
-  def local_register_changeset(%Actor{} = actor, %LocalUser{id: id}, %{} = attrs) do
+  def local_register_changeset(%Character{} = actor, %LocalUser{id: id}, %{} = attrs) do
     register_changeset(actor, attrs)
     |> Changeset.put_change(:local_user_id, id)
     |> local_changeset(true)

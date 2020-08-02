@@ -2,7 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Profile.Profiles do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Repo}
+  alias MoodleNet.{Activities, Common, Feeds, Repo}
+  alias CommonsPub.Character.Characters
+
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias Profile
@@ -204,7 +206,7 @@ defmodule Profile.Profiles do
   def update(%User{} = user, %Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Repo.update(Profile.update_changeset(profile, attrs)),
-           {:ok, actor} <- Actors.update(user, profile.actor, attrs),
+           {:ok, actor} <- Characters.update(user, profile.actor, attrs),
            :ok <- publish(profile, :updated) do
         {:ok, %{profile | actor: actor}}
       end

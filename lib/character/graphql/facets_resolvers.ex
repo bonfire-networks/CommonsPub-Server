@@ -1,15 +1,14 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Character.GraphQL.FacetsResolvers do
-  @moduledoc "These resolver functions are to be called by other modules that use Character, for fields or foreign keys that are part of the Character table rather than that module's table."
+defmodule CommonsPub.Character.GraphQL.FacetsResolvers do
+  @moduledoc "These resolver functions are to be called by other modules that use CommonsPub.Character, for fields or foreign keys that are part of the CommonsPub.Character table rather than that module's table."
 
   # alias MoodleNet.{
   #   # Activities,
   #   # GraphQL,
   #   # Repo,
   #   # Resources,
-  #   # Actors.Actor
   # }
   # alias MoodleNet.GraphQL.{
   #   # FetchFields,
@@ -21,8 +20,8 @@ defmodule Character.GraphQL.FacetsResolvers do
   #   # ResolveRootPage
   # }
 
-  alias Character
-  # alias Character.{Characters, Queries}
+  # alias CommonsPub.Character
+  # alias CommonsPub.Character.{Characters, Queries}
   # alias MoodleNet.Resources.Resource
   # alias MoodleNet.Common.Enums
   alias Pointers
@@ -39,7 +38,7 @@ defmodule Character.GraphQL.FacetsResolvers do
     do: CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   def outbox_edge(%{character: %{outbox_id: id}}, page_opts, info),
-    do: Character.GraphQL.Resolver.outbox_edge(%{outbox_id: id}, page_opts, info)
+    do: CommonsPub.Character.GraphQL.Resolver.outbox_edge(%{outbox_id: id}, page_opts, info)
 
   def is_public_edge(%{character: character}, _, _), do: {:ok, not is_nil(character.published_at)}
 

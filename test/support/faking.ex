@@ -8,7 +8,6 @@ defmodule MoodleNet.Test.Faking do
   alias MoodleNet.{
     Access,
     Activities,
-    Actors,
     Communities,
     Collections,
     Flags,
@@ -24,6 +23,8 @@ defmodule MoodleNet.Test.Faking do
     Threads.Comments,
     Users.User
   }
+
+  alias CommonsPub.Character.Characters
 
   import CommonsPub.Utils.Trendy
   import CommonsPub.Utils.Simulation
@@ -58,7 +59,7 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_actor!(overrides \\ %{}) when is_map(overrides) do
-    {:ok, actor} = Actors.create(Simulation.actor(overrides))
+    {:ok, actor} = Characters.create(Simulation.actor(overrides))
     actor
   end
 

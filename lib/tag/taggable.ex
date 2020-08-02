@@ -35,14 +35,14 @@ defmodule Tag.Taggable do
     # optionally where it came from in the taxonomy
     belongs_to(:taxonomy_tag, Taxonomy.TaxonomyTag, type: :integer)
 
-    # Optionally, Thing that is taggable (if not using Profile/Character mixins)
+    # Optionally, Thing that is taggable (if not using Profile/CommonsPub.Character mixins)
     belongs_to(:context, Pointers.Pointer, type: Ecto.ULID)
 
     # Optionally, a profile and Character (if not using context)
     ## stores common fields like name/description
     has_one(:profile, Profile, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, Character, foreign_key: :id)
+    has_one(:character, CommonsPub.Character, foreign_key: :id)
 
     field(:name, :string, virtual: true)
     field(:summary, :string, virtual: true)

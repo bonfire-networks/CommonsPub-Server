@@ -5,7 +5,7 @@ defmodule Geolocation do
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Character
   alias Pointers.Pointer
   alias MoodleNet.Feeds.Feed
 
@@ -29,7 +29,7 @@ defmodule Geolocation do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    belongs_to(:actor, Actor)
+    belongs_to(:actor, Character)
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
 
@@ -49,7 +49,7 @@ defmodule Geolocation do
   def create_changeset(
         %User{} = creator,
         %{id: _} = context,
-        %Actor{} = actor,
+        %Character{} = actor,
         attrs
       ) do
     %__MODULE__{}
@@ -66,7 +66,7 @@ defmodule Geolocation do
 
   def create_changeset(
         %User{} = creator,
-        %Actor{} = actor,
+        %Character{} = actor,
         attrs
       ) do
     %__MODULE__{}

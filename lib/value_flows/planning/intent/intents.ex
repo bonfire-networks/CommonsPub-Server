@@ -2,7 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{Activities, Common, Feeds, Follows, Repo}
+  alias CommonsPub.Character.Characters
+
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Feeds.FeedActivities
@@ -15,7 +17,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
-
 
   @doc """
   Retrieves a single one by arbitrary filters.
@@ -34,11 +35,10 @@ defmodule ValueFlows.Planning.Intent.Intents do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Intent, filters))}
 
   def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
+      when is_function(group_fn, 1) do
     {:ok, fields} = many(filters)
     {:ok, Fields.new(fields, group_fn)}
   end
-
 
   @doc """
   Retrieves an Page of intents according to various filters
@@ -47,10 +47,12 @@ defmodule ValueFlows.Planning.Intent.Intents do
   * GraphQL resolver single-parent resolution
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+
+  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
     base_q = Queries.query(Intent, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
+
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
@@ -62,14 +64,29 @@ defmodule ValueFlows.Planning.Intent.Intents do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
+
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Intent,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
+    Contexts.pages(
+      Queries,
+      Intent,
+      cursor_fn,
+      group_fn,
+      page_opts,
+      base_filters,
+      data_filters,
+      count_filters
+    )
   end
 
   ## mutations
-
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{id: _id} = context, measures, attrs) when is_map(attrs) do
@@ -87,13 +104,15 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   def do_create(creator, measures, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      cs = changeset_fn.()
-      |> Intent.change_measures(measures)
+      cs =
+        changeset_fn.()
+        |> Intent.change_measures(measures)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
            {:ok, item} <- Repo.insert(cs),
            act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+           # FIXME
+           {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- index(item),
            :ok <- publish(creator, item, activity, :created) do
         {:ok, item}
@@ -104,35 +123,46 @@ defmodule ValueFlows.Planning.Intent.Intents do
   defp publish(creator, intent, activity, :created) do
     feeds = [
       creator.outbox_id,
-      Feeds.instance_outbox_id(),
+      Feeds.instance_outbox_id()
     ]
+
     with :ok <- FeedActivities.publish(activity, feeds) do
       ap_publish("create", intent.id, creator.id)
     end
-  end
-  defp publish(creator, context, intent, activity, :created) do
-    feeds = [
-      context.outbox_id, creator.outbox_id,
-      Feeds.instance_outbox_id(),
-    ]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", intent.id, creator.id)
-    end
-  end
-  defp publish(intent, :updated) do
-    ap_publish("update", intent.id, intent.creator_id) # TODO: wrong if edited by admin
-  end
-  defp publish(intent, :deleted) do
-    ap_publish("delete", intent.id, intent.creator_id) # TODO: wrong if edited by admin
   end
 
-  defp ap_publish(verb, context_id, user_id) do #FIXME
+  defp publish(creator, context, intent, activity, :created) do
+    feeds = [
+      context.outbox_id,
+      creator.outbox_id,
+      Feeds.instance_outbox_id()
+    ]
+
+    with :ok <- FeedActivities.publish(activity, feeds) do
+      ap_publish("create", intent.id, creator.id)
+    end
+  end
+
+  defp publish(intent, :updated) do
+    # TODO: wrong if edited by admin
+    ap_publish("update", intent.id, intent.creator_id)
+  end
+
+  defp publish(intent, :deleted) do
+    # TODO: wrong if edited by admin
+    ap_publish("delete", intent.id, intent.creator_id)
+  end
+
+  # FIXME
+  defp ap_publish(verb, context_id, user_id) do
     MoodleNet.Workers.APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
-      "user_id" => user_id,
+      "user_id" => user_id
     })
+
     :ok
   end
+
   defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
@@ -147,14 +177,18 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   def do_update(intent, measures, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      intent = Repo.preload(intent, [
-          :available_quantity, :resource_quantity, :effort_quantity,
-          :at_location,
-      ])
+      intent =
+        Repo.preload(intent, [
+          :available_quantity,
+          :resource_quantity,
+          :effort_quantity,
+          :at_location
+        ])
 
-      cs = intent
-      |> changeset_fn.()
-      |> Intent.change_measures(measures)
+      cs =
+        intent
+        |> changeset_fn.()
+        |> Intent.change_measures(measures)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
            {:ok, intent} <- Repo.update(cs),
@@ -185,14 +219,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
       "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
-      "createdAt" => obj.published_at,
+      "createdAt" => obj.published_at
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
 
     Search.Indexing.maybe_index_object(object)
 
     :ok
-
   end
 
   defp change_at_location(changeset, %{at_location: id}) do

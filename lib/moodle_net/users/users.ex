@@ -10,7 +10,6 @@ defmodule MoodleNet.Users do
   alias MoodleNet.{
     Access,
     Activities,
-    Actors,
     Blocks,
     Common,
     Communities,
@@ -24,6 +23,8 @@ defmodule MoodleNet.Users do
     Resources,
     Threads
   }
+
+  alias CommonsPub.Character.Characters
 
   alias MoodleNet.Feeds.FeedSubscriptions
   alias MoodleNet.Mail.{Email, MailService}
@@ -66,10 +67,10 @@ defmodule MoodleNet.Users do
   """
   @spec register(map, Keyword.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def register(attrs, opts \\ []) do
-    attrs = Actors.prepare_username(attrs)
+    attrs = Characters.prepare_username(attrs)
 
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.create(attrs) do
+      with {:ok, actor} <- Characters.create(attrs) do
         case actor.peer_id do
           nil -> register_local(actor, attrs, opts)
           _ -> register_remote(actor, attrs, opts)
@@ -233,7 +234,7 @@ defmodule MoodleNet.Users do
   def update(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(user, user.actor, attrs),
+           {:ok, actor} <- Characters.update(user, user.actor, attrs),
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)),
            :ok <- ap_publish("update", user) do
         user = %{user | local_user: local_user, actor: actor}
@@ -246,7 +247,7 @@ defmodule MoodleNet.Users do
   def update_remote(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(user, user.actor, attrs) do
+           {:ok, actor} <- Characters.update(user, user.actor, attrs) do
         user = %{user | actor: actor}
         {:ok, user}
       end

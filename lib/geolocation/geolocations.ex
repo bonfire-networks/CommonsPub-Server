@@ -4,12 +4,13 @@
 defmodule Geolocation.Geolocations do
   alias MoodleNet.{
     Activities,
-    Actors,
     Common,
     Feeds,
     Follows,
     Repo
   }
+
+  alias CommonsPub.Character.Characters
 
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
@@ -95,10 +96,10 @@ defmodule Geolocation.Geolocations do
   @spec create(User.t(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
-    attrs = Map.put(attrs, :preferred_username, Actors.atomise_username(attrs[:name]))
+    attrs = Map.put(attrs, :preferred_username, Characters.atomise_username(attrs[:name]))
 
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.create(attrs),
+      with {:ok, actor} <- Characters.create(attrs),
            {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
            {:ok, item} <- insert_geolocation(creator, context, actor, item_attrs),
@@ -113,10 +114,10 @@ defmodule Geolocation.Geolocations do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    attrs = Map.put(attrs, :preferred_username, Actors.atomise_username(attrs[:name]))
+    attrs = Map.put(attrs, :preferred_username, Characters.atomise_username(attrs[:name]))
 
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.create(attrs),
+      with {:ok, actor} <- Characters.create(attrs),
            {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
            {:ok, item} <- insert_geolocation(creator, actor, item_attrs),
@@ -199,9 +200,9 @@ defmodule Geolocation.Geolocations do
   @spec update(User.t(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Geolocation{} = geolocation, attrs) do
-     with {:ok, attrs} <- resolve_mappable_address(attrs),
-          {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
-          :ok <- ap_publish("update", item.id, user.id) do
+    with {:ok, attrs} <- resolve_mappable_address(attrs),
+         {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
+         :ok <- ap_publish("update", item.id, user.id) do
       {:ok, populate_coordinates(item)}
     end
   end

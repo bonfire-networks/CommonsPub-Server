@@ -8,7 +8,6 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   use Absinthe.Schema.Notation
 
   alias MoodleNetWeb.GraphQL.{
-    ActorsResolver,
     CommonResolver,
     CommunitiesResolver,
     FlagsResolver,
@@ -62,17 +61,17 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "A url for the community, may be to a remote instance"
     field :canonical_url, :string do
-      resolve(&ActorsResolver.canonical_url_edge/3)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.canonical_url_edge/3)
     end
 
     @desc "An instance-unique identifier shared with users and collections"
     field :preferred_username, non_null(:string) do
-      resolve(&ActorsResolver.preferred_username_edge/3)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.preferred_username_edge/3)
     end
 
     @desc "A preferred username + the host domain"
     field :display_username, non_null(:string) do
-      resolve(&ActorsResolver.display_username_edge/3)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.display_username_edge/3)
     end
 
     @desc "A name field"
@@ -94,7 +93,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "Whether the community is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve(&ActorsResolver.is_local_edge/3)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.is_local_edge/3)
     end
 
     @desc "Whether the community has a public profile"

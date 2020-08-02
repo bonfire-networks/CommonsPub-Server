@@ -4,7 +4,6 @@
 defmodule MoodleNet.Users.Queries do
   import Ecto.Query
   import MoodleNet.Common.Query, only: [match_admin: 0]
-  alias MoodleNet.Actors
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
 
@@ -93,7 +92,7 @@ defmodule MoodleNet.Users.Queries do
   def filter(q, {:published, {:lte, %DateTime{} = time}}),
     do: where(q, [user: u], u.published_at <= ^time)
 
-  def filter(q, {:peer, peer}), do: Actors.Queries.filter(q, {:peer, peer})
+  def filter(q, {:peer, peer}), do: Characters.Queries.filter(q, {:peer, peer})
 
   def filter(q, {:id, id}) when is_binary(id), do: where(q, [user: u], u.id == ^id)
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [user: u], u.id in ^ids)
@@ -107,7 +106,7 @@ defmodule MoodleNet.Users.Queries do
   def filter(q, {:local_user, ids}) when is_list(ids),
     do: where(q, [user: u], u.local_user_id in ^ids)
 
-  def filter(q, {:username, username}), do: Actors.Queries.filter(q, {:username, username})
+  def filter(q, {:username, username}), do: Characters.Queries.filter(q, {:username, username})
 
   def filter(q, {:email, email}) when is_binary(email),
     do: where(q, [local_user: l], l.email == ^email)

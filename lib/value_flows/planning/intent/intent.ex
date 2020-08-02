@@ -17,7 +17,7 @@ defmodule ValueFlows.Planning.Intent do
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Character
   alias MoodleNet.Communities.Community
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Planning.Intent

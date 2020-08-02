@@ -28,7 +28,7 @@ defmodule MoodleNet.Workers.HardDeletionWorker do
     # Collections.hard_delete() # Community, Actor
     # Communities.hard_delete() # Actor
     # Users.hard_delete() # Actors
-    # Actors.hard_delete()
+    # Characters.hard_delete()
     :ok
   end
 end

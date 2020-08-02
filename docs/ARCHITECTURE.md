@@ -86,7 +86,6 @@ Here are the current contexts:
 
 - `MoodleNet.Access` (for managing and querying email whitelists)
 - `MoodleNet.Activities` (for managing and querying activities, the unit of a feed)
-- `MoodleNet.Actors` (a shared abstraction over users, communities and collections)
 - `MoodleNet.Collections` (for managing and querying collections of resources)
 - `MoodleNet.Communities` (for managing and querying communities)
 - `MoodleNet.Features` (for managing and querying featured content)
@@ -102,6 +101,8 @@ Here are the current contexts:
 - `MoodleNet.Threads` (for managing and querying threads and comments)
 - `MoodleNet.Users` (for managing and querying both local and remote users)
 - `MoodleNet.Uploads` (for managing uploaded content)
+
+- `CommonsPub.Character` (a shared abstraction over users, communities, collections, and other objects that need to have feeds and act as an actor in ActivityPub land)
 
 #### Additional Libraries
 

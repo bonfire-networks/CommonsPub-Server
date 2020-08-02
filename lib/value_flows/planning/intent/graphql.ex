@@ -98,9 +98,9 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def fetch_classifications_edge(%{tags: tags} = data, _, _) do
-    data = Repo.preload(data, tags: [character: [:actor]])
+    data = Repo.preload(data, tags: :character)
     # IO.inspect(get_tags: data.tags)
-    urls = Enum.map(data.tags, & &1.character.actor.canonical_url)
+    urls = Enum.map(data.tags, & &1.character.canonical_url)
     # IO.inspect(urls)
     {:ok, urls}
   end

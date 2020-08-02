@@ -10,7 +10,7 @@ defmodule Profile do
 
   alias Ecto.Changeset
   alias Profile
-  # alias MoodleNet.Actors.Actor
+  # alias CommonsPub.Character
   # alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.Content

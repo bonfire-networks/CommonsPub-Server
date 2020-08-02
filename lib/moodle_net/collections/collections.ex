@@ -4,7 +4,6 @@
 defmodule MoodleNet.Collections do
   alias MoodleNet.{
     Activities,
-    Actors,
     Blocks,
     Common,
     Features,
@@ -16,6 +15,8 @@ defmodule MoodleNet.Collections do
     Resources,
     Threads
   }
+
+  alias CommonsPub.Character.Characters
 
   alias MoodleNet.Collections.{Collection, Queries}
   alias MoodleNet.Communities.Community
@@ -38,13 +39,13 @@ defmodule MoodleNet.Collections do
           {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = community_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      attrs = Actors.prepare_username(attrs)
+      attrs = Characters.prepare_username(attrs)
 
       # TODO: address activity to context's outbox/followers
       community_or_context =
         MoodleNetWeb.Helpers.Common.maybe_preload(community_or_context, :actor)
 
-      with {:ok, actor} <- Actors.create(attrs),
+      with {:ok, actor} <- Characters.create(attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
            {:ok, coll} <- insert_collection(creator, community_or_context, actor, coll_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -61,9 +62,9 @@ defmodule MoodleNet.Collections do
   # Create without context
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      attrs = Actors.prepare_username(attrs)
+      attrs = Characters.prepare_username(attrs)
 
-      with {:ok, actor} <- Actors.create(attrs),
+      with {:ok, actor} <- Characters.create(attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
            {:ok, coll} <- insert_collection(creator, actor, coll_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -81,7 +82,7 @@ defmodule MoodleNet.Collections do
           {:ok, Collection.t()} | {:error, Changeset.t()}
   def create_remote(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.create(attrs),
+      with {:ok, actor} <- Characters.create(attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
            {:ok, coll} <- insert_collection(creator, community, actor, coll_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -126,7 +127,7 @@ defmodule MoodleNet.Collections do
       collection = Repo.preload(collection, :community)
 
       with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
-           {:ok, actor} <- Actors.update(user, collection.actor, attrs),
+           {:ok, actor} <- Characters.update(user, collection.actor, attrs),
            collection = %{collection | actor: actor},
            :ok <- ap_publish("update", collection) do
         {:ok, collection}

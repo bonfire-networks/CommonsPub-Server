@@ -1,6 +1,5 @@
 defmodule Geolocation.GraphQL.Hydration do
   alias MoodleNetWeb.GraphQL.{
-    ActorsResolver,
     CommonResolver
   }
 
@@ -13,10 +12,10 @@ defmodule Geolocation.GraphQL.Hydration do
     %{
       spatial_thing: %{
         canonical_url: [
-          resolve: &ActorsResolver.canonical_url_edge/3
+          resolve: &CommonsPub.Character.GraphQL.Resolver.canonical_url_edge/3
         ],
         display_username: [
-          resolve: &ActorsResolver.display_username_edge/3
+          resolve: &CommonsPub.Character.GraphQL.Resolver.display_username_edge/3
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3

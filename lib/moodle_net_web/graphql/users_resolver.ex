@@ -10,12 +10,13 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias MoodleNet.{
     Access,
     Activities,
-    Actors,
     Follows,
     GraphQL,
     Repo,
     Users
   }
+
+  alias CommonsPub.Character.Characters
 
   alias MoodleNet.GraphQL.{
     FetchFields,
@@ -34,7 +35,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias MoodleNet.Users.{Me, User}
 
   def username_available(%{username: username}, _info) do
-    {:ok, Actors.is_username_available?(username)}
+    {:ok, Characters.is_username_available?(username)}
   end
 
   def me(_, info) do

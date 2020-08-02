@@ -4,7 +4,7 @@ defmodule Measurement.Unit do
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  # alias MoodleNet.Actors.Actor
+  # alias CommonsPub.Character
   alias Pointers.Pointer
   alias MoodleNet.Users.User
 

@@ -2,7 +2,6 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.Queries do
-
   alias MoodleNet.Actors.Actor
   import Ecto.Query
 
@@ -23,7 +22,9 @@ defmodule MoodleNet.Actors.Queries do
   def filter(q, {:peer, id}) when is_binary(id), do: where(q, [actor: a], a.peer_id == ^id)
   def filter(q, {:peer, ids}) when is_list(ids), do: where(q, [actor: a], a.peer_id in ^ids)
 
-  def filter(q, {:username, name}) when is_binary(name), do: where(q, [actor: a], a.preferred_username == ^name)
-  def filter(q, {:username, names}) when is_list(names), do: where(q, [actor: a], a.preferred_username in ^names)
+  def filter(q, {:username, name}) when is_binary(name),
+    do: where(q, [actor: a], a.preferred_username == ^name)
 
+  def filter(q, {:username, names}) when is_list(names),
+    do: where(q, [actor: a], a.preferred_username in ^names)
 end

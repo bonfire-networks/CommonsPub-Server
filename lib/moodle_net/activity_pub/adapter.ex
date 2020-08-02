@@ -143,8 +143,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
   def update_local_actor(actor, params) do
     with {:ok, local_actor} <-
-           MoodleNet.Actors.one(username: actor.data["preferredUsername"]),
-         {:ok, local_actor} <- MoodleNet.Actors.update(%User{}, local_actor, params),
+           CommonsPub.Character.Characters.one(username: actor.data["preferredUsername"]),
+         {:ok, local_actor} <-
+           CommonsPub.Character.Characters.update(%User{}, local_actor, params),
          {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
     else
@@ -216,7 +217,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     host = URI.parse(actor.data["id"]).host
     username = actor.data["preferredUsername"] <> "@" <> host
 
-    case MoodleNet.Actors.one(username: username) do
+    case CommonsPub.Character.Characters.one(username: username) do
       {:error, _} ->
         with {:ok, _actor} <- create_remote_actor(actor.data, username) do
           :ok

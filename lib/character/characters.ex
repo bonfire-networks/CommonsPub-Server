@@ -1,17 +1,37 @@
 #  MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Character.Characters do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+defmodule CommonsPub.Character.Characters do
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias Character
-  alias Character.Queries
+
+  alias MoodleNet.{Activities, Characters, Common, Feeds, Follows, Repo}
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+
   alias MoodleNet.Workers.APPublishWorker
+
+  alias CommonsPub.Character.NameReservation
+
   alias Pointers.Pointer
   alias Pointers
+
+  alias CommonsPub.Character
+  alias CommonsPub.Character.Queries
+
+  @replacement_regex ~r/[^a-zA-Z0-9-]/
+  @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
+
+  @doc "true if the provided preferred_username is available to register"
+  @spec is_username_available?(username :: binary) :: boolean()
+  def is_username_available?(username) when is_binary(username) do
+    is_nil(Repo.get(NameReservation, username))
+  end
+
+  @doc "Inserts a username reservation if it has not already been reserved"
+  def reserve_username(username) when is_binary(username) do
+    Repo.insert(NameReservation.changeset(username))
+  end
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -23,14 +43,14 @@ defmodule Character.Characters do
   * ActivityPub integration
   * Various parts of the codebase that need to query for characters (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(Character, filters))
+  def one(filters), do: Repo.single(Queries.query(CommonsPub.Character, filters))
 
   @doc """
   Retrieves a list of characters by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for characters (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Character, filters))}
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(CommonsPub.Character, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -74,7 +94,7 @@ defmodule Character.Characters do
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
     Contexts.pages(
       Queries,
-      Character,
+      CommonsPub.Character,
       cursor_fn,
       group_fn,
       page_opts,
@@ -86,31 +106,50 @@ defmodule Character.Characters do
 
   ## mutations
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  def create(creator, attrs) when is_map(attrs) do
+    with {:ok, character} <- create(attrs),
+         # act_attrs = %{verb: "created", is_local: true},
+         #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
+         #  :ok <- publish(creator, character, activity, :created),
+         {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
+      {:ok, character}
+    end
+  end
+
+  def create(attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      attrs = Actors.prepare_username(attrs)
+      attrs = prepare_username(attrs)
 
       # IO.inspect(attrs)
       # attrs = Map.put(attrs, :alternative_username, Map.get(attrs, :preferred_username)<>"-"<>Map.get(attrs, :facet))
       # IO.inspect(attrs)
 
-      with {:ok, actor} <- Actors.create(attrs),
-           {:ok, character_attrs} <- create_boxes(actor, attrs),
-           {:ok, character} <- insert_character(creator, actor, character_attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, character, act_attrs),
-           :ok <- publish(creator, character, activity, :created),
-           # add to search index
-           #  :ok <- index(character),
-           {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
+      # with {:ok, actor} <- Characters.create(attrs),
+      #    {:ok, character} <- insert_character(creator, character, character_attrs),
+      with {:ok, character_attrs} <- create_boxes(attrs, attrs),
+           {:ok, character} <- insert_character(character_attrs) do
+        # add to search index?
+        #  index(character)
         {:ok, character}
       end
     end)
   end
 
-  defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
-  defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
+  @doc """
+  creates a new character from the given attrs with an automatically generated username
+  """
+
+  # @spec auto_create(attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
+  # def auto_create(attrs) when is_map(attrs) do
+  #   attrs
+  #   |> Map.update(:preferred_username, nil, &atomise_username/1)
+  #   |> create()
+  # end
+
+  defp create_boxes(%{peer_id: peer_id}, attrs) when not is_nil(peer_id),
+    do: create_remote_boxes(attrs)
+
+  defp create_boxes(_, attrs), do: create_local_boxes(attrs)
 
   defp create_local_boxes(attrs) do
     with {:ok, inbox} <- Feeds.create(),
@@ -126,25 +165,37 @@ defmodule Character.Characters do
     end
   end
 
-  defp insert_character(creator, actor, attrs) do
-    cs = Character.create_changeset(creator, actor, attrs)
+  # defp insert_character(creator, attrs) do
+  #   cs = Character.create_changeset(creator, attrs)
+  #   IO.inspect(cs)
+  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, character}
+  # end
+
+  defp insert_character(attrs) do
+    cs = Character.create_changeset(attrs)
     IO.inspect(cs)
-    with {:ok, character} <- Repo.insert(cs), do: {:ok, %{character | actor: actor}}
+    with {:ok, character} <- Repo.insert(cs), do: {:ok, character}
   end
 
-  # defp insert_character_with_characteristic(creator, characteristic, actor, attrs) do
-  #   cs = Character.create_changeset(creator, characteristic, actor, nil, attrs)
-  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, characteristic: characteristic }}
+  # defp insert_character(creator, actor, attrs) do
+  #   cs = Character.create_changeset(creator, actor, attrs)
+  #   IO.inspect(cs)
+  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{character | character: character}}
   # end
 
-  # defp insert_character_with_context(creator, context, actor, attrs) do
-  #   cs = Character.create_changeset(creator, actor, context, attrs)
-  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, context: context }}
+  # defp insert_character_with_characteristic(creator, characteristic, character, attrs) do
+  #   cs = CommonsPub.Character.create_changeset(creator, characteristic, character, nil, attrs)
+  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | character: character, characteristic: characteristic }}
   # end
 
-  # defp insert_character(creator, characteristic, context, actor, attrs) do
-  #   cs = Character.create_changeset(creator, characteristic, actor, context, attrs)
-  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, context: context, characteristic: characteristic }}
+  # defp insert_character_with_context(creator, context, character, attrs) do
+  #   cs = CommonsPub.Character.create_changeset(creator, character, context, attrs)
+  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | character: character, context: context }}
+  # end
+
+  # defp insert_character(creator, characteristic, context, character, attrs) do
+  #   cs = CommonsPub.Character.create_changeset(creator, characteristic, character, context, attrs)
+  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | character: character, context: context, characteristic: characteristic }}
   # end
 
   @doc "Takes a Pointer to something and creates a Character based on it"
@@ -214,7 +265,7 @@ defmodule Character.Characters do
     ]
 
     with :ok <- FeedActivities.publish(activity, feeds),
-         {:ok, _} <- ap_publish("create", character.id, creator.id, character.actor.peer_id),
+         {:ok, _} <- ap_publish("create", character.id, creator.id, character.character.peer_id),
          do: :ok
   end
 
@@ -224,21 +275,21 @@ defmodule Character.Characters do
   #     character.outbox_id, Feeds.instance_outbox_id(),
   #   ]
   #   with :ok <- FeedActivities.publish(activity, feeds),
-  #        {:ok, _} <- ap_publish("create", character.id, creator.id, character.actor.peer_id),
+  #        {:ok, _} <- ap_publish("create", character.id, creator.id, character.character.peer_id),
   #     do: :ok
   # end
 
   defp publish(character, :updated) do
     # TODO: wrong if edited by admin
     with {:ok, _} <-
-           ap_publish("update", character.id, character.creator_id, character.actor.peer_id),
+           ap_publish("update", character.id, character.creator_id, character.character.peer_id),
          do: :ok
   end
 
   defp publish(character, :deleted) do
     # TODO: wrong if edited by admin
     with {:ok, _} <-
-           ap_publish("delete", character.id, character.creator_id, character.actor.peer_id),
+           ap_publish("delete", character.id, character.creator_id, character.character.peer_id),
          do: :ok
   end
 
@@ -256,12 +307,17 @@ defmodule Character.Characters do
           {:ok, Character.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Character{} = character, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, character} <- Repo.update(Character.update_changeset(character, attrs)),
-           {:ok, actor} <- Actors.update(user, character.actor, attrs),
+      with {:ok, character} <-
+             Repo.update(Character.update_changeset(character, attrs)),
+           #  {:ok, actor} <- Characters.update(user, character.actor, attrs),
            :ok <- publish(character, :updated) do
-        {:ok, %{character | actor: actor}}
+        {:ok, character}
       end
     end)
+  end
+
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Character, filters), set: updates)
   end
 
   def soft_delete(%Character{} = character) do
@@ -272,6 +328,8 @@ defmodule Character.Characters do
       end
     end)
   end
+
+  def delete(%User{}, %Character{} = character), do: Repo.delete(character)
 
   # defp index(character) do
   #   follower_count =
@@ -296,7 +354,7 @@ defmodule Character.Characters do
   #     # "icon" => icon,
   #     # "image" => image,
   #     # "name" => character.name,
-  #     "preferredUsername" => character.actor.preferred_username,
+  #     "preferredUsername" => character.character.preferred_username,
   #     # "summary" => character.summary,
   #     "createdAt" => character.published_at,
   #     # home instance of object
@@ -313,4 +371,66 @@ defmodule Character.Characters do
   @doc "conditionally update a map"
   def maybe_put(map, _key, nil), do: map
   def maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  # When the username is autogenerated, we have to scrub it
+  def atomise_username(username) when is_nil(username), do: nil
+
+  def atomise_username(username) do
+    Slugger.slugify(username)
+    # |> String.replace(@wordsplit_regex, "-")
+    # |> String.replace(@replacement_regex, "")
+    # |> String.replace(~r/--+/, "-")
+  end
+
+  def prepare_username(%{:preferred_username => preferred_username} = attrs)
+      when not is_nil(preferred_username) and preferred_username != "" do
+    Map.put(attrs, :preferred_username, atomise_username(preferred_username))
+  end
+
+  # if no username set, autocreate from name
+  def prepare_username(%{:name => name} = attrs)
+      when not is_nil(name) and name != "" do
+    Map.put(attrs, :preferred_username, atomise_username(Map.get(attrs, :name)))
+  end
+
+  def prepare_username(attrs) do
+    attrs
+  end
+
+  def display_username(%MoodleNet.Communities.Community{} = obj) do
+    display_username(obj, "&")
+  end
+
+  def display_username(%MoodleNet.Collections.Collection{} = obj) do
+    display_username(obj, "+")
+  end
+
+  def display_username(%Tag.Taggable{} = obj) do
+    display_username(obj, "+")
+  end
+
+  def display_username(%MoodleNet.Users.User{} = obj) do
+    display_username(obj, "@")
+  end
+
+  def display_username(obj) do
+    display_username(obj, "@")
+  end
+
+  def display_username(%{character: %Character{peer_id: nil, preferred_username: uname}}, prefix) do
+    prefix <> uname <> "@" <> MoodleNet.Instance.hostname()
+  end
+
+  def display_username(%{character: %Character{preferred_username: uname}}, prefix) do
+    prefix <> uname
+  end
+
+  def display_username(%{actor_id: _actor_id} = obj, prefix) do
+    obj = Repo.preload(obj, :character)
+    display_username(obj, prefix)
+  end
+
+  def display_username(%{}, _) do
+    nil
+  end
 end

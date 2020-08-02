@@ -8,7 +8,7 @@ defmodule MoodleNet.Collections.Collection do
 
   alias Ecto.Changeset
   alias MoodleNet.Collections
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Character
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.Feed
@@ -19,7 +19,7 @@ defmodule MoodleNet.Collections.Collection do
   @type t :: %__MODULE__{}
 
   table_schema "mn_collection" do
-    belongs_to(:actor, Actor)
+    belongs_to(:actor, Character)
     belongs_to(:creator, User)
     # TODO: replace by context
     belongs_to(:community, Community)
@@ -48,7 +48,7 @@ defmodule MoodleNet.Collections.Collection do
   def create_changeset(
         %User{} = creator,
         %Community{} = community,
-        %Actor{} = actor,
+        %Character{} = actor,
         attrs
       ) do
     %Collection{}
@@ -68,7 +68,7 @@ defmodule MoodleNet.Collections.Collection do
   def create_changeset(
         %User{} = creator,
         context,
-        %Actor{} = actor,
+        %Character{} = actor,
         attrs
       ) do
     %Collection{}
@@ -85,7 +85,7 @@ defmodule MoodleNet.Collections.Collection do
 
   def create_changeset(
         %User{} = creator,
-        %Actor{} = actor,
+        %Character{} = actor,
         attrs
       ) do
     %Collection{}

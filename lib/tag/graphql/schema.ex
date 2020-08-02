@@ -78,7 +78,7 @@ defmodule Tag.GraphQL.TagSchema do
 
     @desc "The Character that represents this tag in feeds and federation"
     field :character, :character do
-      resolve(&Character.GraphQL.Resolver.character/3)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.character/3)
     end
 
     @desc "The Profile that represents this tag"

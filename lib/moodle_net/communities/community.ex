@@ -12,7 +12,7 @@ defmodule MoodleNet.Communities.Community do
     ]
 
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Character
   alias MoodleNet.Communities
   alias MoodleNet.Communities.{Community, CommunityFollowerCount}
   alias MoodleNet.Collections.Collection
@@ -23,7 +23,7 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Uploads.Content
 
   table_schema "mn_community" do
-    belongs_to(:actor, Actor)
+    belongs_to(:actor, Character)
     belongs_to(:creator, User)
     belongs_to(:context, Pointers.Pointer)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
@@ -53,7 +53,12 @@ defmodule MoodleNet.Communities.Community do
   @create_cast @create_required ++
                  ~w(is_disabled is_public summary icon_id image_id inbox_id outbox_id)a
 
-  def create_changeset(%User{} = creator, %{} = context, %Actor{} = actor, fields) do
+  def create_changeset(
+        %User{} = creator,
+        %{} = context,
+        %Character{} = actor,
+        fields
+      ) do
     %Community{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.change(
@@ -67,7 +72,11 @@ defmodule MoodleNet.Communities.Community do
     |> common_changeset()
   end
 
-  def create_changeset(%User{} = creator, %Actor{} = actor, fields) do
+  def create_changeset(
+        %User{} = creator,
+        %Character{} = actor,
+        fields
+      ) do
     %Community{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.change(

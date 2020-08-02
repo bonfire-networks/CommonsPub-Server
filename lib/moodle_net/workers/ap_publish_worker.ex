@@ -40,18 +40,22 @@ defmodule MoodleNet.Workers.APPublishWorker do
   def perform(%{"context_id" => context_id, "op" => "delete"}, _job) do
     object =
       with {:error, _e} <- MoodleNet.Users.one(join: :actor, preload: :actor, id: context_id),
-           {:error, _e} <- MoodleNet.Communities.one(join: :actor, preload: :actor, id: context_id),
-           {:error, _e} <- MoodleNet.Collections.one(join: :actor, preload: :actor, id: context_id) do
+           {:error, _e} <-
+             MoodleNet.Communities.one(join: :actor, preload: :actor, id: context_id),
+           {:error, _e} <-
+             MoodleNet.Collections.one(join: :actor, preload: :actor, id: context_id) do
         {:error, "not found"}
       end
 
-      case object do
-        {:ok, object} -> only_local(object, &publish/2, "delete")
-        _ ->
-          Pointers.one!(id: context_id)
-          |> Pointers.follow!()
-          |> only_local(&publish/2, "delete")
-      end
+    case object do
+      {:ok, object} ->
+        only_local(object, &publish/2, "delete")
+
+      _ ->
+        Pointers.one!(id: context_id)
+        |> Pointers.follow!()
+        |> only_local(&publish/2, "delete")
+    end
   end
 
   def perform(%{"context_id" => context_id, "op" => verb}, _job) do
@@ -130,7 +134,7 @@ defmodule MoodleNet.Workers.APPublishWorker do
 
   defp only_local(%Resource{collection_id: collection_id} = context, commit_fn, verb) do
     with {:ok, collection} <- MoodleNet.Collections.one(id: collection_id),
-         {:ok, actor} <- MoodleNet.Actors.one(id: collection.actor_id),
+         {:ok, actor} <- CommonsPub.Character.Characters.one(id: collection.actor_id),
          true <- is_nil(actor.peer_id) do
       commit_fn.(context, verb)
     else

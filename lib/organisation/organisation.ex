@@ -13,9 +13,9 @@ defmodule Organisation do
 
   alias Ecto.Changeset
   alias Organisation
-  alias Character
+  alias CommonsPub.Character
   alias Pointers.Pointer
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Character
 
   @type t :: %__MODULE__{}
 
@@ -30,10 +30,10 @@ defmodule Organisation do
 
     # mixins
     has_one(:profile, Profile, foreign_key: :id)
-    has_one(:character, Character, foreign_key: :id)
+    has_one(:character, CommonsPub.Character, foreign_key: :id)
 
-    # joined via Character
-    has_one(:actor, Actor, foreign_key: :id)
+    # joined via CommonsPub.Character
+    # has_one(:actor, Actor, foreign_key: :id)
 
     # points to the parent Thing of this Character
     belongs_to(:context, Pointer)

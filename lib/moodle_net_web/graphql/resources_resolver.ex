@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   alias MoodleNet.{Collections, GraphQL, Repo, Resources}
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Character
   alias MoodleNet.Collections.Collection
   alias MoodleNet.GraphQL.{FetchFields, ResolveFields}
   alias MoodleNet.Resources.Resource
@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     Resources.one(id: id, user: GraphQL.current_user(info))
   end
 
-  def is_local_edge(%{collection: %Collection{actor: %Actor{peer_id: peer_id}}}, _, _) do
+  def is_local_edge(%{collection: %Collection{actor: %Character{peer_id: peer_id}}}, _, _) do
     {:ok, is_nil(peer_id)}
   end
 
