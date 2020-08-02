@@ -169,7 +169,9 @@ defmodule CommonsPub.Utils.Simulation do
   end
 
   def content_input(base \\ %{}) do
-    gen = Faker.Util.pick([&content_mirror_input/1, &content_upload_input/1])
+    # gen = Faker.Util.pick([&content_mirror_input/1, &content_upload_input/1])
+    # FIXME: need to make fake uploads work
+    gen = &content_mirror_input/1
     gen.(base)
   end
 
