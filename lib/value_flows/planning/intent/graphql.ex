@@ -2,6 +2,7 @@
 defmodule ValueFlows.Planning.Intent.GraphQL do
   use Absinthe.Schema.Notation
   require Logger
+  import ValueFlows.Util, only: [maybe_put: 3]
   alias MoodleNet.{
     Activities,
     Communities,
@@ -96,9 +97,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
 
-  ## finally the mutations...
-
-  @measure_fields [:resource_quantity, :effort_quantity, :available_quantity]
 
   # FIXME: duplication!
   def create_intent(%{intent: %{in_scope_of: context_ids} = attrs}, info) when is_list(context_ids) do
@@ -108,9 +106,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
-           {:ok, measures} <- Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
            attrs = Map.merge(attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, context, measures, attrs) do
+           {:ok, intent} <- Intents.create(user, context, attrs) do
         {:ok, %{intent: intent}}
       end
     end)
@@ -119,9 +116,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   def create_intent(%{intent: attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, measures} <- Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
-           attrs = Map.merge(attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, measures, attrs) do
+            attrs = Map.merge(attrs, %{is_public: true}),
+           {:ok, intent} <- Intents.create(user, attrs) do
         {:ok, %{intent: intent}}
       end
     end)
@@ -131,10 +127,10 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     context_id = List.first(context_ids)
 
     Repo.transact_with(fn ->
-      do_update(changes, info, fn intent, measures ->
+      do_update(changes, info, fn intent, changes ->
         with {:ok, pointer} <- Pointers.one(id: context_id) do
           context = Pointers.follow!(pointer)
-          Intents.update(intent, context, measures, changes)
+          Intents.update(intent, context, changes)
         end
       end)
     end)
@@ -142,8 +138,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def update_intent(%{intent: changes}, info) do
     Repo.transact_with(fn ->
-      do_update(changes, info, fn intent, measures ->
-        Intents.update(intent, measures, changes)
+      do_update(changes, info, fn intent, changes ->
+        Intents.update(intent, changes)
       end)
     end)
   end
@@ -152,8 +148,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, intent} <- intent(%{id: id}, info),
          :ok <- ensure_update_permission(user, intent),
-         {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
-         {:ok, intent} <- update_fn.(intent, measures) do
+         {:ok, intent} <- update_fn.(intent, changes) do
       {:ok, %{intent: intent}}
     end
   end

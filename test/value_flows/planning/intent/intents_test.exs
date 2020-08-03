@@ -33,16 +33,13 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       unit = fake_unit!(user)
 
       measures = %{
-        resource_quantity: fake_measure!(user, unit),
-        effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit)
+        resource_quantity: measure(%{unit_id: unit.id}),
+        effort_quantity: measure(%{unit_id: unit.id}),
+        available_quantity: measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, intent} = Intents.create(user, measures, intent())
+      assert {:ok, intent} = Intents.create(user, intent(measures))
       assert_intent(intent)
-      assert intent.resource_quantity_id == measures.resource_quantity.id
-      assert intent.effort_quantity_id == measures.effort_quantity.id
-      assert intent.available_quantity_id == measures.available_quantity.id
     end
 
     test "can create an intent with a context" do
@@ -51,12 +48,12 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       another_user = fake_user!()
 
       measures = %{
-        resource_quantity: fake_measure!(user, unit),
-        effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit)
+        resource_quantity: measure(%{unit_id: unit.id}),
+        effort_quantity: measure(%{unit_id: unit.id}),
+        available_quantity: measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, intent} = Intents.create(user, another_user, measures, intent())
+      assert {:ok, intent} = Intents.create(user, another_user, intent(measures))
       assert_intent(intent)
       assert intent.context_id == another_user.id
     end
@@ -69,13 +66,13 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       intent = fake_intent!(user, unit)
 
       measures = %{
-        resource_quantity: fake_measure!(user, unit),
+        resource_quantity: measure(%{unit_id: unit.id}),
         # don't update one of them
-        # effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit)
+        # effort_quantity: measure(%{unit_id: unit.id}),
+        available_quantity: measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, updated} = Intents.update(intent, measures, intent())
+      assert {:ok, updated} = Intents.update(intent, intent(measures))
       assert_intent(updated)
       assert intent != updated
       assert intent.effort_quantity_id == updated.effort_quantity_id

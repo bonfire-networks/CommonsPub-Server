@@ -127,7 +127,13 @@ defmodule ValueFlows.Planning.Intent do
     |> common_changeset()
   end
 
-  def change_measures(changeset, measures) when is_map(measures) do
+  def measure_fields do
+    [:resource_quantity, :effort_quantity, :available_quantity]
+  end
+
+  def change_measures(changeset, %{} = attrs) do
+    measures = Map.take(attrs, measure_fields())
+
     Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
       Changeset.put_assoc(c, field_name, measure)
     end)
