@@ -45,7 +45,7 @@ defmodule Measurement.Simulate do
 
   def measure(overrides \\ %{}) do
     overrides
-    |> Map.put_new_lazy(:has_numerical_value, &integer/0)
+    |> Map.put_new_lazy(:has_numerical_value, &float/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
   end
 

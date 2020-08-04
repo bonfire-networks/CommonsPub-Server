@@ -72,23 +72,25 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %{id: _id} = context, measures, attrs) when is_map(attrs) do
-    do_create(creator, measures, attrs, fn ->
+  def create(%User{} = creator, %{id: _id} = context, attrs) when is_map(attrs) do
+    do_create(creator, attrs, fn ->
       Intent.create_changeset(creator, context, attrs)
     end)
   end
 
   # @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, measures, attrs) when is_map(attrs) do
-    do_create(creator, measures, attrs, fn ->
+  def create(%User{} = creator, attrs) when is_map(attrs) do
+    do_create(creator, attrs, fn ->
       Intent.create_changeset(creator, attrs)
     end)
   end
 
-  def do_create(creator, measures, attrs, changeset_fn) do
+  def do_create(creator, attrs, changeset_fn) do
+    attrs = parse_measurement_attrs(attrs)
+
     Repo.transact_with(fn ->
       cs = changeset_fn.()
-      |> Intent.change_measures(measures)
+      |> Intent.change_measures(attrs)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
            {:ok, item} <- Repo.insert(cs),
@@ -137,15 +139,17 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   # TODO: take the user who is performing the update
   # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def update(%Intent{} = intent, measures, attrs) when is_map(measures) do
-    do_update(intent, measures, attrs, &Intent.update_changeset(&1, attrs))
+  def update(%Intent{} = intent, attrs) do
+    do_update(intent, attrs, &Intent.update_changeset(&1, attrs))
   end
 
-  def update(%Intent{} = intent, %{id: id} = context, measures, attrs) when is_map(measures) do
-    do_update(intent, measures, attrs, &Intent.update_changeset(&1, context, attrs))
+  def update(%Intent{} = intent, %{id: id} = context, attrs) do
+    do_update(intent, attrs, &Intent.update_changeset(&1, context, attrs))
   end
 
-  def do_update(intent, measures, attrs, changeset_fn) do
+  def do_update(intent, attrs, changeset_fn) do
+    attrs = parse_measurement_attrs(attrs)
+
     Repo.transact_with(fn ->
       intent = Repo.preload(intent, [
           :available_quantity, :resource_quantity, :effort_quantity,
@@ -154,7 +158,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
       cs = intent
       |> changeset_fn.()
-      |> Intent.change_measures(measures)
+      |> Intent.change_measures(attrs)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
            {:ok, intent} <- Repo.update(cs),
@@ -202,4 +206,16 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   defp change_at_location(changeset, _attrs), do: {:ok, changeset}
+
+  defp parse_measurement_attrs(attrs) do
+    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
+      if is_map(v) and Map.has_key?(v, :has_unit) do
+        v = ValueFlows.Util.map_key_replace(v, :has_unit, :unit_id)
+        # I have no idea why the numerical value isn't auto converted
+        Map.put(acc, k, v)
+      else
+        Map.put(acc, k, v)
+      end
+    end)
+  end
 end

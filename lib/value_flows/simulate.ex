@@ -70,13 +70,14 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_intent!(user, unit, overrides \\ %{}) do
+    measure_attrs = %{unit_id: unit.id}
     measures = %{
-      resource_quantity: fake_measure!(user, unit),
-      effort_quantity: fake_measure!(user, unit),
-      available_quantity: fake_measure!(user, unit)
+      resource_quantity: measure(measure_attrs),
+      effort_quantity: measure(measure_attrs),
+      available_quantity: measure(measure_attrs)
     }
 
-    {:ok, intent} = Intents.create(user, measures, intent(overrides))
+    {:ok, intent} = Intents.create(user, intent(measures))
     intent
   end
 end
