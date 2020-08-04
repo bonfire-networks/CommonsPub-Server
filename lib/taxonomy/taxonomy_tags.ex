@@ -78,7 +78,7 @@ defmodule Taxonomy.TaxonomyTags do
 
       with {:ok, taggable} <- Map.get(tag, :taggable) do
         # Tag.Taggables.one(taxonomy_tag_id: tag.id) do
-        {:ok, taggable}
+        taggable
       else
         _e -> pointerise(user, tag)
       end

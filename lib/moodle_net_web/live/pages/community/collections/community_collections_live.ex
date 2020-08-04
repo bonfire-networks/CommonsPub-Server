@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityCollectionsLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(collections: collections)
+    # IO.inspect(collections: collections)
 
     collections_list =
       Enum.map(
@@ -44,5 +44,4 @@ defmodule MoodleNetWeb.CommunityLive.CommunityCollectionsLive do
   def handle_event("load-more", _, %{assigns: assigns} = socket) do
     {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
   end
-
 end

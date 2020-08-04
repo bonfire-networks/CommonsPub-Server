@@ -134,7 +134,7 @@ defmodule Tag.GraphQL.TagResolver do
   def make_pointer_taggable(%{context_id: pointer_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, tag} <- Tag.Taggables.maybe_make_taggable(pointer_id, %{}) do
+           tag <- Tag.Taggables.maybe_make_taggable(pointer_id, %{}) do
         {:ok, tag}
       end
     end)
@@ -143,7 +143,7 @@ defmodule Tag.GraphQL.TagResolver do
   def tag_thing(%{thing_id: thing_id, taggable_id: taggable_id}, info) do
     with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
          tagged = Tag.TagThings.tag_thing(me, taggable_id, thing_id) do
-      tagged
+      {:ok, tagged}
     end
   end
 

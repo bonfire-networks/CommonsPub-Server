@@ -8,12 +8,12 @@ defmodule MoodleNetWeb.Component.CollectionPreviewLive do
   # end
 
   def update(assigns, socket) do
-    IO.inspect(collection_pre_prep: assigns.collection)
+    # IO.inspect(collection_pre_prep: assigns.collection)
 
     collection =
       MoodleNetWeb.Helpers.Profiles.prepare(assigns.collection, %{icon: true, actor: true})
 
-    IO.inspect(collection_post_prep: collection)
+    # IO.inspect(collection_post_prep: collection)
 
     {:ok,
      socket

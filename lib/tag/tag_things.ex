@@ -30,13 +30,27 @@ defmodule Tag.TagThings do
     tag_thing(user, tag, id)
   end
 
-  defp tag_pointers(user, tag_id, things) when is_binary(tag_id) do
-    with {:ok, tag} <- get_tag(tag_id) do
+  defp tag_pointers(user, %Taggable{} = tag, things) do
+    Repo.transact_with(fn ->
+      tag = Repo.preload(tag, :things)
+
+      with {:ok, taggable} <- tag_pointers_save(tag, things) do
+        taggable
+      end
+    end)
+  end
+
+  defp tag_pointers(_, "", _) do
+    nil
+  end
+
+  defp tag_pointers(user, taggable, things) do
+    with {:ok, tag} <- get_tag(taggable) do
       # with an existing tag
       tag_pointers(user, tag, things)
     else
       _e ->
-        with {:ok, tag} <- maybe_make_taggable(user, tag_id) do
+        with tag <- maybe_make_taggable(user, taggable) do
           # with an object that we made taggable
           tag_pointers(user, tag, things)
         else
@@ -57,22 +71,16 @@ defmodule Tag.TagThings do
     end
   end
 
-  def maybe_make_taggable(user, id) do
-    if MoodleNetWeb.Helpers.Common.is_numeric(id) do
-      Taxonomy.TaxonomyTags.make_taggable(user, id)
-    else
-      Tag.Taggables.maybe_make_taggable(id)
-    end
+  def maybe_make_taggable(user, %Taxonomy.TaxonomyTag{} = tt) do
+    Taxonomy.TaxonomyTags.make_taggable(user, tt)
   end
 
-  defp tag_pointers(user, %Taggable{} = tag, things) do
-    Repo.transact_with(fn ->
-      tag = Repo.preload(tag, :things)
-
-      with {:ok, taggable} <- tag_pointers_save(tag, things) do
-        {:ok, taggable}
-      end
-    end)
+  def maybe_make_taggable(user, future_taggable) do
+    if MoodleNetWeb.Helpers.Common.is_numeric(future_taggable) do
+      Taxonomy.TaxonomyTags.make_taggable(user, future_taggable)
+    else
+      Tag.Taggables.maybe_make_taggable(future_taggable)
+    end
   end
 
   defp tag_pointers_save(tag, things) do

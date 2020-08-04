@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(collections: collections)
+    # IO.inspect(collections: collections)
 
     collections_list =
       Enum.map(

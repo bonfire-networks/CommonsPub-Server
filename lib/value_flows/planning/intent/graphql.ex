@@ -32,11 +32,13 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Planning.Intent.Queries
 
-  # SDL schema import
-
   alias MoodleNetWeb.GraphQL.{CommonResolver}
 
+  # SDL schema import
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
+
+  # TODO: put in config
+  @tags_seperator " "
 
   ## resolvers
 
@@ -109,44 +111,91 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   @measure_fields [:resource_quantity, :effort_quantity, :available_quantity]
 
-  # FIXME: duplication!
-  def create_intent(%{intent: %{in_scope_of: context_ids} = attrs}, info)
+  def create_intent(%{intent: %{in_scope_of: context_ids} = intent_attrs}, info)
       when is_list(context_ids) do
+    # FIXME: support multiple contexts?
     context_id = List.first(context_ids)
 
+    create_intent(
+      %{intent: Map.merge(intent_attrs, %{in_scope_of: context_id})},
+      info
+    )
+  end
+
+  def create_intent(%{intent: %{in_scope_of: context_id} = intent_attrs}, info)
+      when not is_nil(context_id) do
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
            {:ok, measures} <-
-             Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
-           attrs = Map.merge(attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, context, measures, attrs) do
+             Measurement.Measure.GraphQL.create_measures(intent_attrs, info, @measure_fields),
+           intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
+           {:ok, intent} <- Intents.create(user, context, measures, intent_attrs),
+           {:ok, intent} <- try_tag_intent(user, intent, intent_attrs) do
         {:ok, %{intent: intent}}
       end
     end)
   end
 
-  def classification_tag_from_urls(user, intent) do
-    # lookup tag from URL
-  end
-
-  def intent_tag(user, intent, taggable_id) do
-    tagged = Tag.TagThings.tag_thing(user, taggable_id, intent)
-    intent |> Map.merge(%{tagged: [tagged]})
-  end
-
-  def create_intent(%{intent: attrs}, info) do
+  # FIXME: duplication!
+  def create_intent(%{intent: intent_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, measures} <-
-             Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
-           attrs = Map.merge(attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, measures, attrs) do
+             Measurement.Measure.GraphQL.create_measures(intent_attrs, info, @measure_fields),
+           intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
+           {:ok, intent} <- Intents.create(user, measures, intent_attrs),
+           {:ok, intent} <- try_tag_intent(user, intent, intent_attrs) do
         {:ok, %{intent: intent}}
       end
     end)
+  end
+
+  @doc """
+  lookup tag from URL(s), to support vf-graphql mode
+  """
+  def try_tag_intent(user, intent, %{resourceClassifiedAs: urls = intent_attrs})
+      when is_list(urls) and length(urls) > 0 do
+    # todo: lookup tag by URL
+    {:ok, intent}
+  end
+
+  @doc """
+  tag IDs from a `tags` field
+  """
+  def try_tag_intent(user, intent, %{tags: text} = intent_attrs) when bit_size(text) > 1 do
+    tag_ids = MoodleNetWeb.Component.TagAutocomplete.tags_split(text)
+    {:ok, intent_tags(user, intent, tag_ids)}
+  end
+
+  @doc """
+  otherwise maybe we have tagnames inline in the note?
+  """
+  def try_tag_intent(user, intent, %{note: text} = intent_attrs) when bit_size(text) > 1 do
+    # MoodleNetWeb.Component.TagAutocomplete.try_prefixes(text)
+    # TODO
+    {:ok, intent}
+  end
+
+  def try_tag_intent(user, intent, _) do
+    {:ok, intent}
+  end
+
+  @doc """
+  tag existing intent with a Taggable, Pointer, or anything that can be made taggable
+  """
+  def intent_tag(user, intent, taggable) do
+    Tag.TagThings.tag_thing(user, taggable, intent)
+  end
+
+  @doc """
+  tag existing intent with one or multiple Taggables, Pointers, or anything that can be made taggable
+  """
+  def intent_tags(user, intent, taggables) do
+    intent_tags = Enum.map(taggables, &intent_tag(user, intent, &1))
+    intent |> Map.merge(%{tags: intent_tags})
   end
 
   def update_intent(%{intent: %{in_scope_of: context_ids} = changes}, info) do

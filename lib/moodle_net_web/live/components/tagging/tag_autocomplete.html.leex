@@ -1,0 +1,10 @@
+<div id="<%= @id %>" class="tag_autocomplete">
+  <%= if assigns[:tag_prefix] do %>
+    <input type="hidden" name="tag_prefix" value="<%= @tag_prefix %>" />
+<% end %>
+<ul>
+  <%= for hit <- @tag_results do %>
+    <li id="t-<%= hit["id"] %>" data-tag="<%= hit.tag_as %>" phx-hook="TagPick" data-search="<%= @tag_search %>" data-target="<%= @tag_target %>" data-prefix="<%= @tag_prefix %>" ><%= r(hit.display) %></li>
+  <% end %>
+</ul>
+</div>

@@ -72,14 +72,14 @@ for community <- communities do
     end
   end
 
-  if(Code.ensure_compiled(Geolocation.Simulate)) do
+  if(Code.ensure_loaded?(Geolocation.Simulate)) do
     Geolocation.Simulate.fake_geolocation!(random_user.(), community)
   end
 
-  if(Code.ensure_compiled(Measurement.Simulate)) do
+  if(Code.ensure_loaded?(Measurement.Simulate)) do
     unit = Measurement.Simulate.fake_unit!(random_user.(), community)
 
-    if(Code.ensure_compiled(ValueFlows.Simulate)) do
+    if(Code.ensure_loaded?(ValueFlows.Simulate)) do
       intent = ValueFlows.Simulate.fake_intent!(random_user.(), unit)
     end
   end

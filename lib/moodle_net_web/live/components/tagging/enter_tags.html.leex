@@ -1,0 +1,10 @@
+<div class="additional__hashtags">
+  <input id="<%=@id%>_tags"  name="tags" type="text" multiple placeholder="Enter one or more tags or categories...">
+</div>
+<%= live_component(
+    @socket,
+    MoodleNetWeb.Component.TagAutocomplete,
+    current_user: @current_user,
+    id: @id <> "_tag_results",
+    tag_target: @id <> "_tags"
+  ) %>
