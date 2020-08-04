@@ -47,10 +47,10 @@ defmodule MoodleNet.GraphQL.FetchPage do
         map_fn: map_fn,
         map_count_fn: map_count_fn
       }) do
-    # IO.inspect(FetchPage_run_data: data_filters, count: count_filters)
     base_q = apply(queries, :query, [query, base_filters])
     data_q = apply(queries, :filter, [base_q, data_filters])
     count_q = apply(queries, :filter, [base_q, count_filters])
+    IO.inspect(FetchPage_run_data: data_q, count_with: count_q)
     {:ok, [data, count]} = Repo.transact_many([{:all, data_q}, {count_with, count_q}])
     # IO.inspect(FetchPage_run_data: data, count: count)
     data = map_data(map_fn, data)

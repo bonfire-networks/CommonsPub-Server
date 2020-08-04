@@ -1712,6 +1712,12 @@ type Intent {
   resourceClassifiedAs: [URI!]
 
   """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext]
+
+  """
   The primary resource specification or definition of an existing or potential
   economic resource. A resource will have only one, as this specifies exactly
   what the resource is.
@@ -1843,6 +1849,11 @@ input IntentCreateParams {
   References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
   resourceClassifiedAs: [URI!]
+
+  """
+  Same as resourceClassifiedAs, but uses tag IDs
+  """
+  tags: [ID!]
 
   """
   (`EconomicResource`) When a specific `EconomicResource` is known which can
@@ -2147,7 +2158,9 @@ type ValueFlowsMutation {
   createCommitment(commitment: CommitmentCreateParams): CommitmentResponse
   updateCommitment(commitment: CommitmentUpdateParams): CommitmentResponse
   deleteCommitment(id: ID!): Boolean
+
   createIntent(intent: IntentCreateParams): IntentResponse
+
   updateIntent(intent: IntentUpdateParams): IntentResponse
   deleteIntent(id: ID!): Boolean
   createFulfillment(fulfillment: FulfillmentCreateParams!): FulfillmentResponse

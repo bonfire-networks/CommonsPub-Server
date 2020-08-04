@@ -24,10 +24,9 @@ defmodule MoodleNetWeb.My.PublishAdLive do
   def publish_ad(data, socket) do
     intent = input_to_atoms(data)
     IO.inspect(intent, label: "intent to create")
-    tags = e(intent, :tags, nil)
 
     {:ok, new_intent} =
-      ValueFlows.Planning.Intent.GraphQL.create_intent(%{intent: intent, tags: tags}, %{
+      ValueFlows.Planning.Intent.GraphQL.create_intent(%{intent: intent}, %{
         context: %{current_user: socket.assigns.current_user}
       })
 

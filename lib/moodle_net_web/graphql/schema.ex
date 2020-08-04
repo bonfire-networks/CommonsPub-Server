@@ -178,4 +178,43 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   defp hydrate_merge(a, b) do
     Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
   end
+
+  union :any_context do
+    description("Any type of known object")
+    # TODO: autogenerate
+    types([
+      :community,
+      :collection,
+      :resource,
+      :comment,
+      :flag,
+      :follow,
+      :like,
+      :user,
+      :organisation,
+      :tag,
+      :spatial_thing,
+      :intent
+    ])
+
+    resolve_type(fn
+      %MoodleNet.Users.User{}, _ -> :user
+      %MoodleNet.Communities.Community{}, _ -> :community
+      %MoodleNet.Collections.Collection{}, _ -> :collection
+      %MoodleNet.Resources.Resource{}, _ -> :resource
+      %MoodleNet.Threads.Thread{}, _ -> :thread
+      %MoodleNet.Threads.Comment{}, _ -> :comment
+      %MoodleNet.Follows.Follow{}, _ -> :follow
+      %MoodleNet.Likes.Like{}, _ -> :like
+      %MoodleNet.Flags.Flag{}, _ -> :flag
+      %MoodleNet.Features.Feature{}, _ -> :feature
+      %Organisation{}, _ -> :organisation
+      %Geolocation{}, _ -> :spatial_thing
+      %Tag.Taggable{}, _ -> :tag
+      # %ValueFlows.Agent.Agents{}, _ -> :agent
+      # %ValueFlows.Agent.People{}, _ -> :person
+      # %ValueFlows.Agent.Organizations{}, _ -> :organization
+      %ValueFlows.Planning.Intent{}, _ -> :intent
+    end)
+  end
 end

@@ -3,6 +3,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   use Absinthe.Schema.Notation
   require Logger
   import ValueFlows.Util, only: [maybe_put: 3]
+
   alias MoodleNet.{
     Activities,
     Communities,
@@ -75,8 +76,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def fetch_intents(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: Queries,
-      query: Intent,
+      queries: ValueFlows.Planning.Intent.Queries,
+      query: ValueFlows.Planning.Intent,
       # preload: [:provider, :receiver, :tags],
       # cursor_fn: Intents.cursor(:followers),
       page_opts: page_opts,
@@ -99,14 +100,13 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     CommonResolver.context_edge(%{context_id: id}, nil, info)
   end
 
-  def fetch_classifications_edge(%{tags: tags} = data, _, _) do
-    data = Repo.preload(data, tags: [character: [:actor]])
+  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
+    thing = Repo.preload(thing, tags: [character: [:actor]])
     # IO.inspect(get_tags: data.tags)
-    urls = Enum.map(data.tags, & &1.character.actor.canonical_url)
+    urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
     # IO.inspect(urls)
     {:ok, urls}
   end
-
 
   def create_intent(%{intent: %{in_scope_of: context_ids} = intent_attrs}, info)
       when is_list(context_ids) do
@@ -127,8 +127,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, context, intent_attrs),
-           {:ok, intent} <- try_tag_intent(user, intent, intent_attrs) do
+           {:ok, intent} <- Intents.create(user, context, intent_attrs) do
         {:ok, %{intent: intent}}
       end
     end)
@@ -139,56 +138,10 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, intent_attrs),
-           {:ok, intent} <- try_tag_intent(user, intent, intent_attrs) do
+           {:ok, intent} <- Intents.create(user, intent_attrs) do
         {:ok, %{intent: intent}}
       end
     end)
-  end
-
-  @doc """
-  lookup tag from URL(s), to support vf-graphql mode
-  """
-  def try_tag_intent(user, intent, %{resourceClassifiedAs: urls = intent_attrs})
-      when is_list(urls) and length(urls) > 0 do
-    # todo: lookup tag by URL
-    {:ok, intent}
-  end
-
-  @doc """
-  tag IDs from a `tags` field
-  """
-  def try_tag_intent(user, intent, %{tags: text} = intent_attrs) when bit_size(text) > 1 do
-    tag_ids = MoodleNetWeb.Component.TagAutocomplete.tags_split(text)
-    {:ok, intent_tags(user, intent, tag_ids)}
-  end
-
-  @doc """
-  otherwise maybe we have tagnames inline in the note?
-  """
-  def try_tag_intent(user, intent, %{note: text} = intent_attrs) when bit_size(text) > 1 do
-    # MoodleNetWeb.Component.TagAutocomplete.try_prefixes(text)
-    # TODO
-    {:ok, intent}
-  end
-
-  def try_tag_intent(user, intent, _) do
-    {:ok, intent}
-  end
-
-  @doc """
-  tag existing intent with a Taggable, Pointer, or anything that can be made taggable
-  """
-  def intent_tag(user, intent, taggable) do
-    Tag.TagThings.tag_thing(user, taggable, intent)
-  end
-
-  @doc """
-  tag existing intent with one or multiple Taggables, Pointers, or anything that can be made taggable
-  """
-  def intent_tags(user, intent, taggables) do
-    intent_tags = Enum.map(taggables, &intent_tag(user, intent, &1))
-    intent |> Map.merge(%{tags: intent_tags})
   end
 
   def update_intent(%{intent: %{in_scope_of: context_ids} = changes}, info) do

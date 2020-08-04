@@ -2,7 +2,6 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util.GraphQL do
-
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
@@ -19,6 +18,4 @@ defmodule ValueFlows.Util.GraphQL do
   def parse_cool_scalar(value), do: {:ok, value}
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
-
-
 end
