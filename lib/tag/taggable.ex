@@ -1,9 +1,10 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Tag.Taggable do
-  use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+defmodule CommonsPub.Tag.Taggable do
+  use Pointers.Mixin,
+    otp_app: :my_app,
+    source: "taggable"
 
   # use Pointers.Pointable,
   #   otp_app: :moodle_net,
@@ -11,14 +12,13 @@ defmodule Tag.Taggable do
   #   table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
   alias Ecto.Changeset
-  alias Tag.Taggable
+  alias CommonsPub.Tag.Taggable
   alias MoodleNet.{Repo}
 
   @type t :: %__MODULE__{}
-  @required ~w(prefix)a
-  @cast @required ++ ~w(context_id parent_tag_id same_as_tag_id taxonomy_tag_id)a
+  @required ~w(id prefix facet)a
 
-  table_schema "tags" do
+  mixin_schema do
     # pointable_schema do
 
     # field(:id, Pointers.ULID, autogenerate: true)
@@ -26,26 +26,14 @@ defmodule Tag.Taggable do
     # eg. @ or + or #
     field(:prefix, :string)
 
-    # eg. Mamals is a parent of Cat
-    belongs_to(:parent_tag, Taggable, type: Ecto.ULID)
-
-    # eg. Olive Oil is the same as Huile d'olive
-    belongs_to(:same_as_tag, Taggable, type: Ecto.ULID)
-
-    # optionally where it came from in the taxonomy
-    belongs_to(:taxonomy_tag, Taxonomy.TaxonomyTag, type: :integer)
-
-    # Optionally, Thing that is taggable (if not using Profile/Character mixins)
-    belongs_to(:context, Pointers.Pointer, type: Ecto.ULID)
+    field(:facet, :string)
 
     # Optionally, a profile and Character (if not using context)
+    has_one(:category, CommonsPub.Tag.Category, references: :id, foreign_key: :id)
     ## stores common fields like name/description
-    has_one(:profile, Profile, foreign_key: :id)
+    has_one(:profile, Profile, references: :id, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, Character, foreign_key: :id)
-
-    field(:name, :string, virtual: true)
-    field(:summary, :string, virtual: true)
+    has_one(:character, Character, references: :id, foreign_key: :id)
 
     many_to_many(:things, Pointers.Pointer,
       join_through: "tags_things",
@@ -55,21 +43,9 @@ defmodule Tag.Taggable do
     )
   end
 
-  def create_changeset(attrs, context) do
-    %Taggable{}
-    # |> Changeset.change(id: Ecto.ULID.generate())
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(context_id: context.id)
-    |> common_changeset()
-  end
-
   def create_changeset(attrs) do
     %Taggable{}
-    # |> Changeset.change(id: Ecto.ULID.generate())
-    |> Changeset.cast(attrs, @cast)
-    # |> Changeset.change(
-    #   id: Ecto.ULID.generate()
-    #   )
+    |> Changeset.cast(attrs, @required)
     |> common_changeset()
   end
 
@@ -90,7 +66,7 @@ defmodule Tag.Taggable do
         attrs
       ) do
     tag
-    |> Changeset.cast(attrs, @cast)
+    # |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
 
@@ -101,9 +77,9 @@ defmodule Tag.Taggable do
     # |> change_disabled()
   end
 
-  def context_module, do: Tag.Taggables
+  def context_module, do: CommonsPub.Tag.Taggables
 
-  def queries_module, do: Tag.Taggable.Queries
+  def queries_module, do: CommonsPub.Tag.Taggable.Queries
 
   def follow_filters, do: [:default]
 end
