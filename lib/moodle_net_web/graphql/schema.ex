@@ -70,14 +70,14 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # Extension Modules
   import_types(Profile.GraphQL.Schema)
   import_types(Character.GraphQL.Schema)
-  import_types(Circle.GraphQL.Schema)
+  import_types(Organisation.GraphQL.Schema)
   import_types(Locales.GraphQL.Schema)
   import_types(Tag.GraphQL.TagSchema)
   import_types(Taxonomy.GraphQL.TaxonomySchema)
   import_types(Measurement.Unit.GraphQL)
   import_types(Geolocation.GraphQL)
 
-  # import_types ValueFlows.Schema
+  # import_types(ValueFlows.Schema)
 
   query do
     import_fields(:access_queries)
@@ -101,16 +101,18 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # Extension Modules
     import_fields(:profile_queries)
     import_fields(:character_queries)
-    import_fields(:circles_queries)
+    import_fields(:organisations_queries)
     import_fields(:tag_queries)
 
     # Taxonomy
     import_fields(:locales_queries)
     import_fields(:taxonomy_queries)
 
+    # ValueFlows
     import_fields(:measurement_query)
     import_fields(:geolocation_query)
-    # import_fields :value_flows_query
+    # import_fields(:value_flows_query)
+    # import_fields(:value_flows_extra_queries)
   end
 
   mutation do
@@ -132,13 +134,14 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # Extension Modules
     import_fields(:profile_mutations)
     import_fields(:character_mutations)
-    import_fields(:circles_mutations)
+    import_fields(:organisations_mutations)
     import_fields(:tag_mutations)
     import_fields(:taxonomy_mutations)
+    # ValueFlows
     import_fields(:geolocation_mutation)
     import_fields(:measurement_mutation)
 
-    # import_fields :value_flows_mutation
+    # import_fields(:value_flows_mutation)
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do
@@ -176,5 +179,44 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   defp hydrate_merge(a, b) do
     Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
+  end
+
+  union :any_context do
+    description("Any type of known object")
+    # TODO: autogenerate
+    types([
+      :community,
+      :collection,
+      :resource,
+      :comment,
+      :flag,
+      :follow,
+      :like,
+      :user,
+      :organisation,
+      :tag,
+      :spatial_thing,
+      :intent
+    ])
+
+    resolve_type(fn
+      %MoodleNet.Users.User{}, _ -> :user
+      %MoodleNet.Communities.Community{}, _ -> :community
+      %MoodleNet.Collections.Collection{}, _ -> :collection
+      %MoodleNet.Resources.Resource{}, _ -> :resource
+      %MoodleNet.Threads.Thread{}, _ -> :thread
+      %MoodleNet.Threads.Comment{}, _ -> :comment
+      %MoodleNet.Follows.Follow{}, _ -> :follow
+      %MoodleNet.Likes.Like{}, _ -> :like
+      %MoodleNet.Flags.Flag{}, _ -> :flag
+      %MoodleNet.Features.Feature{}, _ -> :feature
+      %Organisation{}, _ -> :organisation
+      %Geolocation{}, _ -> :spatial_thing
+      %Tag.Taggable{}, _ -> :tag
+      # %ValueFlows.Agent.Agents{}, _ -> :agent
+      # %ValueFlows.Agent.People{}, _ -> :person
+      # %ValueFlows.Agent.Organizations{}, _ -> :organization
+      %ValueFlows.Planning.Intent{}, _ -> :intent
+    end)
   end
 end

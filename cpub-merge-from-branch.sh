@@ -22,7 +22,7 @@ echo "Merging, without commiting yet"
 git merge --no-ff --no-commit ${FROM_BRANCH}
 
 echo "Restoring files which we don't want overwritten (add any core files that should be different in each flavour to the below line in the script)"
-for file in cpub-merge-from-upstream.sh cpub-merge-from-branch.sh README.md DEPLOY.md HACKING.md config/docker.env config/docker.dev.env Makefile docker-compose.yml docker-compose.pi.yml .gitlab-ci.yml lib/moodle_net_web/graphql/schema.ex
+for file in cpub-merge-from-branch.sh README.md config/docker.env config/docker.dev.env lib/moodle_net_web/graphql/schema.ex lib/value_flows test/value_flows test/support/value_flows priv/repo/migrations/*_vf*
 do
     git reset HEAD ${file}
     git checkout -- ${file}
@@ -32,7 +32,7 @@ echo "Please check if everything looks good (including resolving any merge confl
 read answer
 if echo "$answer" | grep -iq "^c" ; then
     echo "Merging and pushing..."
-    git commit -m "merged from upstream"
+    git commit -m "merged from ${FROM_BRANCH}"
     git push
 else 
     echo "Aborting the merge."
