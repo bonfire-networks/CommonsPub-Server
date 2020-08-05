@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Tag.Autocomplete do
+defmodule CommonsPub.Tag.Autocomplete do
   use MoodleNetWeb, :controller
 
   import MoodleNetWeb.Helpers.Common

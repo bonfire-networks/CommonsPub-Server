@@ -209,8 +209,8 @@ defmodule MoodleNetWeb.Router do
 
     pipe_through :protect_forgery
 
-    get "/api/tag/autocomplete/:prefix/:search", Tag.Autocomplete, :get
-    get "/api/tag/autocomplete/:consumer/:prefix/:search", Tag.Autocomplete, :get
+    get "/api/tag/autocomplete/:prefix/:search", CommonsPub.Tag.Autocomplete, :get
+    get "/api/tag/autocomplete/:consumer/:prefix/:search", CommonsPub.Tag.Autocomplete, :get
     get "/api/taxonomy/test", Taxonomy.Utils, :get
   end
 

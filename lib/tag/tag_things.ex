@@ -1,4 +1,4 @@
-defmodule Tag.TagThings do
+defmodule CommonsPub.Tag.TagThings do
   # import Ecto.Query
   # alias Ecto.Changeset
   alias MoodleNet.{
@@ -6,7 +6,7 @@ defmodule Tag.TagThings do
     Repo
   }
 
-  alias Tag.Taggable
+  alias CommonsPub.Tag.Taggable
 
   def tag_thing(user, tag, pointer_id) when is_binary(pointer_id) do
     with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
@@ -53,7 +53,7 @@ defmodule Tag.TagThings do
     IO.inspect(taggable)
     IO.inspect(things)
 
-    with {:ok, tag} <- Tag.Taggables.maybe_make_taggable(user, taggable) do
+    with {:ok, tag} <- CommonsPub.Tag.Taggables.maybe_make_taggable(user, taggable) do
       IO.inspect(taggable)
       # with an object that we made taggable
       tag_pointers(user, tag, things)
@@ -64,16 +64,16 @@ defmodule Tag.TagThings do
   end
 
   def get_tag(id) when is_number(id) do
-    Tag.Taggables.one(taxonomy_tag_id: id)
+    CommonsPub.Tag.Taggables.one(taxonomy_tag_id: id)
   end
 
   def get_tag(id) when is_binary(id) do
     if MoodleNetWeb.Helpers.Common.is_numeric(id) do
       # try with taxonomyTag
-      Tag.Taggables.one(taxonomy_tag_id: id)
+      CommonsPub.Tag.Taggables.one(taxonomy_tag_id: id)
     else
       # use Taggable
-      Tag.Taggables.one(id: id)
+      CommonsPub.Tag.Taggables.one(id: id)
     end
   end
 

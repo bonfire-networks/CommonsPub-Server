@@ -188,7 +188,7 @@ defmodule Profile.GraphQL.Schema do
   end
 
   input_object :profile_input do
-    field(:preferred_username, :string)
+    # field(:preferred_username, :string)
     field(:name, non_null(:string))
     field(:summary, :string)
     # field :primary_language_id, :string

@@ -105,13 +105,13 @@ dev-db: init ## Create the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.create
 
 dev-db-rollback: init ## Reset the dev DB
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.rollback --log-sql
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.rollback
 
 dev-db-reset: init ## Reset the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.reset
 
 dev-db-migrate: init ## Run migrations on dev DB
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.migrate --log-sql
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.migrate
 
 dev-db-seeds: init ## Insert some test data in dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.seeds
@@ -165,7 +165,7 @@ vf-tests: init
 
 prepare: init ## Run the app in Docker
 	docker-compose pull 
-	build
+	docker-compose build 
 
 run: init ## Run the app in Docker
 	docker-compose up 

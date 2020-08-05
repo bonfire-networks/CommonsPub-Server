@@ -75,7 +75,7 @@ defmodule Taxonomy.TaxonomyTags do
     Repo.transact_with(fn ->
       tag = Repo.preload(tag, [:taggable, :parent_tag])
 
-      # with Tag.Taggables.one(taxonomy_tag_id: tag.id) do
+      # with CommonsPub.Tag.Taggables.one(taxonomy_tag_id: tag.id) do
       with {:ok, taggable} <- Map.get(tag, :taggable) do
         # already exists
         taggable
@@ -128,14 +128,17 @@ defmodule Taxonomy.TaxonomyTags do
     tag = Repo.preload(tag, :taggable)
     tag = cleanup(tag)
 
-    if(Ecto.assoc_loaded?(tag.taggable) and !is_nil(tag.taggable) and !is_nil(tag.taggable.id)) do
+    if(
+      Ecto.assoc_loaded?(tag.taggable) and
+        !is_nil(tag.taggable.id())
+    ) do
       # already has an associated taggable
       {:ok, tag.taggable}
     else
       IO.inspect(create_taggable: tag)
 
       Repo.transact_with(fn ->
-        with {:ok, taggable} <- Tag.Taggables.create(user, tag) do
+        with {:ok, taggable} <- CommonsPub.Tag.Taggables.maybe_make_taggable(user, tag) do
           {:ok, taggable}
         end
       end)
