@@ -86,7 +86,7 @@ defmodule CommonsPub.Tag.Categories do
            {:ok, taggable} <-
              CommonsPub.Tag.Taggables.maybe_make_taggable(creator, category, attrs),
            {:ok, profile} <- Profile.Profiles.create(creator, attrs),
-           {:ok, character} <- Character.Characters.create(creator, attrs) do
+           {:ok, character} <- Character.Characters.create(creator, attrs_with_username(attrs)) do
         {:ok, %{category | taggable: taggable, character: character, profile: profile}}
       end
     end)
@@ -102,15 +102,33 @@ defmodule CommonsPub.Tag.Categories do
     {:ok, attrs}
   end
 
+  # todo: improve
+  def attrs_with_username(%{preferred_username: preferred_username, name: name} = attrs)
+      when is_nil(preferred_username) or preferred_username == "" do
+    Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
+  end
+
+  def attrs_with_username(
+        %{preferred_username: preferred_username, profile: %{name: name}} = attrs
+      )
+      when is_nil(preferred_username) or preferred_username == "" do
+    Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
+  end
+
+  def attrs_with_username(%{name: name} = attrs) do
+    Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
+  end
+
+  def attrs_with_username(%{profile: %{name: name}} = attrs) do
+    Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
+  end
+
   defp insert_category(attrs) do
     # IO.inspect(insert_category: attrs)
     cs = Category.create_changeset(attrs)
     with {:ok, category} <- Repo.insert(cs), do: {:ok, category}
   end
 
-  # TODO: take the user who is performing the update
-  @spec update(User.t(), Category.t(), attrs :: map) ::
-          {:ok, Category.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Category{} = category, attrs) do
     Repo.transact_with(fn ->
       # :ok <- publish(category, :updated)

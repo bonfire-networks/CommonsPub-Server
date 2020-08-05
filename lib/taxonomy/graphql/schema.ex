@@ -26,9 +26,9 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
 
   object :taxonomy_mutations do
     @desc "Create a Category to represents this taxonomy_tag in feeds and federation"
-    field :make_taxonomy_tag_taggable, :taggable do
+    field :ingest_taxonomy_tag, :taggable do
       arg(:taxonomy_tag_id, :integer)
-      resolve(&TaxonomyResolver.make_taggable_taxonomy_tag/2)
+      resolve(&TaxonomyResolver.ingest_taxonomy_tag/2)
     end
   end
 

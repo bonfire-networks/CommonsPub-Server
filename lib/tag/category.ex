@@ -55,12 +55,34 @@ defmodule CommonsPub.Tag.Category do
 
   def create_changeset(attrs) do
     %Category{}
-    # |> Changeset.change(id: Ecto.ULID.generate())
+    |> Changeset.change(parent_category_id: parent_category(attrs))
+    |> Changeset.change(same_as_category_id: same_as_category(attrs))
     |> Changeset.cast(attrs, @cast)
-    # |> Changeset.change(
-    #   id: Ecto.ULID.generate()
-    #   )
     |> common_changeset()
+  end
+
+  defp parent_category(%{parent_category: parent_category}) when is_binary(parent_category) do
+    parent_category
+  end
+
+  defp parent_category(%{parent_category: %{id: id}}) when is_binary(id) do
+    id
+  end
+
+  defp parent_category(_) do
+    nil
+  end
+
+  defp same_as_category(%{same_as_category: same_as_category}) when is_binary(same_as_category) do
+    same_as_category
+  end
+
+  defp same_as_category(%{same_as_category: %{id: id}}) when is_binary(id) do
+    id
+  end
+
+  defp same_as_category(_) do
+    nil
   end
 
   def update_changeset(

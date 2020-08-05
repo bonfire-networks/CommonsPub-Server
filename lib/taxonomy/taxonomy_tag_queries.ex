@@ -11,8 +11,8 @@ defmodule Taxonomy.TaxonomyTag.Queries do
       as: :tag,
       left_join: pt in assoc(t, :parent_tag),
       as: :parent_tag,
-      left_join: tb in assoc(t, :taggable),
-      as: :taggable
+      left_join: c in assoc(t, :category),
+      as: :category
     )
   end
 
@@ -66,6 +66,14 @@ defmodule Taxonomy.TaxonomyTag.Queries do
     where(q, [tag: f], f.id == ^id)
   end
 
+  def filter(q, {:category_id, ids}) when is_list(ids) do
+    where(q, [tag: f], f.category_id in ^ids)
+  end
+
+  def filter(q, {:category_id, id}) when is_binary(id) do
+    where(q, [tag: f], f.category_id == ^id)
+  end
+
   def filter(q, {:name, name}) when is_binary(name) do
     where(q, [tag: f], f.name == ^name)
   end
@@ -78,11 +86,15 @@ defmodule Taxonomy.TaxonomyTag.Queries do
     do: where(q, [tag: t], t.parent_tag_id in ^ids)
 
   def filter(q, :default) do
-    filter(q, preload: :parent_tag, preload: :taggable)
+    filter(q, preload: :parent_tag, preload: :category)
   end
 
-  def filter(q, {:preload, :taggable}) do
-    preload(q, [taggable: tg], taggable: tg)
+  def filter(q, {:filter, :default}) do
+    filter(q, :default)
+  end
+
+  def filter(q, {:preload, :category}) do
+    preload(q, [category: tg], category: tg)
   end
 
   def filter(q, {:preload, :parent_tag}) do

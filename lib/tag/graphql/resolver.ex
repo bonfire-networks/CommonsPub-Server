@@ -177,38 +177,54 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   ### decorators
 
-  def name(%{name: name, context_id: context_id}, _, info)
-      when is_nil(name) and not is_nil(context_id) do
-    # IO.inspect(context_id)
-
-    # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
-    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
-         context = MoodleNet.Meta.Pointers.follow!(pointer) do
-      name = if Map.has_key?(context, :name), do: context.name
-      # IO.inspect(name)
-      {:ok, name}
-    end
-  end
-
-  def name(%{name: name}, _, info) do
+  def name(%{profile: %{name: name}}, _, _info) when not is_nil(name) do
     {:ok, name}
   end
 
-  def summary(%{summary: summary, context_id: context_id}, _, info)
-      when is_nil(summary) and not is_nil(context_id) do
-    # IO.inspect(context_id)
-
-    # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
-    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
-         context = MoodleNet.Meta.Pointers.follow!(pointer) do
-      summary = if Map.has_key?(context, :summary), do: context.summary
-      # IO.inspect(summary)
-      {:ok, summary}
-    end
+  def name(%{name: name}, _, _info) when not is_nil(name) do
+    {:ok, name}
   end
 
-  def summary(%{summary: summary}, _, info) do
+  # def name(%{name: name, context_id: context_id}, _, _info)
+  #     when is_nil(name) and not is_nil(context_id) do
+  #   # IO.inspect(context_id)
+
+  #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
+  #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+  #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
+  #     name = if Map.has_key?(context, :name), do: context.name
+  #     # IO.inspect(name)
+  #     {:ok, name}
+  #   end
+  # end
+
+  def name(_, _, _) do
+    {:ok, nil}
+  end
+
+  def summary(%{profile: %{summary: summary}}, _, _info) when not is_nil(summary) do
     {:ok, summary}
+  end
+
+  def summary(%{summary: summary}, _, _info) when not is_nil(summary) do
+    {:ok, summary}
+  end
+
+  # def summary(%{summary: summary, context_id: context_id}, _, _info)
+  #     when is_nil(summary) and not is_nil(context_id) do
+  #   # IO.inspect(context_id)
+
+  #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
+  #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+  #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
+  #     summary = if Map.has_key?(context, :summary), do: context.summary
+  #     # IO.inspect(summary)
+  #     {:ok, summary}
+  #   end
+  # end
+
+  def summary(_, _, _) do
+    {:ok, nil}
   end
 
   # def tag(%{tag_id: id}, info) do

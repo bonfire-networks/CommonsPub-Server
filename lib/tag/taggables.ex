@@ -42,7 +42,7 @@ defmodule CommonsPub.Tag.Taggables do
   """
   def maybe_make_taggable(user, id, _) when is_number(id) do
     if Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
-      Taxonomy.TaxonomyTags.maybe_make_taggable(user, id)
+      Taxonomy.TaxonomyTags.maybe_make_category(user, id)
     else
       {:error, "Please provider a pointer"}
     end
@@ -82,7 +82,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   @doc """
-  Create a taggable mixin for an existing object (please use maybe_make_taggable instead)
+  Create a taggable mixin for an existing poitable object (please use maybe_make_taggable instead)
   """
   defp make_taggable(%User{} = creator, %{} = pointer_obj, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
