@@ -183,7 +183,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   union :any_context do
     description("Any type of known object")
-    # TODO: autogenerate
+    # TODO: autogenerate or get from config
     types([
       :community,
       :collection,
@@ -195,28 +195,53 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       :user,
       :organisation,
       :tag,
-      :spatial_thing,
-      :intent
+      :spatial_thing
+      # :intent
     ])
 
     resolve_type(fn
-      %MoodleNet.Users.User{}, _ -> :user
-      %MoodleNet.Communities.Community{}, _ -> :community
-      %MoodleNet.Collections.Collection{}, _ -> :collection
-      %MoodleNet.Resources.Resource{}, _ -> :resource
-      %MoodleNet.Threads.Thread{}, _ -> :thread
-      %MoodleNet.Threads.Comment{}, _ -> :comment
-      %MoodleNet.Follows.Follow{}, _ -> :follow
-      %MoodleNet.Likes.Like{}, _ -> :like
-      %MoodleNet.Flags.Flag{}, _ -> :flag
-      %MoodleNet.Features.Feature{}, _ -> :feature
-      %Organisation{}, _ -> :organisation
-      %Geolocation{}, _ -> :spatial_thing
-      %Tag.Taggable{}, _ -> :tag
-      # %ValueFlows.Agent.Agents{}, _ -> :agent
-      # %ValueFlows.Agent.People{}, _ -> :person
-      # %ValueFlows.Agent.Organizations{}, _ -> :organization
-      %ValueFlows.Planning.Intent{}, _ -> :intent
+      %MoodleNet.Users.User{}, _ ->
+        :user
+
+      %MoodleNet.Communities.Community{}, _ ->
+        :community
+
+      %MoodleNet.Collections.Collection{}, _ ->
+        :collection
+
+      %MoodleNet.Resources.Resource{}, _ ->
+        :resource
+
+      %MoodleNet.Threads.Thread{}, _ ->
+        :thread
+
+      %MoodleNet.Threads.Comment{}, _ ->
+        :comment
+
+      %MoodleNet.Follows.Follow{}, _ ->
+        :follow
+
+      %MoodleNet.Likes.Like{}, _ ->
+        :like
+
+      %MoodleNet.Flags.Flag{}, _ ->
+        :flag
+
+      %MoodleNet.Features.Feature{}, _ ->
+        :feature
+
+      %Organisation{}, _ ->
+        :organisation
+
+      %Geolocation{}, _ ->
+        :spatial_thing
+
+      %Tag.Taggable{}, _ ->
+        :tag
+        # %ValueFlows.Agent.Agents{}, _ -> :agent
+        # %ValueFlows.Agent.People{}, _ -> :person
+        # %ValueFlows.Agent.Organizations{}, _ -> :organization
+        # %ValueFlows.Planning.Intent{}, _ -> :intent
     end)
   end
 end
