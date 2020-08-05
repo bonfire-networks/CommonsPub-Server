@@ -104,9 +104,10 @@ defmodule Character.Characters do
   end
 
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    IO.inspect(character_create: attrs)
+    # IO.inspect(character_create: attrs)
     attrs = Actors.prepare_username(attrs)
-    IO.inspect(attrs)
+
+    # IO.inspect(attrs)
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
