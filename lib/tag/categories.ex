@@ -7,10 +7,15 @@ defmodule CommonsPub.Tag.Categories do
     # GraphQL,
     Repo,
     GraphQL.Page,
-    Common.Contexts
+    Common.Contexts,
+    Activities,
+    Feeds
   }
 
   alias MoodleNet.Users.User
+  alias MoodleNet.Feeds.FeedActivities
+  alias MoodleNet.Workers.APPublishWorker
+
   alias CommonsPub.Tag.Category
   alias CommonsPub.Tag.Category.Queries
 
@@ -87,7 +92,14 @@ defmodule CommonsPub.Tag.Categories do
              CommonsPub.Tag.Taggables.maybe_make_taggable(creator, category, attrs),
            {:ok, profile} <- Profile.Profiles.create(creator, attrs),
            {:ok, character} <- Character.Characters.create(creator, attrs_with_username(attrs)) do
-        {:ok, %{category | taggable: taggable, character: character, profile: profile}}
+        category = %{category | taggable: taggable, character: character, profile: profile}
+        act_attrs = %{verb: "created", is_local: is_nil(character.actor.peer_id)}
+        {:ok, activity} = Activities.create(creator, category, act_attrs)
+        Repo.preload(category, :caretaker)
+        :ok = publish(creator, category.caretaker, character, activity)
+        :ok = ap_publish("create", category)
+
+        {:ok, category}
       end
     end)
   end
@@ -139,6 +151,36 @@ defmodule CommonsPub.Tag.Categories do
       end
     end)
   end
+
+  # Feeds
+
+  defp publish(creator, %{outbox_id: caretaker_outbox}, category, activity) do
+    feeds = [
+      caretaker_outbox,
+      creator.outbox_id,
+      category.outbox_id,
+      Feeds.instance_outbox_id()
+    ]
+
+    FeedActivities.publish(activity, feeds)
+  end
+
+  defp publish(creator, _, category, activity) do
+    feeds = [category.outbox_id, creator.outbox_id, Feeds.instance_outbox_id()]
+    FeedActivities.publish(activity, feeds)
+  end
+
+  defp ap_publish(verb, communities) when is_list(communities) do
+    APPublishWorker.batch_enqueue(verb, communities)
+    :ok
+  end
+
+  defp ap_publish(verb, %{actor: %{peer_id: nil}} = category) do
+    APPublishWorker.enqueue(verb, %{"context_id" => category.id})
+    :ok
+  end
+
+  defp ap_publish(_, _), do: :ok
 
   # TODO move this common module
   @doc "conditionally update a map"

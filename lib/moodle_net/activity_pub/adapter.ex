@@ -19,7 +19,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
     # FIXME: this should be only one query
     with {:error, _e} <- Users.one([:default, username: username]),
          {:error, _e} <- Communities.one([:default, username: username]),
-         {:error, _e} <- Collections.one([:default, username: username]) do
+         {:error, _e} <- Collections.one([:default, username: username]),
+         {:error, _e} <- Character.Characters.one([:default, username: username]) do
       {:error, "not found"}
     end
   end

@@ -63,20 +63,6 @@ defmodule CommonsPub.Tag.TagThings do
     end
   end
 
-  def get_tag(id) when is_number(id) do
-    CommonsPub.Tag.Taggables.one(taxonomy_tag_id: id)
-  end
-
-  def get_tag(id) when is_binary(id) do
-    if MoodleNetWeb.Helpers.Common.is_numeric(id) do
-      # try with taxonomyTag
-      CommonsPub.Tag.Taggables.one(taxonomy_tag_id: id)
-    else
-      # use Taggable
-      CommonsPub.Tag.Taggables.one(id: id)
-    end
-  end
-
   defp tag_pointers_save(tag, things) do
     IO.inspect(tag_pointers_insert: tag)
     IO.inspect(tag_pointers_insert: things)

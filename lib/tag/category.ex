@@ -29,9 +29,6 @@ defmodule CommonsPub.Tag.Category do
     # eg. Olive Oil is the same as Huile d'olive
     belongs_to(:same_as_category, Category, type: Ecto.ULID)
 
-    # optionally where it came from in the taxonomy
-    # belongs_to(:taxonomy_category, Taxonomy.TaxonomyCategory, type: :integer)
-
     # which community/collection/organisation/etc this category belongs to, if any
     belongs_to(:caretaker, Pointers.Pointer, type: Ecto.ULID)
 
@@ -101,9 +98,9 @@ defmodule CommonsPub.Tag.Category do
     # |> change_disabled()
   end
 
-  def context_module, do: CommonsPub.Category.Categories
+  def context_module, do: CommonsPub.Tag.Category.Categories
 
-  def queries_module, do: CommonsPubs.Category.Queries
+  def queries_module, do: CommonsPub.Tag.Category.Queries
 
   def follow_filters, do: [:default]
 end
