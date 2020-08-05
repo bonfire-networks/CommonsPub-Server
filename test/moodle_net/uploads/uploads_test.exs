@@ -5,7 +5,7 @@ defmodule MoodleNet.UploadsTest do
   use MoodleNet.DataCase, async: true
 
   import MoodleNet.Test.Faking
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
   alias MoodleNet.Uploads
   alias MoodleNet.Uploads.{FileDenied, Storage}
 
@@ -18,7 +18,7 @@ defmodule MoodleNet.UploadsTest do
       Faker.Util.pick([
         MoodleNet.Uploads.IconUploader,
         MoodleNet.Uploads.ImageUploader,
-        MoodleNet.Uploads.ResourceUploader,
+        MoodleNet.Uploads.ResourceUploader
       ])
 
     Uploads.upload(upload_def, user, %{upload: file}, %{})
@@ -35,7 +35,7 @@ defmodule MoodleNet.UploadsTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Uploads.one(id: Fake.ulid())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Uploads.one(id: Simulation.ulid())
     end
   end
 

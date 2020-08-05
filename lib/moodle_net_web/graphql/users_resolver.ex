@@ -75,8 +75,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def fetch_users(page_opts, info) do
-    IO.inspect(page_opts)
-
     FetchPage.run(%FetchPage{
       queries: Users.Queries,
       query: User,
@@ -277,16 +275,12 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_inbox_edge(page_opts, info, id) do
     with {:ok, %User{} = user} <- GraphQL.current_user_or_empty_page(info) do
-      # IO.inspect(user)
       tables = Users.default_inbox_query_contexts()
-
-      # IO.inspect(fetch_inbox_edge_tables: tables)
 
       Repo.transact_with(fn ->
         with {:ok, subs} <- Users.feed_subscriptions(user) do
           ids = [id | Enum.map(subs, & &1.feed_id)]
 
-          # IO.inspect(
           FetchPage.run(%FetchPage{
             queries: Activities.Queries,
             query: Activities.Activity,
@@ -294,8 +288,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
             base_filters: [deleted: false, feed_timeline: ids, table: tables],
             data_filters: [page: [desc: [created: page_opts]], preload: :context]
           })
-
-          # )
         end
       end)
     end
@@ -371,7 +363,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(user, params, info),
-         attrs = Map.merge(attrs, uploads),
+         attrs = MoodleNetWeb.Helpers.Common.input_to_atoms(Map.merge(attrs, uploads)),
          {:ok, user} <- Users.update(user, attrs) do
       {:ok, Me.new(user)}
     end
@@ -389,17 +381,33 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def create_session(%{email: email, password: password}, info) do
-    with :ok <- GraphQL.guest_only(info) do
-      case Users.one([:default, email: email]) do
-        {:ok, user} ->
-          with {:ok, token} <- Access.create_token(user, password) do
-            {:ok, %{token: token.id, me: Me.new(user)}}
-          end
+    login(email, password)
+  end
 
-        _ ->
-          Argon2.no_user_verify([])
-          GraphQL.invalid_credential()
-      end
+  def create_session(%{login: login, password: password}, info) do
+    login(login, password)
+  end
+
+  def login(login, password) do
+    case Users.one([:default, email: login]) do
+      {:ok, user} ->
+        user_create_session(user, password)
+
+      _ ->
+        case Users.one([:default, username: login]) do
+          {:ok, user} ->
+            user_create_session(user, password)
+
+          _ ->
+            Argon2.no_user_verify([])
+            GraphQL.invalid_credential()
+        end
+    end
+  end
+
+  defp user_create_session(user, password) do
+    with {:ok, token} <- Access.create_token(user, password) do
+      {:ok, %{token: token.id, me: Me.new(user)}}
     end
   end
 

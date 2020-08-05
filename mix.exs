@@ -164,6 +164,8 @@ defmodule MoodleNet.Mixfile do
       # CommonsPub:
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
+      # geocoding
+      {:geocoder, "~> 1.0"},
       {:earmark, "~> 1.4"},
       {:slugger, "~> 0.3"},
       # {:pointers, "~> 0.2.2"},
@@ -171,9 +173,9 @@ defmodule MoodleNet.Mixfile do
         :pointers,
         # git: "https://github.com/commonspub/pointers.git", branch: "main"
         git: "https://github.com/mayel/pointers.git",
-        ref: "7b6798f5989b7a935287a195c417720a9db4d5b6"
+        ref: "4bbb56b75af70c86796c2ab8ae79179ac9992869"
+        # path: "uploads/pointers"
       },
-      # {:pointers, path: "uploads/many-pointers"},
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
@@ -184,10 +186,11 @@ defmodule MoodleNet.Mixfile do
       # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       # dev/test only
       {:dbg, "~> 1.0", only: [:dev, :test]},
-      {:zest, "~> 0.1.1", only: [:dev, :test]},
       {:grumble, "~> 0.1.3", only: [:dev, :test]},
-      # fake data generation for moodlenet
+      # fake app data generation, also used in prototype API endponts
       {:faker, "~> 0.12"},
+      # required by CommonsPub.Utils.Simulation
+      {:zest, "~> 0.1.1"},
       # fake data generation for AP
       {:ex_machina, "~> 2.3", only: [:dev, :test]},
       # property testing

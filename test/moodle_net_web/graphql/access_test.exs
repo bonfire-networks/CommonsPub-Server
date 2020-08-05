@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.GraphQLFields
   import Grumble
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
   alias MoodleNet.Access
 
   def email_access_fields(extra \\ []) do
@@ -91,7 +91,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       conn = user_conn(user)
 
       q = register_email_mutation()
-      vars = %{email: Fake.email()}
+      vars = %{email: Simulation.email()}
       assert email_access = grumble_post_key(q, conn, :create_register_email_access, vars)
       assert email_access["email"] == vars[:email]
       assert email_access["createdAt"]
@@ -101,7 +101,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       user = fake_user!(%{is_instance_admin: true})
       conn = user_conn(user)
 
-      assert {:ok, email_access} = Access.create_register_email(Fake.email())
+      assert {:ok, email_access} = Access.create_register_email(Simulation.email())
 
       q = register_email_mutation()
 
@@ -128,14 +128,14 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
                  "path" => ["createRegisterEmailAccess"],
                  "status" => 403
                }
-             ] = grumble_post_errors(q, conn, %{email: Fake.email()})
+             ] = grumble_post_errors(q, conn, %{email: Simulation.email()})
     end
 
     test "deletes an email" do
       user = fake_admin!()
       conn = user_conn(user)
 
-      assert {:ok, email_access} = Access.create_register_email(Fake.email())
+      assert {:ok, email_access} = Access.create_register_email(Simulation.email())
 
       q = delete_email_mutation()
 
@@ -150,7 +150,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       user = fake_user!()
       conn = user_conn(user)
 
-      assert {:ok, email_access} = Access.create_register_email(Fake.email())
+      assert {:ok, email_access} = Access.create_register_email(Simulation.email())
 
       q = delete_email_mutation()
 
@@ -169,7 +169,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       user = fake_admin!()
       conn = user_conn(user)
 
-      for email <- [Fake.email(), Fake.email(), Fake.email()] do
+      for email <- [Simulation.email(), Simulation.email(), Simulation.email()] do
         Access.create_register_email(email)
       end
 
@@ -182,7 +182,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       user = fake_user!()
       conn = user_conn(user)
 
-      for email <- [Fake.email(), Fake.email(), Fake.email()] do
+      for email <- [Simulation.email(), Simulation.email(), Simulation.email()] do
         Access.create_register_email(email)
       end
 
@@ -198,7 +198,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       conn = user_conn(user)
 
       q = register_domain_mutation()
-      vars = %{domain: Fake.domain()}
+      vars = %{domain: Simulation.domain()}
       assert domain_access = grumble_post_key(q, conn, :create_register_email_domain_access, vars)
       assert domain_access["domain"] == vars[:domain]
       assert domain_access["createdAt"]
@@ -208,7 +208,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       user = fake_user!(%{is_instance_admin: true})
       conn = user_conn(user)
 
-      assert {:ok, domain_access} = Access.create_register_email_domain(Fake.domain())
+      assert {:ok, domain_access} = Access.create_register_email_domain(Simulation.domain())
 
       q = register_domain_mutation()
 
@@ -235,14 +235,14 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
                  "path" => ["createRegisterEmailDomainAccess"],
                  "status" => 403
                }
-             ] = grumble_post_errors(q, conn, %{domain: Fake.domain})
+             ] = grumble_post_errors(q, conn, %{domain: Simulation.domain()})
     end
 
     test "deletes a domain" do
       user = fake_admin!()
       conn = user_conn(user)
 
-      assert {:ok, domain_access} = Access.create_register_email_domain(Fake.domain())
+      assert {:ok, domain_access} = Access.create_register_email_domain(Simulation.domain())
 
       q = delete_domain_mutation()
 
@@ -259,7 +259,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       user = fake_user!()
       conn = user_conn(user)
 
-      assert {:ok, domain_access} = Access.create_register_email_domain(Fake.domain())
+      assert {:ok, domain_access} = Access.create_register_email_domain(Simulation.domain())
 
       q = delete_domain_mutation()
 
@@ -278,7 +278,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       user = fake_admin!()
       conn = user_conn(user)
 
-      for domain <- [Fake.domain(), Fake.domain(), Fake.domain()] do
+      for domain <- [Simulation.domain(), Simulation.domain(), Simulation.domain()] do
         Access.create_register_email_domain(domain)
       end
 
@@ -291,7 +291,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       user = fake_user!()
       conn = user_conn(user)
 
-      for domain <- [Fake.domain(), Fake.domain(), Fake.domain()] do
+      for domain <- [Simulation.domain(), Simulation.domain(), Simulation.domain()] do
         Access.create_register_email_domain(domain)
       end
 

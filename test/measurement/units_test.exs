@@ -4,16 +4,20 @@
 defmodule Measurement.UnitsTest do
   use MoodleNetWeb.ConnCase, async: true
 
-  import MoodleNet.Test.Trendy
+  import Measurement.Test.Faking
+
+  import CommonsPub.Utils.Trendy
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.Orderings
   import MoodleNetWeb.Test.Automaton
-  import MoodleNet.Common.Enums
+  import MoodleNet.Common.{Enums, NotFoundError}
+
   import Grumble
   import Zest
-  alias MoodleNet.Test.Fake
 
-  import Measurement.Test.Faking
+  alias CommonsPub.Utils.Simulation
+
+  import Measurement.Simulate
   alias Measurement.Unit
   alias Measurement.Unit.Units
 
@@ -32,7 +36,13 @@ defmodule Measurement.UnitsTest do
     end
 
     test "returns NotFound if item is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one(id: Fake.ulid())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one(id: Simulation.ulid())
+    end
+
+    test "returns NotFound if item is deleted" do
+      unit = fake_user!() |> fake_unit!()
+      assert {:ok, unit} = Units.soft_delete(unit)
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one([:default, id: unit.id])
     end
   end
 
@@ -66,6 +76,15 @@ defmodule Measurement.UnitsTest do
       unit = fake_unit!(user, comm, %{label: "Bottle Caps", symbol: "C"})
       assert {:ok, updated} = Units.update(unit, %{label: "Rad", symbol: "rad"})
       assert unit != updated
+    end
+  end
+
+  describe "soft_delete" do
+    test "deletes an existing unit" do
+      unit = fake_user!() |> fake_unit!()
+      refute unit.deleted_at
+      assert {:ok, deleted} = Units.soft_delete(unit)
+      assert deleted.deleted_at
     end
   end
 

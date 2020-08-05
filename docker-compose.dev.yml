@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: "Dockerfile.dev"
     ports:
-      - "4004:4004"
+      - "4008:4008"
     env_file:
       - config/docker.dev.env
     depends_on:
@@ -25,8 +25,8 @@ services:
     image: postgis/postgis:12-3.0-alpine
     volumes:
       - "./data/postgres:/var/lib/postgresql/data"
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     env_file:
       - config/docker.dev.env
   dbeaver:
@@ -50,7 +50,7 @@ services:
   search:
     image: getmeili/meilisearch:latest
     ports:
-      - "7700:7700"
+      - "7709:7700"
     volumes:
       - "./data/search:/data.ms"
     env_file:

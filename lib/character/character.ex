@@ -29,8 +29,12 @@ defmodule Character do
     # field(:characteristic, :any, virtual: true)
     # belongs_to(:characteristic, Pointer)
 
-    # name for the Thing this character represents (same naming as the singular object module), eg. Circle, Geolocation, etc
+    # name for the Thing this character represents (same naming as the singular object module), eg. Organisation, Geolocation, etc
     field(:facet, :string)
+
+    field(:preferred_username, :string, virtual: true)
+    field(:canonical_url, :string, virtual: true)
+    field(:signing_key, :string, virtual: true)
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)

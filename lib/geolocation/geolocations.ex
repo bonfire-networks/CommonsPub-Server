@@ -5,7 +5,7 @@ defmodule Geolocation.Geolocations do
   alias MoodleNet.{
     Activities,
     Actors,
-    # Common,
+    Common,
     Feeds,
     Follows,
     Repo
@@ -99,6 +99,7 @@ defmodule Geolocation.Geolocations do
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
+           {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
            {:ok, item} <- insert_geolocation(creator, context, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -116,6 +117,7 @@ defmodule Geolocation.Geolocations do
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
+           {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
            {:ok, item} <- insert_geolocation(creator, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -166,7 +168,7 @@ defmodule Geolocation.Geolocations do
     ]
 
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", geolocation.id, creator.id, geolocation.actor.peer_id)
+      ap_publish("create", geolocation.id, creator.id)
     end
   end
 
@@ -178,21 +180,11 @@ defmodule Geolocation.Geolocations do
     ]
 
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", geolocation.id, creator.id, geolocation.actor.peer_id)
+      ap_publish("create", geolocation.id, creator.id)
     end
   end
 
-  # defp publish(geolocation, :updated) do
-  #   # TODO: wrong if edited by admin
-  #   ap_publish("update", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
-  # end
-
-  # defp publish(geolocation, :deleted) do
-  #   # TODO: wrong if edited by admin
-  #   ap_publish("delete", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
-  # end
-
-  defp ap_publish(verb, context_id, user_id, nil) do
+  defp ap_publish(verb, context_id, user_id) do
     job_result =
       APPublishWorker.enqueue(verb, %{
         "context_id" => context_id,
@@ -202,34 +194,27 @@ defmodule Geolocation.Geolocations do
     with {:ok, _} <- job_result, do: :ok
   end
 
-  defp ap_publish(_, _, _, _), do: :ok
+  defp ap_publish(_, _, _), do: :ok
 
-  # TODO: take the user who is performing the update
   @spec update(User.t(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def update(%User{} = _user, %Geolocation{} = geolocation, attrs) do
-    # Repo.transact_with(fn ->
-    #   geolocation = Repo.preload(geolocation, :community)
-    #   with {:ok, geolocation} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
-    #        {:ok, actor} <- Actors.update(user, geolocation.actor, attrs),
-    #        :ok <- publish(geolocation, :updated) do
-    #     {:ok, %{ geolocation | actor: actor }}
-    #   end
-    # end)
-
-    with {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)) do
+  def update(%User{} = user, %Geolocation{} = geolocation, attrs) do
+     with {:ok, attrs} <- resolve_mappable_address(attrs),
+          {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
+          :ok <- ap_publish("update", item.id, user.id) do
       {:ok, populate_coordinates(item)}
     end
   end
 
-  # def soft_delete(%Geolocation{} = geolocation) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, geolocation} <- Common.soft_delete(geolocation),
-  #          :ok <- publish(geolocation, :deleted) do
-  #       {:ok, geolocation}
-  #     end
-  #   end)
-  # end
+  @spec soft_delete(User.t(), Geolocation.t()) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  def soft_delete(%User{} = user, %Geolocation{} = geo) do
+    Repo.transact_with(fn ->
+      with {:ok, geo} <- Common.soft_delete(geo),
+           :ok <- ap_publish("delete", geo.id, user.id) do
+        {:ok, geo}
+      end
+    end)
+  end
 
   def populate_coordinates(%Geolocation{geom: geom} = geo) when not is_nil(geom) do
     {lat, long} = geo.geom.coordinates
@@ -238,4 +223,13 @@ defmodule Geolocation.Geolocations do
   end
 
   def populate_coordinates(%Geolocation{} = geo), do: geo
+
+  def resolve_mappable_address(%{mappable_address: address} = geo) when is_binary(address) do
+    with {:ok, coordinates} <- Geocoder.call(address) do
+      # TODO: should handle bounds
+      {:ok, %{geo | lat: coordinates.lat, long: coordinates.lon}}
+    end
+  end
+
+  def resolve_mappable_address(attrs), do: {:ok, attrs}
 end

@@ -59,4 +59,4 @@ config :moodle_net, Oban, queues: false
 config :moodle_net, MoodleNet.Uploads,
   directory: File.cwd!() <> "/test_uploads",
   path: "/uploads",
-  base_url: "http://localhost:4001/uploads/"
+  uploads_base_url: "http://localhost:4001/uploads/"

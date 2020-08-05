@@ -10,13 +10,19 @@
 #
 ##
 
-union UnitContext = Circle | Community | Collection
+# union UnitContext = Organisation | Community | Collection
 
 """
 Defines the unit of time measured in a temporal `Duration`.
 """
 enum TimeUnit {
-  year, month, week, day, hour, minute, second
+  year
+  month
+  week
+  day
+  hour
+  minute
+  second
 }
 
 """
@@ -41,8 +47,6 @@ input IDuration {
   unitType: TimeUnit!
 }
 
-
-
 """
 Defines a unit of measurement, along with its display symbol.
 From OM2 vocabulary.
@@ -56,10 +60,8 @@ type Unit {
   "A standard display symbol for a unit of measure."
   symbol: String!
 
-  inScopeOf: UnitContext
+  inScopeOf: AnyContext
 }
-
-
 
 """
 Semantic meaning for measurements: binds a quantity to its measurement unit.
@@ -113,7 +115,7 @@ type UnitResponse {
   unit: Unit
 }
 
-type UnitsPage{
+type UnitsPage {
   page_info: PageInfo
   edges: [Unit!]
   totalCount: Int

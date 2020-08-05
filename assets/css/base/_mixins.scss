@@ -225,6 +225,9 @@ $grid-columns: 12 !default;
   display: grid;
   grid-template-rows: 60px 1fr;
   height: 100vh;
+  width: 990px;
+  margin: 0 auto;
+  margin-top: var(--m4);
 }
 
 @mixin content_header {
@@ -233,18 +236,23 @@ $grid-columns: 12 !default;
   align-items: center;
   margin-bottom: var(--m3);
   padding: 0 var(--m3);
-  background: var(--color-primary-alt);
-  border-bottom: var(--border);
-  border-left: var(--border);
+  background: var(--color-surface);
   margin-bottom: 0;
+  border-radius: 6px;
+  
   .suphero__left {
     flex: 1;
+    color: var(--color-text);
   }
   .suphero__actions  {
     display: flex;
     align-items: center;
       .follow {
         margin-right: var(--m3);
+      }
+    
+      .dialog__container {
+        margin-right: var(--m2);
       }
   }
   
@@ -260,12 +268,12 @@ $grid-columns: 12 !default;
 
 @mixin content_two_sides {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 312px;
   margin: 0 auto;
   grid-column-gap: var(--m3);
   margin-top: var(--m3);
   .mainContent__selected {
-    width: 600px;
+    width: 660px;
     border: none;
     padding: var(--m3);
     box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
@@ -288,12 +296,13 @@ $grid-columns: 12 !default;
 @mixin content_navigation {
   border-top: 0;
   border-bottom: 0;
-  background: white;
+  background: var(--color-surface);
   padding: 8px;
   border-radius: 6px;
   height: fit-content;
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.1);
   height: max-content;
+  color: var(--color-text);
   a {
     display: block;
     height: 50px;
@@ -329,12 +338,16 @@ $grid-columns: 12 !default;
 // DROPDOWN
 @mixin icon-dropdown($orientation: "left") {
   position: relative;
+  color: var(--color-primary);
   cursor: pointer;
   summary::-webkit-details-marker {
     display: none;
   }
   summary {
     list-style: none;
+    &:focus {
+      outline: none;
+    }
   }
   &[open] {
     & > summary:before {
@@ -405,6 +418,7 @@ $grid-columns: 12 !default;
     box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
     h2 {
       margin: var(--m2) 0;
+      color: var(--color-background);
     }
     li {
       color: var(--color-surface);
@@ -414,6 +428,10 @@ $grid-columns: 12 !default;
       display: flex;
       align-items: center;
       font-size: 16px;
+      margin-bottom: var(--m2);
+      &:last-of-type {
+        margin-bottom: 0;
+      }
       i {
         width: 32px;
         height: 32px;

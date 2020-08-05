@@ -145,13 +145,17 @@ defmodule MoodleNetWeb.Router do
   end
 
   pipeline :liveview do
-    plug :protect_from_forgery
     plug :fetch_live_flash
     plug MoodleNetWeb.Live.Plug
   end
 
+  pipeline :protect_forgery do
+    plug :protect_from_forgery
+  end
+
   scope "/", MoodleNetWeb do
     pipe_through :browser
+    pipe_through :protect_forgery
     pipe_through :liveview
 
     # TODO redirect to instance or user depending on logged in
@@ -169,8 +173,8 @@ defmodule MoodleNetWeb.Router do
     live "/&:username", CommunityLive
     live "/&:username/:tab", CommunityLive
 
-    # live "/+:username", CharacterLive
-    # live "/+:username/:tab", CharacterLive
+    live "/+:username", CollectionLive
+    live "/+:username/:tab", CollectionLive
 
     live "/!:id/:do/:sub_id", DiscussionLive
     live "/!:id/:do", DiscussionLive
@@ -178,41 +182,60 @@ defmodule MoodleNetWeb.Router do
 
     live "/~/login", LoginLive
     live "/~/signup", SignupLive
-    live "/~/reset", ResetPasswordLive
-    live "/~/create-new-password/:token", CreateNewPasswordLive
+    live "/~/terms", TermsLive
+    live "/~/password/forgot", ResetPasswordLive
+    live "/~/password/change", CreateNewPasswordLive
+    live "/~/password/change/:token", CreateNewPasswordLive
 
     pipe_through :ensure_authenticated
 
     live "/~", My.Live
     live "/~/profile", MemberLive
+    live "/~/write", My.WriteLive
     live "/~/settings", SettingsLive
     live "/~/settings/:tab", SettingsLive
-    live "/~/write", My.Post.WriteLive
     live "/~/:tab", My.Live
 
     live "/~/proto", My.ProtoProfileLive
   end
 
-  def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
-    msg =
-      if Map.has_key?(reason, :message) and !is_nil(reason.message) and
-           String.length(reason.message) > 0 do
-        reason.message
-      else
-        if is_map(reason) and Map.has_key?(reason, :term) and is_map(reason.term) and
-             Map.has_key?(reason.term, :message) do
-          reason.term.message
-        else
-          # IO.inspect(handle_error: info)
-          "An unhandled error has occured"
-        end
-      end
+  scope "/", MoodleNetWeb do
+    pipe_through :browser
+    pipe_through :ensure_authenticated
 
-    send_resp(
-      conn,
-      conn.status,
-      "Sorry! " <>
-        msg <> "... Please try another way, or get in touch with the site admin."
-    )
+    # temporarily don't use CSRF for uploads until LV has a better approach
+
+    post "/~/settings", My.SettingsUpload, :upload
+
+    pipe_through :protect_forgery
+
+    get "/api/tag/autocomplete/:prefix/:search", Tag.Autocomplete, :get
+    get "/api/tag/autocomplete/:consumer/:prefix/:search", Tag.Autocomplete, :get
+    get "/api/taxonomy/test", Taxonomy.Utils, :get
+  end
+
+  if Mix.env() != :dev do
+    def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
+      msg =
+        if Map.has_key?(reason, :message) and !is_nil(reason.message) and
+             String.length(reason.message) > 0 do
+          reason.message
+        else
+          if is_map(reason) and Map.has_key?(reason, :term) and is_map(reason.term) and
+               Map.has_key?(reason.term, :message) do
+            reason.term.message
+          else
+            # IO.inspect(handle_error: info)
+            "An unhandled error has occured"
+          end
+        end
+
+      send_resp(
+        conn,
+        conn.status,
+        "Sorry! " <>
+          msg <> "... Please try another way, or get in touch with the site admin."
+      )
+    end
   end
 end

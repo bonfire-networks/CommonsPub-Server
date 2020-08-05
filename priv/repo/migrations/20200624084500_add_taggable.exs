@@ -4,8 +4,8 @@ defmodule MoodleNet.Repo.Migrations.AddTaggable do
   def up do
     # Pointers.Migration.create_main_pointer_trigger_function()
     # flush()
-    Taxonomy.Migrations.up()
-    flush()
+    # Taxonomy.Migrations.up()
+    # flush()
     Tag.Migrations.up()
   end
 

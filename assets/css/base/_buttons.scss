@@ -1,28 +1,27 @@
 // DEFAULT BUTTON MIXIN
-@mixin button($bg: var(--color-primary), $color: var(--color-primary-alt)) {
+@mixin button($bg: var(--color-primary), $color: var(--color-text)) {
   @include reset;
   font-family: inherit;
   border-radius: 5px;
   background: $bg;
-  border: 1px solid lightness($bg, 0.8);
+  border: 1px solid var(--color-primary-dark);
   color: $color;
   padding: var(--m2) var(--m3);
-  font-size: 1rem;
   font-size: 14px;
   font-weight: 600;
   min-width: 100px;
   white-space: nowrap;
   vertical-align: middle;
-
   cursor: pointer;
   transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
   &:hover {
-    background: lightness($bg, 0.8);
+    background: var(--color-primary-dark);
+    color: $color;
     text-decoration: none;
   }
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 4px lightness($bg, 1.4);
+    box-shadow: 0 0 0 4px var(--color-border);
   }
 
   &[disabled] {
@@ -33,34 +32,33 @@
 }
 
 @mixin button-classic(
-  $bg: var(--color-button-classic),
-  $color: var(--color-primary)
+  $bg: var(--color-secondary),
+  $color: var(--color-text)
 ) {
-  @include button($bg: var(--color-primary-alt), $color: var(--color-primary));
+  @include button($bg: $bg, $color:$color);
   background-color: $bg;
-  border: 1px solid lightness($bg, 0.9);
-  box-shadow: 0 1px 0 lightness($bg, 0.9), inset 0 1px 0 lightness($bg, 0.98);
+  border: 1px solid  var(--color-secondary-dark);
   transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
 
   &:hover {
-    background-color: lightness($bg, 0.98);
+    background-color: var(--color-secondary-dark);
     text-decoration: none;
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 4px lightness($bg, 0.96);
+    box-shadow: 0 0 0 4px  var(--color-border);
   }
 }
 
 @mixin button-link($color: var(--color-primary)) {
-  background: var(--color-background);
+  background: transparent;
   color: $color;
   border: none;
   cursor: pointer;
   &:hover {
     background: inherit;
-    color: lightness($color, 0.8);
+    color: var(--color-primary-dark);
   }
 }
 
@@ -74,19 +72,19 @@
 
   &:hover {
     background: var(--color-background);
-    color: lightness($color, 0.8);
+    color: var(--color-primary-dark);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 4px lightness($bg, 1.4);
+    box-shadow: 0 0 0 4px var(--color-border);
   }
 }
 
 // BUTTON ONLY ICON
 @mixin button-only-icon(
   $bg: var(--color-primary),
-  $color: var(--color-primary-alt)
+  $color: var(--color-text)
 ) {
   @include button($bg: $bg, $color: $color);
   border: none;
@@ -153,7 +151,7 @@ button {
 .button-only-icon {
   @include button-only-icon(
     $bg: var(--color-primary),
-    $color: var(--color-primary-alt)
+    $color: var(--color-text)
   );
 }
 

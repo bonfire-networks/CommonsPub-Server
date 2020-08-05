@@ -8,9 +8,18 @@ defmodule MoodleNetWeb.SignupLive do
     {:ok,
      socket
      |> assign(
+       email: "",
        app_name: Application.get_env(:moodle_net, :app_name),
        app_icon: Application.get_env(:moodle_net, :app_icon, "/images/sun_face.png")
      )}
+  end
+
+  def handle_params(%{"email" => email}, _url, socket) do
+    {:noreply, assign(socket, email: email)}
+  end
+
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
   end
 
   def handle_event(
@@ -23,7 +32,7 @@ defmodule MoodleNetWeb.SignupLive do
         } = data,
         socket
       ) do
-    IO.inspect(data, label: "SIGNUP DATA")
+    # IO.inspect(data, label: "SIGNUP DATA")
 
     if(
       strlen(email) < 5 or strlen(password) < 6 or
@@ -33,7 +42,7 @@ defmodule MoodleNetWeb.SignupLive do
        socket
        |> put_flash(:error, "Please check your input and try again...")}
     else
-      input = input_to_atoms(data)
+      input = Map.drop(input_to_atoms(data), ["password2"])
       IO.inspect(input)
 
       case MoodleNetWeb.GraphQL.UsersResolver.create_user(%{user: input}, %{}) do

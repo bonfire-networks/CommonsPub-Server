@@ -7,10 +7,23 @@ defmodule MoodleNetWeb.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
+  use Phoenix.HTML
 
   @doc """
   Translates an error message using gettext.
   """
+
+  def error_tag(form, field) do
+
+    Enum.map(Keyword.get_values(form.errors, field), fn error ->
+      IO.inspect(error, label: "ERROR")
+      content_tag(:span, translate_error(error),
+        class: "invalid-feedback",
+        phx_feedback_for: input_id(form, field)
+      )
+    end)
+  end
+
   def translate_error({msg, opts}) do
     # Because error messages were defined within Ecto, we must
     # call the Gettext module passing our Gettext backend. We

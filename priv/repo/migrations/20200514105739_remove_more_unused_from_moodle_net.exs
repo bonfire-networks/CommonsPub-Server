@@ -5,15 +5,10 @@ defmodule MoodleNet.Repo.Migrations.RemoveMoreUnusedFromMoodleNet do
   use Ecto.Migration
 
   def up do
-
-    # Circle.Migrations.down()
-
+    # Organisation.Migrations.down()
   end
 
   def down do
-
-    # Circle.Migrations.up()
-
+    # Organisation.Migrations.up()
   end
-
 end

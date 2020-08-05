@@ -6,8 +6,6 @@ defmodule MoodleNetWeb.My.MyHeader do
   # alias MoodleNetWeb.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
-    IO.inspect(assigns)
-    IO.inspect(socket)
     {
       :ok,
       socket
@@ -15,9 +13,31 @@ defmodule MoodleNetWeb.My.MyHeader do
     }
   end
 
+  def handle_event("toggle_post", _data, socket) do
+    IO.inspect(socket.assigns.toggle_post)
 
-  def handle_event("post", %{"content" => content, "community" => community} = data, socket) do
+    {:noreply,
+     socket
+     |> assign(:toggle_post, !socket.assigns.toggle_post)}
+  end
 
+  def handle_event("toggle_community", _data, socket) do
+    {:noreply, assign(socket, :toggle_community, !socket.assigns.toggle_community)}
+  end
+
+  def handle_event("toggle_collection", _data, socket) do
+    {:noreply, assign(socket, :toggle_collection, !socket.assigns.toggle_collection)}
+  end
+
+  def handle_event("toggle_link", _data, socket) do
+    {:noreply, assign(socket, :toggle_link, !socket.assigns.toggle_link)}
+  end
+
+  def handle_event("toggle_ad", _data, socket) do
+    {:noreply, assign(socket, :toggle_ad, !socket.assigns.toggle_ad)}
+  end
+
+  def handle_event("post", %{"content" => content, "context_id" => context_id} = data, socket) do
     if(is_nil(content) or is_nil(socket.assigns.current_user)) do
       {:noreply,
        socket
@@ -25,9 +45,10 @@ defmodule MoodleNetWeb.My.MyHeader do
     else
       # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
       comment = input_to_atoms(data)
-      IO.inspect(community, label: "COMM CHOOSED")
 
-      if (community == "") do
+      IO.inspect(context_id, label: "context_id CHOOSEN")
+
+      if strlen(context_id) < 1 do
         {:ok, thread} =
           MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
             %{comment: comment},
@@ -39,57 +60,24 @@ defmodule MoodleNetWeb.My.MyHeader do
          |> put_flash(:info, "Published!")
          # change redirect
          |> push_redirect(to: "/!" <> thread.thread_id)}
+      else
+        {:ok, thread} =
+          MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+            %{context_id: context_id, comment: comment},
+            %{context: %{current_user: socket.assigns.current_user}}
+          )
 
-        else
-          {:ok, thread} =
-            MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
-              %{context_id: community, comment: comment},
-              %{context: %{current_user: socket.assigns.current_user}}
-            )
-
-          {:noreply,
-           socket
-           |> put_flash(:info, "Published!")
-           # change redirect
-           |> push_redirect(to: "/!" <> thread.thread_id)}
-
+        {:noreply,
+         socket
+         |> put_flash(:info, "Published!")
+         # change redirect
+         |> push_redirect(to: "/!" <> thread.thread_id)}
       end
-
     end
   end
 
-
-  def handle_event("new-post", _data, socket) do
-
-    {:noreply, socket
-    |> assign(new_post: !socket.assigns.new_post )}
-  end
-
-  def handle_event("new-community", _data, socket) do
-
-    {:noreply, socket
-    |> assign(new_community: !socket.assigns.new_community )}
-  end
-
-  def handle_event("title", _data, socket) do
-    IO.inspect("test")
-    {
-      :noreply,
-      socket
-      |> assign(
-        show_title: !socket.assigns.show_title
-      )
-    }
-  end
-
-  def handle_event("communities", _data ,socket) do
-    {
-      :noreply,
-      socket
-      |> assign(
-        show_communities: !socket.assigns.show_communities
-      )
-    }
+  def handle_params(%{"signout" => name} = data, socket) do
+    IO.inspect("signout!")
   end
 
   def handle_event("new_community", %{"name" => name} = data, socket) do
@@ -121,9 +109,5 @@ defmodule MoodleNetWeb.My.MyHeader do
          |> push_redirect(to: "/instance/communities/")}
       end
     end
-  end
-
-  def handle_params(%{"signout" => name} = data, socket) do
-    IO.inspect("signout!")
   end
 end

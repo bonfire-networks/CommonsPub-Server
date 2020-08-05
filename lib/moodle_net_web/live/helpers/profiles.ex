@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   alias MoodleNetWeb.GraphQL.UsersResolver
   import MoodleNetWeb.Helpers.Common
 
-  def prepare(%{username: _} = profile) do
+  def prepare(%{username: username} = profile) do
     IO.inspect("profile already prepared")
     profile
   end
@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
           {preload, included} = field
 
           if(included) do
-            Map.merge(profile, Repo.preload(profile, preload))
+            Map.merge(profile, maybe_preload(profile, preload))
           else
             profile
           end
@@ -57,12 +57,12 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
   def prepare_website(profile) do
     if(Map.has_key?(profile, :website) and !is_nil(profile.website)) do
-      url = MoodleNet.File.ensure_valid_url(profile.website)
+      url = CommonsPub.Utils.File.ensure_valid_url(profile.website)
 
       # IO.inspect(url)
 
       profile
-      |> Map.merge(%{website: url |> URI.to_string(), website_friendly: url.host})
+      |> Map.merge(%{website: url, website_friendly: URI.parse(url).host})
     else
       profile
     end
@@ -99,7 +99,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
         profile
       else
         profile
-        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
+        |> Map.merge(%{icon_url: icon(profile, "retro", icon_size)})
       end
 
     prepare(
@@ -114,7 +114,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
         profile
       else
         profile
-        |> Map.merge(%{image_url: image(profile, :image, "identicon", image_size)})
+        |> Map.merge(%{image_url: image(profile, "identicon", image_size)})
       end
 
     prepare(

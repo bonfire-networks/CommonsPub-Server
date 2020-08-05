@@ -1,35 +1,31 @@
+<%= if @static_changed do %>
+  <script> window.location.reload() </script>
+<% end %>
+<script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@socket, "/js/app.js") %>"></script>
+
 <div id="template" class="page__container">
   <div class="cpub__header">
     <div class="header__left">
-      <details class="dialog__container aside">
-        <summary class="aside__dialog"><i class="feather-grid"></i></summary>
-        <aside>
-          <h2>CommonsPub apps</h2>
-          <nav>
-            <div class="aside__app">commonspub</div>
-            <div class="aside__app">Mutual Aid</div>
-            <div class="aside__app">VoxPub</div>
-            <div class="aside__app">haha!</div>
-          </nav>
-        </aside>
-      </details>
       <%= live_redirect to: "/~" do %>
         <h3>CommonsPub</h3>
       <% end %>
-    </div>
     <input class="header__search" placeholder="Search in the fediverse..." />
+    </div>
     <div class="header__right">
       <%= if @current_user do %>
         <%= live_component(
           @socket,
           MoodleNetWeb.My.MyHeader,
-          current_user: @current_user,
           id: :my_header,
+          current_user: @current_user,
           my_communities: @my_communities,
           show_title: @show_title,
-          show_communities: @show_communities,
-          new_post: @new_post,
-          new_community: @new_community,
+          toggle_post: @toggle_post,
+          toggle_community: @toggle_community,
+          toggle_collection: @toggle_collection,
+          toggle_link: @toggle_link,
+          toggle_ad: @toggle_ad,
+          current_context: @current_context
         ) %>
       <% end %>
       <%= if @current_user == nil do %>

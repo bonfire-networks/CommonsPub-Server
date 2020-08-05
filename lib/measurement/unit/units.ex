@@ -5,7 +5,7 @@ defmodule Measurement.Unit.Units do
   alias MoodleNet.{
     # Activities,
     # Actors,
-    # Common,
+    Common,
     # Feeds,
     # Follows,
     Repo
@@ -172,12 +172,12 @@ defmodule Measurement.Unit.Units do
     Repo.update(Measurement.Unit.update_changeset(unit, attrs))
   end
 
-  # def soft_delete(%Unit{} = unit) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, unit} <- Common.soft_delete(unit),
-  #          :ok <- publish(unit, :deleted) do
-  #       {:ok, unit}
-  #     end
-  #   end)
-  # end
+  def soft_delete(%Unit{} = unit) do
+    Repo.transact_with(fn ->
+      with {:ok, unit} <- Common.soft_delete(unit) do
+           # :ok <- publish(unit, :deleted) do
+        {:ok, unit}
+      end
+    end)
+  end
 end

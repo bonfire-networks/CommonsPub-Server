@@ -1,0 +1,31 @@
+<div class="editor_container">
+  <%= if is_nil(@editor) or @editor=="plain" or @editor=="" do %>
+    <textarea phx-change="tag_suggest" phx-target="#write_tag" id="<%= @id %>_content" class="editor_textarea" name="content" placeholder="<%= @content_placeholder %>"></textarea>
+  <% end %>
+  <%= if @editor=="prosemirror" do %>
+    <%= live_component(
+    @socket,
+    MoodleNetWeb.EditorLive.ProsemirrorLive,
+    current_user: @current_user,
+    content_placeholder: @content_placeholder,
+    id: @id<>"_prosemirror"
+  ) %>
+  <% end %>
+  <%= if @editor=="ck5"  do %>
+    <%= live_component(
+    @socket,
+    MoodleNetWeb.EditorLive.Ck5Live,
+    current_user: @current_user,
+    content_placeholder: @content_placeholder,
+    id: @id<>"_ck5"
+  ) %>
+  <% end %>
+  <%= live_component(
+    @socket,
+    MoodleNetWeb.Component.TagAutocomplete,
+    current_user: @current_user,
+    id: "write_tag",
+    tag_target: @id <> "_content"
+
+  ) %>
+</div>

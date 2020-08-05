@@ -115,6 +115,9 @@ defmodule Tag.GraphQL.TagResolver do
     })
   end
 
+  @doc """
+  Things associated with a Tag
+  """
   def tagged_things_edges(%Taggable{things: _things} = tag, %{} = page_opts, info) do
     tag = Repo.preload(tag, :things)
     # pointers = for %{id: tid} <- tag.things, do: tid
@@ -128,13 +131,94 @@ defmodule Tag.GraphQL.TagResolver do
     MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
+  @doc """
+  Tags associated with a Thing
+  """
+  def tags_edges(%{tags: _tags} = thing, page_opts, info) do
+    thing = Repo.preload(thing, tags: [:context, :profile, character: [:actor]])
+    IO.inspect(tags_edges_thing: thing)
+
+    tags = Enum.map(thing.tags, &taggable_prepare(&1, page_opts, info))
+
+    {:ok, tags}
+  end
+
+  def taggable_prepare(%{profile: %{name: name}} = taggable, page_opts, info)
+      when not is_nil(name) do
+    Map.merge(
+      taggable,
+      %{
+        name: name,
+        summary: taggable.profile.summary
+      }
+    )
+  end
+
+  def taggable_prepare(%{context_id: context_id} = taggable, page_opts, info)
+      when not is_nil(context_id) do
+    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: context_id}, page_opts, info)
+  end
+
+  @doc """
+  You can use `tag_thing/2` directly instead
+  """
+  def make_pointer_taggable(%{context_id: pointer_id}, info) do
+    Repo.transact_with(fn ->
+      with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
+           {ok, tag} <- Tag.Taggables.maybe_make_taggable(me, pointer_id, %{}) do
+        {:ok, tag}
+      end
+    end)
+  end
+
+  def tag_thing(%{thing_id: thing_id, taggable_id: taggable_id}, info) do
+    with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, tagged} = Tag.TagThings.tag_thing(me, taggable_id, thing_id) do
+      {:ok, tagged}
+    end
+  end
+
+  def name(%{name: name, context_id: context_id}, _, info)
+      when is_nil(name) and not is_nil(context_id) do
+    # IO.inspect(context_id)
+
+    # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
+    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+         context = MoodleNet.Meta.Pointers.follow!(pointer) do
+      name = if Map.has_key?(context, :name), do: context.name
+      # IO.inspect(name)
+      {:ok, name}
+    end
+  end
+
+  def name(%{name: name}, _, info) do
+    {:ok, name}
+  end
+
+  def summary(%{summary: summary, context_id: context_id}, _, info)
+      when is_nil(summary) and not is_nil(context_id) do
+    # IO.inspect(context_id)
+
+    # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
+    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+         context = MoodleNet.Meta.Pointers.follow!(pointer) do
+      summary = if Map.has_key?(context, :summary), do: context.summary
+      # IO.inspect(summary)
+      {:ok, summary}
+    end
+  end
+
+  def summary(%{summary: summary}, _, info) do
+    {:ok, summary}
+  end
+
   # def tag(%{tag_id: id}, info) do
-  #   {:ok, Fake.tag()}
+  #   {:ok, Simulation.tag()}
   #   |> GraphQL.response(info)
   # end
 
   # def search_tag(%{query: id}, info) do
-  #   {:ok, Fake.long_node_list(&Fake.tag/0)}
+  #   {:ok, Simulation.long_node_list(&Simulation.tag/0)}
   #   |> GraphQL.response(info)
   # end
 end

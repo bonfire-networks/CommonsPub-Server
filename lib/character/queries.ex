@@ -10,7 +10,14 @@ defmodule Character.Queries do
   import Ecto.Query
 
   def query(Character) do
-    from(c in Character, as: :character, join: a in assoc(c, :actor), as: :actor)
+    from(c in Character,
+      as: :character,
+      join: a in assoc(c, :actor),
+      as: :actor,
+      select_merge: %{preferred_username: a.preferred_username},
+      select_merge: %{canonical_url: a.canonical_url},
+      select_merge: %{signing_key: a.signing_key}
+    )
   end
 
   def query(:count) do

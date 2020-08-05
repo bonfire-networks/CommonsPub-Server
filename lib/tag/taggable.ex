@@ -2,10 +2,13 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Tag.Taggable do
-  use Pointers.Pointable,
-    otp_app: :moodle_net,
-    source: "tags",
-    table_id: "TAGSCANBECATEG0RY0RHASHTAG"
+  use MoodleNet.Common.Schema
+  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+
+  # use Pointers.Pointable,
+  #   otp_app: :moodle_net,
+  #   source: "tags",
+  #   table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
   alias Ecto.Changeset
   alias Tag.Taggable
@@ -15,23 +18,30 @@ defmodule Tag.Taggable do
   @required ~w(prefix)a
   @cast @required ++ ~w(context_id parent_tag_id same_as_tag_id taxonomy_tag_id)a
 
-  pointable_schema do
+  table_schema "tags" do
+    # pointable_schema do
+
+    # field(:id, Pointers.ULID, autogenerate: true)
+
     # eg. @ or + or #
     field(:prefix, :string)
 
-    # eg. community who curates this tag
-    belongs_to(:context, Pointers.Pointer, type: Ecto.ULID)
     # eg. Mamals is a parent of Cat
     belongs_to(:parent_tag, Taggable, type: Ecto.ULID)
+
     # eg. Olive Oil is the same as Huile d'olive
     belongs_to(:same_as_tag, Taggable, type: Ecto.ULID)
 
     # optionally where it came from in the taxonomy
     belongs_to(:taxonomy_tag, Taxonomy.TaxonomyTag, type: :integer)
 
-    # stores common fields like name/description
+    # Optionally, Thing that is taggable (if not using Profile/Character mixins)
+    belongs_to(:context, Pointers.Pointer, type: Ecto.ULID)
+
+    # Optionally, a profile and Character (if not using context)
+    ## stores common fields like name/description
     has_one(:profile, Profile, foreign_key: :id)
-    # allows it to be follow-able and federate activities
+    ## allows it to be follow-able and federate activities
     has_one(:character, Character, foreign_key: :id)
 
     field(:name, :string, virtual: true)
@@ -41,11 +51,21 @@ defmodule Tag.Taggable do
       join_through: "tags_things",
       unique: true,
       join_keys: [tag_id: :id, pointer_id: :id]
+      # on_replace: :update
     )
+  end
+
+  def create_changeset(attrs, context) do
+    %Taggable{}
+    # |> Changeset.change(id: Ecto.ULID.generate())
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(context_id: context.id)
+    |> common_changeset()
   end
 
   def create_changeset(attrs) do
     %Taggable{}
+    # |> Changeset.change(id: Ecto.ULID.generate())
     |> Changeset.cast(attrs, @cast)
     # |> Changeset.change(
     #   id: Ecto.ULID.generate()

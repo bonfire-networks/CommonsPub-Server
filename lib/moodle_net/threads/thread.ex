@@ -17,7 +17,7 @@ defmodule MoodleNet.Threads.Thread do
   table_schema "mn_thread" do
     field(:name, :string)
     belongs_to(:creator, User)
-    belongs_to(:context, Pointer)
+    belongs_to(:context, Pointers.Pointer)
     belongs_to(:outbox, Feed)
     has_many(:comments, Comment)
     has_one(:follower_count, FollowerCount, foreign_key: :context_id)

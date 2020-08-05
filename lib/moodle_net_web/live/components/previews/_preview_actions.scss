@@ -1,0 +1,31 @@
+.preview__actions {
+  display: flex;
+  align-items: center;
+  margin-top: var(--m2);
+  i.liked:before {
+    color: yellow;
+  }
+  .button-link {
+    padding: 0;
+    width: auto;
+    min-width: auto;
+  }
+  .dialog__container {
+    .button-link {
+      color: var(--color-primary);
+      font-size: 14px;
+      display: inline;
+    }
+  }
+  button {
+    color: var(--color-primary);
+    margin-right: var(--m3);
+    font-weight: 500;
+    display: flex;
+    place-content: center;
+    align-items: center;
+    i {
+      margin-right: var(--m1);
+    }
+  }
+}

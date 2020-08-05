@@ -5,38 +5,37 @@ defmodule MoodleNetWeb.GraphQL.LocalisationResolver do
   @moduledoc "GraphQL Language and Country queries"
 
   # def languages(_, info) do
-  #   {:ok, Fake.long_node_list(&Fake.language/0)}
+  #   {:ok, Simulation.long_node_list(&Simulation.language/0)}
   #   |> GraphQL.response(info)
   # end
 
   # def language(%{language_id: id}, info) do
-  #   {:ok, Fake.language()}
+  #   {:ok, Simulation.language()}
   #   |> GraphQL.response(info)
   # end
 
   # def search_language(%{query: id}, info) do
-  #   {:ok, Fake.long_node_list(&Fake.language/0)}
+  #   {:ok, Simulation.long_node_list(&Simulation.language/0)}
   #   |> GraphQL.response(info)
   # end
 
   # def countries(_, info) do
-  #   {:ok, Fake.long_node_list(&Fake.country/0)}
+  #   {:ok, Simulation.long_node_list(&Simulation.country/0)}
   #   |> GraphQL.response(info)
   # end
 
   # def country(%{country_id: id}, info) do
-  #   {:ok, Fake.country()}
+  #   {:ok, Simulation.country()}
   #   |> GraphQL.response(info)
   # end
 
   # def search_country(%{query: id}, info) do
-  #   {:ok, Fake.long_node_list(&Fake.country/0)}
+  #   {:ok, Simulation.long_node_list(&Simulation.country/0)}
   #   |> GraphQL.response(info)
   # end
 
   # def primary_language(parent, _, info) do
-  #   {:ok, Fake.language()}
+  #   {:ok, Simulation.language()}
   #   |> GraphQL.response(info)
   # end
-
 end

@@ -16,7 +16,7 @@
 
 .component__activity .info__meta {
   margin-left: var(--m2);
-  color: lightness(var(--color-surface), 1.2);
+  color: var(--color-text-subtle);
   font-weight: 500;
 }
 
@@ -24,12 +24,13 @@
   display: flex;
   align-items: center;
   font-size: 14px;
-  color: lightness(var(--color-surface), 1.2);
+  color: var(--color-text-subtle);
   font-weight: 500;
+
   a {
     font-weight: 500;
     font-size: 14px;
-    color: var(--color-surface);
+    color: var(--color-text);
   }
 }
 
@@ -37,15 +38,18 @@
   margin: 0;
   margin-left: 4px;
   font-weight: 300;
+  @include truncate(510px);
 }
 
 .component__activity .meta__secondary {
-  color: var(--gray);
   margin-left:0;
-  margin-top: var(--m1);
-  color: #767676;
+  color: var(--color-text-subtle);
   font-weight: 200;
   font-size: 13px;
+  a {
+    color: var(--color-text-subtle);
+    font-weight: 200;
+  }
 }
 
 .component__activity .activity__preview {
@@ -55,7 +59,9 @@
 
 .inline__replies {
   margin-top: var(--m2);
-
+  background: var(--color-selection);
+  border-radius: 6px;
+  padding: 0 8px;
 
   .activity__comment {
     padding-left: 0;
@@ -70,6 +76,11 @@
   padding: 0 var(--m3);
   border-bottom: 0;
   padding-bottom: var(--m3);
+  &:last-of-type {
+    &:before {
+     position: initial;
+    }
+  }
   &:before {
     position: absolute;
     content: "";
@@ -77,7 +88,7 @@
     top: 46px;
     bottom: 0px;
     width: 2px;
-    background-color: #edeff1;
+    background-color: var(--color-border);
     display: block;
   }
   .all__info {
@@ -107,8 +118,12 @@
     margin-left: 0;
     .meta__secondary {
       margin-left: var(--m2);
-      color: #767676;
+      color: var(--color-text-subtle);
       font-weight: 200;
+      a {
+        color: var(--color-text-subtle);
+        font-weight: 200;
+      }
     }
   }
 }

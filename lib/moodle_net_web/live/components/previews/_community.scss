@@ -4,10 +4,11 @@
   display: flex;
   padding: var(--m2);
   align-items: center;
+  background-color: var(--color-selection);
 }
 
 .community__preview:hover {
-  background-color: aliceblue;
+  background-color: var(--color-border);
 }
 
 
@@ -15,7 +16,7 @@
 .community__preview .preview__image {
   height: 40px;
   width: 40px;
-  background-color: antiquewhite;
+  background-color: var(--color-primary);
   border-radius: var(--m2);
 }
 
@@ -28,5 +29,5 @@
   margin-left: var(--m2);
   letter-spacing: .5px;
   font-size: 16px;
-  color: var(--darker)
+  color: var(--color-text)
 }

@@ -3,12 +3,8 @@ defmodule MoodleNetWeb.Component.TabNotFoundLive do
 
   def render(assigns) do
     ~L"""
-    <div class="selected__header">
-      <h3>Section not found</h3>
-    </div>
+    <h3 class="area__title">Section not found</h3>
     <div class="selected__area"></div>
     """
   end
 end
-
-

@@ -6,7 +6,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNetWeb.Test.Automaton
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Trendy
+  import CommonsPub.Utils.Trendy
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.Orderings
   import MoodleNetWeb.Test.Automaton
@@ -15,18 +15,17 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   alias MoodleNet.{Follows, Likes, Collections, Threads}
 
   describe "community" do
-
     test "works for anyone for a public community" do
       [alice, bob] = some_fake_users!(%{}, 2)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       vars = %{community_id: comm.id}
+
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
         comm2 = grumble_post_key(community_query(), conn, :community, vars)
         _comm2 = assert_community(comm, comm2)
       end
     end
-
   end
 
   # describe "community.last_activity" do
@@ -35,15 +34,14 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   #   end
   # end
 
-
   describe "community.my_like" do
-
     test "is nil for a guest or a non-liking user or instance admin" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       vars = %{community_id: comm.id}
       q = community_query(fields: [my_like: like_fields()])
+
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
         comm2 = grumble_post_key(q, conn, :community, vars)
         comm2 = assert_community(comm, comm2)
@@ -57,6 +55,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       vars = %{community_id: comm.id}
       q = community_query(fields: [my_like: like_fields()])
+
       for user <- [alice, bob, lucy] do
         {:ok, like} = Likes.create(user, comm, %{is_local: true})
         comm2 = grumble_post_key(q, user_conn(user), :community, vars)
@@ -64,17 +63,16 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         assert_like(like, comm2.my_like)
       end
     end
-
   end
 
   describe "community.my_follow" do
-
     test "is nil for a guest or a non-following user or instance admin" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       vars = %{community_id: comm.id}
       q = community_query(fields: [my_follow: follow_fields()])
+
       for conn <- [json_conn(), user_conn(bob), user_conn(lucy)] do
         comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert comm2.my_follow == nil
@@ -97,17 +95,16 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         assert_follow(follow, comm2.my_follow)
       end
     end
-
   end
 
   describe "community.my_flag" do
-
     test "is nil for a guest or a non-flagging user or instance admin" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       vars = %{community_id: comm.id}
       q = community_query(fields: [my_flag: flag_fields()])
+
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
         comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert comm2.my_flag == nil
@@ -120,6 +117,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       vars = %{community_id: comm.id}
       q = community_query(fields: [my_flag: flag_fields()])
+
       for user <- [alice, bob, lucy] do
         flag = flag!(user, comm)
         comm2 = grumble_post_key(q, user_conn(user), :community, vars)
@@ -127,11 +125,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         assert_flag(flag, comm2.my_flag)
       end
     end
-
   end
 
   describe "community.creator" do
-
     test "works for a guest" do
       alice = fake_user!()
       comm = fake_community!(alice)
@@ -142,29 +138,31 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{creator: creator} = comm2
       assert_user(alice, creator)
     end
-
   end
 
   describe "community.collections" do
-
     test "works for anyone for a public community" do
       [alice, bob, eve] = users = some_fake_users!(3)
       lucy = fake_admin!()
       comm = fake_community!(alice)
-      colls = order_follower_count(some_fake_collections!(9, users, [comm])) # 24
+      # 24
+      colls = order_follower_count(some_fake_collections!(9, users, [comm]))
       conns = Enum.map([alice, bob, eve, lucy], &user_conn/1)
-      each [json_conn() | conns], fn conn ->
+
+      each([json_conn() | conns], fn conn ->
         params = [
           collections_after: list_type(:cursor),
           collections_before: list_type(:cursor),
-          collections_limit: :int,
+          collections_limit: :int
         ]
-        q = community_query(
-          params: params,
-          fields: [:collection_count, collections_subquery(fields: [:follower_count])]
+
+        q =
+          community_query(
+            params: params,
+            fields: [:collection_count, collections_subquery(fields: [:follower_count])]
           )
-  
-        child_page_test %{
+
+        child_page_test(%{
           query: q,
           vars: %{community_id: comm.id},
           connection: conn,
@@ -180,33 +178,36 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           cursor_fn: Collections.cursor(:followers),
           after: :collections_after,
           before: :collections_before,
-          limit: :collections_limit,
-        }
-      end
+          limit: :collections_limit
+        })
+      end)
     end
-
   end
 
   describe "community.followers" do
-
     test "works for anyone for a public community" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       {:ok, bob_follow} = Follows.one(context: comm.id, creator: alice.id)
       follows = some_randomer_follows!(26, comm) ++ [bob_follow]
+
       params = [
         followers_after: list_type(:cursor),
         followers_before: list_type(:cursor),
-        followers_limit: :int,
+        followers_limit: :int
       ]
-      query = community_query(
-        params: params,
-        fields: [:follower_count, followers_subquery()]
-      )
+
+      query =
+        community_query(
+          params: params,
+          fields: [:follower_count, followers_subquery()]
+        )
+
       conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
-      each [json_conn() | conns], fn conn ->
-        child_page_test %{
+
+      each([json_conn() | conns], fn conn ->
+        child_page_test(%{
           query: query,
           vars: %{community_id: comm.id},
           connection: conn,
@@ -222,29 +223,30 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           cursor_fn: &[&1.id],
           after: :followers_after,
           before: :followers_before,
-          limit: :followers_limit,
-        }
-      end
+          limit: :followers_limit
+        })
+      end)
     end
-
   end
 
   describe "community.likers" do
-
     test "works for anyone for a public community" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       likes = some_randomer_likes!(27, comm)
+
       params = [
         likers_after: list_type(:cursor),
         likers_before: list_type(:cursor),
-        likers_limit: :int,
+        likers_limit: :int
       ]
+
       query = community_query(params: params, fields: [:liker_count, likers_subquery()])
       conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
-      each [json_conn() | conns], fn conn ->
-        child_page_test %{
+
+      each([json_conn() | conns], fn conn ->
+        child_page_test(%{
           query: query,
           vars: %{community_id: comm.id},
           connection: conn,
@@ -260,16 +262,13 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           cursor_fn: &[&1.id],
           after: :likers_after,
           before: :likers_before,
-          limit: :likers_limit,
-        }
-      end
-
+          limit: :likers_limit
+        })
+      end)
     end
-
   end
 
   describe "community.flags" do
-
     test "empty for a guest or non-flagging user" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
@@ -278,10 +277,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       flag!(lucy, comm)
       q = community_query(fields: [flags: page_fields(flag_fields())])
       vars = %{community_id: comm.id}
-      each [user_conn(eve), json_conn()], fn conn ->
+
+      each([user_conn(eve), json_conn()], fn conn ->
         comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert_page(comm2.flags, 0, 0, false, false, &[&1.id])
-      end
+      end)
     end
 
     # TODO: Bob should also see all
@@ -301,23 +301,22 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         assert_page(comm2.flags, 2, 2, false, false, &[&1.id])
       end
     end
-
   end
 
   # # TODO: the last comment view is clearly broken *sigh*
 
   describe "community.threads" do
-
     test "works for anyone when there are no threads" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       q = community_query(fields: [threads_subquery(fields: [comments_subquery()])])
       vars = %{community_id: comm.id}
+
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert %{threads: threads} = comm2
-        assert_page(comm2.threads, 0, 0, false, false, &(&1.id))
+        assert_page(comm2.threads, 0, 0, false, false, & &1.id)
       end
     end
 
@@ -327,22 +326,32 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       randomers = some_fake_users!(5)
       many_randomers = repeat_for_count(randomers, 25)
-      threads_and_initials = flat_pam_some(randomers, 5, fn user ->
-        thread = fake_thread!(user, comm)
-        comment = fake_comment!(user, thread)
-        {thread, comment}
-      end)
+
+      threads_and_initials =
+        flat_pam_some(randomers, 5, fn user ->
+          thread = fake_thread!(user, comm)
+          comment = fake_comment!(user, thread)
+          {thread, comment}
+        end)
+
       threads_and_replies =
-      zip(many_randomers, threads_and_initials, fn user, {thread, initial} ->
-        reply = fake_reply!(user, thread, initial)
-        {thread, reply}
-      end)
-      _ = zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
-        fake_reply!(user, thread, comment)
-      end)
+        zip(many_randomers, threads_and_initials, fn user, {thread, initial} ->
+          reply = fake_reply!(user, thread, initial)
+          {thread, reply}
+        end)
+
+      _ =
+        zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
+          fake_reply!(user, thread, comment)
+        end)
+
       {_thraeds, _initials} = unpiz(threads_and_initials)
-      q = community_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
+
+      q =
+        community_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
+
       vars = %{community_id: comm.id}
+
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert %{threads: threads} = comm2
@@ -355,6 +364,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       end
     end
   end
+
   #   test "works for anyone when there are threads" do
   #     alice = fake_user!()
   #     lucy = fake_admin!()
@@ -431,18 +441,21 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       user = fake_user!()
       comm = fake_community!(user)
 
-      assert {:ok, upload} = MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.IconUploader, user,
-        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
-        %{}
-      )
+      assert {:ok, upload} =
+               MoodleNet.Uploads.upload(
+                 MoodleNet.Uploads.IconUploader,
+                 user,
+                 %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
+                 %{}
+               )
+
       assert {:ok, comm} = MoodleNet.Communities.update(user, comm, %{icon_id: upload.id})
 
       conn = user_conn(user)
       q = community_query(fields: [icon: [:id, :url, upload: [:path]]])
       assert resp = grumble_post_key(q, conn, :community, %{community_id: comm.id})
       assert resp["icon"]["id"] == comm.icon_id
-      assert_url resp["icon"]["url"]
+      assert_url(resp["icon"]["url"])
     end
   end
 
@@ -451,19 +464,21 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       user = fake_user!()
       comm = fake_community!(user)
 
-      assert {:ok, upload} = MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.ImageUploader, user,
-        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
-        %{}
-      )
+      assert {:ok, upload} =
+               MoodleNet.Uploads.upload(
+                 MoodleNet.Uploads.ImageUploader,
+                 user,
+                 %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
+                 %{}
+               )
+
       assert {:ok, comm} = MoodleNet.Communities.update(user, comm, %{image_id: upload.id})
 
       conn = user_conn(user)
       q = community_query(fields: [image: [:id, :url, upload: [:path]]])
       assert resp = grumble_post_key(q, conn, :community, %{community_id: comm.id})
       assert resp["image"]["id"] == comm.image_id
-      assert_url resp["image"]["url"]
+      assert_url(resp["image"]["url"])
     end
   end
 end
-

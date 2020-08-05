@@ -81,9 +81,9 @@ defmodule MoodleNet.Users.User do
 
   defp local_changeset(changeset, true) do
     changeset
-    |> Changeset.validate_length(:name, max: 140)
-    |> Changeset.validate_length(:summary, max: 1024)
-    |> Changeset.validate_length(:location, max: 140)
+    |> Changeset.validate_length(:name, max: 142)
+    |> Changeset.validate_length(:summary, max: 500_000)
+    |> Changeset.validate_length(:location, max: 255)
     |> Changeset.validate_length(:website, max: 255)
   end
 

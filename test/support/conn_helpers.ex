@@ -162,7 +162,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
             put_in_map(acc, path, file_key),
           }
 
-        inner when is_map(inner) ->
+        inner when not is_struct(inner) and is_map(inner) ->
           {files, vars} = extract_file_vars(inner, path)
           {files, Map.merge(acc, vars)}
 

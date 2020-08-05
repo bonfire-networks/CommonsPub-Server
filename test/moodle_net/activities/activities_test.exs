@@ -9,7 +9,7 @@ defmodule MoodleNet.ActivitiesTest do
   alias MoodleNet.Activities
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   setup do
     user = fake_user!()
@@ -51,7 +51,7 @@ defmodule MoodleNet.ActivitiesTest do
 
   describe "create" do
     test "creates a new activity", %{user: user, context: context} do
-      attrs = Fake.activity()
+      attrs = Simulation.activity()
       assert {:ok, %Activity{} = activity} = Activities.create(user, context, attrs)
       assert activity.verb == attrs.verb
       assert activity.canonical_url == attrs.canonical_url
@@ -68,7 +68,7 @@ defmodule MoodleNet.ActivitiesTest do
   describe "update" do
     test "updates an activity with new attributes", %{user: user, context: context} do
       activity = fake_activity!(user, context)
-      assert attrs = Fake.activity()
+      assert attrs = Simulation.activity()
       assert {:ok, updated_activity} = Activities.update(user, activity, attrs)
       assert updated_activity != activity
       assert updated_activity.verb == attrs.verb
@@ -84,5 +84,4 @@ defmodule MoodleNet.ActivitiesTest do
       assert activity.deleted_at
     end
   end
-
 end

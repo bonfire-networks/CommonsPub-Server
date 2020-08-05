@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.Helpers.Account do
   def current_user(auth_token) do
     case MoodleNet.Access.fetch_token_and_user(auth_token) do
       {:ok, session_token} ->
-        Logger.info(session_loaded: session_token)
+        Logger.info("session_loaded")
 
         Profiles.prepare(session_token.user, %{icon: true, image: true, actor: true})
 

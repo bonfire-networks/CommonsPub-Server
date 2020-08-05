@@ -12,7 +12,8 @@ defmodule Tag.Migrations do
       # eg. community who curates this tag
       add(
         :context_id,
-        references(pointer, on_update: :update_all, on_delete: :nilify_all)
+        strong_pointer(),
+        null: true
       )
 
       # eg. Mamals is a parent of Cat

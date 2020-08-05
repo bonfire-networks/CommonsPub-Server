@@ -74,6 +74,81 @@ defmodule Tag.Taggables do
 
   ## mutations
 
+  @doc """
+  Create a Taggable that makes an existing object (eg. Geolocation) taggable
+  """
+  def maybe_make_taggable(user, id, _) when is_number(id) do
+    if Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
+      Taxonomy.TaxonomyTags.maybe_make_taggable(user, id)
+    else
+      {:error, "Please provider a pointer"}
+    end
+  end
+
+  def maybe_make_taggable(user, pointer_id, attrs) when is_binary(pointer_id) do
+    if MoodleNetWeb.Helpers.Common.is_numeric(pointer_id) do
+      maybe_make_taggable(user, String.to_integer(pointer_id), attrs)
+    else
+      with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
+        maybe_make_taggable(user, pointer, attrs)
+      end
+    end
+  end
+
+  def maybe_make_taggable(user, %Pointers.Pointer{} = pointer, attrs) do
+    with context = MoodleNet.Meta.Pointers.follow!(pointer) do
+      maybe_make_taggable(user, context, attrs)
+    end
+  end
+
+  def maybe_make_taggable(user, %{} = context, attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, taggable} <- Tag.Taggables.one(context: context.id) do
+        {:ok, taggable}
+      else
+        _e -> make_taggable(context, attrs)
+      end
+    end)
+  end
+
+  def maybe_make_taggable(user, context) do
+    maybe_make_taggable(user, context, %{})
+  end
+
+  defp make_taggable(context, attrs) do
+    attrs =
+      Map.put(
+        attrs,
+        :facet,
+        context.__struct__ |> to_string() |> String.split(".") |> List.last()
+      )
+
+    attrs = Map.put(attrs, :prefix, prefix(attrs.facet))
+
+    IO.inspect(attrs)
+
+    # TODO: check that the tag doesn't already exist (same context)
+
+    with {:ok, taggable} <- insert_taggable(attrs, context) do
+      {:ok, %{taggable | context: context}}
+    end
+  end
+
+  def prefix("Community") do
+    "&"
+  end
+
+  def prefix("User") do
+    "@"
+  end
+
+  def prefix(_) do
+    "+"
+  end
+
+  @doc """
+  Create a brand-new taggable object, with info stored in Profile and Character mixins
+  """
   @spec create(User.t(), attrs :: map) :: {:ok, Taggable.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
@@ -94,6 +169,12 @@ defmodule Tag.Taggables do
     attrs = Map.put(attrs, :id, taggable.id)
     # IO.inspect(attrs)
     {:ok, attrs}
+  end
+
+  defp insert_taggable(attrs, context) do
+    # IO.inspect(insert_taggable: attrs)
+    cs = Taggable.create_changeset(attrs, context)
+    with {:ok, taggable} <- Repo.insert(cs), do: {:ok, taggable}
   end
 
   defp insert_taggable(attrs) do

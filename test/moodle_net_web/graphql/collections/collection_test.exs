@@ -6,14 +6,13 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   import MoodleNetWeb.Test.Automaton
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Trendy
+  import CommonsPub.Utils.Trendy
   import MoodleNet.Test.Faking
   import Grumble
   import Zest
   alias MoodleNet.{Follows, Likes, Threads}
 
   describe "collection" do
-
     test "works for the owner, randoms, admins and guests" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
@@ -21,12 +20,12 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(alice, comm)
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), json_conn()]
       vars = %{collection_id: coll.id}
+
       for conn <- conns do
         coll2 = grumble_post_key(collection_query(), conn, :collection, vars)
         assert_collection(coll, coll2)
       end
     end
-
   end
 
   describe "collection.last_activity" do
@@ -36,7 +35,6 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   end
 
   describe "collection.my_like" do
-
     test "is nil for a guest or a non-liking user or instance admin" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
@@ -44,6 +42,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
       q = collection_query(fields: [my_like: like_fields()])
+
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
         coll2 = grumble_post_key(q, conn, :collection, vars)
         coll2 = assert_collection(coll, coll2)
@@ -58,6 +57,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
       q = collection_query(fields: [my_like: like_fields()])
+
       for user <- [alice, bob, lucy] do
         {:ok, like} = Likes.create(user, coll, %{is_local: true})
         coll2 = grumble_post_key(q, user_conn(user), :collection, vars)
@@ -65,11 +65,9 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         assert_like(like, coll2.my_like)
       end
     end
-
   end
 
   describe "collection.my_follow" do
-
     test "is nil for a guest or a non-following user or instance admin" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
@@ -77,6 +75,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
       q = collection_query(fields: [my_follow: follow_fields()])
+
       for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
         coll2 = grumble_post_key(q, conn, :collection, vars)
         coll2 = assert_collection(coll, coll2)
@@ -102,11 +101,9 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         assert_follow(follow, coll2.my_follow)
       end
     end
-
   end
 
   describe "collection.my_flag" do
-
     test "is nil for a guest or a non-flagging user or instance admin" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
@@ -114,6 +111,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
       q = collection_query(fields: [my_flag: flag_fields()])
+
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
         coll2 = grumble_post_key(q, conn, :collection, vars)
         coll2 = assert_collection(coll, coll2)
@@ -121,13 +119,14 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       end
     end
 
-     test "works for a flagging user or instance admin" do
+    test "works for a flagging user or instance admin" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
       q = collection_query(fields: [my_flag: flag_fields()])
+
       for user <- [alice, bob, lucy] do
         flag = flag!(user, coll)
         coll2 = assert_collection(coll, grumble_post_key(q, user_conn(user), :collection, vars))
@@ -135,7 +134,6 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         assert_flag(flag, coll2.my_flag)
       end
     end
-
   end
 
   describe "collection.creator" do
@@ -145,7 +143,6 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   end
 
   describe "collection.community" do
-
     test "works for anyone" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
@@ -154,16 +151,15 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       vars = %{collection_id: coll.id}
       q = collection_query(fields: [community: community_fields()])
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
+
       for conn <- conns do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert_communities_eq(comm, coll2.community)
       end
     end
-
   end
 
   describe "collection.resources" do
-
     test "works for anyone for a public collection" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
@@ -171,18 +167,23 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
-      res = some_fake_resources!(3, users, [coll]) # 27
-      each [json_conn() | conns], fn conn ->
+      # 27
+      res = some_fake_resources!(3, users, [coll])
+
+      each([json_conn() | conns], fn conn ->
         params = [
           resources_after: list_type(:cursor),
           resources_before: list_type(:cursor),
-          resources_limit: :int,
+          resources_limit: :int
         ]
-        query = collection_query(
-          params: params,
-          fields: [:resource_count, resources_subquery()]
-        )
-        child_page_test %{
+
+        query =
+          collection_query(
+            params: params,
+            fields: [:resource_count, resources_subquery()]
+          )
+
+        child_page_test(%{
           query: query,
           vars: %{collection_id: coll.id},
           connection: conn,
@@ -198,15 +199,13 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
           cursor_fn: &[&1.id],
           after: :resources_after,
           before: :resources_before,
-          limit: :resources_limit,
-        }
-      end
+          limit: :resources_limit
+        })
+      end)
     end
-
   end
 
   describe "collection.followers" do
-
     test "works for anyone for a public collection" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
@@ -214,18 +213,23 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       {:ok, bob_follow} = Follows.one(context: coll.id, creator: bob.id)
       follows = some_randomer_follows!(26, coll) ++ [bob_follow]
+
       params = [
         followers_after: list_type(:cursor),
         followers_before: list_type(:cursor),
-        followers_limit: :int,
+        followers_limit: :int
       ]
-      query = collection_query(
-        params: params,
-        fields: [:follower_count, followers_subquery()]
-      )
+
+      query =
+        collection_query(
+          params: params,
+          fields: [:follower_count, followers_subquery()]
+        )
+
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
-      each conns, fn conn ->
-        child_page_test %{
+
+      each(conns, fn conn ->
+        child_page_test(%{
           query: query,
           vars: %{collection_id: coll.id},
           connection: conn,
@@ -241,30 +245,31 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
           cursor_fn: &[&1.id],
           after: :followers_after,
           before: :followers_before,
-          limit: :followers_limit,
-        }
-      end
+          limit: :followers_limit
+        })
+      end)
     end
-
   end
 
   describe "collection.likers" do
-
     test "works for anyone for a public collection" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       likes = some_randomer_likes!(27, coll)
+
       params = [
         likers_after: list_type(:cursor),
         likers_before: list_type(:cursor),
-        likers_limit: :int,
+        likers_limit: :int
       ]
+
       query = collection_query(params: params, fields: [:liker_count, likers_subquery()])
       conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
-      each [json_conn() | conns], fn conn ->
-        child_page_test %{
+
+      each([json_conn() | conns], fn conn ->
+        child_page_test(%{
           query: query,
           vars: %{collection_id: coll.id},
           connection: conn,
@@ -280,15 +285,13 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
           cursor_fn: &[&1.id],
           after: :likers_after,
           before: :likers_before,
-          limit: :likers_limit,
-        }
-      end
+          limit: :likers_limit
+        })
+      end)
     end
-
   end
 
   describe "collection.flags" do
-
     # this test could do better to verify against the actual data
     test "empty for a guest or non-flagging user" do
       [alice, bob, eve, mallory] = some_fake_users!(%{}, 4)
@@ -300,6 +303,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       q = collection_query(fields: [flags: page_fields(flag_fields())])
       vars = %{collection_id: coll.id}
       conns = [user_conn(mallory), json_conn()]
+
       for conn <- conns do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert_page(coll2.flags, 0, 0, false, false, &[&1.id])
@@ -320,16 +324,15 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
 
       coll2 = assert_collection(coll, grumble_post_key(q, user_conn(eve), :collection, vars))
       _page = assert_page(coll2.flags, 1, 1, false, false, &[&1.id])
+
       for conn <- [user_conn(lucy)] do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert_page(coll2.flags, 2, 2, false, false, &[&1.id])
       end
     end
-
   end
 
   describe "collection.threads" do
-
     test "works for anyone when there are no threads" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
@@ -337,10 +340,11 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       q = collection_query(fields: [threads_subquery(fields: [comments_subquery()])])
       vars = %{collection_id: coll.id}
+
       for conn <- [json_conn(), user_conn(eve), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert %{threads: threads} = coll2
-        assert_page(coll2.threads, 0, 0, false, false, &(&1.id))
+        assert_page(coll2.threads, 0, 0, false, false, & &1.id)
       end
     end
 
@@ -351,25 +355,36 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       randomers = some_fake_users!(5)
       many_randomers = repeat_for_count(randomers, 25)
-      threads_and_initials = flat_pam_some(randomers, 5, fn user -> # 25
-        thread = fake_thread!(user, coll)
-        comment = fake_comment!(user, thread)
-        {thread, comment}
-      end)
+      # 25
+      threads_and_initials =
+        flat_pam_some(randomers, 5, fn user ->
+          thread = fake_thread!(user, coll)
+          comment = fake_comment!(user, thread)
+          {thread, comment}
+        end)
+
       threads_and_replies =
         zip(many_randomers, threads_and_initials, fn user, {thread, initial} ->
           reply = fake_reply!(user, thread, initial)
           {thread, reply}
         end)
+
       # final_replies =
-      _ =  zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
+      _ =
+        zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
           fake_reply!(user, thread, comment)
         end)
+
       {_threads, _initials} = unpiz(threads_and_initials)
       # replies = Enum.map(threads_and_replies, &elem(&1, 1))
       # comments = final_replies ++ replies ++ initials
-      q = collection_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
+      q =
+        collection_query(
+          fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])]
+        )
+
       vars = %{collection_id: coll.id}
+
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert %{threads: threads} = coll2
@@ -381,7 +396,6 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         # each(Enum.reverse(initials), initials2, &assert_comment/2)
       end
     end
-
   end
 
   describe "collection.outbox" do
@@ -396,17 +410,26 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       comm = fake_community!(user)
       coll = fake_collection!(user, comm)
 
-      assert {:ok, upload} = MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.IconUploader, user,
-        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
-      )
+      assert {:ok, upload} =
+               MoodleNet.Uploads.upload(
+                 MoodleNet.Uploads.IconUploader,
+                 user,
+                 %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
+                 %{}
+               )
+
       assert {:ok, coll} = MoodleNet.Collections.update(user, coll, %{icon_id: upload.id})
 
       conn = user_conn(user)
-      q = collection_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
+
+      q =
+        collection_query(
+          fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]]
+        )
+
       assert resp = grumble_post_key(q, conn, :collection, %{collection_id: coll.id})
       assert resp["icon"]["id"] == coll.icon_id
-      assert_url resp["icon"]["url"]
+      assert_url(resp["icon"]["url"])
       assert resp["icon"]["upload"]
     end
   end

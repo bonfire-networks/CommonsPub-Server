@@ -2,18 +2,27 @@
 @import "./components/navigation";
 @import "./components/pagination";
 @import "./components/post/autocomplete";
-@import "../../lib/moodle_net_web/live/components/hero_profile/hero";
+
 @import "../../lib/moodle_net_web/templates/layout/template_live";
+
 @import "../../lib/moodle_net_web/live/components/previews/previews";
 @import "../../lib/moodle_net_web/live/components/activity/activity";
 @import "../../lib/moodle_net_web/live/components/about/about";
+
 @import "../../lib/moodle_net_web/live/pages/my/login/login";
 @import "../../lib/moodle_net_web/live/pages/my/signup/signup";
 @import "../../lib/moodle_net_web/live/pages/my/settings/settings";
+@import "../../lib/moodle_net_web/live/pages/my/create/ads/publish_ad_live.scss";
+@import "../../lib/moodle_net_web/live/pages/my/create/link/share_link.scss";
+
 @import "../../lib/moodle_net_web/live/pages/discussion/discussion";
-@import "../../lib/moodle_net_web/live/pages/my/post/write";
-@import "../../lib/moodle_net_web/live/pages/community/community.scss";
+@import "../../lib/moodle_net_web/live/pages/my/create/write/write";
+@import "../../lib/moodle_net_web/live/pages/community/community";
 @import "../../lib/moodle_net_web/live/pages/member/member";
+@import "../../lib/moodle_net_web/live/pages/member/components/hero";
+
+@import "../../lib/moodle_net_web/live/components/editor/editors/prosemirror"; // TODO: load only if used
+
 @import "../../lib/moodle_net_web/live/pages/instance/instance";
 @import "../../lib/moodle_net_web/live/pages/instance/search/search";
 
@@ -48,8 +57,7 @@
   width: 100%;
   white-space: pre-wrap;
   word-break: break-word;
-  caret-color: var(--darker);
-  color: var(--darker);
+  color: var(--color-text);
   font-weight: 700;
   line-height: 1.2;
   /* margin-bottom: 4px; */

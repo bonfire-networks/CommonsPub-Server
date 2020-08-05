@@ -12,10 +12,12 @@ defmodule MoodleNetWeb.InstanceLive do
   alias MoodleNetWeb.InstanceLive.{
     InstanceActivitiesLive,
     InstanceMembersLive,
-    InstanceCommunitiesLive
+    InstanceCommunitiesLive,
+    InstanceCollectionsLive
   }
 
   def mount(params, session, socket) do
+    IO.inspect(instance_session: session)
     socket = init_assigns(params, session, socket)
 
     {:ok,

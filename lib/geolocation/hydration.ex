@@ -7,7 +7,7 @@ defmodule Geolocation.GraphQL.Hydration do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
 
-  alias Circle
+  alias Organisation
 
   def hydrate() do
     %{
@@ -36,6 +36,9 @@ defmodule Geolocation.GraphQL.Hydration do
         ],
         update_spatial_thing: [
           resolve: &Geolocation.GraphQL.update_geolocation/2
+        ],
+        delete_spatial_thing: [
+          resolve: &Geolocation.GraphQL.delete_geolocation/2
         ]
       },
       geo_scope: [
@@ -46,6 +49,6 @@ defmodule Geolocation.GraphQL.Hydration do
 
   def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%Collection{}, _), do: :collection
-  def resolve_context_type(%Circle{}, _), do: :circle
+  def resolve_context_type(%Organisation{}, _), do: :organisation
   def resolve_context_type(%{}, _), do: :community
 end

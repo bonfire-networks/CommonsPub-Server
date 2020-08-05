@@ -25,11 +25,18 @@ defmodule Tag.GraphQL.TagSchema do
   end
 
   object :tag_mutations do
-    #   @desc "Create a tag out of something else"
-    #   field :make_taggable, :tag do
-    #     arg(:pointer_id, :string)
-    #     resolve(&TagResolver.make_pointer_taggable/2)
-    #   end
+    @desc "Create a tag out of something else. You can also directly use tag() with a pointer ID instead."
+    field :make_taggable, :tag do
+      arg(:context_id, :string)
+      resolve(&TagResolver.make_pointer_taggable/2)
+    end
+
+    @desc "Tag something with a tag (or a taggable pointer)"
+    field :tag, :tag do
+      arg(:thing_id, non_null(:string))
+      arg(:taggable_id, non_null(:string))
+      resolve(&TagResolver.tag_thing/2)
+    end
   end
 
   @desc "A tag could be a category or hashtag"
@@ -41,8 +48,16 @@ defmodule Tag.GraphQL.TagSchema do
     field(:taxonomy_tag_id, :integer)
 
     field(:prefix, :string)
-    field(:name, :string)
-    field(:summary, :string)
+
+    # field(:name, :string)
+    field(:name, :string) do
+      resolve(&TagResolver.name/3)
+    end
+
+    # field(:summary, :string)
+    field(:summary, :string) do
+      resolve(&TagResolver.summary/3)
+    end
 
     field(:parent_tag_id, :string)
 
@@ -56,6 +71,11 @@ defmodule Tag.GraphQL.TagSchema do
       resolve(&TagResolver.tag_children/3)
     end
 
+    @desc "The taggable object, or the context of this taggable"
+    field :context, :any_context do
+      resolve(&MoodleNetWeb.GraphQL.CommonResolver.context_edge/3)
+    end
+
     @desc "The Character that represents this tag in feeds and federation"
     field :character, :character do
       resolve(&Character.GraphQL.Resolver.character/3)
@@ -67,7 +87,7 @@ defmodule Tag.GraphQL.TagSchema do
     end
 
     @desc "Things that were tagged with this tag"
-    field(:tagged_things, list_of(:taggable_thing)) do
+    field(:tagged_things, list_of(:any_context)) do
       resolve(&TagResolver.tagged_things_edges/3)
     end
   end
@@ -81,54 +101,6 @@ defmodule Tag.GraphQL.TagSchema do
   input_object :tag_find do
     field(:name, non_null(:string))
     field(:parent_tag_name, non_null(:string))
-  end
-
-  # TODO generate this based on available modules and/or config
-  @doc "Types of things that can be characters"
-  union :taggable_thing do
-    description("Any kind of thing that can be tagged")
-
-    types([
-      :collection,
-      :community,
-      :circle,
-      :resource,
-      :thread,
-      :comment,
-      :spatial_thing,
-      :character,
-      :user
-    ])
-
-    resolve_type(fn
-      %MoodleNet.Collections.Collection{}, _ ->
-        :collection
-
-      %MoodleNet.Communities.Community{}, _ ->
-        :community
-
-      %Circle{}, _ ->
-        :circle
-
-      %MoodleNet.Resources.Resource{}, _ ->
-        :resource
-
-      %MoodleNet.Threads.Thread{}, _ ->
-        :thread
-
-      %MoodleNet.Threads.Comment{}, _ ->
-        :comment
-
-      %Geolocation{}, _ ->
-        :spatial_thing
-
-      %Character{}, _ ->
-        :character
-
-      %MoodleNet.Users.User{}, _ ->
-        :user
-        # %{},   _ -> :unexpected_character_trope
-    end)
   end
 
   #  @desc "A category is a grouping mechanism for tags"

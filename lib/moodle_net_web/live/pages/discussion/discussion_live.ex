@@ -20,14 +20,8 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    IO.inspect(thread, label: "THREAD")
-    if thread.context_id == nil do
-      thread = Discussions.prepare_thread(thread)
-    else
-      thread = Discussions.prepare_thread(thread, true)
-    end
-    # IO.inspect(thread, label: "THREAD")
-
+    thread = Discussions.prepare_thread(thread)
+    IO.inspect(thread, label: "Thread")
     # TODO: tree of replies & pagination
     {:ok, comments} =
       CommentsResolver.comments_edge(thread, %{limit: 15}, %{
@@ -60,21 +54,29 @@ defmodule MoodleNetWeb.DiscussionLive do
         session,
         socket
       ) do
+    {_, reply_comment} =
+      Enum.find(socket.assigns.comments, fn element ->
+        {_id, comment} = element
+        comment.id == comment_id
+      end)
+
     {:noreply,
      assign(socket,
-       reply_to: comment_id
+       reply_to: comment_id,
+       reply: reply_comment
      )}
   end
 
   def handle_params(%{"id" => thread_id} = params, session, socket) do
     {:noreply,
      assign(socket,
-       reply_to: nil
+       reply_to: nil,
+       reply: nil
      )}
   end
 
   def handle_event("reply", %{"content" => content} = data, socket) do
-    IO.inspect(data, label: "DATA")
+    # IO.inspect(data, label: "DATA")
 
     if(is_nil(content) or is_nil(socket.assigns.current_user)) do
       {:noreply,
@@ -102,15 +104,15 @@ defmodule MoodleNetWeb.DiscussionLive do
           %{context: %{current_user: socket.assigns.current_user}}
         )
 
-      IO.inspect(comment, label: "HERE")
-
       # TODO: error handling
 
       {:noreply,
        socket
        |> put_flash(:info, "Replied!")
        # redirect in order to reload comments, TODO: just add comment which was returned by resolver?
-       |> push_redirect(to: "/!" <> socket.assigns.thread.id <> "/discuss/" <> comment.id)}
+       |> push_redirect(
+         to: "/!" <> socket.assigns.thread.id <> "/discuss/" <> comment.reply_to_id
+       )}
     end
   end
 end

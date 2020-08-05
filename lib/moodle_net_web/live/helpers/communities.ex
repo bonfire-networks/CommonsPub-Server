@@ -62,12 +62,14 @@ defmodule MoodleNetWeb.Helpers.Communities do
   def communities_from_follows(%{edges: edges}) when length(edges) > 0 do
     # FIXME: communities should be joined to edges rather than queried seperately
 
-    IO.inspect(communities_from_follows: edges)
+    # IO.inspect(communities_from_follows: edges)
     ids = Enum.map(edges, & &1.context_id)
-    IO.inspect(ids: ids)
+
+    # IO.inspect(ids: ids)
 
     communities = contexts_fetch!(ids)
-    IO.inspect(communities: communities)
+
+    # IO.inspect(communities: communities)
 
     communities =
       if(communities) do

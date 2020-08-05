@@ -19,7 +19,7 @@ defmodule MoodleNet.Meta.TableService do
   service exists solely to own the table and fit into the OTP
   supervision hierarchy neatly.
   """
-  
+
   alias MoodleNet.Meta.{Introspection, Table, TableNotFoundError}
   alias MoodleNet.Repo
 
@@ -37,22 +37,22 @@ defmodule MoodleNet.Meta.TableService do
   @spec start_link() :: GenServer.on_start()
   @doc "Starts up the service registering it locally under this module's name"
   def start_link(),
-    do: GenServer.start_link(__MODULE__, [name: @service_name])
+    do: GenServer.start_link(__MODULE__, name: @service_name)
 
   @spec lookup(table_id()) :: {:ok, Table.t()} | {:error, TableNotFoundError.t()}
   @doc "Look up a Table by name, id or ecto module"
   def lookup(key) when is_integer(key) or is_binary(key) or is_atom(key),
     do: lookup_result(key, :ets.lookup(@table_name, key))
-	  
+
   defp lookup_result(key, []), do: {:error, TableNotFoundError.new(key)}
-  defp lookup_result(_, [{_,v}]), do: {:ok, v}
+  defp lookup_result(_, [{_, v}]), do: {:ok, v}
 
   @spec lookup!(table_id()) :: Table.t()
   @doc "Look up a Table by name or id, throw TableNotFoundError if not found"
   def lookup!(key) do
     case lookup(key) do
       {:ok, v} -> v
-      {:error, reason} -> throw reason
+      {:error, reason} -> throw(reason)
     end
   end
 
@@ -67,7 +67,7 @@ defmodule MoodleNet.Meta.TableService do
   def lookup_id!(key) do
     case lookup_id(key) do
       {:ok, v} -> v
-      {:error, reason} -> throw reason
+      {:error, reason} -> throw(reason)
     end
   end
 
@@ -75,7 +75,8 @@ defmodule MoodleNet.Meta.TableService do
   def lookup_ids!(ids) do
     Enum.map(ids, fn t ->
       cond do
-        is_binary(t) -> t # cheat to save some lookups
+        # cheat to save some lookups
+        is_binary(t) -> t
         is_atom(t) -> lookup_id!(t)
       end
     end)
@@ -92,7 +93,7 @@ defmodule MoodleNet.Meta.TableService do
   def lookup_schema!(key) do
     case lookup_schema(key) do
       {:ok, v} -> v
-      {:error, reason} -> throw reason
+      {:error, reason} -> throw(reason)
     end
   end
 
@@ -104,6 +105,7 @@ defmodule MoodleNet.Meta.TableService do
     |> Repo.all(telemetry_event: @init_query_name)
     |> pair_schemata()
     |> populate_table()
+
     {:ok, []}
   end
 
@@ -111,9 +113,11 @@ defmodule MoodleNet.Meta.TableService do
   # operating over the referenced tables to the `schema` key. Errors
   # if a matching schema is not found
   defp pair_schemata(entries) do
-    index = Enum.reduce(Introspection.ecto_schema_modules() ,%{}, fn module, acc ->
-      schema_reduce(Introspection.ecto_schema_table(module), module, acc)
-    end)
+    index =
+      Enum.reduce(Introspection.ecto_schema_modules(), %{}, fn module, acc ->
+        schema_reduce(Introspection.ecto_schema_table(module), module, acc)
+      end)
+
     Enum.reduce(entries, [], &pair_schema(&1, Map.get(index, &1.table), &2))
   end
 
@@ -123,19 +127,20 @@ defmodule MoodleNet.Meta.TableService do
 
   # Error if there was no matching schema, otherwise add it to the entry
   defp pair_schema(_entry, nil, acc), do: acc
-    # uncomment the following line if you want to auto-remove defunct tables from your meta table
-    # MoodleNet.ReleaseTasks.remove_meta_table(entry.table) 
-    # throw {:missing_schema, entry.table}
+
+  # uncomment the following line if you want to auto-remove defunct tables from your meta table
+  # CommonsPub.ReleaseTasks.remove_meta_table(entry.table)
+  # throw {:missing_schema, entry.table}
   # end
 
-  defp pair_schema(entry, schema, acc), do: [%{ entry | schema: schema } | acc]
+  defp pair_schema(entry, schema, acc), do: [%{entry | schema: schema} | acc]
 
   defp populate_table(entries) do
     :ets.new(@table_name, [:named_table])
+
     for field <- [:id, :table, :schema] do
-      indexed = Enum.map(entries, &({ Map.get(&1,field), &1 }))
+      indexed = Enum.map(entries, &{Map.get(&1, field), &1})
       true = :ets.insert(@table_name, indexed)
     end
   end
-
 end

@@ -8,7 +8,7 @@ defmodule MoodleNet.LikesTest do
   import MoodleNet.Test.Faking
   alias MoodleNet.Likes
   alias MoodleNet.Common.{DeletionError, NotFoundError}
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   setup do
     {:ok, %{user: fake_user!()}}
@@ -27,7 +27,7 @@ defmodule MoodleNet.LikesTest do
   def gen_likes(n, liker \\ fake_user!(), attrs \\ %{}) do
     for _ <- 1..n do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like(attrs))
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like(attrs))
       like
     end
   end
@@ -41,35 +41,35 @@ defmodule MoodleNet.LikesTest do
   describe "one" do
     test "by ID", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       assert {:ok, fetched} = Likes.one(id: like.id)
       assert like_equal?(like, fetched)
     end
 
     test "by context ID", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       assert {:ok, fetched} = Likes.one(context: liked.id)
       assert like_equal?(like, fetched)
     end
 
     test "by user", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       assert {:ok, fetched} = Likes.one(user: liker)
       assert like_equal?(like, fetched)
     end
 
     test "private", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like(%{is_public: false}))
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like(%{is_public: false}))
       assert {:ok, fetched} = Likes.one(published: true, id: like.id)
       assert like_equal?(like, fetched)
     end
 
     test "deleted", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       assert {:ok, like} = Likes.soft_delete(liker, like)
       assert {:ok, fetched} = Likes.one(id: like.id)
       assert {:error, %NotFoundError{}} = Likes.one(deleted: false, id: like.id)
@@ -86,7 +86,7 @@ defmodule MoodleNet.LikesTest do
 
     test "likes by user", %{user: liker} do
       liked = fake_meta!()
-      {:ok, like} = Likes.create(liker, liked, Fake.like())
+      {:ok, like} = Likes.create(liker, liked, Simulation.like())
 
       gen_likes(3)
 
@@ -96,7 +96,7 @@ defmodule MoodleNet.LikesTest do
 
     test "likes by context", %{user: liker} do
       liked = fake_meta!()
-      {:ok, like} = Likes.create(liker, liked, Fake.like())
+      {:ok, like} = Likes.create(liker, liked, Simulation.like())
 
       gen_likes(3)
 
@@ -106,7 +106,7 @@ defmodule MoodleNet.LikesTest do
 
     test "filter deleted", %{user: liker} do
       liked = fake_meta!()
-      {:ok, like} = Likes.create(liker, liked, Fake.like())
+      {:ok, like} = Likes.create(liker, liked, Simulation.like())
       {:ok, _} = Likes.soft_delete(liker, like)
 
       likes = gen_likes(3)
@@ -117,7 +117,7 @@ defmodule MoodleNet.LikesTest do
     # TODO: likes are always public
     # test "filter private", %{user: liker} do
     #   liked = fake_meta!()
-    #   {:ok, like} = Likes.create(liker, liked, Fake.like(%{is_public: false}))
+    #   {:ok, like} = Likes.create(liker, liked, Simulation.like(%{is_public: false}))
 
     #   likes = gen_likes(3)
 
@@ -130,7 +130,7 @@ defmodule MoodleNet.LikesTest do
   describe "create" do
     test "a user can like any meta object", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       assert like.creator_id == liker.id
       assert like.context_id == liked.id
       assert like.published_at
@@ -140,8 +140,8 @@ defmodule MoodleNet.LikesTest do
   describe "update" do
     test "changes a like", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
-      assert {:ok, updated} = Likes.update(liker, like, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
+      assert {:ok, updated} = Likes.update(liker, like, Simulation.like())
       refute like_equal?(like, updated)
     end
   end
@@ -149,7 +149,7 @@ defmodule MoodleNet.LikesTest do
   describe "soft_delete" do
     test "soft deletes a like", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       refute like.deleted_at
       assert {:ok, undoed} = Likes.soft_delete(liker, like)
       assert undoed.deleted_at
@@ -157,10 +157,9 @@ defmodule MoodleNet.LikesTest do
 
     test "fails if already deleted", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       assert {:ok, deleted} = Likes.soft_delete(liker, like)
       assert {:error, %DeletionError{}} = Likes.soft_delete(liker, deleted)
     end
   end
-
 end

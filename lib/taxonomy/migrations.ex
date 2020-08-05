@@ -64,7 +64,7 @@ defmodule Taxonomy.Migrations do
     end
 
     Pointers.Migration.drop_pointer_trigger(table)
-    MoodleNet.ReleaseTasks.remove_meta_table(table)
+    CommonsPub.ReleaseTasks.remove_meta_table(table)
   end
 
   def up do

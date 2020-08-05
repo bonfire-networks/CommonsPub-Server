@@ -3,27 +3,28 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
   use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNet.Test.Fake
+  import CommonsPub.Utils.Simulation
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
   import Zest
 
   describe "create_resource" do
-
     test "works for users" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       q = create_resource_mutation(fields: [content: [:url], icon: [:url]])
+
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
         vars = %{
           collection_id: coll.id,
-          resource: Fake.resource_input(),
-          content: Fake.content_input(),
-          icon: %{url: "https://via.placeholder.com/150.png"},
+          resource: Simulation.resource_input(),
+          content: content_input(),
+          icon: %{url: "https://via.placeholder.com/150.png"}
         }
+
         res = grumble_post_key(q, conn, :create_resource, vars)
         assert_resource(res)
         assert res["content"]["url"]
@@ -37,16 +38,14 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       coll = fake_collection!(alice, comm)
       q = create_resource_mutation()
       conn = json_conn()
-      ri = Fake.resource_input()
-      ci = Fake.content_input()
+      ri = Simulation.resource_input()
+      ci = content_input()
       vars = %{collection_id: coll.id, resource: ri, content: ci}
       assert_not_logged_in(grumble_post_errors(q, conn, vars), ["createResource"])
     end
-
   end
 
   describe "update_resource" do
-
     @tag :skip
     test "works for the resource, collection or community creator or an admin" do
       [alice, bob, eve] = some_fake_users!(3)
@@ -55,11 +54,12 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       coll = fake_collection!(bob, comm)
       resource = fake_resource!(eve, coll)
       q = update_resource_mutation()
-      each [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)], fn conn ->
-        ri = Fake.resource_input()
-        vars = %{resource_id: resource.id, resource: ri, content: Fake.content_input()}
+
+      each([user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)], fn conn ->
+        ri = Simulation.resource_input()
+        vars = %{resource_id: resource.id, resource: ri, content: content_input()}
         assert_resource(grumble_post_key(q, conn, :update_resource, vars))
-      end
+      end)
     end
 
     test "does not work for a guest" do
@@ -69,15 +69,13 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       resource = fake_resource!(alice, coll)
       conn = json_conn()
       q = update_resource_mutation()
-      ri = Fake.resource_input()
+      ri = Simulation.resource_input()
       vars = %{resource_id: resource.id, resource: ri}
       assert_not_logged_in(grumble_post_errors(q, conn, vars), ["updateResource"])
     end
-
   end
 
   describe "copy_resource" do
-
     @tag :skip
     test "works for a user" do
       [alice, bob] = some_fake_users!(2)
@@ -108,26 +106,31 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
     @tag :skip
     test "works for creator" do
     end
+
     @tag :skip
     test "works for collection creator" do
     end
+
     @tag :skip
     test "works for community creator" do
     end
+
     @tag :skip
     test "works for admin" do
     end
+
     @tag :skip
     test "doesn't work for random" do
     end
+
     @tag :skip
     test "doesn't work for guest" do
     end
   end
+
   describe "follow (via common)" do
     @tag :skip
     test "does not work" do
     end
   end
-
 end

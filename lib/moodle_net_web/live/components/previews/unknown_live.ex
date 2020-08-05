@@ -3,11 +3,25 @@ defmodule MoodleNetWeb.Component.UnknownPreviewLive do
 
   import MoodleNetWeb.Helpers.Common
 
+  def update(assigns, socket) do
+    IO.inspect(unknown_preview: assigns.object)
+
+    link = e(content_url(assigns.object), e(assigns.object, :canonical_url, "#no-link"))
+    icon = icon(@object)
+
+    {:ok,
+     assign(socket,
+       object: assigns.object,
+       link: link,
+       icon: icon
+     )}
+  end
+
   def render(assigns) do
     ~L"""
     <div class="story__preview">
       <div class="preview__info">
-        <h2><%= e(@object, :name, "") %></h2>
+        <h2><a href="<%=@link%>"><%= e(@object, :name, "") %></a></h2>
         <p><%= e(@object, :summary, "") %></p>
         <div class="preview__meta">
           <div class="meta__item">
@@ -20,6 +34,7 @@ defmodule MoodleNetWeb.Component.UnknownPreviewLive do
           </div>
         </div>
       </div>
+      <div class="preview__icon" style="background-image: url('<%=@icon %>')"></div>
     </div>
     """
   end

@@ -1,42 +1,86 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# SPDX-License-Identifier: AGPL-3.0-only
+# Generate some fake data and put it in the DB for testing/development purposes
 
 import MoodleNet.Test.Faking
 
-admin = %{
-  email: "root@localhost.dev",
-  password: "password",
-  preferred_username: "root",
-  name: "root",
-  is_instance_admin: true,
-}
-|> fake_user!(confirm_email: true)
+admin =
+  %{
+    email: "root@localhost.dev",
+    password: "password",
+    preferred_username: "root",
+    name: "root",
+    is_instance_admin: true
+  }
+  |> fake_user!(confirm_email: true)
 
-users = for _ <- 1..10, do: fake_user!()
+users = for _ <- 1..2, do: fake_user!()
 random_user = fn -> Faker.Util.pick(users) end
-communities = for _ <- 1..4, do: fake_community!(random_user.())
+
+# put content on user profiles
+for user <- users do
+  # start a fake thread
+  for _ <- 1..2 do
+    user = random_user.()
+    thread = fake_thread!(user, nil)
+    comment = fake_comment!(user, thread)
+    # reply to it
+    reply = fake_comment!(random_user.(), thread, %{in_reply_to_id: comment.id})
+    subreply = fake_comment!(random_user.(), thread, %{in_reply_to_id: reply.id})
+    subreply2 = fake_comment!(random_user.(), thread, %{in_reply_to_id: subreply.id})
+  end
+
+  # create fake collections
+  for _ <- 1..2 do
+    collection = fake_collection!(random_user.(), nil)
+    # add some resources
+    for _ <- 1..2 do
+      fake_resource!(random_user.(), collection)
+    end
+  end
+end
+
+# start some communities
+communities = for _ <- 1..2, do: fake_community!(random_user.())
+
+# put content in communities
 for community <- communities do
-  for _ <- 1..3 do # start a fake thread
+  # start a fake thread
+  for _ <- 1..2 do
     user = random_user.()
     thread = fake_thread!(user, community)
     comment = fake_comment!(user, thread)
-    for _ <- 1..2 do # reply to it
-      fake_comment!(random_user.(), thread, %{in_reply_to_id: comment.id})
-    end
+    # reply to it
+    reply = fake_comment!(random_user.(), thread, %{in_reply_to_id: comment.id})
+    subreply = fake_comment!(random_user.(), thread, %{in_reply_to_id: reply.id})
+    subreply2 = fake_comment!(random_user.(), thread, %{in_reply_to_id: subreply.id})
   end
-  for _ <- 1..3 do # create a fake collection
+
+  # create fake collections within community
+  for _ <- 1..2 do
     collection = fake_collection!(random_user.(), community)
-    for _ <- 1..3 do # add some resources
+    # add some resources
+    for _ <- 1..2 do
       fake_resource!(random_user.(), collection)
     end
-    for _ <- 1..3 do # start a fake thread
+
+    # start a fake thread
+    for _ <- 1..2 do
       user = random_user.()
       thread = fake_thread!(user, collection)
       comment = fake_comment!(user, thread)
-      for _ <- 1..2 do # reply to it
-        fake_comment!(random_user.(), thread, %{in_reply_to_id: comment.id})
-      end
+      # reply to it
+      # reply = fake_comment!(random_user.(), thread, %{in_reply_to_id: comment.id})
+    end
+  end
+
+  if(Code.ensure_loaded?(Geolocation.Simulate)) do
+    Geolocation.Simulate.fake_geolocation!(random_user.(), community)
+  end
+
+  if(Code.ensure_loaded?(Measurement.Simulate)) do
+    unit = Measurement.Simulate.fake_unit!(random_user.(), community)
+
+    if(Code.ensure_loaded?(ValueFlows.Simulate)) do
+      intent = ValueFlows.Simulate.fake_intent!(random_user.(), unit)
     end
   end
 end

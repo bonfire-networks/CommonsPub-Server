@@ -74,7 +74,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
 
     @desc "The object the thread is attached to"
-    field :context, :thread_context do
+    field :context, :any_context do
       resolve(&CommonResolver.context_edge/3)
     end
 
@@ -100,17 +100,17 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
   end
 
-  union :thread_context do
-    description("The thing the comment is about")
-    types([:collection, :community, :flag, :resource])
+  # union :thread_context do
+  #   description("The thing the comment is about")
+  #   types([:collection, :community, :flag, :resource])
 
-    resolve_type(fn
-      %Collection{}, _ -> :collection
-      %Community{}, _ -> :community
-      %Flag{}, _ -> :flag
-      %Resource{}, _ -> :resource
-    end)
-  end
+  #   resolve_type(fn
+  #     %Collection{}, _ -> :collection
+  #     %Community{}, _ -> :community
+  #     %Flag{}, _ -> :flag
+  #     %Resource{}, _ -> :resource
+  #   end)
+  # end
 
   object :threads_page do
     field(:page_info, non_null(:page_info))

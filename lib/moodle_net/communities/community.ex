@@ -7,9 +7,10 @@ defmodule MoodleNet.Communities.Community do
   import MoodleNet.Common.Changeset,
     only: [
       change_public: 1,
-      change_disabled: 1,
+      change_disabled: 1
       # validate_language_code: 2
     ]
+
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities
@@ -24,7 +25,7 @@ defmodule MoodleNet.Communities.Community do
   table_schema "mn_community" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
-    belongs_to(:context, Pointer)
+    belongs_to(:context, Pointers.Pointer)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     field(:canonical_url, :string, virtual: true)
@@ -50,7 +51,21 @@ defmodule MoodleNet.Communities.Community do
 
   @create_required ~w(name creator_id)a
   @create_cast @create_required ++
-    ~w(is_disabled is_public summary icon_id image_id inbox_id outbox_id)a
+                 ~w(is_disabled is_public summary icon_id image_id inbox_id outbox_id)a
+
+  def create_changeset(%User{} = creator, %{} = context, %Actor{} = actor, fields) do
+    %Community{}
+    |> Changeset.cast(fields, @create_cast)
+    |> Changeset.change(
+      # communities are currently all public
+      is_public: true,
+      actor_id: actor.id,
+      context_id: context.id,
+      creator_id: creator.id
+    )
+    |> Changeset.validate_required(@create_required)
+    |> common_changeset()
+  end
 
   def create_changeset(%User{} = creator, %Actor{} = actor, fields) do
     %Community{}
@@ -76,6 +91,7 @@ defmodule MoodleNet.Communities.Community do
     changeset
     |> change_public()
     |> change_disabled()
+
     # |> validate_language_code(:primary_language)
   end
 
@@ -86,5 +102,4 @@ defmodule MoodleNet.Communities.Community do
   def queries_module, do: Communities.Queries
 
   def follow_filters, do: [:default]
-
 end

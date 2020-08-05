@@ -6,7 +6,7 @@ defmodule MoodleNetWeb.GraphQL.AdminTest do
 
   import MoodleNet.Test.Faking
   import ActivityPub.Factory
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
   import MoodleNetWeb.Test.GraphQLFields
 
   describe "invites" do
@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.AdminTest do
       conn = user_conn(user)
       q = invite_mutation()
 
-      assert true == grumble_post_key(q, conn, :send_invite, %{email: Fake.email()})
+      assert true == grumble_post_key(q, conn, :send_invite, %{email: Simulation.email()})
     end
 
     test "fails if user is not an admin" do
@@ -31,7 +31,7 @@ defmodule MoodleNetWeb.GraphQL.AdminTest do
                  "path" => ["sendInvite"],
                  "status" => 403
                }
-             ] = grumble_post_errors(q, conn, %{email: Fake.email()})
+             ] = grumble_post_errors(q, conn, %{email: Simulation.email()})
     end
   end
 
