@@ -37,6 +37,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
+    IO.inspect(context_edges: ids)
+
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
       fetcher: :fetch_context_edges,
@@ -46,15 +48,26 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     })
   end
 
+  def fetch_context_edges(_page_opts, _info, pointers)
+      when is_list(pointers) and length(pointers) > 0 and is_struct(hd(pointers)) do
+    # means we're already being passed pointers? instead of ids
+    IO.inspect(pointers_already: pointers)
+    follow_context_edges(pointers)
+  end
+
   def fetch_context_edges(_page_opts, _info, ids) do
-    # IO.inspect(context_ids: ids)
+    IO.inspect(context_ids: ids)
     flattened_ids = flatten(ids)
     # IO.inspect(flattened: flattened_ids)
-    {:ok, ptrs} = Pointers.many(id: flattened_ids)
-    # IO.inspect(context_ptrs: ptrs)
-    ptsd = Pointers.follow!(ptrs)
-    # IO.inspect(context_ptsd: ptsd)
-    {:ok, ptsd}
+    {:ok, pointers} = Pointers.many(id: flattened_ids)
+    follow_context_edges(pointers)
+  end
+
+  def follow_context_edges(pointers) do
+    IO.inspect(context_pointers: pointers)
+    contexts = Pointers.follow!(pointers)
+    IO.inspect(contexts_final: contexts)
+    {:ok, contexts}
     # edge = Fields.new(ptsd, &Map.get(&1, :id))
     # IO.inspect(edge: edge)
     # edge

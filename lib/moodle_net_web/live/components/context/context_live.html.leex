@@ -1,6 +1,6 @@
-<div class="navigation__block">
-  <h3 class="block__title">Context</h3>
-  <%= if @object.context_id !== nil and is_map(@object.context) do %>
+<%= if @object.context_id !== nil and is_map(@object.context) do %>
+  <div class="navigation__block">
+    <h3 class="block__title">Context</h3>
     <div class="block__context">
       <%= live_patch to: context_url(@object.context) do %>
         <div class="named-avatar">
@@ -9,7 +9,5 @@
         </div>
       <% end %>
     </div>
-  <% else %>
-    <div>Without context</div>
-  <% end %>
-</div>
+    </div>
+<% end %>

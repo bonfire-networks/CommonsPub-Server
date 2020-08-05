@@ -14,7 +14,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
     <div id="preview-<%=@preview_id%>">
     <%=
       IO.inspect(preview_object_type: @object_type)
-      IO.inspect(preview_object: @object)
+      # IO.inspect(preview_object: @object)
       cond do
           @object_type == "community" ->
             live_component(

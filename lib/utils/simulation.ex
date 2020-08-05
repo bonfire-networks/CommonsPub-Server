@@ -28,6 +28,8 @@ defmodule CommonsPub.Utils.Simulation do
   def pos_integer(), do: Faker.random_between(0, @integer_max)
   @doc "Generate a random negative integer"
   def neg_integer(), do: Faker.random_between(@integer_min, 0)
+  @doc "Generate a random floating point number"
+  def float(), do: Faker.random_uniform()
   @doc "Generates a random url"
   def url(), do: Faker.Internet.url() <> "/"
   @doc "Picks a path from a set of available files."
@@ -169,7 +171,9 @@ defmodule CommonsPub.Utils.Simulation do
   end
 
   def content_input(base \\ %{}) do
-    gen = Faker.Util.pick([&content_mirror_input/1, &content_upload_input/1])
+    # gen = Faker.Util.pick([&content_mirror_input/1, &content_upload_input/1])
+    # FIXME: need to make fake uploads work
+    gen = &content_mirror_input/1
     gen.(base)
   end
 

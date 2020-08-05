@@ -5,12 +5,12 @@ services:
     # You can build your own image from the source running:
     # $ make build
     # $ make tag_latest
-    image: "zenpub/zenpub:latest"
+    image: "commonspub/commonspub:latest"
     restart: always
     ports:
-      - "4009:4009" # you may want to comment this in production
-      # - "80:80"
-      # - "443:443"
+      - "4000:4000" # you may want to comment this in production
+      - "80:80"
+      - "443:443"
     env_file:
       - config/docker.env
     depends_on:
@@ -20,10 +20,9 @@ services:
         source: ./uploads
         target: /var/www/uploads
   db:
-    image: postgres:9.6-alpine
-    # image: postgis/postgis:12-3.0-alpine
+    image: postgis/postgis:12-3.0-alpine
     # volumes:
-    #   - "./data/postgres-prod:/var/lib/postgresql/data"
+    #   - "./data/postgres:/var/lib/postgresql/data"
     # ports:
     #   - "5432:5432"
     env_file:

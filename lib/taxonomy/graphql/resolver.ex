@@ -154,7 +154,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   def make_taggable_taxonomy_tag(%{taxonomy_tag_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info) do
-        TaxonomyTags.make_taggable(me, id)
+        TaxonomyTags.maybe_make_taggable(me, id)
       end
     end)
   end

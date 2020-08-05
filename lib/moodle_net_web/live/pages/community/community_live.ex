@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.CommunityLive do
     CommunityDiscussionsLive,
     CommunityMembersLive,
     # CommunityNavigationLive,
+    CommunityCollectionsLive,
     CommunityWriteLive,
     CommunityActivitiesLive
   }

@@ -6,11 +6,11 @@
       <option selected value="<%= @current_context.id %>"><%= @current_context.name %></option>
     </select>
   <% else %>
-  <select class="select-css" autocomplete name="context_id" id="communities-link">
-    <option value="">Publish on fediverse</option>
-    <%= for community <- @my_communities do %>
-      <option <%= if is_map(@current_context) and @current_context.id == community.id, do: "selected" %> value="<%= community.id %>">Publish on <%= community.name %></option>
-    <% end %>
-  </select>
+    <select class="select-css" autocomplete name="context_id" id="communities-link">
+      <option value="">Publish on fediverse</option>
+      <%= for community <- @my_communities do %>
+        <option <%= if is_map(@current_context) and @current_context.id == community.id, do: "selected" %> value="<%= community.id %>">Publish on <%= community.name %></option>
+      <% end %>
+    </select>
   <% end %>
 </div>

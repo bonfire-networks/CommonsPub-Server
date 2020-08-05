@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.Faking do
   import ExUnit.Assertions
-  alias CommonsPub.Utils.Simulation
 
   alias MoodleNet.{
     Access,
@@ -29,13 +28,13 @@ defmodule MoodleNet.Test.Faking do
   import CommonsPub.Utils.Trendy
   import CommonsPub.Utils.Simulation
 
-  def fake_register_email_domain_access!(domain \\ Simulation.domain())
+  def fake_register_email_domain_access!(domain \\ domain())
       when is_binary(domain) do
     {:ok, wl} = Access.create_register_email_domain(domain)
     wl
   end
 
-  def fake_register_email_access!(email \\ Simulation.email())
+  def fake_register_email_access!(email \\ email())
       when is_binary(email) do
     {:ok, wl} = Access.create_register_email(email)
     wl
@@ -48,12 +47,12 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_peer!(overrides \\ %{}) when is_map(overrides) do
-    {:ok, peer} = Peers.create(Simulation.peer(overrides))
+    {:ok, peer} = Peers.create(peer(overrides))
     peer
   end
 
   def fake_activity!(user, context, overrides \\ %{}) do
-    {:ok, activity} = Activities.create(user, context, Simulation.activity(overrides))
+    {:ok, activity} = Activities.create(user, context, activity(overrides))
     assert activity.creator_id == user.id
     activity
   end
@@ -64,7 +63,7 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    {:ok, user} = Users.register(Simulation.user(overrides), public_registration: true)
+    {:ok, user} = Users.register(user(overrides), public_registration: true)
     maybe_confirm_user_email(user, opts)
   end
 
@@ -89,7 +88,7 @@ defmodule MoodleNet.Test.Faking do
 
   def fake_content!(%User{} = user, overrides \\ %{}) do
     {:ok, content} =
-      Uploads.upload(
+      MoodleNet.Uploads.upload(
         MoodleNet.Uploads.ResourceUploader,
         user,
         content_input(overrides),
@@ -103,13 +102,20 @@ defmodule MoodleNet.Test.Faking do
   def fake_community!(user, overrides \\ %{})
 
   def fake_community!(%User{} = user, %{} = overrides) do
-    {:ok, community} = Communities.create(user, Simulation.community(overrides))
+    {:ok, community} = Communities.create(user, community(overrides))
     assert community.creator_id == user.id
     community
   end
 
-  def fake_collection!(user, community, overrides \\ %{}) when is_map(overrides) do
-    {:ok, collection} = Collections.create(user, community, Simulation.collection(overrides))
+  def fake_collection!(user, community, overrides \\ %{})
+      when is_map(overrides) and is_nil(community) do
+    {:ok, collection} = Collections.create(user, collection(overrides))
+    assert collection.creator_id == user.id
+    collection
+  end
+
+  def fake_collection!(user, community, overrides) when is_map(overrides) do
+    {:ok, collection} = Collections.create(user, community, collection(overrides))
     assert collection.creator_id == user.id
     collection
   end
@@ -117,7 +123,7 @@ defmodule MoodleNet.Test.Faking do
   def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
     attrs =
       overrides
-      |> Simulation.resource()
+      |> resource()
       |> Map.put(:content_id, fake_content!(user, overrides).id)
 
     {:ok, resource} = Resources.create(user, collection, attrs)
@@ -126,20 +132,26 @@ defmodule MoodleNet.Test.Faking do
     resource
   end
 
-  def fake_thread!(user, context, overrides \\ %{}) when is_map(overrides) do
-    {:ok, thread} = Threads.create(user, context, Simulation.thread(overrides))
+  def fake_thread!(user, context, overrides \\ %{}) when is_map(overrides) and is_nil(context) do
+    {:ok, thread} = Threads.create(user, thread(overrides))
+    assert thread.creator_id == user.id
+    thread
+  end
+
+  def fake_thread!(user, context, overrides) when is_map(overrides) do
+    {:ok, thread} = Threads.create(user, context, thread(overrides))
     assert thread.creator_id == user.id
     thread
   end
 
   def fake_comment!(user, thread, overrides \\ %{}) when is_map(overrides) do
-    {:ok, comment} = Comments.create(user, thread, Simulation.comment(overrides))
+    {:ok, comment} = Comments.create(user, thread, comment(overrides))
     assert comment.creator_id == user.id
     comment
   end
 
   def fake_reply!(user, thread, comment, overrides \\ %{}) when is_map(overrides) do
-    fake = Simulation.comment(Map.put_new(overrides, :in_reply_to, comment.id))
+    fake = comment(Map.put_new(overrides, :in_reply_to, comment.id))
     {:ok, comment} = Comments.create(user, thread, fake)
     assert comment.creator_id == user.id
     comment
@@ -177,28 +189,28 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def like!(user, context, args \\ %{}) do
-    {:ok, like} = Likes.create(user, context, Simulation.like_input(args))
+    {:ok, like} = Likes.create(user, context, like_input(args))
     assert like.creator_id == user.id
     assert like.context_id == context.id
     like
   end
 
   def flag!(user, context, args \\ %{}) do
-    {:ok, flag} = Flags.create(user, context, Simulation.flag_input(args))
+    {:ok, flag} = Flags.create(user, context, flag_input(args))
     assert flag.creator_id == user.id
     assert flag.context_id == context.id
     flag
   end
 
   def follow!(user, context, args \\ %{}) do
-    {:ok, follow} = Follows.create(user, context, Simulation.follow_input(args))
+    {:ok, follow} = Follows.create(user, context, follow_input(args))
     assert follow.creator_id == user.id
     assert follow.context_id == context.id
     follow
   end
 
   def feature!(user, context, args \\ %{}) do
-    {:ok, feature} = Features.create(user, context, Simulation.feature_input(args))
+    {:ok, feature} = Features.create(user, context, feature_input(args))
     assert feature.creator_id == user.id
     assert feature.context_id == context.id
     feature

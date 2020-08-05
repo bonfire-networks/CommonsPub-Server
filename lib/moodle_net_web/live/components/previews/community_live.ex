@@ -8,12 +8,12 @@ defmodule MoodleNetWeb.Component.CommunityPreviewLive do
   # end
 
   def update(assigns, socket) do
-    IO.inspect(community_pre_prep: assigns.community)
+    # IO.inspect(community_pre_prep: assigns.community)
 
     community =
       MoodleNetWeb.Helpers.Profiles.prepare(assigns.community, %{icon: true, actor: true})
 
-    IO.inspect(community_post_prep: community)
+    # IO.inspect(community_post_prep: community)
 
     {:ok,
      socket

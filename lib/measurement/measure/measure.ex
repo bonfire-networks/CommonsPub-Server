@@ -12,7 +12,6 @@ defmodule Measurement.Measure do
   @type t :: %__MODULE__{}
 
   table_schema "measurement_measure" do
-    # FIXME: invalid atom naming convention
     field(:has_numerical_value, :float)
 
     field(:is_public, :boolean, virtual: true)

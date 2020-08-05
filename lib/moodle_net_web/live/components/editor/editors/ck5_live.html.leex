@@ -5,11 +5,3 @@
   </div>
   <textarea phx-change="tag_suggest" phx-target="#write_tag" id="<%= @id %>_content" class="editor_textarea" name="content" placeholder="<%= @content_placeholder %>"></textarea>
 </div>
-<%= live_component(
-    @socket,
-    MoodleNetWeb.Component.TagLive,
-    current_user: @current_user,
-    id: "write_tag",
-    tag_target: @id <> "_content"
-
-  ) %>

@@ -71,27 +71,27 @@ defmodule Taxonomy.TaxonomyTags do
   end
 
   @doc "Takes an existing TaxonomyTag and makes it a Taggable, if one doesn't already exist"
-  def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
+  def maybe_make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
     Repo.transact_with(fn ->
-      tag = Repo.preload(tag, :taggable)
-      tag = Repo.preload(tag, :parent_tag)
+      tag = Repo.preload(tag, [:taggable, :parent_tag])
 
+      # with Tag.Taggables.one(taxonomy_tag_id: tag.id) do
       with {:ok, taggable} <- Map.get(tag, :taggable) do
-        # Tag.Taggables.one(taxonomy_tag_id: tag.id) do
-        {:ok, taggable}
+        # already exists
+        taggable
       else
-        _e -> pointerise(user, tag)
+        _e -> make_taggable(user, tag)
       end
     end)
   end
 
-  def make_taggable(%User{} = user, id) do
+  def maybe_make_taggable(%User{} = user, id) do
     with {:ok, tag} <- get(id) do
       make_taggable(user, tag)
     end
   end
 
-  defp pointerise(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)
+  defp make_taggable(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)
        when not is_nil(parent_tag_id) do
     tag = Repo.preload(tag, :parent_tag)
     parent_tag = tag.parent_tag
@@ -99,7 +99,7 @@ defmodule Taxonomy.TaxonomyTags do
     IO.inspect(pointerise_parent: parent_tag)
 
     # pointerise the parent(s) first (recursively)
-    {:ok, parent_taggable} = pointerise(user, parent_tag)
+    {:ok, parent_taggable} = make_taggable(user, parent_tag)
 
     IO.inspect(parent_taggable: parent_taggable)
 
@@ -115,15 +115,15 @@ defmodule Taxonomy.TaxonomyTags do
       end
 
     # finally pointerise the child(ren), in hierarchical order
-    pointerise_tag(user, create_tag)
+    create_taggable(user, create_tag)
   end
 
-  defp pointerise(%User{} = user, %TaxonomyTag{} = tag) do
-    pointerise_tag(user, tag)
+  defp make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
+    create_taggable(user, tag)
   end
 
-  defp pointerise_tag(%User{} = user, tag) do
-    IO.inspect(pointerise_tag: tag)
+  defp create_taggable(%User{} = user, tag) do
+    IO.inspect(create_taggable: tag)
 
     tag = Repo.preload(tag, :taggable)
     tag = cleanup(tag)

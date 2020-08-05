@@ -56,3 +56,14 @@
   margin: 0 auto;
   margin-top: 24px;
 }
+
+#community-collections {
+  margin: 0 -16px;
+  margin-bottom: -16px;
+  .preview__wrapper {
+    .collection__preview {
+      width: 100%;
+    }
+  }
+
+}

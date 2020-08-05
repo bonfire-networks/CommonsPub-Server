@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Component.TagMeiliLive do
+defmodule MoodleNetWeb.Component.TagAutocompleteMeiliDirect do
   @moduledoc """
   Alternative approach to tagging, using JS to directly use Meili's API, rather than passing through Elixir
   """

@@ -123,8 +123,8 @@ config :moodle_net, Threads,
     Resource,
     User,
     Organisation,
-    CommonsPub.Character,
-    ValueFlows.Planning.Intent
+    CommonsPub.Character
+    # ValueFlows.Planning.Intent
   ]
 
 config :moodle_net, Users,

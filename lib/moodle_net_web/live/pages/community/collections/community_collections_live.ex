@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
+defmodule MoodleNetWeb.CommunityLive.CommunityCollectionsLive do
   use MoodleNetWeb, :live_component
 
   alias MoodleNetWeb.Helpers.{Profiles}
@@ -43,39 +43,5 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
 
   def handle_event("load-more", _, %{assigns: assigns} = socket) do
     {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
-
-  def render(assigns) do
-    ~L"""
-      <div
-      id="instance-collections">
-        <div
-        phx-update="append"
-        data-page="<%= @page %>"
-        class="selected__area">
-          <%= for collection <- @collections do %>
-          <div class="preview__wrapper">
-            <%= live_component(
-                  @socket,
-                  CollectionPreviewLive,
-                  id: "collection-#{collection.id}",
-                  collection: collection
-                )
-              %>
-            </div>
-          <% end %>
-        </div>
-        <%= if @has_next_page do %>
-        <div class="pagination">
-          <button
-            class="button--outline"
-            phx-click="load-more"
-            phx-target="<%= @pagination_target %>">
-            load more
-          </button>
-        </div>
-        <% end %>
-      </div>
-    """
   end
 end

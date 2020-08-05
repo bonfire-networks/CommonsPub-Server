@@ -51,6 +51,7 @@ defmodule Tag.Taggable do
       join_through: "tags_things",
       unique: true,
       join_keys: [tag_id: :id, pointer_id: :id]
+      # on_replace: :update
     )
   end
 

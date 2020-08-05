@@ -123,6 +123,23 @@
                     before: [],
                     pagination_target: "#community-threads"
                   ) %>
+      <% @selected_tab == "collections" ->  %>
+       <div class="mainContent__selected">
+        <h3 class="area__title">Collections</h3>
+        <%= live_component(
+          @socket,
+          CommunityCollectionsLive,
+          community: @community,
+          selected_tab: @selected_tab,
+          id: :collections,
+          current_user: @current_user,
+          page: 1,
+          has_next_page: false,
+          after: [],
+          before: [],
+          pagination_target: "#community-collections"
+        ) %>
+      </div>
       <% @selected_tab == "members" ->  %>
       <div class="mainContent__selected">
         <h3 class="area__title">members</h3>
@@ -167,6 +184,10 @@
       <%= live_patch link_body("Discussions","feather-message-square"),
                     to: "/&" <> @community.actor.preferred_username <>  "/discussions",
                     class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
+                  %>
+      <%= live_patch link_body("Collections","feather-folder"),
+                    to: "/&" <> @community.actor.preferred_username <>  "/collections",
+                    class: if @selected_tab == "collections", do: "navigation__item active", else: "navigation__item"
                   %>
       <%= live_patch link_body("Members", "feather-users"),
                     to: "/&" <> @community.actor.preferred_username <>  "/members",

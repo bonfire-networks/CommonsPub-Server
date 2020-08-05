@@ -77,14 +77,31 @@ defmodule Tag.Taggables do
   @doc """
   Create a Taggable that makes an existing object (eg. Geolocation) taggable
   """
-  def maybe_make_taggable(pointer_id, attrs) when is_binary(pointer_id) do
-    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id),
-         context = MoodleNet.Meta.Pointers.follow!(pointer) do
-      maybe_make_taggable(context, attrs)
+  def maybe_make_taggable(user, id, _) when is_number(id) do
+    if Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
+      Taxonomy.TaxonomyTags.maybe_make_taggable(user, id)
+    else
+      {:error, "Please provider a pointer"}
     end
   end
 
-  def maybe_make_taggable(%{} = context, attrs) do
+  def maybe_make_taggable(user, pointer_id, attrs) when is_binary(pointer_id) do
+    if MoodleNetWeb.Helpers.Common.is_numeric(pointer_id) do
+      maybe_make_taggable(user, String.to_integer(pointer_id), attrs)
+    else
+      with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
+        maybe_make_taggable(user, pointer, attrs)
+      end
+    end
+  end
+
+  def maybe_make_taggable(user, %Pointers.Pointer{} = pointer, attrs) do
+    with context = MoodleNet.Meta.Pointers.follow!(pointer) do
+      maybe_make_taggable(user, context, attrs)
+    end
+  end
+
+  def maybe_make_taggable(user, %{} = context, attrs) do
     Repo.transact_with(fn ->
       with {:ok, taggable} <- Tag.Taggables.one(context: context.id) do
         {:ok, taggable}
@@ -94,8 +111,8 @@ defmodule Tag.Taggables do
     end)
   end
 
-  def maybe_make_taggable(context) do
-    maybe_make_taggable(context, %{})
+  def maybe_make_taggable(user, context) do
+    maybe_make_taggable(user, context, %{})
   end
 
   defp make_taggable(context, attrs) do
