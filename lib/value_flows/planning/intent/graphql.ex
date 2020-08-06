@@ -63,6 +63,28 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     })
   end
 
+  def all_offers(page_opts, info) do
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_offers,
+      page_opts: page_opts,
+      info: info,
+      # popularity
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
+  end
+
+  def all_needs(page_opts, info) do
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_needs,
+      page_opts: page_opts,
+      info: info,
+      # popularity
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
+  end
+
   ## fetchers
 
   def fetch_intent(info, id) do
@@ -87,6 +109,30 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
         user: GraphQL.current_user(info)
       ]
       # data_filters: [page: [desc: [followers: page_opts]]],
+    })
+  end
+
+  def fetch_offers(page_opts, info) do
+    FetchPage.run(%FetchPage{
+      queries: ValueFlows.Planning.Intent.Queries,
+      query: ValueFlows.Planning.Intent,
+      page_opts: page_opts,
+      base_filters: [
+        [:default, :offer],
+        user: GraphQL.current_user(info)
+      ]
+    })
+  end
+
+  def fetch_needs(page_opts, info) do
+    FetchPage.run(%FetchPage{
+      queries: ValueFlows.Planning.Intent.Queries,
+      query: ValueFlows.Planning.Intent,
+      page_opts: page_opts,
+      base_filters: [
+        [:default, :need],
+        user: GraphQL.current_user(info)
+      ]
     })
   end
 

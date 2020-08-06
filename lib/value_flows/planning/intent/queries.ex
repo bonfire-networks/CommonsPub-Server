@@ -73,6 +73,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
     # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
   end
 
+  def filter(q, :offer) do
+    where(q, [intent: c], is_nil(c.receiver_id))
+  end
+
+  def filter(q, :need) do
+    where(q, [intent: c], is_nil(c.provider_id))
+  end
+
   ## by join
 
   def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
