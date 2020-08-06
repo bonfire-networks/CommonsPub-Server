@@ -13,62 +13,64 @@ defmodule ValueFlows.Util do
     |> Map.delete(key)
   end
 
-  # def try_tag_thing(user, intent, attrs) do
+  # def try_tag_thing(user, thing, attrs) do
   #   IO.inspect(attrs)
   # end
 
   @doc """
   lookup tag from URL(s), to support vf-graphql mode
   """
-  def try_tag_thing(user, intent, %{resourceClassifiedAs: urls})
+  def try_tag_thing(user, thing, %{resourceClassifiedAs: urls})
       when is_list(urls) and length(urls) > 0 do
     # todo: lookup tag by URL
-    {:ok, intent}
+    {:ok, thing}
   end
 
   @doc """
   tag IDs from a `tags` field
   """
-  def try_tag_thing(user, intent, %{tags: tag_ids}) when is_binary(tag_ids) do
+  def try_tag_thing(user, thing, %{tags: tag_ids}) when is_binary(tag_ids) do
     tag_ids = MoodleNetWeb.Component.TagAutocomplete.tags_split(tag_ids)
-    things_add_tags(user, intent, tag_ids)
+    things_add_tags(user, thing, tag_ids)
   end
 
-  def try_tag_thing(user, intent, %{tags: tag_ids})
+  def try_tag_thing(user, thing, %{tags: tag_ids})
       when is_list(tag_ids) and length(tag_ids) > 0 do
-    things_add_tags(user, intent, tag_ids)
+    things_add_tags(user, thing, tag_ids)
   end
 
-  def try_tag_thing(user, intent, %{tags: tag_ids})
+  def try_tag_thing(user, thing, %{tags: tag_ids})
       when is_list(tag_ids) and length(tag_ids) > 0 do
-    things_add_tags(user, intent, tag_ids)
+    things_add_tags(user, thing, tag_ids)
   end
 
   @doc """
   otherwise maybe we have tagnames inline in the note?
   """
-  def try_tag_thing(user, intent, %{note: text}) when bit_size(text) > 1 do
+  def try_tag_thing(user, thing, %{note: text}) when bit_size(text) > 1 do
     # MoodleNetWeb.Component.TagAutocomplete.try_prefixes(text)
     # TODO
-    {:ok, intent}
+    {:ok, thing}
   end
 
-  def try_tag_thing(user, intent, _) do
-    {:ok, intent}
-  end
-
-  @doc """
-  tag existing intent with a Taggable, Pointer, or anything that can be made taggable
-  """
-  def things_add_tag(user, intent, taggable) do
-    CommonsPub.Tag.TagThings.tag_thing(user, taggable, intent)
+  def try_tag_thing(user, thing, _) do
+    {:ok, thing}
   end
 
   @doc """
-  tag existing intent with one or multiple Taggables, Pointers, or anything that can be made taggable
+  tag existing thing with one or multiple Taggables, Pointers, or anything that can be made taggable, and return the thing
   """
-  def things_add_tags(user, intent, taggables) do
-    things_add_tags = Enum.map(taggables, &things_add_tag(user, intent, &1))
-    intent |> Map.merge(%{tags: things_add_tags})
+  def things_add_tags(user, thing, taggables) do
+    things_add_tags = Enum.map(taggables, &things_add_tag(user, thing, &1))
+    {:ok, thing |> Map.merge(%{tags: things_add_tags})}
+  end
+
+  @doc """
+  tag existing thing with one Taggable, Pointer, or anything that can be made taggable, and return the tag
+  """
+  defp things_add_tag(user, thing, taggable) do
+    with {ok, taggable} <- CommonsPub.Tag.TagThings.tag_thing(user, taggable, thing) do
+      taggable
+    end
   end
 end

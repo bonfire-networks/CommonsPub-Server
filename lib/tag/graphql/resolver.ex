@@ -119,7 +119,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   Tags associated with a Thing
   """
   def tags_edges(%{tags: _tags} = thing, page_opts, info) do
-    thing = Repo.preload(thing, tags: [:context, :profile, character: [:actor]])
+    thing = Repo.preload(thing, tags: [:category, :profile, character: [:actor]])
     IO.inspect(categories_edges_thing: thing)
 
     tags = Enum.map(thing.tags, &tag_prepare(&1, page_opts, info))
@@ -127,20 +127,35 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     {:ok, tags}
   end
 
-  def tag_prepare(%{profile: %{name: name}} = tag, page_opts, info)
-      when not is_nil(name) do
+  def tag_prepare(%{category: %{id: id} = category} = tag, page_opts, info) when not is_nil(id) do
+    # TODO: do this better
     Map.merge(
-      tag,
+      category,
       %{
-        name: name,
-        summary: tag.profile.summary
+        name: tag.profile.name,
+        summary: tag.profile.summary,
+        prefix: tag.prefix,
+        facet: tag.facet,
+        character: tag.character,
+        profile: tag.profile
       }
     )
   end
 
-  def tag_prepare(%{context_id: context_id}, page_opts, info)
-      when not is_nil(context_id) do
-    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: context_id}, page_opts, info)
+  # def tag_prepare(%{profile: %{name: name}} = tag, page_opts, info)
+  #     when not is_nil(name) do
+  #   Map.merge(
+  #     tag,
+  #     %{
+  #       name: name,
+  #       summary: tag.profile.summary
+  #     }
+  #   )
+  # end
+
+  def tag_prepare(%{category_id: category_id, id: mixin_id}, page_opts, info)
+      when is_nil(category_id) do
+    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: mixin_id}, page_opts, info)
   end
 
   #### MUTATIONS
