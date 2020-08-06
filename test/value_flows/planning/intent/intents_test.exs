@@ -38,7 +38,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
         available_quantity: measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, intent} = Intents.create(user, intent(measures))
+      assert {:ok, intent} = Intents.create(user, action(), intent(measures))
       assert_intent(intent)
     end
 
@@ -53,7 +53,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
         available_quantity: measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, intent} = Intents.create(user, another_user, intent(measures))
+      assert {:ok, intent} = Intents.create(user, action(), another_user, intent(measures))
       assert_intent(intent)
       assert intent.context_id == another_user.id
     end

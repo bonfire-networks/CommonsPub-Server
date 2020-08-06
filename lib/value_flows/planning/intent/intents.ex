@@ -13,6 +13,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
   alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -173,8 +174,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
     do_update(intent, attrs, &Intent.update_changeset(&1, attrs))
   end
 
-  def update(%Intent{} = intent, %Action{} = action, %{id: id} = context, attrs) do
-    do_update(intent, attrs, &Intent.update_changeset(&1, action, context, attrs))
+  def update(%Intent{} = intent, %{id: id} = context, attrs) do
+    do_update(intent, attrs, &Intent.update_changeset(&1, context, attrs))
   end
 
   def do_update(intent, attrs, changeset_fn) do
@@ -195,6 +196,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
         |> Intent.change_measures(attrs)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
+           {:ok, cs} <- change_action(cs, attrs),
            {:ok, intent} <- Repo.update(cs),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            :ok <- publish(intent, :updated) do
@@ -232,6 +234,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
     :ok
   end
+
+  defp change_action(changeset, %{action: action_id}) do
+    action = Actions.action(action_id)
+    {:ok, Intent.change_action(changeset, action)}
+  end
+
+  defp change_action(changeset, _attrs), do: {:ok, changeset}
 
   defp change_at_location(changeset, %{at_location: id}) do
     with {:ok, location} <- Geolocations.one([:default, id: id]) do

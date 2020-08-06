@@ -94,7 +94,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
       :default,
       user: GraphQL.current_user(info),
       id: id,
-      preload: :tags
+      # preload: :tags
     ])
   end
 

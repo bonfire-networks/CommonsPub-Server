@@ -125,16 +125,12 @@ defmodule ValueFlows.Planning.Intent do
 
   def update_changeset(
         %Intent{} = intent,
-        %Action{} = action,
         %{id: _} = context,
         attrs
       ) do
     intent
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(
-      context_id: context.id,
-      action_id: action.id
-    )
+    |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
 
@@ -161,6 +157,10 @@ defmodule ValueFlows.Planning.Intent do
       at_location: location,
       at_location_id: location.id
     )
+  end
+
+  def change_action(changeset, %Action{} = action) do
+    Changeset.change(changeset, action_id: action.id)
   end
 
   defp common_changeset(changeset) do
