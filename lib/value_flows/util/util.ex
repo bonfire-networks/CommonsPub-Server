@@ -58,19 +58,11 @@ defmodule ValueFlows.Util do
   end
 
   @doc """
-  tag existing thing with one or multiple Taggables, Pointers, or anything that can be made taggable, and return the thing
+  tag existing thing with one or multiple Taggables, Pointers, or anything that can be made taggable
   """
   def things_add_tags(user, thing, taggables) do
-    things_add_tags = Enum.map(taggables, &things_add_tag(user, thing, &1))
-    {:ok, thing |> Map.merge(%{tags: things_add_tags})}
-  end
-
-  @doc """
-  tag existing thing with one Taggable, Pointer, or anything that can be made taggable, and return the tag
-  """
-  defp things_add_tag(user, thing, taggable) do
-    with {ok, taggable} <- CommonsPub.Tag.TagThings.tag_thing(user, taggable, thing) do
-      taggable
+    with {ok, taggable} <- CommonsPub.Tag.TagThings.thing_attach_tags(user, thing, taggables) do
+      {:ok, MoodleNet.Repo.preload(thing, :tags)}
     end
   end
 end
