@@ -72,7 +72,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(Character.GraphQL.Schema)
   import_types(Organisation.GraphQL.Schema)
   import_types(Locales.GraphQL.Schema)
-  import_types(Tag.GraphQL.TagSchema)
+  import_types(CommonsPub.Tag.GraphQL.TagSchema)
   import_types(Taxonomy.GraphQL.TaxonomySchema)
   import_types(Measurement.Unit.GraphQL)
   import_types(Geolocation.GraphQL)
@@ -192,7 +192,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       :like,
       :user,
       :organisation,
-      :tag,
+      :category,
       :spatial_thing,
       :intent
     ])
@@ -210,7 +210,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       %MoodleNet.Features.Feature{}, _ -> :feature
       %Organisation{}, _ -> :organisation
       %Geolocation{}, _ -> :spatial_thing
-      %Tag.Taggable{}, _ -> :tag
+      %CommonsPub.Tag.Category{}, _ ->  :category
       # %ValueFlows.Agent.Agents{}, _ -> :agent
       # %ValueFlows.Agent.People{}, _ -> :person
       # %ValueFlows.Agent.Organizations{}, _ -> :organization

@@ -273,7 +273,7 @@ config :http_signatures, adapter: ActivityPub.Signature
 
 config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 
-config :floki, :html_parser, Floki.HTMLParser.FastHtml
+config :floki, :html_parser, Floki.HTMLParser.Html5ever
 
 config :sentry,
   enable_source_code_context: true,

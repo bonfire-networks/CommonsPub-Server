@@ -149,7 +149,8 @@ defmodule MoodleNet.Mixfile do
        git: "https://gitlab.com/moodlenet/servers/furlex",
        ref: "589c6a2e15e97606c53f86b466087192de3680fa"},
       # html parser
-      {:fast_html, "~> 1.0"},
+      # {:fast_html, "~> 1.0"},
+      {:html5ever, "~> 0.8"},
       # activitypub signing
       {
         :http_signatures,
