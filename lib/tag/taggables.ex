@@ -41,10 +41,11 @@ defmodule CommonsPub.Tag.Taggables do
   Create a Taggable that makes an existing object (eg. Geolocation) taggable
   """
   def maybe_make_taggable(user, id, _) when is_number(id) do
-    if Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
-      Taxonomy.TaxonomyTags.maybe_make_taggable(user, id)
+    with {:ok, t} <- maybe_taxonomy_tag(user, id) do
+      {:ok, t}
     else
-      {:error, "Please provider a pointer"}
+      _e ->
+        {:error, "Please provider a pointer"}
     end
   end
 
@@ -82,7 +83,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   @doc """
-  Create a taggable mixin for an existing object (please use maybe_make_taggable instead)
+  Create a taggable mixin for an existing poitable object (please use maybe_make_taggable instead)
   """
   defp make_taggable(%User{} = creator, %{} = pointer_obj, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
@@ -133,4 +134,10 @@ defmodule CommonsPub.Tag.Taggables do
   @doc "conditionally update a map"
   def maybe_put(map, _key, nil), do: map
   def maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  def maybe_taxonomy_tag(user, id) do
+    if Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
+      Taxonomy.TaxonomyTags.maybe_make_category(user, id)
+    end
+  end
 end

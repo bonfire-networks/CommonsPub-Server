@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Component.UnknownPreviewLive do
+defmodule MoodleNetWeb.Component.CategoryPreviewLive do
   use Phoenix.LiveComponent
 
   import MoodleNetWeb.Helpers.Common
@@ -21,7 +21,10 @@ defmodule MoodleNetWeb.Component.UnknownPreviewLive do
     ~L"""
     <div class="story__preview">
       <div class="preview__info">
-        <h2><a href="<%=@link%>"><%= e(@object, :name, "") %></a></h2>
+        <h2>
+        <a href="<%=@link%>"><%= e(@object, :parent_category, :profile, :name, "") %></a>
+        »
+        <a href="<%=@link%>"><%= e(@object, :name, "") %></a></h2>
         <p><%= e(@object, :summary, "") %></p>
         <div class="preview__meta">
           <div class="meta__item">

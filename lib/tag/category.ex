@@ -29,9 +29,6 @@ defmodule CommonsPub.Tag.Category do
     # eg. Olive Oil is the same as Huile d'olive
     belongs_to(:same_as_category, Category, type: Ecto.ULID)
 
-    # optionally where it came from in the taxonomy
-    # belongs_to(:taxonomy_category, Taxonomy.TaxonomyCategory, type: :integer)
-
     # which community/collection/organisation/etc this category belongs to, if any
     belongs_to(:caretaker, Pointers.Pointer, type: Ecto.ULID)
 
@@ -55,12 +52,34 @@ defmodule CommonsPub.Tag.Category do
 
   def create_changeset(attrs) do
     %Category{}
-    # |> Changeset.change(id: Ecto.ULID.generate())
+    |> Changeset.change(parent_category_id: parent_category(attrs))
+    |> Changeset.change(same_as_category_id: same_as_category(attrs))
     |> Changeset.cast(attrs, @cast)
-    # |> Changeset.change(
-    #   id: Ecto.ULID.generate()
-    #   )
     |> common_changeset()
+  end
+
+  defp parent_category(%{parent_category: parent_category}) when is_binary(parent_category) do
+    parent_category
+  end
+
+  defp parent_category(%{parent_category: %{id: id}}) when is_binary(id) do
+    id
+  end
+
+  defp parent_category(_) do
+    nil
+  end
+
+  defp same_as_category(%{same_as_category: same_as_category}) when is_binary(same_as_category) do
+    same_as_category
+  end
+
+  defp same_as_category(%{same_as_category: %{id: id}}) when is_binary(id) do
+    id
+  end
+
+  defp same_as_category(_) do
+    nil
   end
 
   def update_changeset(
@@ -79,9 +98,9 @@ defmodule CommonsPub.Tag.Category do
     # |> change_disabled()
   end
 
-  def context_module, do: CommonsPub.Category.Categories
+  def context_module, do: CommonsPub.Tag.Category.Categories
 
-  def queries_module, do: CommonsPubs.Category.Queries
+  def queries_module, do: CommonsPub.Tag.Category.Queries
 
   def follow_filters, do: [:default]
 end
