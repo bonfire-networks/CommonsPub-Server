@@ -51,7 +51,7 @@ defmodule ValueFlows.Planning.Intent do
 
     belongs_to(:at_location, Geolocation)
 
-    belongs_to(:action, Action)
+    belongs_to(:action, Action, type: :string)
 
     # belongs_to(:input_of, Process)
     # belongs_to(:output_of, Process)
@@ -98,6 +98,8 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.change(
       creator_id: creator.id,
       context_id: context.id,
+      # TODO: move action to context and validate that it's a valid action
+      action_id: attrs.action,
       is_public: true
     )
     |> common_changeset()
@@ -112,6 +114,7 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
+      action_id: attrs.action,
       is_public: true
     )
     |> common_changeset()
@@ -124,13 +127,17 @@ defmodule ValueFlows.Planning.Intent do
       ) do
     intent
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(context_id: context.id)
+    |> Changeset.change(
+      context_id: context.id,
+      action_id: attrs.action
+    )
     |> common_changeset()
   end
 
   def update_changeset(%Intent{} = intent, attrs) do
     intent
     |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(action_id: attrs.action)
     |> common_changeset()
   end
 

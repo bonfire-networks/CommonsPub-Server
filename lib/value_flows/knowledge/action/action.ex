@@ -13,7 +13,7 @@ defmodule ValueFlows.Knowledge.Action do
 
   @type t :: %__MODULE__{}
 
-  @primary_key {:id, :binary_id, autogenerate: false}
+  @primary_key {:id, :string, autogenerate: false}
   schema "vf_action" do
     # A unique verb which defines the action.
     field(:label, :string)

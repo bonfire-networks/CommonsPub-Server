@@ -49,6 +49,9 @@ defmodule ValueFlows.Hydration do
         receiver: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_receiver_edge/3
         ],
+        action: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
+        ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
