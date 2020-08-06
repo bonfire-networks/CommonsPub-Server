@@ -53,6 +53,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def all_intents(page_opts, info) do
+    IO.inspect(page_opts: page_opts)
+
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
       fetcher: :fetch_intents,
@@ -97,6 +99,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def fetch_intents(page_opts, info) do
+    IO.inspect(page_opts)
+
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Planning.Intent.Queries,
       query: ValueFlows.Planning.Intent,

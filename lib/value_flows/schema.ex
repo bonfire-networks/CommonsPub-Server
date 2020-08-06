@@ -26,6 +26,7 @@ defmodule ValueFlows.Schema do
   object :value_flows_extra_queries do
     @desc "Get paginated list of intents"
     field :intents_pages, non_null(:intents_page) do
+      arg(:in_scope_of, :id)
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
@@ -34,6 +35,7 @@ defmodule ValueFlows.Schema do
 
     @desc "Get paginated list of active offers (intents no receiver)"
     field :offers_pages, non_null(:intents_page) do
+      arg(:in_scope_of, :id)
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
@@ -42,6 +44,7 @@ defmodule ValueFlows.Schema do
 
     @desc "Get paginated list of active needs (intents no provider)"
     field :needs_pages, non_null(:intents_page) do
+      arg(:in_scope_of, :id)
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
