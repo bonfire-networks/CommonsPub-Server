@@ -10,6 +10,7 @@ defmodule ValueFlows.Simulate do
   import Measurement.Simulate
 
   alias ValueFlows.Planning.Intent.Intents
+  alias ValueFlows.Knowledge.Action.Actions
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])
 
@@ -28,12 +29,9 @@ defmodule ValueFlows.Simulate do
 
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
 
-  def action(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:id, &uuid/0)
-    |> Map.put_new_lazy(:label, &name/0)
-    |> Map.put_new_lazy(:resourceEffect, &inc_dec/0)
-  end
+  def action, do: Faker.Util.pick(Actions.actions_list())
+
+  def action_id, do: action().id
 
   def intent(base \\ %{}) do
     base
@@ -57,6 +55,7 @@ defmodule ValueFlows.Simulate do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("note", &summary/0)
+    |> Map.put_new_lazy("action", &action_id/0)
     # |> Map.put_new_lazy("image", &icon/0)
     |> Map.put_new_lazy("resource_classified_as", fn -> some(1..5, &url/0) end)
     |> Map.put_new_lazy("has_beginning", &past_datetime_iso/0)
@@ -76,8 +75,9 @@ defmodule ValueFlows.Simulate do
       effort_quantity: measure(measure_attrs),
       available_quantity: measure(measure_attrs)
     }
-
-    {:ok, intent} = Intents.create(user, intent(measures))
+    {:ok, intent} = Intents.create(user, action(), intent(measures))
     intent
   end
+
+
 end

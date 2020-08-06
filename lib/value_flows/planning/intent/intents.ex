@@ -12,6 +12,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias Measurement.Measure
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
+  alias ValueFlows.Knowledge.Action
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -87,16 +88,16 @@ defmodule ValueFlows.Planning.Intent.Intents do
   ## mutations
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %{id: _id} = context, attrs) when is_map(attrs) do
+  def create(%User{} = creator, %Action{} = action, %{id: _id} = context, attrs) when is_map(attrs) do
     do_create(creator, attrs, fn ->
-      Intent.create_changeset(creator, context, attrs)
+      Intent.create_changeset(creator, action, context, attrs)
     end)
   end
 
   # @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  def create(%User{} = creator, %Action{} = action, attrs) when is_map(attrs) do
     do_create(creator, attrs, fn ->
-      Intent.create_changeset(creator, attrs)
+      Intent.create_changeset(creator, action, attrs)
     end)
   end
 
@@ -172,8 +173,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
     do_update(intent, attrs, &Intent.update_changeset(&1, attrs))
   end
 
-  def update(%Intent{} = intent, %{id: id} = context, attrs) do
-    do_update(intent, attrs, &Intent.update_changeset(&1, context, attrs))
+  def update(%Intent{} = intent, %Action{} = action, %{id: id} = context, attrs) do
+    do_update(intent, attrs, &Intent.update_changeset(&1, action, context, attrs))
   end
 
   def do_update(intent, attrs, changeset_fn) do

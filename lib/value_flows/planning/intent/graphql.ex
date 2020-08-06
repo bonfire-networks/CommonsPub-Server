@@ -32,7 +32,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Planning.Intent.Queries
-
+  alias ValueFlows.Knowledge.Action.Actions
   alias MoodleNetWeb.GraphQL.{CommonResolver}
 
   # SDL schema import
@@ -169,27 +169,29 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     )
   end
 
-  def create_intent(%{intent: %{in_scope_of: context_id} = intent_attrs}, info)
+  def create_intent(%{intent: %{in_scope_of: context_id, action: action_id } = intent_attrs}, info)
       when not is_nil(context_id) do
+    action = Actions.action(action_id)
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, context, intent_attrs) do
-        {:ok, %{intent: intent}}
+           {:ok, intent} <- Intents.create(user, action, context, intent_attrs) do
+        {:ok, %{intent: %{intent | action: action}}}
       end
     end)
   end
 
   # FIXME: duplication!
-  def create_intent(%{intent: intent_attrs}, info) do
+  def create_intent(%{intent: %{action: action_id} = intent_attrs}, info) do
+    action = Actions.action(action_id)
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, intent_attrs) do
-        {:ok, %{intent: intent}}
+           {:ok, intent} <- Intents.create(user, action, intent_attrs) do
+        {:ok, %{intent: %{intent | action: action}}}
       end
     end)
   end

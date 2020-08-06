@@ -90,6 +90,7 @@ defmodule ValueFlows.Planning.Intent do
 
   def create_changeset(
         %User{} = creator,
+        %Action{} = action,
         %{id: _} = context,
         attrs
       ) do
@@ -100,7 +101,7 @@ defmodule ValueFlows.Planning.Intent do
       creator_id: creator.id,
       context_id: context.id,
       # TODO: move action to context and validate that it's a valid action
-      action_id: attrs.action,
+      action_id: action.id,
       is_public: true
     )
     |> common_changeset()
@@ -108,6 +109,7 @@ defmodule ValueFlows.Planning.Intent do
 
   def create_changeset(
         %User{} = creator,
+        %Action{} = action,
         attrs
       ) do
     %Intent{}
@@ -115,7 +117,7 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      action_id: attrs.action,
+      action_id: action.id,
       is_public: true
     )
     |> common_changeset()
@@ -123,6 +125,7 @@ defmodule ValueFlows.Planning.Intent do
 
   def update_changeset(
         %Intent{} = intent,
+        %Action{} = action,
         %{id: _} = context,
         attrs
       ) do
@@ -130,7 +133,7 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       context_id: context.id,
-      action_id: attrs.action
+      action_id: action.id
     )
     |> common_changeset()
   end
@@ -138,7 +141,6 @@ defmodule ValueFlows.Planning.Intent do
   def update_changeset(%Intent{} = intent, attrs) do
     intent
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(action_id: attrs.action)
     |> common_changeset()
   end
 
