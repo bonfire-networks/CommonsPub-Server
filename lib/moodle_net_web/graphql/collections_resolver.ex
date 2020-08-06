@@ -208,7 +208,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   ## finally the mutations...
 
-  def create_collection(%{collection: attrs, context_id: nil}, info) do
+  def create_collection(%{collection: attrs, context_id: context_id}, info)
+      when is_nil(context_id) or context_id == "" do
     create_collection(%{collection: attrs}, info)
   end
 

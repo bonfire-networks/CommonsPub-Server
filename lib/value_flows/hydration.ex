@@ -56,7 +56,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_classifications_edge/3
         ],
         tags: [
-          resolve: &Tag.GraphQL.TagResolver.tags_edges/3
+          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ]
       },
 

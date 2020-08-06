@@ -81,4 +81,12 @@ defmodule CommonsPub.Utils.File do
   end
 
   def fix_relative_url(nil, _), do: nil
+
+  def validate_uri(%URI{scheme: scheme, host: host}) do
+    if scheme in ["http", "https"] and not is_nil(host) do
+      :ok
+    else
+      {:error, :invalid_uri_format}
+    end
+  end
 end

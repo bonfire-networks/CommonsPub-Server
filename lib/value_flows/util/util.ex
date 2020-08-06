@@ -61,7 +61,7 @@ defmodule ValueFlows.Util do
   tag existing intent with a Taggable, Pointer, or anything that can be made taggable
   """
   def things_add_tag(user, intent, taggable) do
-    Tag.TagThings.tag_thing(user, taggable, intent)
+    CommonsPub.Tag.TagThings.tag_thing(user, taggable, intent)
   end
 
   @doc """

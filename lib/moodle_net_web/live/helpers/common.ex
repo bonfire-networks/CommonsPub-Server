@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
-    IO.inspect(e: map)
+    # IO.inspect(e: map)
 
     if(is_map(map)) do
       # attempt using key as atom or string
