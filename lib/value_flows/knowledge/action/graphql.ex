@@ -12,7 +12,7 @@ defmodule ValueFlows.Knowledge.Action.GraphQL do
 
   def action(%{id: id}, _) do
     # {:ok, Simulate.action()}
-    {:ok, ValueFlows.Knowledge.Action.Actions.action(id)}
+    ValueFlows.Knowledge.Action.Actions.action(id)
   end
 
   def all_actions(_, _) do

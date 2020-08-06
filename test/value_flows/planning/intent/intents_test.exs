@@ -79,5 +79,14 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       assert intent.resource_quantity_id != updated.resource_quantity_id
       assert intent.available_quantity_id != updated.available_quantity_id
     end
+
+    test "fails if invalid action is given" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+
+      assert {:error, %MoodleNet.Common.NotFoundError{}} =
+        Intents.update(intent, intent(%{action: "sleeping"}))
+    end
   end
 end

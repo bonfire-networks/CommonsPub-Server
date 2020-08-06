@@ -1,12 +1,17 @@
 defmodule ValueFlows.Knowledge.Action.Actions do
   # @on_load :load_actions
 
-  def action(label) when is_binary(label) do
-    action(String.to_existing_atom(Recase.to_camel(label)))
+  def action(label) when is_atom(label) do
+    label |> Atom.to_string() |> Recase.to_camel()
   end
 
   def action(label) do
-    load_actions()[label]
+    case load_actions()[label] do
+      nil ->
+        {:error, MoodleNet.Common.NotFoundError.new()}
+
+      action -> {:ok, action}
+    end
   end
 
   def actions_list() do
@@ -15,7 +20,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
 
   def load_actions do
     %{
-      dropoff: %ValueFlows.Knowledge.Action{
+      "dropoff" => %ValueFlows.Knowledge.Action{
         id: "dropoff",
         label: "dropoff",
         resource_effect: :noEffect,
@@ -25,7 +30,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         input_output: :output,
         pairs_with: :pickup
       },
-      pickup: %ValueFlows.Knowledge.Action{
+      "pickup" => %ValueFlows.Knowledge.Action{
         id: "pickup",
         label: "pickup",
         resource_effect: :noEffect,
@@ -35,7 +40,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         input_output: :input,
         pairs_with: :dropoff
       },
-      consume: %ValueFlows.Knowledge.Action{
+      "consume" => %ValueFlows.Knowledge.Action{
         id: "consume",
         label: "consume",
         resource_effect: :decrement,
@@ -44,7 +49,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
           "for example an ingredient or component composed into the output, after the process the ingredient is gone",
         input_output: :input
       },
-      use: %ValueFlows.Knowledge.Action{
+      "use" => %ValueFlows.Knowledge.Action{
         id: "use",
         label: "use",
         resource_effect: :noEffect,
@@ -52,7 +57,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         note: "for example a tool used in process, after the process, the tool still exists",
         input_output: :input
       },
-      work: %ValueFlows.Knowledge.Action{
+      "work" => %ValueFlows.Knowledge.Action{
         id: "work",
         label: "work",
         resource_effect: :noEffect,
@@ -60,7 +65,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         note: "labor power towards a process",
         input_output: :input
       },
-      cite: %ValueFlows.Knowledge.Action{
+      "cite" => %ValueFlows.Knowledge.Action{
         id: "cite",
         label: "cite",
         resource_effect: :noEffect,
@@ -69,7 +74,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
           "for example a design file, neither used nor consumed, the file remains available at all times",
         input_output: :input
       },
-      produce: %ValueFlows.Knowledge.Action{
+      "produce" => %ValueFlows.Knowledge.Action{
         id: "produce",
         label: "produce",
         resource_effect: :increment,
@@ -77,7 +82,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         note: "new resource created in that process or an existing stock resource added to",
         input_output: :output
       },
-      accept: %ValueFlows.Knowledge.Action{
+      "accept" => %ValueFlows.Knowledge.Action{
         id: "accept",
         label: "accept",
         resource_effect: :noEffect,
@@ -87,7 +92,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         input_output: :input,
         pairs_with: :modify
       },
-      modify: %ValueFlows.Knowledge.Action{
+      "modify" => %ValueFlows.Knowledge.Action{
         id: "modify",
         label: "modify",
         resource_effect: :noEffect,
@@ -97,7 +102,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         input_output: :output,
         pairs_with: :accept
       },
-      deliverService: %ValueFlows.Knowledge.Action{
+      "deliver-service" => %ValueFlows.Knowledge.Action{
         id: "deliver-service",
         label: "deliver-service",
         resource_effect: :noEffect,
@@ -106,7 +111,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
           "new service produced and delivered (being a service implies that an agent actively receives the service",
         input_output: :output
       },
-      transferAllRights: %ValueFlows.Knowledge.Action{
+      "transfer-all-rights" => %ValueFlows.Knowledge.Action{
         id: "transfer-all-rights",
         label: "transfer-all-rights",
         resource_effect: :decrementIncrement,
@@ -114,7 +119,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         note:
           "give full (in the human realm) rights and responsibilities to another agent, without transferring physical custody"
       },
-      transferCustody: %ValueFlows.Knowledge.Action{
+      "transfer-custody" => %ValueFlows.Knowledge.Action{
         id: "transfer-custody",
         label: "transfer-custody",
         resource_effect: :noEffect,
@@ -122,28 +127,28 @@ defmodule ValueFlows.Knowledge.Action.Actions do
         note:
           "give physical custody and control of a resource, without full accounting or ownership rights"
       },
-      transfer: %ValueFlows.Knowledge.Action{
+      "transfer" => %ValueFlows.Knowledge.Action{
         id: "transfer",
         label: "transfer",
         resource_effect: :decrementIncrement,
         onhand_effect: :decrementIncrement,
         note: "give full rights and responsibilities plus physical custody"
       },
-      move: %ValueFlows.Knowledge.Action{
+      "move" => %ValueFlows.Knowledge.Action{
         id: "move",
         label: "move",
         resource_effect: :decrementIncrement,
         onhand_effect: :decrementIncrement,
         note: "change location and/or identity of a resource with no change of agent"
       },
-      raise: %ValueFlows.Knowledge.Action{
+      "raise" => %ValueFlows.Knowledge.Action{
         id: "raise",
         label: "raise",
         resource_effect: :increment,
         onhand_effect: :increment,
         note: "adjusts a quantity up based on a beginning balance or inventory count"
       },
-      lower: %ValueFlows.Knowledge.Action{
+      "lower" => %ValueFlows.Knowledge.Action{
         id: "lower",
         label: "lower",
         resource_effect: :decrement,

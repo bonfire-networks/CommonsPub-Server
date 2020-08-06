@@ -236,8 +236,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   defp change_action(changeset, %{action: action_id}) do
-    action = Actions.action(action_id)
-    {:ok, Intent.change_action(changeset, action)}
+    with {:ok, action} <- Actions.action(action_id) do
+      {:ok, Intent.change_action(changeset, action)}
+    end
   end
 
   defp change_action(changeset, _attrs), do: {:ok, changeset}

@@ -171,10 +171,10 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def create_intent(%{intent: %{in_scope_of: context_id, action: action_id } = intent_attrs}, info)
       when not is_nil(context_id) do
-    action = Actions.action(action_id)
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, action} <- Actions.action(action_id),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
@@ -186,9 +186,9 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   # FIXME: duplication!
   def create_intent(%{intent: %{action: action_id} = intent_attrs}, info) do
-    action = Actions.action(action_id)
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, action} <- Actions.action(action_id),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
            {:ok, intent} <- Intents.create(user, action, intent_attrs) do
         {:ok, %{intent: %{intent | action: action}}}
