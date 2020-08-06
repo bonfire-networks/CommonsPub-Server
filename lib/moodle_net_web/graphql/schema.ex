@@ -217,6 +217,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       # %ValueFlows.Agent.People{}, _ -> :person
       # %ValueFlows.Agent.Organizations{}, _ -> :organization
       %ValueFlows.Planning.Intent{}, _ -> :intent
+      o, _ -> IO.inspect(any_context_resolve_unknown_type: o)
     end)
   end
 end

@@ -172,7 +172,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   end
 
   @doc """
-  You can use `tag_thing/2` directly instead
+  Turn a Pointer into a Taggable. You can use `thing_attach_tags/2` to tag something with Pointers directly instead.
   """
   def make_pointer_taggable(%{context_id: pointer_id}, info) do
     Repo.transact_with(fn ->
@@ -183,10 +183,10 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     end)
   end
 
-  def tag_thing(%{thing_id: thing_id, taggable_id: taggable_id}, info) do
+  def thing_attach_tags(%{thing: thing_id, taggables: taggables}, info) do
     with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, tagged} = CommonsPub.Tag.TagThings.tag_thing(me, taggable_id, thing_id) do
-      {:ok, tagged}
+         {:ok, tagged} = CommonsPub.Tag.TagThings.thing_attach_tags(me, thing_id, taggables) do
+      {:ok, true}
     end
   end
 

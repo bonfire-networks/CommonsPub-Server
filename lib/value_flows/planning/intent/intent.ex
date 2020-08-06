@@ -78,7 +78,8 @@ defmodule ValueFlows.Planning.Intent do
     many_to_many(:tags, CommonsPub.Tag.Taggable,
       join_through: "tags_things",
       unique: true,
-      join_keys: [pointer_id: :id, tag_id: :id]
+      join_keys: [pointer_id: :id, tag_id: :id],
+      on_replace: :delete
     )
 
     timestamps()

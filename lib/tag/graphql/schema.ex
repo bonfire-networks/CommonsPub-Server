@@ -45,11 +45,11 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
       resolve(&TagResolver.make_pointer_taggable/2)
     end
 
-    @desc "Tag something with a Taggable (or a  Category, or a Pointer to anything that can become taggable)"
-    field :tag, :taggable do
-      arg(:thing_id, non_null(:string))
-      arg(:taggable_id, non_null(:string))
-      resolve(&TagResolver.tag_thing/2)
+    @desc "Tag a thing (using a Pointer) with one or more Taggables (or Categories, or even Pointers to anything that can become taggable)"
+    field :tag, :boolean do
+      arg(:thing, non_null(:string))
+      arg(:taggables, non_null(list_of(:string)))
+      resolve(&TagResolver.thing_attach_tags/2)
     end
   end
 
