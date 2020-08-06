@@ -19,15 +19,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   alias CommonsPub.Tag.{Category, Categories, Taggable, Taggables}
 
-  def category(%{category_id: id}, info) do
-    ResolveField.run(%ResolveField{
-      module: __MODULE__,
-      fetcher: :fetch_category,
-      context: id,
-      info: info
-    })
-  end
-
   def categories(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
@@ -39,7 +30,29 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     })
   end
 
+  def category(%{category_id: id}, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_category,
+      context: id,
+      info: info
+    })
+  end
+
+  def taggable(%{id: id}, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_taggable,
+      context: id,
+      info: info
+    })
+  end
+
   ## fetchers
+
+  def fetch_taggable(_info, id) do
+    Taggables.one(id: id)
+  end
 
   def fetch_category(_info, id) do
     Categories.get(id)

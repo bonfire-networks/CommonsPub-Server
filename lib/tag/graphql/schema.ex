@@ -18,9 +18,15 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
     @desc "Get a category by ID "
     field :category, :category do
       arg(:category_id, :string)
-      arg(:taxonomy_category_id, :integer)
       # arg :find, :category_find
       resolve(&TagResolver.category/2)
+    end
+
+    @desc "Get a taggable by ID "
+    field :taggable, :taggable do
+      arg(:id, :string)
+      # arg :find, :category_find
+      resolve(&TagResolver.taggable/2)
     end
   end
 
