@@ -32,6 +32,16 @@ type Action {
   The action that should be included on the other direction of the process, for example accept with modify.
   """
   pairsWith: String
+
+  """
+  added by cpub
+  """
+  onhandEffect: String
+
+  """
+  added by cpub
+  """
+  note: String
 }
 
 """

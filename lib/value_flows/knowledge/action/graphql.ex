@@ -11,10 +11,12 @@ defmodule ValueFlows.Knowledge.Action.GraphQL do
   # import_sdl path: "lib/value_flows/graphql/schemas/knowledge.gql"
 
   def action(%{id: id}, info) do
-    {:ok, Simulate.action()}
+    # {:ok, Simulate.action()}
+    {:ok, ValueFlows.Knowledge.Action.Actions.action(id)}
   end
 
   def all_actions(_, _) do
-    {:ok, long_list(&Simulate.action/0)}
+    {:ok, ValueFlows.Knowledge.Action.Actions.actions_list()}
+    # {:ok, long_list(&Simulate.action/0)}
   end
 end
