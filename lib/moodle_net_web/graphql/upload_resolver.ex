@@ -20,8 +20,6 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   }
 
   def upload(user, %{} = params, _info) do
-    IO.inspect(upload_params: params)
-
     params
     |> Enum.reject(fn {_k, v} -> is_nil(v) or v == "" end)
     |> Enum.reduce_while(%{}, &do_upload(user, &1, &2))
@@ -33,9 +31,6 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   defp do_upload(user, {field_name, content_input}, acc) do
     uploader = @uploader_fields[field_name]
-    IO.inspect(field_name)
-    IO.inspect(content_input)
-
     if uploader do
       case Uploads.upload(uploader, user, content_input, %{}) do
         {:ok, content} ->

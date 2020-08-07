@@ -86,7 +86,7 @@ defmodule ValueFlows.Planning.Intent do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note at_location_id is_disabled)a
+  @cast @required ++ ~w(note at_location_id is_disabled image_id)a
 
   def create_changeset(
         %User{} = creator,

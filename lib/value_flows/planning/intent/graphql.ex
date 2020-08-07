@@ -34,6 +34,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   alias ValueFlows.Planning.Intent.Queries
   alias ValueFlows.Knowledge.Action.Actions
   alias MoodleNetWeb.GraphQL.{CommonResolver}
+  alias MoodleNetWeb.GraphQL.UploadResolver
 
   # SDL schema import
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
@@ -53,7 +54,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def all_intents(page_opts, info) do
-    IO.inspect(page_opts: page_opts)
 
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
@@ -99,7 +99,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def fetch_intents(page_opts, info) do
-    IO.inspect(page_opts)
 
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Planning.Intent.Queries,
@@ -141,7 +140,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def fetch_provider_edge(%{provider_id: id}, _, info) do
-    # IO.inspect(id)
     # Repo.preload(team_users: :user)
     CommonResolver.context_edge(%{context_id: id}, nil, info)
   end
@@ -152,9 +150,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
     thing = Repo.preload(thing, tags: [character: [:actor]])
-    # IO.inspect(get_tags: data.tags)
     urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
-    # IO.inspect(urls)
     {:ok, urls}
   end
 
@@ -177,6 +173,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
            {:ok, action} <- Actions.action(action_id),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
+           {:ok, uploads} <- UploadResolver.upload(user, intent_attrs, info),
+           intent_attrs = Map.merge(intent_attrs, uploads),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
            {:ok, intent} <- Intents.create(user, action, context, intent_attrs) do
         {:ok, %{intent: %{intent | action: action}}}
@@ -189,6 +187,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, action} <- Actions.action(action_id),
+           {:ok, uploads} <- UploadResolver.upload(user, intent_attrs, info),
+           intent_attrs = Map.merge(intent_attrs, uploads),
            intent_attrs = Map.merge(intent_attrs, %{is_public: true}),
            {:ok, intent} <- Intents.create(user, action, intent_attrs) do
         {:ok, %{intent: %{intent | action: action}}}
@@ -221,6 +221,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, intent} <- intent(%{id: id}, info),
          :ok <- ensure_update_permission(user, intent),
+           {:ok, uploads} <- UploadResolver.upload(user, changes, info),
+           changes = Map.merge(changes, uploads),
          {:ok, intent} <- update_fn.(intent, changes) do
       {:ok, %{intent: intent}}
     end

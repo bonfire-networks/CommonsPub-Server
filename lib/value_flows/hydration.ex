@@ -55,6 +55,9 @@ defmodule ValueFlows.Hydration do
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
+        image: [
+          resolve: &UploadResolver.image_content_edge/3
+        ],
         resource_classified_as: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_classifications_edge/3
         ],
