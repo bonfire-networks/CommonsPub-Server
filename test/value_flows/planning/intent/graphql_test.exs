@@ -61,13 +61,23 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     test "creates a new offer given valid attributes" do
       user = fake_user!()
       unit = fake_unit!(user)
-      provider = fake_user!()
       q = create_offer_mutation(fields: [provider: [:id]])
       conn = user_conn(user)
       vars = %{intent: intent_input(unit)}
       assert intent = grumble_post_key(q, conn, :create_offer, vars)["intent"]
       assert_intent(intent)
       assert intent["provider"]["id"] == user.id
+    end
+
+    test "create a new need given valid attributes" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      q = create_need_mutation(fields: [receiver: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit)}
+      assert intent = grumble_post_key(q, conn, :create_need, vars)["intent"]
+      assert_intent(intent)
+      assert intent["receiver"]["id"] == user.id
     end
 
     test "creates a new intent given a scope" do
