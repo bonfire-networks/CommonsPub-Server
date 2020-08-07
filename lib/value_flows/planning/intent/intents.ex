@@ -7,6 +7,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+  alias MoodleNet.Meta.Pointers
 
   alias Geolocation.Geolocations
   alias Measurement.Measure
@@ -111,6 +112,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
         |> Intent.change_measures(attrs)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
+           {:ok, cs} <- change_agent(cs, attrs),
            {:ok, item} <- Repo.insert(cs),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -196,6 +198,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
         |> Intent.change_measures(attrs)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
+           {:ok, cs} <- change_agent(cs, attrs),
            {:ok, cs} <- change_action(cs, attrs),
            {:ok, intent} <- Repo.update(cs),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
@@ -234,6 +237,30 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
     :ok
   end
+
+  defp change_agent(changeset, attrs) do
+    with {:ok, changeset} <- change_provider(changeset, attrs) do
+      change_receiver(changeset, attrs)
+    end
+  end
+
+  defp change_provider(changeset, %{provider: provider_id}) do
+    with {:ok, pointer} <- Pointers.one(id: provider_id) do
+      provider = Pointers.follow!(pointer)
+      {:ok, Intent.change_provider(changeset, provider)}
+    end
+  end
+
+  defp change_provider(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_receiver(changeset, %{receiver: receiver_id}) do
+    with {:ok, pointer} <- Pointers.one(id: receiver_id) do
+      receiver = Pointers.follow!(pointer)
+      {:ok, Intent.change_receiver(changeset, receiver)}
+    end
+  end
+
+  defp change_receiver(changeset, _attrs), do: {:ok, changeset}
 
   defp change_action(changeset, %{action: action_id}) do
     with {:ok, action} <- Actions.action(action_id) do

@@ -30,6 +30,13 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   describe "create" do
     test "can create an intent" do
       user = fake_user!()
+
+      assert {:ok, intent} = Intents.create(user, action(), intent())
+      assert_intent(intent)
+    end
+
+    test "can create an intent with measure" do
+      user = fake_user!()
       unit = fake_unit!(user)
 
       measures = %{
@@ -40,6 +47,29 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
 
       assert {:ok, intent} = Intents.create(user, action(), intent(measures))
       assert_intent(intent)
+    end
+
+    test "can create an intent with provider and receiver" do
+      user = fake_user!()
+      attrs = %{
+        provider: fake_user!().id
+      }
+      assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
+      assert intent.provider_id == attrs.provider
+
+      attrs = %{
+        receiver: fake_user!().id
+      }
+      assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
+      assert intent.receiver_id == attrs.receiver
+
+      attrs = %{
+        receiver: fake_user!().id,
+        provider: fake_user!().id
+      }
+      assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
+      assert intent.receiver_id == attrs.receiver
+      assert intent.provider_id == attrs.provider
     end
 
     test "can create an intent with a context" do

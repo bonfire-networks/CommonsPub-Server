@@ -98,6 +98,47 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert intent["action"]["id"] == action.id
     end
 
+    test "creates a new intent with a provider" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      provider = fake_user!()
+
+      q = create_intent_mutation(fields: [provider: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"provider" => provider.id})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["provider"]["id"] == provider.id
+    end
+
+    test "creates a new intent with a receiver" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      receiver = fake_user!()
+
+      q = create_intent_mutation(fields: [receiver: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"receiver" => receiver.id})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["receiver"]["id"] == receiver.id
+    end
+
+    test "creates a new intent with a provider and a receiver" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      provider = fake_user!()
+      receiver = fake_user!()
+
+      q = create_intent_mutation(fields: [receiver: [:id], provider: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"receiver" => receiver.id, "provider" => provider.id})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["receiver"]["id"] == receiver.id
+      assert intent["provider"]["id"] == provider.id
+    end
+
     test "fail if given an invalid action" do
       user = fake_user!()
       unit = fake_unit!(user)

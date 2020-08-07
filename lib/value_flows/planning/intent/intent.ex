@@ -163,6 +163,14 @@ defmodule ValueFlows.Planning.Intent do
     Changeset.change(changeset, action_id: action.id)
   end
 
+  def change_provider(changeset, %{id: _} = provider) do
+    Changeset.change(changeset, provider_id: provider.id)
+  end
+
+  def change_receiver(changeset, %{id: _} = receiver) do
+    Changeset.change(changeset, receiver_id: receiver.id)
+  end
+
   defp common_changeset(changeset) do
     changeset
     |> change_public()

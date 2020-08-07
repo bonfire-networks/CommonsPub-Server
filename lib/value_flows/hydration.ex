@@ -123,9 +123,12 @@ defmodule ValueFlows.Hydration do
   end
 
   # support for interface type
+  @spec agent_resolve_type(%{agent_type: nil | :organization | :person}, any) ::
+          :organization | :person
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
   def agent_resolve_type(%{agent_type: nil}, _), do: :person
+  def agent_resolve_type(%User{}, _), do: :user
 
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true

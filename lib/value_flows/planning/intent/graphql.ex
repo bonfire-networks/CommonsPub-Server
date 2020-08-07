@@ -140,13 +140,13 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     })
   end
 
-  def fetch_provider_edge(%{provider: id}, _, info) do
+  def fetch_provider_edge(%{provider_id: id}, _, info) do
     # IO.inspect(id)
     # Repo.preload(team_users: :user)
     CommonResolver.context_edge(%{context_id: id}, nil, info)
   end
 
-  def fetch_receiver_edge(%{receiver: id}, _, info) do
+  def fetch_receiver_edge(%{receiver_id: id}, _, info) do
     CommonResolver.context_edge(%{context_id: id}, nil, info)
   end
 

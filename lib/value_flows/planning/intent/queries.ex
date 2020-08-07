@@ -222,13 +222,13 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-  # def filter(q, {:preload, :provider}) do
-  #   preload q, [pointer: p], [provider: p]
-  # end
+  def filter(q, {:preload, :provider}) do
+    preload q, [pointer: p], [provider: p]
+  end
 
-  # def filter(q, {:preload, :receiver}) do
-  #   preload q, [pointer: p], [receiver: p]
-  # end
+  def filter(q, {:preload, :receiver}) do
+    preload q, [pointer: p], [receiver: p]
+  end
 
   def filter(q, {:preload, :at_location}) do
     preload(q, [at_location: l], at_location: l)
