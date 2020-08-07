@@ -61,6 +61,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     test "creates a new offer given valid attributes" do
       user = fake_user!()
       unit = fake_unit!(user)
+      provider = fake_user!()
       q = create_offer_mutation(fields: [provider: [:id]])
       conn = user_conn(user)
       vars = %{intent: intent_input(unit)}
@@ -170,16 +171,6 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       q = create_intent_mutation(fields: [action: [:id]])
       conn = user_conn(user)
       vars = %{intent: intent_input(unit, %{"action" => "reading"})}
-      assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
-    end
-
-    test "create offer fails if given an invalid provider" do
-      user = fake_user!()
-      unit = fake_unit!(user)
-
-      q = create_offer_mutation(fields: [provider: [:id]])
-      conn = user_conn(user)
-      vars = %{intent: intent_input(unit)}
       assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
     end
   end

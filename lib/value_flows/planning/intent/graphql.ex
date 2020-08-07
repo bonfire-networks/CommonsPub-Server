@@ -154,17 +154,24 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     {:ok, urls}
   end
 
-  def create_offer(%{intent: %{in_scope_of: context_ids} = intent_attrs}, info)
-    when is_list(context_ids) do
-      context_id = List.first(context_ids)
-      with {:ok, provider} <-  GraphQL.current_user_or_not_logged_in(info) do
-        IO.inspect(provider, label: "Provider")
-        create_intent(
-          %{intent: Map.merge(intent_attrs, %{in_scope_of: context_id, provider_id: provider.id})},
-          info
-        )
-      end
+  def create_offer(%{intent: intent_attrs}, info) do
+    # TODO: is it always the caller that's the provider?
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+      create_intent(
+        %{intent: Map.put(intent_attrs, :provider, user.id)},
+        info
+      )
     end
+  end
+
+  def create_need(%{intent: intent_attrs}, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+      create_intent(
+        %{intent: Map.put(intent_attrs, :receiver, user.id)},
+        info
+      )
+    end
+  end
 
   def create_intent(%{intent: %{in_scope_of: context_ids} = intent_attrs}, info)
       when is_list(context_ids) do
