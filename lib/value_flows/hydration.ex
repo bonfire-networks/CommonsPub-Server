@@ -112,6 +112,9 @@ defmodule ValueFlows.Hydration do
         create_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_intent/2
         ],
+        create_offer: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.create_offer/2
+        ],
         create_action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
         ],

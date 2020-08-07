@@ -2173,6 +2173,7 @@ type ValueFlowsMutation {
   deleteCommitment(id: ID!): Boolean
 
   createIntent(intent: IntentCreateParams): IntentResponse
+  createOffer(intent: IntentCreateParams): IntentResponse
 
   updateIntent(intent: IntentUpdateParams): IntentResponse
   deleteIntent(id: ID!): Boolean

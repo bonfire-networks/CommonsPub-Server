@@ -74,6 +74,16 @@ defmodule ValueFlows.Test.Faking do
     gen_query(:id, &intent_subquery/1, options)
   end
 
+  def create_offer_mutation(options \\ []) do
+    [intent: type!(:intent_create_params)]
+    |> gen_mutation(&create_offer_submutation/1, options)
+  end
+
+  def create_offer_submutation(options \\ []) do
+    [intent: var(:intent)]
+    |> gen_submutation(:create_offer, &intent_response_fields/1, options)
+  end
+
   def create_intent_mutation(options \\ []) do
     [intent: type!(:intent_create_params)]
     |> gen_mutation(&create_intent_submutation/1, options)
