@@ -70,8 +70,16 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   # TODO: support several filters combined, plus pagination on filtered queries
 
-  def intents_filter(%{at_location: at_location_id} = page_opts, info) do
-    Intents.many(at_location_id: at_location_id)
+  def intents_filter(%{agent: id} = page_opts, info) do
+    Intents.many(agent_id: id)
+  end
+
+  def intents_filter(%{provider: id} = page_opts, info) do
+    Intents.many(provider_id: id)
+  end
+
+  def intents_filter(%{receiver: id} = page_opts, info) do
+    Intents.many(receiver_id: id)
   end
 
   def intents_filter(%{in_scope_of: context_id} = page_opts, info) do
@@ -80,6 +88,10 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def intents_filter(%{tag_ids: tag_ids} = page_opts, info) do
     Intents.many(tag_ids: tag_ids)
+  end
+
+  def intents_filter(%{at_location: at_location_id} = page_opts, info) do
+    Intents.many(at_location_id: at_location_id)
   end
 
   def intents_filter(

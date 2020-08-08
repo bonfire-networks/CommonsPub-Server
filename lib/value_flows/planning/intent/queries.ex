@@ -160,6 +160,30 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], c.context_id in ^ids)
   end
 
+  def filter(q, {:agent_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.provider_id == ^id or c.receiver_id == ^id)
+  end
+
+  def filter(q, {:agent_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.provider_id in ^ids or c.receiver_id in ^ids)
+  end
+
+  def filter(q, {:provider_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.provider_id == ^id)
+  end
+
+  def filter(q, {:provider_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.provider_id in ^ids)
+  end
+
+  def filter(q, {:receiver_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.receiver_id == ^id)
+  end
+
+  def filter(q, {:receiver_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.receiver_id in ^ids)
+  end
+
   def filter(q, {:at_location_id, at_location_id}) do
     q
     |> where([intent: c], c.at_location_id == ^at_location_id)

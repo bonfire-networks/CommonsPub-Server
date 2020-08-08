@@ -41,9 +41,11 @@ defmodule ValueFlows.Schema do
 
       arg(:at_location, list_of(:id))
 
-      # arg(:near, :geolocation_point)
-      # arg(:distance, :geolocation_distance)
       arg(:geolocation, :geolocation_filters)
+
+      arg(:agent, list_of(:id))
+      arg(:provider, list_of(:id))
+      arg(:receiver, list_of(:id))
 
       resolve(&ValueFlows.Planning.Intent.GraphQL.intents_filter/2)
     end
