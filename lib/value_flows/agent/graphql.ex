@@ -46,12 +46,11 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # TODO: pagination
   def all_people(%{}, info) do
-    {:ok, ValueFlows.Agent.People.people(signed_in_user: MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.People.people(MoodleNet.GraphQL.current_user(info))}
   end
 
   def person(%{id: id}, info) do
-    {:ok,
-     ValueFlows.Agent.People.person(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.People.person(id, MoodleNet.GraphQL.current_user(info))}
   end
 
   # with pagination
@@ -91,11 +90,10 @@ defmodule ValueFlows.Agent.GraphQL do
   end
 
   def all_agents(%{}, info) do
-    {:ok, ValueFlows.Agent.Agents.agents(signed_in_user: MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.Agents.agents(MoodleNet.GraphQL.current_user(info))}
   end
 
   def agent(%{id: id}, info) do
-    {:ok,
-     ValueFlows.Agent.Agents.agent(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.Agents.agent(id, MoodleNet.GraphQL.current_user(info))}
   end
 end

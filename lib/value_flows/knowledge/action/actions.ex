@@ -2,7 +2,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
   # @on_load :load_actions
 
   def action(label) when is_atom(label) do
-    label |> Atom.to_string() |> Recase.to_camel()
+    action(Atom.to_string(label))
   end
 
   def action(label) do
@@ -10,7 +10,8 @@ defmodule ValueFlows.Knowledge.Action.Actions do
       nil ->
         {:error, MoodleNet.Common.NotFoundError.new()}
 
-      action -> {:ok, action}
+      action ->
+        {:ok, action}
     end
   end
 

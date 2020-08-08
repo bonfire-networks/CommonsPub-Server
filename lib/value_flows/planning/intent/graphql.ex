@@ -154,13 +154,22 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     })
   end
 
-  def fetch_provider_edge(%{provider_id: id}, _, info) do
-    # Repo.preload(team_users: :user)
-    CommonResolver.context_edge(%{context_id: id}, nil, info)
+  def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do
+    # CommonResolver.context_edge(%{context_id: id}, nil, info)
+    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
   end
 
-  def fetch_receiver_edge(%{receiver_id: id}, _, info) do
-    CommonResolver.context_edge(%{context_id: id}, nil, info)
+  def fetch_provider_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def fetch_receiver_edge(%{receiver_id: id}, _, info) when not is_nil(id) do
+    # CommonResolver.context_edge(%{context_id: id}, nil, info)
+    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
+  end
+
+  def fetch_receiver_edge(_, _, _) do
+    {:ok, nil}
   end
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do

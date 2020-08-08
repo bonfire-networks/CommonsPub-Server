@@ -1709,15 +1709,14 @@ type Intent {
   """
   The economic agent from whom the intent is initiated. This implies that the intent is an offer.
   """
-  # provider: Agent // WIP untill we will implement agent 
-  provider: User  
-
+  provider: Agent
+  # provider: User   # WIP untill we will implement agent
 
   """
   The economic agent whom the intent is for.  This implies that the intent is a request.
   """
-  # receiver: Agent // WIP untill we will implement agent 
-  receiver: User
+  receiver: Agent
+  # receiver: User
 
   """
   References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
