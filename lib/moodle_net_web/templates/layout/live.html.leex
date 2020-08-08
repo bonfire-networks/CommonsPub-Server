@@ -1,15 +1,21 @@
 <%= if @static_changed do %>
-  <script> window.location.reload() </script>
+  <script>
+    window.location.reload()
+  </script>
 <% end %>
 <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@socket, "/js/app.js") %>"></script>
-
 <div id="template" class="page__container">
   <div class="cpub__header">
     <div class="header__left">
       <%= live_redirect to: "/~" do %>
         <h3>CommonsPub</h3>
       <% end %>
-    <input class="header__search" placeholder="Search in the fediverse..." />
+      <%= live_component(
+          @socket,
+          MoodleNetWeb.SearchLive.Form,
+          id: :search_form,
+          current_user: @current_user
+        ) %>
     </div>
     <div class="header__right">
       <%= if @current_user do %>

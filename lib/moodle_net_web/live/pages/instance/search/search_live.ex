@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.SearchLive do
 
     search = Search.Meili.search(search, "public")
 
-    IO.inspect(search)
+    # IO.inspect(search)
 
     hits =
       if(Map.has_key?(search, "hits") and length(search["hits"])) do
@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.SearchLive do
         # Enum.filter(hits, & &1)
       end
 
-    IO.inspect(hits)
+    # IO.inspect(hits)
 
     {:noreply,
      assign(socket,
