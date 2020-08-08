@@ -176,6 +176,42 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     ])
   end
 
+  def creator_intents_edge(%{creator: creator}, %{} = page_opts, info) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_creator_intents_edge,
+      context: creator,
+      page_opts: page_opts,
+      info: info
+    })
+  end
+
+  def fetch_creator_intents_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+
+    list_intents(
+      page_opts,
+      [
+        :default,
+        agent_id: ids,
+        user: GraphQL.current_user(info)
+      ],
+      nil,
+      nil
+    )
+  end
+
+  def list_intents(page_opts, base_filters, data_filters, cursor_type) do
+    FetchPage.run(%FetchPage{
+      queries: Queries,
+      query: Intent,
+      # cursor_fn: Intents.cursor(cursor_type),
+      page_opts: page_opts,
+      base_filters: base_filters
+      # data_filters: data_filters
+    })
+  end
+
   def fetch_intents(page_opts, info) do
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Planning.Intent.Queries,
