@@ -35,6 +35,10 @@ defmodule ValueFlows.Planning.Intent.Intents do
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Intent, filters))}
 
+  def by_location(at_location_id) do
+    many(at_location_id: at_location_id)
+  end
+
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
     {:ok, fields} = many(filters)
@@ -90,7 +94,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
   ## mutations
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = action, %{id: _id} = context, attrs) when is_map(attrs) do
+  def create(%User{} = creator, %Action{} = action, %{id: _id} = context, attrs)
+      when is_map(attrs) do
     do_create(creator, attrs, fn ->
       Intent.create_changeset(creator, action, context, attrs)
     end)

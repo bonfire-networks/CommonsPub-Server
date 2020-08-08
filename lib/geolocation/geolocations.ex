@@ -199,9 +199,9 @@ defmodule Geolocation.Geolocations do
   @spec update(User.t(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Geolocation{} = geolocation, attrs) do
-     with {:ok, attrs} <- resolve_mappable_address(attrs),
-          {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
-          :ok <- ap_publish("update", item.id, user.id) do
+    with {:ok, attrs} <- resolve_mappable_address(attrs),
+         {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
+         :ok <- ap_publish("update", item.id, user.id) do
       {:ok, populate_coordinates(item)}
     end
   end
@@ -222,7 +222,7 @@ defmodule Geolocation.Geolocations do
     %{geo | lat: lat, long: long, geom: Geo.JSON.encode!(geom)}
   end
 
-  def populate_coordinates(%Geolocation{} = geo), do: geo
+  def populate_coordinates(geo), do: geo
 
   def resolve_mappable_address(%{mappable_address: address} = geo) when is_binary(address) do
     with {:ok, coordinates} <- Geocoder.call(address) do

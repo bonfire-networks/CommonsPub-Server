@@ -52,6 +52,9 @@ defmodule ValueFlows.Hydration do
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
         ],
+        at_location: [
+          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+        ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],

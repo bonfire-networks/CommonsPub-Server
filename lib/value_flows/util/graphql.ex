@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util.GraphQL do
   use Absinthe.Schema.Notation
+  alias MoodleNet.Repo
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
@@ -18,4 +19,9 @@ defmodule ValueFlows.Util.GraphQL do
   def parse_cool_scalar(value), do: {:ok, value}
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
+
+  def at_location_edge(%{at_location_id: id} = thing, _, _) do
+    thing = Repo.preload(thing, :at_location)
+    {:ok, Geolocation.Geolocations.populate_coordinates(Map.get(thing, :at_location, nil))}
+  end
 end

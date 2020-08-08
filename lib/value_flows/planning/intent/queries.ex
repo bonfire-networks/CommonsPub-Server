@@ -44,6 +44,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
     )
   end
 
+  def join_to(q, :geolocation, jq) do
+    join(q, jq, [intent: c], g in assoc(c, :geolocation), as: :geolocation)
+  end
+
   # def join_to(q, :provider, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :provider), as: :pointer
   # end
@@ -151,6 +155,12 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], c.context_id in ^ids)
   end
 
+  def filter(q, {:at_location_id, at_location_id}) do
+    q
+    # |> join(geolocation: location_id)
+    |> where([intent: c], c.at_location_id == ^at_location_id)
+  end
+
   ## by ordering
 
   def filter(q, {:order, :id}) do
@@ -223,11 +233,11 @@ defmodule ValueFlows.Planning.Intent.Queries do
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
   def filter(q, {:preload, :provider}) do
-    preload q, [pointer: p], [provider: p]
+    preload(q, [pointer: p], provider: p)
   end
 
   def filter(q, {:preload, :receiver}) do
-    preload q, [pointer: p], [receiver: p]
+    preload(q, [pointer: p], receiver: p)
   end
 
   def filter(q, {:preload, :at_location}) do

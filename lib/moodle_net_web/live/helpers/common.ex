@@ -254,7 +254,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def contexts_fetch!(ids) do
     with {:ok, ptrs} <-
-           MoodleNet.Meta.Pointers.many(id: MoodleNetWeb.GraphQL.CommonResolver.flatten(ids)) do
+           MoodleNet.Meta.Pointers.many(id: List.flatten(ids)) do
       MoodleNet.Meta.Pointers.follow!(ptrs)
     end
   end
