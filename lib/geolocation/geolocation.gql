@@ -125,3 +125,18 @@ type GeolocationMutation {
   ): SpatialThingResponse
   deleteSpatialThing(id: ID!): Boolean
 }
+
+# added these types for filtering, to be extended:...
+input GeolocationDistance {
+  meters: Int
+}
+
+input GeolocationPoint {
+  lat: Float
+  long: Float
+}
+
+input GeolocationFilters {
+  near: GeolocationPoint
+  distance: GeolocationDistance
+}

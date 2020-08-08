@@ -77,7 +77,23 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Intents.many(context_id: context_id)
   end
 
+  def intents_filter(
+        %{geolocation: %{near: %{lat: lat, long: long}, distance: %{meters: distance_meters}}} =
+          page_opts,
+        info
+      ) do
+    IO.inspect(geo: page_opts)
+
+    Intents.many({
+      :near_point,
+      %Geo.Point{coordinates: {lat, long}, srid: 4326},
+      :distance_meters,
+      distance_meters
+    })
+  end
+
   def intents_filter(page_opts, info) do
+    IO.inspect(page_opts: page_opts)
     all_intents(page_opts, info)
   end
 

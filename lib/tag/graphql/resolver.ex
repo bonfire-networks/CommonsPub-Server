@@ -133,7 +133,8 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   """
   def tags_edges(%{tags: _tags} = thing, page_opts, info) do
     thing = Repo.preload(thing, tags: [:category, :profile, character: [:actor]])
-    IO.inspect(categories_edges_thing: thing)
+
+    # IO.inspect(categories_edges_thing: thing)
 
     tags = Enum.map(thing.tags, &tag_prepare(&1, page_opts, info))
 

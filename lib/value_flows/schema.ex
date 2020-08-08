@@ -36,7 +36,13 @@ defmodule ValueFlows.Schema do
     @desc "TEMPORARY - get filtered but non-paginated list of intents"
     field :intents_filter, list_of(:intent) do
       arg(:in_scope_of, list_of(:id))
+
       arg(:at_location, list_of(:id))
+
+      # arg(:near, :geolocation_point)
+      # arg(:distance, :geolocation_distance)
+      arg(:geolocation, :geolocation_filters)
+
       resolve(&ValueFlows.Planning.Intent.GraphQL.intents_filter/2)
     end
 

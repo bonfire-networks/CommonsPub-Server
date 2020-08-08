@@ -9,6 +9,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
+  import Geo.PostGIS
 
   def query(Intent) do
     from(c in Intent, as: :intent)
@@ -45,7 +46,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def join_to(q, :geolocation, jq) do
-    join(q, jq, [intent: c], g in assoc(c, :geolocation), as: :geolocation)
+    join(q, jq, [intent: c], g in assoc(c, :at_location), as: :geolocation)
   end
 
   # def join_to(q, :provider, jq) do
@@ -157,8 +158,13 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:at_location_id, at_location_id}) do
     q
-    # |> join(geolocation: location_id)
     |> where([intent: c], c.at_location_id == ^at_location_id)
+  end
+
+  def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
+    q
+    |> join_to(:geolocation)
+    |> where([intent: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
   end
 
   ## by ordering
