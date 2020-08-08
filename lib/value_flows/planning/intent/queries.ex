@@ -49,6 +49,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
     join(q, jq, [intent: c], g in assoc(c, :at_location), as: :geolocation)
   end
 
+  def join_to(q, :tags, jq) do
+    join(q, jq, [intent: c], t in assoc(c, :tags), as: :tags)
+  end
+
   # def join_to(q, :provider, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :provider), as: :pointer
   # end
@@ -165,6 +169,25 @@ defmodule ValueFlows.Planning.Intent.Queries do
     q
     |> join_to(:geolocation)
     |> where([intent: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+  end
+
+  def filter(q, {:tag_ids, ids}) when is_list(ids) do
+    q
+    |> preload(:tags)
+    |> join_to(:tags)
+    |> group_by([intent: c], c.id)
+    |> having(
+      [intent: c, tags: t],
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Ecto.ULID}), t.id)
+    )
+  end
+
+  def filter(q, {:tag_ids, id}) when is_binary(id) do
+    filter(q, {:tag_ids, [id]})
+  end
+
+  def filter(q, {:tag_id, id}) when is_binary(id) do
+    filter(q, {:tag_ids, [id]})
   end
 
   ## by ordering

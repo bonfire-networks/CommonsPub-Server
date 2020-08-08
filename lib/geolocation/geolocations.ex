@@ -226,8 +226,8 @@ defmodule Geolocation.Geolocations do
 
   def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
     with {:ok, coords} <- Geocoder.call(address) do
-      IO.inspect(attrs)
-      IO.inspect(coords)
+      # IO.inspect(attrs)
+      # IO.inspect(coords)
       # TODO: should take bounds and save in `geom`
       {:ok, Map.put(Map.put(attrs, :lat, coords.lat), :long, coords.lon)}
     else

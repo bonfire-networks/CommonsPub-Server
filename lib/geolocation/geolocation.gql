@@ -137,6 +137,7 @@ input GeolocationPoint {
 }
 
 input GeolocationFilters {
-  near: GeolocationPoint
+  nearPoint: GeolocationPoint
+  nearAddress: String
   distance: GeolocationDistance
 }

@@ -68,7 +68,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Intents.many()
   end
 
-  # TODO: support several filters combined, plus pagination
+  # TODO: support several filters combined, plus pagination on filtered queries
+
   def intents_filter(%{at_location: at_location_id} = page_opts, info) do
     Intents.many(at_location_id: at_location_id)
   end
@@ -77,12 +78,20 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Intents.many(context_id: context_id)
   end
 
+  def intents_filter(%{tag_ids: tag_ids} = page_opts, info) do
+    Intents.many(tag_ids: tag_ids)
+  end
+
   def intents_filter(
-        %{geolocation: %{near: %{lat: lat, long: long}, distance: %{meters: distance_meters}}} =
-          page_opts,
+        %{
+          geolocation: %{
+            near_point: %{lat: lat, long: long},
+            distance: %{meters: distance_meters}
+          }
+        } = page_opts,
         info
       ) do
-    IO.inspect(geo: page_opts)
+    # IO.inspect(geo1: page_opts)
 
     Intents.many({
       :near_point,
@@ -90,6 +99,31 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
       :distance_meters,
       distance_meters
     })
+  end
+
+  def intents_filter(
+        %{
+          geolocation: %{near_address: address, distance: %{meters: distance_meters}}
+        } = page_opts,
+        info
+      ) do
+    # IO.inspect(geo2: page_opts)
+
+    with {:ok, coords} <- Geocoder.call(address) do
+      # IO.inspect(coords)
+
+      intents_filter(
+        %{
+          geolocation: %{
+            near_point: %{lat: coords.lat, long: coords.lon},
+            distance: %{meters: distance_meters}
+          }
+        },
+        info
+      )
+    else
+      _ -> {:ok, nil}
+    end
   end
 
   def intents_filter(page_opts, info) do

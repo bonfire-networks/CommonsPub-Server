@@ -37,6 +37,8 @@ defmodule ValueFlows.Schema do
     field :intents_filter, list_of(:intent) do
       arg(:in_scope_of, list_of(:id))
 
+      arg(:tag_ids, list_of(:id))
+
       arg(:at_location, list_of(:id))
 
       # arg(:near, :geolocation_point)
