@@ -35,10 +35,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Intent, filters))}
 
-  def by_location(at_location_id) do
-    many(at_location_id: at_location_id)
-  end
-
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
     {:ok, fields} = many(filters)

@@ -26,29 +26,38 @@ defmodule ValueFlows.Schema do
   object :value_flows_extra_queries do
     @desc "Get paginated list of intents"
     field :intents_pages, non_null(:intents_page) do
-      arg(:in_scope_of, :id)
+      # arg(:in_scope_of, :id)
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&ValueFlows.Planning.Intent.GraphQL.all_intents/2)
+      resolve(&ValueFlows.Planning.Intent.GraphQL.intents/2)
     end
+
+    @desc "TEMPORARY - get filtered but non-paginated list of intents"
+    field :intents_filter, list_of(:intent) do
+      arg(:in_scope_of, list_of(:id))
+      arg(:at_location, list_of(:id))
+      resolve(&ValueFlows.Planning.Intent.GraphQL.intents_filter/2)
+    end
+
+    #   intents(start: ID, limit: Int): [Intent!]
 
     @desc "Get paginated list of active offers (intents no receiver)"
     field :offers_pages, non_null(:intents_page) do
-      arg(:in_scope_of, :id)
+      # arg(:in_scope_of, :id)
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&ValueFlows.Planning.Intent.GraphQL.all_offers/2)
+      resolve(&ValueFlows.Planning.Intent.GraphQL.offers/2)
     end
 
     @desc "Get paginated list of active needs (intents no provider)"
     field :needs_pages, non_null(:intents_page) do
-      arg(:in_scope_of, :id)
+      # arg(:in_scope_of, :id)
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&ValueFlows.Planning.Intent.GraphQL.all_needs/2)
+      resolve(&ValueFlows.Planning.Intent.GraphQL.needs/2)
     end
 
     # @desc "Get paginated list of agents"

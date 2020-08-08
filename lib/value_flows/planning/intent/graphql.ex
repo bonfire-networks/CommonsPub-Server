@@ -53,8 +53,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     })
   end
 
-  def all_intents(page_opts, info) do
-
+  def intents(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
       fetcher: :fetch_intents,
@@ -65,7 +64,24 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     })
   end
 
-  def all_offers(page_opts, info) do
+  def all_intents(page_opts, info) do
+    Intents.many()
+  end
+
+  # TODO: support several filters combined, plus pagination
+  def intents_filter(%{at_location: at_location_id} = page_opts, info) do
+    Intents.many(at_location_id: at_location_id)
+  end
+
+  def intents_filter(%{in_scope_of: context_id} = page_opts, info) do
+    Intents.many(context_id: context_id)
+  end
+
+  def intents_filter(page_opts, info) do
+    all_intents(page_opts, info)
+  end
+
+  def offers(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
       fetcher: :fetch_offers,
@@ -76,7 +92,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     })
   end
 
-  def all_needs(page_opts, info) do
+  def needs(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
       fetcher: :fetch_needs,
@@ -93,13 +109,12 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Intents.one([
       :default,
       user: GraphQL.current_user(info),
-      id: id,
+      id: id
       # preload: :tags
     ])
   end
 
   def fetch_intents(page_opts, info) do
-
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Planning.Intent.Queries,
       query: ValueFlows.Planning.Intent,
@@ -184,7 +199,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     )
   end
 
-  def create_intent(%{intent: %{in_scope_of: context_id, action: action_id } = intent_attrs}, info)
+  def create_intent(%{intent: %{in_scope_of: context_id, action: action_id} = intent_attrs}, info)
       when not is_nil(context_id) do
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
@@ -240,8 +255,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, intent} <- intent(%{id: id}, info),
          :ok <- ensure_update_permission(user, intent),
-           {:ok, uploads} <- UploadResolver.upload(user, changes, info),
-           changes = Map.merge(changes, uploads),
+         {:ok, uploads} <- UploadResolver.upload(user, changes, info),
+         changes = Map.merge(changes, uploads),
          {:ok, intent} <- update_fn.(intent, changes) do
       {:ok, %{intent: intent}}
     end

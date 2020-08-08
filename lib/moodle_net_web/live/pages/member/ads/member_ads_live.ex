@@ -41,7 +41,7 @@ defmodule MoodleNetWeb.MemberLive.MemberAdsLive do
     ]
 
     {:ok, ads} =
-      ValueFlows.Planning.Intent.GraphQL.all_intents(
+      ValueFlows.Planning.Intent.GraphQL.intents(
         page_opts,
         %{context: %{current_user: assigns.current_user}}
       )
