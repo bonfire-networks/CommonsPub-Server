@@ -234,7 +234,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
 
-    Search.Indexing.maybe_index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
   end

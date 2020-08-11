@@ -57,7 +57,7 @@ defmodule MoodleNet.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, community_or_context, comm, activity),
            :ok <- ap_publish("create", comm) do
-        MoodleNet.Algolia.Indexer.maybe_index_object(comm)
+        CommonsPub.Search.Indexer.maybe_index_object(comm)
         {:ok, comm}
       end
     end)
@@ -76,7 +76,7 @@ defmodule MoodleNet.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity),
            :ok <- ap_publish("create", comm) do
-        MoodleNet.Algolia.Indexer.maybe_index_object(comm)
+        CommonsPub.Search.Indexer.maybe_index_object(comm)
         {:ok, comm}
       end
     end)
@@ -91,7 +91,7 @@ defmodule MoodleNet.Communities do
            act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity) do
-        MoodleNet.Algolia.Indexer.maybe_index_object(comm)
+        CommonsPub.Search.Indexer.maybe_index_object(comm)
         {:ok, comm}
       end
     end)

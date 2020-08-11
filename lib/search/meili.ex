@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule Search.Meili do
+defmodule CommonsPub.Search.Meili do
   require Logger
 
   alias ActivityPub.HTTP

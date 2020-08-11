@@ -31,7 +31,7 @@ defmodule MoodleNetWeb.SearchLive do
     IO.inspect(q, label: "SEARCH")
     IO.inspect(tab, label: "TAB")
 
-    search = Search.Meili.search(q, "public")
+    search = CommonsPub.Search.Meili.search(q, "public")
 
     # IO.inspect(search)
 

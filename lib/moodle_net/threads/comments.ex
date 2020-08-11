@@ -295,7 +295,7 @@ defmodule MoodleNet.Threads.Comments do
       "index_instance" => URI.parse(canonical_url).host
     }
 
-    Search.Indexing.maybe_index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
   end
