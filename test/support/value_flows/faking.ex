@@ -14,8 +14,8 @@ defmodule ValueFlows.Test.Faking do
   alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
-  alias ValueFlows.Proposal.Proposal
-  alias ValueFlows.Proposal.Proposals
+  alias ValueFlows.Proposal
+  alias ValueFlows.Proposals
 
   def assert_proposal(%Proposal{} = proposal) do
     assert_proposal(Map.from_struct(intent))
@@ -33,7 +33,7 @@ defmodule ValueFlows.Test.Faking do
       # available_quantity: assert_optional(&assert_measure/1),
       has_beginning: assert_optional(&assert_datetime/1),
       has_end: assert_optional(&assert_datetime/1),
-      created: assert_optional(&assert_datetime/1),
+      created: assert_optional(&assert_datetime/1)
     )
   end
 
@@ -48,10 +48,9 @@ defmodule ValueFlows.Test.Faking do
       :unit_based,
       :has_beginning,
       :has_end,
-      :created,
+      :created
     ])
   end
-
 
   def assert_intent(%Intent{} = intent) do
     assert_intent(Map.from_struct(intent))

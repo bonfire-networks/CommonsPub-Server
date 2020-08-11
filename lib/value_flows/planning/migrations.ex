@@ -3,10 +3,12 @@ defmodule ValueFlows.Planning.Migrations do
   alias MoodleNet.Repo
   alias Ecto.ULID
 
-  @meta_tables [] ++ ~w(vf_intent)
+  import Pointers.Migration
+
+  defp intent_table(), do: ValueFlows.Planning.Intent.__schema__(:source)
 
   def change_intent do
-    create table(:vf_intent) do
+    create_pointable_table(intent_table(), "1NTENTC0V1DBEAN0FFER0RNEED") do
       add(:name, :string)
       add(:note, :text)
 
@@ -59,30 +61,6 @@ defmodule ValueFlows.Planning.Migrations do
       add(:disabled_at, :timestamptz)
 
       timestamps(inserted_at: false, type: :utc_datetime_usec)
-    end
-  end
-
-  def add_intent_pointer do
-    tables =
-      Enum.map(@meta_tables, fn name ->
-        %{"id" => ULID.bingenerate(), "table" => name}
-      end)
-
-    {_, _} = Repo.insert_all("mn_table", tables)
-
-    tables =
-      Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
-        Map.put(acc, table, id)
-      end)
-
-    for table <- @meta_tables do
-      :ok =
-        execute("""
-        create trigger "insert_pointer_#{table}"
-        before insert on "#{table}"
-        for each row
-        execute procedure insert_pointer()
-        """)
     end
   end
 end

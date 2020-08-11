@@ -11,7 +11,10 @@
 # ProcessSpecification
 
 defmodule ValueFlows.Planning.Intent do
-  use MoodleNet.Common.Schema
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "vf_intent",
+    table_id: "1NTENTC0V1DBEAN0FFER0RNEED"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
@@ -25,7 +28,7 @@ defmodule ValueFlows.Planning.Intent do
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_intent" do
+  pointable_schema do
     field(:name, :string)
     field(:note, :string)
     belongs_to(:image, Content)
@@ -82,7 +85,7 @@ defmodule ValueFlows.Planning.Intent do
       on_replace: :delete
     )
 
-    timestamps()
+    timestamps(inserted_at: false)
   end
 
   @required ~w(name is_public)a
