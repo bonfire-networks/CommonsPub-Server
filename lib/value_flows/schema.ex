@@ -16,6 +16,13 @@ defmodule ValueFlows.Schema do
     field(:total_count, non_null(:integer))
   end
 
+  @desc "A page of proposals"
+  object :proposals_page do
+    field(:page_info, non_null(:page_info))
+    field(:edges, non_null(list_of(non_null(:proposal))))
+    field(:total_count, non_null(:integer))
+  end
+
   @desc "A page of agents"
   object :agents_page do
     field(:page_info, non_null(:page_info))
@@ -24,6 +31,17 @@ defmodule ValueFlows.Schema do
   end
 
   object :value_flows_extra_queries do
+
+    @desc "Get paginated list of proposals"
+    field :proposals_pages, non_null(:proposals_page) do
+      # arg(:in_scope_of, :id)
+      arg(:limit, :integer)
+      arg(:before, list_of(non_null(:cursor)))
+      arg(:after, list_of(non_null(:cursor)))
+      resolve(&ValueFlows.Proposal.GraphQL.proposals/2)
+    end
+
+
     @desc "Get paginated list of intents"
     field :intents_pages, non_null(:intents_page) do
       # arg(:in_scope_of, :id)

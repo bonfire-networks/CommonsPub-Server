@@ -41,7 +41,14 @@ defmodule ValueFlows.Hydration do
       # organization: [
       #   is_type_of: &ValueFlows.Agent.GraphQL.organization_is_type_of/2
       # ],
-
+      proposal: %{
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
+        eligible_location: [
+          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+        ],
+      },
       intent: %{
         provider: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_provider_edge/3
@@ -105,6 +112,14 @@ defmodule ValueFlows.Hydration do
         ],
         intents: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.all_intents/2
+        ],
+
+        # Proposal
+        proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.proposal/2
+        ],
+        proposals: [
+          resolve: &ValueFlows.Proposal.GraphQL.all_proposals/2
         ]
       },
 
@@ -114,6 +129,9 @@ defmodule ValueFlows.Hydration do
       value_flows_mutation: %{
         create_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_intent/2
+        ],
+        create_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.create_proposal/2
         ],
         create_offer: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_offer/2

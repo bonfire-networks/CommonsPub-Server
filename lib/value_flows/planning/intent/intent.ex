@@ -1,6 +1,6 @@
 # relations TODO:
-# SpatialThing WIP
-# Action WIP
+# SpatialThing
+# Action
 # AgentRelationship
 # AgentRelationshipRole
 # ResourceSpecification
