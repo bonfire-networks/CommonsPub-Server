@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
-    IO.inspect(e: map)
+    # IO.inspect(e: map)
 
     if(is_map(map)) do
       # attempt using key as atom or string
@@ -254,7 +254,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def contexts_fetch!(ids) do
     with {:ok, ptrs} <-
-           MoodleNet.Meta.Pointers.many(id: MoodleNetWeb.GraphQL.CommonResolver.flatten(ids)) do
+           MoodleNet.Meta.Pointers.many(id: List.flatten(ids)) do
       MoodleNet.Meta.Pointers.follow!(ptrs)
     end
   end

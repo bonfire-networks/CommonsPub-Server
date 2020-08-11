@@ -19,15 +19,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   alias CommonsPub.Tag.{Category, Categories, Taggable, Taggables}
 
-  def category(%{category_id: id}, info) do
-    ResolveField.run(%ResolveField{
-      module: __MODULE__,
-      fetcher: :fetch_category,
-      context: id,
-      info: info
-    })
-  end
-
   def categories(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
@@ -39,7 +30,29 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     })
   end
 
+  def category(%{category_id: id}, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_category,
+      context: id,
+      info: info
+    })
+  end
+
+  def taggable(%{id: id}, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_taggable,
+      context: id,
+      info: info
+    })
+  end
+
   ## fetchers
+
+  def fetch_taggable(_info, id) do
+    Taggables.one(id: id)
+  end
 
   def fetch_category(_info, id) do
     Categories.get(id)
@@ -119,28 +132,44 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   Tags associated with a Thing
   """
   def tags_edges(%{tags: _tags} = thing, page_opts, info) do
-    thing = Repo.preload(thing, tags: [:context, :profile, character: [:actor]])
-    IO.inspect(categories_edges_thing: thing)
+    thing = Repo.preload(thing, tags: [:category, :profile, character: [:actor]])
+
+    # IO.inspect(categories_edges_thing: thing)
 
     tags = Enum.map(thing.tags, &tag_prepare(&1, page_opts, info))
 
     {:ok, tags}
   end
 
-  def tag_prepare(%{profile: %{name: name}} = tag, page_opts, info)
-      when not is_nil(name) do
+  def tag_prepare(%{category: %{id: id} = category} = tag, page_opts, info) when not is_nil(id) do
+    # TODO: do this better
     Map.merge(
-      tag,
+      category,
       %{
-        name: name,
-        summary: tag.profile.summary
+        name: tag.profile.name,
+        summary: tag.profile.summary,
+        prefix: tag.prefix,
+        facet: tag.facet,
+        character: tag.character,
+        profile: tag.profile
       }
     )
   end
 
-  def tag_prepare(%{context_id: context_id}, page_opts, info)
-      when not is_nil(context_id) do
-    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: context_id}, page_opts, info)
+  # def tag_prepare(%{profile: %{name: name}} = tag, page_opts, info)
+  #     when not is_nil(name) do
+  #   Map.merge(
+  #     tag,
+  #     %{
+  #       name: name,
+  #       summary: tag.profile.summary
+  #     }
+  #   )
+  # end
+
+  def tag_prepare(%{category_id: category_id, id: mixin_id}, page_opts, info)
+      when is_nil(category_id) do
+    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: mixin_id}, page_opts, info)
   end
 
   #### MUTATIONS
@@ -157,7 +186,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   end
 
   @doc """
-  You can use `tag_thing/2` directly instead
+  Turn a Pointer into a Taggable. You can use `thing_attach_tags/2` to tag something with Pointers directly instead.
   """
   def make_pointer_taggable(%{context_id: pointer_id}, info) do
     Repo.transact_with(fn ->
@@ -168,10 +197,10 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     end)
   end
 
-  def tag_thing(%{thing_id: thing_id, taggable_id: taggable_id}, info) do
+  def thing_attach_tags(%{thing: thing_id, taggables: taggables}, info) do
     with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, tagged} = CommonsPub.Tag.TagThings.tag_thing(me, taggable_id, thing_id) do
-      {:ok, tagged}
+         {:ok, tagged} = CommonsPub.Tag.TagThings.thing_attach_tags(me, thing_id, taggables) do
+      {:ok, true}
     end
   end
 

@@ -38,26 +38,14 @@ defmodule CommonsPub.Tag.Taggable do
     many_to_many(:things, Pointers.Pointer,
       join_through: "tags_things",
       unique: true,
-      join_keys: [tag_id: :id, pointer_id: :id]
-      # on_replace: :update
+      join_keys: [tag_id: :id, pointer_id: :id],
+      on_replace: :delete
     )
   end
 
   def create_changeset(attrs) do
     %Taggable{}
     |> Changeset.cast(attrs, @required)
-    |> common_changeset()
-  end
-
-  def tag_things_changeset(
-        %Taggable{} = tag,
-        things
-      ) do
-    tag
-    |> Repo.preload(:things)
-    |> Changeset.change()
-    # Set the association
-    |> Ecto.Changeset.put_assoc(:things, things)
     |> common_changeset()
   end
 
@@ -75,6 +63,36 @@ defmodule CommonsPub.Tag.Taggable do
     # |> Changeset.foreign_key_constraint(:pointer_id, name: :tag_pointer_id_fkey)
     # |> change_public()
     # |> change_disabled()
+  end
+
+  @doc """
+  Add things (Pointer objects) to a tag. You usually want to add tags to a thing instead, see `thing_tags_changeset`
+  """
+  def tag_things_changeset(
+        %Taggable{} = tag,
+        things
+      ) do
+    tag
+    |> Repo.preload(:things)
+    |> Changeset.change()
+    # Set the association
+    |> Ecto.Changeset.put_assoc(:things, things)
+    |> common_changeset()
+  end
+
+  @doc """
+  Add tags to a thing (any Pointer object which defines a many_to_many relation to taggable). This function applies to your object schema but is here for convenience.
+  """
+  def thing_tags_changeset(
+        %{} = thing,
+        tags
+      ) do
+    thing
+    |> Repo.preload(:tags)
+    |> Changeset.change()
+    # Set the association
+    |> Ecto.Changeset.put_assoc(:tags, tags)
+    |> common_changeset()
   end
 
   def context_module, do: CommonsPub.Tag.Taggables

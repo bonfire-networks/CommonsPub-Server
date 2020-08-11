@@ -43,6 +43,10 @@ defmodule Geolocation.GraphQL do
     })
   end
 
+  def all_geolocations(page_opts, info) do
+    Geolocations.many()
+  end
+
   def geolocations(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,

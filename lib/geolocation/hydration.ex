@@ -28,6 +28,9 @@ defmodule Geolocation.GraphQL.Hydration do
         ],
         spatial_things_pages: [
           resolve: &Geolocation.GraphQL.geolocations/2
+        ],
+        spatial_things: [
+          resolve: &Geolocation.GraphQL.all_geolocations/2
         ]
       },
       geolocation_mutation: %{

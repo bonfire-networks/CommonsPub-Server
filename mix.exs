@@ -149,7 +149,8 @@ defmodule MoodleNet.Mixfile do
        git: "https://gitlab.com/moodlenet/servers/furlex",
        ref: "589c6a2e15e97606c53f86b466087192de3680fa"},
       # html parser
-      {:fast_html, "~> 1.0"},
+      # {:fast_html, "~> 1.0"},
+      {:html5ever, "~> 0.8"},
       # activitypub signing
       {
         :http_signatures,
@@ -173,7 +174,7 @@ defmodule MoodleNet.Mixfile do
         :pointers,
         # git: "https://github.com/commonspub/pointers.git", branch: "main"
         git: "https://github.com/mayel/pointers.git",
-        ref: "1bf408840c951d27b893bfc338e4cd913dbeed19"
+        ref: "5e46f61c185faa4cf16e57c10e241cee15a05d42"
         # path: "uploads/pointers"
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
