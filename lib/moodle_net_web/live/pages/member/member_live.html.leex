@@ -21,22 +21,29 @@
               </summary>
               <ul class="dropdown__list">
                 <li>
-                  <details class="dialog__container member">
-                    <summary class="button-link" >Report</summary>
-                    <dialog open class="dialog dialog__report">
-                      <header class="dialog__header">Report <%= @user.name %></header>
-                      <section class="dialog__content">
-                        <form>
-                          <textarea placeholder="Describe the reason..."></textarea>
-                          <footer class="dialog__footer">
-                            <button  value="default">Confirm</button>
-                          </footer>
-                        </form>
-                      </section>
-                    </dialog>
-                  </details>
+                  <%=
+                    live_component(
+                      @socket,
+                      MoodleNetWeb.Component.FlagLive,
+                      object: @user,
+                      current_user: @current_user,
+                      id: "flag-"<>@user.id,
+                      flag_object_name: @user.name
+                    )
+                  %>
                 </li>
-                <li><button class="button-link" >Block</button></li>
+                <li>
+                  <%=
+                    live_component(
+                      @socket,
+                      MoodleNetWeb.Component.BlockLive,
+                      object: @user,
+                      current_user: @current_user,
+                      id: "block-"<>@user.id,
+                      block_object_name: @user.name
+                    )
+                  %>
+                </li>
               </ul>
             </details>
           <% end %>
@@ -62,9 +69,9 @@
                 %>
           </div>
           <% @selected_tab == "timeline" ->  %>
-            <h3 class="area__title">timeline of activities by <%= @user.name %></h3>
-            <div class="selected__area">
-              <%= live_component(
+          <h3 class="area__title">timeline of activities by <%= @user.name %></h3>
+          <div class="selected__area">
+            <%= live_component(
                     @socket,
                     MemberActivitiesLive,
                     user: @user,
@@ -80,9 +87,9 @@
                   ) %>
           </div>
           <% @selected_tab == "likes" ->  %>
-            <h3 class="area__title">likes</h3>
-            <div class="selected__area">
-              <%= live_component(
+          <h3 class="area__title">likes</h3>
+          <div class="selected__area">
+            <%= live_component(
                     @socket,
                     MemberLikesLive,
                     user: @user,
@@ -131,6 +138,24 @@
                     after: [],
                     before: [],
                     pagination_target: "#member-discussions"
+                  ) %>
+          </div>
+          <% @selected_tab == "ads" ->  %>
+          <h3 class="area__title">Ads</h3>
+          <div class="selected__area">
+            <%= live_component(
+                    @socket,
+                    MemberAdsLive,
+                    user: @user,
+                    selected_tab: @selected_tab,
+                    id: :ads,
+                    current_user: @current_user,
+                    members: [],
+                    page: 1,
+                    has_next_page: false,
+                    after: [],
+                    before: [],
+                    pagination_target: "#member-ads"
                   ) %>
           </div>
           <% @selected_tab == "communities" ->  %>

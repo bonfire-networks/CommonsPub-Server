@@ -1,0 +1,35 @@
+defmodule MoodleNetWeb.Component.ResourcesListLive do
+  use MoodleNetWeb, :live_component
+  alias MoodleNetWeb.Component.{ResourcePreviewLive}
+
+  def render(assigns) do
+    ~L"""
+    <div
+    phx-update="append"
+    data-page="<%= @page %>"
+    class="selected__area">
+      <%= for resource <- @resources do %>
+        <%= live_component(
+              @socket,
+              ResourcePreviewLive,
+              id: "resource-preview-#{resource.id}",
+              resource: resource,
+              current_user: @current_user,
+              reply_link: nil
+            )
+          %>
+      <% end %>
+    </div>
+    <%= if @has_next_page do %>
+    <div class="pagination">
+      <button
+        class="button--outline"
+        phx-click="load-more"
+        phx-target="<%= @pagination_target %>">
+        load more
+      </button>
+    </div>
+    <% end %>
+    """
+  end
+end

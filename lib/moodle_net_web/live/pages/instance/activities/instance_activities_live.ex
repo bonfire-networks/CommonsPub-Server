@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   }
 
   def mount(params, session, socket) do
-    IO.inspect(socket, label: "SOCKET")
+    # IO.inspect(socket, label: "SOCKET")
     {
       :ok,
       socket

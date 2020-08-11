@@ -6,8 +6,10 @@ defmodule MoodleNetWeb.MemberLive do
 
   alias MoodleNetWeb.MemberLive.{
     MemberDiscussionsLive,
+    HeroProfileLive,
     MemberNavigationLive,
     MemberActivitiesLive,
+    MemberAdsLive,
     MemberCommunitiesLive,
     MemberFollowingLive,
     MemberLikesLive
@@ -15,7 +17,6 @@ defmodule MoodleNetWeb.MemberLive do
 
   alias MoodleNetWeb.Component.{
     # HeaderLive,
-    HeroProfileLive,
     AboutLive,
     TabNotFoundLive
   }
@@ -32,7 +33,7 @@ defmodule MoodleNetWeb.MemberLive do
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
-
+    # IO.inspect(socket.endpoint)
     user =
       Profiles.user_load(socket, params, %{
         image: true,
@@ -77,7 +78,7 @@ defmodule MoodleNetWeb.MemberLive do
         context: %{current_user: socket.assigns.current_user}
       })
 
-     IO.inspect(f)
+    #  IO.inspect(f)
 
     # TODO: error handling
 
@@ -91,7 +92,7 @@ defmodule MoodleNetWeb.MemberLive do
   def handle_event("unfollow", _data, socket) do
     uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.user.id)
 
-    IO.inspect(uf)
+    # IO.inspect(uf)
 
     # TODO: error handling
 

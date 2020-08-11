@@ -8,13 +8,12 @@
 
 #   import MoodleNetWeb.Test.GraphQLAssertions
 #   import MoodleNetWeb.Test.GraphQLFields
-#   import MoodleNet.Test.Trendy
+#   import CommonsPub.Utils.Trendy
 #   import MoodleNet.Test.Faking
 #   import Grumble
 #   import Zest
 
 #   import Measurement.Test.Faking
-
 
 #   describe "unit" do
 

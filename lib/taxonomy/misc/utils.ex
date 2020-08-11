@@ -1,7 +1,7 @@
 defmodule Taxonomy.Utils do
-  use ActivityPubWeb, :controller
+  use MoodleNetWeb, :controller
 
-  def test(conn, _params) do
+  def get(conn, _params) do
     s = "I a,m! the bÉst? 1"
     t = string_to_actor_name(s)
 

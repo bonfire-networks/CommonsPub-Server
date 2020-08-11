@@ -16,9 +16,11 @@ defmodule MoodleNet.ActivityPub.Adapter do
   @behaviour ActivityPub.Adapter
 
   def get_actor_by_username(username) do
+    # FIXME: this should be only one query
     with {:error, _e} <- Users.one([:default, username: username]),
          {:error, _e} <- Communities.one([:default, username: username]),
-         {:error, _e} <- Collections.one([:default, username: username]) do
+         {:error, _e} <- Collections.one([:default, username: username]),
+         {:error, _e} <- Character.Characters.one([:default, username: username]) do
       {:error, "not found"}
     end
   end
@@ -32,6 +34,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def get_actor_by_ap_id(ap_id) do
+    # FIXME: this should not query the AP db
     with {:ok, actor} <- ActivityPub.Actor.get_or_fetch_by_ap_id(ap_id),
          {:ok, actor} <- get_actor_by_username(actor.username) do
       {:ok, actor}
@@ -309,8 +312,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
            license: object.data["tag"],
            icon_id: icon_id,
            author: Utils.get_author(object.data["author"]),
-           categories: object.data["categories"],
-           tags: object.data["tags"]
+           subject: object.data["subject"],
+           level: object.data["level"],
+           language: object.data["language"]
          },
          {:ok, resource} <-
            MoodleNet.Resources.create(actor, collection, attrs) do

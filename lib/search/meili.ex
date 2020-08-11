@@ -53,7 +53,7 @@ defmodule Search.Meili do
   end
 
   def api(http_method, object, index_path) do
-    search_instance = System.get_env("SEARCH_MEILI_INSTANCE", "search:7700")
+    search_instance = System.get_env("SEARCH_MEILI_INSTANCE", "localhost:7700")
     api_key = System.get_env("MEILI_MASTER_KEY")
 
     url = "http://#{search_instance}/indexes" <> index_path

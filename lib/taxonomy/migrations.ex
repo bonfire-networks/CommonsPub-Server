@@ -7,6 +7,7 @@ defmodule Taxonomy.Migrations do
   alias MoodleNet.Repo
 
   @extension_path "lib/taxonomy"
+  @table "taxonomy_tag"
 
   def try_dotsql_execute(filename, mode) do
     path = "/opt/app/" <> filename
@@ -57,20 +58,25 @@ defmodule Taxonomy.Migrations do
 
   # cleanup deprecated stuff
   def remove_pointer do
-    table = "taxonomy_tag"
-
-    alter table(table) do
+    alter table(@table) do
       remove_if_exists(:pointer_id, :uuid)
     end
 
-    Pointers.Migration.drop_pointer_trigger(table)
-    MoodleNet.ReleaseTasks.remove_meta_table(table)
+    Pointers.Migration.drop_pointer_trigger(@table)
+    CommonsPub.ReleaseTasks.remove_meta_table(@table)
+  end
+
+  def add_category do
+    alter table(@table) do
+      add_if_not_exists(:category_id, :uuid)
+    end
   end
 
   def up do
-    execute("DROP TABLE IF EXISTS taxonomy_tags CASCADE")
+    execute("DROP TABLE IF EXISTS " <> @table <> " CASCADE")
     try_dotsql_execute("tags.schema.sql", :migration)
     ingest_data(:migration)
+    add_category()
   end
 
   def ingest_data(mode) do

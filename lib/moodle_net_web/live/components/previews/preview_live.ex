@@ -6,17 +6,29 @@ defmodule MoodleNetWeb.Component.PreviewLive do
   alias MoodleNetWeb.Component.CommentPreviewLive
   alias MoodleNetWeb.Component.LikePreviewLive
   alias MoodleNetWeb.Component.CommunityPreviewLive
+  alias MoodleNetWeb.Component.CollectionPreviewLive
   alias MoodleNetWeb.Component.UnknownPreviewLive
 
   def render(assigns) do
     ~L"""
+    <div id="preview-<%=@preview_id%>">
     <%=
+      IO.inspect(preview_object_type: @object_type)
+      # IO.inspect(preview_object: @object)
       cond do
           @object_type == "community" ->
             live_component(
               @socket,
               CommunityPreviewLive,
               community: @object,
+              current_user: @current_user,
+              id: @preview_id
+            )
+          @object_type == "collection" ->
+            live_component(
+              @socket,
+              CollectionPreviewLive,
+              collection: @object,
               current_user: @current_user,
               id: @preview_id
             )
@@ -44,6 +56,22 @@ defmodule MoodleNetWeb.Component.PreviewLive do
                 current_user: @current_user,
                 id: @preview_id
               )
+            @object_type == "flag" ->
+              live_component(
+                @socket,
+                MoodleNetWeb.Component.FlagPreviewLive,
+                flag: @object,
+                current_user: @current_user,
+                id: @preview_id
+              )
+            @object_type == "category" ->
+              live_component(
+                @socket,
+                MoodleNetWeb.Component.CategoryPreviewLive,
+                object: @object,
+                current_user: @current_user,
+                id: @preview_id
+              )
             true ->
               live_component(
                 @socket,
@@ -54,6 +82,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
               )
           end
          %>
+      </div>
     """
   end
 end

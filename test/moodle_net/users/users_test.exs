@@ -9,12 +9,14 @@ defmodule MoodleNet.UsersTest do
   alias MoodleNet.{Users, Access}
   alias MoodleNet.Access.NoAccessError
   alias MoodleNet.Common.NotFoundError
+
   alias MoodleNet.Users.{
     TokenAlreadyClaimedError,
     TokenExpiredError,
-    User,
+    User
   }
-  alias MoodleNet.Test.Fake
+
+  alias CommonsPub.Utils.Simulation
 
   def assert_user_equal(user, attrs) do
     assert user.name == attrs.name
@@ -34,31 +36,29 @@ defmodule MoodleNet.UsersTest do
 
     test "by username" do
       user = fake_user!()
-      assert {:ok, fetched} =
-        Users.one(preset: :actor, username: user.actor.preferred_username)
+      assert {:ok, fetched} = Users.one(preset: :actor, username: user.actor.preferred_username)
       assert fetched.id == user.id
       assert fetched.actor.preferred_username
     end
 
     test "by email" do
       user = fake_user!()
-      assert {:ok, fetched} =
-        Users.one(preset: :local_user, email: user.local_user.email)
+      assert {:ok, fetched} = Users.one(preset: :local_user, email: user.local_user.email)
       assert fetched.id == user.id
       assert fetched.actor.preferred_username
     end
 
     test "fails for missing" do
-      assert {:error, %NotFoundError{}} = Users.one(id: Fake.ulid())
+      assert {:error, %NotFoundError{}} = Users.one(id: Simulation.ulid())
     end
   end
 
   describe "register/1" do
     test "creates a user account with valid attrs when public registration is enabled" do
       Repo.transaction(fn ->
-        attrs = Fake.user()
+        attrs = Simulation.user()
         assert {:ok, user} = Users.register(attrs, public_registration: true)
-        assert_user_equal user, attrs
+        assert_user_equal(user, attrs)
         assert [token] = user.local_user.email_confirm_tokens
         assert nil == token.confirmed_at
       end)
@@ -66,7 +66,7 @@ defmodule MoodleNet.UsersTest do
 
     test "creates a user account with valid attrs when email allowed" do
       Repo.transaction(fn ->
-        attrs = Fake.actor(Fake.user())
+        attrs = Simulation.actor(Simulation.user())
         assert {:ok, _} = Access.create_register_email(attrs.email)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
         assert_user_equal(user, attrs)
@@ -78,11 +78,11 @@ defmodule MoodleNet.UsersTest do
 
     test "creates a user account with valid attrs when domain is denied" do
       Repo.transaction(fn ->
-        attrs = Fake.actor(Fake.user())
+        attrs = Simulation.actor(Simulation.user())
         [_, domain] = String.split(attrs.email, "@", parts: 2)
         assert {:ok, _} = Access.create_register_email_domain(domain)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
-        assert_user_equal user, attrs
+        assert_user_equal(user, attrs)
 
         assert [token] = user.local_user.email_confirm_tokens
         assert nil == token.confirmed_at
@@ -95,8 +95,8 @@ defmodule MoodleNet.UsersTest do
 
         attrs =
           %{preferred_username: user.actor.preferred_username}
-          |> Fake.user()
-          |> Fake.actor()
+          |> Simulation.user()
+          |> Simulation.actor()
 
         assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
       end)
@@ -108,8 +108,8 @@ defmodule MoodleNet.UsersTest do
 
         attrs =
           %{preferred_username: String.upcase(user.actor.preferred_username)}
-          |> Fake.user()
-          |> Fake.actor()
+          |> Simulation.user()
+          |> Simulation.actor()
 
         assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
       end)
@@ -121,8 +121,8 @@ defmodule MoodleNet.UsersTest do
 
         attrs =
           %{email: user.local_user.email}
-          |> Fake.user()
-          |> Fake.actor()
+          |> Simulation.user()
+          |> Simulation.actor()
 
         assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
       end)
@@ -130,7 +130,7 @@ defmodule MoodleNet.UsersTest do
 
     test "fails if given invalid attributes" do
       Repo.transaction(fn ->
-        invalid_attrs = Map.delete(Fake.user(), :email)
+        invalid_attrs = Map.delete(Simulation.user(), :email)
         assert {:error, changeset} = Users.register(invalid_attrs, public_registration: true)
         assert Keyword.get(changeset.errors, :email)
       end)
@@ -138,10 +138,9 @@ defmodule MoodleNet.UsersTest do
 
     test "fails if the user's email is not denied - email allowed" do
       Repo.transaction(fn ->
-        attrs = Fake.actor(Fake.user())
+        attrs = Simulation.actor(Simulation.user())
 
-        assert {:error, %NoAccessError{}} =
-                 Users.register(attrs, public_registration: false)
+        assert {:error, %NoAccessError{}} = Users.register(attrs, public_registration: false)
       end)
     end
   end
@@ -224,7 +223,7 @@ defmodule MoodleNet.UsersTest do
   describe "update/2" do
     test "updates attributes of user and relations" do
       user = fake_user!()
-      attrs = Fake.user()
+      attrs = Simulation.user()
       assert {:ok, user} = Users.update(user, attrs)
       assert user.name == attrs.name
       assert user.local_user.email == attrs.email

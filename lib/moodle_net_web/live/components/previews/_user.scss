@@ -19,13 +19,14 @@
 }
 
 .user__preview:hover {
-  background-color: aliceblue;
+  background-color: var(--color-border);
 }
 
 .user__preview .preview__image {
   width: 48px;
   height: 48px;
   border-radius: 48px;
+  background-size: contain;
 }
 
 .user__preview .preview__info {
@@ -37,7 +38,7 @@
   margin-left: var(--m2);
   letter-spacing: 0.5px;
   font-size: 16px;
-  color: var(--darker);
+  color: var(--color-text);
 }
 
 .user__preview .preview__info h4 {
@@ -45,6 +46,6 @@
   margin: 0;
   margin-left: var(--m2);
   font-size: 13px;
-  color: var(--color-surface);
+  color: var(--color-text-subtle);
   margin-top: var(--m1);
 }

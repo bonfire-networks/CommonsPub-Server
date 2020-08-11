@@ -1,0 +1,10 @@
+.link__inputs_extra {
+  display: flex;
+  margin-top: var(--m3);
+  padding: var(--m2);
+  background: var(--color-secondary);
+  border-radius: 6px;
+  textarea {
+    margin: 8px 0
+  }
+}

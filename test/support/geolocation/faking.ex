@@ -4,45 +4,12 @@
 defmodule Geolocation.Test.Faking do
   @moduledoc false
 
+  import CommonsPub.Utils.Simulation
   import Grumble
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  alias MoodleNet.Test.Fake
-  alias Geolocation.Geolocations
 
-  ## Geolocation
-
-  def geolocation(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:name, &Fake.name/0)
-    |> Map.put_new_lazy(:note, &Fake.summary/0)
-    |> Map.put_new_lazy(:lat, &Fake.integer/0)
-    |> Map.put_new_lazy(:long, &Fake.integer/0)
-    |> Map.put_new_lazy(:is_public, &Fake.truth/0)
-    |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
-    |> Map.merge(Fake.actor(base))
-  end
-
-  def geolocation_input(base \\ %{}) do
-    base
-    |> Map.put_new_lazy("name", &Fake.name/0)
-    |> Map.put_new_lazy("note", &Fake.summary/0)
-    |> Map.put_new_lazy("lat", &Fake.integer/0)
-    |> Map.put_new_lazy("long", &Fake.integer/0)
-  end
-
-  def fake_geolocation!(user, context \\ nil, overrides  \\ %{})
-
-  def fake_geolocation!(user, context, overrides) when is_nil(context) do
-    {:ok, geolocation} = Geolocations.create(user, geolocation(overrides))
-    geolocation
-  end
-
-  def fake_geolocation!(user, context, overrides) do
-    {:ok, geolocation} = Geolocations.create(user, context, geolocation(overrides))
-    geolocation
-  end
-
+  import Geolocation.Simulate
 
   ## assertions
 
@@ -51,13 +18,13 @@ defmodule Geolocation.Test.Faking do
   end
 
   def assert_geolocation(geo) do
-    assert_object geo, :assert_geolocation,
-      [id: &assert_ulid/1,
-       name: &assert_binary/1,
-       note: assert_optional(&assert_binary/1),
-       lat: assert_optional(&assert_float/1),
-       long: assert_optional(&assert_float/1),
-      ]
+    assert_object(geo, :assert_geolocation,
+      id: &assert_ulid/1,
+      name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      lat: assert_optional(&assert_float/1),
+      long: assert_optional(&assert_float/1)
+    )
   end
 
   ## graphql queries
@@ -97,5 +64,14 @@ defmodule Geolocation.Test.Faking do
   def update_geolocation_submutation(options \\ []) do
     [spatial_thing: var(:spatial_thing)]
     |> gen_submutation(:update_spatial_thing, &geolocation_mutation_fields/1, options)
+  end
+
+  def delete_geolocation_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_geolocation_submutation/1, options)
+  end
+
+  def delete_geolocation_submutation(_options \\ []) do
+    field(:delete_spatial_thing, args: [id: var(:id)])
   end
 end

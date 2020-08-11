@@ -22,74 +22,47 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
-  def context_edge(%{context_id: id}, _, %{context: %{schema: _schema}} = info) do
-    context_edge =
-      ResolveFields.run(%ResolveFields{
-        module: __MODULE__,
-        fetcher: :fetch_context_edge,
-        context: id,
-        info: info
-      })
-
-    # IO.inspect(context_edge: context_edge)
-    context_edge
-  end
-
-  @doc """
-  Fetch a context without batching
-  """
-  def context_edge(%{context_id: id}, _, _) do
-    fetch_context_edge(nil, id).data[id]
+  def context_edge(%{context_id: id}, _, info) do
+    ResolveFields.run(%ResolveFields{
+      module: __MODULE__,
+      fetcher: :fetch_context_edge,
+      context: id,
+      info: info
+    })
   end
 
   def fetch_context_edge(_, ids) do
-    # IO.inspect(context_ids: ids)
-    flattened_ids = flatten(ids)
-    # IO.inspect(flattened: flattened_ids)
-    {:ok, ptrs} = Pointers.many(id: flattened_ids)
-    # IO.inspect(context_ptrs: ptrs)
-    ptsd = Pointers.follow!(ptrs)
-    # IO.inspect(context_ptsd: ptsd)
-    edge = Fields.new(ptsd, &Map.get(&1, :id))
-    # IO.inspect(edge: edge)
-    edge
+    {:ok, ptrs} = Pointers.many(id: List.flatten(ids))
+    Fields.new(Pointers.follow!(ptrs), &Map.get(&1, :id))
   end
 
   def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
-    context_edges =
-      ResolvePages.run(%ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_context_edges,
-        context: ids,
-        page_opts: page_opts,
-        info: info
-      })
 
-    # IO.inspect(context_edges: context_edges)
-    context_edges
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_context_edges,
+      context: ids,
+      page_opts: page_opts,
+      info: info
+    })
+  end
+
+  def fetch_context_edges(_page_opts, _info, pointers)
+      when is_list(pointers) and length(pointers) > 0 and is_struct(hd(pointers)) do
+    # means we're already being passed pointers? instead of ids
+    follow_context_edges(pointers)
   end
 
   def fetch_context_edges(_page_opts, _info, ids) do
-    # IO.inspect(context_ids: ids)
-    flattened_ids = flatten(ids)
-    # IO.inspect(flattened: flattened_ids)
-    {:ok, ptrs} = Pointers.many(id: flattened_ids)
-    # IO.inspect(context_ptrs: ptrs)
-    ptsd = Pointers.follow!(ptrs)
-    # IO.inspect(context_ptsd: ptsd)
-    {:ok, ptsd}
-    # edge = Fields.new(ptsd, &Map.get(&1, :id))
-    # IO.inspect(edge: edge)
-    # edge
+    flattened_ids = List.flatten(ids)
+    {:ok, pointers} = Pointers.many(id: flattened_ids)
+    follow_context_edges(pointers)
   end
 
-  @doc """
-  Flattens a list by recursively flattening the head and tail of the list
-  TODO: move to utlity module
-  """
-  def flatten([head | tail]), do: flatten(head) ++ flatten(tail)
-  def flatten([]), do: []
-  def flatten(element), do: [element]
+  def follow_context_edges(pointers) do
+    contexts = Pointers.follow!(pointers)
+    {:ok, contexts}
+  end
 
   # defp preload_context(%{context: %NotLoaded{}}=me), do: Repo.preload(me, :context)
   # defp preload_context(%{context: %{}}=me), do: me
@@ -101,23 +74,23 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   # def loaded_context(other), do: other
 
   # def tag(%{tag_id: id}, info) do
-  #   {:ok, Fake.tag()}
+  #   {:ok, Simulation.tag()}
   #   |> GraphQL.response(info)
   # end
   # def tag_category(%{tag_category_id: id}, info) do
-  #   {:ok, Fake.tag_category()}
+  #   {:ok, Simulation.tag_category()}
   #   |> GraphQL.response(info)
   # end
   # def tag_category(_, _, info) do
-  #   {:ok, Fake.tag_category()}
+  #   {:ok, Simulation.tag_category()}
   #   |> GraphQL.response(info)
   # end
   # def tagging(%{tagging_id: id}, info) do
-  #   {:ok, Fake.tagging()}
+  #   {:ok, Simulation.tagging()}
   #   |> GraphQL.response(info)
   # end
   # def taggings(_, _, info) do
-  #   {:ok, Fake.long_edge_list(&Fake.tagging/0)}
+  #   {:ok, Simulation.long_edge_list(&Simulation.tagging/0)}
   #   |> GraphQL.response(info)
   # end
 
@@ -155,17 +128,17 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   defp allow_user_delete?(_, _), do: false
 
   # def tag(_, _, info) do
-  #   {:ok, Fake.tag()}
+  #   {:ok, Simulation.tag()}
   #   |> GraphQL.response(info)
   # end
 
   # def create_tagging(_, info) do
-  #   {:ok, Fake.tagging()}
+  #   {:ok, Simulation.tagging()}
   #   |> GraphQL.response(info)
   # end
 
   # def tags(parent, _, info) do
-  #   {:ok, Fake.long_edge_list(&Fake.tagging/0)}
+  #   {:ok, Simulation.long_edge_list(&Simulation.tagging/0)}
   #   |> GraphQL.response(info)
   # end
 end

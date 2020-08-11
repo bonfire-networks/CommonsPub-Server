@@ -2,7 +2,6 @@
 // The MiniCssExtractPlugin is used to separate it out into
 // its own CSS file.
 import "../css/app.scss";
-// import "../node_modules/prosemirror-view/style/prosemirror.css";
 
 // webpack automatically bundles all modules in your
 // entry points. Those entry points can be configured
@@ -26,104 +25,16 @@ Hooks.TagPick = {
     console.log("TagPick mounted");
     this.el.addEventListener("click", (e) => {
       console.log("tag clicked");
-      if (this.el.dataset.target && this.el.dataset.prefix) {
-        console.log("prefix: " + this.el.dataset.prefix);
-        console.log("tag: " + this.el.dataset.tag);
-        const f = document.getElementById(this.el.dataset.target);
-        var ta = f.value.split(this.el.dataset.prefix);
-        console.log(ta);
-        ta.pop();
-        ta.push(this.el.dataset.tag + " "); // terminate with space
-        f.value = ta.join(this.el.dataset.prefix);
-        document.getElementById("autocomplete-dropdown").innerHTML = "";
-      }
+      var prefix = this.el.dataset.prefix || "@";
+      var f = document.getElementById(this.el.dataset.target || "content");
+      var dropdown =
+        this.el.parentNode.parentNode || document.getElementById("write_tag");
+      var ta = f.value.split(prefix);
+      ta.pop();
+      ta.push(this.el.dataset.tag + " "); // terminate with space
+      f.value = ta.join(prefix);
+      dropdown.innerHTML = "";
     });
-  },
-};
-
-import { EditorView } from "prosemirror-view";
-import { EditorState } from "prosemirror-state";
-import {
-  schema,
-  defaultMarkdownParser,
-  defaultMarkdownSerializer,
-} from "prosemirror-markdown";
-import { exampleSetup } from "prosemirror-example-setup";
-// import { inputRules, InputRule } from "prosemirror-inputrules";
-
-var md_view = null;
-var md_last_content = null;
-
-Hooks.MarkdownEditor = {
-  mounted() {
-    console.log("MarkdownEditor ready");
-
-    const el_md = document.getElementById("editor-markdown");
-    const el_raw = document.getElementById("content");
-    const style_switch = document.getElementById("editor-style");
-
-    class ProseMirrorView {
-      constructor(target, content) {
-        let view = new EditorView(target, {
-          state: EditorState.create({
-            doc: defaultMarkdownParser.parse(content),
-            plugins: exampleSetup({ schema }),
-          }),
-          dispatchTransaction(tr) {
-            view.updateState(view.state.apply(tr));
-            //current state value:
-            var cur_content = defaultMarkdownSerializer.serialize(
-              view.state.doc
-            );
-            if (md_last_content != cur_content) {
-              // console.log("edited: " + cur_content);
-              el_raw.value = cur_content;
-              md_last_content = cur_content;
-            }
-          },
-        });
-        this.view = view;
-      }
-
-      get content() {
-        return defaultMarkdownSerializer.serialize(this.view.state.doc);
-      }
-      focus() {
-        this.view.focus();
-      }
-      destroy() {
-        this.view.destroy();
-      }
-    }
-
-    function enable_markdown() {
-      console.log("enable md with:");
-      console.log(el_raw.value);
-      el_raw.style.display = "none";
-      // el_raw.style.visibility = "hidden";
-
-      md_view = new ProseMirrorView(el_md, el_raw.value);
-      md_view.focus();
-    }
-
-    style_switch.addEventListener("change", () => {
-      if (!style_switch.checked) {
-        console.log("disable md with:");
-        console.log(md_view.content);
-        el_raw.value = md_view.content;
-        md_view.destroy();
-        el_raw.style.display = "block";
-        // el_raw.style.visibility = "visible";
-        el_raw.focus();
-      } else {
-        // visual
-        enable_markdown();
-      }
-    });
-
-    // now enable markdown
-    // style_switch.checked = true;
-    // enable_markdown(); // with does checking not suffise?
   },
 };
 
@@ -163,6 +74,20 @@ let liveSocket = new LiveSocket("/live", Socket, {
 });
 
 console.log(csrfToken);
+
+// wip for theme swtiching
+// const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+
+// function switchTheme(e) {
+//     if (e.target.checked) {
+//         document.documentElement.setAttribute('data-theme', 'light');
+//     }
+//     else {
+//         document.documentElement.setAttribute('data-theme', 'dark');
+//     }
+// }
+
+// toggleSwitch.addEventListener('change', switchTheme, false);
 
 // Show progress bar on live navigation and form submits
 window.addEventListener("phx:page-loading-start", (info) => NProgress.start());

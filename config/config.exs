@@ -31,6 +31,8 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
+alias Measurement.Unit.Units
+
 hostname = System.get_env("HOSTNAME", "localhost")
 
 # LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
@@ -86,13 +88,15 @@ config :moodle_net, Communities,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
+config :moodle_net, Resources, valid_contexts: [Collection, Community, User]
+
 config :moodle_net, Features, valid_contexts: [Collection, Community]
 
 config :moodle_net, Flags,
-  valid_contexts: [Collection, Comment, Community, Resource, User, Circle, Character]
+  valid_contexts: [Collection, Comment, Community, Resource, User, Organisation, Character]
 
 config :moodle_net, Follows,
-  valid_contexts: [Collection, Community, Thread, User, Geolocation, Circle, Character]
+  valid_contexts: [Collection, Community, Thread, User, Geolocation, Organisation, Character]
 
 config :moodle_net, Likes, valid_contexts: [Collection, Community, Comment, Resource]
 
@@ -103,7 +107,7 @@ config :moodle_net, Threads,
     Flag,
     Resource,
     User,
-    Circle,
+    Organisation,
     Character,
     ValueFlows.Planning.Intent
   ]
@@ -113,12 +117,12 @@ config :moodle_net, Users,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Units, valid_contexts: [Circle, Community, Collection]
+config :moodle_net, Units, valid_contexts: [Organisation, Community, Collection]
 
-config :moodle_net, Circle, valid_contexts: [Circle, Community, Collection]
+config :moodle_net, Organisation, valid_contexts: [Organisation, Community, Collection]
 
 config :moodle_net, Character,
-  valid_contexts: [Character, Circle, Community, Collection],
+  valid_contexts: [Character, Organisation, Community, Collection],
   default_outbox_query_contexts: [
     Collection,
     Character,
@@ -263,13 +267,13 @@ config :phoenix, :json_library, Jason
 
 config :furlex, Furlex.Oembed, oembed_host: "https://oembed.com"
 
-config :tesla, adapter: Tesla.Adapter.Hackney
+config :tesla, adapter: Tesla.Adapter.Gun
 
 config :http_signatures, adapter: ActivityPub.Signature
 
 config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 
-config :floki, :html_parser, Floki.HTMLParser.FastHtml
+config :floki, :html_parser, Floki.HTMLParser.Html5ever
 
 config :sentry,
   enable_source_code_context: true,
@@ -283,8 +287,24 @@ config :pointers,
   trigger_function: "insert_pointer",
   trigger_prefix: "insert_pointer_"
 
-config :pointers, Pointers.Pointer, source: "mn_pointer"
+config :pointers, Pointers.Pointer,
+  source: "mn_pointer",
+  many_to_many: [
+    tags: {
+      CommonsPub.Tag.Taggable,
+      join_through: "tags_things",
+      unique: true,
+      join_keys: [pointer_id: :id, tag_id: :id],
+      on_replace: :delete
+    }
+  ]
+
 config :pointers, Pointers.Table, source: "mn_table"
+
+config :moodle_net, :ux,
+  # prosemirror or ck5 as content editor:
+  # editor: "prosemirror"
+  editor: "ck5"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

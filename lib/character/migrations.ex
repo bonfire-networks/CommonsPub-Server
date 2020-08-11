@@ -15,8 +15,8 @@ defmodule Character.Migrations do
       add(:facet, :string)
       add(:inbox_id, references("mn_feed", on_delete: :nilify_all))
       add(:outbox_id, references("mn_feed", on_delete: :nilify_all))
-      add(:name, :string)
-      add(:summary, :text)
+      # add(:name, :string)
+      # add(:summary, :text)
       add(:extra_info, :map)
       add(:icon_id, references(:mn_content))
       add(:image_id, references(:mn_content))
@@ -37,7 +37,7 @@ defmodule Character.Migrations do
 
     :ok =
       execute("""
-      create view character_last_activity as
+      create or replace view character_last_activity as
       select character.id as character_id, max(mn_feed_activity.id) as activity_id
       from character left join mn_feed_activity
       on character.outbox_id = mn_feed_activity.feed_id

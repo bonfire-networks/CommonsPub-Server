@@ -38,14 +38,32 @@
 }
 
 #community-discussions {
-  margin: -16px;
+  margin: 0 -16px;
 }
 
 .community__discussion__actions {
-  margin-bottom: var(--m2);
+  margin: 16px -16px 0;
+  padding: 0 16px 16px;
   display: flex;
+  border-bottom: var(--border);
   input {
     flex: 1;
     margin-right: var(--m3);
   }
+}
+
+.community__write {
+  margin: 0 auto;
+  margin-top: 24px;
+}
+
+#community-collections {
+  margin: 0 -16px;
+  margin-bottom: -16px;
+  .preview__wrapper {
+    .collection__preview {
+      width: 100%;
+    }
+  }
+
 }

@@ -193,6 +193,21 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
 
   ### mutations
 
+  def create_community(%{community: attrs, context_id: context_id}, info)
+      when is_nil(context_id) or context_id == "" do
+    create_community(%{community: attrs}, info)
+  end
+
+  def create_community(%{community: attrs, context_id: context_id} = params, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
+         #  :ok <- validate_context(pointer),
+         context = MoodleNet.Meta.Pointers.follow!(pointer),
+         {:ok, uploads} <- UploadResolver.upload(user, params, info) do
+      Communities.create(user, context, Map.merge(attrs, uploads))
+    end
+  end
+
   def create_community(%{community: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(user, params, info) do

@@ -1,0 +1,196 @@
+<div id="<%=e(@collection, :id, "")%>" class="page__fullContent">
+  <section class="page__community">
+    <div class="community__hero">
+      <div class="suphero">
+        <div class="suphero__left">
+          <%= live_patch to: "/+" <> e(@collection, :actor, :preferred_username, "deleted") <> "/about" do %>
+            <div class="named-avatar">
+              <svg width="40" height="40" viewBox="0 0 40 40" focusable="false" class="mc-icon mc-icon-template-content mc-icon-template-content--folder-small brws-file-name-cell-icon" role="img"><g fill="none" fill-rule="evenodd"><path d="M18.422 11h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 32 5 31.331 5 30.507V9.493C5 8.663 5.671 8 6.5 8h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#71B9F4"></path><path d="M18.422 10h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 31 5 30.331 5 29.507V8.493C5 7.663 5.671 7 6.5 7h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#92CEFF"></path></g></svg>
+              <h3><%= @collection.name %></h3>
+            </div>
+          <% end %>
+        </div>
+        <div class="suphero__actions">
+          <%= if @collection.is_followed do %>
+            <button class="button follow" phx-click="unfollow">Followed</button>
+            <%= if @collection.creator_id==@current_user.id do %>
+              <details class="dialog__container">
+                <summary class="button button__edit__community">Edit</summary>
+                <dialog open class="dialog dialog__create">
+                  <header class="dialog__header">Edit community</header>
+                  <section class="dialog__content">
+                    <form phx-submit="edit_community">
+                      <input name="name" value="<%= @collection.name %>" placeholder="Type the collection name..." />
+<textarea name="summary" placeholder="Describe your collection..."><%= @collection.summary %></textarea>
+<footer class="dialog__footer">
+  <button value="default">Confirm</button>
+</footer>
+</form>
+</section>
+</dialog>
+</details>
+<% end %>
+<% else %>
+  <button class="button follow" phx-click="follow">Follow</button>
+<% end %>
+<details class="more__dropdown">
+  <summary>
+    <i class="feather-more-horizontal"></i>
+  </summary>
+  <ul class="dropdown__list">
+    <li>
+      <%=
+        live_component(
+          @socket,
+          MoodleNetWeb.Component.FlagLive,
+          object: @collection,
+          current_user: @current_user,
+          id: "flag-"<>@collection.id,
+          flag_object_name: @collection.name
+        )
+      %>
+    </li>
+    <li>
+      <%=
+          live_component(
+            @socket,
+            MoodleNetWeb.Component.BlockLive,
+            object: @collection,
+            current_user: @current_user,
+            id: "block-"<>@collection.id,
+            block_object_name: @collection.name
+          )
+        %>
+    </li>
+  </ul>
+</details>
+</div>
+</div>
+</div>
+<%= if @selected_tab == "write" do %>
+  <div class="mainContent__all community__write">
+    <h3 class="area__title">Start a new discussion</h3>
+  <% else %>
+    <div class="community__layout">
+      <%= cond do %>
+        <% @selected_tab == "about" ->  %>
+        <div class="mainContent__selected">
+          <div class="selected__area">
+            <%= live_component(
+                @socket,
+                AboutLive,
+                description: @collection.summary
+              )
+            %>
+          </div>
+        </div>
+        <% @selected_tab == "timeline" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">timeline</h3>
+          <%= live_component(
+            @socket,
+            CollectionActivitiesLive,
+            collection: @collection,
+            selected_tab: @selected_tab,
+            id: :timeline,
+            current_user: @current_user,
+            activities: [],
+            page: 1,
+            has_next_page: false,
+            after: [],
+            before: [],
+            pagination_target: "#collection-activities"
+          ) %>
+        </div>
+        <% @selected_tab == "resources" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">Resources</h3>
+          <%= live_component(
+              @socket,
+              CollectionResourcesLive,
+              collection: @collection,
+              selected_tab: @selected_tab,
+              id: :resources,
+              current_user: @current_user,
+              resources: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#collection-activities"
+            ) %>
+        </div>
+        <% @selected_tab == "discussions" ->  %>
+        <%= live_component(
+                    @socket,
+                    CollectionDiscussionsLive,
+                    collection: @collection,
+                    selected_tab: @selected_tab,
+                    id: :discussions,
+                    current_user: @current_user,
+                    threads: [],
+                    page: 1,
+                    has_next_page: false,
+                    after: [],
+                    before: [],
+                    pagination_target: "#collection-threads"
+                  ) %>
+        <% @selected_tab == "followers" ->  %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">Followers</h3>
+          <%= live_component(
+                      @socket,
+                      CollectionFollowersLive,
+                      collection: @collection,
+                      selected_tab: @selected_tab,
+                      id: :followers,
+                      current_user: @current_user,
+                      followers: [],
+                      page: 1,
+                      has_next_page: false,
+                      after: [],
+                      before: [],
+                      pagination_target: "#collections-followers"
+                    ) %>
+        </div>
+        <% true -> %>
+        <div class="mainContent__selected">
+          <%= live_component(
+                        @socket,
+                        TabNotFoundLive
+                    ) %>
+        </div>
+      <% end %>
+      <div class="community__navigation">
+        <%= live_component(
+                @socket,
+                MoodleNetWeb.Component.ContextLive,
+                object: @collection,
+                current_user: @current_user
+              )%>
+        <%= live_patch link_body("About", "feather-book-open"),
+          to: "/+" <> @collection.actor.preferred_username <> "/about",
+          class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
+        %>
+        <%= live_patch link_body("Timeline","feather-activity"),
+          to: "/+" <> @collection.actor.preferred_username <>  "/timeline",
+          class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
+        %>
+        <%= live_patch link_body("Resources","feather-file"),
+          to: "/+" <> @collection.actor.preferred_username <>  "/resources",
+          class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
+        %>
+        <%= live_patch link_body("Discussions","feather-message-square"),
+          to: "/+" <> @collection.actor.preferred_username <>  "/discussions",
+          class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
+        %>
+        <%= live_patch link_body("Followers", "feather-users"),
+          to: "/+" <> @collection.actor.preferred_username <>  "/followers",
+          class: if @selected_tab == "followers", do: "navigation__item active", else: "navigation__item"
+        %>
+      </div>
+    </div>
+  <% end %>
+</div>
+</section>
+</div>

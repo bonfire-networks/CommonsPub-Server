@@ -90,8 +90,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
            "tag" => resource.license,
            "author" => Utils.create_author_object(resource),
            #  "mediaType" => resource.content.media_type
-           "categories" => resource.categories,
-           "tags" => resource.tags
+           "subject" => Map.get(resource, :subject),
+           "level" => Map.get(resource, :level),
+           "language" => Map.get(resource, :language)
          },
          params = %{
            actor: actor,
@@ -168,9 +169,10 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def follow(follow) do
     follow = Repo.preload(follow, creator: :actor, context: [:table])
 
-    with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
+    with {:ok, follower} <-
+           Actor.get_cached_by_username(the_actor(follow.creator).preferred_username),
          followed = Pointers.follow!(follow.context),
-         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
+         {:ok, followed} <- Actor.get_or_fetch_by_username(the_actor(followed).preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
         MoodleNet.Follows.soft_delete(follow.creator, follow)
         {:error, "account is private"}
@@ -181,6 +183,21 @@ defmodule MoodleNet.ActivityPub.Publisher do
     else
       e -> {:error, e}
     end
+  end
+
+  def the_actor(%{actor: _} = obj) do
+    Repo.preload(obj, :actor)
+    obj.actor
+  end
+
+  def the_actor(%{character: %{actor: _} = character}) do
+    character = Repo.preload(character, :actor)
+    character.actor
+  end
+
+  def the_actor(%{character: character}) do
+    character = Repo.preload(character, :actor)
+    character.actor
   end
 
   def unfollow(follow) do

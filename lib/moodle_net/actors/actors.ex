@@ -133,7 +133,7 @@ defmodule MoodleNet.Actors do
     display_username(obj, "+")
   end
 
-  def display_username(%Tag.Taggable{} = obj) do
+  def display_username(%CommonsPub.Tag.Taggable{} = obj) do
     display_username(obj, "+")
   end
 

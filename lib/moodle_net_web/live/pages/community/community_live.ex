@@ -9,12 +9,13 @@ defmodule MoodleNetWeb.CommunityLive do
     CommunityDiscussionsLive,
     CommunityMembersLive,
     # CommunityNavigationLive,
+    CommunityCollectionsLive,
+    CommunityWriteLive,
     CommunityActivitiesLive
   }
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
-    HeroProfileLive,
     AboutLive,
     TabNotFoundLive
   }
@@ -43,32 +44,49 @@ defmodule MoodleNetWeb.CommunityLive do
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     community =
-      Communities.community_load(socket, params,
-        %{icon: true,
-          image: true,
-          actor: true,
-          is_followed_by: socket.assigns.current_user})
-
-    IO.inspect(community, label: "COMMUNITY")
+      Communities.community_load(socket, params, %{
+        icon: true,
+        image: true,
+        actor: true,
+        is_followed_by: socket.assigns.current_user
+      })
 
     {:noreply,
      assign(socket,
        selected_tab: tab,
        community: community,
+       current_context: community,
        current_user: socket.assigns.current_user
      )}
   end
 
+  def handle_params(%{} = params, url, socket) do
+    community =
+      Communities.community_load(socket, params, %{
+        icon: true,
+        image: true,
+        actor: true,
+        is_followed_by: socket.assigns.current_user
+      })
 
+    # IO.inspect(community, label: "community")
+
+    {:noreply,
+     assign(socket,
+       community: community,
+       current_context: community,
+       current_user: socket.assigns.current_user
+     )}
+  end
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
     {:ok, flag} =
       MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
-        %{context_id: socket.assigns.community.id,
-          message: message},
+        %{context_id: socket.assigns.community.id, message: message},
         %{
           context: %{current_user: socket.assigns.current_user}
-      })
+        }
+      )
 
     IO.inspect(flag, label: "FLAG")
 
@@ -79,25 +97,9 @@ defmodule MoodleNetWeb.CommunityLive do
       :noreply,
       socket
       |> put_flash(:info, "Your flag will be revied by an admin!")
-      # |> assign(community: socket.assigns.comment |> Map.merge(%{is_liked: true}))
       #  |> push_patch(to: "/&" <> socket.assigns.community.username)
     }
   end
-
-
-  def handle_params(%{} = params, url, socket) do
-    community =
-      Communities.community_load(socket, params, %{icon: true, image: true, actor: true, is_followed_by: socket.assigns.current_user})
-
-    IO.inspect(community, label: "community")
-
-    {:noreply,
-     assign(socket,
-       community: community,
-       current_user: socket.assigns.current_user
-     )}
-  end
-
 
   def handle_event("follow", _data, socket) do
     f =
@@ -136,7 +138,7 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_event("edit_community", %{"name" => name} = data, socket) do
-    IO.inspect(data, label: "DATA")
+    # IO.inspect(data, label: "DATA")
 
     if(is_nil(name) or !Map.has_key?(socket.assigns, :current_user)) do
       {:noreply,

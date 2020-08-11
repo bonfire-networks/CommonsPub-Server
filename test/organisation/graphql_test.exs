@@ -1,42 +1,41 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Circle.GraphQLTest do
+defmodule Organisation.GraphQLTest do
   use MoodleNetWeb.ConnCase, async: true
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
+  import CommonsPub.Utils.Simulation
 
-  import Circle.Test.Faking
+  import Organisation.Simulate
+  import Organisation.Test.Faking
 
-  describe "circle" do
+  describe "organisation" do
     test "works for a logged in user" do
       alice = fake_user!()
-      org = fake_circle!(alice)
+      org = fake_organisation!(alice)
 
-      vars = %{circle_id: org.id}
+      vars = %{organisation_id: org.id}
       conn = user_conn(alice)
-      q = circle_query()
+      q = organisation_query()
 
-      assert_circle(grumble_post_key(q, conn, :circle, vars))
+      assert_organisation(grumble_post_key(q, conn, :organisation, vars))
     end
 
     test "can be created with a context" do
-
     end
 
     test "does not work for a guest" do
-
     end
   end
 
-  describe "circle.icon" do
+  describe "organisation.icon" do
   end
 
-  describe "circle.creator" do
-
+  describe "organisation.creator" do
   end
 
-  describe "circle.context" do
+  describe "organisation.context" do
   end
 end

@@ -5,7 +5,7 @@ defmodule MoodleNet.ResourcesTest do
   use MoodleNet.DataCase
   import MoodleNet.Test.Faking
   alias MoodleNet.{Resources, Repo}
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   setup do
     user = fake_user!()
@@ -22,7 +22,7 @@ defmodule MoodleNet.ResourcesTest do
     end
 
     test "returns not found if the resource is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.one(id: Fake.ulid())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.one(id: Simulation.ulid())
     end
   end
 
@@ -30,7 +30,7 @@ defmodule MoodleNet.ResourcesTest do
     test "creates a new resource given valid attributes", context do
       Repo.transaction(fn ->
         content = fake_content!(context.user)
-        attrs = Fake.resource() |> Map.put(:content_id, content.id)
+        attrs = Simulation.resource() |> Map.put(:content_id, content.id)
 
         assert {:ok, resource} =
                  Resources.create(
@@ -60,7 +60,7 @@ defmodule MoodleNet.ResourcesTest do
 
   describe "update" do
     test "updates a resource given valid attributes", context do
-      attrs = Fake.resource()
+      attrs = Simulation.resource()
       resource = fake_resource!(context.user, context.collection)
 
       assert {:ok, updated_resource} = Resources.update(context.user, resource, attrs)

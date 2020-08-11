@@ -2,44 +2,48 @@ defmodule Tag.Migrations do
   use Ecto.Migration
   import Pointers.Migration
 
+  defp category_table(), do: CommonsPub.Tag.Category.__schema__(:source)
+  defp taggable_table(), do: CommonsPub.Tag.Taggable.__schema__(:source)
+
   def up() do
-    pointer = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
+    # pointer = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
 
-    create_pointable_table(:tags, "TAGSCANBECATEG0RY0RHASHTAG") do
-      # eg. @ or + or #
+    # cleanup old stuff first
+    drop_pointable_table(:tags, "TAGSCANBECATEG0RY0RHASHTAG")
+    flush()
+
+    create_mixin_table(taggable_table()) do
       add(:prefix, :string)
+      add(:facet, :string)
+    end
 
-      # eg. community who curates this tag
-      add(
-        :context_id,
-        references(pointer, on_update: :update_all, on_delete: :nilify_all)
-      )
+    create_pointable_table(category_table(), "TAGSCANBECATEG0RY0RHASHTAG") do
+      add(:caretaker_id, weak_pointer(), null: true)
 
       # eg. Mamals is a parent of Cat
-      add(:parent_tag_id, references(:tags, on_update: :update_all, on_delete: :nilify_all))
-      # eg. Olive Oil is the same as Huile d'olive
-      add(:same_as_tag_id, references(:tags, on_update: :update_all, on_delete: :nilify_all))
-
-      #
       add(
-        :taxonomy_tag_id,
-        references("taxonomy_tag", on_update: :update_all, on_delete: :nilify_all, type: :integer)
+        :parent_category_id,
+        references(category_table(), on_update: :update_all, on_delete: :nilify_all)
+      )
+
+      # eg. Olive Oil is the same as Huile d'olive
+      add(
+        :same_as_category_id,
+        references(category_table(), on_update: :update_all, on_delete: :nilify_all)
       )
     end
 
     create_if_not_exists table(:tags_things, primary_key: false) do
-      add(
-        :pointer_id,
-        references(pointer, on_update: :update_all, on_delete: :delete_all)
-      )
+      add(:pointer_id, strong_pointer(), null: false)
 
-      add(:tag_id, references(:tags, on_update: :update_all, on_delete: :delete_all))
+      add(:tag_id, references(taggable_table(), on_update: :update_all, on_delete: :delete_all))
     end
 
     create(unique_index(:tags_things, [:pointer_id, :tag_id]))
   end
 
   def down() do
-    drop_pointable_table(:tags, "TAGSCANBECATEG0RY0RHASHTAG")
+    drop_pointable_table(category_table(), "TAGSCANBECATEG0RY0RHASHTAG")
+    drop_mixin_table(taggable_table())
   end
 end

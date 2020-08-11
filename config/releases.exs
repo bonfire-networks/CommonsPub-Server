@@ -44,7 +44,7 @@ upload_url = System.get_env("UPLOAD_URL", base_url <> upload_path <> "/")
 config :moodle_net, MoodleNet.Uploads,
   directory: upload_dir,
   path: upload_path,
-  base_url: upload_url,
+  uploads_base_url: upload_url,
   max_file_size: System.get_env("UPLOAD_LIMIT", "20000000")
 
 mail_blackhole = fn var ->

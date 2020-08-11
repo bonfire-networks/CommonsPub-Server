@@ -20,7 +20,7 @@ defmodule Taxonomy.TaxonomyTags do
 
   def one(filters), do: Repo.single(Queries.query(TaxonomyTag, filters))
 
-  def get(id), do: one(id: id, preload: :parent_tag, preload: :taggable)
+  def get(id), do: one(id: id, preload: :parent_tag, preload: :category)
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(TaxonomyTag, filters))}
 
@@ -70,94 +70,86 @@ defmodule Taxonomy.TaxonomyTags do
     )
   end
 
-  @doc "Takes an existing TaxonomyTag and makes it a Taggable"
-  def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
+  @doc "Takes an existing TaxonomyTag and makes it a category, if one doesn't already exist"
+  def maybe_make_category(%User{} = user, %TaxonomyTag{} = tag) do
     Repo.transact_with(fn ->
-      # add a Pointer ID
-      with {:ok, tag} <- pointerise(user, tag) do
-        {:ok, tag}
+      tag = Repo.preload(tag, [:category, :parent_tag])
+
+      # with CommonsPub.Tag.categories.one(taxonomy_tag_id: tag.id) do
+      if !is_nil(tag.category_id) and
+           Ecto.assoc_loaded?(tag.category) and
+           !is_nil(tag.category.id) do
+        # already exists
+        {:ok, tag.category}
+      else
+        make_category(user, tag)
       end
     end)
   end
 
-  @doc "Takes an existing TaxonomyTag and adds a Pointer ID"
-  def pointerise(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag) do
-    if(!is_nil(parent_tag_id)) do
-      # there is a parent
-      {:ok, parent_tag} =
-        if(!Ecto.assoc_loaded?(tag.parent_tag)) do
-          # parent is not loaded
-          get(tag.parent_tag_id)
-        else
-          {:ok, tag.parent_tag}
-        end
-
-      IO.inspect(pointerise_parent: parent_tag)
-      # pointerise the parent(s) first (recursively)
-      {:ok, parent_taggable} = pointerise(user, parent_tag)
-      IO.inspect(parent_taggable: parent_taggable)
-
-      create_tag =
-        if(parent_taggable) do
-          %{
-            tag
-            | parent_tag: parent_taggable,
-              parent_tag_id: parent_taggable.id
-          }
-        else
-          tag
-        end
-
-      # finally pointerise the child(ren), in hierarchical order
-      pointerise_tag(user, create_tag)
-    else
-      # there's no parent, so just pointerise this one
-      pointerise_tag(user, tag)
+  def maybe_make_category(%User{} = user, id) when is_number(id) do
+    with {:ok, tag} <- get(id) do
+      maybe_make_category(user, tag)
     end
   end
 
-  def pointerise(%User{} = user, %TaxonomyTag{} = tag) do
-    pointerise_tag(user, tag)
+  defp make_category(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)
+       when not is_nil(parent_tag_id) do
+    tag = Repo.preload(tag, [:category, :parent_tag])
+    parent_tag = tag.parent_tag
+
+    IO.inspect(pointerise_parent: parent_tag)
+
+    # pointerise the parent(s) first (recursively)
+    {:ok, parent_category} = maybe_make_category(user, parent_tag)
+
+    IO.inspect(parent_category: parent_category)
+
+    create_tag =
+      if(parent_category) do
+        cleanup(tag)
+        |> Map.merge(%{parent_category: parent_category})
+        |> Map.merge(%{parent_category_id: parent_category.id})
+      else
+        cleanup(tag)
+      end
+
+    # finally pointerise the child(ren), in hierarchical order
+    create_category(user, tag, create_tag)
   end
 
-  defp pointerise_tag(%User{} = user, tag) do
-    IO.inspect(pointerise_tag: tag)
+  defp make_category(%User{} = user, %TaxonomyTag{} = tag) do
+    create_category(user, tag, cleanup(tag))
+  end
 
-    tag = Repo.preload(tag, :taggable)
-    tag = cleanup(tag)
+  defp create_category(%User{} = user, tag, attrs) do
+    # IO.inspect(create_category: tag)
 
-    if(Ecto.assoc_loaded?(tag.taggable) and !is_nil(tag.taggable) and !is_nil(tag.taggable.id)) do
-      # already has an associated taggable
-      {:ok, tag.taggable}
-    else
-      IO.inspect(create_taggable: tag)
+    Repo.transact_with(fn ->
+      # IO.inspect(create_category: tag)
 
-      Repo.transact_with(fn ->
-        with {:ok, taggable} <- Tag.Taggables.create(user, tag) do
-          {:ok, taggable}
-        end
-      end)
-    end
+      with {:ok, category} <- CommonsPub.Tag.Categories.create(user, attrs),
+           {:ok, tag} <- update(user, tag, %{category: category, category_id: category.id}) do
+        {:ok, category}
+      end
+    end)
   end
 
   @doc "Transform the generic fields of anything to be turned into a character."
   def cleanup(thing) do
     thing
     # convert to map
-    |> Map.put(:taxonomy_tag, thing)
-    |> Map.put(:taxonomy_tag_id, thing.id)
+    # |> Map.put(:taxonomy_tag, thing)
+    # |> Map.put(:taxonomy_tag_id, thing.id)
     |> Map.from_struct()
     |> Map.delete(:__meta__)
     # use Thing name as facet/trope
-    |> Map.put(:facet, "Tag")
+    |> Map.put(:facet, "Category")
     |> Map.put(:prefix, "+")
     # avoid reusing IDs
     |> Map.delete(:id)
   end
 
-  # TODO: take the user who is performing the update
-  @spec update(User.t(), TaxonomyTag.t(), attrs :: map) ::
-          {:ok, TaxonomyTag.t()} | {:error, Changeset.t()}
   def update(%User{} = _user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
       #  {:ok, character} <- Character.update(user, tag.character, attrs)

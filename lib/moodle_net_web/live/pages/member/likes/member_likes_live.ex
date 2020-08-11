@@ -38,7 +38,7 @@ defmodule MoodleNetWeb.MemberLive.MemberLikesLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(likes, label: "LIKES:")
+    # IO.inspect(likes, label: "LIKES:")
 
     assign(socket,
       activities: likes.edges,

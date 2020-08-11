@@ -86,21 +86,36 @@ defmodule Character.Characters do
 
   ## mutations
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, %{character: attrs, id: id, profile: %{name: name}})
+      when is_map(attrs) do
+    create(creator, Map.put(Map.put(attrs, :id, id), :name, name))
+  end
+
+  def create(%User{} = creator, %{character: attrs, profile: %{name: name}}) when is_map(attrs) do
+    create(creator, Map.put(attrs, :name, name))
+  end
+
+  def create(%User{} = creator, %{character: attrs, id: id}) when is_map(attrs) do
+    create(creator, Map.put(attrs, :id, id))
+  end
+
+  def create(%User{} = creator, %{profile: %{name: name}} = attrs) when is_map(attrs) do
+    create(creator, Map.put(Map.delete(attrs, :profile), :name, name))
+  end
+
   def create(%User{} = creator, attrs) when is_map(attrs) do
+    # IO.inspect(character_create: attrs)
+    attrs = Actors.prepare_username(attrs)
+
+    # IO.inspect(attrs)
+
     Repo.transact_with(fn ->
-      attrs = Actors.prepare_username(attrs)
-
-      # IO.inspect(attrs)
-      # attrs = Map.put(attrs, :alternative_username, Map.get(attrs, :preferred_username)<>"-"<>Map.get(attrs, :facet))
-      # IO.inspect(attrs)
-
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, character_attrs} <- create_boxes(actor, attrs),
            {:ok, character} <- insert_character(creator, actor, character_attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, character, act_attrs),
-           :ok <- publish(creator, character, activity, :created),
+           #  act_attrs = %{verb: "created", is_local: true},
+           #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
+           #  :ok <- publish(creator, character, activity, :created),
            # add to search index
            #  :ok <- index(character),
            {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do

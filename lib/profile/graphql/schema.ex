@@ -62,7 +62,7 @@ defmodule Profile.GraphQL.Schema do
   end
 
   @desc """
-  A profile is anything (Person, Group, Circle, Taxonomy Tag, Location, Thread, what-have-you...) which has a feed which can be followed, and can be tagged in other activities
+  A profile is anything (Person, Group, Organisation, Taxonomy Tag, Location, Thread, what-have-you...) which has a feed which can be followed, and can be tagged in other activities
   """
   object :profile do
     @desc "An instance-local UUID identifying the profile. Not to be confused with the associated thing's ID (available under profileistic.id)"
@@ -188,7 +188,7 @@ defmodule Profile.GraphQL.Schema do
   end
 
   input_object :profile_input do
-    field(:preferred_username, :string)
+    # field(:preferred_username, :string)
     field(:name, non_null(:string))
     field(:summary, :string)
     # field :primary_language_id, :string

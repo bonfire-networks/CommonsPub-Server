@@ -10,7 +10,7 @@
 ##
 
 # Dynamically supplied by application
-union GeoScope = Collection | Community | Circle
+# union GeoScope = Collection | Community | Organisation
 
 """
 A physical mappable location.
@@ -50,10 +50,8 @@ type SpatialThing {
 
   canonicalUrl: String
   displayUsername: String
-  inScopeOf: GeoScope
+  inScopeOf: AnyContext
 }
-
-
 
 input SpatialThingCreateParams {
   "An informal or formal textual identifier for a location. Does not imply uniqueness."
@@ -101,21 +99,45 @@ type SpatialThingResponse {
   spatialThing: SpatialThing
 }
 
-type SpatialThingsPage{
+type SpatialThingsPage {
   page_info: PageInfo
   edges: [SpatialThing]
   totalCount: Int
 }
 
-
 type GeolocationQuery {
   spatialThing(id: ID): SpatialThing
   spatialThings(start: ID, limit: Int): [SpatialThing!]
-  spatialThingsPages(limit: Int, before: [Cursor], after: [Cursor]): [SpatialThingsPage!]
+  spatialThingsPages(
+    limit: Int
+    before: [Cursor]
+    after: [Cursor]
+  ): [SpatialThingsPage!]
 }
 
 type GeolocationMutation {
-  createSpatialThing(spatialThing: SpatialThingCreateParams!, inScopeOf: ID): SpatialThingResponse
-  updateSpatialThing(spatialThing: SpatialThingUpdateParams!): SpatialThingResponse
-  deleteSpatialThing(id: String!): Boolean
+  createSpatialThing(
+    spatialThing: SpatialThingCreateParams!
+    inScopeOf: ID
+  ): SpatialThingResponse
+  updateSpatialThing(
+    spatialThing: SpatialThingUpdateParams!
+  ): SpatialThingResponse
+  deleteSpatialThing(id: ID!): Boolean
+}
+
+# added these types for filtering, to be extended:...
+input GeolocationDistance {
+  meters: Int
+}
+
+input GeolocationPoint {
+  lat: Float
+  long: Float
+}
+
+input GeolocationFilters {
+  nearPoint: GeolocationPoint
+  nearAddress: String
+  distance: GeolocationDistance
 }

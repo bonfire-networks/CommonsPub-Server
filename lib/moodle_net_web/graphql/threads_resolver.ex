@@ -12,7 +12,6 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     # ResolveRootPage
   }
 
-  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.{Comments, Thread}
 
   def thread(%{thread_id: id}, info) do
@@ -109,15 +108,20 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   ## mutations
 
+  def create_thread(%{comment: attrs, context_id: context_id}, info)
+      when is_nil(context_id) or context_id == "" do
+    create_thread(%{comment: attrs}, info)
+  end
+
   @doc "Create a thread in a community or other context"
   def create_thread(%{context_id: context_id, comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       attrs = Map.put(attrs, :is_local, true)
 
       Repo.transact_with(fn ->
-        with {:ok, pointer} = Pointers.one(id: context_id),
+        with {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
              :ok <- validate_thread_context(pointer),
-             context = Pointers.follow!(pointer),
+             context = MoodleNet.Meta.Pointers.follow!(pointer),
              {:ok, thread} <- Threads.create(user, context, attrs) do
           Comments.create(user, thread, attrs, context)
         end
@@ -135,7 +139,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   end
 
   defp validate_thread_context(pointer) do
-    if Pointers.table!(pointer).schema in valid_contexts() do
+    if MoodleNet.Meta.Pointers.table!(pointer).schema in valid_contexts() do
       :ok
     else
       GraphQL.not_permitted()

@@ -7,7 +7,7 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
   alias Taxonomy.GraphQL.{TaxonomyResolver}
 
   object :taxonomy_queries do
-    @desc "Get list of tags we know about"
+    @desc "Get list of taxonomy_tags we know about"
     field :taxonomy_tags, non_null(:taxonomy_tags_page) do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
@@ -15,7 +15,7 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
       resolve(&TaxonomyResolver.tags/2)
     end
 
-    @desc "Get a tag by ID "
+    @desc "Get a taxonomy_tag by ID "
     field :taxonomy_tag, :taxonomy_tag do
       arg(:tag_id, :integer)
       arg(:pointer_id, :string)
@@ -25,18 +25,18 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
   end
 
   object :taxonomy_mutations do
-    @desc "Create a Character to represents this tag in feeds and federation"
-    field :make_taggable_taxonomy_tag, :tag do
+    @desc "Create a Category to represents this taxonomy_tag in feeds and federation"
+    field :ingest_taxonomy_tag, :taggable do
       arg(:taxonomy_tag_id, :integer)
-      resolve(&TaxonomyResolver.make_taggable_taxonomy_tag/2)
+      resolve(&TaxonomyResolver.ingest_taxonomy_tag/2)
     end
   end
 
   object :taxonomy_tag do
-    @desc "The numeric primary key of the tag"
+    @desc "The numeric primary key of the taxonomy_tag"
     field(:id, :integer)
 
-    @desc "The ULID/pointer ID of the tag. Only exists once the tag is used in the app."
+    @desc "The ULID/pointer ID of the taxonomy_tag. Only exists once the tag is used in the app."
     field(:pointer_id, :string)
 
     field(:name, :string)
@@ -44,18 +44,18 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
 
     # field(:parent_tag_id, :integer)
 
-    @desc "The parent tag (in a tree-based taxonomy)"
+    @desc "The parent taxonomy_tag (in a tree-based taxonomy)"
     field :parent_tag, :taxonomy_tag do
       resolve(&TaxonomyResolver.parent_tag/3)
     end
 
-    @desc "List of child tag (in a tree-based taxonomy)"
+    @desc "List of child taxonomy_tag (in a tree-based taxonomy)"
     field :children_taxonomy_tags, list_of(:taxonomy_tags_page) do
       resolve(&TaxonomyResolver.tag_children/3)
     end
 
-    @desc "The taggable tag that is used in items, feeds and federation"
-    field(:taggable, :tag)
+    @desc "The taggable Category that we can use in items, feeds and federation"
+    field(:category, :category)
   end
 
   object :taxonomy_tags_page do

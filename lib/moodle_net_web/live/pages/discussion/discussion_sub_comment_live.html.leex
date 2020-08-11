@@ -7,15 +7,5 @@
 <% end %>
 <p><%= e(@comment, :content, "") %></p>
 </div>
-<%= for reply <- @comment.comments do %>
-  <%= live_component(
-          @socket,
-          DiscussionSubCommentLive,
-          id: "comment-#{reply.id}",
-          comment: reply,
-          current_user: @current_user,
-          reply_to: @reply_to,
-          sublevel: @sublevel + 15
-        )%>
-<% end %>
+
 </div>

@@ -4,7 +4,11 @@ defmodule Measurement.GraphQLTest do
 
   import MoodleNet.Test.Faking
   import Measurement.Test.Faking
-  alias Measurement.{Units, Measures}
+  import CommonsPub.Utils.Trendy
+
+  import Measurement.Simulate
+  alias Measurement.Measure.Measures
+  alias Measurement.Unit.Units
 
   describe "unit" do
     test "fetches an existing unit by ID" do
@@ -16,9 +20,14 @@ defmodule Measurement.GraphQLTest do
       assert_unit(grumble_post_key(q, conn, :unit, %{id: unit.id}))
     end
 
-    # TODO when soft-deletion is done
-    @tag :skip
     test "fails for deleted units" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      assert {:ok, unit} = Units.soft_delete(unit)
+
+      q = unit_query()
+      conn = user_conn(user)
+      assert [%{"status" => 404}] = grumble_post_errors(q, conn, %{id: unit.id})
     end
 
     test "fails if ID is missing" do
@@ -27,6 +36,21 @@ defmodule Measurement.GraphQLTest do
       conn = user_conn(user)
       vars = %{id: Ecto.ULID.generate()}
       assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
+    end
+  end
+
+  describe "unitsPages" do
+    test "fetches a page of units" do
+      user = fake_user!()
+      units = some(5, fn -> fake_unit!(user) end)
+      after_unit = List.first(units)
+
+      q = units_query()
+      conn = user_conn(user)
+      vars = %{after: after_unit.id, limit: 2}
+      assert [%{"edges" => fetched}] = grumble_post_key(q, conn, :unitsPages, vars)
+      assert Enum.count(fetched) == 2
+      assert List.first(fetched)["id"] == after_unit.id
     end
   end
 
@@ -46,7 +70,7 @@ defmodule Measurement.GraphQLTest do
 
       q = create_unit_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      vars = %{unit: unit_input(), in_scope_of: comm.id}
+      vars = %{unit: Map.put(unit_input(), :in_scope_of, comm.id)}
       assert_unit(grumble_post_key(q, conn, :create_unit, vars)["unit"])
     end
   end
@@ -63,6 +87,27 @@ defmodule Measurement.GraphQLTest do
     end
   end
 
+  describe "delete_unit" do
+    test "deletes an existing unit" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+
+      q = delete_unit_mutation()
+      conn = user_conn(user)
+      assert grumble_post_key(q, conn, :delete_unit, %{id: unit.id})
+    end
+
+    test "fails to delete a unit if it has dependent measures" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      _measures = some(5, fn -> fake_measure!(user, unit) end)
+
+      q = delete_unit_mutation()
+      conn = user_conn(user)
+      assert [%{"status" => 403}] = grumble_post_errors(q, conn, %{id: unit.id})
+    end
+  end
+
   describe "measure" do
     test "fetches an existing measure by ID" do
       user = fake_user!()
@@ -74,31 +119,4 @@ defmodule Measurement.GraphQLTest do
       assert_measure(grumble_post_key(q, conn, :measure, %{id: measure.id}))
     end
   end
-
-  # describe "create_measure" do
-  #   test "creates a new measure given valid attributes" do
-  #     user = fake_user!()
-  #     unit = fake_unit!(user)
-
-  #     q = create_measure_with_unit_mutation(fields: [has_unit: [:id]])
-  #     conn = user_conn(user)
-  #     vars = %{measure: measure_input(), has_unit: unit.id}
-  #     assert measure = grumble_post_key(q, conn, :create_measure, vars)["measure"]
-  #     assert_measure(measure)
-  #     assert measure["hasUnit"]["id"] == unit.id
-  #   end
-  # end
-
-  # describe "update_measure" do
-  #   test "updates an existing measure" do
-  #     user = fake_user!()
-  #     unit = fake_unit!(user)
-  #     measure = fake_measure!(user, unit)
-
-  #     q = update_measure_mutation()
-  #     conn = user_conn(user)
-  #     vars = %{measure: Map.put(measure_input(), "id", measure.id)}
-  #     assert_measure(grumble_post_key(q, conn, :update_measure, vars)["measure"])
-  #   end
-  # end
 end

@@ -8,7 +8,7 @@ defmodule MoodleNet.Mail.EmailTest do
 
   alias MoodleNet.Mail.Email
   import MoodleNet.Test.Faking
-  alias MoodleNet.Test.Fake
+  alias CommonsPub.Utils.Simulation
 
   setup do
     {:ok, %{user: fake_user!()}}
@@ -38,7 +38,7 @@ defmodule MoodleNet.Mail.EmailTest do
   end
 
   test "invite/1" do
-    address = Fake.email()
+    address = Simulation.email()
     email = Email.invite(address)
     assert email.to == address
   end

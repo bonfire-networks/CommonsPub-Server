@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL.CommonTest do
   # use MoodleNetWeb.ConnCase, async: true
-  # alias MoodleNet.Test.Fake
+  # alias CommonsPub.Utils.Simulation
 
   # import MoodleNet.Test.Faking
   # import MoodleNetWeb.Test.ConnHelpers
@@ -76,7 +76,7 @@ defmodule MoodleNet.GraphQL.CommonTest do
   #     assert %{"delete" => res} = gql_post_data(conn, query)
   #     assert res["id"] == like.id
 
-  #     assert {:ok, flag} = Flags.create(user, comm, Fake.flag())
+  #     assert {:ok, flag} = Flags.create(user, comm, Simulation.flag())
   #     query = %{query: delete_q(flag.id)}
   #     assert %{"delete" => res} = gql_post_data(conn, query)
   #     assert res["id"] == flag.id
@@ -87,7 +87,7 @@ defmodule MoodleNet.GraphQL.CommonTest do
   #     conn = user_conn(user)
 
   #     comm = fake_community!(user)
-  #     assert {:ok, flag} = Flags.create(user, comm, Fake.flag())
+  #     assert {:ok, flag} = Flags.create(user, comm, Simulation.flag())
   #     query = %{query: delete_q(flag.id)}
 
   #     assert %{"delete" => res} = gql_post_data(conn, query)
@@ -109,8 +109,7 @@ defmodule MoodleNet.GraphQL.CommonTest do
   #   end
 
   #   test "can not delete an item of another user" do
-      
+
   #   end
   # end
-
 end
