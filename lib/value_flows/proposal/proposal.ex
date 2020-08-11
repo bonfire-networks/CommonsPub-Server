@@ -28,7 +28,7 @@ defmodule ValueFlows.Proposal do
     field(:unit_based, :boolean, default: false)
     belongs_to(:eligible_location, Geolocation)
 
-    timestamps()
+    timestamps(inserted_at: false)
   end
 
   @required ~w(name is_public)a
