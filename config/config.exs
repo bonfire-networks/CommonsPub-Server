@@ -108,8 +108,8 @@ config :moodle_net, Threads,
     Resource,
     User,
     Organisation,
-    Character,
-    ValueFlows.Planning.Intent
+    Character
+    # ValueFlows.Planning.Intent
   ]
 
 config :moodle_net, Users,
