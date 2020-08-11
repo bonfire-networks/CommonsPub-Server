@@ -48,11 +48,11 @@ defmodule Search.Meili do
     post(object, "")
   end
 
-  def post(object, index_path) do
-    api(:post, object, index_path)
+  def post(object, index_path, fail_silently \\ false) do
+    api(:post, object, index_path, fail_silently)
   end
 
-  def api(http_method, object, index_path) do
+  def api(http_method, object, index_path, fail_silently \\ false) do
     search_instance = System.get_env("SEARCH_MEILI_INSTANCE", "localhost:7700")
     api_key = System.get_env("MEILI_MASTER_KEY")
 
@@ -60,7 +60,8 @@ defmodule Search.Meili do
 
     # if api_key do
     headers = [
-      {"X-Meili-API-Key", api_key}
+      {"X-Meili-API-Key", api_key},
+      {"Content-type", "application/json"}
     ]
 
     # else
@@ -73,10 +74,16 @@ defmodule Search.Meili do
       {:ok, ret}
     else
       {_, message} ->
-        Logger.warn("Couldn't #{http_method} objects:")
-        Logger.warn(inspect(object))
-        Logger.warn(inspect(message))
-        :ok
+        if(fail_silently) do
+          # Logger.info("Meili - Couldn't #{http_method} object")
+          # Logger.info(inspect(object))
+          :ok
+        else
+          Logger.error("Meili - Couldn't #{http_method} objects:")
+          Logger.warn(inspect(object))
+          Logger.warn(inspect(message))
+          {:error, message}
+        end
     end
   end
 
@@ -88,7 +95,7 @@ defmodule Search.Meili do
     else
       # IO.inspect(object)
       json = Jason.encode!(object)
-      # IO.inspect(json)
+      # IO.inspect(json: json)
       apply(HTTP, http_method, [url, json, headers])
     end
   end

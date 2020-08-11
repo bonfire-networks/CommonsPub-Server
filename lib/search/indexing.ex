@@ -10,8 +10,8 @@ defmodule Search.Indexing do
   @public_index "public"
 
   # create a new index
-  def create_index(index_name) do
-    Search.Meili.post(%{uid: index_name})
+  def create_index(index_name, fail_silently \\ false) do
+    Search.Meili.post(%{uid: index_name}, "", fail_silently)
   end
 
   # index something coming in via old Algolia indexing module
@@ -40,7 +40,7 @@ defmodule Search.Indexing do
   def index_objects(objects, index_name, create_index_first \\ true) do
     # IO.inspect(objects)
     # FIXME - should create the index only once
-    if create_index_first, do: create_index(index_name)
+    if create_index_first, do: create_index(index_name, true)
     Search.Meili.put(objects, "/" <> index_name <> "/documents")
   end
 end

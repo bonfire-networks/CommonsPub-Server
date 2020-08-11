@@ -51,8 +51,9 @@ defmodule MoodleNet.Collections do
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, community_or_context, coll, activity),
            :ok <- ap_publish("create", coll),
-           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(coll),
            {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
+        MoodleNet.Algolia.Indexer.maybe_index_object(coll)
+
         {:ok, coll}
       end
     end)
@@ -70,8 +71,9 @@ defmodule MoodleNet.Collections do
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, coll, activity),
            :ok <- ap_publish("create", coll),
-           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(coll),
            {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
+        MoodleNet.Algolia.Indexer.maybe_index_object(coll)
+
         {:ok, coll}
       end
     end)
@@ -87,6 +89,8 @@ defmodule MoodleNet.Collections do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, community, coll, activity) do
+        MoodleNet.Algolia.Indexer.maybe_index_object(coll)
+
         {:ok, coll}
       end
     end)
