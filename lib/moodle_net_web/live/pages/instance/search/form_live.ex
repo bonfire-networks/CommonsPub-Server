@@ -4,9 +4,15 @@ defmodule MoodleNetWeb.SearchLive.Form do
   import MoodleNetWeb.Helpers.Common
 
   def handle_event("search", params, %{assigns: assigns} = socket) do
-    IO.inspect(params)
+    IO.inspect(search: params)
+    IO.inspect(socket)
 
-    {:noreply,
-     socket |> push_patch(to: "/instance/search/all/" <> params["search_field"]["query"])}
+    if(socket.view == MoodleNetWeb.SearchLive) do
+      {:noreply,
+       socket |> push_patch(to: "/instance/search/all/" <> params["search_field"]["query"])}
+    else
+      {:noreply,
+       socket |> push_redirect(to: "/instance/search/all/" <> params["search_field"]["query"])}
+    end
   end
 end

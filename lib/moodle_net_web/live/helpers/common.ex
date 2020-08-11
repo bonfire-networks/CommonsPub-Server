@@ -191,6 +191,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:current_user, fn -> current_user end)
     |> assign(:csrf_token, fn -> csrf_token end)
     |> assign(:static_changed, static_changed?(socket))
+    |> assign(:search, "")
   end
 
   def init_assigns(
@@ -231,6 +232,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
+    |> assign(:search, "")
   end
 
   def init_assigns(
@@ -244,6 +246,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:csrf_token, csrf_token)
     |> assign(:static_changed, static_changed?(socket))
     |> assign(:current_user, nil)
+    |> assign(:search, "")
   end
 
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
