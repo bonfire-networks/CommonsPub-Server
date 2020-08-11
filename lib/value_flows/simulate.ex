@@ -10,6 +10,8 @@ defmodule ValueFlows.Simulate do
   import Measurement.Simulate
 
   alias ValueFlows.Planning.Intent.Intents
+  alias ValueFlows.Proposal.Proposals
+
   alias ValueFlows.Knowledge.Action.Actions
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])
@@ -32,6 +34,20 @@ defmodule ValueFlows.Simulate do
   def action, do: Faker.Util.pick(Actions.actions_list())
 
   def action_id, do: action().id
+
+  def proposal(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
+    # |> Map.put_new_lazy(:image, &icon/0)
+    |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
+    |> Map.put_new_lazy(:has_end, &future_datetime/0)
+    |> Map.put_new_lazy(:created, &future_datetime/0)
+    # TODO: list of URI's
+    |> Map.put_new_lazy(:unit_based, &bool/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
 
   def intent(base \\ %{}) do
     base
@@ -75,6 +91,11 @@ defmodule ValueFlows.Simulate do
     }
     {:ok, intent} = Intents.create(user, action(), intent(measures))
     intent
+  end
+
+  def fake_proposal!(user, overrides \\ %{}) do
+    {:ok, proposal} = Proposals.create(user, proposal())
+    proposal
   end
 
 
