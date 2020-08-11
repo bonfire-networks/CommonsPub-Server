@@ -10,7 +10,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
-  alias ValueFlows.Proposal.Proposals
+  alias ValueFlows.Proposals
 
   describe "one" do
     test "fetches an existing proposal by ID" do
@@ -25,5 +25,18 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       # assert {:ok, fetched} = Intents.one(context: comm)
     end
   end
+
+  # describe "create" do
+  #  test "can create a proposal" do
+  #    user = fake_user!()
+
+  #    assert {:ok, proposal} = IO.inspect(Proposals.create(user, proposal()))
+  #    assert_proposal(proposal)
+  #  end
+
+ # end
+
+
+
 
 end
