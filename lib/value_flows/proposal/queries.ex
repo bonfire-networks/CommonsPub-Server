@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.Queries do
   alias MoodleNet.Communities
-  alias ValueFlows.Proposal.Proposal
-  alias ValueFlows.Proposal.Proposals
+  alias ValueFlows.Proposal
+  alias ValueFlows.Proposals
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
@@ -160,7 +160,6 @@ defmodule ValueFlows.Proposal.Queries do
     where(q, [proposal: c], c.provider_id in ^ids or c.receiver_id in ^ids)
   end
 
-
   def filter(q, {:eligible_location_id, eligible_location_id}) do
     q
     |> where([proposal: c], c.eligible_location_id == ^eligible_location_id)
@@ -171,7 +170,6 @@ defmodule ValueFlows.Proposal.Queries do
     |> join_to(:geolocation)
     |> where([proposal: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
   end
-
 
   ## by ordering
 

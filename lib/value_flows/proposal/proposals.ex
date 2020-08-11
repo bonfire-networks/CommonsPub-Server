@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Proposal.Proposals do
+defmodule ValueFlows.Proposals do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
@@ -12,7 +12,7 @@ defmodule ValueFlows.Proposal.Proposals do
   alias Geolocation.Geolocations
   alias Measurement.Measure
   alias ValueFlows.Proposal
-  alias ValueFlows.Proposal.Proposal
+  alias ValueFlows.Proposal
 
   alias ValueFlows.Proposal.Queries
 
@@ -105,7 +105,6 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   def do_create(creator, attrs, changeset_fn) do
-
     Repo.transact_with(fn ->
       cs = changeset_fn.()
 
@@ -177,7 +176,6 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   def do_update(proposal, attrs, changeset_fn) do
-
     Repo.transact_with(fn ->
       proposal =
         Repo.preload(proposal, [
@@ -223,7 +221,6 @@ defmodule ValueFlows.Proposal.Proposals do
     :ok
   end
 
-
   defp change_eligible_location(changeset, %{eligible_location: id}) do
     with {:ok, location} <- Geolocations.one([:default, id: id]) do
       {:ok, Proposal.change_eligible_location(changeset, location)}
@@ -231,6 +228,4 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   defp change_eligible_location(changeset, _attrs), do: {:ok, changeset}
-
-
 end

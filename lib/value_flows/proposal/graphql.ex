@@ -2,11 +2,11 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.GraphQL do
-
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
   import ValueFlows.Util, only: [maybe_put: 3]
+
   alias MoodleNet.{
     Activities,
     Communities,
@@ -32,11 +32,10 @@ defmodule ValueFlows.Proposal.GraphQL do
   alias MoodleNet.Communities.Community
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
-  alias ValueFlows.Proposal.Proposal
-  alias ValueFlows.Proposal.Proposals
+  alias ValueFlows.Proposal
+  alias ValueFlows.Proposals
   alias ValueFlows.Proposal.Queries
   alias MoodleNetWeb.GraphQL.{CommonResolver}
-
 
   # import_sdl path: "lib/value_flows/graphql/schemas/proposal.gql"
 
@@ -79,8 +78,8 @@ defmodule ValueFlows.Proposal.GraphQL do
 
   def fetch_proposals(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: ValueFlows.Planning.Proposal.Queries,
-      query: ValueFlows.Planning.Proposal,
+      queries: ValueFlows.Proposal.Queries,
+      query: ValueFlows.Proposal,
       page_opts: page_opts,
       base_filters: [
         :default,
@@ -90,7 +89,6 @@ defmodule ValueFlows.Proposal.GraphQL do
       # data_filters: [page: [desc: [followers: page_opts]]],
     })
   end
-
 
   def create_proposal(%{proposal: %{in_scope_of: context_ids} = proposal_attrs}, info)
       when is_list(context_ids) do
@@ -175,6 +173,4 @@ defmodule ValueFlows.Proposal.GraphQL do
     [User, Community, Organisation]
     # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
   end
-
-
 end

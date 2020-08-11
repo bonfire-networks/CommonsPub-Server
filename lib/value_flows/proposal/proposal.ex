@@ -1,16 +1,19 @@
-defmodule ValueFlows.Proposal.Proposal do
-  use MoodleNet.Common.Schema
+defmodule ValueFlows.Proposal do
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "vf_proposal",
+    table_id: "PR0P0SA11SMADE0FTW01NTENTS"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
-  alias ValueFlows.Proposal.Proposal
+  alias ValueFlows.Proposal
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_proposal" do
+  pointable_schema do
     field(:name, :string)
     field(:note, :string)
     field(:created, :utc_datetime_usec)
@@ -25,7 +28,6 @@ defmodule ValueFlows.Proposal.Proposal do
     field(:unit_based, :boolean, default: false)
     belongs_to(:eligible_location, Geolocation)
 
-
     timestamps()
   end
 
@@ -33,10 +35,10 @@ defmodule ValueFlows.Proposal.Proposal do
   @cast @required ++ ~w(note eligible_location_id)a
 
   def create_changeset(
-    %User{} = creator,
-    %{id: _} = context,
-    attrs
-  ) do
+        %User{} = creator,
+        %{id: _} = context,
+        attrs
+      ) do
     %Proposal{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
@@ -49,9 +51,9 @@ defmodule ValueFlows.Proposal.Proposal do
   end
 
   def create_changeset(
-    %User{} = creator,
-    attrs
-  ) do
+        %User{} = creator,
+        attrs
+      ) do
     %Proposal{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
@@ -63,10 +65,10 @@ defmodule ValueFlows.Proposal.Proposal do
   end
 
   def update_changeset(
-    %Proposal{} = proposal,
-    %{id: _} = context,
-    attrs
-  ) do
+        %Proposal{} = proposal,
+        %{id: _} = context,
+        attrs
+      ) do
     proposal
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(context_id: context.id)
@@ -94,5 +96,4 @@ defmodule ValueFlows.Proposal.Proposal do
       name: :vf_proposal_eligible_location_id_fkey
     )
   end
-
 end

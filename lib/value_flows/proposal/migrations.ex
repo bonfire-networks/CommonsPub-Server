@@ -2,11 +2,12 @@ defmodule ValueFlows.Proposal.Migrations do
   use Ecto.Migration
   alias MoodleNet.Repo
   alias Ecto.ULID
+  import Pointers.Migration
 
-  @meta_tables [] ++ ~w(vf_proposal)
+  defp proposal_table(), do: ValueFlows.Proposal.__schema__(:source)
 
-  def change_proposal do
-    create table(:vf_proposal) do
+  def up do
+    create_pointable_table(proposal_table(), "PR0P0SA11SMADE0FTW01NTENTS") do
       add(:name, :string)
       add(:note, :text)
 
@@ -32,7 +33,7 @@ defmodule ValueFlows.Proposal.Migrations do
       add(:eligible_location_id, references(:geolocation))
 
       # optional context as scope
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
 
       add(:unit_based, :boolean, default: false)
 
@@ -55,31 +56,11 @@ defmodule ValueFlows.Proposal.Migrations do
       add(:deleted_at, :timestamptz)
       add(:disabled_at, :timestamptz)
 
-      timestamps(inserted_at: false, type: :utc_datetime_usec)
+      timestamps(type: :utc_datetime_usec)
     end
   end
 
-  def add_proposal_pointer do
-    tables =
-      Enum.map(@meta_tables, fn name ->
-        %{"id" => ULID.bingenerate(), "table" => name}
-      end)
-
-    {_, _} = Repo.insert_all("mn_table", tables)
-
-    tables =
-      Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
-        Map.put(acc, table, id)
-      end)
-
-    for table <- @meta_tables do
-      :ok =
-        execute("""
-        create trigger "insert_pointer_#{table}"
-        before insert on "#{table}"
-        for each row
-        execute procedure insert_pointer()
-        """)
-    end
+  def down do
+    drop_pointable_table(proposal_table(), "PR0P0SA11SMADE0FTW01NTENTS")
   end
 end

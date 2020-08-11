@@ -1,7 +1,11 @@
 defmodule MoodleNet.Repo.Migrations.VF.Proposal do
   use Ecto.Migration
 
-  def change do
-    ValueFlows.Proposal.Migrations.change_proposal()
+  def up do
+    ValueFlows.Proposal.Migrations.up()
+  end
+
+  def down do
+    ValueFlows.Proposal.Migrations.down()
   end
 end
