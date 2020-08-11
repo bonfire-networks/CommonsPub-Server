@@ -18,6 +18,8 @@ defmodule Tag.Migrations do
     end
 
     create_pointable_table(category_table(), "TAGSCANBECATEG0RY0RHASHTAG") do
+      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+
       add(:caretaker_id, weak_pointer(), null: true)
 
       # eg. Mamals is a parent of Cat
@@ -31,6 +33,10 @@ defmodule Tag.Migrations do
         :same_as_category_id,
         references(category_table(), on_update: :update_all, on_delete: :nilify_all)
       )
+
+      add(:published_at, :timestamptz)
+      add(:deleted_at, :timestamptz)
+      add(:disabled_at, :timestamptz)
     end
 
     create_if_not_exists table(:tags_things, primary_key: false) do

@@ -93,6 +93,11 @@ defmodule MoodleNet.Actors do
     Repo.update(Actor.update_changeset(actor, attrs))
   end
 
+  def update(_, actor, _) do
+    # FIXME
+    actor
+  end
+
   @spec delete(user :: User.t(), actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
   def delete(%User{}, %Actor{} = actor), do: Repo.delete(actor)
 

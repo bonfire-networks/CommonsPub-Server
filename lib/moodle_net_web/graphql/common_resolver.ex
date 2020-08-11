@@ -19,6 +19,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Common
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
@@ -37,7 +38,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
-
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
       fetcher: :fetch_context_edges,
@@ -104,28 +104,14 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def delete(%{context_id: id}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, pointer} <- Pointers.one(id: id) do
-      context = Pointers.follow!(pointer)
-
-      if allow_delete?(user, context) do
-        apply(context.__struct__, :context_module, [])
-        |> apply(:soft_delete, [user, context])
-      else
+         {:ok, deleted} <- Common.trigger_soft_delete(id, user) do
+      {:ok, deleted}
+    else
+      e ->
+        IO.inspect(cannot_delete: e)
         GraphQL.not_permitted("delete")
-      end
     end
   end
-
-  # FIXME: boilerplate code
-  defp allow_delete?(user, context) do
-    user.local_user.is_instance_admin or allow_user_delete?(user, context)
-  end
-
-  defp allow_user_delete?(user, %type{creator_id: creator_id} = _context) do
-    type in [Flag, Like, Follow, Thread, Comment] and creator_id == user.id
-  end
-
-  defp allow_user_delete?(_, _), do: false
 
   # def tag(_, _, info) do
   #   {:ok, Simulation.tag()}

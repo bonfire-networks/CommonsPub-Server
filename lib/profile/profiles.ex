@@ -171,6 +171,10 @@ defmodule Profile.Profiles do
 
   # TODO: take the user who is performing the update
 
+  def update(%User{} = user, %Profile{} = profile, %{profile: attrs}) when is_map(attrs) do
+    update(user, profile, attrs)
+  end
+
   def update(%User{} = user, %Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Repo.update(Profile.update_changeset(profile, attrs)) do

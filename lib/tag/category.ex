@@ -41,6 +41,8 @@ defmodule CommonsPub.Tag.Category do
     ## allows it to be follow-able and federate activities
     has_one(:character, Character, foreign_key: :id)
 
+    belongs_to(:creator, User)
+
     field(:prefix, :string, virtual: true)
     field(:facet, :string, virtual: true)
 
@@ -48,13 +50,24 @@ defmodule CommonsPub.Tag.Category do
     field(:summary, :string, virtual: true)
     field(:canonical_url, :string, virtual: true)
     field(:preferred_username, :string, virtual: true)
+
+    field(:is_public, :boolean, virtual: true)
+    field(:is_disabled, :boolean, virtual: true, default: false)
+
+    field(:published_at, :utc_datetime_usec)
+    field(:disabled_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
   end
 
-  def create_changeset(attrs) do
+  def create_changeset(creator, attrs) do
     %Category{}
-    |> Changeset.change(parent_category_id: parent_category(attrs))
-    |> Changeset.change(same_as_category_id: same_as_category(attrs))
     |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(
+      creator_id: creator.id,
+      parent_category_id: parent_category(attrs),
+      same_as_category_id: same_as_category(attrs),
+      is_public: true
+    )
     |> common_changeset()
   end
 
@@ -88,6 +101,10 @@ defmodule CommonsPub.Tag.Category do
       ) do
     category
     |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(
+      parent_category_id: parent_category(attrs),
+      same_as_category_id: same_as_category(attrs)
+    )
     |> common_changeset()
   end
 
@@ -98,7 +115,7 @@ defmodule CommonsPub.Tag.Category do
     # |> change_disabled()
   end
 
-  def context_module, do: CommonsPub.Tag.Category.Categories
+  def context_module, do: CommonsPub.Tag.Categories
 
   def queries_module, do: CommonsPub.Tag.Category.Queries
 

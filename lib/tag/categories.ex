@@ -3,7 +3,7 @@ defmodule CommonsPub.Tag.Categories do
   alias Ecto.Changeset
 
   alias MoodleNet.{
-    # Common,
+    Common,
     # GraphQL,
     Repo,
     GraphQL.Page,
@@ -27,9 +27,10 @@ defmodule CommonsPub.Tag.Categories do
   def test_cursor(), do: &[&1["id"]]
 
   def one(filters), do: Repo.single(Queries.query(Category, filters))
-  def get(id), do: one(id: id, preload: :parent_category, preload: :profile, preload: :character)
+  def get(id), do: one([:default, id: id])
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Category, filters))}
+  def list(), do: many([:default])
 
   @doc """
   Retrieves an Page of categorys according to various filters
@@ -82,11 +83,21 @@ defmodule CommonsPub.Tag.Categories do
   @doc """
   Create a brand-new category object, with info stored in Profile and Character mixins
   """
-  def create(%User{} = creator, %{facet: facet} = attrs) when not is_nil(facet) do
+  def create(%User{} = creator, %{category: %{} = cat_attrs} = attrs) do
+    create(
+      creator,
+      attrs
+      |> Map.merge(cat_attrs)
+      |> Map.delete(:category)
+    )
+  end
+
+  def create(%User{} = creator, %{facet: facet} = attrs)
+      when not is_nil(facet) do
     Repo.transact_with(fn ->
       # TODO: check that the category doesn't already exist (same name and parent)
 
-      with {:ok, category} <- insert_category(attrs),
+      with {:ok, category} <- insert_category(creator, attrs),
            {:ok, attrs} <- attrs_mixins_with_id(attrs, category),
            {:ok, taggable} <-
              CommonsPub.Tag.Taggables.maybe_make_taggable(creator, category, attrs),
@@ -135,19 +146,34 @@ defmodule CommonsPub.Tag.Categories do
     Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
   end
 
-  defp insert_category(attrs) do
+  defp insert_category(user, attrs) do
     # IO.inspect(insert_category: attrs)
-    cs = Category.create_changeset(attrs)
+    cs = Category.create_changeset(user, attrs)
     with {:ok, category} <- Repo.insert(cs), do: {:ok, category}
   end
 
+  def update(%User{} = user, %Category{} = category, %{category: %{} = cat_attrs} = attrs) do
+    update(
+      user,
+      category,
+      attrs
+      |> Map.merge(cat_attrs)
+      |> Map.delete(:category)
+    )
+  end
+
   def update(%User{} = user, %Category{} = category, attrs) do
+    category = Repo.preload(category, [:profile, :character])
+
+    IO.inspect(category)
+    IO.inspect(attrs)
+
     Repo.transact_with(fn ->
       # :ok <- publish(category, :updated)
       with {:ok, category} <- Repo.update(Category.update_changeset(category, attrs)),
            {:ok, profile} <- Profile.Profiles.update(user, category.profile, attrs),
            {:ok, character} <- Characters.update(user, category.character, attrs) do
-        {:ok, %{category | character: character}}
+        {:ok, %{category | character: character, profile: profile}}
       end
     end)
   end
@@ -186,4 +212,15 @@ defmodule CommonsPub.Tag.Categories do
   @doc "conditionally update a map"
   def maybe_put(map, _key, nil), do: map
   def maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  def soft_delete(%Category{} = c) do
+    Repo.transact_with(fn ->
+      with {:ok, c} <- Common.soft_delete(c) do
+        {:ok, c}
+      else
+        e ->
+          {:error, e}
+      end
+    end)
+  end
 end

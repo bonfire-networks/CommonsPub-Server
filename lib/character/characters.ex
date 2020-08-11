@@ -266,11 +266,15 @@ defmodule Character.Characters do
 
   defp ap_publish(_, _, _, _), do: :ok
 
-  # TODO: take the user who is performing the update
-  @spec update(User.t(), Character.t(), attrs :: map) ::
-          {:ok, Character.t()} | {:error, Changeset.t()}
+  def update(%User{} = user, %Character{} = character, %{character: attrs}) when is_map(attrs) do
+    update(user, character, attrs)
+  end
+
   def update(%User{} = user, %Character{} = character, attrs) do
+    character = Repo.preload(character, :actor)
+
     Repo.transact_with(fn ->
+      # TODO: take the user who is performing the update
       with {:ok, character} <- Repo.update(Character.update_changeset(character, attrs)),
            {:ok, actor} <- Actors.update(user, character.actor, attrs),
            :ok <- publish(character, :updated) do
