@@ -56,6 +56,11 @@ defmodule MoodleNet.Follows do
     end
   end
 
+  def create(_, _, _, _) do
+    # fail silently
+    {:ok, nil}
+  end
+
   defp insert(follower, followed, fields) do
     Repo.insert(Follow.create_changeset(follower, followed, fields))
   end

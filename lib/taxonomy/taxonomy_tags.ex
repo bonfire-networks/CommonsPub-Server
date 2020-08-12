@@ -71,7 +71,7 @@ defmodule Taxonomy.TaxonomyTags do
   end
 
   @doc "Takes an existing TaxonomyTag and makes it a category, if one doesn't already exist"
-  def maybe_make_category(%User{} = user, %TaxonomyTag{} = tag) do
+  def maybe_make_category(user, %TaxonomyTag{} = tag) do
     Repo.transact_with(fn ->
       tag = Repo.preload(tag, [:category, :parent_tag])
 
@@ -87,13 +87,17 @@ defmodule Taxonomy.TaxonomyTags do
     end)
   end
 
-  def maybe_make_category(%User{} = user, id) when is_number(id) do
+  def maybe_make_category(user, id) when is_number(id) do
     with {:ok, tag} <- get(id) do
       maybe_make_category(user, tag)
     end
   end
 
-  defp make_category(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)
+  def maybe_make_category(user, id) do
+    maybe_make_category(user, String.to_integer(id))
+  end
+
+  defp make_category(user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)
        when not is_nil(parent_tag_id) do
     tag = Repo.preload(tag, [:category, :parent_tag])
     parent_tag = tag.parent_tag
@@ -118,11 +122,11 @@ defmodule Taxonomy.TaxonomyTags do
     create_category(user, tag, create_tag)
   end
 
-  defp make_category(%User{} = user, %TaxonomyTag{} = tag) do
+  defp make_category(user, %TaxonomyTag{} = tag) do
     create_category(user, tag, cleanup(tag))
   end
 
-  defp create_category(%User{} = user, tag, attrs) do
+  defp create_category(user, tag, attrs) do
     # IO.inspect(create_category: tag)
 
     Repo.transact_with(fn ->
@@ -150,7 +154,7 @@ defmodule Taxonomy.TaxonomyTags do
     |> Map.delete(:id)
   end
 
-  def update(%User{} = _user, %TaxonomyTag{} = tag, attrs) do
+  def update(_user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
       #  {:ok, character} <- Character.update(user, tag.character, attrs)
       # :ok <- publish(tag, :updated)

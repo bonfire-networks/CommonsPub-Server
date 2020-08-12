@@ -2,11 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Feeds.FeedActivities do
-
   alias MoodleNet.{Repo, Feeds}
   alias MoodleNet.Feeds.{FeedActivity, FeedActivitiesQueries}
   alias Ecto.ULID
-  
 
   @doc """
   Retrieves a single feed activity by arbitrary filters.
@@ -29,24 +27,25 @@ defmodule MoodleNet.Feeds.FeedActivities do
   end
 
   @doc "Publish an activity to the feeds with the given ids"
-  @spec publish(Activity.t, feed_ids :: [binary]) :: :ok
+  @spec publish(Activity.t(), feed_ids :: [binary]) :: :ok
+
+  def publish(nil, _), do: :ok
+
   def publish(activity, feed_ids) when is_list(feed_ids) do
     case Enum.flat_map(feed_ids, &publish_activity(activity.id, &1)) do
       [] -> :ok
-      many -> with {_,_} <- Repo.insert_all(FeedActivity, many), do: :ok
+      many -> with {_, _} <- Repo.insert_all(FeedActivity, many), do: :ok
     end
   end
 
   defp publish_activity(_, nil), do: []
 
-  defp publish_activity(activity, id) when is_binary(id) do
-    [%{feed_id: id, activity_id: activity, id: ULID.generate()}]
+  defp publish_activity(activity_id, id) when is_binary(id) do
+    [%{feed_id: id, activity_id: activity_id, id: ULID.generate()}]
   end
 
   def default_query_contexts() do
     Application.fetch_env!(:moodle_net, Feeds)
     |> Map.fetch!(:default_query_contexts)
   end
-
 end
-

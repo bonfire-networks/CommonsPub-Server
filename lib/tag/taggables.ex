@@ -85,7 +85,7 @@ defmodule CommonsPub.Tag.Taggables do
   @doc """
   Create a taggable mixin for an existing poitable object (please use maybe_make_taggable instead)
   """
-  defp make_taggable(%User{} = creator, %{} = pointer_obj, attrs) when is_map(attrs) do
+  defp make_taggable(creator, %{} = pointer_obj, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       # TODO: check that the taggable doesn't already exist (same name and parent)
 
@@ -121,7 +121,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   # TODO: take the user who is performing the update
-  def update(%User{} = user, %Taggable{} = taggable, attrs) do
+  def update(user, %Taggable{} = taggable, attrs) do
     Repo.transact_with(fn ->
       # :ok <- publish(taggable, :updated)
       with {:ok, taggable} <- Repo.update(Taggable.update_changeset(taggable, attrs)) do

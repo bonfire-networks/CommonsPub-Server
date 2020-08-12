@@ -83,7 +83,7 @@ defmodule CommonsPub.Tag.Categories do
   @doc """
   Create a brand-new category object, with info stored in Profile and Character mixins
   """
-  def create(%User{} = creator, %{category: %{} = cat_attrs} = attrs) do
+  def create(creator, %{category: %{} = cat_attrs} = attrs) do
     create(
       creator,
       attrs
@@ -92,7 +92,7 @@ defmodule CommonsPub.Tag.Categories do
     )
   end
 
-  def create(%User{} = creator, %{facet: facet} = attrs)
+  def create(creator, %{facet: facet} = attrs)
       when not is_nil(facet) do
     Repo.transact_with(fn ->
       # TODO: check that the category doesn't already exist (same name and parent)
@@ -115,7 +115,7 @@ defmodule CommonsPub.Tag.Categories do
     end)
   end
 
-  def create(%User{} = creator, attrs) do
+  def create(creator, attrs) do
     create(creator, Map.put(attrs, :facet, @facet_name))
   end
 
@@ -152,7 +152,7 @@ defmodule CommonsPub.Tag.Categories do
     with {:ok, category} <- Repo.insert(cs), do: {:ok, category}
   end
 
-  def update(%User{} = user, %Category{} = category, %{category: %{} = cat_attrs} = attrs) do
+  def update(user, %Category{} = category, %{category: %{} = cat_attrs} = attrs) do
     update(
       user,
       category,
@@ -162,7 +162,7 @@ defmodule CommonsPub.Tag.Categories do
     )
   end
 
-  def update(%User{} = user, %Category{} = category, attrs) do
+  def update(user, %Category{} = category, attrs) do
     category = Repo.preload(category, [:profile, :character])
 
     IO.inspect(category)
@@ -180,10 +180,10 @@ defmodule CommonsPub.Tag.Categories do
 
   # Feeds
 
-  defp publish(creator, %{outbox_id: caretaker_outbox}, category, activity) do
+  defp publish(%{outbox_id: creator_outbox}, %{outbox_id: caretaker_outbox}, category, activity) do
     feeds = [
       caretaker_outbox,
-      creator.outbox_id,
+      creator_outbox,
       category.outbox_id,
       Feeds.instance_outbox_id()
     ]
@@ -191,8 +191,13 @@ defmodule CommonsPub.Tag.Categories do
     FeedActivities.publish(activity, feeds)
   end
 
-  defp publish(creator, _, category, activity) do
-    feeds = [category.outbox_id, creator.outbox_id, Feeds.instance_outbox_id()]
+  defp publish(%{outbox_id: creator_outbox}, _, category, activity) do
+    feeds = [category.outbox_id, creator_outbox, Feeds.instance_outbox_id()]
+    FeedActivities.publish(activity, feeds)
+  end
+
+  defp publish(_, _, category, activity) do
+    feeds = [category.outbox_id, Feeds.instance_outbox_id()]
     FeedActivities.publish(activity, feeds)
   end
 

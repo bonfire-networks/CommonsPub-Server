@@ -5,6 +5,7 @@
 defmodule CommonsPub.HTML.Formatter do
   alias CommonsPub.HTML.Scrubber
   alias MoodleNet.Config
+  alias MoodleNet.Repo
   alias MoodleNet.Users.User
   alias MoodleNet.Users
 
@@ -70,52 +71,70 @@ defmodule CommonsPub.HTML.Formatter do
   def mention_handler("+" <> nickname, buffer, opts, acc) do
     IO.inspect(mention: nickname)
 
+    ct = Map.get(opts, :content_type)
+
     # TODO, link to Collection and Taggable
 
-    case MoodleNet.Communities.get(nickname) do
-      %{id: id} = character ->
-        IO.inspect(found: character)
-        mention_prepare(character, acc, Map.get(opts, :content_type))
+    if MoodleNetWeb.Helpers.Common.is_numeric(nickname) and
+         Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
+      with {:ok, category} <- Taxonomy.TaxonomyTags.maybe_make_category(nil, nickname) do
+        mention_prepare(category, acc, ct)
+      end
+    else
+      case MoodleNet.Collections.get(nickname) do
+        %{id: id} = character ->
+          IO.inspect(found: character)
+          mention_prepare(character, acc, ct)
 
-      _ ->
-        {buffer, acc}
+        _ ->
+          # case CommonsPub.Tag.Categories.get(nickname) do
+          #   %{id: id} = character ->
+          #     IO.inspect(found: character)
+          #     mention_prepare(character, acc, ct)
+
+          #   _ ->
+          {buffer, acc}
+          # end
+      end
     end
   end
 
-  defp mention_prepare(character, acc, content_type \\ "text/html")
+  defp mention_prepare(obj, acc, content_type \\ "text/html")
 
-  defp mention_prepare(character, acc, nil),
-    do: mention_prepare(character, acc, "text/html")
+  defp mention_prepare(obj, acc, nil),
+    do: mention_prepare(obj, acc, "text/html")
 
-  defp mention_prepare(character, acc, "text/html") do
-    user_url = character.actor.canonical_url
-    nickname_text = MoodleNet.Actors.display_username(character)
+  defp mention_prepare(obj, acc, "text/html") do
+    obj = MoodleNet.Actors.obj_load_actor(obj)
+    url = MoodleNet.Actors.obj_actor(obj).canonical_url
+    display_name = MoodleNet.Actors.display_username(obj)
 
     link =
       Phoenix.HTML.Tag.content_tag(
         :span,
         Phoenix.HTML.Tag.content_tag(
           :a,
-          nickname_text,
-          "data-user": character.id,
+          display_name,
+          "data-user": obj.id,
           class: "u-url mention",
-          href: user_url,
+          href: url,
           rel: "ugc"
         ),
         class: "h-card"
       )
       |> Phoenix.HTML.safe_to_string()
 
-    {link, %{acc | mentions: MapSet.put(acc.mentions, {nickname_text, character})}}
+    {link, %{acc | mentions: MapSet.put(acc.mentions, {display_name, obj})}}
   end
 
-  defp mention_prepare(character, acc, "text/markdown") do
-    user_url = character.actor.canonical_url
-    nickname_text = MoodleNet.Actors.display_username(character)
+  defp mention_prepare(obj, acc, "text/markdown") do
+    obj = MoodleNet.Actors.obj_load_actor(obj)
+    url = MoodleNet.Actors.obj_actor(obj).canonical_url
+    display_name = MoodleNet.Actors.display_username(obj)
 
-    link = "[#{nickname_text}](#{user_url})"
+    link = "[#{display_name}](#{url})"
 
-    {link, %{acc | mentions: MapSet.put(acc.mentions, {nickname_text, character})}}
+    {link, %{acc | mentions: MapSet.put(acc.mentions, {display_name, obj})}}
   end
 
   def hashtag_handler("#" <> tag = tag_text, _buffer, opts, acc) do

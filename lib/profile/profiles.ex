@@ -86,11 +86,11 @@ defmodule Profile.Profiles do
 
   ## mutations
 
-  def create(%User{} = creator, %{profile: attrs, id: id}) when is_map(attrs) do
+  def create(creator, %{profile: attrs, id: id}) when is_map(attrs) do
     create(creator, Map.put(attrs, :id, id))
   end
 
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  def create(creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- insert_profile(creator, attrs) do
         #  act_attrs = %{verb: "created", is_local: true},
@@ -108,7 +108,7 @@ defmodule Profile.Profiles do
   end
 
   @doc "Takes a Pointer to something and creates a Profile based on it"
-  def add_profile_to(%User{} = user, %Pointer{} = pointer) do
+  def add_profile_to(user, %Pointer{} = pointer) do
     thing = MoodleNet.Meta.Pointers.follow!(pointer)
 
     if(is_nil(thing.profile_id)) do
@@ -118,13 +118,13 @@ defmodule Profile.Profiles do
     end
   end
 
-  def add_profile_to(%User{} = user, pointer_id) when is_binary(pointer_id) do
+  def add_profile_to(user, pointer_id) when is_binary(pointer_id) do
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: pointer_id)
     add_profile_to(user, pointer)
   end
 
   @doc "Takes anything and creates a Profile based on it"
-  def add_profile_to(%User{} = user, %{} = thing) do
+  def add_profile_to(user, %{} = thing) do
     # IO.inspect(thing)
     thing_name = thing.__struct__
     thing_context_module = apply(thing_name, :context_module, [])
@@ -171,11 +171,11 @@ defmodule Profile.Profiles do
 
   # TODO: take the user who is performing the update
 
-  def update(%User{} = user, %Profile{} = profile, %{profile: attrs}) when is_map(attrs) do
+  def update(user, %Profile{} = profile, %{profile: attrs}) when is_map(attrs) do
     update(user, profile, attrs)
   end
 
-  def update(%User{} = user, %Profile{} = profile, attrs) do
+  def update(user, %Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Repo.update(Profile.update_changeset(profile, attrs)) do
         {:ok, profile}

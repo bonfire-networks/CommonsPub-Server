@@ -31,6 +31,12 @@ defmodule MoodleNet.Collections do
   @doc "Retrieves a single collection by arbitrary filters."
   def one(filters), do: Repo.single(Queries.query(Collection, filters))
 
+  def get(username) do
+    with {:ok, c} <- one([:default, username: username]) do
+      c
+    end
+  end
+
   @doc "Retrieves a list of collections by arbitrary filters."
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Collection, filters))}
 

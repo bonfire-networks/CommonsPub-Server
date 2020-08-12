@@ -142,6 +142,10 @@ defmodule MoodleNet.Actors do
     display_username(obj, "+")
   end
 
+  def display_username(%CommonsPub.Tag.Category{} = obj) do
+    display_username(obj, "+")
+  end
+
   def display_username(%MoodleNet.Users.User{} = obj) do
     display_username(obj, "@")
   end
@@ -151,6 +155,13 @@ defmodule MoodleNet.Actors do
   end
 
   def display_username(%{actor: %Actor{peer_id: nil, preferred_username: uname}}, prefix) do
+    prefix <> uname <> "@" <> MoodleNet.Instance.hostname()
+  end
+
+  def display_username(
+        %{character: %{actor: %Actor{peer_id: nil, preferred_username: uname}}},
+        prefix
+      ) do
     prefix <> uname <> "@" <> MoodleNet.Instance.hostname()
   end
 
@@ -165,5 +176,29 @@ defmodule MoodleNet.Actors do
 
   def display_username(%{}, _) do
     nil
+  end
+
+  def obj_load_actor(%{actor: actor} = obj) do
+    Repo.preload(obj, :actor)
+  end
+
+  def obj_load_actor(%{character: %{actor: actor} = character}) do
+    Repo.preload(character, :actor)
+  end
+
+  def obj_load_actor(%{character: character} = obj) do
+    Repo.preload(obj, character: :actor)
+  end
+
+  def obj_actor(%{actor: actor} = obj) do
+    obj_load_actor(obj).actor
+  end
+
+  def obj_actor(%{character: %{actor: actor} = character} = obj) do
+    obj_load_actor(obj).actor
+  end
+
+  def obj_actor(%{character: character} = obj) do
+    obj_load_actor(obj).character.actor
   end
 end

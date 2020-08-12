@@ -59,11 +59,22 @@ defmodule CommonsPub.Tag.Category do
     field(:deleted_at, :utc_datetime_usec)
   end
 
+  def create_changeset(nil, attrs) do
+    %Category{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(
+      parent_category_id: parent_category(attrs),
+      same_as_category_id: same_as_category(attrs),
+      is_public: true
+    )
+    |> common_changeset()
+  end
+
   def create_changeset(creator, attrs) do
     %Category{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      creator_id: creator.id,
+      creator_id: Map.get(creator, :id, nil),
       parent_category_id: parent_category(attrs),
       same_as_category_id: same_as_category(attrs),
       is_public: true
