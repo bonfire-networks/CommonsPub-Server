@@ -167,8 +167,8 @@ defmodule MoodleNet.Mixfile do
       {:html_sanitize_ex, "~> 1.4"},
       {
         :linkify,
-        git: "https://gitlab.com/CommonsPub/linkify.git"
-        # path: "uploads/linkify"
+        # git: "https://gitlab.com/CommonsPub/linkify.git"
+        path: "uploads/linkify"
         # "~> 0.2.0"
       },
       # geolocation in postgres

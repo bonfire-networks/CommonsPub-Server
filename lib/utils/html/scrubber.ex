@@ -21,16 +21,51 @@ defmodule CommonsPub.HTML.Scrubber do
   #   end
   # end
 
+  @default_scrubber HtmlSanitizeEx.Scrubber.MarkdownHTML
+
+  # @default_scrubber CommonsPub.HTML.Scrubber.SomeFormatting
+
   defp get_scrubbers(scrubber) when is_atom(scrubber), do: [scrubber]
   defp get_scrubbers(scrubbers) when is_list(scrubbers), do: scrubbers
-  defp get_scrubbers(_), do: [CommonsPub.HTML.Scrubber.Default]
+  defp get_scrubbers(_), do: [@default_scrubber]
 
   def get_scrubbers do
     MoodleNet.Config.get([:markup, :scrub_policy], [
-      CommonsPub.HTML.Scrubber.Default
+      @default_scrubber
       # CommonsPub.HTML.Transform.MediaProxy
     ])
     |> get_scrubbers
+  end
+
+  def scrub_html(content) when is_binary(content) do
+    content
+    # html content comes from DB already encoded, decode first and scrub after
+    |> HtmlEntities.decode()
+    |> String.replace(~r/<br\s?\/?>/, " ")
+    |> strip_tags()
+  end
+
+  def scrub_html(content), do: content
+
+  def scrub_html_and_truncate(content, max_length \\ 200)
+
+  def scrub_html_and_truncate(%{data: %{"content" => content}} = object, max_length) do
+    content
+    # if html content comes from DB already encoded, decode first and scrub after
+    |> HtmlEntities.decode()
+    |> String.replace(~r/<br\s?\/?>/, " ")
+    |> get_cached_stripped_html_for_object(object, "metadata")
+    # |> Emoji.Formatter.demojify()
+    |> HtmlEntities.decode()
+    |> CommonsPub.HTML.truncate(max_length)
+  end
+
+  def scrub_html_and_truncate(content, max_length) when is_binary(content) do
+    content
+    |> scrub_html
+    # |> Emoji.Formatter.demojify()
+    |> HtmlEntities.decode()
+    |> CommonsPub.HTML.truncate(max_length)
   end
 
   def filter_tags(html, nil) do
@@ -48,31 +83,31 @@ defmodule CommonsPub.HTML.Scrubber do
   end
 
   def filter_tags(html), do: filter_tags(html, nil)
+
   def strip_tags(html), do: filter_tags(html, HtmlSanitizeEx.Scrubber.StripTags)
 
-  def get_cached_scrubbed_html_for_activity(
-        content,
-        scrubbers,
-        activity,
-        key \\ "",
-        callback \\ fn x -> x end
-      ) do
-    key = "#{key}#{generate_scrubber_signature(scrubbers)}|#{activity.id}"
-
-    Cachex.fetch!(:scrubber_cache, key, fn _key ->
-      object = activity.object
-      ensure_scrubbed_html(content, scrubbers, object.data["fake"] || false, callback)
-    end)
-  end
-
-  def get_cached_stripped_html_for_activity(content, activity, key) do
-    get_cached_scrubbed_html_for_activity(
+  def get_cached_stripped_html_for_object(content, data, key) do
+    get_cached_scrubbed_html(
       content,
       HtmlSanitizeEx.Scrubber.StripTags,
-      activity,
+      data,
       key,
       &HtmlEntities.decode/1
     )
+  end
+
+  def get_cached_scrubbed_html(
+        content,
+        scrubbers,
+        data,
+        key \\ "",
+        callback \\ fn x -> x end
+      ) do
+    key = "#{key}#{generate_scrubber_signature(scrubbers)}|#{data.id}"
+
+    Cachex.fetch!(:scrubber_cache, key, fn _key ->
+      ensure_scrubbed_html(content, scrubbers, false, callback)
+    end)
   end
 
   def ensure_scrubbed_html(

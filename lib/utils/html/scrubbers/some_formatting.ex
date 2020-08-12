@@ -1,4 +1,4 @@
-defmodule CommonsPub.HTML.Scrubber.Default do
+defmodule CommonsPub.HTML.Scrubber.SomeFormatting do
   @doc "A suggested default HTML scrubbing policy "
 
   require HtmlSanitizeEx.Scrubber.Meta
