@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Locales.GraphQL.Resolver do
+defmodule CommonsPub.Locales.GraphQL.Resolver do
   @moduledoc "GraphQL Language and Country queries"
   # alias MoodleNet.{GraphQL}
   alias MoodleNet.GraphQL.{
@@ -17,10 +17,10 @@ defmodule Locales.GraphQL.Resolver do
     ResolveRootPage
   }
 
-  alias Locales.Language
-  alias Locales.Languages
-  alias Locales.Country
-  alias Locales.Countries
+  alias CommonsPub.Locales.Language
+  alias CommonsPub.Locales.Languages
+  alias CommonsPub.Locales.Country
+  alias CommonsPub.Locales.Countries
 
   def language(%{language_id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -53,7 +53,7 @@ defmodule Locales.GraphQL.Resolver do
 
   def fetch_languages(page_opts, _info) do
     FetchPage.run(%FetchPage{
-      queries: Locales.Languages.Queries,
+      queries: CommonsPub.Locales.Languages.Queries,
       query: Language,
       # cursor_fn: Locales.cursor,
       page_opts: page_opts,
@@ -93,7 +93,7 @@ defmodule Locales.GraphQL.Resolver do
 
   def fetch_countries(page_opts, _info) do
     FetchPage.run(%FetchPage{
-      queries: Locales.Countries.Queries,
+      queries: CommonsPub.Locales.Countries.Queries,
       query: Country,
       # cursor_fn: Locales.cursor,
       page_opts: page_opts

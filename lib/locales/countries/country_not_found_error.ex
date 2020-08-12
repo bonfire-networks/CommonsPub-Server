@@ -1,24 +1,23 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Localisation.LanguageNotFoundError do
+defmodule CommonsPub.Locales.Country.Error.NotFound do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
   @type t :: %__MODULE__{
-    message: binary,
-    code: binary,
-    status: integer,
-  }
+          message: binary,
+          code: binary,
+          status: integer
+        }
 
-  @doc "Create a new LanguageNotFoundError with the given iso code"
   @spec new() :: t
+  @doc "Create a new Country.Error.NotFound"
   def new() do
     %__MODULE__{
-      message: "Language not found",
-      code: "language_not_found",
-      status: 404,
+      message: "Country not found",
+      code: "country_not_found",
+      status: 404
     }
   end
-
 end

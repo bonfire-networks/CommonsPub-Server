@@ -21,9 +21,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     FollowsSchema,
     InstanceSchema,
     LikesSchema,
-    # LocalisationSchema,
     MiscSchema,
-    MoodleverseSchema,
     ResourcesSchema,
     ThreadsSchema,
     UsersSchema,
@@ -59,9 +57,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(InstanceSchema)
   import_types(JSON)
   import_types(LikesSchema)
-  # import_types LocalisationSchema
   import_types(MiscSchema)
-  import_types(MoodleverseSchema)
   import_types(ResourcesSchema)
   import_types(ThreadsSchema)
   import_types(UsersSchema)
@@ -71,7 +67,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(Profile.GraphQL.Schema)
   import_types(Character.GraphQL.Schema)
   import_types(Organisation.GraphQL.Schema)
-  import_types(Locales.GraphQL.Schema)
+  import_types(CommonsPub.Locales.GraphQL.Schema)
   import_types(CommonsPub.Tag.GraphQL.TagSchema)
   import_types(Taxonomy.GraphQL.TaxonomySchema)
   import_types(Measurement.Unit.GraphQL)
@@ -91,8 +87,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields(:follows_queries)
     import_fields(:instance_queries)
     import_fields(:likes_queries)
-    # import_fields :localisation_queries
-    import_fields(:moodleverse_queries)
     import_fields(:resources_queries)
     import_fields(:threads_queries)
     import_fields(:users_queries)
