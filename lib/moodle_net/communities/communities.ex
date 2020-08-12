@@ -36,6 +36,12 @@ defmodule MoodleNet.Communities do
   @doc "Retrieves a single community by arbitrary filters."
   def one(filters), do: Repo.single(Queries.query(Community, filters))
 
+  def get(username) do
+    with {:ok, c} <- one([:default, username: username]) do
+      c
+    end
+  end
+
   @doc "Retrieves a list of communities by arbitrary filters."
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Community, filters))}
 
