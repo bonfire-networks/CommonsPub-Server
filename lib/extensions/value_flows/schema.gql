@@ -2172,8 +2172,15 @@ type ValueFlowsMutation {
   deleteCommitment(id: ID!): Boolean
 
   createIntent(intent: IntentCreateParams): IntentResponse
-  # TODO: remove receiver/provider from params if its based on current user
+
+  """
+  Creates a new offer for the logged in user, will ignore any provider specified.
+  """
   createOffer(intent: IntentCreateParams): IntentResponse
+
+  """
+  Creates a new need for the logged in user, will ignore any receiver specified.
+  """
   createNeed(intent: IntentCreateParams): IntentResponse
 
   updateIntent(intent: IntentUpdateParams): IntentResponse
