@@ -39,11 +39,11 @@ defmodule MoodleNet.Test.Faking do
     wl
   end
 
-  def fake_language!(overrides \\ %{}) do
-    overrides
-    |> Map.get(:id, "en")
-    |> Localisation.language!()
-  end
+  # def fake_language!(overrides \\ %{}) do
+  #   overrides
+  #   |> Map.get(:id, "en")
+  #   |> Localisation.language!()
+  # end
 
   def fake_peer!(overrides \\ %{}) when is_map(overrides) do
     {:ok, peer} = Peers.create(peer(overrides))

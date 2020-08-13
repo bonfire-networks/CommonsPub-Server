@@ -232,7 +232,7 @@ config :moodle_net, :instance,
 config :moodle_net, ecto_repos: [MoodleNet.Repo]
 
 config :moodle_net, MoodleNet.Repo,
-  types: MoodleNet.PostgresTypes,
+  types: Forkable.PostgresTypes,
   migration_primary_key: [name: :id, type: :binary_id]
 
 config :logger, :console,

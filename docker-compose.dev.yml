@@ -50,7 +50,7 @@ services:
   search:
     image: getmeili/meilisearch:latest
     ports:
-      - "7709:7700"
+      - "7700:7700"
     volumes:
       - "./data/search:/data.ms"
     env_file:

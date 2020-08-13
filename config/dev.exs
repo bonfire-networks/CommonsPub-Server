@@ -95,7 +95,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  # types: MoodleNet.PostgresTypes,
+  # types: Forkable.PostgresTypes,
   username: System.get_env("POSTGRES_USER", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   database: System.get_env("POSTGRES_DB", "commonspub_dev"),

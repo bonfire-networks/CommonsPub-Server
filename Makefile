@@ -16,8 +16,10 @@ init:
 help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-build_without_cache: init ## Build the Docker image
-	@cp lib/*/overlay/* rel/overlays/
+prepare_for_release:
+	@cp lib/*/*/overlay/* rel/overlays/
+
+build_without_cache: init prepare_for_release ## Build the Docker image
 	@docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
@@ -26,8 +28,7 @@ build_without_cache: init ## Build the Docker image
 		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
 	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
-build: init ## Build the Docker image using previous cache
-	@cp lib/*/overlay/* rel/overlays/
+build: init prepare_for_release ## Build the Docker image using previous cache
 	@docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
@@ -158,15 +159,6 @@ manual-deps: init ## Prepare dependencies (without Docker)
 
 manual-db: init ## Create or reset the DB (without Docker)
 	mix ecto.reset
-
-good-tests: init
-	mix test test/moodle_net/{access,activities,actors,collections,comments,common} \
-                 test/moodle_net/{communities,localisation,meta,peers,resources,users} \
-                 test/moodle_net_web/plugs/ \
-                 test/moodle_net_web/graphql/{users,temporary}_test.exs \
-
-vf-tests: init
-	mix test lib/value_flows/{geolocation}/tests.ex 
 
 prepare: init ## Run the app in Docker
 	docker-compose pull 

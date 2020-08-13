@@ -9,7 +9,7 @@ defmodule MoodleNet.Mixfile do
     [
       app: :moodle_net,
       version: "0.9.6-dev",
-      elixir: "~> 1.10.0",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
       start_permanent: Mix.env() == :prod,
@@ -167,8 +167,9 @@ defmodule MoodleNet.Mixfile do
       {:html_sanitize_ex, "~> 1.4"},
       {
         :linkify,
-        # git: "https://gitlab.com/CommonsPub/linkify.git"
-        path: "uploads/linkify"
+        git: "https://gitlab.com/CommonsPub/linkify.git",
+        ref: "9360ed495ec04ab0f9f254670484f01dea668d38"
+        # path: "uploads/linkify"
         # "~> 0.2.0"
       },
       # geolocation in postgres
