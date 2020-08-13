@@ -315,8 +315,8 @@ defmodule CommonsPub.Character.Characters do
     update(user, character, attrs)
   end
 
-  def update(user, %Character{} = character, attrs) do
-    character = Repo.preload(character, :actor)
+  def update(user, %Character{} = character, attrs) when is_map(attrs) do
+    # character = Repo.preload(character, :actor)
 
     Repo.transact_with(fn ->
       with {:ok, character} <-
@@ -326,6 +326,11 @@ defmodule CommonsPub.Character.Characters do
         {:ok, character}
       end
     end)
+  end
+
+  def update(_, character, _) do
+    # fail silently if we haven't been passed a proper character or attrs
+    {:ok, character}
   end
 
   def update_by(%User{}, filters, updates) do
@@ -417,7 +422,11 @@ defmodule CommonsPub.Character.Characters do
     display_username(obj, "+")
   end
 
-  def display_username(%Tag.Taggable{} = obj) do
+  def display_username(%CommonsPub.Tag.Taggable{} = obj) do
+    display_username(obj, "+")
+  end
+
+  def display_username(%CommonsPub.Tag.Category{} = obj) do
     display_username(obj, "+")
   end
 

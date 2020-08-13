@@ -10,7 +10,6 @@ defmodule CommonsPub.Character do
 
   alias Ecto.Changeset
   alias CommonsPub.Character
-  alias CommonsPub.Character
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
 
@@ -64,7 +63,7 @@ defmodule CommonsPub.Character do
   def create_changeset(
         nil,
         # %{id: _} = characteristic,
-        %Actor{} = actor,
+        # %Actor{} = actor,
         attrs
       ) do
     %Character{}
@@ -72,8 +71,18 @@ defmodule CommonsPub.Character do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       # characteristic_id: characteristic_pointer_id(attrs),
-      actor_id: actor.id,
+      # actor_id: actor.id,
       is_public: true
+    )
+    |> validate_username()
+    |> cast_url()
+    # with peer
+    |> Changeset.unique_constraint(:preferred_username,
+      name: "mn_actor_preferred_username_peer_id_index"
+    )
+    # without peer (local)
+    |> Changeset.unique_constraint(:preferred_username,
+      name: "mn_actor_peer_id_null_index"
     )
     |> common_changeset()
   end

@@ -180,8 +180,8 @@ defmodule Profile.Profiles do
   def update(user, %Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Repo.update(Profile.update_changeset(profile, attrs)),
-           {:ok, character} <- Characters.update(user, profile.character, attrs),
-           :ok <- publish(profile, :updated) do
+           {:ok, character} <- Characters.update(user, profile.character, attrs) do
+        #  :ok <- publish(profile, :updated) do
         {:ok, %{profile | character: character}}
       end
     end)
