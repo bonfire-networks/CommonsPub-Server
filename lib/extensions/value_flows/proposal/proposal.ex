@@ -20,13 +20,17 @@ defmodule ValueFlows.Proposal do
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)
     field(:published_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
 
     field(:is_public, :boolean, virtual: true)
+    field(:unit_based, :boolean, default: false)
 
     belongs_to(:creator, User)
     belongs_to(:context, Pointers.Pointer)
-    field(:unit_based, :boolean, default: false)
     belongs_to(:eligible_location, Geolocation)
+
+    many_to_many(:publishes, Intent, join_through: ProposedIntent)
+    # many_to_many(:proposed_to, Agent, join_through: ProposedTo)
 
     timestamps(inserted_at: false)
   end
