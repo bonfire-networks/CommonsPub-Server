@@ -14,7 +14,8 @@ defmodule ValueFlows.Proposals do
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
 
-  alias ValueFlows.Proposal.Queries
+  alias ValueFlows.Proposal.{ProposedIntentQueries, ProposedIntent, Queries}
+  alias ValueFlows.Planning.Intent
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -28,12 +29,18 @@ defmodule ValueFlows.Proposals do
   """
   def one(filters), do: Repo.single(Queries.query(Proposal, filters))
 
+  def one_proposed_intent(filters),
+    do: Repo.single(ProposedIntentQueries.query(ProposedIntent, filters))
+
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for collections (inc. tests)
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Proposal, filters))}
+
+  def many_proposed_intents(filters),
+    do: {:ok, Repo.all(Queries.query(ProposedIntent, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -201,6 +208,14 @@ defmodule ValueFlows.Proposals do
         {:ok, proposal}
       end
     end)
+  end
+
+  def propose_intent(%Proposal{} = proposal, %Intent{} = intent, attrs) do
+    Repo.insert(ProposedIntent.changeset(proposal, intent, attrs))
+  end
+
+  def delete_proposed_intent(%ProposedIntent{} = proposed_intent) do
+    Common.soft_delete(proposed_intent)
   end
 
   defp index(obj) do

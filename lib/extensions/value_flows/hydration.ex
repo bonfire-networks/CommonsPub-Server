@@ -49,7 +49,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
         publishes: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intent_edge/2,
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intents_edge/2,
         ],
       },
       intent: %{
