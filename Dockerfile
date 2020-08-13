@@ -1,6 +1,6 @@
 # The version of Elixir to use
 # ATTENTION: when changing Elixir version, make sure to update the `ALPINE_VERSION` arg
-# as well as the Elixir version in .gitlab-ci.yml and Dockerfile.dev and .tool-versions
+# as well as the Elixir version in mix.exs and .gitlab-ci.yml and Dockerfile.dev and .tool-versions
 ARG ELIXIR_VERSION=1.10.4
 
 # The version of Alpine to use for the final image

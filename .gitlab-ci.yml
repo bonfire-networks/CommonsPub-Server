@@ -4,7 +4,7 @@ variables:
   POSTGRES_DB: moodle_net_test
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
-  DATABASE_HOST: postgres1.10.4
+  DATABASE_HOST: postgres
   MIX_ENV: test
   HOSTNAME: localhost
 
