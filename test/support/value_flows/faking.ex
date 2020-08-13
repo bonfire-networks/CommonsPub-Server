@@ -18,7 +18,7 @@ defmodule ValueFlows.Test.Faking do
   alias ValueFlows.Proposals
 
   def assert_proposal(%Proposal{} = proposal) do
-    assert_proposal(Map.from_struct(intent))
+    assert_proposal(Map.from_struct(proposal))
   end
 
   def assert_proposal(proposal) do
