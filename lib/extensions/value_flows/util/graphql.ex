@@ -4,7 +4,6 @@
 defmodule ValueFlows.Util.GraphQL do
   use Absinthe.Schema.Notation
   alias MoodleNet.Repo
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
   # import_sdl path: "lib/value_flows/graphql/schemas/util.gql"
@@ -20,8 +19,12 @@ defmodule ValueFlows.Util.GraphQL do
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
 
-  def at_location_edge(%{at_location_id: id} = thing, _, _) do
+  def at_location_edge(%{at_location_id: id} = thing, _, _) when not is_nil(id) do
     thing = Repo.preload(thing, :at_location)
     {:ok, Geolocation.Geolocations.populate_coordinates(Map.get(thing, :at_location, nil))}
+  end
+
+  def at_location_edge(_, _, _) do
+    {:ok, nil}
   end
 end

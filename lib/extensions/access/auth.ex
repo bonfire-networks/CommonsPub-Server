@@ -76,7 +76,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
     end
   end
 
-  def login(conn, token, opts \\ %{}) do
+  def login(conn, token, _opts \\ %{}) do
     with {:ok, token} <- Access.fetch_token_and_user(token) do
       login(conn, token)
     else
@@ -148,8 +148,9 @@ defmodule MoodleNetWeb.Plugs.Auth do
   end
 
   def confirm_email(conn, token) do
-    {ok, res} = MoodleNetWeb.GraphQL.UsersResolver.confirm_email(%{token: token}, %{})
-    # IO.inspect(res)
-    login(conn, res.token, %{})
+    with {ok, res} <- MoodleNetWeb.GraphQL.UsersResolver.confirm_email(%{token: token}, %{}) do
+      # IO.inspect(res)
+      login(conn, res.token, %{})
+    end
   end
 end

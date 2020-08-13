@@ -75,17 +75,14 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # without pagination
   def all_organizations(%{}, info) do
-    {:ok,
-     ValueFlows.Agent.Organizations.organizations(
-       signed_in_user: MoodleNet.GraphQL.current_user(info)
-     )}
+    {:ok, ValueFlows.Agent.Organizations.organizations(MoodleNet.GraphQL.current_user(info))}
   end
 
   def organization(%{id: id}, info) do
     {:ok,
      ValueFlows.Agent.Organizations.organization(
-       id: id,
-       signed_in_user: MoodleNet.GraphQL.current_user(info)
+       id,
+       MoodleNet.GraphQL.current_user(info)
      )}
   end
 

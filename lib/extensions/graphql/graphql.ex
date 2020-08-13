@@ -41,7 +41,7 @@ defmodule MoodleNet.GraphQL do
 
   def admin_or_empty_page(info), do: admin_or(info, &empty_page/0)
 
-  def admin_or(%{context: %{current_user: current_user}} = info, value) do
+  def admin_or(%{context: %{current_user: current_user}} = _info, value) do
     case current_user do
       match_admin() -> {:ok, current_user}
       _ -> lazy(value)

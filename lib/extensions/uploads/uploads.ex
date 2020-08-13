@@ -52,7 +52,7 @@ defmodule MoodleNet.Uploads do
     end)
   end
 
-  defp insert_content(upload_def, uploader, nil, attrs) do
+  defp insert_content(_, _, nil, attrs) do
     attrs
   end
 
@@ -65,7 +65,7 @@ defmodule MoodleNet.Uploads do
     end
   end
 
-  defp insert_content_mirror(uploader, _) do
+  defp insert_content_mirror(_, _) do
     {:ok, nil}
   end
 

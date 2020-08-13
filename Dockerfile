@@ -1,3 +1,7 @@
+# The version of Elixir to use
+# ATTENTION: when changing Elixir version, make sure to update the `ALPINE_VERSION` arg
+# as well as the Elixir version in .gitlab-ci.yml and Dockerfile.dev and .tool-versions
+ARG ELIXIR_VERSION=1.10.4
 
 # The version of Alpine to use for the final image
 # This should match the version of Alpine that the current elixir image (in Step 1) uses
@@ -17,9 +21,7 @@ ARG APP_VSN
 ARG WEBSERVER_CHOICE="nginx"
 
 # Step 1 - Build our app
-FROM elixir:1.10.2-alpine as builder 
-# when changing Elixir version, make sure to update the `ALPINE_VERSION` 
-# as well as the Elixir version in .gitlab-ci.yml and Dockerfile.dev 
+FROM elixir:${ELIXIR_VERSION}-alpine as builder 
 
 ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
 

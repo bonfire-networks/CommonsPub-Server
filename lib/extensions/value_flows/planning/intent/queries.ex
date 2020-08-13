@@ -2,10 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Queries do
-  alias MoodleNet.Communities
   alias ValueFlows.Planning.Intent
-  alias ValueFlows.Planning.Intents
-  alias MoodleNet.Follows.{Follow, FollowerCount}
+  # alias ValueFlows.Planning.Intents
+  alias MoodleNet.Follows.{Follow}
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query

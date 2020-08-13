@@ -9,7 +9,7 @@ defmodule MoodleNet.Mixfile do
     [
       app: :moodle_net,
       version: "0.9.6-dev",
-      elixir: "~> 1.10.0",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
       start_permanent: Mix.env() == :prod,

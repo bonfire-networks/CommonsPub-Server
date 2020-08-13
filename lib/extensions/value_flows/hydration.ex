@@ -47,7 +47,7 @@ defmodule ValueFlows.Hydration do
         ],
         eligible_location: [
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
-        ],
+        ]
       },
       intent: %{
         provider: [
@@ -139,9 +139,9 @@ defmodule ValueFlows.Hydration do
         create_need: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_need/2
         ],
-        create_action: [
-          resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
-        ],
+        # create_action: [
+        #   resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
+        # ],
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],

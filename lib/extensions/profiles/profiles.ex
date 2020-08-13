@@ -2,14 +2,13 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Profile.Profiles do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Repo}
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
+
   alias Profile
   alias Profile.Queries
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+
   alias Pointers
   alias Pointers.Pointer
 

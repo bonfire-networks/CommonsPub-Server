@@ -33,7 +33,7 @@ defmodule Taxonomy.IndexingBatch do
 
       # IO.inspect(obj)
 
-      CommonsPub.Search.Indexer.index_object(obj, @tags_index_name, false)
+      CommonsPub.Search.Indexer.index_objects(obj, @tags_index_name, false)
 
       # results = results ++ [obj]
     end
