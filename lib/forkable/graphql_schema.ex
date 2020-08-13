@@ -175,9 +175,26 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
   end
 
+  def context_types() do
+    schemas = MoodleNet.Meta.TableService.list_pointable_schemas()
+
+    Enum.reduce(schemas, [], fn schema, acc ->
+      if Code.ensure_loaded?(schema) and function_exported?(schema, :type, 0) and
+           !is_nil(apply(schema, :type, [])) do
+        Enum.concat(acc, [apply(schema, :type, [])])
+      else
+        acc
+      end
+    end)
+  end
+
   union :any_context do
     description("Any type of known object")
+
     # TODO: autogenerate
+
+    # types(context_types)
+
     types([
       :community,
       :collection,

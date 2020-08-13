@@ -61,4 +61,6 @@ defmodule MoodleNet.Activities.Activity do
   def queries_module, do: Activities.Queries
 
   def follow_filters, do: []
+
+  def type, do: :activity
 end
