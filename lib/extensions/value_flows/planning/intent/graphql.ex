@@ -277,7 +277,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def create_offer(%{intent: intent_attrs}, info) do
-    # TODO: is it always the caller that's the provider?
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       create_intent(
         %{intent: Map.put(intent_attrs, :provider, user.id)},
