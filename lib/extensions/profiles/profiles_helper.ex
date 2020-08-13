@@ -51,8 +51,8 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
   def prepare_username(profile) do
     profile
-    |> Map.merge(%{username: e(profile, :actor, :preferred_username, "deleted")})
-    |> Map.merge(%{display_username: MoodleNet.Actors.display_username(profile)})
+    |> Map.merge(%{username: MoodleNet.Actors.display_username(profile)})
+    |> Map.merge(%{display_username: MoodleNet.Actors.display_username(profile, true)})
   end
 
   def prepare_website(profile) do

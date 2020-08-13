@@ -52,9 +52,10 @@ defmodule MoodleNet.Threads.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity, context),
-           :ok <- index(comment, thread, creator),
            :ok <- ap_publish("create", comment) do
-        {:ok, %{comment | thread: thread}}
+        comment = %{comment | thread: thread, creator: creator}
+        index(comment)
+        {:ok, comment}
       end
     end)
   end
@@ -108,8 +109,9 @@ defmodule MoodleNet.Threads.Comments do
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                #  thread = preload_ctx(thread),
                :ok <- publish(creator, thread, comment, activity, thread.context_id),
-               :ok <- index(comment, thread, creator),
                :ok <- ap_publish("create", comment) do
+            comment = %{comment | thread: thread, creator: creator}
+            index(comment)
             {:ok, comment}
           end
         end)
@@ -234,7 +236,7 @@ defmodule MoodleNet.Threads.Comments do
 
   defp ap_publish(_, _), do: :ok
 
-  def index(comment, thread, creator) do
+  def format_object(comment) do
     # follower_count =
     #   case MoodleNet.Follows.FollowerCounts.one(context: comment.id) do
     #     {:ok, struct} -> struct.count
@@ -246,19 +248,19 @@ defmodule MoodleNet.Threads.Comments do
 
     canonical_url = MoodleNet.ActivityPub.Utils.get_object_canonical_url(comment)
 
-    object = %{
+    %{
       "index_type" => "Comment",
       "id" => comment.id,
       "reply_to_id" => comment.reply_to_id,
       "thread" => %{
         "id" => comment.thread_id,
-        "name" => thread.name
+        "name" => comment.thread.name
       },
       "creator" => %{
-        "id" => creator.id,
-        "name" => creator.name,
-        "preferred_username" => creator.actor.preferred_username,
-        "canonical_url" => creator.actor.canonical_url
+        "id" => comment.creator.id,
+        "name" => comment.creator.name,
+        "preferred_username" => comment.creator.actor.preferred_username,
+        "canonical_url" => comment.creator.actor.canonical_url
       },
       "canonical_url" => canonical_url,
       # "followers" => %{
@@ -272,8 +274,12 @@ defmodule MoodleNet.Threads.Comments do
       # home instance of object:
       "index_instance" => URI.parse(canonical_url).host
     }
+  end
 
-    CommonsPub.Search.Indexer.maybe_index_object(object)
+  def index(comment) do
+    object = format_object(comment)
+
+    CommonsPub.Search.Indexer.index_object(object)
 
     :ok
   end

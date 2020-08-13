@@ -130,52 +130,84 @@ defmodule MoodleNet.Actors do
     attrs
   end
 
-  def display_username(%MoodleNet.Communities.Community{} = obj) do
-    display_username(obj, "&")
+  def display_username(obj, full_hostname \\ false)
+
+  def display_username(%MoodleNet.Communities.Community{} = obj, full_hostname) do
+    display_username(obj, full_hostname, "&")
   end
 
-  def display_username(%MoodleNet.Collections.Collection{} = obj) do
-    display_username(obj, "+")
+  def display_username(%MoodleNet.Collections.Collection{} = obj, full_hostname) do
+    display_username(obj, full_hostname, "+")
   end
 
-  def display_username(%CommonsPub.Tag.Taggable{} = obj) do
-    display_username(obj, "+")
+  def display_username(%CommonsPub.Tag.Taggable{} = obj, full_hostname) do
+    display_username(obj, full_hostname, "+")
   end
 
-  def display_username(%CommonsPub.Tag.Category{} = obj) do
-    display_username(obj, "+")
+  def display_username(%CommonsPub.Tag.Category{} = obj, full_hostname) do
+    display_username(obj, full_hostname, "+")
   end
 
-  def display_username(%MoodleNet.Users.User{} = obj) do
-    display_username(obj, "@")
+  def display_username(%MoodleNet.Users.User{} = obj, full_hostname) do
+    display_username(obj, full_hostname, "@")
   end
 
-  def display_username(obj) do
-    display_username(obj, "@")
+  def display_username(obj, full_hostname) do
+    display_username(obj, full_hostname, "@")
   end
 
-  def display_username(%{actor: %Actor{peer_id: nil, preferred_username: uname}}, prefix) do
-    prefix <> uname <> "@" <> MoodleNet.Instance.hostname()
+  def display_username(%{"preferred_username" => uname}, full_hostname, prefix)
+      when not is_nil(uname) do
+    "#{prefix}#{uname}"
+  end
+
+  def display_username(%{preferred_username: uname}, full_hostname, prefix)
+      when not is_nil(uname) do
+    "#{prefix}#{uname}"
   end
 
   def display_username(
-        %{character: %{actor: %Actor{peer_id: nil, preferred_username: uname}}},
+        %{actor: %Actor{peer_id: nil, preferred_username: uname}},
+        true,
         prefix
       ) do
-    prefix <> uname <> "@" <> MoodleNet.Instance.hostname()
+    "#{prefix}#{uname}" <> "@" <> MoodleNet.Instance.hostname()
   end
 
-  def display_username(%{actor: %Actor{preferred_username: uname}}, prefix) do
-    prefix <> uname
+  def display_username(
+        %{actor: %Actor{peer_id: nil, preferred_username: uname}},
+        false,
+        prefix
+      )
+      when not is_nil(uname) do
+    "#{prefix}#{uname}"
   end
 
-  def display_username(%{actor_id: _actor_id} = obj, prefix) do
-    obj = Repo.preload(obj, :actor)
-    display_username(obj, prefix)
+  def display_username(
+        %{character: %{actor: %Actor{peer_id: nil, preferred_username: uname} = actor}},
+        full_hostname,
+        prefix
+      ) do
+    display_username(
+      %{actor: actor},
+      full_hostname,
+      prefix
+    )
   end
 
-  def display_username(%{}, _) do
-    nil
+  def display_username(%{actor: %Actor{preferred_username: uname}}, full_hostname, prefix)
+      when not is_nil(uname) do
+    "#{prefix}#{uname}"
+  end
+
+  def display_username(%{actor_id: _actor_id} = obj, full_hostname, prefix) do
+    obj = MoodleNetWeb.Helpers.Common.maybe_preload(obj, :actor)
+    display_username(obj, full_hostname, prefix)
+  end
+
+  def display_username(obj, _, _) do
+    IO.inspect(could_not_display_username: obj)
+    ""
   end
 
   def obj_load_actor(%{actor: actor} = obj) do

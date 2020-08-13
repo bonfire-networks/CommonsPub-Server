@@ -87,18 +87,18 @@ defmodule CommonsPub.Search.Indexer do
 
     %{
       "id" => community.id,
-      "canonicalUrl" => url,
+      "canonical_url" => url,
       "followers" => %{
-        "totalCount" => follower_count
+        "total_count" => follower_count
       },
       "icon" => icon,
       "image" => image,
       "name" => community.name,
-      "preferredUsername" => community.actor.preferred_username,
+      "preferred_username" => community.actor.preferred_username,
       "summary" => Map.get(community, :summary),
-      "index_type" => "MoodleNet.Communities.Community",
+      "index_type" => "Community",
       "index_instance" => URI.parse(url).host,
-      "createdAt" => community.published_at
+      "published_at" => community.published_at
     }
   end
 
@@ -116,17 +116,17 @@ defmodule CommonsPub.Search.Indexer do
 
     %{
       "id" => collection.id,
-      "canonicalUrl" => url,
+      "canonical_url" => url,
       "followers" => %{
-        "totalCount" => follower_count
+        "total_count" => follower_count
       },
       "icon" => icon,
       "name" => collection.name,
-      "preferredUsername" => collection.actor.preferred_username,
+      "preferred_username" => collection.actor.preferred_username,
       "summary" => Map.get(collection, :summary),
-      "index_type" => "MoodleNet.Collections.Collection",
+      "index_type" => "Collection",
       "index_instance" => URI.parse(url).host,
-      "createdAt" => collection.published_at,
+      "published_at" => collection.published_at,
       "community" => format_object(collection.community)
     }
   end
@@ -152,21 +152,21 @@ defmodule CommonsPub.Search.Indexer do
     %{
       "id" => resource.id,
       "name" => resource.name,
-      "canonicalUrl" => canonical_url,
-      "createdAt" => resource.published_at,
+      "canonical_url" => canonical_url,
+      "created_at" => resource.published_at,
       "icon" => icon,
       "licence" => Map.get(resource, :license),
       "likes" => %{
-        "totalCount" => likes_count
+        "total_count" => likes_count
       },
       "summary" => Map.get(resource, :summary),
-      "updatedAt" => resource.updated_at,
-      "index_type" => "MoodleNet.Resources.Resource",
+      "updated_at" => resource.updated_at,
+      "index_type" => "Resource",
       "index_instance" => URI.parse(canonical_url).host,
       "collection" => format_object(resource.collection),
       "url" => resource_url,
       "author" => Map.get(resource, :author),
-      "mediaType" => resource.content.media_type,
+      "media_type" => resource.content.media_type,
       "subject" => Map.get(resource, :subject),
       "level" => Map.get(resource, :level),
       "language" => Map.get(resource, :language)

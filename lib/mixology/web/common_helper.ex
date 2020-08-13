@@ -84,14 +84,30 @@ defmodule MoodleNetWeb.Helpers.Common do
   Attempt geting a value out of a map by atom key, or try with string key, or return a fallback
   """
   def map_get(map, key, fallback) when is_atom(key) do
-    Map.get(map, key, Map.get(map, Atom.to_string(key), fallback))
+    Map.get(map, key, map_get(map, Atom.to_string(key), fallback))
   end
 
   @doc """
   Attempt geting a value out of a map by string key, or try with atom key (if it's an existing atom), or return a fallback
   """
   def map_get(map, key, fallback) when is_binary(key) do
-    Map.get(map, key, Map.get(map, maybe_str_to_atom(key), fallback))
+    Map.get(
+      map,
+      key,
+      Map.get(
+        map,
+        Recase.to_camel(key),
+        Map.get(
+          map,
+          maybe_str_to_atom(key),
+          Map.get(
+            map,
+            maybe_str_to_atom(Recase.to_camel(key)),
+            fallback
+          )
+        )
+      )
+    )
   end
 
   def map_get(map, key, fallback) do
@@ -487,5 +503,29 @@ defmodule MoodleNetWeb.Helpers.Common do
   def context_url(activity) do
     IO.inspect(unsupported_by_activity_url: activity)
     "#unsupported_by_activity_url"
+  end
+
+  def e_actor_field(obj, field, fallback) do
+    e(
+      obj,
+      field,
+      e(
+        obj,
+        :actor,
+        field,
+        e(
+          obj,
+          :character,
+          field,
+          e(
+            obj,
+            :character,
+            :actor,
+            field,
+            fallback
+          )
+        )
+      )
+    )
   end
 end
