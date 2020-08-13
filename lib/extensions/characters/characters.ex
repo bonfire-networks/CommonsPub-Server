@@ -322,7 +322,7 @@ defmodule Character.Characters do
   #     "index_instance" => URI.parse(canonical_url).host
   #   }
 
-  #   CommonsPub.Search.Indexer.maybe_index_object(object)
+  #   CommonsPub.Search.Indexer.index_object(object)
 
   #   :ok
   # end

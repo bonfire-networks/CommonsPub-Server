@@ -11,14 +11,33 @@ defmodule CommonsPub.Search.Indexer do
     indexable_object = format_object(object)
 
     if !is_nil(indexable_object) do
-      index_for_search(indexable_object)
+      index_object(indexable_object)
     else
-      index_for_search(object)
+      thing_name = object.__struct__
+
+      if(
+        !is_nil(thing_name) and
+          Kernel.function_exported?(thing_name, :context_module, 0)
+      ) do
+        thing_context_module = apply(thing_name, :context_module, [])
+
+        if(Kernel.function_exported?(thing_context_module, :format_object, 1)) do
+          # IO.inspect(function_exists_in: thing_context_module)
+          indexable_object = apply(thing_context_module, :format_object, [object])
+          index_object(indexable_object)
+        else
+          Logger.info(
+            "Could not index #{thing_name} object (no context module with format_object/1)"
+          )
+        end
+      else
+        Logger.info("Could not index #{thing_name} object (no known context module)")
+      end
     end
   end
 
   # add to general instance search index
-  def index_for_search(objects) do
+  def index_object(objects) do
     IO.inspect(search_indexing: objects)
     index_objects(objects, @public_index, true)
   end
