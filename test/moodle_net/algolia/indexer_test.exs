@@ -2,9 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.Algolia.IndexerTest do
+defmodule CommonsPub.Search.IndexerTest do
   use MoodleNet.DataCase
-  alias MoodleNet.Algolia.Indexer
+  alias CommonsPub.Search.Indexer
   import MoodleNet.Test.Faking
 
   test "format community" do

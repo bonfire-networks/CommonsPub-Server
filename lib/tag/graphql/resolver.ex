@@ -265,4 +265,40 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   #   {:ok, Simulation.long_node_list(&Simulation.tag/0)}
   #   |> GraphQL.response(info)
   # end
+
+  def update_category(%{category_id: id} = changes, info) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, category} <- category(%{category_id: id}, info),
+           :ok <- ensure_update_allowed(user, category),
+           {:ok, c} <- Categories.update(user, category, changes) do
+        {:ok, c}
+      end
+    end)
+  end
+
+  def ensure_update_allowed(user, geo) do
+    if user.local_user.is_instance_admin or geo.creator_id == user.id do
+      :ok
+    else
+      GraphQL.not_permitted("update")
+    end
+  end
+
+  # def delete_category(%{id: id}, info) do
+  #   with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+  #        {:ok, c} <- category(%{id: id}, info),
+  #        :ok <- ensure_delete_allowed(user, c),
+  #        {:ok, c} <- Categories.soft_delete(user, c) do
+  #     {:ok, true}
+  #   end
+  # end
+
+  # def ensure_delete_allowed(user, c) do
+  #   if user.local_user.is_instance_admin or c.creator_id == user.id do
+  #     :ok
+  #   else
+  #     GraphQL.not_permitted("delete")
+  #   end
+  # end
 end

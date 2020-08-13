@@ -56,6 +56,23 @@ defmodule Character do
   @cast @required ++ ~w(actor_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
+        nil,
+        # %{id: _} = characteristic,
+        %Actor{} = actor,
+        attrs
+      ) do
+    %Character{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
+    |> Changeset.change(
+      # characteristic_id: characteristic_pointer_id(attrs),
+      actor_id: actor.id,
+      is_public: true
+    )
+    |> common_changeset()
+  end
+
+  def create_changeset(
         %User{} = creator,
         # %{id: _} = characteristic,
         %Actor{} = actor,

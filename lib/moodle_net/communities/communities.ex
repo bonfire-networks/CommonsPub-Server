@@ -36,6 +36,12 @@ defmodule MoodleNet.Communities do
   @doc "Retrieves a single community by arbitrary filters."
   def one(filters), do: Repo.single(Queries.query(Community, filters))
 
+  def get(username) do
+    with {:ok, c} <- one([:default, username: username]) do
+      c
+    end
+  end
+
   @doc "Retrieves a list of communities by arbitrary filters."
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Community, filters))}
 
@@ -57,7 +63,7 @@ defmodule MoodleNet.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, community_or_context, comm, activity),
            :ok <- ap_publish("create", comm) do
-        MoodleNet.Algolia.Indexer.maybe_index_object(comm)
+        CommonsPub.Search.Indexer.maybe_index_object(comm)
         {:ok, comm}
       end
     end)
@@ -76,7 +82,7 @@ defmodule MoodleNet.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity),
            :ok <- ap_publish("create", comm) do
-        MoodleNet.Algolia.Indexer.maybe_index_object(comm)
+        CommonsPub.Search.Indexer.maybe_index_object(comm)
         {:ok, comm}
       end
     end)
@@ -91,7 +97,7 @@ defmodule MoodleNet.Communities do
            act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity) do
-        MoodleNet.Algolia.Indexer.maybe_index_object(comm)
+        CommonsPub.Search.Indexer.maybe_index_object(comm)
         {:ok, comm}
       end
     end)

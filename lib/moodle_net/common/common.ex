@@ -11,7 +11,7 @@ defmodule MoodleNet.Common do
 
   defp cursor_or_id(%{cursor: cursor}), do: cursor
   defp cursor_or_id(%{id: id}), do: id
-  
+
   def page_info(results, id \\ &cursor_or_id/1) when is_list(results) do
     case results do
       [] -> nil
@@ -41,8 +41,50 @@ defmodule MoodleNet.Common do
 
   # defp paginate_limit(query, limit)
 
-
   ## Deletion
+
+  def trigger_soft_delete(id, user) do
+    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
+      context = MoodleNet.Meta.Pointers.follow!(pointer)
+
+      context_module =
+        if Kernel.function_exported?(context.__struct__, :context_module, 0),
+          do: apply(context.__struct__, :context_module, [])
+
+      IO.inspect(context)
+      IO.inspect(context_module)
+      IO.inspect(Kernel.function_exported?(context_module, :soft_delete, 2))
+      IO.inspect(Kernel.function_exported?(context_module, :soft_delete, 1))
+
+      if !is_nil(context) and !is_nil(context.id) and !is_nil(context_module) and
+           allow_delete?(user, context) do
+        if Kernel.function_exported?(context_module, :soft_delete, 2) do
+          apply(context_module, :soft_delete, [user, context])
+        else
+          if Kernel.function_exported?(context_module, :soft_delete, 1) do
+            apply(context_module, :soft_delete, [context])
+          end
+        end
+      end
+    end
+  end
+
+  # FIXME: boilerplate code
+  defp allow_delete?(user, context) do
+    user.local_user.is_instance_admin or allow_user_delete?(user, context)
+  end
+
+  defp allow_user_delete?(user, %{creator_id: creator_id})
+       when not is_nil(creator_id) do
+    creator_id == user.id
+  end
+
+  defp allow_user_delete?(user, %{profile: %{creator_id: creator_id}})
+       when not is_nil(creator_id) do
+    creator_id == user.id
+  end
+
+  defp allow_user_delete?(_, _), do: false
 
   @spec soft_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}
   @doc "Marks an entry as deleted in the database"

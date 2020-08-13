@@ -41,8 +41,8 @@ defmodule MoodleNet.Resources do
            act_attrs = %{verb: "created", is_local: is_nil(Map.get(actor, :peer_id, nil))},
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection_or_context, resource, activity),
-           :ok <- ap_publish("create", resource),
-           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(resource) do
+           :ok <- ap_publish("create", resource) do
+        CommonsPub.Search.Indexer.maybe_index_object(resource)
         {:ok, %Resource{resource | creator: creator}}
       end
     end)
@@ -54,8 +54,9 @@ defmodule MoodleNet.Resources do
            act_attrs = %{verb: "created", is_local: is_nil(Map.get(creator.actor, :peer_id, nil))},
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, resource, activity),
-           :ok <- ap_publish("create", resource),
-           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(resource) do
+           :ok <- ap_publish("create", resource) do
+        CommonsPub.Search.Indexer.maybe_index_object(resource)
+
         {:ok, %Resource{resource | creator: creator}}
       end
     end)

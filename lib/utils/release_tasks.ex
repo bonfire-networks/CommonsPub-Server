@@ -200,9 +200,11 @@ defmodule CommonsPub.ReleaseTasks do
     Path.join([priv_dir, repo_underscore, filename])
   end
 
-  def user(username) do
-    {:ok, u} = Users.one(preset: :local_user, username: username)
-    u
+  def compile_dir(dir) when is_binary(dir) do
+    dir
+    |> File.ls!()
+    |> Enum.map(&Path.join(dir, &1))
+    |> Kernel.ParallelCompiler.compile()
   end
 
   def soft_delete_community(id) do
@@ -214,21 +216,21 @@ defmodule CommonsPub.ReleaseTasks do
 
   def user_set_email_confirmed(username) do
     Repo.transact_with(fn ->
-      u = user(username)
+      u = MoodleNet.Users.get(username)
       Users.confirm_email(u)
     end)
   end
 
   def make_instance_admin(username) do
     Repo.transact_with(fn ->
-      u = user(username)
+      u = MoodleNet.Users.get(username)
       Users.make_instance_admin(u)
     end)
   end
 
   def unmake_instance_admin(username) do
     Repo.transact_with(fn ->
-      u = user(username)
+      u = MoodleNet.Users.get(username)
       Users.unmake_instance_admin(u)
     end)
   end

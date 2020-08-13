@@ -1,4 +1,4 @@
-defmodule MoodleNet.Localisation do
+defmodule CommonsPub.Locales do
   @moduledoc """
   Functions for localising the application.
 
@@ -10,7 +10,7 @@ defmodule MoodleNet.Localisation do
   * Internationalisation (i18n)
   """
 
-  alias MoodleNet.Localisation.{CountryService, LanguageService}
+  alias CommonsPub.Locales.{CountryService, LanguageService}
 
   defdelegate languages(), to: LanguageService, as: :list_all
 
@@ -23,5 +23,4 @@ defmodule MoodleNet.Localisation do
   defdelegate country(code), to: CountryService, as: :lookup
 
   defdelegate country!(code), to: CountryService, as: :lookup!
-  
 end

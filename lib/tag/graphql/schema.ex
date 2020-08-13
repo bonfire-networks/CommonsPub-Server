@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.GraphQL.TagSchema do
   use Absinthe.Schema.Notation
-  # alias MoodleNetWeb.GraphQL.{CommonResolver}
+  alias MoodleNetWeb.GraphQL.{UsersResolver}
   alias CommonsPub.Tag.GraphQL.{TagResolver}
 
   object :tag_queries do
@@ -33,11 +33,7 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
   object :tag_mutations do
     @desc "Create a new Category"
     field :create_category, :category do
-      arg(:prefix, :string)
-      arg(:facet, :string)
-
-      arg(:parent_category, :id)
-      arg(:same_as_category, :id)
+      arg(:category, :category_input)
 
       arg(:profile, :profile_input)
       arg(:character, :character_input)
@@ -56,6 +52,18 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
       arg(:thing, non_null(:string))
       arg(:taggables, non_null(list_of(:string)))
       resolve(&TagResolver.thing_attach_tags/2)
+    end
+
+    @desc "Update a category"
+    field :update_category, :category do
+      arg(:category_id, :id)
+
+      arg(:category, :category_input)
+
+      arg(:profile, :profile_input)
+      arg(:character, :character_input)
+
+      resolve(&TagResolver.update_category/2)
     end
   end
 
@@ -89,9 +97,9 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
       resolve(&TagResolver.category_children/3)
     end
 
-    @desc "The category object, or the context of this category"
-    field :context, :any_context do
-      resolve(&MoodleNetWeb.GraphQL.CommonResolver.context_edge/3)
+    @desc "The caretaker of this category, if any"
+    field :caretaker, :any_context do
+      # resolve(&MoodleNetWeb.GraphQL.CommonResolver.context_edge/3)
     end
 
     @desc "The Character that represents this category in feeds and federation"
@@ -102,6 +110,11 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
     @desc "The Profile that represents this category"
     field :profile, :profile do
       resolve(&Profile.GraphQL.Resolver.profile/3)
+    end
+
+    @desc "The user who created the character"
+    field :creator, :user do
+      resolve(&UsersResolver.creator_edge/3)
     end
   end
 
@@ -143,6 +156,14 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
   input_object :category_find do
     field(:name, non_null(:string))
     field(:parent_category_name, non_null(:string))
+  end
+
+  input_object :category_input do
+    field(:prefix, :string)
+    field(:facet, :string)
+
+    field(:parent_category, :id)
+    field(:same_as_category, :id)
   end
 
   #  @desc "A category is a grouping mechanism for categories"

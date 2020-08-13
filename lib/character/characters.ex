@@ -86,24 +86,24 @@ defmodule Character.Characters do
 
   ## mutations
 
-  def create(%User{} = creator, %{character: attrs, id: id, profile: %{name: name}})
+  def create(creator, %{character: attrs, id: id, profile: %{name: name}})
       when is_map(attrs) do
     create(creator, Map.put(Map.put(attrs, :id, id), :name, name))
   end
 
-  def create(%User{} = creator, %{character: attrs, profile: %{name: name}}) when is_map(attrs) do
+  def create(creator, %{character: attrs, profile: %{name: name}}) when is_map(attrs) do
     create(creator, Map.put(attrs, :name, name))
   end
 
-  def create(%User{} = creator, %{character: attrs, id: id}) when is_map(attrs) do
+  def create(creator, %{character: attrs, id: id}) when is_map(attrs) do
     create(creator, Map.put(attrs, :id, id))
   end
 
-  def create(%User{} = creator, %{profile: %{name: name}} = attrs) when is_map(attrs) do
+  def create(creator, %{profile: %{name: name}} = attrs) when is_map(attrs) do
     create(creator, Map.put(Map.delete(attrs, :profile), :name, name))
   end
 
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  def create(creator, attrs) when is_map(attrs) do
     # IO.inspect(character_create: attrs)
     attrs = Actors.prepare_username(attrs)
 
@@ -163,7 +163,7 @@ defmodule Character.Characters do
   # end
 
   @doc "Takes a Pointer to something and creates a Character based on it"
-  def characterise(%User{} = user, %Pointer{} = pointer) do
+  def characterise(user, %Pointer{} = pointer) do
     thing = MoodleNet.Meta.Pointers.follow!(pointer)
 
     if(is_nil(thing.character_id)) do
@@ -174,7 +174,7 @@ defmodule Character.Characters do
   end
 
   @doc "Takes anything and creates a Character based on it"
-  def characterise(%User{} = user, %{} = thing) do
+  def characterise(user, %{} = thing) do
     # IO.inspect(thing)
     thing_name = thing.__struct__
     thing_context_module = apply(thing_name, :context_module, [])
@@ -266,11 +266,15 @@ defmodule Character.Characters do
 
   defp ap_publish(_, _, _, _), do: :ok
 
-  # TODO: take the user who is performing the update
-  @spec update(User.t(), Character.t(), attrs :: map) ::
-          {:ok, Character.t()} | {:error, Changeset.t()}
-  def update(%User{} = user, %Character{} = character, attrs) do
+  def update(user, %Character{} = character, %{character: attrs}) when is_map(attrs) do
+    update(user, character, attrs)
+  end
+
+  def update(user, %Character{} = character, attrs) do
+    character = Repo.preload(character, :actor)
+
     Repo.transact_with(fn ->
+      # TODO: take the user who is performing the update
       with {:ok, character} <- Repo.update(Character.update_changeset(character, attrs)),
            {:ok, actor} <- Actors.update(user, character.actor, attrs),
            :ok <- publish(character, :updated) do
@@ -318,7 +322,7 @@ defmodule Character.Characters do
   #     "index_instance" => URI.parse(canonical_url).host
   #   }
 
-  #   Search.Indexing.maybe_index_object(object)
+  #   CommonsPub.Search.Indexer.maybe_index_object(object)
 
   #   :ok
   # end

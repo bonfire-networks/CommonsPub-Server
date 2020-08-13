@@ -5,6 +5,7 @@ defmodule CommonsPub.Tag.Category.Queries do
   import Ecto.Query
 
   alias CommonsPub.Tag.Category
+  import MoodleNet.Common.Query, only: [match_admin: 0]
 
   def query(Category) do
     from(t in Category,
@@ -93,13 +94,16 @@ defmodule CommonsPub.Tag.Category.Queries do
   def filter(q, {:caretaker, ids}) when is_list(ids),
     do: where(q, [category: t], t.caretaker_id in ^ids)
 
-  # join with character
   def filter(q, :default) do
-    filter(q,
-      preload: :taggable,
-      preload: :profile,
-      preload: :character,
-      preload: :parent_category
+    filter(
+      q,
+      [
+        :deleted,
+        preload: :taggable,
+        preload: :profile,
+        preload: :character,
+        preload: :parent_category
+      ]
     )
   end
 
@@ -119,7 +123,38 @@ defmodule CommonsPub.Tag.Category.Queries do
     preload(q, [parent_category: pt], parent_category: pt)
   end
 
-  def filter(q, {:user, _user}), do: q
+  # def filter(q, {:user, _user}), do: q
+
+  def filter(q, {:user, match_admin()}), do: q
+
+  # def filter(q, {:user, %User{id: id} = user}) do
+  #   q
+  #   |> join_to(follow: id)
+  #   |> where([category: o, follow: f], not is_nil(o.published_at) or not is_nil(f.id))
+  # end
+
+  def filter(q, {:user, %{id: _id} = _user}) do
+    q
+    |> where([category: o], not is_nil(o.published_at))
+  end
+
+  def filter(q, {:user, nil}) do
+    filter(q, ~w(deleted disabled private)a)
+  end
+
+  ## by status
+
+  def filter(q, :deleted) do
+    where(q, [category: o], is_nil(o.deleted_at))
+  end
+
+  def filter(q, :disabled) do
+    where(q, [category: o], is_nil(o.disabled_at))
+  end
+
+  def filter(q, :private) do
+    where(q, [category: o], not is_nil(o.published_at))
+  end
 
   # pagination
 

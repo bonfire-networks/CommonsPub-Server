@@ -4,7 +4,7 @@
 defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.{Collections, Communities, Common, Repo, Resources, Threads, Users}
   alias MoodleNet.ActivityPub.Utils
-  alias MoodleNet.Algolia.Indexer
+  alias CommonsPub.Search.Indexer
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User

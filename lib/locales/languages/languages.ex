@@ -1,4 +1,4 @@
-defmodule Locales.Languages do
+defmodule CommonsPub.Locales.Languages do
   # import Ecto.Query
   # alias Ecto.Changeset
   alias MoodleNet.{
@@ -6,8 +6,10 @@ defmodule Locales.Languages do
     Repo
   }
 
-  alias Locales.Language
-  alias Locales.Languages.Queries
+  alias CommonsPub.Locales.Language
+  alias CommonsPub.Locales.Languages.Queries
+
+  def get(id), do: one(id: String.downcase(id))
 
   def one(filters), do: Repo.single(Queries.query(Language, filters))
 

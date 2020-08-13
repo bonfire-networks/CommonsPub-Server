@@ -1,21 +1,21 @@
-defmodule MoodleNet.Localisation.LanguageServiceTest do
+defmodule CommonsPub.Locales.Language.ServiceTest do
   # use ExUnit.Case, async: true
 
   # import ExUnit.Assertions
   # alias MoodleNet.Repo
-  # alias MoodleNet.Localisation.{Language, LanguageService, LanguageNotFoundError}
-  
+  # alias CommonsPub.Locales.{Language, LanguageService, Language.Error.NotFound}
+
   # @languages [
   #   {"en", "English", "English"}
   # ]
   # @expected_language_codes Enum.sort(Enum.map(@languages, fn {x,_,_} -> x end))
-  # describe "MoodleNet.Localisation.LanguageService" do
-    
+  # describe "CommonsPub.Locales.Language.Service" do
+
   #   setup do
   #     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
   #     {:ok, %{}}
   #   end
-    
+
   #   test "is fetching from good source data" do
   #     in_db = Repo.all(Language)
   #     |> Enum.map(&(&1.iso_code2))
@@ -40,12 +40,11 @@ defmodule MoodleNet.Localisation.LanguageServiceTest do
   #     end
 
   #     for l <- @bad_language_codes do
-  # 	assert {:error, %LanguageNotFoundError{id: l}} ==
+  # 	assert {:error, %Language.Error.NotFound{id: l}} ==
   # 	  LanguageService.lookup(l)
-  # 	assert %LanguageNotFoundError{id: l} ==
+  # 	assert %Language.Error.NotFound{id: l} ==
   # 	  catch_throw(LanguageService.lookup!(l))
   #     end
   #   end
   # end
-  
 end

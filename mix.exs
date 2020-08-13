@@ -163,6 +163,14 @@ defmodule MoodleNet.Mixfile do
       # caching
       {:cachex, "~> 3.2"},
       # CommonsPub:
+      # process HTML content
+      {:html_sanitize_ex, "~> 1.4"},
+      {
+        :linkify,
+        # git: "https://gitlab.com/CommonsPub/linkify.git"
+        path: "uploads/linkify"
+        # "~> 0.2.0"
+      },
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
       # geocoding

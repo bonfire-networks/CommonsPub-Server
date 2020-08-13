@@ -201,13 +201,13 @@ defmodule MoodleNetWeb.Router do
     live "/~/proto", My.ProtoProfileLive
   end
 
-  scope "/", MoodleNetWeb do
+  scope "/" do
     pipe_through :browser
     pipe_through :ensure_authenticated
 
     # temporarily don't use CSRF for uploads until LV has a better approach
 
-    post "/~/settings", My.SettingsUpload, :upload
+    post "/~/settings", MoodleNetWeb.My.SettingsUpload, :upload
 
     pipe_through :protect_forgery
 
