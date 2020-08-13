@@ -38,6 +38,10 @@ defmodule ValueFlows.Proposals.ProposedIntentQueries do
     filter(q, [:deleted])
   end
 
+  def filter(q, :deleted) do
+    where(q, [proposed_intent: pi], is_nil(pi.deleted_at))
+  end
+
   # by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
