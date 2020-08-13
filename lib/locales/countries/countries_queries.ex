@@ -1,13 +1,13 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Locales.Countries.Queries do
+defmodule CommonsPub.Locales.Countries.Queries do
   import Ecto.Query
 
-  alias Locales.Country
+  alias CommonsPub.Locales.Country
 
   def query(Country) do
-    from u in Country, as: :country
+    from(u in Country, as: :country)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -27,7 +27,6 @@ defmodule Locales.Countries.Queries do
     Enum.reduce(tables, q, &join_to(&2, &1, jq))
   end
 
-
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
 
@@ -46,15 +45,14 @@ defmodule Locales.Countries.Queries do
   ## by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [country: f], f.id == ^id
+    where(q, [country: f], f.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [country: f], f.id in ^ids
+    where(q, [country: f], f.id in ^ids)
   end
 
   ## by ordering
 
-  def filter(q, {:order, :speakers}), do: order_by(q, [country: f], [desc: f.population])
-
+  def filter(q, {:order, :speakers}), do: order_by(q, [country: f], desc: f.population)
 end

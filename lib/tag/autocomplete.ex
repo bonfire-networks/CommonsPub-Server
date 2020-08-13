@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Tag.Autocomplete do
+defmodule CommonsPub.Tag.Autocomplete do
   use MoodleNetWeb, :controller
 
   import MoodleNetWeb.Helpers.Common
@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.Tag.Autocomplete do
   end
 
   def do_tag_lookup(tag_search, index, prefix, consumer) do
-    search = Search.Meili.search(tag_search, index)
+    search = CommonsPub.Search.Meili.search(tag_search, index)
 
     if(Map.has_key?(search, "hits") and length(search["hits"])) do
       # search["hits"]

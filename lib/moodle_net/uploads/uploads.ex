@@ -56,13 +56,17 @@ defmodule MoodleNet.Uploads do
     attrs
   end
 
-  defp insert_content_mirror(uploader, %{url: url} = attrs) when is_binary(url) do
+  defp insert_content_mirror(uploader, %{url: url} = attrs) when is_binary(url) and url != "" do
     attrs = %{attrs | url: url |> CommonsPub.Utils.File.ensure_valid_url()}
 
     with {:ok, mirror} <- Repo.insert(ContentMirror.changeset(attrs)),
          {:ok, content} <- Repo.insert(Content.mirror_changeset(mirror, uploader, attrs)) do
       {:ok, %{content | content_mirror: mirror}}
     end
+  end
+
+  defp insert_content_mirror(uploader, _) do
+    {:ok, nil}
   end
 
   defp insert_content_upload(upload_def, uploader, attrs) do
@@ -200,7 +204,8 @@ defmodule MoodleNet.Uploads do
 
   defp is_remote_file?(_other), do: false
 
-  defp parse_file(%{url: url, upload: upload}) when is_binary(url) and not is_nil(upload) do
+  defp parse_file(%{url: url, upload: upload})
+       when is_binary(url) and url != "" and not is_nil(upload) do
     {:error, :both_url_and_upload_should_not_be_set}
   end
 
@@ -211,7 +216,7 @@ defmodule MoodleNet.Uploads do
       {:ok, Map.merge(file, file_info)}
     end
   else
-    defp parse_file(%{url: url} = file) when is_binary(url) do
+    defp parse_file(%{url: url} = file) when is_binary(url) and url != "" do
       with {:ok, file_info} <- TwinkleStar.from_uri(url, follow_redirect: true) do
         {:ok, Map.merge(file, file_info)}
       else
@@ -236,8 +241,8 @@ defmodule MoodleNet.Uploads do
     end
   end
 
-  # defp parse_file(_invalid), do: {:error, :missing_url_or_upload}
-  defp parse_file(_invalid), do: {:ok, nil}
+  # defp parse_file(_), do: {:error, :missing_url_or_upload}
+  defp parse_file(_), do: {:ok, nil}
 
   defp allow_media_type(upload_def, %{media_type: media_type}) do
     media_types = allowed_media_types(upload_def)

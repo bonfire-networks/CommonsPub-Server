@@ -6,10 +6,10 @@ defmodule MoodleNetWeb.SearchLive.ResultsLive do
 
   def render(assigns) do
     ~L"""
+    <div id="search_results" >
     <div
-    id="search_results">
-    <div
-    phx-update="append"
+    id="the_search_results"
+    phx-update="replace"
     data-page="<%= @page %>"
     class="selected__area">
       <%= for hit <- @hits do %>

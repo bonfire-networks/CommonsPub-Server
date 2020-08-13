@@ -18,7 +18,7 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Flags.Flag
-  # alias MoodleNet.Localisation.Language
+  # alias CommonsPub.Locales.Language
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.Content
 

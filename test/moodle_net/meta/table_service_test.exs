@@ -29,7 +29,7 @@ defmodule MoodleNet.Meta.TableServiceTest do
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
-  alias MoodleNet.Localisation.{Country, Language}
+  alias CommonsPub.Locales.{Country, Language}
 
   @known_schemas [
     Table,
@@ -62,8 +62,8 @@ defmodule MoodleNet.Meta.TableServiceTest do
   end
 
   test "is fetching from good source data" do
-    in_db = Enum.map(Repo.all(Table), &(&1.table))
-    for table <- @expected_table_names, do: assert table in in_db
+    in_db = Enum.map(Repo.all(Table), & &1.table)
+    for table <- @expected_table_names, do: assert(table in in_db)
   end
 
   @bad_table_names ["fizz", "buzz bazz"]
@@ -74,6 +74,7 @@ defmodule MoodleNet.Meta.TableServiceTest do
     # Every db entry must match up to our module metadata
     for t <- tables do
       assert %{id: id, table: table} = t
+
       if schema = Map.get(@table_schemas, table) do
         # assert schema in @known_schemas
         t2 = %{t | schema: schema}

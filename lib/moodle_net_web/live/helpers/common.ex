@@ -32,6 +32,8 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
+    # IO.inspect(e: map)
+
     if(is_map(map)) do
       # attempt using key as atom or string
       map_get(map, key, fallback)
@@ -189,6 +191,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:current_user, fn -> current_user end)
     |> assign(:csrf_token, fn -> csrf_token end)
     |> assign(:static_changed, static_changed?(socket))
+    |> assign(:search, "")
   end
 
   def init_assigns(
@@ -229,6 +232,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:current_user, current_user)
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
+    |> assign(:search, "")
   end
 
   def init_assigns(
@@ -242,6 +246,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:csrf_token, csrf_token)
     |> assign(:static_changed, static_changed?(socket))
     |> assign(:current_user, nil)
+    |> assign(:search, "")
   end
 
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
@@ -252,8 +257,14 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def contexts_fetch!(ids) do
     with {:ok, ptrs} <-
-           MoodleNet.Meta.Pointers.many(id: MoodleNetWeb.GraphQL.CommonResolver.flatten(ids)) do
+           MoodleNet.Meta.Pointers.many(id: List.flatten(ids)) do
       MoodleNet.Meta.Pointers.follow!(ptrs)
+    end
+  end
+
+  def context_fetch(id) do
+    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
+      MoodleNet.Meta.Pointers.follow!(pointer)
     end
   end
 
@@ -276,16 +287,16 @@ defmodule MoodleNetWeb.Helpers.Common do
   defp context_follow(thing, %Pointers.Pointer{} = pointer) do
     context = MoodleNet.Meta.Pointers.follow!(pointer)
 
-    context_type(thing, context)
+    add_context_type(thing, context)
   end
 
   defp context_follow(thing, %{id: id} = context) do
-    IO.inspect("cf2")
-    context_type(thing, context)
+    # IO.inspect("already have a loaded object")
+    add_context_type(thing, context)
   end
 
   defp context_follow(%{context_id: nil} = thing, context) do
-    context_type(thing, context)
+    add_context_type(thing, context)
   end
 
   defp context_follow(%{context_id: context_id} = thing, _) do
@@ -293,21 +304,24 @@ defmodule MoodleNetWeb.Helpers.Common do
     context_follow(thing, pointer)
   end
 
-  defp context_type(%{context_type: context_type} = thing, context) do
+  defp add_context_type(%{context_type: _} = thing, context) do
     thing
     |> Map.merge(%{context: context})
   end
 
-  defp context_type(thing, context) do
-    type =
-      context.__struct__
-      |> Module.split()
-      |> Enum.at(-1)
-      |> String.downcase()
+  defp add_context_type(thing, context) do
+    type = context_type(context)
 
     thing
     |> Map.merge(%{context_type: type})
     |> Map.merge(%{context: context})
+  end
+
+  def context_type(context) do
+    context.__struct__
+    |> Module.split()
+    |> Enum.at(-1)
+    |> String.downcase()
   end
 
   def image(thing) do

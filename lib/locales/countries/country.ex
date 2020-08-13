@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Locales.Country do
+defmodule CommonsPub.Locales.Country do
   use Ecto.Schema
 
   # alias Ecto.Changeset
@@ -24,9 +24,16 @@ defmodule Locales.Country do
     field(:id_3letter, :string)
     field(:id_iso, :integer)
 
-    # these all should be FKs
+    # these all should be FKs:
+
     field(:continent_id, :string)
-    field(:language_main, :string)
+
+    # field(:language_main, :string)
+    belongs_to(:language_primary, CommonsPub.Locales.Language,
+      foreign_key: :language_main,
+      type: :string
+    )
+
     field(:currency_id, :string)
     field(:main_tz, :string)
   end

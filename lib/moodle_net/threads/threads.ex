@@ -112,18 +112,4 @@ defmodule MoodleNet.Threads do
       Follows.soft_delete_by(user, context: ids)
     end
   end
-
-  # defp context_feeds(%Resource{}=resource) do
-  #   r = Repo.preload(resource, [collection: [:community]])
-  #   [r.collection.outbox_id, r.collection.community.outbox_id]
-  # end
-
-  # defp context_feeds(%Collection{}=collection) do
-  #   c = Repo.preload(collection, [:community])
-  #   [c.outbox_id, c.community.outbox_id]
-  # end
-
-  # defp context_feeds(%Community{outbox_id: id}), do: [id]
-  # defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
-  # defp context_feeds(_), do: []
 end

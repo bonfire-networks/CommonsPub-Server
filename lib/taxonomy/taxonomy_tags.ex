@@ -20,7 +20,7 @@ defmodule Taxonomy.TaxonomyTags do
 
   def one(filters), do: Repo.single(Queries.query(TaxonomyTag, filters))
 
-  def get(id), do: one(id: id, preload: :parent_tag, preload: :taggable)
+  def get(id), do: one(id: id, preload: :parent_tag, preload: :category)
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(TaxonomyTag, filters))}
 
@@ -70,97 +70,91 @@ defmodule Taxonomy.TaxonomyTags do
     )
   end
 
-  @doc "Takes an existing TaxonomyTag and makes it a Taggable, if one doesn't already exist"
-  def maybe_make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
+  @doc "Takes an existing TaxonomyTag and makes it a category, if one doesn't already exist"
+  def maybe_make_category(user, %TaxonomyTag{} = tag) do
     Repo.transact_with(fn ->
-      tag = Repo.preload(tag, [:taggable, :parent_tag])
+      tag = Repo.preload(tag, [:category, :parent_tag])
 
-      # with Tag.Taggables.one(taxonomy_tag_id: tag.id) do
-      with {:ok, taggable} <- Map.get(tag, :taggable) do
+      # with CommonsPub.Tag.categories.one(taxonomy_tag_id: tag.id) do
+      if !is_nil(tag.category_id) and
+           Ecto.assoc_loaded?(tag.category) and
+           !is_nil(tag.category.id) do
         # already exists
-        taggable
+        {:ok, tag.category}
       else
-        _e -> make_taggable(user, tag)
+        make_category(user, tag)
       end
     end)
   end
 
-  def maybe_make_taggable(%User{} = user, id) do
+  def maybe_make_category(user, id) when is_number(id) do
     with {:ok, tag} <- get(id) do
-      make_taggable(user, tag)
+      maybe_make_category(user, tag)
     end
   end
 
-  defp make_taggable(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)
+  def maybe_make_category(user, id) do
+    maybe_make_category(user, String.to_integer(id))
+  end
+
+  defp make_category(user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag)
        when not is_nil(parent_tag_id) do
-    tag = Repo.preload(tag, :parent_tag)
+    tag = Repo.preload(tag, [:category, :parent_tag])
     parent_tag = tag.parent_tag
 
     IO.inspect(pointerise_parent: parent_tag)
 
     # pointerise the parent(s) first (recursively)
-    {:ok, parent_taggable} = make_taggable(user, parent_tag)
+    {:ok, parent_category} = maybe_make_category(user, parent_tag)
 
-    IO.inspect(parent_taggable: parent_taggable)
+    IO.inspect(parent_category: parent_category)
 
     create_tag =
-      if(parent_taggable) do
-        %{
-          tag
-          | parent_tag: parent_taggable,
-            parent_tag_id: parent_taggable.id
-        }
+      if(parent_category) do
+        cleanup(tag)
+        |> Map.merge(%{parent_category: parent_category})
+        |> Map.merge(%{parent_category_id: parent_category.id})
       else
-        tag
+        cleanup(tag)
       end
 
     # finally pointerise the child(ren), in hierarchical order
-    create_taggable(user, create_tag)
+    create_category(user, tag, create_tag)
   end
 
-  defp make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
-    create_taggable(user, tag)
+  defp make_category(user, %TaxonomyTag{} = tag) do
+    create_category(user, tag, cleanup(tag))
   end
 
-  defp create_taggable(%User{} = user, tag) do
-    IO.inspect(create_taggable: tag)
+  defp create_category(user, tag, attrs) do
+    # IO.inspect(create_category: tag)
 
-    tag = Repo.preload(tag, :taggable)
-    tag = cleanup(tag)
+    Repo.transact_with(fn ->
+      # IO.inspect(create_category: tag)
 
-    if(Ecto.assoc_loaded?(tag.taggable) and !is_nil(tag.taggable) and !is_nil(tag.taggable.id)) do
-      # already has an associated taggable
-      {:ok, tag.taggable}
-    else
-      IO.inspect(create_taggable: tag)
-
-      Repo.transact_with(fn ->
-        with {:ok, taggable} <- Tag.Taggables.create(user, tag) do
-          {:ok, taggable}
-        end
-      end)
-    end
+      with {:ok, category} <- CommonsPub.Tag.Categories.create(user, attrs),
+           {:ok, tag} <- update(user, tag, %{category: category, category_id: category.id}) do
+        {:ok, category}
+      end
+    end)
   end
 
   @doc "Transform the generic fields of anything to be turned into a character."
   def cleanup(thing) do
     thing
     # convert to map
-    |> Map.put(:taxonomy_tag, thing)
-    |> Map.put(:taxonomy_tag_id, thing.id)
+    # |> Map.put(:taxonomy_tag, thing)
+    # |> Map.put(:taxonomy_tag_id, thing.id)
     |> Map.from_struct()
     |> Map.delete(:__meta__)
     # use Thing name as facet/trope
-    |> Map.put(:facet, "Tag")
+    |> Map.put(:facet, "Category")
     |> Map.put(:prefix, "+")
     # avoid reusing IDs
     |> Map.delete(:id)
   end
 
-  # TODO: take the user who is performing the update
-  @spec update(User.t(), TaxonomyTag.t(), attrs :: map) ::
-          {:ok, TaxonomyTag.t()} | {:error, Changeset.t()}
-  def update(%User{} = _user, %TaxonomyTag{} = tag, attrs) do
+  def update(_user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
       #  {:ok, character} <- CommonsPub.Character.update(user, tag.character, attrs)
       # :ok <- publish(tag, :updated)

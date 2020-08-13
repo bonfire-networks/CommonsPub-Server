@@ -44,6 +44,17 @@ defmodule Profile do
   @cast @required ++ ~w(summary extra_info image_id icon_id is_disabled)a
 
   def create_changeset(
+        nil,
+        attrs
+      ) do
+    %Profile{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
+    |> Changeset.change(is_public: true)
+    |> common_changeset()
+  end
+
+  def create_changeset(
         %User{} = creator,
         attrs
       ) do

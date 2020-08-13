@@ -82,8 +82,13 @@ dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force && mix local.rebar --force && mix deps.get
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm install --prefix assets
 
-dev-dep-update: init ## Upgrade a dep, eg: `make dev-dep-update dep=plug` 
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update $(cmd)
+dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild lib=pointers` 
+	rm -rf _build/$(lib)
+	sudo rm -rf _build/dev/lib/$(lib)
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web rm -rf _build/$(lib) && mix deps.compile $(lib)
+
+dev-dep-update: init ## Upgrade a dep, eg: `make dev-dep-update lib=plug` 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update $(lib)
 
 dev-deps-update-all: init ## Upgrade all deps
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update --all

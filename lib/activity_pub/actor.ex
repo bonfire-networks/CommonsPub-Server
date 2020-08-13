@@ -286,8 +286,30 @@ defmodule ActivityPub.Actor do
   defp maybe_create_image_object(_), do: nil
 
   def format_local_actor(%{actor: %{peer_id: nil}} = actor) do
-    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
+    type =
+      case actor do
+        %MoodleNet.Users.User{} -> "Person"
+        %MoodleNet.Communities.Community{} -> "MN:Community"
+        %MoodleNet.Collections.Collection{} -> "MN:Collection"
+        %Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "Character")
+      end
+
+    actor =
+      case actor do
+        %Character{} ->
+          with {:ok, profile} <- Profile.Profiles.one([:default, id: actor.id]) do
+            # IO.inspect(fed_profile: actor)
+            # IO.inspect(fed_profile: profile)
+            Map.merge(actor, profile)
+          else
+            _ ->
+              actor
+          end
+
+        true ->
+          actor
+      end
+
     icon_url = MoodleNet.Uploads.remote_url_from_id(actor.icon_id)
 
     image_url =
@@ -297,12 +319,8 @@ defmodule ActivityPub.Actor do
         nil
       end
 
-    type =
-      case actor do
-        %MoodleNet.Users.User{} -> "Person"
-        %MoodleNet.Communities.Community{} -> "MN:Community"
-        %MoodleNet.Collections.Collection{} -> "MN:Collection"
-      end
+    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
+    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
 
     data = %{
       "type" => type,

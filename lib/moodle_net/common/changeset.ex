@@ -7,7 +7,7 @@ defmodule MoodleNet.Common.Changeset do
   alias Ecto.Changeset
   alias Ecto.ULID
 
-  alias MoodleNet.Localisation
+  alias CommonsPub.Locales
   alias MoodleNet.Mail.Checker
 
   @doc "Generates the primary ID for an object, and sets the canonical URL based on that"

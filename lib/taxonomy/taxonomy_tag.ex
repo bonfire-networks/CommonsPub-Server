@@ -9,7 +9,7 @@ defmodule Taxonomy.TaxonomyTag do
 
   @type t :: %__MODULE__{}
   @required ~w(name)a
-  @cast @required ++ ~w(summary parent_tag_id pointer_id)a
+  @cast @required ++ ~w(summary parent_tag_id category_id)a
 
   # primary key is an integer
   @primary_key {:id, :id, autogenerate: true}
@@ -20,7 +20,11 @@ defmodule Taxonomy.TaxonomyTag do
     # field(:parent_tag_id, :integer)
     belongs_to(:parent_tag, TaxonomyTag, type: :id)
 
-    has_one(:taggable, Tag.Taggable, references: :id, foreign_key: :taxonomy_tag_id)
+    belongs_to(:category, CommonsPub.Tag.Category,
+      references: :id,
+      type: Ecto.ULID,
+      foreign_key: :category_id
+    )
 
     # field(:pointer_id, Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
     # belongs_to(:pointer, Pointer, references: :pointer_id, type: Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)

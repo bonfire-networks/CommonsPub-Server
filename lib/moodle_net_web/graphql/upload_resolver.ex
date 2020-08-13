@@ -31,7 +31,6 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   defp do_upload(user, {field_name, content_input}, acc) do
     uploader = @uploader_fields[field_name]
-
     if uploader do
       case Uploads.upload(uploader, user, content_input, %{}) do
         {:ok, content} ->

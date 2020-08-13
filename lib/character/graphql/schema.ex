@@ -176,7 +176,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
     end
 
     @desc "The parent of the character"
-    field :context, :character_tropes do
+    field :context, :any_context do
       resolve(&CommonResolver.context_edge/3)
     end
 
@@ -279,8 +279,8 @@ defmodule CommonsPub.Character.GraphQL.Schema do
 
   input_object :character_input do
     field(:preferred_username, :string)
-    field(:name, non_null(:string))
-    field(:summary, :string)
+    # field(:name, non_null(:string))
+    # field(:summary, :string)
     # field :primary_language_id, :string
   end
 
@@ -288,53 +288,5 @@ defmodule CommonsPub.Character.GraphQL.Schema do
     field(:name, non_null(:string))
     field(:summary, :string)
     # field :primary_language_id, :string
-  end
-
-  # TODO generate this based on available modules and/or config
-  @doc "Types of things that can be characters"
-  union :character_tropes do
-    description("Any kind of character")
-
-    types([
-      :collection,
-      :community,
-      :organisation,
-      :resource,
-      :thread,
-      :comment,
-      :spatial_thing,
-      :tag,
-      :character
-    ])
-
-    resolve_type(fn
-      %Collection{}, _ ->
-        :collection
-
-      %Community{}, _ ->
-        :community
-
-      %Organisation{}, _ ->
-        :organisation
-
-      %Resource{}, _ ->
-        :resource
-
-      %Thread{}, _ ->
-        :thread
-
-      %Comment{}, _ ->
-        :comment
-
-      %Geolocation{}, _ ->
-        :spatial_thing
-
-      %Tag.Taggable{}, _ ->
-        :tag
-
-      %CommonsPub.Character{}, _ ->
-        :character
-        # %{},   _ -> :unexpected_character_trope
-    end)
   end
 end

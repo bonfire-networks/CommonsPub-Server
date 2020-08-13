@@ -32,18 +32,11 @@ defmodule MoodleNetWeb.MemberLive.MemberAdsLive do
 
     page_opts = %{limit: 10}
 
-    opts = [user: assigns.current_user, creator: assigns.user.id]
-
-    filters = [
-      page: [desc: [created: page_opts]]
-      # join: :first_comment,
-      # preload: :first_comment
-    ]
-
     {:ok, ads} =
-      ValueFlows.Planning.Intent.GraphQL.all_intents(
+      ValueFlows.Planning.Intent.GraphQL.fetch_creator_intents_edge(
         page_opts,
-        %{context: %{current_user: assigns.current_user}}
+        %{context: %{current_user: assigns.current_user}},
+        assigns.current_user.id
       )
 
     IO.inspect(ads, label: "ADS:")

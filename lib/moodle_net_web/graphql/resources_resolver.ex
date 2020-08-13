@@ -61,35 +61,36 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   @doc """
   Deprecated - create resource in collection
   """
-  def create_resource(%{resource: attrs, collection_id: collection_id} = params, info) do
+  def create_resource(%{resource: res_attrs, collection_id: collection_id} = input_attrs, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, uploads} <- UploadResolver.upload(user, params, info),
+        with {:ok, uploads} <- UploadResolver.upload(user, input_attrs, info),
              {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
-             attrs = Map.merge(attrs, uploads),
-             {:ok, resource} <- Resources.create(user, collection, attrs) do
+             res_attrs = Map.merge(res_attrs, uploads),
+             {:ok, resource} <- Resources.create(user, collection, res_attrs) do
           {:ok, %{resource | collection: collection}}
         end
       end)
     end
   end
 
-  def create_resource(%{resource: attrs, context_id: nil}, info) do
-    create_resource(%{resource: attrs}, info)
+  def create_resource(%{resource: res_attrs, context_id: context_id}, info)
+      when is_nil(context_id) or context_id == "" do
+    create_resource(%{resource: res_attrs}, info)
   end
 
   @doc """
   Create resource with any context
   """
-  def create_resource(%{resource: attrs, context_id: context_id} = params, info) do
+  def create_resource(%{resource: res_attrs, context_id: context_id} = input_attrs, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
              :ok <- validate_context(pointer),
              context = MoodleNet.Meta.Pointers.follow!(pointer),
-             {:ok, uploads} <- UploadResolver.upload(user, params, info),
-             attrs = Map.merge(attrs, uploads),
-             {:ok, resource} <- Resources.create(user, context, attrs) do
+             {:ok, uploads} <- UploadResolver.upload(user, input_attrs, info),
+             res_attrs = Map.merge(res_attrs, uploads),
+             {:ok, resource} <- Resources.create(user, context, res_attrs) do
           {:ok, %{resource | context: context}}
         end
       end)
@@ -99,19 +100,19 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   @doc """
   Create resource without context
   """
-  def create_resource(%{resource: attrs} = params, info) do
+  def create_resource(%{resource: res_attrs} = input_attrs, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, uploads} <- UploadResolver.upload(user, params, info),
-             attrs = Map.merge(attrs, uploads),
-             {:ok, resource} <- Resources.create(user, attrs) do
+        with {:ok, uploads} <- UploadResolver.upload(user, input_attrs, info),
+             res_attrs = Map.merge(res_attrs, uploads),
+             {:ok, resource} <- Resources.create(user, res_attrs) do
           {:ok, resource}
         end
       end)
     end
   end
 
-  def update_resource(%{resource: changes, resource_id: resource_id} = params, info) do
+  def update_resource(%{resource: changes, resource_id: resource_id} = input_attrs, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, resource} <- resource(%{resource_id: resource_id}, info) do
@@ -123,7 +124,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
               resource.collection.community.creator_id == user.id
 
           if permitted? do
-            with {:ok, uploads} <- UploadResolver.upload(user, params, info) do
+            with {:ok, uploads} <- UploadResolver.upload(user, input_attrs, info) do
               Resources.update(user, resource, Map.merge(changes, uploads))
             end
           else
@@ -139,8 +140,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
       Repo.transact_with(fn ->
         with {:ok, collection} <- Collections.one([:default, id: collection_id, user: user]),
              {:ok, resource} <- resource(%{resource_id: resource_id}, info),
-             attrs = Map.take(resource, ~w(content_id name summary icon url license)a) do
-          Resources.create(user, collection, attrs)
+             res_attrs = Map.take(resource, ~w(content_id name summary icon url license)a) do
+          Resources.create(user, collection, res_attrs)
         end
       end)
     end

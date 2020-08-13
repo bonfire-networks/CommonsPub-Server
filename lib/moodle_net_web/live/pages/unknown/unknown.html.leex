@@ -1,0 +1,13 @@
+<div>
+  <%=
+  live_component(
+      @socket,
+      MoodleNetWeb.Component.PreviewLive,
+      object: @object,
+      object_type: @object_type,
+      current_user: @current_user,
+      preview_id: e(@object, :id, 'unknown')
+
+    )
+%>
+</div>

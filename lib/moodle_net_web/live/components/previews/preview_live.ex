@@ -64,6 +64,14 @@ defmodule MoodleNetWeb.Component.PreviewLive do
                 current_user: @current_user,
                 id: @preview_id
               )
+            @object_type == "category" ->
+              live_component(
+                @socket,
+                MoodleNetWeb.Component.CategoryPreviewLive,
+                object: @object,
+                current_user: @current_user,
+                id: @preview_id
+              )
             true ->
               live_component(
                 @socket,

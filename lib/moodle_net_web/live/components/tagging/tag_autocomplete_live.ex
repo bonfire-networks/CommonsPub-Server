@@ -153,7 +153,7 @@ defmodule MoodleNetWeb.Component.TagAutocomplete do
   end
 
   def search_from_index(tag_search, index) do
-    search = Search.Meili.search(tag_search, index)
+    search = CommonsPub.Search.Meili.search(tag_search, index)
 
     if(Map.has_key?(search, "hits") and length(search["hits"])) do
       # search["hits"]

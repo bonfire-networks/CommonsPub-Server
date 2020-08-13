@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.Component.UnknownPreviewLive do
     IO.inspect(unknown_preview: assigns.object)
 
     link = e(content_url(assigns.object), e(assigns.object, :canonical_url, "#no-link"))
-    icon = icon(@object)
+    icon = icon(assigns.object)
 
     {:ok,
      assign(socket,

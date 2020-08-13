@@ -288,7 +288,7 @@ config :http_signatures, adapter: ActivityPub.Signature
 
 config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 
-config :floki, :html_parser, Floki.HTMLParser.FastHtml
+config :floki, :html_parser, Floki.HTMLParser.Html5ever
 
 config :sentry,
   enable_source_code_context: true,
@@ -302,7 +302,18 @@ config :pointers,
   trigger_function: "insert_pointer",
   trigger_prefix: "insert_pointer_"
 
-config :pointers, Pointers.Pointer, source: "mn_pointer"
+config :pointers, Pointers.Pointer,
+  source: "mn_pointer",
+  many_to_many: [
+    tags: {
+      CommonsPub.Tag.Taggable,
+      join_through: "tags_things",
+      unique: true,
+      join_keys: [pointer_id: :id, tag_id: :id],
+      on_replace: :delete
+    }
+  ]
+
 config :pointers, Pointers.Table, source: "mn_table"
 
 config :moodle_net, :ux,

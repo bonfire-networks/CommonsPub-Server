@@ -1,13 +1,13 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Locales.Languages.Queries do
+defmodule CommonsPub.Locales.Languages.Queries do
   import Ecto.Query
 
-  alias Locales.Language
+  alias CommonsPub.Locales.Language
 
   def query(Language) do
-    from u in Language, as: :language
+    from(u in Language, as: :language)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -27,7 +27,6 @@ defmodule Locales.Languages.Queries do
     Enum.reduce(tables, q, &join_to(&2, &1, jq))
   end
 
-
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
 
@@ -46,15 +45,15 @@ defmodule Locales.Languages.Queries do
   ## by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [language: f], f.id == ^id
+    where(q, [language: f], f.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [language: f], f.id in ^ids
+    where(q, [language: f], f.id in ^ids)
   end
 
   ## by ordering
 
-  def filter(q, {:order, :speakers}), do: order_by(q, [language: f], [desc: f.speakers_native_total])
-
+  def filter(q, {:order, :speakers}),
+    do: order_by(q, [language: f], desc: f.speakers_native_total)
 end

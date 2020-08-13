@@ -26,14 +26,14 @@ defmodule MoodleNetWeb.SearchLive do
      )}
   end
 
-  def handle_params(%{"search" => search, "tab" => tab} = params, _url, socket)
-      when search != "" do
-    IO.inspect(search, label: "SEARCH")
+  def handle_params(%{"search" => q, "tab" => tab} = params, _url, socket)
+      when q != "" do
+    IO.inspect(q, label: "SEARCH")
     IO.inspect(tab, label: "TAB")
 
-    search = Search.Meili.search(search, "public")
+    search = CommonsPub.Search.Meili.search(q, "public")
 
-    IO.inspect(search)
+    # IO.inspect(search)
 
     hits =
       if(Map.has_key?(search, "hits") and length(search["hits"])) do
@@ -42,13 +42,15 @@ defmodule MoodleNetWeb.SearchLive do
         # Enum.filter(hits, & &1)
       end
 
-    IO.inspect(hits)
+    # IO.inspect(hits)
 
     {:noreply,
      assign(socket,
        selected_tab: tab,
        hits: hits,
-       num_hits: search["nbHits"]
+       num_hits: search["nbHits"],
+       search: q
+
        #  current_user: socket.assigns.current_user
      )}
   end

@@ -48,6 +48,12 @@ defmodule MoodleNet.Users do
   @deleted_user_id "REA11YVERYDE1ETED1DENT1TY1"
   def deleted_user_id(), do: @deleted_user_id
 
+  def get(username) do
+    with {:ok, u} <- one(preset: :local_user, username: username) do
+      u
+    end
+  end
+
   def one(filters), do: Repo.single(Queries.query(User, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(User, filters))}

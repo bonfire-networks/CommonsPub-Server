@@ -21,9 +21,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     FollowsSchema,
     InstanceSchema,
     LikesSchema,
-    # LocalisationSchema,
     MiscSchema,
-    MoodleverseSchema,
     ResourcesSchema,
     ThreadsSchema,
     UsersSchema,
@@ -59,9 +57,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(InstanceSchema)
   import_types(JSON)
   import_types(LikesSchema)
-  # import_types LocalisationSchema
   import_types(MiscSchema)
-  import_types(MoodleverseSchema)
   import_types(ResourcesSchema)
   import_types(ThreadsSchema)
   import_types(UsersSchema)
@@ -71,8 +67,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(Profile.GraphQL.Schema)
   import_types(CommonsPub.Character.GraphQL.Schema)
   import_types(Organisation.GraphQL.Schema)
-  import_types(Locales.GraphQL.Schema)
-  import_types(Tag.GraphQL.TagSchema)
+  import_types(CommonsPub.Locales.GraphQL.Schema)
+  import_types(CommonsPub.Tag.GraphQL.TagSchema)
   import_types(Taxonomy.GraphQL.TaxonomySchema)
   import_types(Measurement.Unit.GraphQL)
   import_types(Geolocation.GraphQL)
@@ -91,8 +87,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields(:follows_queries)
     import_fields(:instance_queries)
     import_fields(:likes_queries)
-    # import_fields :localisation_queries
-    import_fields(:moodleverse_queries)
     import_fields(:resources_queries)
     import_fields(:threads_queries)
     import_fields(:users_queries)
@@ -177,5 +171,47 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   defp hydrate_merge(a, b) do
     Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
+  end
+
+  union :any_context do
+    description("Any type of known object")
+    # TODO: autogenerate
+    types([
+      :community,
+      :collection,
+      :resource,
+      :comment,
+      :flag,
+      :follow,
+      :like,
+      :user,
+      :organisation,
+      :category,
+      :taggable,
+      :spatial_thing
+      # :intent
+    ])
+
+    resolve_type(fn
+      %MoodleNet.Users.User{}, _ -> :user
+      %MoodleNet.Communities.Community{}, _ -> :community
+      %MoodleNet.Collections.Collection{}, _ -> :collection
+      %MoodleNet.Resources.Resource{}, _ -> :resource
+      %MoodleNet.Threads.Thread{}, _ -> :thread
+      %MoodleNet.Threads.Comment{}, _ -> :comment
+      %MoodleNet.Follows.Follow{}, _ -> :follow
+      %MoodleNet.Likes.Like{}, _ -> :like
+      %MoodleNet.Flags.Flag{}, _ -> :flag
+      %MoodleNet.Features.Feature{}, _ -> :feature
+      %Organisation{}, _ -> :organisation
+      %Geolocation{}, _ -> :spatial_thing
+      %CommonsPub.Tag.Category{}, _ -> :category
+      %CommonsPub.Tag.Taggable{}, _ -> :taggable
+      # %ValueFlows.Agent.Agents{}, _ -> :agent
+      # %ValueFlows.Agent.People{}, _ -> :person
+      # %ValueFlows.Agent.Organizations{}, _ -> :organization
+      # %ValueFlows.Planning.Intent{}, _ -> :intent
+      o, _ -> IO.inspect(any_context_resolve_unknown_type: o)
+    end)
   end
 end

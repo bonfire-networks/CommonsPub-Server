@@ -41,4 +41,9 @@ defmodule MoodleNet.Actors do
   def update(%User{}, %Actor{} = actor, attrs) when is_map(attrs) do
     Repo.update(Actor.update_changeset(actor, attrs))
   end
+
+  def update(_, actor, _) do
+    # FIXME
+    actor
+  end
 end

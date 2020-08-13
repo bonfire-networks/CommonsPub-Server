@@ -4,7 +4,7 @@
 defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.{Collections, Communities, Common, Repo, Resources, Threads, Users}
   alias MoodleNet.ActivityPub.Utils
-  alias MoodleNet.Algolia.Indexer
+  alias CommonsPub.Search.Indexer
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User
@@ -19,7 +19,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
     # FIXME: this should be only one query
     with {:error, _e} <- Users.one([:default, username: username]),
          {:error, _e} <- Communities.one([:default, username: username]),
-         {:error, _e} <- Collections.one([:default, username: username]) do
+         {:error, _e} <- Collections.one([:default, username: username]),
+         {:error, _e} <- Character.Characters.one([:default, username: username]) do
       {:error, "not found"}
     end
   end

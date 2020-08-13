@@ -173,6 +173,8 @@ defmodule MoodleNetWeb.Router do
     live "/&:username", CommunityLive
     live "/&:username/:tab", CommunityLive
 
+    live "/+:id/unknown", Page.Unknown
+
     live "/+:username", CollectionLive
     live "/+:username/:tab", CollectionLive
 
@@ -199,18 +201,18 @@ defmodule MoodleNetWeb.Router do
     live "/~/proto", My.ProtoProfileLive
   end
 
-  scope "/", MoodleNetWeb do
+  scope "/" do
     pipe_through :browser
     pipe_through :ensure_authenticated
 
     # temporarily don't use CSRF for uploads until LV has a better approach
 
-    post "/~/settings", My.SettingsUpload, :upload
+    post "/~/settings", MoodleNetWeb.My.SettingsUpload, :upload
 
     pipe_through :protect_forgery
 
-    get "/api/tag/autocomplete/:prefix/:search", Tag.Autocomplete, :get
-    get "/api/tag/autocomplete/:consumer/:prefix/:search", Tag.Autocomplete, :get
+    get "/api/tag/autocomplete/:prefix/:search", CommonsPub.Tag.Autocomplete, :get
+    get "/api/tag/autocomplete/:consumer/:prefix/:search", CommonsPub.Tag.Autocomplete, :get
     get "/api/taxonomy/test", Taxonomy.Utils, :get
   end
 

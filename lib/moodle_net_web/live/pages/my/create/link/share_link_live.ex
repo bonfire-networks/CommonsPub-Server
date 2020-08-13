@@ -63,13 +63,17 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
        |> put_flash(:error, "Please enter a valid link and give it a name...")}
     else
       # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
-      resource = input_to_atoms(data)
 
-      IO.inspect(context_id, label: "context_id CHOOSEN")
+      # IO.inspect(context_id, label: "context_id CHOOSEN")
 
       {:ok, resource} =
         MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
-          %{context_id: context_id, resource: resource, content: content, icon: icon},
+          %{
+            context_id: context_id,
+            resource: input_to_atoms(data),
+            content: input_to_atoms(content),
+            icon: input_to_atoms(icon)
+          },
           %{context: %{current_user: socket.assigns.current_user}}
         )
 

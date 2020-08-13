@@ -106,30 +106,39 @@ defmodule CommonsPub.Character.Characters do
 
   ## mutations
 
-  def create(creator, attrs) when is_map(attrs) do
-    with {:ok, character} <- create(attrs),
-         # act_attrs = %{verb: "created", is_local: true},
-         #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
-         #  :ok <- publish(creator, character, activity, :created),
-         {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
-      {:ok, character}
-    end
+  def create(creator, %{character: attrs, id: id, profile: %{name: name}})
+      when is_map(attrs) do
+    create(creator, Map.put(Map.put(attrs, :id, id), :name, name))
   end
 
-  def create(attrs) when is_map(attrs) do
+  def create(creator, %{character: attrs, profile: %{name: name}}) when is_map(attrs) do
+    create(creator, Map.put(attrs, :name, name))
+  end
+
+  def create(creator, %{character: attrs, id: id}) when is_map(attrs) do
+    create(creator, Map.put(attrs, :id, id))
+  end
+
+  def create(creator, %{profile: %{name: name}} = attrs) when is_map(attrs) do
+    create(creator, Map.put(Map.delete(attrs, :profile), :name, name))
+  end
+
+  def create(creator, attrs) when is_map(attrs) do
+    # IO.inspect(character_create: attrs)
+    attrs = Actors.prepare_username(attrs)
+
+    # IO.inspect(attrs)
+
     Repo.transact_with(fn ->
-      attrs = prepare_username(attrs)
-
-      # IO.inspect(attrs)
-      # attrs = Map.put(attrs, :alternative_username, Map.get(attrs, :preferred_username)<>"-"<>Map.get(attrs, :facet))
-      # IO.inspect(attrs)
-
-      # with {:ok, actor} <- Characters.create(attrs),
-      #    {:ok, character} <- insert_character(creator, character, character_attrs),
-      with {:ok, character_attrs} <- create_boxes(attrs, attrs),
-           {:ok, character} <- insert_character(character_attrs) do
-        # add to search index?
-        #  index(character)
+      # with {:ok, actor} <- Actors.create(attrs),
+      with {:ok, character_attrs} <- create_boxes(attrs),
+           {:ok, character} <- insert_character(creator, character_attrs),
+           #  act_attrs = %{verb: "created", is_local: true},
+           #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
+           #  :ok <- publish(creator, character, activity, :created),
+           # add to search index
+           #  :ok <- index(character),
+           {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
         {:ok, character}
       end
     end)
@@ -146,10 +155,10 @@ defmodule CommonsPub.Character.Characters do
   #   |> create()
   # end
 
-  defp create_boxes(%{peer_id: peer_id}, attrs) when not is_nil(peer_id),
+  defp create_boxes(%{peer_id: peer_id} = attrs) when not is_nil(peer_id),
     do: create_remote_boxes(attrs)
 
-  defp create_boxes(_, attrs), do: create_local_boxes(attrs)
+  defp create_boxes(attrs), do: create_local_boxes(attrs)
 
   defp create_local_boxes(attrs) do
     with {:ok, inbox} <- Feeds.create(),
@@ -171,8 +180,8 @@ defmodule CommonsPub.Character.Characters do
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, character}
   # end
 
-  defp insert_character(attrs) do
-    cs = Character.create_changeset(attrs)
+  defp insert_character(creator, attrs) do
+    cs = Character.create_changeset(creator, attrs)
     IO.inspect(cs)
     with {:ok, character} <- Repo.insert(cs), do: {:ok, character}
   end
@@ -199,7 +208,7 @@ defmodule CommonsPub.Character.Characters do
   # end
 
   @doc "Takes a Pointer to something and creates a Character based on it"
-  def characterise(%User{} = user, %Pointer{} = pointer) do
+  def characterise(user, %Pointer{} = pointer) do
     thing = MoodleNet.Meta.Pointers.follow!(pointer)
 
     if(is_nil(thing.character_id)) do
@@ -210,7 +219,7 @@ defmodule CommonsPub.Character.Characters do
   end
 
   @doc "Takes anything and creates a Character based on it"
-  def characterise(%User{} = user, %{} = thing) do
+  def characterise(user, %{} = thing) do
     # IO.inspect(thing)
     thing_name = thing.__struct__
     thing_context_module = apply(thing_name, :context_module, [])
@@ -302,14 +311,17 @@ defmodule CommonsPub.Character.Characters do
 
   defp ap_publish(_, _, _, _), do: :ok
 
-  # TODO: take the user who is performing the update
-  @spec update(User.t(), Character.t(), attrs :: map) ::
-          {:ok, Character.t()} | {:error, Changeset.t()}
-  def update(%User{} = user, %Character{} = character, attrs) do
+  def update(user, %Character{} = character, %{character: attrs}) when is_map(attrs) do
+    update(user, character, attrs)
+  end
+
+  def update(user, %Character{} = character, attrs) do
+    character = Repo.preload(character, :actor)
+
     Repo.transact_with(fn ->
       with {:ok, character} <-
              Repo.update(Character.update_changeset(character, attrs)),
-           #  {:ok, actor} <- Characters.update(user, character.actor, attrs),
+           #  {:ok, actor} <- Actors.update(user, character.actor, attrs),
            :ok <- publish(character, :updated) do
         {:ok, character}
       end
@@ -361,7 +373,7 @@ defmodule CommonsPub.Character.Characters do
   #     "index_instance" => URI.parse(canonical_url).host
   #   }
 
-  #   Search.Indexing.maybe_index_object(object)
+  #   CommonsPub.Search.Indexer.maybe_index_object(object)
 
   #   :ok
   # end

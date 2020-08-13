@@ -43,6 +43,10 @@ defmodule Geolocation.GraphQL do
     })
   end
 
+  def all_geolocations(page_opts, info) do
+    Geolocations.many()
+  end
+
   def geolocations(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
@@ -136,29 +140,20 @@ defmodule Geolocation.GraphQL do
   def update_geolocation(%{spatial_thing: %{id: id} = changes}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, geolocation} <- geolocation(%{id: id}, info) do
-        geolocation = Repo.preload(geolocation, :context)
-
-        resp =
-          cond do
-            user.local_user.is_instance_admin ->
-              Geolocations.update(user, geolocation, changes)
-
-            geolocation.creator_id == user.id ->
-              Geolocations.update(user, geolocation, changes)
-
-            #   geolocation.community.creator_id == user.id ->
-            # Geolocations.update(geolocation, changes)
-
-            true ->
-              GraphQL.not_permitted("update")
-          end
-
-        with {:ok, geo} <- resp do
-          {:ok, %{spatial_thing: geo}}
-        end
+           {:ok, geolocation} <- geolocation(%{id: id}, info),
+           :ok <- ensure_update_allowed(user, geolocation),
+           {:ok, geo} <- Geolocations.update(user, geolocation, changes) do
+        {:ok, %{spatial_thing: geo}}
       end
     end)
+  end
+
+  def ensure_update_allowed(user, geo) do
+    if user.local_user.is_instance_admin or geo.creator_id == user.id do
+      :ok
+    else
+      GraphQL.not_permitted("update")
+    end
   end
 
   def delete_geolocation(%{id: id}, info) do

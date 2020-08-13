@@ -88,13 +88,16 @@ defmodule Profile.Profiles do
 
   ## mutations
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Profile.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  def create(creator, %{profile: attrs, id: id}) when is_map(attrs) do
+    create(creator, Map.put(attrs, :id, id))
+  end
+
+  def create(creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, profile} <- insert_profile(creator, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, profile, act_attrs),
-           :ok <- publish(creator, profile, activity, :created) do
+      with {:ok, profile} <- insert_profile(creator, attrs) do
+        #  act_attrs = %{verb: "created", is_local: true},
+        #  {:ok, activity} <- Activities.create(creator, profile, act_attrs),
+        #  :ok <- publish(creator, profile, activity, :created) do
         {:ok, profile}
       end
     end)
@@ -107,7 +110,7 @@ defmodule Profile.Profiles do
   end
 
   @doc "Takes a Pointer to something and creates a Profile based on it"
-  def add_profile_to(%User{} = user, %Pointer{} = pointer) do
+  def add_profile_to(user, %Pointer{} = pointer) do
     thing = MoodleNet.Meta.Pointers.follow!(pointer)
 
     if(is_nil(thing.profile_id)) do
@@ -117,13 +120,13 @@ defmodule Profile.Profiles do
     end
   end
 
-  def add_profile_to(%User{} = user, pointer_id) when is_binary(pointer_id) do
+  def add_profile_to(user, pointer_id) when is_binary(pointer_id) do
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: pointer_id)
     add_profile_to(user, pointer)
   end
 
   @doc "Takes anything and creates a Profile based on it"
-  def add_profile_to(%User{} = user, %{} = thing) do
+  def add_profile_to(user, %{} = thing) do
     # IO.inspect(thing)
     thing_name = thing.__struct__
     thing_context_module = apply(thing_name, :context_module, [])
@@ -168,55 +171,25 @@ defmodule Profile.Profiles do
     |> Map.delete(:__meta__)
   end
 
-  defp publish(creator, profile, activity, :created) do
-    feeds = [
-      creator.outbox_id,
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds),
-         {:ok, _} <- ap_publish("create", profile.id, creator.id, nil),
-         do: :ok
-  end
-
-  defp publish(profile, :updated) do
-    # TODO: wrong if edited by admin
-    with {:ok, _} <- ap_publish("update", profile.id, profile.creator_id, nil),
-         do: :ok
-  end
-
-  defp publish(profile, :deleted) do
-    # TODO: wrong if edited by admin
-    with {:ok, _} <- ap_publish("delete", profile.id, profile.creator_id, nil),
-         do: :ok
-  end
-
-  defp ap_publish(verb, context_id, user_id, nil) do
-    APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id
-    })
-  end
-
-  defp ap_publish(_, _, _, _), do: :ok
-
   # TODO: take the user who is performing the update
-  @spec update(User.t(), Profile.t(), attrs :: map) ::
-          {:ok, Profile.t()} | {:error, Changeset.t()}
-  def update(%User{} = user, %Profile{} = profile, attrs) do
+
+  def update(user, %Profile{} = profile, %{profile: attrs}) when is_map(attrs) do
+    update(user, profile, attrs)
+  end
+
+  def update(user, %Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Repo.update(Profile.update_changeset(profile, attrs)),
-           {:ok, actor} <- Characters.update(user, profile.actor, attrs),
+           {:ok, character} <- Characters.update(user, profile.character, attrs),
            :ok <- publish(profile, :updated) do
-        {:ok, %{profile | actor: actor}}
+        {:ok, %{profile | character: character}}
       end
     end)
   end
 
   def soft_delete(%Profile{} = profile) do
     Repo.transact_with(fn ->
-      with {:ok, profile} <- Common.soft_delete(profile),
-           :ok <- publish(profile, :deleted) do
+      with {:ok, profile} <- Common.soft_delete(profile) do
         {:ok, profile}
       end
     end)

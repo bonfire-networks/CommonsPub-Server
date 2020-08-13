@@ -223,12 +223,16 @@ defmodule Geolocation.Geolocations do
     %{geo | lat: lat, long: long, geom: Geo.JSON.encode!(geom)}
   end
 
-  def populate_coordinates(%Geolocation{} = geo), do: geo
+  def populate_coordinates(geo), do: geo
 
-  def resolve_mappable_address(%{mappable_address: address} = geo) when is_binary(address) do
-    with {:ok, coordinates} <- Geocoder.call(address) do
-      # TODO: should handle bounds
-      {:ok, %{geo | lat: coordinates.lat, long: coordinates.lon}}
+  def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
+    with {:ok, coords} <- Geocoder.call(address) do
+      # IO.inspect(attrs)
+      # IO.inspect(coords)
+      # TODO: should take bounds and save in `geom`
+      {:ok, Map.put(Map.put(attrs, :lat, coords.lat), :long, coords.lon)}
+    else
+      _ -> {:ok, attrs}
     end
   end
 

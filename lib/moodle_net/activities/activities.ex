@@ -21,6 +21,12 @@ defmodule MoodleNet.Activities do
   """
   @spec create(User.t(), %{context_id: binary}, map) ::
           {:ok, Activity.t()} | {:error, Changeset.t()}
+
+  def create(nil, _, _) do
+    # fail silently (activity must have a character)
+    {:ok, nil}
+  end
+
   def create(creator, context, %{} = attrs) do
     with {:ok, activity} <- insert(creator, context, attrs) do
       {:ok, %Activity{activity | context: context, creator: creator}}
