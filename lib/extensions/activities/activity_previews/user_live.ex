@@ -10,12 +10,12 @@ defmodule MoodleNetWeb.Component.UserPreviewLive do
 
   def render(assigns) do
     ~L"""
-    <%= live_redirect to: "/@"<>e(@user, :actor, :preferred_username, "deleted") do %>
+    <%= live_redirect to: "/"<>e(@user, :username, "unknown") do %>
       <div class="user__preview">
         <div class="preview__image" style="background-image: url(<%= e(@user, :icon_url, "") %>)"></div>
         <div class="preview__info">
           <h3><%= @user.name %></h3>
-          <h4>@<%= e(@user, :actor, :preferred_username, "") %></h4>
+          <h4><%= e(@user, :username, "") %></h4>
         </div>
       </div>
       <% end %>

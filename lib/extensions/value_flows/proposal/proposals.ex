@@ -203,24 +203,30 @@ defmodule ValueFlows.Proposals do
     end)
   end
 
-  def format_object(obj) do
+  def indexing_object_format(obj) do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
     # image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
 
     %{
       "index_type" => "Proposal",
       "id" => obj.id,
-      # "canonicalUrl" => obj.actor.canonical_url,
+      # "canonicalUrl" => obj.canonical_url,
       # "icon" => icon,
       "name" => obj.name,
       "note" => Map.get(obj, :note),
-      "createdAt" => obj.published_at
+      "published_at" => obj.published_at,
+      "creator" => %{
+        "id" => obj.creator.id,
+        "name" => obj.creator.name,
+        "username" => MoodleNet.Actors.display_username(obj.creator),
+        "canonical_url" => obj.creator.actor.canonical_url
+      }
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
   end
 
   defp index(obj) do
-    object = format_object(obj)
+    object = indexing_object_format(obj)
 
     CommonsPub.Search.Indexer.index_object(object)
 

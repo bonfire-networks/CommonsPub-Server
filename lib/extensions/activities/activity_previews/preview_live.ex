@@ -32,6 +32,14 @@ defmodule MoodleNetWeb.Component.PreviewLive do
               current_user: @current_user,
               id: @preview_id
             )
+            @object_type == "user" ->
+              live_component(
+                @socket,
+                MoodleNetWeb.Component.UserPreviewLive,
+                user: @object,
+                current_user: @current_user,
+                id: @preview_id
+              )
             @object_type == "comment" ->
               live_component(
                 @socket,

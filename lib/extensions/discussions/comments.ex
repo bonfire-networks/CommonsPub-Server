@@ -236,7 +236,7 @@ defmodule MoodleNet.Threads.Comments do
 
   defp ap_publish(_, _), do: :ok
 
-  def format_object(comment) do
+  def indexing_object_format(comment) do
     # follower_count =
     #   case MoodleNet.Follows.FollowerCounts.one(context: comment.id) do
     #     {:ok, struct} -> struct.count
@@ -259,7 +259,7 @@ defmodule MoodleNet.Threads.Comments do
       "creator" => %{
         "id" => comment.creator.id,
         "name" => comment.creator.name,
-        "preferred_username" => comment.creator.actor.preferred_username,
+        "username" => MoodleNet.Actors.display_username(comment.creator),
         "canonical_url" => comment.creator.actor.canonical_url
       },
       "canonical_url" => canonical_url,
@@ -277,7 +277,7 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   def index(comment) do
-    object = format_object(comment)
+    object = indexing_object_format(comment)
 
     CommonsPub.Search.Indexer.index_object(object)
 

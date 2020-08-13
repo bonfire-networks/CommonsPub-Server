@@ -9,7 +9,7 @@ defmodule CommonsPub.Search.IndexerTest do
 
   test "format community" do
     community = fake_user!() |> fake_community!()
-    json = Indexer.format_object(community)
+    json = Indexer.indexing_object_format(community)
     assert json["index_mothership_object_id"] == community.id
     assert json["canonicalUrl"] == community.actor.canonical_url
     # assert json["icon"] == community.icon
@@ -24,7 +24,7 @@ defmodule CommonsPub.Search.IndexerTest do
     community = fake_community!(user)
     collection = fake_collection!(user, community)
 
-    json = Indexer.format_object(collection)
+    json = Indexer.indexing_object_format(collection)
     assert json["index_mothership_object_id"] == collection.id
     assert json["canonicalUrl"] == collection.actor.canonical_url
     # assert json["icon"] == collection.icon
@@ -40,7 +40,7 @@ defmodule CommonsPub.Search.IndexerTest do
     collection = fake_collection!(user, community)
     resource = fake_resource!(user, collection)
 
-    json = Indexer.format_object(resource)
+    json = Indexer.indexing_object_format(resource)
     assert String.starts_with?(json["url"], "http")
     assert json["index_mothership_object_id"] == resource.id
     assert json["canonicalUrl"] == resource.canonical_url

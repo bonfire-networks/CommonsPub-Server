@@ -8,7 +8,7 @@ defmodule CommonsPub.Search.Indexer do
   @public_index "public"
 
   def maybe_index_object(object) do
-    indexable_object = format_object(object)
+    indexable_object = indexing_object_format(object)
 
     if !is_nil(indexable_object) do
       index_object(indexable_object)
@@ -21,13 +21,13 @@ defmodule CommonsPub.Search.Indexer do
       ) do
         thing_context_module = apply(thing_name, :context_module, [])
 
-        if(Kernel.function_exported?(thing_context_module, :format_object, 1)) do
+        if(Kernel.function_exported?(thing_context_module, :indexing_object_format, 1)) do
           # IO.inspect(function_exists_in: thing_context_module)
-          indexable_object = apply(thing_context_module, :format_object, [object])
+          indexable_object = apply(thing_context_module, :indexing_object_format, [object])
           index_object(indexable_object)
         else
           Logger.info(
-            "Could not index #{thing_name} object (no context module with format_object/1)"
+            "Could not index #{thing_name} object (no context module with indexing_object_format/1)"
           )
         end
       else
@@ -74,7 +74,35 @@ defmodule CommonsPub.Search.Indexer do
     # TODO
   end
 
-  def format_object(%MoodleNet.Communities.Community{} = community) do
+  def indexing_object_format(%MoodleNet.Users.User{} = user) do
+    follower_count =
+      case MoodleNet.Follows.FollowerCounts.one(context: user.id) do
+        {:ok, struct} -> struct.count
+        {:error, _} -> nil
+      end
+
+    icon = MoodleNet.Uploads.remote_url_from_id(user.icon_id)
+    image = MoodleNet.Uploads.remote_url_from_id(user.image_id)
+    url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(user)
+
+    %{
+      "id" => user.id,
+      "canonical_url" => url,
+      "followers" => %{
+        "total_count" => follower_count
+      },
+      "icon" => icon,
+      "image" => image,
+      "name" => user.name,
+      "username" => MoodleNet.Actors.display_username(user),
+      "summary" => Map.get(user, :summary),
+      "index_type" => "User",
+      "index_instance" => URI.parse(url).host,
+      "published_at" => user.published_at
+    }
+  end
+
+  def indexing_object_format(%MoodleNet.Communities.Community{} = community) do
     follower_count =
       case MoodleNet.Follows.FollowerCounts.one(context: community.id) do
         {:ok, struct} -> struct.count
@@ -94,7 +122,7 @@ defmodule CommonsPub.Search.Indexer do
       "icon" => icon,
       "image" => image,
       "name" => community.name,
-      "preferred_username" => community.actor.preferred_username,
+      "username" => MoodleNet.Actors.display_username(community),
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
       "index_instance" => URI.parse(url).host,
@@ -102,7 +130,7 @@ defmodule CommonsPub.Search.Indexer do
     }
   end
 
-  def format_object(%MoodleNet.Collections.Collection{} = collection) do
+  def indexing_object_format(%MoodleNet.Collections.Collection{} = collection) do
     collection = MoodleNet.Repo.preload(collection, community: [:actor])
 
     follower_count =
@@ -122,16 +150,16 @@ defmodule CommonsPub.Search.Indexer do
       },
       "icon" => icon,
       "name" => collection.name,
-      "preferred_username" => collection.actor.preferred_username,
+      "username" => MoodleNet.Actors.display_username(collection),
       "summary" => Map.get(collection, :summary),
       "index_type" => "Collection",
       "index_instance" => URI.parse(url).host,
       "published_at" => collection.published_at,
-      "community" => format_object(collection.community)
+      "community" => indexing_object_format(collection.community)
     }
   end
 
-  def format_object(%MoodleNet.Resources.Resource{} = resource) do
+  def indexing_object_format(%MoodleNet.Resources.Resource{} = resource) do
     resource =
       MoodleNet.Repo.preload(resource,
         collection: [actor: [], community: [actor: []]],
@@ -163,7 +191,7 @@ defmodule CommonsPub.Search.Indexer do
       "updated_at" => resource.updated_at,
       "index_type" => "Resource",
       "index_instance" => URI.parse(canonical_url).host,
-      "collection" => format_object(resource.collection),
+      "collection" => indexing_object_format(resource.collection),
       "url" => resource_url,
       "author" => Map.get(resource, :author),
       "media_type" => resource.content.media_type,
@@ -173,7 +201,7 @@ defmodule CommonsPub.Search.Indexer do
     }
   end
 
-  def format_object(_) do
+  def indexing_object_format(_) do
     nil
   end
 end

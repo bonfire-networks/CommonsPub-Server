@@ -15,7 +15,8 @@ defmodule MoodleNetWeb.Component.ActivityLive do
 
     if(Map.has_key?(assigns, :activity) and assigns.activity != %{}) do
       activity = Activites.prepare(assigns.activity, assigns.current_user)
-      IO.inspect(activity)
+
+      # IO.inspect(activity)
 
       # creator_link =
       #   if e(activity, :creator, :id, nil) do

@@ -119,8 +119,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- index(item),
            :ok <- publish(creator, item, activity, :created) do
+        item = %{item | creator: creator}
+        index(item)
         {:ok, item}
       end
     end)
@@ -218,9 +219,11 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  def format_object(obj) do
+  def indexing_object_format(obj) do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
     image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+
+    Repo.preload(obj, :creator)
 
     %{
       "index_type" => "Intent",
@@ -230,13 +233,27 @@ defmodule ValueFlows.Planning.Intent.Intents do
       "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
-      "createdAt" => obj.published_at
+      "published_at" => obj.published_at,
+      "creator" => format_creator(obj.creator)
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
   end
 
+  def format_creator(%{id: id} = creator) when not is_nil(id) do
+    %{
+      "id" => creator.id,
+      "name" => creator.name,
+      "username" => MoodleNet.Actors.display_username(creator),
+      "canonical_url" => creator.actor.canonical_url
+    }
+  end
+
+  def format_creator(_) do
+    %{}
+  end
+
   defp index(obj) do
-    object = format_object(obj)
+    object = indexing_object_format(obj)
 
     CommonsPub.Search.Indexer.index_object(object)
 
