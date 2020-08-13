@@ -48,6 +48,9 @@ defmodule ValueFlows.Hydration do
         eligible_location: [
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
+        publishes: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intent_edge/2,
+        ],
       },
       intent: %{
         provider: [
@@ -132,6 +135,12 @@ defmodule ValueFlows.Hydration do
         ],
         create_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.create_proposal/2
+        ],
+        propose_intent: [
+          resolve: &ValueFlows.Proposal.ProposalIntentGraphQL.propose_intent/2
+        ],
+        delete_proposed_intent: [
+          resolve: &ValueFlows.Proposal.ProposalIntentGraphQL.delete_proposed_intent/2
         ],
         create_offer: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_offer/2

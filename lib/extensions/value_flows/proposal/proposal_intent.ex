@@ -2,8 +2,10 @@ defmodule ValueFlows.Proposal.ProposalIntent do
   use MoodleNet.Common.Schema
 
   alias Ecto.Changeset
+  alias ValueFlows.Proposal
+  alias ValueFlows.Planning.Intent
 
-  table_schema do
+  table_schema "vf_proposal_intent" do
     # Note: allows null
     field(:reciprocal, :boolean)
 

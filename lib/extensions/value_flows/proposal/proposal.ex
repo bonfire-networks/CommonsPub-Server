@@ -10,6 +10,7 @@ defmodule ValueFlows.Proposal do
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
   alias ValueFlows.Proposal
+  alias ValueFlows.Planning.Intent
 
   @type t :: %__MODULE__{}
 
