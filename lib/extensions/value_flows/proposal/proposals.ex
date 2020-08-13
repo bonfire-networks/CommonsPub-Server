@@ -29,6 +29,7 @@ defmodule ValueFlows.Proposals do
   """
   def one(filters), do: Repo.single(Queries.query(Proposal, filters))
 
+  @spec one_proposed_intent(filters :: any) :: {:ok, ProposedIntent.t()} | {:error, term}
   def one_proposed_intent(filters),
     do: Repo.single(ProposedIntentQueries.query(ProposedIntent, filters))
 
@@ -39,6 +40,7 @@ defmodule ValueFlows.Proposals do
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Proposal, filters))}
 
+  @spec many_proposed_intents(filters :: any) :: {:ok, [ProposedIntent.t()]} | {:error, term}
   def many_proposed_intents(filters),
     do: {:ok, Repo.all(Queries.query(ProposedIntent, filters))}
 
@@ -210,10 +212,12 @@ defmodule ValueFlows.Proposals do
     end)
   end
 
+  @spec propose_intent(Proposal.t(), Intent.t(), map) :: {:ok, ProposedIntent.t()} | {:error, term}
   def propose_intent(%Proposal{} = proposal, %Intent{} = intent, attrs) do
     Repo.insert(ProposedIntent.changeset(proposal, intent, attrs))
   end
 
+  @spec delete_proposed_intent(ProposedIntent.t()) :: {:ok, ProposedIntent.t()} | {:error, term}
   def delete_proposed_intent(%ProposedIntent{} = proposed_intent) do
     Common.soft_delete(proposed_intent)
   end

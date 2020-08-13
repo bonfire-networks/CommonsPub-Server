@@ -4,13 +4,38 @@
 defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   use Absinthe.Schema.Notation
 
+  alias MoodleNet.GraphQL.{
+    ResolveField,
+    ResolveFields,
+    ResolveRootPage,
+    FetchPage,
+  }
   alias ValueFlows.Proposals
 
   def proposed_intent(%{id: id}, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_proposed_intent,
+      context: id,
+      info: info
+    })
+  end
+
+  def fetch_proposed_intent(info, id) do
     Proposals.one_proposed_intent([:default, id: id])
   end
 
-  def proposed_intents_edge(params, info) do
+  def proposed_intent_edges(%{published_in_ids: ids}, %{} = page_opts, info) do
+    ResolveFields.run(%ResolveFields{
+      module: __MODULE__,
+      fetcher: :fetch_propose_intent_edges,
+      context: ids,
+      info: info
+    })
+  end
+
+  def fetch_propose_intent_edges(_page_opts, _info, ids) do
+    Proposals.many_proposed_intents([:default, id: List.flatten(ids)])
   end
 
   def propose_intent(%{published_in: published_in_id, publishes: publishes_id} = params, info) do
