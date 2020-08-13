@@ -159,15 +159,6 @@ manual-deps: init ## Prepare dependencies (without Docker)
 manual-db: init ## Create or reset the DB (without Docker)
 	mix ecto.reset
 
-good-tests: init
-	mix test test/moodle_net/{access,activities,actors,collections,comments,common} \
-                 test/moodle_net/{communities,localisation,meta,peers,resources,users} \
-                 test/moodle_net_web/plugs/ \
-                 test/moodle_net_web/graphql/{users,temporary}_test.exs \
-
-vf-tests: init
-	mix test lib/value_flows/{geolocation}/tests.ex 
-
 prepare: init ## Run the app in Docker
 	docker-compose pull 
 	docker-compose build 
