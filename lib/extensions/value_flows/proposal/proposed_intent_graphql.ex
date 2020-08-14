@@ -7,11 +7,11 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,
-    ResolveRootPage,
-    FetchPage
+    FetchFields,
   }
 
-  alias ValueFlows.Proposals
+  alias ValueFlows.{Proposal, Proposals}
+  alias ValueFlows.Proposal.ProposedIntent
 
   def proposed_intent(%{id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -22,11 +22,11 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
-  def proposed_intent_edges(%{published_in_ids: ids}, %{} = page_opts, info) do
+  def proposed_intents(%{id: proposal_id}, _, info) do
     ResolveFields.run(%ResolveFields{
       module: __MODULE__,
-      fetcher: :fetch_propose_intent_edges,
-      context: ids,
+      fetcher: :fetch_proposed_intents,
+      context: proposal_id,
       info: info
     })
   end
@@ -35,8 +35,13 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     Proposals.one_proposed_intent([:default, id: id])
   end
 
-  def fetch_propose_intent_edges(_page_opts, _info, ids) do
-    Proposals.many_proposed_intents([:default, id: List.flatten(ids)])
+  def fetch_proposed_intents(_info, ids) do
+    FetchFields.run(%FetchFields{
+      queries: Proposal.ProposedIntentQueries,
+      query: ProposedIntent,
+      group_fn: & &1.publishes_id,
+      filters: [:default, publishes_id: ids]
+    })
   end
 
   def propose_intent(%{published_in: published_in_id, publishes: publishes_id} = params, info) do

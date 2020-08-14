@@ -48,6 +48,9 @@ defmodule ValueFlows.Hydration do
         eligible_location: [
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
+        publishes: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intents/3,
+        ],
       },
       intent: %{
         provider: [
@@ -73,9 +76,6 @@ defmodule ValueFlows.Hydration do
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
-        ],
-        publishes: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intent_edges/3,
         ],
       },
 

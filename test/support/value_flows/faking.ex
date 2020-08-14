@@ -171,8 +171,21 @@ defmodule ValueFlows.Test.Faking do
     field(:delete_intent, args: [id: var(:id)])
   end
 
+  def proposal_fields(extra \\ []) do
+    extra ++ ~w(name note created has_beginning has_end unit_based)a
+  end
+
+  def proposal_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &proposal_subquery/1, options)
+  end
+
+  def proposal_subquery(options \\ []) do
+    gen_subquery(:id, :proposal, &proposal_fields/1, options)
+  end
+
   def proposed_intent_fields(extra \\ []) do
-    extra ++ ~w(id reciprocal)
+    extra ++ ~w(id reciprocal)a
   end
 
   def proposed_intent_response_fields(extra \\ []) do

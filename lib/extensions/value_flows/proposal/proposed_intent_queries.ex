@@ -66,4 +66,18 @@ defmodule ValueFlows.Proposal.ProposedIntentQueries do
   def filter(q, {:published_in_id, ids}) when is_list(ids) do
     where(q, [proposed_intent: pi], pi.published_in_id in ^ids)
   end
+
+  # grouping
+
+  def filter(q, {:group_count, key}) when is_atom(key) do
+    filter(q, group: key, count: key)
+  end
+
+  def filter(q, {:group, key}) when is_atom(key) do
+    group_by(q, [proposed_intent: c], field(c, ^key))
+  end
+
+  def filter(q, {:count, key}) when is_atom(key) do
+    select(q, [proposed_intent: c], {field(c, ^key), count(c.id)})
+  end
 end

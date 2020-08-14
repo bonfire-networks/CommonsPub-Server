@@ -31,6 +31,7 @@ defmodule MoodleNet.GraphQL.FetchFields do
       filters: filters,
     }
   ) do
+    IO.inspect(queries: queries, query: query)
     apply(queries, :query, [query, filters])
     |> Repo.all()
     |> Fields.new(group_fn, map_fn)
