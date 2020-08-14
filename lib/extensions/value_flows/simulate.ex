@@ -96,12 +96,18 @@ defmodule ValueFlows.Simulate do
       effort_quantity: measure(measure_attrs),
       available_quantity: measure(measure_attrs)
     }
-    {:ok, intent} = Intents.create(user, action(), intent(measures))
+    overrides = Map.merge(overrides, measures)
+    {:ok, intent} = Intents.create(user, action(), intent(overrides))
     intent
   end
 
   def fake_proposal!(user, overrides \\ %{}) do
-    {:ok, proposal} = Proposals.create(user, proposal())
+    {:ok, proposal} = Proposals.create(user, proposal(overrides))
     proposal
+  end
+
+  def fake_proposed_intent!(proposal, intent, overrides \\ %{}) do
+    {:ok, proposed_intent} = Proposals.propose_intent(proposal, intent, proposed_intent(overrides))
+    proposed_intent
   end
 end

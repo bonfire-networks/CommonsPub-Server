@@ -35,6 +35,14 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     end
   end
 
+  describe "one_proposed_intent" do
+
+  end
+
+  describe "many_proposed_intent" do
+
+  end
+
   describe "propose_intent" do
     test "creates a new proposed intent" do
       user = fake_user!()
@@ -44,6 +52,17 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       assert {:ok, proposed_intent} =
         Proposals.propose_intent(proposal, intent, proposed_intent())
       assert_proposed_intent(proposed_intent)
+    end
+  end
+
+  describe "delete_proposed_intent" do
+    test "deletes an existing proposed intent" do
+      user = fake_user!()
+      intent = fake_intent!(user, fake_unit!(user))
+      proposal = fake_proposal!(user)
+      proposed_intent = fake_proposed_intent!(proposal, intent)
+      assert {:ok, proposed_intent} = Proposals.delete_proposed_intent(proposed_intent)
+      assert proposed_intent.deleted_at
     end
   end
 end
