@@ -50,8 +50,9 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   end
 
   def delete_proposed_intent(%{id: id}, info) do
-    with {:ok, proposed_intent} <- proposed_intent(%{id: id}, info) do
-      Proposals.delete_proposed_intent(proposed_intent)
+    with {:ok, proposed_intent} <- proposed_intent(%{id: id}, info),
+        {:ok, _} <- Proposals.delete_proposed_intent(proposed_intent) do
+      {:ok, true}
     end
   end
 end

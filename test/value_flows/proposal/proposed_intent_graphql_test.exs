@@ -36,7 +36,12 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQLTest do
         fake_proposal!(user),
         fake_intent!(user)
       )
-      
+
+      q = delete_proposed_intent_mutation()
+
+      conn = user_conn(user)
+      vars = %{id: proposed_intent.id}
+      assert grumble_post_key(q, conn, :delete_proposed_intent, vars)
     end
   end
 end

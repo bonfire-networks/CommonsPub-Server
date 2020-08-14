@@ -196,4 +196,13 @@ defmodule ValueFlows.Test.Faking do
     ]
     |> gen_submutation(:propose_intent, &proposed_intent_response_fields/1, options)
   end
+
+  def delete_proposed_intent_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_proposed_intent_submutation/1, options)
+  end
+
+  def delete_proposed_intent_submutation(options \\ []) do
+    field(:delete_proposed_intent, args: [id: var(:id)])
+  end
 end
