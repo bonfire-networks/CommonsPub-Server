@@ -2,6 +2,7 @@
 defmodule ValueFlows.Proposal.ProposalsTest do
   use MoodleNetWeb.ConnCase, async: true
 
+  import CommonsPub.Utils.Trendy, only: [some: 2]
   import MoodleNet.Test.Faking
 
   import Measurement.Simulate
@@ -36,17 +37,60 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   end
 
   describe "one_proposed_intent" do
+    test "fetches an existing proposed intent" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      intent = fake_intent!(user)
 
+      proposed_intent = fake_proposed_intent!(proposal, intent)
+      assert {:ok, fetched} = Proposals.one_proposed_intent(id: proposed_intent.id)
+      assert_proposed_intent(fetched)
+      assert fetched.id == proposed_intent.id
+
+      assert {:ok, fetched} = Proposals.one_proposed_intent(publishes_id: intent.id)
+      assert fetched.publishes_id == intent.id
+
+      assert {:ok, fetched} = Proposals.one_proposed_intent(published_in_id: proposal.id)
+      assert fetched.published_in_id == proposal.id
+    end
+
+    test "default filter ignores removed items" do
+      user = fake_user!()
+      proposed_intent = fake_proposed_intent!(
+        fake_proposal!(user),
+        fake_intent!(user)
+      )
+
+      assert {:ok, proposed_intent} =
+        Proposals.delete_proposed_intent(proposed_intent)
+
+      assert {:error, %MoodleNet.Common.NotFoundError{}} =
+        Proposals.one_proposed_intent([:default, id: proposed_intent.id])
+    end
   end
 
   describe "many_proposed_intent" do
+    test "returns a list of items matching criteria" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      intent = fake_intent!(user)
+      proposed_intents = some(5, fn ->
+        fake_proposed_intent!(proposal, intent)
+      end)
 
+      assert {:ok, fetched} = Proposals.many_proposed_intents()
+      assert Enum.count(fetched) == 5
+      assert {:ok, fetched} = Proposals.many_proposed_intents(
+        id: hd(proposed_intents).id
+      )
+      assert Enum.count(fetched) == 1
+    end
   end
 
   describe "propose_intent" do
     test "creates a new proposed intent" do
       user = fake_user!()
-      intent = fake_intent!(user, fake_unit!(user))
+      intent = fake_intent!(user)
       proposal = fake_proposal!(user)
 
       assert {:ok, proposed_intent} =
@@ -58,7 +102,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   describe "delete_proposed_intent" do
     test "deletes an existing proposed intent" do
       user = fake_user!()
-      intent = fake_intent!(user, fake_unit!(user))
+      intent = fake_intent!(user)
       proposal = fake_proposal!(user)
       proposed_intent = fake_proposed_intent!(proposal, intent)
       assert {:ok, proposed_intent} = Proposals.delete_proposed_intent(proposed_intent)

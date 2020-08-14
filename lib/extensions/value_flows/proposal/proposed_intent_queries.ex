@@ -1,10 +1,9 @@
-defmodule ValueFlows.Proposals.ProposedIntentQueries do
+defmodule ValueFlows.Proposal.ProposedIntentQueries do
   import Ecto.Query
 
-  alias ValueFlows.Proposal
   alias ValueFlows.Proposal.ProposedIntent
 
-  def query(Proposal) do
+  def query(ProposedIntent) do
     from(pi in ProposedIntent, as: :proposed_intent)
   end
 

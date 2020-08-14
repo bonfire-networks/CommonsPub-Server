@@ -41,8 +41,8 @@ defmodule ValueFlows.Proposals do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Proposal, filters))}
 
   @spec many_proposed_intents(filters :: any) :: {:ok, [ProposedIntent.t()]} | {:error, term}
-  def many_proposed_intents(filters),
-    do: {:ok, Repo.all(Queries.query(ProposedIntent, filters))}
+  def many_proposed_intents(filters \\ []),
+    do: {:ok, Repo.all(ProposedIntentQueries.query(ProposedIntent, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
