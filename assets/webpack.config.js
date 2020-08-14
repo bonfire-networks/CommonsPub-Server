@@ -58,7 +58,16 @@ module.exports = (env, options) => {
         {
           // CommonsPub app styles
           test: /\.[s]?css$/,
-          use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+          use: [
+            MiniCssExtractPlugin.loader,
+            "css-loader",
+            {
+              loader: "sass-loader",
+              options: {
+                additionalData: "$ValueFlows: true;",
+              },
+            },
+          ],
           exclude: /(\.module\.[a-z]+$)|(ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css)/,
         },
         {

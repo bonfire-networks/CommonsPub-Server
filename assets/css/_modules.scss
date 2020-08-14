@@ -1,7 +1,6 @@
 @import "./components/logo";
 @import "./components/navigation";
 @import "./components/pagination";
-@import "./components/post/autocomplete";
 
 @import "../../lib/mixology/web/templates/layout/template_live";
 
@@ -29,7 +28,9 @@
 
 @import "../../lib/extensions/resources/post_link/share_link.scss";
 
-@import "../../lib/extensions/value_flows/planning/create_intent/publish_ad_live.scss";
+@if $ValueFlows {
+  @import "../../lib/extensions/value_flows/planning/create_intent/publish_ad_live.css";
+}
 
 .markdown-body:empty:before {
   font-family: "feather" !important;
