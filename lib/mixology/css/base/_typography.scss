@@ -1,31 +1,30 @@
 @font-face {
   font-family: "Fira Sans";
-  src: url(../fonts/FiraSans-Regular.ttf) format("truetype");
+  src: url(../../assets/fonts/FiraSans-Regular.ttf) format("truetype");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Fira Sans";
-  src: url(../fonts/FiraSans-Bold.ttf) format("truetype");
+  src: url(../../assets/fonts/FiraSans-Bold.ttf) format("truetype");
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Fira Sans";
-  src: url(../fonts/FiraSans-Light.ttf) format("truetype");
+  src: url(../../assets/fonts/FiraSans-Light.ttf) format("truetype");
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
   font-family: "Fira Sans";
-  src: url(../fonts/FiraSans-Medium.ttf) format("truetype");
+  src: url(../../assets/fonts/FiraSans-Medium.ttf) format("truetype");
   font-weight: 500;
   font-style: normal;
 }
-
 
 @mixin text-gray {
   font-size: 1em;
@@ -37,7 +36,7 @@
   font-size: 1em;
   color: var(--color-text-subtle);
   font-weight: 600;
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
 }
 
 :root {
@@ -46,12 +45,14 @@
 
   // body font size
   --text-base-size: 1em;
-  
+
   // type scale
   --text-scale-ratio: 1.2;
   --text-xs: calc((1em / var(--text-scale-ratio)) / var(--text-scale-ratio));
   --text-sm: calc(var(--text-xs) * var(--text-scale-ratio));
-  --text-md: calc(var(--text-sm) * var(--text-scale-ratio) * var(--text-scale-ratio));
+  --text-md: calc(
+    var(--text-sm) * var(--text-scale-ratio) * var(--text-scale-ratio)
+  );
   --text-lg: calc(var(--text-md) * var(--text-scale-ratio));
   --text-xl: calc(var(--text-lg) * var(--text-scale-ratio));
   --text-xxl: calc(var(--text-xl) * var(--text-scale-ratio));
@@ -65,19 +66,17 @@
   --font-primary-capital-letter: 1;
 }
 
-
 // --------------------------------
 
 // (END) Global Editor Code
 
 // --------------------------------
 
-
-.article { // e.g., blog posts
+.article {
+  // e.g., blog posts
   --body-line-height: 1.58; // set body line-height
   --text-vspace-multiplier: 1.2; // increase vertical spacing
 }
-
 
 body {
   font-size: var(--text-base-size, 1em);
@@ -85,7 +84,10 @@ body {
   color: var(--color-surface);
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   color: var(--color-text);
   line-height: var(--heading-line-height, 1.2);
 }
@@ -107,7 +109,7 @@ h4 {
   font-size: 1em;
   font-weight: 400;
   color: var(--color-text-subtle);
-  margin:0;
+  margin: 0;
 }
 
 small {
@@ -119,7 +121,6 @@ small {
 // Inline Text
 
 // --------------------------------
-
 
 strong {
   font-weight: bold;
@@ -133,11 +134,8 @@ u {
   text-decoration: underline;
 }
 
-
 // --------------------------------
 
 // Classes
 
 // --------------------------------
-
-

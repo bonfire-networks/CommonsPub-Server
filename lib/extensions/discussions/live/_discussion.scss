@@ -90,7 +90,7 @@
 }
 
 .discussion__layout {
- @include content_two_sides;
+  @include content_two_sides;
 }
 
 .discussion__navigation {
@@ -176,7 +176,7 @@
   flex: 1;
   display: flex;
   .editor_container {
-    flex:1;
+    flex: 1;
   }
   .editor {
     flex: 1;
@@ -253,4 +253,30 @@
 
 .discussion__navigation {
   @include content_navigation;
+}
+
+.markdown-body:empty:before {
+  font-family: "feather" !important;
+  content: "\e93e";
+  font-size: 40px;
+  text-align: center;
+  display: block;
+  color: var(--gray);
+}
+
+.markdown-body:empty:after {
+  content: "Nothing to see here...";
+  font-size: 20px;
+  text-align: center;
+  display: block;
+  margin-top: 8px;
+  color: var(--gray);
+}
+
+.markdown-body {
+  width: 100%;
+  p {
+    font-weight: 300;
+    font-size: 16px;
+  }
 }

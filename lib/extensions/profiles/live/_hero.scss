@@ -14,15 +14,15 @@
   height: 250px;
   background-color: #eeeeee;
   border-top-left-radius: var(--radius);
-  border-top-right-radius: var(--radius)
+  border-top-right-radius: var(--radius);
 }
 
 .mainContent__hero .hero__image img {
-    object-fit: cover;
-    width: 100%;
-    height: 250px;
-    border-top-left-radius: var(--radius);
-    border-top-right-radius: var(--radius)
+  object-fit: cover;
+  width: 100%;
+  height: 250px;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
 }
 
 .mainContent__hero .hero__info {
@@ -31,7 +31,6 @@
   display: flex;
   align-items: center;
 }
-
 
 .mainContent__hero .info__meta {
   margin-top: 60px;
@@ -42,19 +41,18 @@
 .mainContent__hero .info__icon {
   height: var(--avatar_xl);
   width: var(--avatar_xl);
-  border-radius: calc(var(--avatar_xl)/2);
+  border-radius: calc(var(--avatar_xl) / 2);
   border: 2px solid var(--color-background);
-  margin-left:var(--m3);
-  background:antiquewhite
+  margin-left: var(--m3);
+  background: antiquewhite;
 }
-
 
 .mainContent__hero .info__icon img {
   width: 100%;
   height: var(--avatar_xl);
   object-fit: cover;
   border-radius: 75px;
-  border: 2px solid var(--lighter)
+  border: 2px solid var(--lighter);
 }
 
 .mainContent__hero .info__username {
@@ -72,9 +70,20 @@
   margin-right: var(--m3);
   color: var(--color-text-subtle);
   font-size: 12px;
-
 }
 
 .info__details .details__meta i {
   margin-right: var(--m1);
+}
+
+.my__hero h1 {
+  max-width: 100%;
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text);
+  font-weight: 700;
+  line-height: 1.2;
+  /* margin-bottom: 4px; */
+  font-size: 40px;
 }
