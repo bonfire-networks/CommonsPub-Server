@@ -89,7 +89,14 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("effort_quantity", fn -> measure_input(unit) end)
   end
 
-  def fake_intent!(user, unit, overrides \\ %{}) do
+  def fake_intent!(user, unit \\ nil, overrides \\ %{})
+
+  def fake_intent!(user, unit, overrides) when is_nil(unit) do
+    {:ok, intent} = Intents.create(user, action(), intent(overrides))
+    intent
+  end
+
+  def fake_intent!(user, unit, overrides) do
     measure_attrs = %{unit_id: unit.id}
     measures = %{
       resource_quantity: measure(measure_attrs),
