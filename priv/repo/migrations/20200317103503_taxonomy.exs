@@ -3,13 +3,13 @@ defmodule MoodleNet.Repo.Migrations.Taxonomy do
 
   def up do
 
-    Taxonomy.Migrations.up()
+    # Taxonomy.Migrations.up()
 
   end
 
   def down do
 
-    Taxonomy.Migrations.down()
+    # Taxonomy.Migrations.down()
 
   end
 

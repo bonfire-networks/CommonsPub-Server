@@ -92,24 +92,19 @@ defmodule ValueFlows.Proposal.Queries do
   def filter(q, {:user, match_admin()}), do: q
 
   def filter(q, {:user, nil}) do
-    filter(q, ~w(disabled private)a)
+    filter(q, ~w(private)a)
   end
 
   def filter(q, {:user, %User{id: id}}) do
     q
     |> join_to(follow: id)
     |> where([proposal: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
-    |> filter(~w(disabled)a)
   end
 
   ## by status
 
   def filter(q, :deleted) do
     where(q, [proposal: c], is_nil(c.deleted_at))
-  end
-
-  def filter(q, :disabled) do
-    where(q, [proposal: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do

@@ -14,8 +14,8 @@ defmodule ValueFlows.Test.Faking do
   alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
-  alias ValueFlows.Proposal
-  alias ValueFlows.Proposals
+  alias ValueFlows.{Proposal, Proposals}
+  alias ValueFlows.Proposal.ProposedIntent
 
   def assert_proposal(%Proposal{} = proposal) do
     assert_proposal(Map.from_struct(proposal))
@@ -50,6 +50,17 @@ defmodule ValueFlows.Test.Faking do
       :has_end,
       :created
     ])
+  end
+
+  def assert_proposed_intent(%ProposedIntent{} = pi) do
+    assert_proposed_intent(Map.from_struct(pi))
+  end
+
+  def assert_proposed_intent(pi) do
+    assert_object(pi, :assert_proposed_intent,
+      id: &assert_ulid/1,
+      reciprocal: assert_optional(&assert_boolean/1),
+    )
   end
 
   def assert_intent(%Intent{} = intent) do
@@ -158,5 +169,53 @@ defmodule ValueFlows.Test.Faking do
 
   def delete_intent_submutation(_options \\ []) do
     field(:delete_intent, args: [id: var(:id)])
+  end
+
+  def proposal_fields(extra \\ []) do
+    extra ++ ~w(name note created has_beginning has_end unit_based)a
+  end
+
+  def proposal_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &proposal_subquery/1, options)
+  end
+
+  def proposal_subquery(options \\ []) do
+    gen_subquery(:id, :proposal, &proposal_fields/1, options)
+  end
+
+  def proposed_intent_fields(extra \\ []) do
+    extra ++ ~w(id reciprocal)a
+  end
+
+  def proposed_intent_response_fields(extra \\ []) do
+    [proposed_intent: proposed_intent_fields(extra)]
+  end
+
+  def propose_intent_mutation(options \\ []) do
+    [
+      published_in: type!(:id),
+      publishes: type!(:id),
+      reciprocal: type(:boolean),
+    ]
+    |> gen_mutation(&propose_intent_submutation/1, options)
+  end
+
+  def propose_intent_submutation(options \\ []) do
+    [
+      published_in: var(:published_in),
+      publishes: var(:publishes),
+      reciprocal: var(:reciprocal),
+    ]
+    |> gen_submutation(:propose_intent, &proposed_intent_response_fields/1, options)
+  end
+
+  def delete_proposed_intent_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_proposed_intent_submutation/1, options)
+  end
+
+  def delete_proposed_intent_submutation(options \\ []) do
+    field(:delete_proposed_intent, args: [id: var(:id)])
   end
 end
