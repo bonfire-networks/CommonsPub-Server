@@ -5,7 +5,7 @@ defmodule ValueFlows.Proposal.Migrations do
   import Pointers.Migration
 
   defp proposal_table(), do: ValueFlows.Proposal.__schema__(:source)
-  defp proposed_intent_table(), do: ValueFlows.Proposal.ProposalIntent.__schema__(:source)
+  defp proposed_intent_table(), do: ValueFlows.Proposal.ProposedIntent.__schema__(:source)
 
   def up do
     create_pointable_table(proposal_table(), "PR0P0SA11SMADE0FTW01NTENTS") do
@@ -35,7 +35,7 @@ defmodule ValueFlows.Proposal.Migrations do
       add(:reciprocal, :boolean, null: true) # Note: null allowed
       add(:deleted_at, :timestamptz)
       add(:publishes_id, references("vf_intent", on_delete: :delete_all))
-      add(:published_in, references(proposal_table(), on_delete: :delete_all))
+      add(:published_in_id, references(proposal_table(), on_delete: :delete_all))
     end
   end
 

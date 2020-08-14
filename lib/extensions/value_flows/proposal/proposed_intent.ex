@@ -16,14 +16,14 @@ defmodule ValueFlows.Proposal.ProposedIntent do
     belongs_to(:published_in, Proposal)
   end
 
-  @cast ~w(reciprocal)
+  @cast ~w(reciprocal)a
 
-  def changeset(%Intent{} = publishes, %Proposal{} = published_in, %{} = attrs) do
+  def changeset(%Proposal{} = published_in, %Intent{} = publishes, %{} = attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      publishes_id: publishes.id,
       published_in_id: published_in.id,
+      publishes_id: publishes.id,
     )
   end
 end

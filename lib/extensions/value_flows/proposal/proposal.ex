@@ -4,7 +4,7 @@ defmodule ValueFlows.Proposal do
     source: "vf_proposal",
     table_id: "PR0P0SA11SMADE0FTW01NTENTS"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import MoodleNet.Common.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor

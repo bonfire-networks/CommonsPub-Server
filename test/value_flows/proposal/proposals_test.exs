@@ -27,11 +27,23 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   end
 
   describe "create" do
-   test "can create a proposal" do
-     user = fake_user!()
+    test "can create a proposal" do
+      user = fake_user!()
 
-     assert {:ok, proposal} = IO.inspect(Proposals.create(user, proposal()))
-     assert_proposal(proposal)
-   end
- end
+      assert {:ok, proposal} = Proposals.create(user, proposal())
+      assert_proposal(proposal)
+    end
+  end
+
+  describe "propose_intent" do
+    test "creates a new proposed intent" do
+      user = fake_user!()
+      intent = fake_intent!(user, fake_unit!(user))
+      proposal = fake_proposal!(user)
+
+      assert {:ok, proposed_intent} =
+        Proposals.propose_intent(proposal, intent, proposed_intent())
+      assert_proposed_intent(proposed_intent)
+    end
+  end
 end

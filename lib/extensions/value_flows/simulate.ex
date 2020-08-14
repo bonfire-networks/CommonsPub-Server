@@ -11,6 +11,7 @@ defmodule ValueFlows.Simulate do
 
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Proposals
+  alias ValueFlows.Proposal.ProposedIntent
 
   alias ValueFlows.Knowledge.Action.Actions
 
@@ -43,10 +44,16 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
     |> Map.put_new_lazy(:has_end, &future_datetime/0)
     |> Map.put_new_lazy(:created, &future_datetime/0)
-    # TODO: list of URI's
     |> Map.put_new_lazy(:unit_based, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def proposed_intent(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:reciprocal, fn ->
+      Faker.Util.pick([true, false, nil])
+    end)
   end
 
   def intent(base \\ %{}) do
@@ -97,6 +104,4 @@ defmodule ValueFlows.Simulate do
     {:ok, proposal} = Proposals.create(user, proposal())
     proposal
   end
-
-
 end

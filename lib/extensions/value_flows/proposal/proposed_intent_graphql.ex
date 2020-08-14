@@ -21,10 +21,6 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
-  def fetch_proposed_intent(info, id) do
-    Proposals.one_proposed_intent([:default, id: id])
-  end
-
   def proposed_intent_edges(%{published_in_ids: ids}, %{} = page_opts, info) do
     ResolveFields.run(%ResolveFields{
       module: __MODULE__,
@@ -32,6 +28,10 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
       context: ids,
       info: info
     })
+  end
+
+  def fetch_proposed_intent(info, id) do
+    Proposals.one_proposed_intent([:default, id: id])
   end
 
   def fetch_propose_intent_edges(_page_opts, _info, ids) do
