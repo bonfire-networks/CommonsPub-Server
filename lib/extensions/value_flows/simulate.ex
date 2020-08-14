@@ -51,9 +51,12 @@ defmodule ValueFlows.Simulate do
 
   def proposed_intent(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:reciprocal, fn ->
-      Faker.Util.pick([true, false, nil])
-    end)
+    |> Map.put_new_lazy(:reciprocal, &maybe_bool/0)
+  end
+
+  def proposed_intent_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("reciprocal", &maybe_bool/0)
   end
 
   def intent(base \\ %{}) do

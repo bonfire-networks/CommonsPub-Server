@@ -22,6 +22,8 @@ defmodule CommonsPub.Utils.Simulation do
   def falsehood(), do: false
   @doc "Generates a random boolean"
   def bool(), do: Faker.Util.pick([true, false])
+  @doc "Generate a random boolean that can also be nil"
+  def maybe_bool(), do: Faker.Util.pick([true, false, nil])
   @doc "Generate a random signed integer"
   def integer(), do: Faker.random_between(@integer_min, @integer_max)
   @doc "Generate a random positive integer"

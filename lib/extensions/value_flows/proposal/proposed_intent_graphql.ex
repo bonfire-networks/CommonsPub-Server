@@ -8,8 +8,9 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     ResolveField,
     ResolveFields,
     ResolveRootPage,
-    FetchPage,
+    FetchPage
   }
+
   alias ValueFlows.Proposals
 
   def proposed_intent(%{id: id}, info) do
@@ -39,10 +40,12 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   end
 
   def propose_intent(%{published_in: published_in_id, publishes: publishes_id} = params, info) do
-    with {:ok, published} <- ValueFlows.Proposal.GraphQL.proposal(%{id: published_in_id}, info),
+    with {:ok, published_in} <-
+           ValueFlows.Proposal.GraphQL.proposal(%{id: published_in_id}, info),
          {:ok, publishes} <- ValueFlows.Planning.Intent.GraphQL.intent(%{id: publishes_id}, info),
-         {:ok, proposed_intent} <- Proposals.propose_intent(published, publishes, params) do
-      {:ok, %{proposed_intent | published: published, publishes: publishes}}
+         {:ok, proposed_intent} <- Proposals.propose_intent(published_in, publishes, params) do
+      {:ok,
+       %{proposed_intent: %{proposed_intent | published_in: published_in, publishes: publishes}}}
     end
   end
 

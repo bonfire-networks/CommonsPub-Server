@@ -170,4 +170,30 @@ defmodule ValueFlows.Test.Faking do
   def delete_intent_submutation(_options \\ []) do
     field(:delete_intent, args: [id: var(:id)])
   end
+
+  def proposed_intent_fields(extra \\ []) do
+    extra ++ ~w(id reciprocal)
+  end
+
+  def proposed_intent_response_fields(extra \\ []) do
+    [proposed_intent: proposed_intent_fields(extra)]
+  end
+
+  def propose_intent_mutation(options \\ []) do
+    [
+      published_in: type!(:id),
+      publishes: type!(:id),
+      reciprocal: type(:boolean),
+    ]
+    |> gen_mutation(&propose_intent_submutation/1, options)
+  end
+
+  def propose_intent_submutation(options \\ []) do
+    [
+      published_in: var(:published_in),
+      publishes: var(:publishes),
+      reciprocal: var(:reciprocal),
+    ]
+    |> gen_submutation(:propose_intent, &proposed_intent_response_fields/1, options)
+  end
 end
