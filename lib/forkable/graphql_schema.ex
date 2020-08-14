@@ -72,7 +72,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(Taxonomy.GraphQL.TaxonomySchema)
   import_types(Measurement.Unit.GraphQL)
   import_types(Geolocation.GraphQL)
-  import_types(ValueFlows.Schema)
+
+  # import_types(ValueFlows.Schema)
 
   query do
     import_fields(:access_queries)
@@ -104,8 +105,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # ValueFlows
     import_fields(:measurement_query)
     import_fields(:geolocation_query)
-    import_fields(:value_flows_query)
-    import_fields(:value_flows_extra_queries)
+    # import_fields(:value_flows_query)
+    # import_fields(:value_flows_extra_queries)
   end
 
   mutation do
@@ -133,7 +134,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # ValueFlows
     import_fields(:geolocation_mutation)
     import_fields(:measurement_mutation)
-    import_fields(:value_flows_mutation)
+
+    # import_fields(:value_flows_mutation)
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do
@@ -155,8 +157,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   def hydrate(%Absinthe.Blueprint{}, _) do
     hydrators = [
       &Geolocation.GraphQL.Hydration.hydrate/0,
-      &Measurement.Hydration.hydrate/0,
-      &ValueFlows.Hydration.hydrate/0
+      &Measurement.Hydration.hydrate/0
+      # &ValueFlows.Hydration.hydrate/0
     ]
 
     Enum.reduce(hydrators, %{}, fn hydrate_fn, hydrated ->
@@ -173,9 +175,26 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
   end
 
+  def context_types() do
+    schemas = MoodleNet.Meta.TableService.list_pointable_schemas()
+
+    Enum.reduce(schemas, [], fn schema, acc ->
+      if Code.ensure_loaded?(schema) and function_exported?(schema, :type, 0) and
+           !is_nil(apply(schema, :type, [])) do
+        Enum.concat(acc, [apply(schema, :type, [])])
+      else
+        acc
+      end
+    end)
+  end
+
   union :any_context do
     description("Any type of known object")
+
     # TODO: autogenerate
+
+    # types(context_types)
+
     types([
       :community,
       :collection,
@@ -188,8 +207,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       :organisation,
       :category,
       :taggable,
-      :spatial_thing,
-      :intent
+      :spatial_thing
+      # :intent
     ])
 
     resolve_type(fn
@@ -210,7 +229,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       # %ValueFlows.Agent.Agents{}, _ -> :agent
       # %ValueFlows.Agent.People{}, _ -> :person
       # %ValueFlows.Agent.Organizations{}, _ -> :organization
-      %ValueFlows.Planning.Intent{}, _ -> :intent
+      # %ValueFlows.Planning.Intent{}, _ -> :intent
       o, _ -> IO.inspect(any_context_resolve_unknown_type: o)
     end)
   end

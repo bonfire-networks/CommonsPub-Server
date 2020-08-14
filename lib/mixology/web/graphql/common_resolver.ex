@@ -21,6 +21,11 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Common
 
+  def resolve_context_type(%MoodleNet.Communities.Community{}, _), do: :community
+  def resolve_context_type(%MoodleNet.Collections.Collection{}, _), do: :collection
+  def resolve_context_type(%Organisation{}, _), do: :organisation
+  def resolve_context_type(%{}, _), do: :community
+
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
   def context_edge(%{context_id: id}, _, info) do

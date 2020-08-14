@@ -69,4 +69,6 @@ defmodule MoodleNet.Blocks.Block do
   def queries_module, do: Blocks.Queries
 
   def follow_filters, do: []
+
+  def type, do: :block
 end

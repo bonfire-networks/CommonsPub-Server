@@ -102,4 +102,6 @@ defmodule MoodleNet.Communities.Community do
   def queries_module, do: Communities.Queries
 
   def follow_filters, do: [:default]
+
+  def type, do: :community
 end
