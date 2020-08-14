@@ -64,13 +64,11 @@ module.exports = (env, options) => {
         {
           // ck5 assets
           test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
-
           use: ["raw-loader"],
         },
         {
           // ck5 styles
           test: /ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css$/,
-
           use: [
             {
               loader: "style-loader",
