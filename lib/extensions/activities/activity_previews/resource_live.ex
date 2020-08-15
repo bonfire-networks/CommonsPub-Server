@@ -8,10 +8,9 @@ defmodule MoodleNetWeb.Component.ResourcePreviewLive do
   # end
 
   def update(assigns, socket) do
-    IO.inspect(resource_pre_prep: assigns.resource)
+    # IO.inspect(resource_pre_prep: assigns.resource)
 
-    resource =
-      MoodleNetWeb.Helpers.Profiles.prepare(assigns.resource, %{icon: true, actor: true})
+    resource = MoodleNetWeb.Helpers.Profiles.prepare(assigns.resource, %{icon: true, actor: true})
 
     IO.inspect(resource_post_prep: resource)
 
@@ -28,9 +27,56 @@ defmodule MoodleNetWeb.Component.ResourcePreviewLive do
     <%=
       live_redirect to: "/+"<> e(@resource, :actor, :preferred_username, "deleted") do %>
       <div class="resource__preview">
-        <svg width="40" height="40" viewBox="0 0 40 40" focusable="false" class="mc-icon mc-icon-template-content mc-icon-template-content--folder-small brws-file-name-cell-icon" role="img"><g fill="none" fill-rule="evenodd"><path d="M18.422 11h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 32 5 31.331 5 30.507V9.493C5 8.663 5.671 8 6.5 8h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#71B9F4"></path><path d="M18.422 10h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 31 5 30.331 5 29.507V8.493C5 7.663 5.671 7 6.5 7h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#92CEFF"></path></g></svg>
+      <svg height="40" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+      viewBox="0 0 404.48 404.48" style="enable-background:new 0 0 404.48 404.48;" xml:space="preserve">
+    <path style="fill:#DADEE0;" d="M376.325,87.04c0-16.896-13.824-30.72-30.72-30.72h-230.41c-16.896,0-30.72,13.824-30.72,30.72
+     v286.72c0,16.896,13.824,30.72,30.72,30.72H289.26l87.04-81.92L376.325,87.04z"/>
+    <path style="fill:#1BB7EA;" d="M84.475,87.04c0-16.896,13.824-30.72,30.72-30.72h204.81v-25.6c0-16.896-13.824-30.72-30.72-30.72
+     H58.875c-16.896,0-30.72,13.824-30.72,30.72v286.72c0,16.896,13.824,30.72,30.72,30.72h25.6V87.04z"/>
+    <path style="fill:#F2F2F2;" d="M319.985,322.56h56.32l-87.04,81.92v-51.2C289.265,336.384,303.089,322.56,319.985,322.56z"/>
+    <g>
+     <path style="fill:#1F4254;" d="M161.275,192h138.24c4.245,0,7.68-3.441,7.68-7.68c0-4.244-3.436-7.68-7.68-7.68h-138.24
+       c-4.244,0-7.68,3.436-7.68,7.68C153.595,188.559,157.03,192,161.275,192"/>
+     <path style="fill:#1F4254;" d="M161.275,140.8h138.24c4.245,0,7.68-3.441,7.68-7.68c0-4.244-3.436-7.68-7.68-7.68h-138.24
+       c-4.244,0-7.68,3.436-7.68,7.68C153.595,137.359,157.03,140.8,161.275,140.8"/>
+     <path style="fill:#1F4254;" d="M161.275,243.2h138.24c4.245,0,7.68-3.441,7.68-7.68c0-4.244-3.436-7.68-7.68-7.68h-138.24
+       c-4.244,0-7.68,3.436-7.68,7.68C153.595,239.759,157.03,243.2,161.275,243.2"/>
+     <path style="fill:#1F4254;" d="M161.275,294.4h76.8c4.244,0,7.68-3.441,7.68-7.68c0-4.245-3.436-7.68-7.68-7.68h-76.8
+       c-4.244,0-7.68,3.435-7.68,7.68C153.595,290.959,157.03,294.4,161.275,294.4"/>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    <g>
+    </g>
+    </svg>
         <div class="preview__info">
-          <h4><%= e(@resource, :name, "Community") %></h4>
+          <h4><%= e(@resource, :name, "Resource") %></h4>
         </div>
       </div>
     <% end %>

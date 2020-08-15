@@ -20,6 +20,8 @@ defmodule MoodleNetWeb.Helpers.Common do
   def strlen(x) when is_binary(x), do: String.length(x)
   def strlen(x) when is_list(x), do: length(x)
   def strlen(x) when x > 0, do: 1
+  # let's say that 0 is nothing
+  def strlen(x) when x == 0, do: 0
 
   @doc "Returns a value, or a fallback if not present"
   def e(key, fallback) do

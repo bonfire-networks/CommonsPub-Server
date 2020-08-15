@@ -42,7 +42,7 @@ defmodule CommonsPub.Tag.Autocomplete do
   end
 
   def tag_lookup_public(tag_search, prefix, consumer, index_type) do
-    search = CommonsPub.Search.Meili.search(tag_search, %{"index_type" => index_type})
+    search = CommonsPub.Search.Meili.search(tag_search, nil, false, %{"index_type" => index_type})
     IO.inspect(search)
     tag_lookup_process(tag_search, search, prefix, consumer)
   end

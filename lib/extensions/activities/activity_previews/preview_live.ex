@@ -64,6 +64,14 @@ defmodule MoodleNetWeb.Component.PreviewLive do
                 current_user: @current_user,
                 id: @preview_id
               )
+            @object_type == "resource" ->
+                live_component(
+                  @socket,
+                  MoodleNetWeb.Component.ResourcePreviewLive,
+                  resource: @object,
+                  current_user: @current_user,
+                  id: @preview_id
+                )
             @object_type == "flag" ->
               live_component(
                 @socket,

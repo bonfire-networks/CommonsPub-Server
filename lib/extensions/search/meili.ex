@@ -9,26 +9,50 @@ defmodule CommonsPub.Search.Meili do
 
   @public_index "public"
 
-  def search(params) do
-    search(params, @public_index)
-  end
-
-  def search(string, facets) when is_binary(string) and is_map(facets) do
+  def search(string, index, calculate_facets, facets) when is_binary(string) and is_map(facets) do
     search(
       string,
+      index,
+      calculate_facets,
       facets
       |> Enum.map(&facet_from_map/1)
     )
   end
 
-  def search(string, facets) when is_binary(string) and is_list(facets) do
+  def search(string, index, calculate_facets, facets)
+      when is_binary(string) and is_list(facets) do
     object = %{
       q: string,
       facetFilters: facets
     }
 
-    search(object)
+    search(object, index, calculate_facets)
   end
+
+  def search(string, index, calculate_facets, _) do
+    search(string, index, calculate_facets)
+  end
+
+  def search(string, index, calculate_facets)
+      when is_list(calculate_facets) and is_binary(string) do
+    object = %{
+      q: string,
+      facetsDistribution: calculate_facets
+    }
+
+    search(object, index)
+  end
+
+  def search(string, index, calculate_facets)
+      when is_binary(calculate_facets) and is_binary(string) do
+    search(string, index, [calculate_facets])
+  end
+
+  def search(params, index, _) do
+    search(params, index)
+  end
+
+  def search(params, index \\ nil)
 
   def search(string, index) when is_binary(string) and is_binary(index) do
     object = %{
@@ -38,12 +62,12 @@ defmodule CommonsPub.Search.Meili do
     search(object, index)
   end
 
-  def search(params, nil) do
-    search(params, @public_index)
-  end
-
   def search(object, index) when is_map(object) and is_binary(index) do
     search_meili(object, index)
+  end
+
+  def search(params, _) do
+    search(params, @public_index)
   end
 
   def search_meili(%{} = params, index) when is_binary(index) do
