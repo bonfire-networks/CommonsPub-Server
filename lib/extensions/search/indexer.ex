@@ -43,22 +43,53 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   # index several things in an existing index
-  defp index_objects(objects, index_name, create_index_first \\ true) when is_list(objects) do
+  def index_objects(objects, index_name, init_index_first \\ true) when is_list(objects) do
     # IO.inspect(objects)
     # FIXME - should create the index only once
-    if create_index_first, do: create_index(index_name, true)
-    CommonsPub.Search.Meili.put(objects, "/" <> index_name <> "/documents")
+    if init_index_first, do: init_index(index_name, true)
+    CommonsPub.Search.Meili.put(objects, index_name <> "/documents")
   end
 
   # index something in an existing index
-  defp index_objects(object, index_name, create_index_first) do
+  def index_objects(object, index_name, init_index_first) do
     # IO.inspect(object)
-    index_objects([object], index_name, create_index_first)
+    index_objects([object], index_name, init_index_first)
   end
 
   # create a new index
+  def init_index(index_name, fail_silently \\ false)
+
+  def init_index("public" = index_name, fail_silently) do
+    create_index(index_name, fail_silently)
+    set_facets(index_name, ["username", "index_type", "index_instance"])
+  end
+
+  def init_index(index_name, fail_silently) do
+    create_index(index_name, fail_silently)
+  end
+
   def create_index(index_name, fail_silently \\ false) do
     CommonsPub.Search.Meili.post(%{uid: index_name}, "", fail_silently)
+  end
+
+  def index_exists(index_name) do
+    with {:ok, index} <- CommonsPub.Search.Meili.get(nil, index_name) do
+      true
+    else
+      e ->
+        false
+    end
+  end
+
+  def set_facets(index_name, facets) when is_list(facets) do
+    CommonsPub.Search.Meili.post(
+      facets,
+      index_name <> "/settings/attributes-for-faceting"
+    )
+  end
+
+  def set_facets(index_name, facet) do
+    set_facets(index_name, [facet])
   end
 
   def maybe_delete_object(object) do

@@ -4,7 +4,7 @@ defmodule Taxonomy.IndexingBatch do
   @tags_index_name "taxonomy_tags"
 
   def batch() do
-    CommonsPub.Search.Indexer.create_index(@tags_index_name)
+    CommonsPub.Search.Indexer.init_index(@tags_index_name)
 
     {:ok, tags} = MoodleNet.Repo.query("WITH RECURSIVE taxonomy_tags_tree AS
     (SELECT id, name, parent_tag_id, CAST(name As varchar(1000)) As name_crumbs, summary

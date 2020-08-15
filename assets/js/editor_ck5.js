@@ -130,12 +130,16 @@ function getFeedItems(queryText, prefix) {
     return new Promise((resolve) => {
       fetch("/api/tag/autocomplete/ck5/" + prefix + "/" + queryText)
         .then((response) => response.json())
-        .then((data) => resolve(data))
+        .then((data) => {
+          console.log(data);
+          resolve(data);
+        })
         .catch((error) => {
           console.error("There has been a problem with the tag search:", error);
+          resolve([]);
         });
     });
-  }
+  } else return [];
 }
 
 function MentionCustomization(editor) {

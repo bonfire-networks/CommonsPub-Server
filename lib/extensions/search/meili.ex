@@ -9,39 +9,65 @@ defmodule CommonsPub.Search.Meili do
 
   @public_index "public"
 
-  def search(string_or_params) do
-    search(string_or_params, @public_index)
+  def search(params) do
+    search(params, @public_index)
   end
 
-  def search(%{} = params, index_path) do
-    {:ok, req} = api(:get, params, index_path)
+  def search(string, facets) when is_binary(string) and is_map(facets) do
+    search(
+      string,
+      facets
+      |> Enum.map(&facet_from_map/1)
+    )
+  end
+
+  def search(string, facets) when is_binary(string) and is_list(facets) do
+    object = %{
+      q: string,
+      facetFilters: facets
+    }
+
+    search(object)
+  end
+
+  def search(string, index) when is_binary(string) and is_binary(index) do
+    object = %{
+      q: string
+    }
+
+    search(object, index)
+  end
+
+  def search(params, nil) do
+    search(params, @public_index)
+  end
+
+  def search(object, index) when is_map(object) and is_binary(index) do
+    search_meili(object, index)
+  end
+
+  def search_meili(%{} = params, index) when is_binary(index) do
+    {:ok, req} = api(:post, params, index <> "/search")
     res = Jason.decode!(req.body)
     # IO.inspect(res)
     res
   end
 
-  def search(string, index) do
-    object = %{
-      q: string
-    }
-
-    search(object, "/" <> index <> "/search")
+  def facet_from_map({key, values}) when is_list(values) do
+    values
+    |> Enum.map(&facet_from_map({key, &1}))
   end
 
-  def put(object) do
-    put(object, "")
+  def facet_from_map({key, value}) when is_binary(value) do
+    "#{key}:#{value}"
   end
 
-  def put(object, index_path) do
-    api(:put, object, index_path)
+  def get(object) do
+    get(object, "")
   end
 
-  def settings(object, index) do
-    post(object, "/" <> index <> "/settings")
-  end
-
-  def set_attributes(attrs, index) do
-    settings(%{attributesForFaceting: attrs}, index)
+  def get(object, index_path, fail_silently \\ false) do
+    api(:get, object, index_path, fail_silently)
   end
 
   def post(object) do
@@ -52,11 +78,27 @@ defmodule CommonsPub.Search.Meili do
     api(:post, object, index_path, fail_silently)
   end
 
+  def put(object) do
+    put(object, "")
+  end
+
+  def put(object, index_path, fail_silently \\ false) do
+    api(:put, object, index_path, fail_silently)
+  end
+
+  def settings(object, index) do
+    post(object, index <> "/settings")
+  end
+
+  def set_attributes(attrs, index) do
+    settings(%{attributesForFaceting: attrs}, index)
+  end
+
   def api(http_method, object, index_path, fail_silently \\ false) do
     search_instance = System.get_env("SEARCH_MEILI_INSTANCE", "localhost:7700")
     api_key = System.get_env("MEILI_MASTER_KEY")
 
-    url = "http://#{search_instance}/indexes" <> index_path
+    url = "http://#{search_instance}/indexes/" <> index_path
 
     # if api_key do
     headers = [
@@ -85,6 +127,10 @@ defmodule CommonsPub.Search.Meili do
           {:error, message}
         end
     end
+  end
+
+  def http_request(http_method, url, headers, nil) do
+    http_request(http_method, url, headers, %{})
   end
 
   def http_request(http_method, url, headers, object) do
