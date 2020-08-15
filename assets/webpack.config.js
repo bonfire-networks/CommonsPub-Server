@@ -5,13 +5,15 @@ const TerserPlugin = require("terser-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
-// ck5:
 const { styles } = require("@ckeditor/ckeditor5-dev-utils");
 
 module.exports = (env, options) => {
   const devMode = options.mode !== "production";
 
   return {
+    // resolve: {
+    //   modules: ["./node_modules"],
+    // },
     optimization: {
       minimizer: [
         new TerserPlugin({ cache: true, parallel: true, sourceMap: devMode }),
@@ -19,11 +21,9 @@ module.exports = (env, options) => {
       ],
     },
     entry: {
-      app: glob.sync("./vendor/**/*.js").concat(["./js/app.js"]),
-      editor_prosemirror: glob
-        .sync("./vendor/**/*.js")
-        .concat(["./js/editor_prosemirror.js"]),
-      editor_ck5: glob.sync("./vendor/**/*.js").concat(["./js/editor_ck5.js"]),
+      app: "./js/app.js",
+      // editor_prosemirror: "../lib/mixology/web/js/editor_prosemirror.js",
+      // editor_ck5: "../lib/mixology/web/js/editor_ck5.js",
     },
     output: {
       filename: "[name].js",
