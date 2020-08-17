@@ -12,7 +12,7 @@ defmodule Tag.Migrations do
     # pointer = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
 
     # cleanup old stuff first
-    drop_pointable_table(Category)
+    drop_pointable_table(category_table(), "TAGSCANBECATEG0RY0RHASHTAG")
     flush()
 
     create_mixin_table("taggable") do
@@ -20,7 +20,7 @@ defmodule Tag.Migrations do
       add(:facet, :string)
     end
 
-    create_pointable_table("category") do
+    create_pointable_table(category_table(), "TAGSCANBECATEG0RY0RHASHTAG") do
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
       add(:caretaker_id, weak_pointer(), null: true)
@@ -52,7 +52,7 @@ defmodule Tag.Migrations do
   end
 
   def down() do
-    drop_pointable_table(Category)
+    drop_pointable_table(category_table(), "TAGSCANBECATEG0RY0RHASHTAG")
     drop_mixin_table(taggable_table())
   end
 end
