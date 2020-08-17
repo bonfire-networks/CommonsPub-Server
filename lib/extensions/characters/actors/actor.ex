@@ -2,6 +2,10 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.Actor do
+  @doc """
+  A deprecated schema for actor (use character instead)
+  """
+
   use MoodleNet.Common.Schema
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
@@ -36,8 +40,8 @@ defmodule MoodleNet.Actors.Actor do
     %Actor{}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@required)
-    |> validate_username()
-    |> cast_url()
+    |> CommonsPub.Character.validate_username()
+    |> CommonsPub.Character.cast_url()
     |> Changeset.unique_constraint(:preferred_username, # with peer
       name: "mn_actor_preferred_username_peer_id_index"
     )
@@ -52,25 +56,5 @@ defmodule MoodleNet.Actors.Actor do
     Changeset.cast(actor, attrs, @update_cast)
   end
 
-  defp validate_username(changeset) do
-    Changeset.validate_format changeset, :preferred_username,
-      username_regex(is_local(changeset))
-  end
-
-  defp cast_url(changeset) do
-    cast_url(changeset, Changeset.get_field(changeset, :canonical_url))
-  end
-
-  defp cast_url(cs, x) when not is_nil(x), do: cs
-  defp cast_url(cs, _) do
-    name = Changeset.get_field(cs, :preferred_username)
-    url = ActivityPub.Utils.actor_url(%{preferred_username: "#{name}"})
-    Changeset.put_change(cs, :canonical_url, url)
-  end
-
-  defp username_regex(true), do: @local_username_regex
-  defp username_regex(false), do: @remote_username_regex
-
-  defp is_local(changeset), do: is_nil(Changeset.fetch_field(changeset, :peer_id))
 
 end
