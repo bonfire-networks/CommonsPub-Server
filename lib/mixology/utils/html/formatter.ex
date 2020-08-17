@@ -105,9 +105,9 @@ defmodule CommonsPub.HTML.Formatter do
     do: mention_prepare(obj, acc, "text/html")
 
   defp mention_prepare(obj, acc, "text/html") do
-    obj = MoodleNet.Actors.obj_load_actor(obj)
-    url = MoodleNet.Actors.obj_actor(obj).canonical_url
-    display_name = MoodleNet.Actors.display_username(obj)
+    obj = MoodleNet.Characters.obj_load_actor(obj)
+    url = MoodleNet.Characters.obj_actor(obj).canonical_url
+    display_name = MoodleNet.Characters.display_username(obj)
 
     link =
       Phoenix.HTML.Tag.content_tag(
@@ -128,9 +128,9 @@ defmodule CommonsPub.HTML.Formatter do
   end
 
   defp mention_prepare(obj, acc, "text/markdown") do
-    obj = MoodleNet.Actors.obj_load_actor(obj)
-    url = MoodleNet.Actors.obj_actor(obj).canonical_url
-    display_name = MoodleNet.Actors.display_username(obj)
+    obj = MoodleNet.Characters.obj_load_actor(obj)
+    url = MoodleNet.Characters.obj_actor(obj).canonical_url
+    display_name = MoodleNet.Characters.display_username(obj)
 
     link = "[#{display_name}](#{url})"
 

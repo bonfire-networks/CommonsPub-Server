@@ -259,7 +259,7 @@ defmodule MoodleNet.Threads.Comments do
       "creator" => %{
         "id" => comment.creator.id,
         "name" => comment.creator.name,
-        "username" => MoodleNet.Actors.display_username(comment.creator),
+        "username" => MoodleNet.Characters.display_username(comment.creator),
         "canonical_url" => comment.creator.actor.canonical_url
       },
       "canonical_url" => canonical_url,

@@ -57,8 +57,8 @@ defmodule MoodleNet.Test.Faking do
     activity
   end
 
-  def fake_actor!(overrides \\ %{}) when is_map(overrides) do
-    {:ok, actor} = Characters.create(Simulation.actor(overrides))
+  def fake_actor!(creator, overrides \\ %{}) when is_map(overrides) do
+    {:ok, actor} = Characters.create(creator, actor(overrides))
     actor
   end
 

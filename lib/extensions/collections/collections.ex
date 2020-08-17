@@ -51,7 +51,7 @@ defmodule MoodleNet.Collections do
       community_or_context =
         MoodleNetWeb.Helpers.Common.maybe_preload(community_or_context, :actor)
 
-      with {:ok, actor} <- Characters.create(attrs),
+      with {:ok, actor} <- Characters.create(creator, attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
            {:ok, coll} <- insert_collection(creator, community_or_context, actor, coll_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -71,7 +71,7 @@ defmodule MoodleNet.Collections do
     Repo.transact_with(fn ->
       attrs = Characters.prepare_username(attrs)
 
-      with {:ok, actor} <- Characters.create(attrs),
+      with {:ok, actor} <- Characters.create(creator, attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
            {:ok, coll} <- insert_collection(creator, actor, coll_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -90,7 +90,7 @@ defmodule MoodleNet.Collections do
           {:ok, Collection.t()} | {:error, Changeset.t()}
   def create_remote(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Characters.create(attrs),
+      with {:ok, actor} <- Characters.create(creator, attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
            {:ok, coll} <- insert_collection(creator, community, actor, coll_attrs),
            act_attrs = %{verb: "created", is_local: true},

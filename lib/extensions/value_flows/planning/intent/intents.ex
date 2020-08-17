@@ -243,7 +243,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     %{
       "id" => creator.id,
       "name" => creator.name,
-      "username" => MoodleNet.Actors.display_username(creator),
+      "username" => MoodleNet.Characters.display_username(creator),
       "canonical_url" => creator.actor.canonical_url
     }
   end

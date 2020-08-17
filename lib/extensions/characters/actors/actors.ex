@@ -18,7 +18,6 @@ defmodule MoodleNet.Actors do
 
   def one(filters), do: Repo.single(Queries.query(Actor, filters))
 
-
   @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
@@ -26,7 +25,7 @@ defmodule MoodleNet.Actors do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Repo.insert(Actor.create_changeset(attrs)) do
         if is_nil(actor.peer_id) do
-          case reserve_username(attrs.preferred_username) do
+          case CommonsPub.Character.Characters.reserve_username(attrs.preferred_username) do
             {:ok, _} -> {:ok, actor}
             _ -> {:error, "Username already taken"}
           end
@@ -50,5 +49,4 @@ defmodule MoodleNet.Actors do
 
   @spec delete(user :: User.t(), actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
   def delete(%User{}, %Actor{} = actor), do: Repo.delete(actor)
-
 end

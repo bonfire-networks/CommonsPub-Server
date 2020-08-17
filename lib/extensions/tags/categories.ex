@@ -19,7 +19,7 @@ defmodule CommonsPub.Tag.Categories do
   alias CommonsPub.Tag.Category
   alias CommonsPub.Tag.Category.Queries
 
-  alias Character.Characters
+  alias CommonsPub.Character.Characters
 
   @facet_name "Category"
 

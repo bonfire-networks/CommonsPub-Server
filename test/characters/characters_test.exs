@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.ActorsTest do
+defmodule CommonsPub.CharactersTest do
   use MoodleNet.DataCase, async: true
 
   import MoodleNet.Test.Faking
@@ -82,7 +82,9 @@ defmodule MoodleNet.ActorsTest do
 
     test "returns an error if the username is duplicated" do
       Repo.transaction(fn ->
-        actor = fake_actor!()
+        user = fake_user!()
+
+        actor = fake_actor!(user)
 
         assert {:error, changeset} =
                  %{preferred_username: actor.preferred_username}

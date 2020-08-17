@@ -52,9 +52,9 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   def prepare_username(profile) do
     profile
     |> Map.merge(%{
-      username: map_get(profile, :username, nil) || MoodleNet.Actors.display_username(profile)
+      username: map_get(profile, :username, nil) || MoodleNet.Characters.display_username(profile)
     })
-    |> Map.merge(%{display_username: MoodleNet.Actors.display_username(profile, true)})
+    |> Map.merge(%{display_username: MoodleNet.Characters.display_username(profile, true)})
   end
 
   def prepare_website(profile) do

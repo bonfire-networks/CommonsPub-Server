@@ -21,6 +21,6 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   def is_local_edge(%{actor: %Actor{peer_id: id}}, _, _), do: {:ok, is_nil(id)}
 
   def display_username_edge(obj, _, _) do
-    {:ok, MoodleNet.Actors.display_username(obj)}
+    {:ok, MoodleNet.Characters.display_username(obj)}
   end
 end

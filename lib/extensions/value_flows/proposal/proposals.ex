@@ -212,7 +212,8 @@ defmodule ValueFlows.Proposals do
     end)
   end
 
-  @spec propose_intent(Proposal.t(), Intent.t(), map) :: {:ok, ProposedIntent.t()} | {:error, term}
+  @spec propose_intent(Proposal.t(), Intent.t(), map) ::
+          {:ok, ProposedIntent.t()} | {:error, term}
   def propose_intent(%Proposal{} = proposal, %Intent{} = intent, attrs) do
     Repo.insert(ProposedIntent.changeset(proposal, intent, attrs))
   end
@@ -237,7 +238,7 @@ defmodule ValueFlows.Proposals do
       "creator" => %{
         "id" => obj.creator.id,
         "name" => obj.creator.name,
-        "username" => MoodleNet.Actors.display_username(obj.creator),
+        "username" => MoodleNet.Characters.display_username(obj.creator),
         "canonical_url" => obj.creator.actor.canonical_url
       }
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
