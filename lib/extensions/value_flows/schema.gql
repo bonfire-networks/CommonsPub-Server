@@ -32,6 +32,16 @@ type Action {
   The action that should be included on the other direction of the process, for example accept with modify.
   """
   pairsWith: String
+
+  """
+  added by cpub
+  """
+  onhandEffect: String
+
+  """
+  added by cpub
+  """
+  note: String
 }
 
 """
@@ -1700,16 +1710,24 @@ type Intent {
   The economic agent from whom the intent is initiated. This implies that the intent is an offer.
   """
   provider: Agent
+  # provider: User   # WIP untill we will implement agent
 
   """
   The economic agent whom the intent is for.  This implies that the intent is a request.
   """
   receiver: Agent
+  # receiver: User
 
   """
   References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
   resourceClassifiedAs: [URI!]
+
+  """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext]
 
   """
   The primary resource specification or definition of an existing or potential
@@ -1769,9 +1787,9 @@ type Intent {
   finished: Boolean
 
   """
-  The uri to an image relevant to the intent, such as a photo.
+  The uri to an image relevant to the intent, such as a photo. // WIP FIXME adding content rather than uri
   """
-  image: URI
+  image: Content
 
   """
   A textual description or comment.
@@ -1805,7 +1823,7 @@ input IntentCreateParams {
   """
   (`Action`) Relates an intent to a verb, such as consume, produce, work, improve, etc.
   """
-  action: ID
+  action: String!
 
   """
   An informal or formal textual identifier for an intent. Does not imply uniqueness.
@@ -1843,6 +1861,11 @@ input IntentCreateParams {
   References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
   resourceClassifiedAs: [URI!]
+
+  """
+  Same as resourceClassifiedAs, but uses tag IDs
+  """
+  tags: [ID!]
 
   """
   (`EconomicResource`) When a specific `EconomicResource` is known which can
@@ -1892,7 +1915,7 @@ input IntentCreateParams {
   """
   The uri to an image relevant to the intent, such as a photo.
   """
-  image: URI
+  image: UploadInput
 
   """
   A textual description or comment.
@@ -1936,7 +1959,7 @@ input IntentUpdateParams {
   """
   (`Action`) Relates an intent to a verb, such as consume, produce, work, improve, etc.
   """
-  action: ID
+  action: String
 
   """
   (`Process`) Defines the process to which this intent is an input.
@@ -2018,7 +2041,7 @@ input IntentUpdateParams {
   """
   The uri to an image relevant to the intent, such as a photo.
   """
-  image: URI
+  image: UploadInput
 
   """
   The intent is complete or not.  This is irrespective of if the original goal
@@ -2147,7 +2170,19 @@ type ValueFlowsMutation {
   createCommitment(commitment: CommitmentCreateParams): CommitmentResponse
   updateCommitment(commitment: CommitmentUpdateParams): CommitmentResponse
   deleteCommitment(id: ID!): Boolean
+
   createIntent(intent: IntentCreateParams): IntentResponse
+
+  """
+  Creates a new offer for the logged in user, will ignore any provider specified.
+  """
+  createOffer(intent: IntentCreateParams): IntentResponse
+
+  """
+  Creates a new need for the logged in user, will ignore any receiver specified.
+  """
+  createNeed(intent: IntentCreateParams): IntentResponse
+
   updateIntent(intent: IntentUpdateParams): IntentResponse
   deleteIntent(id: ID!): Boolean
   createFulfillment(fulfillment: FulfillmentCreateParams!): FulfillmentResponse

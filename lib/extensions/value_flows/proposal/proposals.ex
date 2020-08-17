@@ -14,7 +14,8 @@ defmodule ValueFlows.Proposals do
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
 
-  alias ValueFlows.Proposal.Queries
+  alias ValueFlows.Proposal.{ProposedIntentQueries, ProposedIntent, Queries}
+  alias ValueFlows.Planning.Intent
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -28,12 +29,20 @@ defmodule ValueFlows.Proposals do
   """
   def one(filters), do: Repo.single(Queries.query(Proposal, filters))
 
+  @spec one_proposed_intent(filters :: any) :: {:ok, ProposedIntent.t()} | {:error, term}
+  def one_proposed_intent(filters),
+    do: Repo.single(ProposedIntentQueries.query(ProposedIntent, filters))
+
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for collections (inc. tests)
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Proposal, filters))}
+
+  @spec many_proposed_intents(filters :: any) :: {:ok, [ProposedIntent.t()]} | {:error, term}
+  def many_proposed_intents(filters \\ []),
+    do: {:ok, Repo.all(ProposedIntentQueries.query(ProposedIntent, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -203,20 +212,42 @@ defmodule ValueFlows.Proposals do
     end)
   end
 
-  defp index(obj) do
+  @spec propose_intent(Proposal.t(), Intent.t(), map) :: {:ok, ProposedIntent.t()} | {:error, term}
+  def propose_intent(%Proposal{} = proposal, %Intent{} = intent, attrs) do
+    Repo.insert(ProposedIntent.changeset(proposal, intent, attrs))
+  end
+
+  @spec delete_proposed_intent(ProposedIntent.t()) :: {:ok, ProposedIntent.t()} | {:error, term}
+  def delete_proposed_intent(%ProposedIntent{} = proposed_intent) do
+    Common.soft_delete(proposed_intent)
+  end
+
+  def indexing_object_format(obj) do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
-    object = %{
+    # image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+
+    %{
       "index_type" => "Proposal",
       "id" => obj.id,
-      # "canonicalUrl" => obj.actor.canonical_url,
+      # "canonicalUrl" => obj.canonical_url,
       # "icon" => icon,
       "name" => obj.name,
       "note" => Map.get(obj, :note),
-      "createdAt" => obj.published_at
+      "published_at" => obj.published_at,
+      "creator" => %{
+        "id" => obj.creator.id,
+        "name" => obj.creator.name,
+        "username" => MoodleNet.Actors.display_username(obj.creator),
+        "canonical_url" => obj.creator.actor.canonical_url
+      }
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
+  end
 
-    CommonsPub.Search.Indexer.maybe_index_object(object)
+  defp index(obj) do
+    object = indexing_object_format(obj)
+
+    CommonsPub.Search.Indexer.index_object(object)
 
     :ok
   end

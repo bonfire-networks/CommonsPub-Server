@@ -199,6 +199,8 @@ defmodule MoodleNet.Threads.Queries do
     |> select([thread: t, follower_count: fc], %{t | follower_count: coalesce(fc.count, 0)})
   end
 
+  def filter(q, {:distinct, field}), do: distinct(q, [thread: t], field(t, ^field))
+
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
     filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)
   end
@@ -224,6 +226,4 @@ defmodule MoodleNet.Threads.Queries do
   end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
-  def filter(q, {:distinct, field}), do: distinct(q, [thread: t], field(t, ^field))
 end

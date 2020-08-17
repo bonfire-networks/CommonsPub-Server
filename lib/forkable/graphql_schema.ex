@@ -5,31 +5,9 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   @moduledoc "Root GraphQL Schema"
   use Absinthe.Schema
 
-  alias MoodleNetWeb.GraphQL.{
-    AccessSchema,
-    ActivitiesSchema,
-    AdminSchema,
-    BlocksSchema,
-    CollectionsSchema,
-    CommentsSchema,
-    CommonSchema,
-    CommunitiesSchema,
-    Cursor,
-    JSON,
-    FeaturesSchema,
-    FlagsSchema,
-    FollowsSchema,
-    InstanceSchema,
-    LikesSchema,
-    MiscSchema,
-    ResourcesSchema,
-    ThreadsSchema,
-    UsersSchema,
-    UploadSchema
-  }
-
   require Logger
 
+  alias MoodleNetWeb.GraphQL.SchemaUtils
   alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
   alias Absinthe.Middleware.{Async, Batch}
 
@@ -42,26 +20,26 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     middleware ++ [CollapseErrors]
   end
 
-  import_types(AccessSchema)
-  import_types(ActivitiesSchema)
-  import_types(AdminSchema)
-  import_types(BlocksSchema)
-  import_types(CollectionsSchema)
-  import_types(CommentsSchema)
-  import_types(CommonSchema)
-  import_types(CommunitiesSchema)
-  import_types(Cursor)
-  import_types(FeaturesSchema)
-  import_types(FlagsSchema)
-  import_types(FollowsSchema)
-  import_types(InstanceSchema)
-  import_types(JSON)
-  import_types(LikesSchema)
-  import_types(MiscSchema)
-  import_types(ResourcesSchema)
-  import_types(ThreadsSchema)
-  import_types(UsersSchema)
-  import_types(UploadSchema)
+  import_types(MoodleNetWeb.GraphQL.AccessSchema)
+  import_types(MoodleNetWeb.GraphQL.ActivitiesSchema)
+  import_types(MoodleNetWeb.GraphQL.AdminSchema)
+  import_types(MoodleNetWeb.GraphQL.BlocksSchema)
+  import_types(MoodleNetWeb.GraphQL.CollectionsSchema)
+  import_types(MoodleNetWeb.GraphQL.CommentsSchema)
+  import_types(MoodleNetWeb.GraphQL.CommonSchema)
+  import_types(MoodleNetWeb.GraphQL.CommunitiesSchema)
+  import_types(MoodleNetWeb.GraphQL.Cursor)
+  import_types(MoodleNetWeb.GraphQL.FeaturesSchema)
+  import_types(MoodleNetWeb.GraphQL.FlagsSchema)
+  import_types(MoodleNetWeb.GraphQL.FollowsSchema)
+  import_types(MoodleNetWeb.GraphQL.InstanceSchema)
+  import_types(MoodleNetWeb.GraphQL.JSON)
+  import_types(MoodleNetWeb.GraphQL.LikesSchema)
+  import_types(MoodleNetWeb.GraphQL.MiscSchema)
+  import_types(MoodleNetWeb.GraphQL.ResourcesSchema)
+  import_types(MoodleNetWeb.GraphQL.ThreadsSchema)
+  import_types(MoodleNetWeb.GraphQL.UsersSchema)
+  import_types(MoodleNetWeb.GraphQL.UploadSchema)
 
   # Extension Modules
   import_types(Profile.GraphQL.Schema)
@@ -138,14 +116,14 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do
       arg(:url, non_null(:string))
-      resolve(&MiscSchema.fetch_web_metadata/2)
+      resolve(&MoodleNetWeb.GraphQL.MiscSchema.fetch_web_metadata/2)
     end
 
     # for debugging purposes only:
     # @desc "Fetch an AS2 object from URL"
     # field :fetch_object, type: :fetched_object do
     #   arg :url, non_null(:string)
-    #   resolve &MiscSchema.fetch_object/2
+    #   resolve &MoodleNetWeb.GraphQL.MiscSchema.fetch_object/2
     # end
   end
 
@@ -153,15 +131,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   hydrate SDL schema with resolvers
   """
   def hydrate(%Absinthe.Blueprint{}, _) do
-    hydrators = [
+    SchemaUtils.hydrations_merge([
       &Geolocation.GraphQL.Hydration.hydrate/0,
       &Measurement.Hydration.hydrate/0,
       &ValueFlows.Hydration.hydrate/0
-    ]
-
-    Enum.reduce(hydrators, %{}, fn hydrate_fn, hydrated ->
-      hydrate_merge(hydrated, hydrate_fn.())
-    end)
+    ])
   end
 
   # hydrations fallback
@@ -169,13 +143,13 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     []
   end
 
-  defp hydrate_merge(a, b) do
-    Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
-  end
-
   union :any_context do
     description("Any type of known object")
+
     # TODO: autogenerate
+
+    # types(SchemaUtils.context_types)
+
     types([
       :community,
       :collection,
@@ -188,8 +162,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       :organisation,
       :category,
       :taggable,
-      :spatial_thing
-      # :intent
+      :spatial_thing,
+      :intent
     ])
 
     resolve_type(fn
@@ -210,7 +184,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       # %ValueFlows.Agent.Agents{}, _ -> :agent
       # %ValueFlows.Agent.People{}, _ -> :person
       # %ValueFlows.Agent.Organizations{}, _ -> :organization
-      # %ValueFlows.Planning.Intent{}, _ -> :intent
+      %ValueFlows.Planning.Intent{}, _ -> :intent
       o, _ -> IO.inspect(any_context_resolve_unknown_type: o)
     end)
   end

@@ -17,7 +17,7 @@ defmodule MoodleNet.Meta.TableService do
 
   During operation, lookup requests will hit ets directly - this
   service exists solely to own the table and fit into the OTP
-  supervision hierarchy neatly.
+  supervision hierarchy neatly...
   """
 
   alias MoodleNet.Meta.{Introspection, Table, TableNotFoundError}
@@ -38,6 +38,22 @@ defmodule MoodleNet.Meta.TableService do
   @doc "Starts up the service registering it locally under this module's name"
   def start_link(),
     do: GenServer.start_link(__MODULE__, name: @service_name)
+
+  @doc "Lists all tables we know"
+  def list_all() do
+    case :ets.lookup(@table_name, :ALL) do
+      [{_, r}] -> r
+      _ -> []
+    end
+  end
+
+  def list_pointable_schemas() do
+    pointable_tables = list_all()
+
+    Enum.reduce(pointable_tables, [], fn x, acc ->
+      Enum.concat(acc, [x.schema])
+    end)
+  end
 
   @spec lookup(table_id()) :: {:ok, Table.t()} | {:error, TableNotFoundError.t()}
   @doc "Look up a Table by name, id or ecto module"
@@ -137,6 +153,10 @@ defmodule MoodleNet.Meta.TableService do
 
   defp populate_table(entries) do
     :ets.new(@table_name, [:named_table])
+
+    # to enable list queries
+    all = {:ALL, entries}
+    true = :ets.insert(@table_name, all)
 
     for field <- [:id, :table, :schema] do
       indexed = Enum.map(entries, &{Map.get(&1, field), &1})

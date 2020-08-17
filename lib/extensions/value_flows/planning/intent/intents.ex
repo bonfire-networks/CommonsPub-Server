@@ -2,18 +2,19 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  alias MoodleNet.{Activities, Common, Feeds, Follows, Repo}
-  alias CommonsPub.Character.Characters
-
+  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+  alias MoodleNet.Meta.Pointers
 
   alias Geolocation.Geolocations
   alias Measurement.Measure
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
+  alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -89,32 +90,38 @@ defmodule ValueFlows.Planning.Intent.Intents do
   ## mutations
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %{id: _id} = context, measures, attrs) when is_map(attrs) do
-    do_create(creator, measures, attrs, fn ->
-      Intent.create_changeset(creator, context, attrs)
+  def create(%User{} = creator, %Action{} = action, %{id: _id} = context, attrs)
+      when is_map(attrs) do
+    do_create(creator, attrs, fn ->
+      Intent.create_changeset(creator, action, context, attrs)
     end)
   end
 
   # @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, measures, attrs) when is_map(attrs) do
-    do_create(creator, measures, attrs, fn ->
-      Intent.create_changeset(creator, attrs)
+  def create(%User{} = creator, %Action{} = action, attrs) when is_map(attrs) do
+    do_create(creator, attrs, fn ->
+      Intent.create_changeset(creator, action, attrs)
     end)
   end
 
-  def do_create(creator, measures, attrs, changeset_fn) do
+  def do_create(creator, attrs, changeset_fn) do
+    attrs = parse_measurement_attrs(attrs)
+
     Repo.transact_with(fn ->
       cs =
         changeset_fn.()
-        |> Intent.change_measures(measures)
+        |> Intent.change_measures(attrs)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
+           {:ok, cs} <- change_agent(cs, attrs),
            {:ok, item} <- Repo.insert(cs),
+           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- index(item),
            :ok <- publish(creator, item, activity, :created) do
+        item = %{item | creator: creator}
+        index(item)
         {:ok, item}
       end
     end)
@@ -167,15 +174,17 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   # TODO: take the user who is performing the update
   # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def update(%Intent{} = intent, measures, attrs) when is_map(measures) do
-    do_update(intent, measures, attrs, &Intent.update_changeset(&1, attrs))
+  def update(%Intent{} = intent, attrs) do
+    do_update(intent, attrs, &Intent.update_changeset(&1, attrs))
   end
 
-  def update(%Intent{} = intent, %{id: id} = context, measures, attrs) when is_map(measures) do
-    do_update(intent, measures, attrs, &Intent.update_changeset(&1, context, attrs))
+  def update(%Intent{} = intent, %{id: id} = context, attrs) do
+    do_update(intent, attrs, &Intent.update_changeset(&1, context, attrs))
   end
 
-  def do_update(intent, measures, attrs, changeset_fn) do
+  def do_update(intent, attrs, changeset_fn) do
+    attrs = parse_measurement_attrs(attrs)
+
     Repo.transact_with(fn ->
       intent =
         Repo.preload(intent, [
@@ -188,10 +197,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
       cs =
         intent
         |> changeset_fn.()
-        |> Intent.change_measures(measures)
+        |> Intent.change_measures(attrs)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
+           {:ok, cs} <- change_agent(cs, attrs),
+           {:ok, cs} <- change_action(cs, attrs),
            {:ok, intent} <- Repo.update(cs),
+           {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            :ok <- publish(intent, :updated) do
         {:ok, intent}
       end
@@ -207,11 +219,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  defp index(obj) do
+  def indexing_object_format(obj) do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
     image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
 
-    object = %{
+    Repo.preload(obj, :creator)
+
+    %{
       "index_type" => "Intent",
       "id" => obj.id,
       # "canonicalUrl" => obj.actor.canonical_url,
@@ -219,14 +233,64 @@ defmodule ValueFlows.Planning.Intent.Intents do
       "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
-      "createdAt" => obj.published_at
+      "published_at" => obj.published_at,
+      "creator" => format_creator(obj.creator)
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
+  end
 
-    Search.Indexing.maybe_index_object(object)
+  def format_creator(%{id: id} = creator) when not is_nil(id) do
+    %{
+      "id" => creator.id,
+      "name" => creator.name,
+      "username" => MoodleNet.Actors.display_username(creator),
+      "canonical_url" => creator.actor.canonical_url
+    }
+  end
+
+  def format_creator(_) do
+    %{}
+  end
+
+  defp index(obj) do
+    object = indexing_object_format(obj)
+
+    CommonsPub.Search.Indexer.index_object(object)
 
     :ok
   end
+
+  defp change_agent(changeset, attrs) do
+    with {:ok, changeset} <- change_provider(changeset, attrs) do
+      change_receiver(changeset, attrs)
+    end
+  end
+
+  defp change_provider(changeset, %{provider: provider_id}) do
+    with {:ok, pointer} <- Pointers.one(id: provider_id) do
+      provider = Pointers.follow!(pointer)
+      {:ok, Intent.change_provider(changeset, provider)}
+    end
+  end
+
+  defp change_provider(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_receiver(changeset, %{receiver: receiver_id}) do
+    with {:ok, pointer} <- Pointers.one(id: receiver_id) do
+      receiver = Pointers.follow!(pointer)
+      {:ok, Intent.change_receiver(changeset, receiver)}
+    end
+  end
+
+  defp change_receiver(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_action(changeset, %{action: action_id}) do
+    with {:ok, action} <- Actions.action(action_id) do
+      {:ok, Intent.change_action(changeset, action)}
+    end
+  end
+
+  defp change_action(changeset, _attrs), do: {:ok, changeset}
 
   defp change_at_location(changeset, %{at_location: id}) do
     with {:ok, location} <- Geolocations.one([:default, id: id]) do
@@ -235,4 +299,16 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   defp change_at_location(changeset, _attrs), do: {:ok, changeset}
+
+  defp parse_measurement_attrs(attrs) do
+    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
+      if is_map(v) and Map.has_key?(v, :has_unit) do
+        v = ValueFlows.Util.map_key_replace(v, :has_unit, :unit_id)
+        # I have no idea why the numerical value isn't auto converted
+        Map.put(acc, k, v)
+      else
+        Map.put(acc, k, v)
+      end
+    end)
+  end
 end

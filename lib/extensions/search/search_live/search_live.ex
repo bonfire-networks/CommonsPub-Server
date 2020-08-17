@@ -22,6 +22,7 @@ defmodule MoodleNetWeb.SearchLive do
        selected_tab: "all",
        search: "",
        hits: [],
+       facets: %{},
        num_hits: nil
      )}
   end
@@ -31,9 +32,14 @@ defmodule MoodleNetWeb.SearchLive do
     IO.inspect(q, label: "SEARCH")
     IO.inspect(tab, label: "TAB")
 
-    search = CommonsPub.Search.Meili.search(q, "public")
+    facet_filters =
+      if tab != "all" do
+        %{"index_type" => tab}
+      end
 
-    # IO.inspect(search)
+    search = CommonsPub.Search.Meili.search(q, nil, ["index_type"], facet_filters)
+
+    IO.inspect(search)
 
     hits =
       if(Map.has_key?(search, "hits") and length(search["hits"])) do
@@ -42,12 +48,21 @@ defmodule MoodleNetWeb.SearchLive do
         # Enum.filter(hits, & &1)
       end
 
+    # note we only get proper facets when not already faceting
+    facets =
+      if tab == "all" and Map.has_key?(search, "facetsDistribution") do
+        search["facetsDistribution"]
+      else
+        socket.assigns.facets
+      end
+
     # IO.inspect(hits)
 
     {:noreply,
      assign(socket,
        selected_tab: tab,
        hits: hits,
+       facets: facets,
        num_hits: search["nbHits"],
        search: q
 

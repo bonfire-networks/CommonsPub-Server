@@ -1,6 +1,3 @@
-// import "../../lib/moodle_net_web/live/pages/my/create/write/editors/prosemirror.scss";
-// import "../node_modules/prosemirror-view/style/prosemirror.css";
-
 import { EditorView } from "prosemirror-view";
 import { EditorState } from "prosemirror-state";
 import {

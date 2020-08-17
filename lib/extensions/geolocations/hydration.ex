@@ -42,15 +42,10 @@ defmodule Geolocation.GraphQL.Hydration do
         delete_spatial_thing: [
           resolve: &Geolocation.GraphQL.delete_geolocation/2
         ]
-      },
-      geo_scope: [
-        resolve_type: &__MODULE__.resolve_context_type/2
-      ]
+      }
+      # geo_scope: [
+      #   resolve_type: &CommonResolver.resolve_context_type/2
+      # ]
     }
   end
-
-  def resolve_context_type(%Community{}, _), do: :community
-  def resolve_context_type(%Collection{}, _), do: :collection
-  def resolve_context_type(%Organisation{}, _), do: :organisation
-  def resolve_context_type(%{}, _), do: :community
 end

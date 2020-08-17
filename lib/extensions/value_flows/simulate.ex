@@ -10,6 +10,10 @@ defmodule ValueFlows.Simulate do
   import Measurement.Simulate
 
   alias ValueFlows.Planning.Intent.Intents
+  alias ValueFlows.Proposals
+  alias ValueFlows.Proposal.ProposedIntent
+
+  alias ValueFlows.Knowledge.Action.Actions
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])
 
@@ -28,11 +32,31 @@ defmodule ValueFlows.Simulate do
 
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
 
-  def action(base \\ %{}) do
+  def action, do: Faker.Util.pick(Actions.actions_list())
+
+  def action_id, do: action().id
+
+  def proposal(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &uuid/0)
-    |> Map.put_new_lazy(:label, &name/0)
-    |> Map.put_new_lazy(:resourceEffect, &inc_dec/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
+    # |> Map.put_new_lazy(:image, &icon/0)
+    |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
+    |> Map.put_new_lazy(:has_end, &future_datetime/0)
+    |> Map.put_new_lazy(:created, &future_datetime/0)
+    |> Map.put_new_lazy(:unit_based, &bool/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def proposed_intent(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:reciprocal, &maybe_bool/0)
+  end
+
+  def proposed_intent_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("reciprocal", &maybe_bool/0)
   end
 
   def intent(base \\ %{}) do
@@ -40,8 +64,6 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     # |> Map.put_new_lazy(:image, &icon/0)
-    |> Map.put_new_lazy(:provider, &agent/0)
-    |> Map.put_new_lazy(:receiver, &agent/0)
     |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
     |> Map.put_new_lazy(:has_end, &future_datetime/0)
     |> Map.put_new_lazy(:has_point_in_time, &future_datetime/0)
@@ -57,6 +79,7 @@ defmodule ValueFlows.Simulate do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("note", &summary/0)
+    |> Map.put_new_lazy("action", &action_id/0)
     # |> Map.put_new_lazy("image", &icon/0)
     |> Map.put_new_lazy("resource_classified_as", fn -> some(1..5, &url/0) end)
     |> Map.put_new_lazy("has_beginning", &past_datetime_iso/0)
@@ -69,14 +92,32 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("effort_quantity", fn -> measure_input(unit) end)
   end
 
-  def fake_intent!(user, unit, overrides \\ %{}) do
-    measures = %{
-      resource_quantity: fake_measure!(user, unit),
-      effort_quantity: fake_measure!(user, unit),
-      available_quantity: fake_measure!(user, unit)
-    }
+  def fake_intent!(user, unit \\ nil, overrides \\ %{})
 
-    {:ok, intent} = Intents.create(user, measures, intent(overrides))
+  def fake_intent!(user, unit, overrides) when is_nil(unit) do
+    {:ok, intent} = Intents.create(user, action(), intent(overrides))
     intent
+  end
+
+  def fake_intent!(user, unit, overrides) do
+    measure_attrs = %{unit_id: unit.id}
+    measures = %{
+      resource_quantity: measure(measure_attrs),
+      effort_quantity: measure(measure_attrs),
+      available_quantity: measure(measure_attrs)
+    }
+    overrides = Map.merge(overrides, measures)
+    {:ok, intent} = Intents.create(user, action(), intent(overrides))
+    intent
+  end
+
+  def fake_proposal!(user, overrides \\ %{}) do
+    {:ok, proposal} = Proposals.create(user, proposal(overrides))
+    proposal
+  end
+
+  def fake_proposed_intent!(proposal, intent, overrides \\ %{}) do
+    {:ok, proposed_intent} = Proposals.propose_intent(proposal, intent, proposed_intent(overrides))
+    proposed_intent
   end
 end

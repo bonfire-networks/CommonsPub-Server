@@ -1,6 +1,6 @@
 # relations TODO:
-# SpatialThing WIP
-# Action WIP
+# SpatialThing
+# Action
 # AgentRelationship
 # AgentRelationshipRole
 # ResourceSpecification
@@ -11,13 +11,16 @@
 # ProcessSpecification
 
 defmodule ValueFlows.Planning.Intent do
-  use MoodleNet.Common.Schema
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "vf_intent",
+    table_id: "1NTENTC0V1DBEAN0FFER0RNEED"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias CommonsPub.Character
+  alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Planning.Intent
@@ -25,7 +28,7 @@ defmodule ValueFlows.Planning.Intent do
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_intent" do
+  pointable_schema do
     field(:name, :string)
     field(:note, :string)
     belongs_to(:image, Content)
@@ -51,7 +54,7 @@ defmodule ValueFlows.Planning.Intent do
 
     belongs_to(:at_location, Geolocation)
 
-    belongs_to(:action, Action)
+    belongs_to(:action, Action, type: :string)
 
     # belongs_to(:input_of, Process)
     # belongs_to(:output_of, Process)
@@ -75,20 +78,22 @@ defmodule ValueFlows.Planning.Intent do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    many_to_many(:tags, Tag.Taggable,
+    many_to_many(:tags, CommonsPub.Tag.Taggable,
       join_through: "tags_things",
       unique: true,
-      join_keys: [pointer_id: :id, tag_id: :id]
+      join_keys: [pointer_id: :id, tag_id: :id],
+      on_replace: :delete
     )
 
-    timestamps()
+    timestamps(inserted_at: false)
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note at_location_id is_disabled)a
+  @cast @required ++ ~w(note at_location_id is_disabled image_id)a
 
   def create_changeset(
         %User{} = creator,
+        %Action{} = action,
         %{id: _} = context,
         attrs
       ) do
@@ -98,6 +103,8 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.change(
       creator_id: creator.id,
       context_id: context.id,
+      # TODO: move action to context and validate that it's a valid action
+      action_id: action.id,
       is_public: true
     )
     |> common_changeset()
@@ -105,6 +112,7 @@ defmodule ValueFlows.Planning.Intent do
 
   def create_changeset(
         %User{} = creator,
+        %Action{} = action,
         attrs
       ) do
     %Intent{}
@@ -112,6 +120,7 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
+      action_id: action.id,
       is_public: true
     )
     |> common_changeset()
@@ -134,7 +143,13 @@ defmodule ValueFlows.Planning.Intent do
     |> common_changeset()
   end
 
-  def change_measures(changeset, measures) when is_map(measures) do
+  def measure_fields do
+    [:resource_quantity, :effort_quantity, :available_quantity]
+  end
+
+  def change_measures(changeset, %{} = attrs) do
+    measures = Map.take(attrs, measure_fields())
+
     Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
       Changeset.put_assoc(c, field_name, measure)
     end)
@@ -145,6 +160,18 @@ defmodule ValueFlows.Planning.Intent do
       at_location: location,
       at_location_id: location.id
     )
+  end
+
+  def change_action(changeset, %Action{} = action) do
+    Changeset.change(changeset, action_id: action.id)
+  end
+
+  def change_provider(changeset, %{id: _} = provider) do
+    Changeset.change(changeset, provider_id: provider.id)
+  end
+
+  def change_receiver(changeset, %{id: _} = receiver) do
+    Changeset.change(changeset, receiver_id: receiver.id)
   end
 
   defp common_changeset(changeset) do

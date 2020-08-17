@@ -58,6 +58,28 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
                vars.intent["available_quantity"]["hasNumericalValue"]
     end
 
+    test "creates a new offer given valid attributes" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      q = create_offer_mutation(fields: [provider: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit)}
+      assert intent = grumble_post_key(q, conn, :create_offer, vars)["intent"]
+      assert_intent(intent)
+      assert intent["provider"]["id"] == user.id
+    end
+
+    test "create a new need given valid attributes" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      q = create_need_mutation(fields: [receiver: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit)}
+      assert intent = grumble_post_key(q, conn, :create_need, vars)["intent"]
+      assert_intent(intent)
+      assert intent["receiver"]["id"] == user.id
+    end
+
     test "creates a new intent given a scope" do
       user = fake_user!()
       unit = fake_unit!(user)
@@ -83,6 +105,83 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(intent)
       assert intent["atLocation"]["id"] == geo.id
+    end
+
+    test "creates a new intent with an action" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      action = action()
+
+      q = create_intent_mutation(fields: [action: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"action" => action.id})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["action"]["id"] == action.id
+    end
+
+    test "creates a new intent with a provider" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      provider = fake_user!()
+
+      q = create_intent_mutation(fields: [provider: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"provider" => provider.id})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["provider"]["id"] == provider.id
+    end
+
+    test "creates a new intent with a receiver" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      receiver = fake_user!()
+
+      q = create_intent_mutation(fields: [receiver: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"receiver" => receiver.id})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["receiver"]["id"] == receiver.id
+    end
+
+    test "creates a new intent with a provider and a receiver" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      provider = fake_user!()
+      receiver = fake_user!()
+
+      q = create_intent_mutation(fields: [receiver: [:id], provider: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"receiver" => receiver.id, "provider" => provider.id})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["receiver"]["id"] == receiver.id
+      assert intent["provider"]["id"] == provider.id
+    end
+
+    test "creates a new intent with a url image" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+
+      q = create_intent_mutation(fields: [image: [:url]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"image" => %{"url" => "https://via.placeholder.com/150.png"}})}
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(intent)
+      assert intent["image"]["url"] == "https://via.placeholder.com/150.png"
+    end
+
+    test "fail if given an invalid action" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      action = action()
+
+      q = create_intent_mutation(fields: [action: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{"action" => "reading"})}
+      assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
     end
   end
 
@@ -145,6 +244,59 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert resp["atLocation"]["id"] == geo.id
+    end
+
+    test "updates an existing intent with a url image" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+      q = update_intent_mutation(fields: [image: [:url]])
+      conn = user_conn(user)
+      vars = %{
+        intent:
+          intent_input(unit, %{
+            "id" => intent.id,
+            "image" => %{"url" => "https://via.placeholder.com/250.png"}
+          })
+      }
+      assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
+      assert resp["image"]["url"] == "https://via.placeholder.com/250.png"
+    end
+
+    test "updates an existing intent with an action" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      action = action()
+      intent = fake_intent!(user, unit)
+
+      q = update_intent_mutation(fields: [action: [:id]])
+      conn = user_conn(user)
+
+      vars = %{
+        intent:
+          intent_input(unit, %{
+            "id" => intent.id,
+            "action" => action.id
+          })
+      }
+
+      assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
+      assert resp["action"]["id"] == action.id
+    end
+
+    test "fail if given an invalid action" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+      action = action()
+
+      q = update_intent_mutation(fields: [action: [:id]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{
+        "action" => "reading",
+        "id" => intent.id
+      })}
+      assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
     end
   end
 

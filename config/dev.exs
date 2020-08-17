@@ -75,10 +75,10 @@ config :cors_plug,
 config :moodle_net, MoodleNetWeb.Endpoint,
   live_reload: [
     patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
+      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg|ico|html)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{lib/.*/(live|templates)/.*(leex|eex|scss|css)$},
-      ~r{lib/.*(_view|_live).*(ex|leex|eex|scss|css)$}
+      ~r{lib/.*(leex|eex|scss|css)$},
+      ~r{lib/.*(view|live|templates|layout).*ex$}
     ]
   ]
 

@@ -7,11 +7,10 @@ defmodule Profile.Profiles do
 
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
+
   alias Profile
   alias Profile.Queries
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+
   alias Pointers
   alias Pointers.Pointer
 

@@ -1,5 +1,6 @@
 defmodule ValueFlows.Hydration do
   alias MoodleNetWeb.GraphQL.{
+    ActorsResolver,
     CommonResolver,
     UploadResolver
   }
@@ -10,10 +11,10 @@ defmodule ValueFlows.Hydration do
   def hydrate() do
     agent_fields = %{
       canonical_url: [
-        resolve: &CommonsPub.Character.GraphQL.Resolver.canonical_url_edge/3
+        resolve: &ActorsResolver.canonical_url_edge/3
       ],
       display_username: [
-        resolve: &CommonsPub.Character.GraphQL.Resolver.display_username_edge/3
+        resolve: &ActorsResolver.display_username_edge/3
       ],
       image: [
         resolve: &UploadResolver.image_content_edge/3
@@ -40,7 +41,17 @@ defmodule ValueFlows.Hydration do
       # organization: [
       #   is_type_of: &ValueFlows.Agent.GraphQL.organization_is_type_of/2
       # ],
-
+      proposal: %{
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
+        eligible_location: [
+          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+        ],
+        publishes: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intents/3,
+        ],
+      },
       intent: %{
         provider: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_provider_edge/3
@@ -48,12 +59,24 @@ defmodule ValueFlows.Hydration do
         receiver: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_receiver_edge/3
         ],
+        action: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
+        ],
+        at_location: [
+          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+        ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
+        image: [
+          resolve: &UploadResolver.image_content_edge/3
+        ],
         resource_classified_as: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_classifications_edge/3
-        ]
+        ],
+        tags: [
+          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+        ],
       },
 
       # start Query resolvers
@@ -92,6 +115,14 @@ defmodule ValueFlows.Hydration do
         ],
         intents: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.all_intents/2
+        ],
+
+        # Proposal
+        proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.proposal/2
+        ],
+        proposals: [
+          resolve: &ValueFlows.Proposal.GraphQL.all_proposals/2
         ]
       },
 
@@ -102,9 +133,24 @@ defmodule ValueFlows.Hydration do
         create_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_intent/2
         ],
-        create_action: [
-          resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
+        create_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.create_proposal/2
         ],
+        propose_intent: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.propose_intent/2
+        ],
+        delete_proposed_intent: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        ],
+        create_offer: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.create_offer/2
+        ],
+        create_need: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.create_need/2
+        ],
+        # create_action: [
+        #   resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
+        # ],
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],
@@ -116,9 +162,12 @@ defmodule ValueFlows.Hydration do
   end
 
   # support for interface type
+  @spec agent_resolve_type(%{agent_type: nil | :organization | :person}, any) ::
+          :organization | :person
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
-  def agent_resolve_type(%{agent_type: nil}, _), do: :person
+  def agent_resolve_type(_, _), do: :person
+  # def agent_resolve_type(%User{}, _), do: :user
 
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true

@@ -2,13 +2,13 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Queries do
-  alias MoodleNet.Communities
   alias ValueFlows.Planning.Intent
-  alias ValueFlows.Planning.Intents
-  alias MoodleNet.Follows.{Follow, FollowerCount}
+  # alias ValueFlows.Planning.Intents
+  alias MoodleNet.Follows.{Follow}
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
+  import Geo.PostGIS
 
   def query(Intent) do
     from(c in Intent, as: :intent)
@@ -44,6 +44,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
     )
   end
 
+  def join_to(q, :geolocation, jq) do
+    join(q, jq, [intent: c], g in assoc(c, :at_location), as: :geolocation)
+  end
+
+  def join_to(q, :tags, jq) do
+    join(q, jq, [intent: c], t in assoc(c, :tags), as: :tags)
+  end
+
   # def join_to(q, :provider, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :provider), as: :pointer
   # end
@@ -71,6 +79,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
   def filter(q, :default) do
     filter(q, [:deleted])
     # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
+  end
+
+  def filter(q, :offer) do
+    where(q, [intent: c], is_nil(c.receiver_id))
+  end
+
+  def filter(q, :need) do
+    where(q, [intent: c], is_nil(c.provider_id))
   end
 
   ## by join
@@ -141,6 +157,60 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
     where(q, [intent: c], c.context_id in ^ids)
+  end
+
+  def filter(q, {:agent_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.provider_id == ^id or c.receiver_id == ^id)
+  end
+
+  def filter(q, {:agent_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.provider_id in ^ids or c.receiver_id in ^ids)
+  end
+
+  def filter(q, {:provider_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.provider_id == ^id)
+  end
+
+  def filter(q, {:provider_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.provider_id in ^ids)
+  end
+
+  def filter(q, {:receiver_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.receiver_id == ^id)
+  end
+
+  def filter(q, {:receiver_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.receiver_id in ^ids)
+  end
+
+  def filter(q, {:at_location_id, at_location_id}) do
+    q
+    |> where([intent: c], c.at_location_id == ^at_location_id)
+  end
+
+  def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
+    q
+    |> join_to(:geolocation)
+    |> where([intent: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+  end
+
+  def filter(q, {:tag_ids, ids}) when is_list(ids) do
+    q
+    |> preload(:tags)
+    |> join_to(:tags)
+    |> group_by([intent: c], c.id)
+    |> having(
+      [intent: c, tags: t],
+      fragment("? <@ array_agg(?)", type(^ids, {:array, Ecto.ULID}), t.id)
+    )
+  end
+
+  def filter(q, {:tag_ids, id}) when is_binary(id) do
+    filter(q, {:tag_ids, [id]})
+  end
+
+  def filter(q, {:tag_id, id}) when is_binary(id) do
+    filter(q, {:tag_ids, [id]})
   end
 
   ## by ordering
@@ -214,13 +284,13 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-  # def filter(q, {:preload, :provider}) do
-  #   preload q, [pointer: p], [provider: p]
-  # end
+  def filter(q, {:preload, :provider}) do
+    preload(q, [pointer: p], provider: p)
+  end
 
-  # def filter(q, {:preload, :receiver}) do
-  #   preload q, [pointer: p], [receiver: p]
-  # end
+  def filter(q, {:preload, :receiver}) do
+    preload(q, [pointer: p], receiver: p)
+  end
 
   def filter(q, {:preload, :at_location}) do
     preload(q, [at_location: l], at_location: l)

@@ -9,7 +9,7 @@ defmodule MoodleNet.Mixfile do
     [
       app: :moodle_net,
       version: "0.9.6-dev",
-      elixir: "~> 1.10.0",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
       start_permanent: Mix.env() == :prod,
@@ -167,8 +167,9 @@ defmodule MoodleNet.Mixfile do
       {:html_sanitize_ex, "~> 1.4"},
       {
         :linkify,
-        # git: "https://gitlab.com/CommonsPub/linkify.git"
-        path: "uploads/linkify"
+        git: "https://gitlab.com/CommonsPub/linkify.git",
+        ref: "9360ed495ec04ab0f9f254670484f01dea668d38"
+        # path: "uploads/linkify"
         # "~> 0.2.0"
       },
       # geolocation in postgres
@@ -180,9 +181,9 @@ defmodule MoodleNet.Mixfile do
       # {:pointers, "~> 0.2.2"},
       {
         :pointers,
-        # git: "https://github.com/commonspub/pointers.git", branch: "main"
-        git: "https://github.com/mayel/pointers.git",
-        ref: "5e46f61c185faa4cf16e57c10e241cee15a05d42"
+        git: "https://github.com/commonspub/pointers.git", branch: "main"
+        # git: "https://github.com/mayel/pointers.git",
+        # ref: "01751caa54b15c4928eb8389bd7635aa0bd20584"
         # path: "uploads/pointers"
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},

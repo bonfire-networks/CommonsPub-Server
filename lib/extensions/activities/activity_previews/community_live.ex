@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.Component.CommunityPreviewLive do
   def render(assigns) do
     ~L"""
     <%=
-      live_redirect to: "/&"<> e(@community, :actor, :preferred_username, "deleted") do %>
+      live_redirect to: "/"<> e(@community, :username, "deleted") do %>
       <div class="community__preview">
         <div class="preview__image" style="background-image: url(<%= e(@community, :icon_url, e(@community, :image_url, "")) %>)"></div>
         <div class="preview__info">

@@ -8,7 +8,7 @@
     </div>
     <div class="member__layout">
       <div class="mainContent__selected">
-        <h3 class="area__title">Search results</h3>
+        <h3 class="area__title"><%=e(@num_hits, "")%> search results</h3>
         <%=
         live_component(
           @socket,
@@ -34,19 +34,19 @@
             to: "/instance/search/all/" <> @search,
             class: if @selected_tab =="all", do: "navigation__item active", else: "navigation__item"
           %>
-          <%= live_patch link_body("Users", "feather-user"),
-            to: "/instance/search/users/" <> @search ,
-            class: if @selected_tab == "users", do: "navigation__item active", else: "navigation__item"
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "user", ""))<>" Users", "feather-user"),
+            to: "/instance/search/user/" <> @search,
+            class: if @selected_tab == "user", do: "navigation__item active", else: "navigation__item"
           %>
-          <%= live_patch link_body("Communities","feather-users"),
-            to: "/instance/search/communities/" <> @search ,
-            class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "community", ""))<>" Communities","feather-users"),
+            to: "/instance/search/community/" <> @search ,
+            class: if @selected_tab == "community", do: "navigation__item active", else: "navigation__item"
           %>
-          <%= live_patch link_body("Discussions","feather-message-square"),
-            to: "/instance/search/discussions/" <> @search ,
-            class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "comment", ""))<>" Discussions","feather-message-square"),
+            to: "/instance/search/comment/" <> @search ,
+            class: if @selected_tab == "comment", do: "navigation__item active", else: "navigation__item"
           %>
-          <%= live_patch link_body("Tags", "feather-hash"),
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "category", ""))<>" Tags", "feather-hash"),
             to: "/instance/search/tags/" <> @search ,
             class: if @selected_tab == "tags", do: "navigation__item active", else: "navigation__item"
           %>

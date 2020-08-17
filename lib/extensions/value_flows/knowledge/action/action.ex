@@ -1,33 +1,43 @@
 defmodule ValueFlows.Knowledge.Action do
+  use Ecto.Schema
 
-  use MoodleNet.Common.Schema
+  # import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
   # import Ecto.Enum
 
-  alias Ecto.Changeset
-  alias MoodleNet.Users.User
-  alias ValueFlows.Knowledge.Action
+  # alias Ecto.Changeset
+  # alias MoodleNet.Users.User
+  # alias ValueFlows.Knowledge.Action
 
   # defenum label_enum, work: 0, produce: 1, consume: 2, use: 3, consume: 4, transfer: 5
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_action" do
+  @primary_key {:id, :string, autogenerate: false}
+  schema "vf_action" do
+    # A unique verb which defines the action.
+    field(:label, :string)
 
-    field(:label, :string) # A unique verb which defines the action.
+    # Denotes if a process input or output, or not related to a process.
+    field(:input_output, :string)
 
-    field(:input_output, :string) # Denotes if a process input or output, or not related to a process.
     # enum: "input", "output", "notApplicable"
 
-    field(:pairs_with, :string) # The action that should be included on the other direction of the process, for example accept with modify.
+    # The action that should be included on the other direction of the process, for example accept with modify.
+    field(:pairs_with, :string)
+
     # possible values: "notApplicable" (null), or any of the actions (foreign key)
     # TODO: do we want to do this as an actual Action (optional)? In the VF spec they are NamedIndividuals defined in the spec, including "notApplicable".
 
-    field(:resource_effect, :string) # The effect of an economic event on a resource, increment, decrement, no effect, or decrement resource and increment 'to' resource
+    # The effect of an economic event on a resource, increment, decrement, no effect, or decrement resource and increment 'to' resource
+    field(:resource_effect, :string)
+
     # enum: "increment", "decrement", "noEffect", "decrementIncrement"
 
-    field(:note, :string) # description of the action (not part of VF)
+    field(:onhand_effect, :string)
+
+    # description of the action (not part of VF)
+    field(:note, :string)
 
     timestamps()
   end
@@ -35,21 +45,20 @@ defmodule ValueFlows.Knowledge.Action do
   @required ~w(label resource_effect)a
   @cast @required ++ ~w(input_output pairs_with note)a
 
-  def create_changeset(attrs) do
-    %Action{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> common_changeset()
-  end
+  # def create_changeset(attrs) do
+  #   %Action{}
+  #   |> Changeset.cast(attrs, @cast)
+  #   |> Changeset.validate_required(@required)
+  #   |> common_changeset()
+  # end
 
-  def update_changeset(%Action{} = action, attrs) do
-    action
-    |> Changeset.cast(attrs, @cast)
-    |> common_changeset()
-  end
+  # def update_changeset(%Action{} = action, attrs) do
+  #   action
+  #   |> Changeset.cast(attrs, @cast)
+  #   |> common_changeset()
+  # end
 
-  defp common_changeset(changeset) do
-    changeset
-  end
-
+  # defp common_changeset(changeset) do
+  #   changeset
+  # end
 end

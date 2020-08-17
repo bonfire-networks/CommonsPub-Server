@@ -100,6 +100,8 @@ defmodule MoodleNet.Users do
       |> Email.welcome(token)
       |> MailService.maybe_deliver_later()
 
+      CommonsPub.Search.Indexer.maybe_index_object(user)
+
       {:ok, user}
     end
   end
@@ -108,6 +110,8 @@ defmodule MoodleNet.Users do
     with {:ok, outbox} <- Feeds.create(),
          attrs2 = Map.put(attrs, :outbox_id, outbox.id),
          {:ok, user} <- Repo.insert(User.register_changeset(actor, attrs2)) do
+      CommonsPub.Search.Indexer.maybe_index_object(user)
+
       {:ok, %{user | actor: actor}}
     end
   end
@@ -244,6 +248,9 @@ defmodule MoodleNet.Users do
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)),
            :ok <- ap_publish("update", user) do
         user = %{user | local_user: local_user, actor: actor}
+
+        CommonsPub.Search.Indexer.maybe_index_object(user)
+
         {:ok, user}
       end
     end)
@@ -255,6 +262,9 @@ defmodule MoodleNet.Users do
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
            {:ok, actor} <- Characters.update(user, user.actor, attrs) do
         user = %{user | actor: actor}
+
+        CommonsPub.Search.Indexer.maybe_index_object(user)
+
         {:ok, user}
       end
     end)
