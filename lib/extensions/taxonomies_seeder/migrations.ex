@@ -6,7 +6,7 @@ defmodule Taxonomy.Migrations do
   # alias Ecto.ULID
   alias MoodleNet.Repo
 
-  @extension_path "lib/extensions/taxonomies"
+  @extension_path "lib/extensions/taxonomies_seeder"
   @table "taxonomy_tag"
 
   def try_dotsql_execute(filename, mode) do
