@@ -3,7 +3,7 @@ defmodule Locales.Migrations do
 
   require Logger
 
-  @extension_path "lib/locales"
+  @extension_path "lib/extensions/locales"
 
   def try_dotsql_execute(filename) do
     path = "/opt/app/" <> filename

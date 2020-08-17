@@ -6,7 +6,7 @@ defmodule Taxonomy.Migrations do
   # alias Ecto.ULID
   alias MoodleNet.Repo
 
-  @extension_path "lib/taxonomy"
+  @extension_path "lib/extensions/taxonomies"
   @table "taxonomy_tag"
 
   def try_dotsql_execute(filename, mode) do
@@ -76,7 +76,7 @@ defmodule Taxonomy.Migrations do
     execute("DROP TABLE IF EXISTS " <> @table <> " CASCADE")
     try_dotsql_execute("tags.schema.sql", :migration)
     ingest_data(:migration)
-    add_category()
+    # add_category()
   end
 
   def ingest_data(mode) do
