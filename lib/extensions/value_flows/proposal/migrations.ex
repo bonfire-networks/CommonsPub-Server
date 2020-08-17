@@ -8,7 +8,7 @@ defmodule ValueFlows.Proposal.Migrations do
   defp proposed_intent_table(), do: ValueFlows.Proposal.ProposedIntent.__schema__(:source)
 
   def up do
-    create_pointable_table(proposal_table(), "PR0P0SA11SMADE0FTW01NTENTS") do
+    create_pointable_table(ValueFlows.Proposal) do
       add(:name, :string)
       add(:note, :text)
 

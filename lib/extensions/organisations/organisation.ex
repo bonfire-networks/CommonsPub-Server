@@ -4,10 +4,10 @@
 defmodule Organisation do
   use MoodleNet.Common.Schema
 
-  # use Pointers.Pointable,
-  #   otp_app: :moodle_net,
-  #   source: "organisation",
-  #   table_id: "01EAQ0ENYEFY2DZHATQWZ2AEEQ"
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "organisation",
+    table_id: "C1RC1E0FPE0P1EAND0RC1RC1ES"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
@@ -19,9 +19,7 @@ defmodule Organisation do
 
   @type t :: %__MODULE__{}
 
-  # C1RC1E0FPE0P1EAND0RC1RC1ES
-  table_schema "organisation" do
-    # pointable_schema do
+  pointable_schema do
 
     # joined fields from Profile
     field(:name, :string, virtual: true)

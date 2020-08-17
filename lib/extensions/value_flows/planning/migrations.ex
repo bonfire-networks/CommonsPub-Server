@@ -8,7 +8,7 @@ defmodule ValueFlows.Planning.Migrations do
   defp intent_table(), do: ValueFlows.Planning.Intent.__schema__(:source)
 
   def change_intent do
-    create_pointable_table(intent_table(), "1NTENTC0V1DBEAN0FFER0RNEED") do
+    create_pointable_table(ValueFlows.Planning.Intent) do
       add(:name, :string)
       add(:note, :text)
 
