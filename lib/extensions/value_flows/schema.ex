@@ -25,23 +25,12 @@ defmodule ValueFlows.Schema do
 
   @desc "A page of agents"
   object :agents_page do
-<<<<<<< HEAD
-    field :page_info, non_null(:page_info)
-    field :edges, non_null(list_of(non_null(:agent)))
-    field :total_count, non_null(:integer)
-  end
-
-  object :value_flows_extra_queries do
-<<<<<<< HEAD:lib/value_flows/schema.ex
-=======
-=======
     field(:page_info, non_null(:page_info))
     field(:edges, non_null(list_of(non_null(:agent))))
     field(:total_count, non_null(:integer))
   end
 
   object :value_flows_extra_queries do
->>>>>>> flavour/commonspub
     @desc "Get paginated list of proposals"
     field :proposals_pages, non_null(:proposals_page) do
       # arg(:in_scope_of, :id)
@@ -50,16 +39,6 @@ defmodule ValueFlows.Schema do
       arg(:after, list_of(non_null(:cursor)))
       resolve(&ValueFlows.Proposal.GraphQL.proposals/2)
     end
-<<<<<<< HEAD
->>>>>>> 4cdd7f03... huge refactor of directory structure:lib/extensions/value_flows/schema.ex
-
-    @desc "Get paginated list of intents"
-    field :intents_pages, non_null(:intents_page) do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &ValueFlows.Planning.Intent.GraphQL.all_intents/2
-=======
 
     @desc "Get paginated list of intents"
     field :intents_pages, non_null(:intents_page) do
@@ -105,7 +84,6 @@ defmodule ValueFlows.Schema do
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
       resolve(&ValueFlows.Planning.Intent.GraphQL.needs/2)
->>>>>>> flavour/commonspub
     end
 
     # @desc "Get paginated list of agents"
@@ -118,37 +96,18 @@ defmodule ValueFlows.Schema do
 
     @desc "Get paginated list of people"
     field :people_pages, non_null(:agents_page) do
-<<<<<<< HEAD
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &ValueFlows.Agent.GraphQL.people/2
-=======
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
       resolve(&ValueFlows.Agent.GraphQL.people/2)
->>>>>>> flavour/commonspub
     end
 
     @desc "Get paginated list of organizations"
     field :organizations_pages, non_null(:agents_page) do
-<<<<<<< HEAD
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &ValueFlows.Agent.GraphQL.organizations/2
-    end
-
-  end
-
-
-=======
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
       resolve(&ValueFlows.Agent.GraphQL.organizations/2)
     end
   end
->>>>>>> flavour/commonspub
 end
