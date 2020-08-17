@@ -5,8 +5,10 @@ defmodule Tag.Migrations do
   alias CommonsPub.Tag.Category
   alias CommonsPub.Tag.Taggable
 
-  defp category_table(), do: Category.__schema__(:source)
-  defp taggable_table(), do: Taggable.__schema__(:source)
+  def category_table(), do: Category.__schema__(:source)
+  def category_id(), do: Category.__schema__(:table_id)
+
+  def taggable_table(), do: Taggable.__schema__(:source)
 
   def up() do
     # pointer = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
@@ -15,31 +17,31 @@ defmodule Tag.Migrations do
     drop_pointable_table(Category)
     flush()
 
-    create_mixin_table(CommonsPub.Tag.Taggable) do
+    create_mixin_table(Taggable) do
       add(:prefix, :string)
       add(:facet, :string)
     end
 
-    create_pointable_table(CommonsPub.Tag.Category) do
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+    create_pointable_table("category", "TAGSCANBECATEG0RY0RHASHTAG") do
+      # add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
-      add(:caretaker_id, weak_pointer(), null: true)
+      # add(:caretaker_id, weak_pointer(), null: true)
 
-      # eg. Mamals is a parent of Cat
-      add(
-        :parent_category_id,
-        references(category_table(), on_update: :update_all, on_delete: :nilify_all)
-      )
+      # # eg. Mamals is a parent of Cat
+      # add(
+      #   :parent_category_id,
+      #   references(category_table(), on_update: :update_all, on_delete: :nilify_all)
+      # )
 
-      # eg. Olive Oil is the same as Huile d'olive
-      add(
-        :same_as_category_id,
-        references(category_table(), on_update: :update_all, on_delete: :nilify_all)
-      )
+      # # eg. Olive Oil is the same as Huile d'olive
+      # add(
+      #   :same_as_category_id,
+      #   references(category_table(), on_update: :update_all, on_delete: :nilify_all)
+      # )
 
-      add(:published_at, :timestamptz)
-      add(:deleted_at, :timestamptz)
-      add(:disabled_at, :timestamptz)
+      # add(:published_at, :timestamptz)
+      # add(:deleted_at, :timestamptz)
+      # add(:disabled_at, :timestamptz)
     end
 
     create_if_not_exists table(:tags_things, primary_key: false) do
@@ -52,7 +54,7 @@ defmodule Tag.Migrations do
   end
 
   def down() do
-    drop_pointable_table(Category)
+    drop_pointable_table(category_table(), category_id())
     drop_mixin_table(taggable_table())
   end
 end
