@@ -2,22 +2,25 @@ defmodule Tag.Migrations do
   use Ecto.Migration
   import Pointers.Migration
 
-  defp category_table(), do: CommonsPub.Tag.Category.__schema__(:source)
-  defp taggable_table(), do: CommonsPub.Tag.Taggable.__schema__(:source)
+  alias CommonsPub.Tag.Category
+  alias CommonsPub.Tag.Taggable
+
+  defp category_table(), do: Category.__schema__(:source)
+  defp taggable_table(), do: Taggable.__schema__(:source)
 
   def up() do
     # pointer = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
 
     # cleanup old stuff first
-    drop_pointable_table(:tags, "TAGSCANBECATEG0RY0RHASHTAG")
+    drop_pointable_table(Category)
     flush()
 
-    create_mixin_table(taggable_table()) do
+    create_mixin_table("taggable") do
       add(:prefix, :string)
       add(:facet, :string)
     end
 
-    create_pointable_table(category_table(), "TAGSCANBECATEG0RY0RHASHTAG") do
+    create_pointable_table("category") do
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
       add(:caretaker_id, weak_pointer(), null: true)
@@ -49,7 +52,7 @@ defmodule Tag.Migrations do
   end
 
   def down() do
-    drop_pointable_table(category_table(), "TAGSCANBECATEG0RY0RHASHTAG")
+    drop_pointable_table(Category)
     drop_mixin_table(taggable_table())
   end
 end

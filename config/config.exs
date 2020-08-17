@@ -32,6 +32,7 @@ alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
 alias Measurement.Unit.Units
+alias CommonsPub.Tag.Taggable
 
 hostname = System.get_env("HOSTNAME", "localhost")
 
@@ -291,7 +292,8 @@ config :pointers, Pointers.Pointer,
   source: "mn_pointer",
   many_to_many: [
     tags: {
-      CommonsPub.Tag.Taggable,
+      # if(Code.ensure_loaded?(Taggable), do: Taggable, else: :taggable),
+      Taggable,
       join_through: "tags_things",
       unique: true,
       join_keys: [pointer_id: :id, tag_id: :id],

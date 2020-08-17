@@ -62,4 +62,9 @@ defmodule MoodleNet.Config do
   def delete(key) do
     Application.delete_env(:moodle_net, key)
   end
+
+  def loaded_module(mod) do
+    Code.ensure_loaded?(mod)
+    mod
+  end
 end
