@@ -15,12 +15,12 @@ defmodule Tag.Migrations do
     drop_pointable_table(Category)
     flush()
 
-    create_mixin_table("taggable") do
+    create_mixin_table(CommonsPub.Tag.Taggable) do
       add(:prefix, :string)
       add(:facet, :string)
     end
 
-    create_pointable_table("category") do
+    create_pointable_table(CommonsPub.Tag.Category) do
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
       add(:caretaker_id, weak_pointer(), null: true)
