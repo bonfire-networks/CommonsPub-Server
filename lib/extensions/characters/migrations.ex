@@ -15,7 +15,7 @@ defmodule CommonsPub.Character.Migrations do
       # points to the Actor who plays this character in the fediverse
       add(:actor_id, references("mn_actor", on_delete: :delete_all))
 
-      # add :context_id, references("mn_pointer", on_delete: :nilify_all) # points to the parent Thing of this character
+      # add :context_id, weak_pointer(), null: true # points to the parent Thing of this character
       add(:facet, :string)
       add(:inbox_id, references("mn_feed", on_delete: :nilify_all))
       add(:outbox_id, references("mn_feed", on_delete: :nilify_all))

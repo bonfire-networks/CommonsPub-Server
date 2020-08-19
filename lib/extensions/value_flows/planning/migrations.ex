@@ -2,7 +2,6 @@ defmodule ValueFlows.Planning.Migrations do
   use Ecto.Migration
   alias MoodleNet.Repo
   alias Ecto.ULID
-
   import Pointers.Migration
 
   defp intent_table(), do: ValueFlows.Planning.Intent.__schema__(:source)
@@ -18,8 +17,8 @@ defmodule ValueFlows.Planning.Migrations do
 
       # belongs_to(:provider, Pointer) # TODO - use pointer like context?
       # belongs_to(:receiver, Pointer)
-      add(:provider_id, references("mn_pointer", on_delete: :nilify_all))
-      add(:receiver_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:provider_id, weak_pointer(), null: true)
+      add(:receiver_id, weak_pointer(), null: true)
 
       add(:available_quantity_id, references("measurement_measure", on_delete: :nilify_all))
       add(:resource_quantity_id, references("measurement_measure", on_delete: :nilify_all))
@@ -36,7 +35,7 @@ defmodule ValueFlows.Planning.Migrations do
       add(:action_id, :string)
 
       # optional context as scope
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
 
       add(:finished, :boolean, default: false)
 

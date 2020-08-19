@@ -7,7 +7,7 @@ defmodule Organisation.Migrations do
     create_pointable_table(Organisation) do
       add(:character_id, references("character", on_delete: :delete_all))
       # points to the parent Thing of this character
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:extra_info, :map)
     end
   end

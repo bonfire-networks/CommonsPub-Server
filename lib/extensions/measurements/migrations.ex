@@ -1,5 +1,6 @@
 defmodule Measurement.Migrations do
   use Ecto.Migration
+  import Pointers.Migration
 
   # alias MoodleNet.Repo
 
@@ -10,7 +11,7 @@ defmodule Measurement.Migrations do
       add(:label, :string)
       add(:symbol, :string)
 
-      add(:context_id, references("mn_pointer", on_delete: :delete_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
       add(:published_at, :timestamptz)
