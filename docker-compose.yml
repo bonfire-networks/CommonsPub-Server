@@ -8,7 +8,7 @@ services:
     image: "commonspub/commonspub:latest"
     restart: always
     ports:
-      - "4088:4000" # you may want to comment this in production
+      - "4000:4000" # you may want to comment this in production
       # - "80:80"
       # - "443:443"
     env_file:
@@ -24,8 +24,8 @@ services:
     image: "caddy:alpine"
     restart: always
     ports:
-      - "88:80"
-      - "4438:443"
+      - "80:80"
+      - "443:443"
     env_file:
       - config/prod/public.env
     volumes:
@@ -49,7 +49,7 @@ services:
   search:
     image: getmeili/meilisearch:latest
     ports:
-      - "7788:7700"
+      - "7700:7700"
     volumes:
       - "./data/search/prod:/data.ms"
     env_file:
