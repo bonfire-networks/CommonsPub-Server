@@ -1,16 +1,16 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Character.Queries do
+defmodule CommonsPub.Character.Queries do
   # alias MoodleNet.Users
-  alias Character
+  alias CommonsPub.Character
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  def query(Character) do
-    from(c in Character,
+  def query(CommonsPub.Character) do
+    from(c in CommonsPub.Character,
       as: :character,
       join: a in assoc(c, :actor),
       as: :actor,
@@ -21,7 +21,7 @@ defmodule Character.Queries do
   end
 
   def query(:count) do
-    from(c in Character, as: :character)
+    from(c in CommonsPub.Character, as: :character)
   end
 
   def query(q, filters), do: filter(query(q), filters)

@@ -13,14 +13,13 @@ defmodule Organisation do
 
   alias Ecto.Changeset
   alias Organisation
-  alias Character
+  alias CommonsPub.Character
   alias Pointers.Pointer
   alias MoodleNet.Actors.Actor
 
   @type t :: %__MODULE__{}
 
   pointable_schema do
-
     # joined fields from Profile
     field(:name, :string, virtual: true)
     field(:summary, :string, virtual: true)
@@ -28,12 +27,12 @@ defmodule Organisation do
 
     # mixins
     has_one(:profile, Profile, foreign_key: :id)
-    has_one(:character, Character, foreign_key: :id)
+    has_one(:character, CommonsPub.Character, foreign_key: :id)
 
-    # joined via Character
+    # joined via character
     has_one(:actor, Actor, foreign_key: :id)
 
-    # points to the parent Thing of this Character
+    # points to the parent thing of this character
     belongs_to(:context, Pointer)
 
     # joined fields from Actor:

@@ -1,12 +1,12 @@
 #  MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Character.Characters do
+defmodule CommonsPub.Character.Characters do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias Character
-  alias Character.Queries
+  alias CommonsPub.Character
+  alias CommonsPub.Character.Queries
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
@@ -23,14 +23,14 @@ defmodule Character.Characters do
   * ActivityPub integration
   * Various parts of the codebase that need to query for characters (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(Character, filters))
+  def one(filters), do: Repo.single(Queries.query(CommonsPub.Character, filters))
 
   @doc """
   Retrieves a list of characters by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for characters (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Character, filters))}
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(CommonsPub.Character, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -47,7 +47,7 @@ defmodule Character.Characters do
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
 
   def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
-    base_q = Queries.query(Character, base_filters)
+    base_q = Queries.query(CommonsPub.Character, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
@@ -74,7 +74,7 @@ defmodule Character.Characters do
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
     Contexts.pages(
       Queries,
-      Character,
+      CommonsPub.Character,
       cursor_fn,
       group_fn,
       page_opts,
@@ -142,27 +142,27 @@ defmodule Character.Characters do
   end
 
   defp insert_character(creator, actor, attrs) do
-    cs = Character.create_changeset(creator, actor, attrs)
+    cs = CommonsPub.Character.create_changeset(creator, actor, attrs)
     IO.inspect(cs)
     with {:ok, character} <- Repo.insert(cs), do: {:ok, %{character | actor: actor}}
   end
 
   # defp insert_character_with_characteristic(creator, characteristic, actor, attrs) do
-  #   cs = Character.create_changeset(creator, characteristic, actor, nil, attrs)
+  #   cs = CommonsPub.Character.create_changeset(creator, characteristic, actor, nil, attrs)
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, characteristic: characteristic }}
   # end
 
   # defp insert_character_with_context(creator, context, actor, attrs) do
-  #   cs = Character.create_changeset(creator, actor, context, attrs)
+  #   cs = CommonsPub.Character.create_changeset(creator, actor, context, attrs)
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, context: context }}
   # end
 
   # defp insert_character(creator, characteristic, context, actor, attrs) do
-  #   cs = Character.create_changeset(creator, characteristic, actor, context, attrs)
+  #   cs = CommonsPub.Character.create_changeset(creator, characteristic, actor, context, attrs)
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, context: context, characteristic: characteristic }}
   # end
 
-  @doc "Takes a Pointer to something and creates a Character based on it"
+  @doc "Takes a Pointer to something and creates a character based on it"
   def characterise(user, %Pointer{} = pointer) do
     thing = MoodleNet.Meta.Pointers.follow!(pointer)
 
@@ -173,7 +173,7 @@ defmodule Character.Characters do
     end
   end
 
-  @doc "Takes anything and creates a Character based on it"
+  @doc "Takes anything and creates a character based on it"
   def characterise(user, %{} = thing) do
     # IO.inspect(thing)
     thing_name = thing.__struct__
@@ -210,7 +210,7 @@ defmodule Character.Characters do
   @doc "Transform the generic fields of anything to be turned into a character."
   def characterisation_default(thing_name, thing) do
     thing
-    # use Thing name as Character facet/trope
+    # use Thing name as character facet/trope
     |> Map.put(:facet, thing_name |> to_string() |> String.split(".") |> List.last())
     # include the linked thing
     |> Map.put(:characteristic, thing)
@@ -266,16 +266,17 @@ defmodule Character.Characters do
 
   defp ap_publish(_, _, _, _), do: :ok
 
-  def update(user, %Character{} = character, %{character: attrs}) when is_map(attrs) do
+  def update(user, %CommonsPub.Character{} = character, %{character: attrs}) when is_map(attrs) do
     update(user, character, attrs)
   end
 
-  def update(user, %Character{} = character, attrs) do
+  def update(user, %CommonsPub.Character{} = character, attrs) do
     character = Repo.preload(character, :actor)
 
     Repo.transact_with(fn ->
       # TODO: take the user who is performing the update
-      with {:ok, character} <- Repo.update(Character.update_changeset(character, attrs)),
+      with {:ok, character} <-
+             Repo.update(CommonsPub.Character.update_changeset(character, attrs)),
            {:ok, actor} <- Actors.update(user, character.actor, attrs),
            :ok <- publish(character, :updated) do
         {:ok, %{character | actor: actor}}
@@ -283,7 +284,7 @@ defmodule Character.Characters do
     end)
   end
 
-  def soft_delete(%Character{} = character) do
+  def soft_delete(%CommonsPub.Character{} = character) do
     Repo.transact_with(fn ->
       with {:ok, character} <- Common.soft_delete(character),
            :ok <- publish(character, :deleted) do
@@ -305,7 +306,7 @@ defmodule Character.Characters do
   #   canonical_url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(character)
 
   #   object = %{
-  #     "index_type" => "Character",
+  #     "index_type" => "CommonsPub.Character",
   #     "facet" => character.facet,
   #     "id" => character.id,
   #     "canonicalUrl" => canonical_url,

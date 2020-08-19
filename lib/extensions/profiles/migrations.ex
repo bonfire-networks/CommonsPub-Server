@@ -1,5 +1,5 @@
 defmodule Profile.Migrations do
-  use Ecto.Migration
+  import Ecto.Migration
   import Pointers.Migration
 
   # @meta_tables [] ++ ~w(profile)

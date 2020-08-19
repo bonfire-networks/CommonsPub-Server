@@ -18,7 +18,7 @@ defmodule Organisation.GraphQL.Schema do
     # UploadResolver
   }
 
-  alias Character.GraphQL.FacetsResolvers
+  alias CommonsPub.Character.GraphQL.FacetsResolvers
 
   # alias Organisation.GraphQL.Resolver
 
@@ -82,7 +82,7 @@ defmodule Organisation.GraphQL.Schema do
     @desc "The Profile associated with this organisation"
     field(:profile, :profile)
 
-    @desc "The Character associated with this organisation"
+    @desc "The character associated with this organisation"
     field(:character, :character)
 
     @desc "A preferred username + the host domain"

@@ -1,17 +1,21 @@
-defmodule Character.Migrations do
-  use Ecto.Migration
+defmodule CommonsPub.Character.Migrations do
+  import Ecto.Migration
   import Pointers.Migration
+
+  alias CommonsPub.Character
 
   defp table_name(), do: Character.__schema__(:source)
 
+  IO.inspect(cs: Character.__schema__(:source))
+
   def migrate(index_opts, :up) do
     # a character is a group actor that is home to resources
-    create_mixin_table(Character) do
-      # add table_name()istic_id, :uuid # points to the Thing that this Character represents
-      # points to the Actor who plays this Character in the fediverse
+    create_mixin_table(CommonsPub.Character) do
+      # add table_name()istic_id, :uuid # points to the Thing that this character represents
+      # points to the Actor who plays this character in the fediverse
       add(:actor_id, references("mn_actor", on_delete: :delete_all))
 
-      # add :context_id, references("mn_pointer", on_delete: :nilify_all) # points to the parent Thing of this Character
+      # add :context_id, references("mn_pointer", on_delete: :nilify_all) # points to the parent Thing of this character
       add(:facet, :string)
       add(:inbox_id, references("mn_feed", on_delete: :nilify_all))
       add(:outbox_id, references("mn_feed", on_delete: :nilify_all))

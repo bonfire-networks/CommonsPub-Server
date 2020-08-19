@@ -35,11 +35,11 @@ defmodule CommonsPub.Tag.Category do
     # of course, Category is usually a Taggable
     has_one(:taggable, CommonsPub.Tag.Taggable, foreign_key: :id)
 
-    # Optionally, Profile and.or Character mixins
+    # Optionally, Profile and/or character mixins
     ## stores common fields like name/description
     has_one(:profile, Profile, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, Character, foreign_key: :id)
+    has_one(:character, CommonsPub.Character, foreign_key: :id)
 
     belongs_to(:creator, User)
 

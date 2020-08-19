@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Character.GraphQL.Schema do
+defmodule CommonsPub.Character.GraphQL.Schema do
   @moduledoc """
   GraphQL character fields, associations, queries and mutations.
   """
@@ -28,13 +28,13 @@ defmodule Character.GraphQL.Schema do
     Threads.Comment
   }
 
-  # alias Character.GraphQL.Resolver
+  # alias CommonsPub.Character.GraphQL.Resolver
 
   object :character_queries do
     @desc "Get a character by id. You usually would query for a type associated with character, rather than characters directly."
     field :character, :character do
       arg(:character_id, non_null(:string))
-      resolve(&Character.GraphQL.Resolver.character/2)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.character/2)
     end
 
     @desc "Get list of characters. You usually would query for a type associated with character, rather than characters directly."
@@ -43,7 +43,7 @@ defmodule Character.GraphQL.Schema do
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
       arg(:facets, list_of(non_null(:string)))
-      resolve(&Character.GraphQL.Resolver.characters/2)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.characters/2)
     end
   end
 
@@ -53,20 +53,20 @@ defmodule Character.GraphQL.Schema do
     #   arg :characteristic_id, :string
     #   arg :context_id, :string
     #   arg :character, non_null(:character_input)
-    #   resolve &Character.GraphQL.Resolver.create_character/2
+    #   resolve &CommonsPub.Character.GraphQL.Resolver.create_character/2
     # end
 
     # @desc "Update a character. You usually wouldn't do this directly."
     # field :update_character, :character do
     #   arg :character_id, non_null(:string)
     #   arg :character, non_null(:character_update_input)
-    #   resolve &Character.GraphQL.Resolver.update_character/2
+    #   resolve &CommonsPub.Character.GraphQL.Resolver.update_character/2
     # end
 
-    @desc "Create a Character to represent something (which already exists, pass the ID passed as context) in feeds and federation"
+    @desc "Create a character to represent something (which already exists, pass the ID passed as context) in feeds and federation"
     field :characterise, :character do
       arg(:context_id, non_null(:string))
-      resolve(&Character.GraphQL.Resolver.characterise/2)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.characterise/2)
     end
   end
 
@@ -77,10 +77,10 @@ defmodule Character.GraphQL.Schema do
     @desc "An instance-local UUID identifying the character. Not to be confused with the associated thing's ID (available under characteristic.id)"
     field(:id, non_null(:string))
 
-    # @desc "A reference to the thing that this Character represents"
+    # @desc "A reference to the thing that this character represents"
     # field :characteristic_id, :string
     # field :characteristic, :character_tropes do
-    #   resolve &Character.GraphQL.Resolver.characteristic_edge/3
+    #   resolve &CommonsPub.Character.GraphQL.Resolver.characteristic_edge/3
     # end
 
     @desc "A friendly name for the type of thing this character represents, eg. Organisation, Location, Tag..."
@@ -148,7 +148,7 @@ defmodule Character.GraphQL.Schema do
     thread or a comment was created or updated
     """
     field :last_activity, non_null(:string) do
-      resolve(&Character.GraphQL.Resolver.last_activity_edge/3)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.last_activity_edge/3)
     end
 
     @desc "The current user's like of this character, if any"
@@ -268,7 +268,7 @@ defmodule Character.GraphQL.Schema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&Character.GraphQL.Resolver.outbox_edge/3)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.outbox_edge/3)
     end
   end
 

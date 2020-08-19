@@ -291,12 +291,12 @@ defmodule ActivityPub.Actor do
         %MoodleNet.Users.User{} -> "Person"
         %MoodleNet.Communities.Community{} -> "MN:Community"
         %MoodleNet.Collections.Collection{} -> "MN:Collection"
-        %Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "Character")
+        %CommonsPub.Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "CommonsPub.Character")
       end
 
     actor =
       case actor do
-        %Character{} ->
+        %CommonsPub.Character{} ->
           with {:ok, profile} <- Profile.Profiles.one([:default, id: actor.id]) do
             # IO.inspect(fed_profile: actor)
             # IO.inspect(fed_profile: profile)

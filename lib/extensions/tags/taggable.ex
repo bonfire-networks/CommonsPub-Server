@@ -28,12 +28,12 @@ defmodule CommonsPub.Tag.Taggable do
 
     field(:facet, :string)
 
-    # Optionally, a profile and Character (if not using context)
+    # Optionally, a profile and character (if not using context)
     has_one(:category, CommonsPub.Tag.Category, references: :id, foreign_key: :id)
     ## stores common fields like name/description
     has_one(:profile, Profile, references: :id, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, Character, references: :id, foreign_key: :id)
+    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
 
     many_to_many(:things, Pointers.Pointer,
       join_through: "tags_things",
