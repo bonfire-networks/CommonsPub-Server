@@ -6,7 +6,7 @@
           <div class="left__info">
             <div class="info__name">
               <i class="feather-edit"></i>
-              <h3><%= e(@thread, :name, "A discussion") %></h3>
+              <h3><%= if @thread.name == nil, do: "Thread without title", else: @thread.name %></h3>
             </div>
             <div class="head__meta">
               <div class="meta__status">Open</div>
@@ -55,7 +55,7 @@
           <% end %>
         </div>
       </div>
-      <div class="discussion__navigation">
+      <div class="discussion__aside">
         <%= live_component(
                 @socket,
                 MoodleNetWeb.Component.ContextLive,

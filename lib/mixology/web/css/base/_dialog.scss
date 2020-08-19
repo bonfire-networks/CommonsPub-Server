@@ -63,6 +63,18 @@ dialog {
     border-width: 1px;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
+    display: flex;
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--color-background);
+      flex: 1;
+    }
+    i {
+      font-size: 18px;
+      color: var(--color-background);
+      cursor: pointer;
+    }
   }
   .dialog__content {
     padding: 16px;

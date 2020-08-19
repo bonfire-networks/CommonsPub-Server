@@ -21,11 +21,11 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
   end
 
   def render(assigns) do
-    # IO.inspect(assigns)
+    IO.inspect(assigns, label: "Assign:")
     ~L"""
     <div class="discussion__preview">
       <%= live_redirect to: "/!"<> @thread.id <>"/discuss" do %>
-        <h2 class="discussion__title"><%= e(@thread, :name, "Thread without title") %></h2>
+        <h2 class="discussion__title"><%= if @thread.name == nil, do: "Thread without title", else: @thread.name %></h2>
         <div class="discussion__meta">
           <div class="meta__time">
             Started <%= @thread.published_at %> by <%= e(@thread, :creator, :name, "an unknown person") %>

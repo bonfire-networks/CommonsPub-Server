@@ -6,7 +6,10 @@
 
   <div id="<%= @toggle_post %>" phx-target="<%= @myself %>" phx-click="toggle_post" class="dialog__backdrop"></div>
   <dialog open class="dialog dialog__create <%= if @toggle_fullmodal, do: "fullpage" %>">
-    <header class="dialog__header">Create a new post</header>
+    <header class="dialog__header">
+    <h2>Create a new post</h2>
+    <i class="feather-x-circle" id="<%= @toggle_post %>-cancel" phx-target="<%= @myself %>" phx-click="toggle_post"> </i>
+    </header>
     <section class="dialog__content">
       <form phx-submit="post" phx-target="<%= @myself %>" class="general__post">
         <%= live_component(
@@ -40,7 +43,6 @@
           </div>
         </div>
         <div class="post__sub__actions">
-          <button id="<%= @toggle_post %>-cancel" phx-target="<%= @myself %>" phx-click="toggle_post"> Cancel </button>
           <button phx-disable-with="Posting..." type="submit">Publish</button>
         </div>
       </form>
