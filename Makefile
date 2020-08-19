@@ -1,11 +1,12 @@
 .PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
+ORG_NAME=haha
 APP_NAME=commonspub
 APP_DOTENV=config/docker.env
 APP_DEV_DOTENV=config/docker.dev.env
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
-APP_DOCKER_REPO="$(APP_NAME)/$(APP_NAME)"
-APP_DEV_CONTAINER="$(APP_NAME)_dev"
+APP_DOCKER_REPO="$(ORG_NAME)/$(APP_NAME)"
+APP_DEV_CONTAINER="$(ORG_NAME)_$(APP_NAME)_dev"
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
 APP_BUILD ?= `git rev-parse --short HEAD`
 
