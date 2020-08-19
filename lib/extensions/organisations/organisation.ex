@@ -20,13 +20,13 @@ defmodule Organisation do
   @type t :: %__MODULE__{}
 
   pointable_schema do
-    # joined fields from Profile
+    # joined fields from profile
     field(:name, :string, virtual: true)
     field(:summary, :string, virtual: true)
     field(:updated_at, :utc_datetime_usec, virtual: true)
 
     # mixins
-    has_one(:profile, Profile, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profile, foreign_key: :id)
     has_one(:character, CommonsPub.Character, foreign_key: :id)
 
     # joined via character

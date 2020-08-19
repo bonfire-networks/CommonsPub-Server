@@ -4,5 +4,5 @@ defmodule MoodleNet.Repo.Migrations.Profile do
 
   def change(index_opts \\ []),
     # FIXME
-    do: Profile.Migrations.migrate(index_opts, direction())
+    do: CommonsPub.Profile.Migrations.migrate(index_opts, direction())
 end

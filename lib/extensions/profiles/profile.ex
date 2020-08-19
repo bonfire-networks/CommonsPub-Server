@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Profile do
+defmodule CommonsPub.Profile do
   use Pointers.Mixin,
     otp_app: :moodle_net,
     source: "profile"
@@ -9,7 +9,7 @@ defmodule Profile do
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias Profile
+  alias CommonsPub.Profile
   # alias MoodleNet.Actors.Actor
   # alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
@@ -47,7 +47,7 @@ defmodule Profile do
         nil,
         attrs
       ) do
-    %Profile{}
+    %CommonsPub.Profile{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(is_public: true)
@@ -58,7 +58,7 @@ defmodule Profile do
         %User{} = creator,
         attrs
       ) do
-    %Profile{}
+    %CommonsPub.Profile{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -68,7 +68,7 @@ defmodule Profile do
     |> common_changeset()
   end
 
-  def update_changeset(%Profile{} = profile, attrs) do
+  def update_changeset(%CommonsPub.Profile{} = profile, attrs) do
     profile
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()

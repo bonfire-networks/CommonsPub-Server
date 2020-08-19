@@ -32,12 +32,12 @@ defmodule CommonsPub.Tag.Category do
     # which community/collection/organisation/etc this category belongs to, if any
     belongs_to(:caretaker, Pointers.Pointer, type: Ecto.ULID)
 
-    # of course, Category is usually a Taggable
+    # of course, category is usually a taggable
     has_one(:taggable, CommonsPub.Tag.Taggable, foreign_key: :id)
 
-    # Optionally, Profile and/or character mixins
+    # Optionally, profile and/or character mixins
     ## stores common fields like name/description
-    has_one(:profile, Profile, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profile, foreign_key: :id)
     ## allows it to be follow-able and federate activities
     has_one(:character, CommonsPub.Character, foreign_key: :id)
 
