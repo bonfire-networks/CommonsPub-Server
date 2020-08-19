@@ -11,8 +11,6 @@ defmodule Tag.Migrations do
   def taggable_table(), do: Taggable.__schema__(:source)
 
   def up() do
-    # pointer = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
-
     # cleanup old stuff first
     drop_pointable_table(CommonsPub.Tag.Category)
     flush()

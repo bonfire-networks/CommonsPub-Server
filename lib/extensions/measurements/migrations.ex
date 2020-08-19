@@ -2,12 +2,11 @@ defmodule Measurement.Migrations do
   use Ecto.Migration
   import Pointers.Migration
 
-  # alias MoodleNet.Repo
-
-  @meta_tables [] ++ ~w(measurement_unit)
+  alias Measurement
+  alias Measurement
 
   def change do
-    create table(:measurement_unit) do
+    create_pointable_table(Measurement.Unit) do
       add(:label, :string)
       add(:symbol, :string)
 
@@ -23,10 +22,10 @@ defmodule Measurement.Migrations do
   end
 
   def change_measure do
-    create table(:measurement_measure) do
+    create table(Measurement.Measure) do
       add(:has_numerical_value, :float)
 
-      add(:unit_id, references("measurement_unit", on_delete: :delete_all), null: false)
+      add(:unit_id, strong_pointer(Measurement.Unit), null: false)
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
       add(:published_at, :timestamptz)
@@ -37,9 +36,5 @@ defmodule Measurement.Migrations do
     end
 
     create(unique_index(:measurement_measure, [:unit_id, :has_numerical_value]))
-  end
-
-  def add_pointer do
-    for table <- @meta_tables, do: MoodleNet.Meta.Migration.insert_meta_table(table)
   end
 end

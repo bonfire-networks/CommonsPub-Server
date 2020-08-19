@@ -26,15 +26,15 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     ## database tables participating in the 'meta' abstraction
     # only updated during migrations!
-    # create table(:mn_table) do
+    # create table(:pointers_table) do
     #   add(:table, :text, null: false)
     # end
 
-    # create(unique_index(:mn_table, :table))
+    # create(unique_index(:pointers_table, :table))
 
     ## a pointer to an entry in any table participating in the meta abstraction
     # create table(:mn_pointer) do
-    #   add(:table_id, references("mn_table", on_delete: :restrict), null: false)
+    #   add(:table_id, references("pointers_table", on_delete: :restrict), null: false)
     # end
 
     # create(index(:mn_pointer, :table_id))
@@ -510,7 +510,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
         %{"id" => ULID.bingenerate(), "table" => name}
       end)
 
-    {_, _} = Repo.insert_all("mn_table", tables)
+    # TODO - fully upgrade to new Pointers
+    {_, _} = Repo.insert_all("pointers_table", tables)
 
     tables =
       Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
@@ -525,10 +526,10 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     #   table_id uuid;
     # begin
     #   select id into table_id
-    #   from mn_table
+    #   from pointers_table
     #   where "table" = TG_TABLE_NAME;
     #   if table_id is null then
-    #     raise exception 'Table % not found in mn_table', TG_TABLE_NAME;
+    #     raise exception 'Table % not found in pointers_table', TG_TABLE_NAME;
     #   end if;
     #   insert into mn_pointer (id, table_id)
     #   values (NEW.id, table_id);
@@ -824,7 +825,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # drop(index(:mn_pointer, :table_id))
     # drop(table(:mn_pointer))
 
-    # drop(index(:mn_table, :table))
-    # drop(table(:mn_table))
+    # drop(index(:pointers_table, :table))
+    # drop(table(:pointers_table))
   end
 end

@@ -1,5 +1,8 @@
 defmodule Measurement.Unit do
-  use MoodleNet.Common.Schema
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "measurement_unit",
+    table_id: "VN1TF0RMEASVRES0RQVANT1T1E"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
@@ -12,7 +15,7 @@ defmodule Measurement.Unit do
 
   @type t :: %__MODULE__{}
 
-  table_schema "measurement_unit" do
+  pointable_schema do
     field(:label, :string)
     field(:symbol, :string)
 

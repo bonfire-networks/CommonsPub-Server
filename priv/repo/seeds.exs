@@ -6,7 +6,7 @@ admin =
   %{
     email: "root@localhost.dev",
     preferred_username: System.get_env("SEEDS_USER", "root"),
-    password: System.get_env("SEEDS_PW", "1234"),
+    password: System.get_env("SEEDS_PW", "123456"),
     name: System.get_env("SEEDS_USER", "root"),
     is_instance_admin: true
   }

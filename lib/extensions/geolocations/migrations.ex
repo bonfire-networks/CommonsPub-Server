@@ -41,7 +41,7 @@ defmodule Geolocation.Migrations do
         %{"id" => ULID.bingenerate(), "table" => name}
       end)
 
-    {_, _} = Repo.insert_all("mn_table", tables)
+    {_, _} = Repo.insert_all("pointers_table", tables)
 
     _tables =
       Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
