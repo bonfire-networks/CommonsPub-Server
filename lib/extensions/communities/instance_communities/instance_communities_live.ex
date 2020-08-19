@@ -54,7 +54,9 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
         data-page="<%= @page %>"
         class="selected__area">
           <%= for community <- @communities do %>
-          <div class="preview__wrapper">
+          <div class="preview__wrapper"
+            id="community-#{community.id}-wrapper"
+          >
             <%= live_component(
                   @socket,
                   CommunityPreviewLive,

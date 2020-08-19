@@ -1,16 +1,10 @@
-.instance__hero h1 {
-  max-width: 100%;
-  width: 100%;
-  white-space: pre-wrap;
-  word-break: break-word;
-
-  color: var(--color-text);
-  font-weight: 700;
-  line-height: 1.2;
-  /* margin-bottom: 4px; */
-  font-size: 40px;
+.page__instance {
+  @include content;
 }
 
+.instance {
+  @include content_two_sides
+}
 
 .preview__wrapper {
   padding: var(--m2);
@@ -30,5 +24,16 @@
   margin-top: var(--m3);
   .area__title {
     margin: 0
+  }
+}
+
+#instance-members {
+  display: flex;
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    border: 2px solid var(--color-text-subtle);
+    margin-right: var(--m2);
   }
 }

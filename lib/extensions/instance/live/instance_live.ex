@@ -12,6 +12,7 @@ defmodule MoodleNetWeb.InstanceLive do
   alias MoodleNetWeb.InstanceLive.{
     InstanceActivitiesLive,
     InstanceMembersLive,
+    InstanceMembersPreviewLive,
     InstanceCommunitiesLive,
     InstanceCollectionsLive
   }

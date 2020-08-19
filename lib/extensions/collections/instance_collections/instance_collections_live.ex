@@ -54,7 +54,9 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
         data-page="<%= @page %>"
         class="selected__area">
           <%= for collection <- @collections do %>
-          <div class="preview__wrapper">
+          <div class="preview__wrapper"
+            id="collection-#{collection.id}-wrapper"
+          >
             <%= live_component(
                   @socket,
                   CollectionPreviewLive,
