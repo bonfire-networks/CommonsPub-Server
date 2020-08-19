@@ -20,7 +20,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:error, _e} <- Users.one([:default, username: username]),
          {:error, _e} <- Communities.one([:default, username: username]),
          {:error, _e} <- Collections.one([:default, username: username]),
-         {:error, _e} <- Character.Characters.one([:default, username: username]) do
+         {:error, _e} <- CommonsPub.Character.Characters.one([:default, username: username]) do
       {:error, "not found"}
     end
   end

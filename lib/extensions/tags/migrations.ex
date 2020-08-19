@@ -1,5 +1,5 @@
 defmodule Tag.Migrations do
-  use Ecto.Migration
+  import Ecto.Migration
   import Pointers.Migration
 
   alias CommonsPub.Tag.Category
@@ -14,15 +14,15 @@ defmodule Tag.Migrations do
     # pointer = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
 
     # cleanup old stuff first
-    drop_pointable_table(Category)
+    drop_pointable_table(CommonsPub.Tag.Category)
     flush()
 
-    create_mixin_table(Taggable) do
+    create_mixin_table(CommonsPub.Tag.Taggable) do
       add(:prefix, :string)
       add(:facet, :string)
     end
 
-    create_pointable_table("category", "TAGSCANBECATEG0RY0RHASHTAG") do
+    create_pointable_table(CommonsPub.Tag.Category) do
       # add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
       # add(:caretaker_id, weak_pointer(), null: true)
@@ -54,7 +54,7 @@ defmodule Tag.Migrations do
   end
 
   def down() do
-    drop_pointable_table(category_table(), category_id())
-    drop_mixin_table(taggable_table())
+    drop_pointable_table(CommonsPub.Tag.Category)
+    drop_mixin_table(CommonsPub.Tag.Taggable)
   end
 end

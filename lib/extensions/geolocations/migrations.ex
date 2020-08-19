@@ -50,10 +50,10 @@ defmodule Geolocation.Migrations do
     for table <- @meta_tables do
       :ok =
         execute("""
-        create trigger "insert_pointer_#{table}"
+        create trigger "pointers_trigger_#{table}"
         before insert on "#{table}"
         for each row
-        execute procedure insert_pointer()
+        execute procedure pointers_trigger()
         """)
     end
   end

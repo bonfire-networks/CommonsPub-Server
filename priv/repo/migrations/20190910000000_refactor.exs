@@ -520,7 +520,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       end)
 
     # :ok = execute """
-    # create function insert_pointer()
+    # create function pointers_trigger()
     # returns trigger
     # as $$
     # declare
@@ -542,10 +542,10 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     for table <- @meta_tables do
       :ok =
         execute("""
-        create trigger "insert_pointer_#{table}"
+        create trigger "pointers_trigger_#{table}"
         before insert on "#{table}"
         for each row
-        execute procedure insert_pointer()
+        execute procedure pointers_trigger()
         """)
     end
 
@@ -665,10 +665,10 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
   def down do
     for table <- @meta_tables do
-      :ok = execute("drop trigger insert_pointer_#{table} on #{table}")
+      :ok = execute("drop trigger pointers_trigger_#{table} on #{table}")
     end
 
-    :ok = execute("drop function insert_pointer()")
+    :ok = execute("drop function pointers_trigger()")
 
     :ok = execute("drop view if exists mn_user_following_count")
     :ok = execute("drop view if exists mn_thread_follower_count")

@@ -19,7 +19,7 @@ defmodule CommonsPub.Tag.Categories do
   alias CommonsPub.Tag.Category
   alias CommonsPub.Tag.Category.Queries
 
-  alias Character.Characters
+  alias CommonsPub.Character.Characters
 
   @facet_name "Category"
 
@@ -81,7 +81,7 @@ defmodule CommonsPub.Tag.Categories do
   ## mutations
 
   @doc """
-  Create a brand-new category object, with info stored in Profile and Character mixins
+  Create a brand-new category object, with info stored in Profile and character mixins
   """
   def create(creator, %{category: %{} = cat_attrs} = attrs) do
     create(
@@ -102,7 +102,8 @@ defmodule CommonsPub.Tag.Categories do
            {:ok, taggable} <-
              CommonsPub.Tag.Taggables.maybe_make_taggable(creator, category, attrs),
            {:ok, profile} <- Profile.Profiles.create(creator, attrs),
-           {:ok, character} <- Character.Characters.create(creator, attrs_with_username(attrs)) do
+           {:ok, character} <-
+             CommonsPub.Character.Characters.create(creator, attrs_with_username(attrs)) do
         category = %{category | taggable: taggable, character: character, profile: profile}
         act_attrs = %{verb: "created", is_local: is_nil(character.actor.peer_id)}
         {:ok, activity} = Activities.create(creator, category, act_attrs)

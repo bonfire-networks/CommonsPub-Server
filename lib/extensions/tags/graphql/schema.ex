@@ -102,9 +102,9 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
       # resolve(&MoodleNetWeb.GraphQL.CommonResolver.context_edge/3)
     end
 
-    @desc "The Character that represents this category in feeds and federation"
+    @desc "The character that represents this category in feeds and federation"
     field :character, :character do
-      resolve(&Character.GraphQL.Resolver.character/3)
+      resolve(&CommonsPub.Character.GraphQL.Resolver.character/3)
     end
 
     @desc "The Profile that represents this category"

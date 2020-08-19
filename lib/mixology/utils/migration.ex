@@ -19,12 +19,13 @@ defmodule MoodleNet.Meta.Migration do
   def create_meta_table!(table) do
     {:ok, table_row} = insert_meta_table(table)
 
-    :ok = execute """
-    create trigger "insert_pointer_#{table}"
-    before insert on "#{table}"
-    for each row
-    execute procedure insert_pointer()
-    """
+    :ok =
+      execute("""
+      create trigger "pointers_trigger_#{table}"
+      before insert on "#{table}"
+      for each row
+      execute procedure pointers_trigger()
+      """)
 
     table_row
   end
@@ -36,9 +37,10 @@ defmodule MoodleNet.Meta.Migration do
   def drop_meta_table!(table) do
     rows_deleted = remove_meta_table(table)
 
-    :ok = execute """
-    drop trigger if exists "insert_pointer_#{table}" on "#{table}";
-    """
+    :ok =
+      execute("""
+      drop trigger if exists "pointers_trigger_#{table}" on "#{table}";
+      """)
 
     rows_deleted
   end
@@ -56,7 +58,9 @@ defmodule MoodleNet.Meta.Migration do
   """
   @spec remove_meta_table(atom()) :: integer()
   def remove_meta_table(table) do
-    {rows_deleted, _} = from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> repo().delete_all
+    {rows_deleted, _} =
+      from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> repo().delete_all
+
     rows_deleted
   end
 end
