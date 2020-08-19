@@ -4,7 +4,7 @@ defmodule MoodleNet.Repo.Migrations.ReaddOrganisation do
   def up do
     # Pointers.Migration.create_main_pointer_trigger_function()
     # flush()
-    Organisation.Migrations.down_circle()
+    # Organisation.Migrations.down_circle()
     Pointers.Migration.create_pointer_trigger_function()
     flush()
     Organisation.Migrations.up()

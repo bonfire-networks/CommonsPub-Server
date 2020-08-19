@@ -179,15 +179,15 @@ defmodule MoodleNet.Mixfile do
       {:earmark, "~> 1.4"},
       {:slugger, "~> 0.3"},
       # {:pointers, "~> 0.2.2"},
-      {:pointers,
-        "~> 0.4"
+      {
+        :pointers,
+        # "~> 0.4"
         # git: "https://github.com/commonspub/pointers.git",
         # branch: "main"
         # ref: "b0cbc4b1a2f83b870f24436dd5968fec428c6530"
-        # path: "uploads/pointers-main"
+        path: "uploads/pointers-main"
         # git: "https://github.com/mayel/pointers.git",
         # ref: "01751caa54b15c4928eb8389bd7635aa0bd20584"
-        # path: "uploads/pointers"
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},

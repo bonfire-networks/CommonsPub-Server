@@ -14,7 +14,7 @@ defmodule CommonsPub.Tag.Taggables do
   alias CommonsPub.Tag.Taggable
   alias CommonsPub.Tag.Taggable.Queries
 
-  alias Character.Characters
+  alias CommonsPub.Character.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]

@@ -13,7 +13,7 @@ defmodule Taxonomy.TaxonomyTags do
   alias Taxonomy.TaxonomyTag
   alias Taxonomy.TaxonomyTag.Queries
 
-  # alias Character.Characters
+  # alias CommonsPub.Character.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -156,7 +156,7 @@ defmodule Taxonomy.TaxonomyTags do
 
   def update(_user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
-      #  {:ok, character} <- Character.update(user, tag.character, attrs)
+      #  {:ok, character} <- CommonsPub.Character.update(user, tag.character, attrs)
       # :ok <- publish(tag, :updated)
       with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs)) do
         {:ok, tag}

@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Character.GraphQL.Resolver do
+defmodule CommonsPub.Character.GraphQL.Resolver do
   alias MoodleNet.{
     Activities,
     GraphQL,
@@ -20,9 +20,9 @@ defmodule Character.GraphQL.Resolver do
     ResolveRootPage
   }
 
-  alias Character
+  alias CommonsPub.Character
 
-  alias Character.{
+  alias CommonsPub.Character.{
     Characters
     # Queries
   }
@@ -74,8 +74,8 @@ defmodule Character.GraphQL.Resolver do
 
   def fetch_characters(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: Character.Queries,
-      query: Character,
+      queries: CommonsPub.Character.Queries,
+      query: CommonsPub.Character,
       cursor_fn: Characters.cursor(:followers),
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)],
@@ -83,9 +83,9 @@ defmodule Character.GraphQL.Resolver do
     })
   end
 
-  # def characteristic_edge(%Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def characteristic_edge(%CommonsPub.Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
-  # def resource_count_edge(%Character{id: id}, _, info) do
+  # def resource_count_edge(%CommonsPub.Character{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
   # end
 
@@ -128,7 +128,7 @@ defmodule Character.GraphQL.Resolver do
   end
 
   defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Character)
+    Application.fetch_env!(:moodle_net, CommonsPub.Character)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 

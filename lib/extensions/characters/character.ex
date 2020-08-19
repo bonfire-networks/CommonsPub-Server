@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Character do
+defmodule CommonsPub.Character do
   use Pointers.Mixin,
     otp_app: :moodle_net,
     source: "character"
@@ -9,7 +9,7 @@ defmodule Character do
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias Character
+  alias CommonsPub.Character
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
@@ -20,12 +20,12 @@ defmodule Character do
   @type t :: %__MODULE__{}
 
   mixin_schema do
-    # references the Actor who plays this Character in the fediverse
+    # references the Actor who plays this character in the fediverse
     belongs_to(:actor, Actor)
 
-    # belongs_to(:context, Pointer) # points to the parent Thing of this Character
+    # belongs_to(:context, Pointer) # points to the parent Thing of this character
 
-    # field(:characteristic_id, Ecto.ULID) # points to the Thing that this Character represents
+    # field(:characteristic_id, Ecto.ULID) # points to the Thing that this character represents
     # field(:characteristic, :any, virtual: true)
     # belongs_to(:characteristic, Pointer)
 
@@ -61,7 +61,7 @@ defmodule Character do
         %Actor{} = actor,
         attrs
       ) do
-    %Character{}
+    %CommonsPub.Character{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -78,7 +78,7 @@ defmodule Character do
         %Actor{} = actor,
         attrs
       ) do
-    %Character{}
+    %CommonsPub.Character{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -97,7 +97,7 @@ defmodule Character do
   #       %{id: _} = context,
   #       attrs
   #     ) do
-  #   %Character{}
+  #   %CommonsPub.Character{}
   #   |> Changeset.cast(attrs, @cast)
   #   |> Changeset.validate_required(@required)
   #   |> Changeset.change(
@@ -110,7 +110,7 @@ defmodule Character do
   #   |> common_changeset()
   # end
 
-  def update_changeset(%Character{} = character, attrs) do
+  def update_changeset(%CommonsPub.Character{} = character, attrs) do
     character
     |> Changeset.cast(attrs, @cast)
     # |> Changeset.change(

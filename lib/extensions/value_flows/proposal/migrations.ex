@@ -32,7 +32,8 @@ defmodule ValueFlows.Proposal.Migrations do
     end
 
     create table(proposed_intent_table()) do
-      add(:reciprocal, :boolean, null: true) # Note: null allowed
+      # Note: null allowed
+      add(:reciprocal, :boolean, null: true)
       add(:deleted_at, :timestamptz)
       add(:publishes_id, references("vf_intent", on_delete: :delete_all))
       add(:published_in_id, references(proposal_table(), on_delete: :delete_all))
@@ -41,6 +42,6 @@ defmodule ValueFlows.Proposal.Migrations do
 
   def down do
     drop_table(proposed_intent_table())
-    drop_pointable_table(proposal_table(), "PR0P0SA11SMADE0FTW01NTENTS")
+    drop_pointable_table(ValueFlows.Proposal)
   end
 end
