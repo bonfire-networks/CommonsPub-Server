@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.CollectionLive.CollectionResourcesLive do
     ~L"""
     <div>
       <div class="community__discussion__actions">
-        <input placeholder="Search resources..."/>
+        <%# <input placeholder="Search resources..."/> %>
         <a phx-target="#post_link" phx-click="toggle_link">
           <button >Share a link</button>
         </a>

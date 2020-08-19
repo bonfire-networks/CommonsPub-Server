@@ -85,7 +85,7 @@ defmodule CommonsPub.Tag.Taggables do
   @doc """
   Create a taggable mixin for an existing poitable object (please use maybe_make_taggable instead)
   """
-  defp make_taggable(creator, %{} = pointable_obj, attrs) when is_map(attrs) do
+  def make_taggable(creator, %{} = pointable_obj, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       # TODO: check that the taggable doesn't already exist (same name and parent)
 

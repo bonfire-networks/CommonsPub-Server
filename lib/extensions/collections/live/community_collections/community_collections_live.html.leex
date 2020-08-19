@@ -3,6 +3,12 @@
   phx-update="append"
   data-page="<%= @page %>"
   class="selected__area">
+    <div class="community__discussion__actions">
+    <%# <input placeholder="Search collections..."/> %>
+      <a href="#" phx-target="#new_collection" phx-click="toggle_collection">
+        <button >Create a collection</button>
+      </a>
+  </div>
     <%= for collection <- @collections do %>
     <div id="<%= collection.id %>" class="preview__wrapper">
       <%= live_component(

@@ -342,6 +342,15 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> String.downcase()
   end
 
+  def prepare_common(object) do
+    link = e(content_url(object), e(object, :canonical_url, "#no-link"))
+    icon = icon(object)
+
+    object
+    |> Map.merge(%{link: link})
+    |> Map.merge(%{icon: icon})
+  end
+
   def image(thing) do
     # gravatar style and size for fallback images
     image(thing, "retro", 50)

@@ -4,16 +4,13 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
   import MoodleNetWeb.Helpers.Common
 
   def update(assigns, socket) do
-    IO.inspect(unknown_preview: assigns.object)
+    object = prepare_common(assigns.object)
 
-    link = e(content_url(assigns.object), e(assigns.object, :canonical_url, "#no-link"))
-    icon = icon(assigns.object)
+    IO.inspect(unknown_preview: object)
 
     {:ok,
      assign(socket,
-       object: assigns.object,
-       link: link,
-       icon: icon
+       object: object
      )}
   end
 
@@ -22,9 +19,9 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
     <div class="story__preview">
       <div class="preview__info">
         <h2>
-        <a href="<%=@link%>"><%= e(@object, :parent_category, :profile, :name, "") %></a>
+        <a href="<%= e(@object, :link, "#") %>"><%= e(@object, :parent_category, :profile, :name, "") %></a>
         »
-        <a href="<%=@link%>"><%= e(@object, :name, "") %></a></h2>
+        <a href="<%= e(@object, :link, "#") %>"><%= e(@object, :name, "") %></a></h2>
         <p><%= e(@object, :summary, "") %></p>
         <div class="preview__meta">
           <div class="meta__item">
@@ -37,7 +34,7 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
           </div>
         </div>
       </div>
-      <div class="preview__icon" style="background-image: url('<%=@icon %>')"></div>
+      <div class="preview__icon" style="background-image: url('<%= e(@object, :icon, "") %>')"></div>
     </div>
     """
   end

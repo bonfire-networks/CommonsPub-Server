@@ -10,7 +10,9 @@ defmodule MoodleNetWeb.Component.ResourcePreviewLive do
   def update(assigns, socket) do
     # IO.inspect(resource_pre_prep: assigns.resource)
 
-    resource = MoodleNetWeb.Helpers.Profiles.prepare(assigns.resource, %{icon: true, actor: true})
+    # resource = MoodleNetWeb.Helpers.Profiles.prepare(assigns.resource, %{icon: true, actor: true})
+
+    resource = prepare_common(assigns.resource)
 
     IO.inspect(resource_post_prep: resource)
 
@@ -24,9 +26,13 @@ defmodule MoodleNetWeb.Component.ResourcePreviewLive do
 
   def render(assigns) do
     ~L"""
-    <%=
-      live_redirect to: "/+"<> e(@resource, :actor, :preferred_username, "deleted") do %>
+    <a href="<%= e(@resource, :link, "#") %>" target="_blank">
       <div class="resource__preview">
+      <%= if e(@resource, :icon, nil) do %>
+        <img src="<%= e(@resource, :icon, "")%>" height="40"/>
+      <% end %>
+
+      <%= if !e(@resource, :icon, nil) do %>
       <svg height="40" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
       viewBox="0 0 404.48 404.48" style="enable-background:new 0 0 404.48 404.48;" xml:space="preserve">
     <path style="fill:#DADEE0;" d="M376.325,87.04c0-16.896-13.824-30.72-30.72-30.72h-230.41c-16.896,0-30.72,13.824-30.72,30.72
@@ -75,11 +81,13 @@ defmodule MoodleNetWeb.Component.ResourcePreviewLive do
     <g>
     </g>
     </svg>
+    <% end %>
+
         <div class="preview__info">
           <h4><%= e(@resource, :name, "Resource") %></h4>
         </div>
       </div>
-    <% end %>
+    </a>
     """
   end
 end
