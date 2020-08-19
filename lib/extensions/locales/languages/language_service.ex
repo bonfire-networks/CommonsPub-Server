@@ -81,11 +81,17 @@ defmodule CommonsPub.Locales.Language.Service do
 
   @doc false
   def init(_) do
-    Language
-    |> Repo.all(telemetry_event: @init_query_name)
-    |> populate_languages()
+    try do
+      Language
+      |> Repo.all(telemetry_event: @init_query_name)
+      |> populate_languages()
 
-    {:ok, []}
+      {:ok, []}
+    rescue
+      e in DBConnection.ConnectionError ->
+        IO.inspect("INFO: LanguageService could not init because the repo is down")
+        {:ok, []}
+    end
   end
 
   defp populate_languages(entries) do

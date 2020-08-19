@@ -110,7 +110,7 @@ config :moodle_net, :ap_base_path, System.get_env("AP_BASE_PATH", "/pub")
 
 config :moodle_net,
        :frontend_base_url,
-       System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")
+       System.get_env("FRONTEND_BASE_URL", base_url)
 
 config :moodle_net, MoodleNet.Users,
   # enable open signups in dev

@@ -63,6 +63,8 @@ RUN apk add --update --no-cache \
   mailcap \
   openssh-client \
   openssl-dev \
+  build-base \ 
+  # ^ required by tree_magic 
   tzdata \
   bash \
   curl \
@@ -74,4 +76,4 @@ WORKDIR /opt/app
 COPY --from=builder /opt/app/_build/prod/rel/moodle_net /opt/app
 
 # start
-CMD ["./_build/prod/rel/moodle_net", "start"]
+CMD ["./bin/moodle_net", "start"]

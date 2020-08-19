@@ -32,6 +32,7 @@ erl_crash.dump
 # secrets files as long as you replace their contents by environment variables.
 config/*.secret.exs
 config/secret.exs
+*secrets.env
 
 # Database setup file, some may forget to delete it
 /config/setup_db.psql
@@ -60,3 +61,7 @@ priv/gettext/*/LC_MESSAGES
 !/uploads/index.html
 /test/uploads
 /data/*
+
+#Custom configs
+config/dev
+config/prod

@@ -79,11 +79,17 @@ defmodule CommonsPub.Locales.Country.Service do
 
   @doc false
   def init(_) do
-    q()
-    |> Repo.all(telemetry_event: @init_query_name)
-    |> populate_countries()
+    try do
+      q()
+      |> Repo.all(telemetry_event: @init_query_name)
+      |> populate_countries()
 
-    {:ok, []}
+      {:ok, []}
+    rescue
+      e in DBConnection.ConnectionError ->
+        IO.inspect("INFO: TableService could not init because the repo is down")
+        {:ok, []}
+    end
   end
 
   defp populate_countries(entries) do

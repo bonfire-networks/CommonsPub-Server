@@ -28,7 +28,7 @@ defmodule CommonsPub.ReleaseTasks do
       :ok ->
         Logger.info("The database for #{inspect(repo)} has been created")
 
-      {:error, :already_up} ->
+      :ok ->
         Logger.warn("The database for #{inspect(repo)} has already been created")
 
       {:error, term} when is_binary(term) ->
@@ -59,7 +59,7 @@ defmodule CommonsPub.ReleaseTasks do
   def startup_migrations() do
     if is_nil(System.get_env("DISABLE_DB_AUTOMIGRATION")) do
       start_repos()
-      # create_repos()
+      create_repos()
       migrate_repos()
       stop_repos()
     end

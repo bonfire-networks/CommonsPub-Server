@@ -5,9 +5,9 @@ import MoodleNet.Test.Faking
 admin =
   %{
     email: "root@localhost.dev",
-    password: "password",
-    preferred_username: "root",
-    name: "root",
+    preferred_username: System.get_env("SEEDS_USER", "root"),
+    password: System.get_env("SEEDS_PW", "1234"),
+    name: System.get_env("SEEDS_USER", "root"),
     is_instance_admin: true
   }
   |> fake_user!(confirm_email: true)

@@ -16,11 +16,15 @@ Some of this code was forked from [MoodleNet](http://moodle.net/), which was ori
 
 ## Documentation
 
-Do you wish to try it out (backend+frontend)? Read [How-to Deploy](https://gitlab.com/CommonsPub/Client/-/blob/flavour/commonspub/README.md#deploying).
+Do you want to...
 
-Do you wish to deploy the backend in production? Read our [Backend Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/DEPLOY.md).
+- Read about the CommonsPub architecture? Read our [overview](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/ARCHITECTURE.md).
 
-Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/HACKING.md).
+- Hack on the code? Read our [Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/HACKING.md).
+
+- Understand the client API? Read our [GraphQL guide](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/GRAPHQL.md).
+
+- Deploy in production? Read our [Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/DEPLOY.md).
 
 ---
 

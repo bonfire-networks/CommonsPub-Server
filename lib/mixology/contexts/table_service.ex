@@ -117,12 +117,18 @@ defmodule MoodleNet.Meta.TableService do
 
   @doc false
   def init(_) do
-    Table
-    |> Repo.all(telemetry_event: @init_query_name)
-    |> pair_schemata()
-    |> populate_table()
+    try do
+      Table
+      |> Repo.all(telemetry_event: @init_query_name)
+      |> pair_schemata()
+      |> populate_table()
 
-    {:ok, []}
+      {:ok, []}
+    rescue
+      e in DBConnection.ConnectionError ->
+        IO.inspect("INFO: TableService could not init because the repo is down")
+        {:ok, []}
+    end
   end
 
   # Loops over entries, adding the module name of an Ecto Schema

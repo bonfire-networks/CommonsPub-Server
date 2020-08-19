@@ -101,6 +101,7 @@ defmodule MoodleNet.Mixfile do
       {:belt, git: "https://github.com/commonspub/belt"},
       # File format parsing
       {:twinkle_star, git: "https://github.com/commonspub/twinkle_star"},
+      {:tree_magic, git: "https://github.com/commonspub/tree_magic.ex"},
       # database
       # {:ecto, "~> 3.3.4", override: true},
       # {:ecto_sql, "~> 3.3.4", override: true},
