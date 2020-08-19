@@ -184,7 +184,7 @@ defmodule MoodleNet.Mixfile do
         # "~> 0.4"
         git: "https://github.com/commonspub/pointers.git", branch: "main"
         # ref: "b0cbc4b1a2f83b870f24436dd5968fec428c6530"
-        path: "uploads/pointers-main"
+        # path: "uploads/pointers-main"
         # git: "https://github.com/mayel/pointers.git",
         # ref: "01751caa54b15c4928eb8389bd7635aa0bd20584"
       },
