@@ -4,8 +4,6 @@ defmodule Geolocation.Migrations do
   alias Ecto.ULID
   import Pointers.Migration
 
-  @meta_tables [] ++ ~w(geolocation)
-
   def change do
     :ok =
       execute(
@@ -13,7 +11,7 @@ defmodule Geolocation.Migrations do
         "drop extension postgis;"
       )
 
-    create table(:geolocation) do
+    create_pointable_table(Geolocation) do
       add(:name, :string)
       add(:note, :text)
       add(:mappable_address, :string)
@@ -32,30 +30,6 @@ defmodule Geolocation.Migrations do
       add(:disabled_at, :timestamptz)
 
       timestamps(inserted_at: false, type: :utc_datetime_usec)
-    end
-  end
-
-  def add_pointer do
-    tables =
-      Enum.map(@meta_tables, fn name ->
-        %{"id" => ULID.bingenerate(), "table" => name}
-      end)
-
-    {_, _} = Repo.insert_all("pointers_table", tables)
-
-    _tables =
-      Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
-        Map.put(acc, table, id)
-      end)
-
-    for table <- @meta_tables do
-      :ok =
-        execute("""
-        create trigger "pointers_trigger_#{table}"
-        before insert on "#{table}"
-        for each row
-        execute procedure pointers_trigger()
-        """)
     end
   end
 end

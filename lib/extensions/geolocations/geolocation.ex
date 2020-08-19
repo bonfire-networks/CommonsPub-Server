@@ -1,4 +1,9 @@
 defmodule Geolocation do
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "geolocation",
+    table_id: "AP1ACEW1THGE0010CAT10NMARK"
+
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
@@ -11,7 +16,7 @@ defmodule Geolocation do
 
   @type t :: %__MODULE__{}
 
-  table_schema "geolocation" do
+  pointable_schema do
     field(:name, :string)
 
     field(:geom, Geo.PostGIS.Geometry)
@@ -38,7 +43,7 @@ defmodule Geolocation do
     # because it's keyed by pointer
     field(:follower_count, :any, virtual: true)
 
-    timestamps()
+    timestamps(inserted_at: false)
   end
 
   @postgis_srid 4326

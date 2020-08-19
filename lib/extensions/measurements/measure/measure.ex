@@ -26,7 +26,7 @@ defmodule Measurement.Measure do
     belongs_to(:unit, Unit)
     belongs_to(:creator, User)
 
-    timestamps()
+    timestamps(inserted_at: false)
   end
 
   @required ~w(has_numerical_value)a

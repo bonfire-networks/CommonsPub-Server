@@ -5,6 +5,9 @@ defmodule Measurement.Migrations do
   alias Measurement
   alias Measurement
 
+  def unit_table(), do: Measurement.Unit.__schema__(:source)
+  def measure_table(), do: Measurement.Measure.__schema__(:source)
+
   def change do
     create_pointable_table(Measurement.Unit) do
       add(:label, :string)
@@ -22,7 +25,7 @@ defmodule Measurement.Migrations do
   end
 
   def change_measure do
-    create table(Measurement.Measure) do
+    create_pointable_table(Measurement.Measure) do
       add(:has_numerical_value, :float)
 
       add(:unit_id, strong_pointer(Measurement.Unit), null: false)
@@ -35,6 +38,6 @@ defmodule Measurement.Migrations do
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
-    create(unique_index(:measurement_measure, [:unit_id, :has_numerical_value]))
+    create(unique_index(measure_table(), [:unit_id, :has_numerical_value]))
   end
 end

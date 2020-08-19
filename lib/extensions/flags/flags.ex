@@ -4,7 +4,6 @@
 defmodule MoodleNet.Flags do
   alias MoodleNet.{Activities, Common, Repo}
   alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
-  alias MoodleNet.Meta.{Pointers, Table}
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
 
@@ -18,16 +17,18 @@ defmodule MoodleNet.Flags do
   end
 
   def create(
-    %User{} = flagger,
-    flagged,
-    community \\ nil,
-    %{is_local: is_local} = fields
-  ) when is_boolean(is_local) do
-    flagged = Pointers.maybe_forge!(flagged)
-    %Table{schema: table} = Pointers.table!(flagged)
+        %User{} = flagger,
+        flagged,
+        community \\ nil,
+        %{is_local: is_local} = fields
+      )
+      when is_boolean(is_local) do
+    flagged = MoodleNet.Meta.Pointers.maybe_forge!(flagged)
+    %Pointers.Table{schema: table} = MoodleNet.Meta.Pointers.table!(flagged)
+
     if table in valid_contexts() do
       Repo.transact_with(fn ->
-        case one([deleted: false, creator: flagger.id, context: flagged.id]) do
+        case one(deleted: false, creator: flagger.id, context: flagged.id) do
           {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
           _ -> really_create(flagger, flagged, community, fields)
         end
@@ -50,7 +51,7 @@ defmodule MoodleNet.Flags do
     Repo.update_all(Queries.query(Flag, filters), set: updates)
   end
 
-  def soft_delete(%User{}=user, %Flag{}=flag) do
+  def soft_delete(%User{} = user, %Flag{} = flag) do
     Repo.transact_with(fn ->
       with {:ok, flag} <- Common.soft_delete(flag),
            :ok <- chase_delete(user, flag.id),
@@ -60,14 +61,19 @@ defmodule MoodleNet.Flags do
     end)
   end
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
-        with :ok <- chase_delete(user, ids) do
-          ap_publish("delete", ids)
-        end
-      end), do: :ok
+           Repo.transact_with(fn ->
+             {_, ids} =
+               update_by(user, [{:select, :id}, {:deleted, false} | filters],
+                 deleted_at: DateTime.utc_now()
+               )
+
+             with :ok <- chase_delete(user, ids) do
+               ap_publish("delete", ids)
+             end
+           end),
+         do: :ok
   end
 
   defp chase_delete(user, ids) do

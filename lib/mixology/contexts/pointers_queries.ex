@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.PointersQueries do
-  alias MoodleNet.Meta.{TableService}
+  alias MoodleNet.Meta.TableService
   import Ecto.Query
   alias Pointers.{Pointer}
 

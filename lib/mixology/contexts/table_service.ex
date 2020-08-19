@@ -20,7 +20,10 @@ defmodule MoodleNet.Meta.TableService do
   supervision hierarchy neatly...
   """
 
-  alias MoodleNet.Meta.{Introspection, Table, TableNotFoundError}
+  alias MoodleNet.Meta.{Introspection, TableNotFoundError}
+
+  alias Pointers.Table
+
   alias MoodleNet.Repo
 
   use GenServer

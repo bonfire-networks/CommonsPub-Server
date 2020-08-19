@@ -9,10 +9,11 @@ defmodule MoodleNet.Meta.TableServiceTest do
   alias MoodleNet.Repo
 
   alias MoodleNet.Meta.{
-    Table,
     TableService,
     TableNotFoundError
   }
+
+  alias Pointers.Table
 
   alias MoodleNet.Access.{RegisterEmailAccess, RegisterEmailDomainAccess}
   alias MoodleNet.Activities.Activity

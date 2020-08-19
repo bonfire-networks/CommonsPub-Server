@@ -246,7 +246,7 @@ defmodule CommonsPub.ReleaseTasks do
   def remove_meta_table(table) do
     import Ecto.Query
 
-    tt = Repo.one(from(x in MoodleNet.Meta.Table, where: x.table == ^table))
+    tt = Repo.one(from(x in Pointers.Table, where: x.table == ^table))
 
     if(!is_nil(tt) and !is_nil(tt.id)) do
       {_rows_deleted, _} =

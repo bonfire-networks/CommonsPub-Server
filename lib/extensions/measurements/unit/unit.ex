@@ -28,7 +28,7 @@ defmodule Measurement.Unit do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
 
-    timestamps()
+    timestamps(inserted_at: false)
   end
 
   @required ~w(label symbol)a
