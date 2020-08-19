@@ -481,6 +481,13 @@ defmodule MoodleNetWeb.Helpers.Common do
     "/@" <> preferred_username
   end
 
+  def context_url(%CommonsPub.Tag.Category{
+        id: id
+      })
+      when not is_nil(id) do
+    "/++" <> id
+  end
+
   def context_url(%{
         actor: %{preferred_username: preferred_username}
       })

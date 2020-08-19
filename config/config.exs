@@ -112,10 +112,12 @@ config :moodle_net, Follows,
     User,
     Geolocation,
     Organisation,
-    CommonsPub.Character
+    CommonsPub.Character,
+    CommonsPub.Category
   ]
 
-config :moodle_net, Likes, valid_contexts: [Collection, Community, Comment, Resource]
+config :moodle_net, Likes,
+  valid_contexts: [Collection, Community, Comment, Resource, CommonsPub.Category]
 
 config :moodle_net, Threads,
   valid_contexts: [
@@ -125,6 +127,7 @@ config :moodle_net, Threads,
     Resource,
     User,
     Organisation,
+    CommonsPub.Category,
     CommonsPub.Character,
     ValueFlows.Planning.Intent
   ]
@@ -134,12 +137,14 @@ config :moodle_net, Users,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Units, valid_contexts: [Organisation, Community, Collection]
+config :moodle_net, Units,
+  valid_contexts: [CommonsPub.Category, Organisation, Community, Collection]
 
-config :moodle_net, Organisation, valid_contexts: [Organisation, Community, Collection]
+config :moodle_net, Organisation,
+  valid_contexts: [CommonsPub.Category, Organisation, Community, Collection]
 
 config :moodle_net, CommonsPub.Character,
-  valid_contexts: [CommonsPub.Character, Organisation, Community, Collection],
+  valid_contexts: [CommonsPub.Category, CommonsPub.Character, Organisation, Community, Collection],
   default_outbox_query_contexts: [
     Collection,
     CommonsPub.Character,
@@ -299,7 +304,7 @@ config :sentry,
 config :moodle_net, :env, Mix.env()
 
 config :pointers, Pointers.Pointer,
-  source: "mn_pointer",
+  source: "pointers_pointer",
   many_to_many: [
     tags: {
       # if(Code.ensure_loaded?(Taggable), do: Taggable, else: :taggable),
@@ -311,7 +316,7 @@ config :pointers, Pointers.Pointer,
     }
   ]
 
-config :pointers, Pointers.Table, source: "mn_table"
+config :pointers, Pointers.Table, source: "pointers_table"
 
 config :moodle_net, :ux,
   # prosemirror or ck5 as content editor:

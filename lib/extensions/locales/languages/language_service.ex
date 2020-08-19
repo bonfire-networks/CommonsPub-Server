@@ -88,8 +88,9 @@ defmodule CommonsPub.Locales.Language.Service do
 
       {:ok, []}
     rescue
-      e in DBConnection.ConnectionError ->
-        IO.inspect("INFO: LanguageService could not init because the repo is down")
+      e ->
+        IO.inspect("INFO: TableService could not init because:")
+        IO.inspect(e)
         {:ok, []}
     end
   end

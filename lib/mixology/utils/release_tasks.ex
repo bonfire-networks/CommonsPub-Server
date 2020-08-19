@@ -24,15 +24,22 @@ defmodule CommonsPub.ReleaseTasks do
   end
 
   defp create_repo(repo) do
-    case repo.__adapter__.storage_up(repo.config) do
-      :ok ->
-        Logger.info("The database for #{inspect(repo)} has been created")
+    try do
+      case repo.__adapter__.storage_up(repo.config) do
+        :ok ->
+          Logger.info("The database for #{inspect(repo)} has been created")
 
-      :ok ->
-        Logger.warn("The database for #{inspect(repo)} has already been created")
+        :ok ->
+          Logger.warn("The database for #{inspect(repo)} has already been created")
 
-      {:error, term} when is_binary(term) ->
-        raise "The database for #{inspect(repo)} couldn't be created: #{term}"
+        {:error, term} when is_binary(term) ->
+          raise "The database for #{inspect(repo)} couldn't be created: #{term}"
+      end
+    rescue
+      e ->
+        Logger.warn("The database for #{inspect(repo)} could not be created")
+        IO.inspect(e)
+        :ok
     end
   end
 

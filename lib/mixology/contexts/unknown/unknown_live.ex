@@ -20,6 +20,7 @@ defmodule MoodleNetWeb.Page.Unknown do
      socket
      |> assign(current_user: socket.assigns.current_user)
      |> assign(object: obj)
-     |> assign(object_type: context_type(obj))}
+     |> assign(object_type: context_type(obj))
+     |> assign(current_context: obj)}
   end
 end
