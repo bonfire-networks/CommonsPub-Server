@@ -13,6 +13,7 @@ defmodule CommonsPub.Tag.TagThings do
   """
   def thing_attach_tags(user, thing, taggables) when is_list(taggables) do
     thing = thing_to_pointer(thing)
+    # IO.inspect(pre_tags: taggables)
     tags = Enum.map(taggables, &tag_preprocess(user, &1))
     # {:ok, thing |> Map.merge(%{tags: things_add_tags})}
     thing_tags_save(thing, tags)
@@ -42,6 +43,10 @@ defmodule CommonsPub.Tag.TagThings do
     nil
   end
 
+  defp tag_preprocess(user, {at_mention, taggable}) do
+    tag_preprocess(user, taggable)
+  end
+
   defp tag_preprocess(user, taggable) do
     IO.inspect(tag_preprocess: taggable)
 
@@ -60,7 +65,7 @@ defmodule CommonsPub.Tag.TagThings do
       # IO.inspect(tags_save: tags)
       # IO.inspect(thing_save: thing)
       cs = Taggable.thing_tags_changeset(thing, tags)
-      IO.inspect(tagging: cs)
+      IO.inspect(thing_tags_save: cs)
       with {:ok, thing} <- Repo.update(cs, on_conflict: :nothing), do: {:ok, thing}
     end)
   end

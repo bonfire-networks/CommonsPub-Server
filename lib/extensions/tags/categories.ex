@@ -100,7 +100,7 @@ defmodule CommonsPub.Tag.Categories do
       with {:ok, category} <- insert_category(creator, attrs),
            {:ok, attrs} <- attrs_mixins_with_id(attrs, category),
            {:ok, taggable} <-
-             CommonsPub.Tag.Taggables.maybe_make_taggable(creator, category, attrs),
+             CommonsPub.Tag.Taggables.make_taggable(creator, category, attrs),
            {:ok, profile} <- Profile.Profiles.create(creator, attrs),
            {:ok, character} <-
              CommonsPub.Character.Characters.create(creator, attrs_with_username(attrs)) do
@@ -118,6 +118,20 @@ defmodule CommonsPub.Tag.Categories do
 
   def create(creator, attrs) do
     create(creator, Map.put(attrs, :facet, @facet_name))
+  end
+
+  def maybe_create_hashtag(creator, "#" <> tag) do
+    maybe_create_hashtag(creator, tag)
+  end
+
+  def maybe_create_hashtag(creator, tag) do
+    create(
+      creator,
+      %{}
+      |> Map.put(:name, tag)
+      |> Map.put(:prefix, "#")
+      |> Map.put(:facet, "Hashtag")
+    )
   end
 
   defp attrs_mixins_with_id(attrs, category) do
