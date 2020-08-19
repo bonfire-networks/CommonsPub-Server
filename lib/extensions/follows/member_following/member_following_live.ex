@@ -15,24 +15,21 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
     }
   end
 
-  defp fetch_users_from_context(user) do
-    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.context_id)
-    MoodleNet.Meta.Pointers.follow!(pointer) |> Profiles.prepare(%{icon: true, actor: true})
-  end
+
 
   defp fetch(socket, assigns) do
     # IO.inspect(assigns.user)
     {:ok, users} =
       MoodleNetWeb.GraphQL.UsersResolver.user_follows_edge(
         %{id: assigns.user.id},
-        %{limit: 3},
+        %{limit: 10},
         %{context: %{current_user: assigns.current_user}}
       )
 
     followings =
       Enum.map(
         users.edges,
-        &fetch_users_from_context(&1)
+        &Profiles.fetch_users_from_context(&1)
       )
 
     # IO.inspect(users, label: "USER COMMUNITY")

@@ -2,9 +2,13 @@
   <section class="page__member">
     <div class="member__hero">
       <div class="suphero">
-        <div class="suphero__left named-avatar">
-          <img alt="profile pic" src="<%= @user.icon_url %>" />
-          <h3><%= @user.name %></h3>
+        <div class="suphero__left">
+          <%= live_patch to: "/@" <> e(@user, :actor, :preferred_username, "deleted") <> "/about" do %>
+            <div class="named-avatar">
+              <img alt="profile pic" src="<%= @user.icon_url %>" />
+              <h3><%= @user.name %></h3>
+            </div>
+          <% end %>
         </div>
         <div class="suphero__actions">
           <%= if is_map(@current_user) and @user.id==@current_user.id do %>

@@ -30,7 +30,8 @@
 
         )
     %>
-  <%=
+   <%= if @activity.context_type != "like" do %>
+    <%=
       live_component(
           @socket,
           PreviewActionsLive,
@@ -41,5 +42,6 @@
           id: "actions-"<>@preview_id
         )
     %>
+  <% end %>
 </div>
 </div>
