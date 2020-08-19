@@ -39,14 +39,14 @@ defmodule MoodleNetWeb.CollectionLive do
      socket
      |> assign(
        page_title: "Collection",
-       selected_tab: "about",
+       selected_tab: "resources",
        current_user: socket.assigns.current_user
      )}
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     collection = Collections.collection_load(socket, params, socket.assigns.current_user)
-
+    IO.inspect(tab)
     {:noreply,
      assign(socket,
        selected_tab: tab,

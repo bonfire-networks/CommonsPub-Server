@@ -1,26 +1,26 @@
 <div>
-<div class="mainContent__selected">
-  <h3 class="area__title">discussions</h3>
   <div class="community__discussion__actions">
     <input placeholder="Search discussions..."/>
-      <a href="#" phx-target="#write_widget" phx-click="toggle_post">
-        <button >New discussion</button>
-      </a>
+    <a href="#" phx-target="#write_widget" phx-click="toggle_post">
+      <button >New discussion</button>
+    </a>
   </div>
   <div
-      id="community-discussions"
-      phx-update="append"
-      data-page="<%= @page %>"
-      class="selected__area"><%= for thread <- @threads do %>
-      <%= live_component(
-                @socket,
-                DiscussionPreviewLive,
-                id: "thread-#{thread.id}",
-                thread: thread,
-                current_user: @current_user
-              )
-            %>
-    <% end %></div>
+    id="community-discussions"
+    phx-update="append"
+    data-page="<%= @page %>"
+    class="selected__area">
+      <%= for thread <- @threads do %>
+        <%= live_component(
+                  @socket,
+                  DiscussionPreviewLive,
+                  id: "thread-#{thread.id}",
+                  thread: thread,
+                  current_user: @current_user
+                )
+              %>
+      <% end %>
+  </div>
   <%= if @has_next_page do %>
     <div class="pagination">
       <button
@@ -31,5 +31,4 @@
       </button>
     </div>
   <% end %>
-</div>
 </div>

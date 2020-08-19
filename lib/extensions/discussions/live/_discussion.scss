@@ -95,11 +95,19 @@
 
 .discussion__navigation {
   @include content_navigation;
-  .navigation__block {
-    .block__context {
-      button {
-        width: 100%;
-      }
+}
+
+.navigation__block {
+  background: var(--color-surface);
+  border-radius: 6px;
+  margin-bottom: var(--m3);
+  .block__title {
+    margin: 0;
+  }
+  .block__context {
+    padding: var(--m2) var(--m3);
+    button {
+      width: 100%;
     }
   }
 }

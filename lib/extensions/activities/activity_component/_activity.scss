@@ -6,6 +6,8 @@
 .component__activity .activity__info {
   display: flex;
   align-items: center;
+  @include truncate(580px);
+
 }
 
 .component__activity img {
@@ -38,7 +40,6 @@
   margin: 0;
   margin-left: 4px;
   font-weight: 300;
-  @include truncate(510px);
 }
 
 .component__activity .meta__secondary {

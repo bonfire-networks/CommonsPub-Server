@@ -19,8 +19,8 @@ services:
         source: .
         target: /opt/app
       - type: bind
-        source: /usr/share/dict/words
-        target: /usr/share/dict/words
+        source: /usr/share/dict/words@
+        target: /usr/share/dict/words@
   db:
     image: postgis/postgis:12-3.0-alpine
     volumes:
