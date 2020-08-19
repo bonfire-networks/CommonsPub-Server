@@ -47,7 +47,7 @@ defmodule Tag.Migrations do
     create_if_not_exists table(:tags_things, primary_key: false) do
       add(:pointer_id, strong_pointer(), null: false)
 
-      add(:tag_id, references(taggable_table(), on_update: :update_all, on_delete: :delete_all))
+      add(:tag_id, strong_pointer(CommonsPub.Tag.Taggable), null: false)
     end
 
     create(unique_index(:tags_things, [:pointer_id, :tag_id]))

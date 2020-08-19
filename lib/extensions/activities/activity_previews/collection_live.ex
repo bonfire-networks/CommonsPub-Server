@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.Component.CollectionPreviewLive do
     collection =
       MoodleNetWeb.Helpers.Profiles.prepare(assigns.collection, %{icon: true, actor: true})
 
-    IO.inspect(collection_post_prep: collection)
+    # IO.inspect(collection_post_prep: collection)
 
     {:ok,
      socket

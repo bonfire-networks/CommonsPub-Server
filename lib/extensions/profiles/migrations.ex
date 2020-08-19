@@ -25,7 +25,7 @@ defmodule CommonsPub.Profile.Migrations do
     end
 
     # create_if_not_exists(index(:profile, :updated_at))
-    create_if_not_exists(index(:profile, :creator_id, index_opts))
+    create_if_not_exists(index(table_name(), :creator_id, index_opts))
     # create_if_not_exists index(:profile, :primary_language_id)
   end
 

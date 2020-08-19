@@ -4,9 +4,16 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   import MoodleNetWeb.Helpers.Common
 
   def fetch_users_from_context(user) do
-    IO.inspect(user.context_id, label: "ContextId")
+    # IO.inspect(user.context_id, label: "ContextId")
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.context_id)
-    IO.inspect(pointer, label: "POINTER:")
+    # IO.inspect(pointer, label: "POINTER:")
+    MoodleNet.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, actor: true})
+  end
+
+  def fetch_users_from_creator(user) do
+    # IO.inspect(user.context_id, label: "ContextId")
+    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.creator_id)
+    # IO.inspect(pointer, label: "POINTER:")
     MoodleNet.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, actor: true})
   end
 

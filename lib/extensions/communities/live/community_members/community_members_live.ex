@@ -1,6 +1,7 @@
 defmodule MoodleNetWeb.CommunityLive.CommunityMembersLive do
   use MoodleNetWeb, :live_component
   alias MoodleNetWeb.Helpers.{Profiles}
+
   alias MoodleNetWeb.Component.{
     UserPreviewLive
   }
@@ -16,28 +17,30 @@ defmodule MoodleNetWeb.CommunityLive.CommunityMembersLive do
   end
 
   defp fetch(socket, assigns) do
-    # IO.inspect(after: assigns.after)
-
-    {:ok, users} =
+    {:ok, follows} =
       MoodleNetWeb.GraphQL.FollowsResolver.followers_edge(
         %{id: assigns.community.id},
         %{limit: 10},
         %{context: %{current_user: assigns.current_user}}
       )
-      followings =
-        Enum.map(
-          users.edges,
-          fn u ->
-            Profiles.fetch_users_from_context(u)
-          end
-        )
-    IO.inspect(followings, label: "User COMMUNITY:")
+
+    IO.inspect(follows: follows)
+
+    followings =
+      Enum.map(
+        follows.edges,
+        &Profiles.fetch_users_from_creator(&1)
+      )
+
+    # IO.inspect(followings, label: "User COMMUNITY:")
+
+    # followings = Enum.dedup_by(followings, fn %{id: id} -> id end)
 
     assign(socket,
       members: followings,
-      has_next_page: users.page_info.has_next_page,
-      after: users.page_info.end_cursor,
-      before: users.page_info.start_cursor
+      has_next_page: follows.page_info.has_next_page,
+      after: follows.page_info.end_cursor,
+      before: follows.page_info.start_cursor
     )
   end
 

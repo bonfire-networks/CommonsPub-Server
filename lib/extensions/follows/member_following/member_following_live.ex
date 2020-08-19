@@ -15,11 +15,9 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
     }
   end
 
-
-
   defp fetch(socket, assigns) do
     # IO.inspect(assigns.user)
-    {:ok, users} =
+    {:ok, follows} =
       MoodleNetWeb.GraphQL.UsersResolver.user_follows_edge(
         %{id: assigns.user.id},
         %{limit: 10},
@@ -28,18 +26,19 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
 
     followings =
       Enum.map(
-        users.edges,
+        follows.edges,
         &Profiles.fetch_users_from_context(&1)
       )
 
     # IO.inspect(users, label: "USER COMMUNITY")
     # following_users = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
     # IO.inspect(following_users, label: "USER COMMUNITY")
+
     assign(socket,
       users: followings,
-      has_next_page: users.page_info.has_next_page,
-      after: users.page_info.end_cursor,
-      before: users.page_info.start_cursor
+      has_next_page: follows.page_info.has_next_page,
+      after: follows.page_info.end_cursor,
+      before: follows.page_info.start_cursor
     )
   end
 
