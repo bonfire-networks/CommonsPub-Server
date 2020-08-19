@@ -7,7 +7,7 @@ defmodule ValueFlows.Planning.Migrations do
 
   defp intent_table(), do: ValueFlows.Planning.Intent.__schema__(:source)
 
-  def change_intent do
+  def up do
     create_pointable_table(ValueFlows.Planning.Intent) do
       add(:name, :string)
       add(:note, :text)
@@ -62,5 +62,9 @@ defmodule ValueFlows.Planning.Migrations do
 
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
+  end
+
+  def down do
+    drop_pointable_table(ValueFlows.Planning.Intent)
   end
 end

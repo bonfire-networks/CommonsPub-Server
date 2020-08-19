@@ -2,6 +2,8 @@ defmodule CommonsPub.Profile.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
+  alias CommonsPub.Profile
+
   # @meta_tables [] ++ ~w(profile)
 
   defp table_name(), do: CommonsPub.Profile.__schema__(:source)

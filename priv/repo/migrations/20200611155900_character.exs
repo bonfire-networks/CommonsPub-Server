@@ -2,9 +2,9 @@ defmodule MoodleNet.Repo.Migrations.CommonsPub.Character do
   use Ecto.Migration
   import Pointers.Migration
 
-  # FIXME
-  def change(index_opts \\ []),
-    do: CommonsPub.Character.Migrations.migrate(index_opts, direction())
+  def up(index_opts \\ []),
+    do: CommonsPub.Character.Migrations.migrate(index_opts, :up)
 
-  # do: nil
+  def down(index_opts \\ []),
+    do: CommonsPub.Character.Migrations.migrate(index_opts, :down)
 end
