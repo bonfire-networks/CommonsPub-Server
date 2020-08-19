@@ -9,8 +9,8 @@ services:
     restart: always
     ports:
       - "4000:4000" # you may want to comment this in production
-      - "80:80"
-      - "443:443"
+      # - "80:80"
+      # - "443:443"
     env_file:
       - config/docker.env
     depends_on:
@@ -19,8 +19,25 @@ services:
       - type: bind
         source: ./uploads
         target: /var/www/uploads
+  frontend:
+    image: "caddy:alpine"
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - config/docker.env
+    volumes:
+      - type: bind
+        source: ./config/deployment/caddy/Caddyfile2
+        target: /etc/caddy/Caddyfile
+        read_only: true
+      - type: bind
+        source: ./uploads
+        target: /frontend/uploads
   db:
     image: postgis/postgis:12-3.0-alpine
+    restart: always
     # volumes:
     #   - "./data/postgres:/var/lib/postgresql/data"
     # ports:

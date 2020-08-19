@@ -202,7 +202,7 @@ defmodule MoodleNet.Mixfile do
       # fake app data generation, also used in prototype API endponts
       {:faker, "~> 0.12"},
       # required by CommonsPub.Utils.Simulation
-      {:zest, "~> 0.1.1", only: [:dev, :test]},
+      {:zest, "~> 0.1.1"},
       # fake data generation for AP
       {:ex_machina, "~> 2.3", only: [:dev, :test]},
       # property testing
