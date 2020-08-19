@@ -76,9 +76,11 @@ config :moodle_net, Feeds,
 
 config :moodle_net, Blocks, valid_contexts: [Collection, Community, User]
 
+desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
+
 config :moodle_net, Instance,
   hostname: hostname,
-  description: "Local development instance",
+  description: desc,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
 config :moodle_net, Collections,

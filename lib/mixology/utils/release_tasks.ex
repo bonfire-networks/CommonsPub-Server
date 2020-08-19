@@ -253,7 +253,7 @@ defmodule CommonsPub.ReleaseTasks do
         Repo.delete_all(from(x in Pointers.Pointer, where: x.table_id == ^tt.id))
     end
 
-    {_rows_deleted, _} = Repo.delete_all(from(x in Meta.Table, where: x.table == ^table))
+    {_rows_deleted, _} = Repo.delete_all(from(x in Pointers.Table, where: x.table == ^table))
   end
 
   @deleted_user %{

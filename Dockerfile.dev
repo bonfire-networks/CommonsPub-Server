@@ -9,10 +9,10 @@ RUN apk update && \
     apk add --no-cache bash openssl-dev inotify-tools 
 
 # useful deps
-RUN apk add --no-cache curl git rust cargo npm
+RUN apk add --no-cache curl git rust cargo npm build-base
 
 # dependencies for comeonin
-RUN apk add --no-cache build-base cmake make gcc libc-dev
+RUN apk add --no-cache cmake make gcc libc-dev
 
 EXPOSE 4000/tcp
 EXPOSE 4004/tcp

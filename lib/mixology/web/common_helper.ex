@@ -210,6 +210,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:csrf_token, fn -> csrf_token end)
     |> assign(:static_changed, static_changed?(socket))
     |> assign(:search, "")
+    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
   end
 
   def init_assigns(
@@ -251,6 +252,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
     |> assign(:search, "")
+    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
   end
 
   def init_assigns(
@@ -265,12 +267,15 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:static_changed, static_changed?(socket))
     |> assign(:current_user, nil)
     |> assign(:search, "")
+    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
   end
 
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
     socket
     |> assign(:current_user, nil)
+    |> assign(:search, "")
     |> assign(:static_changed, static_changed?(socket))
+    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
   end
 
   def contexts_fetch!(ids) do
