@@ -40,6 +40,7 @@
           </div>
         </div>
         <div class="post__sub__actions">
+          <button id="<%= @toggle_post %>-cancel" phx-target="<%= @myself %>" phx-click="toggle_post"> Cancel </button>
           <button phx-disable-with="Posting..." type="submit">Publish</button>
         </div>
       </form>
