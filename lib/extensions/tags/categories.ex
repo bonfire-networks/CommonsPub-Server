@@ -81,7 +81,7 @@ defmodule CommonsPub.Tag.Categories do
   ## mutations
 
   @doc """
-  Create a brand-new category object, with info stored in Profile and character mixins
+  Create a brand-new category object, with info stored in profile and character mixins
   """
   def create(creator, %{category: %{} = cat_attrs} = attrs) do
     create(
@@ -100,8 +100,8 @@ defmodule CommonsPub.Tag.Categories do
       with {:ok, category} <- insert_category(creator, attrs),
            {:ok, attrs} <- attrs_mixins_with_id(attrs, category),
            {:ok, taggable} <-
-             CommonsPub.Tag.Taggables.maybe_make_taggable(creator, category, attrs),
-           {:ok, profile} <- Profile.Profiles.create(creator, attrs),
+             CommonsPub.Tag.Taggables.make_taggable(creator, category, attrs),
+           {:ok, profile} <- CommonsPub.Profile.Profiles.create(creator, attrs),
            {:ok, character} <-
              CommonsPub.Character.Characters.create(creator, attrs_with_username(attrs)) do
         category = %{category | taggable: taggable, character: character, profile: profile}
@@ -118,6 +118,20 @@ defmodule CommonsPub.Tag.Categories do
 
   def create(creator, attrs) do
     create(creator, Map.put(attrs, :facet, @facet_name))
+  end
+
+  def maybe_create_hashtag(creator, "#" <> tag) do
+    maybe_create_hashtag(creator, tag)
+  end
+
+  def maybe_create_hashtag(creator, tag) do
+    create(
+      creator,
+      %{}
+      |> Map.put(:name, tag)
+      |> Map.put(:prefix, "#")
+      |> Map.put(:facet, "Hashtag")
+    )
   end
 
   defp attrs_mixins_with_id(attrs, category) do
@@ -172,7 +186,7 @@ defmodule CommonsPub.Tag.Categories do
     Repo.transact_with(fn ->
       # :ok <- publish(category, :updated)
       with {:ok, category} <- Repo.update(Category.update_changeset(category, attrs)),
-           {:ok, profile} <- Profile.Profiles.update(user, category.profile, attrs),
+           {:ok, profile} <- CommonsPub.Profile.Profiles.update(user, category.profile, attrs),
            {:ok, character} <- Characters.update(user, category.character, attrs) do
         {:ok, %{category | character: character, profile: profile}}
       end

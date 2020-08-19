@@ -107,9 +107,9 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
       resolve(&CommonsPub.Character.GraphQL.Resolver.character/3)
     end
 
-    @desc "The Profile that represents this category"
+    @desc "The profile that represents this category"
     field :profile, :profile do
-      resolve(&Profile.GraphQL.Resolver.profile/3)
+      resolve(&CommonsPub.Profile.GraphQL.Resolver.profile/3)
     end
 
     @desc "The user who created the character"

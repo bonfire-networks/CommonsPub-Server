@@ -19,7 +19,7 @@ defmodule Organisation.Organisations do
   alias MoodleNet.Users.User
   # alias MoodleNet.Workers.APPublishWorker
   alias CommonsPub.Character.Characters
-  alias Profile.Profiles
+  alias CommonsPub.Profile.Profiles
 
   @facet_name "Organisation"
 

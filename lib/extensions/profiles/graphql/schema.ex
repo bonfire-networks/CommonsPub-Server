@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Profile.GraphQL.Schema do
+defmodule CommonsPub.Profile.GraphQL.Schema do
   @moduledoc """
   GraphQL profile fields, associations, queries and mutations.
   """
@@ -9,7 +9,7 @@ defmodule Profile.GraphQL.Schema do
 
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
-    # Profile.GraphQL.Resolver,
+    # CommonsPub.Profile.GraphQL.Resolver,
     CommonResolver,
     FlagsResolver,
     # FollowsResolver,
@@ -25,7 +25,7 @@ defmodule Profile.GraphQL.Schema do
     @desc "Get a profile by id. You usually would query for a type associated with profile, rather than profiles directly."
     field :profile, :profile do
       arg(:profile_id, non_null(:string))
-      resolve(&Profile.GraphQL.Resolver.profile/2)
+      resolve(&CommonsPub.Profile.GraphQL.Resolver.profile/2)
     end
 
     @desc "Get list of profiles. You usually would query for a type associated with profile, rather than profiles directly."
@@ -34,7 +34,7 @@ defmodule Profile.GraphQL.Schema do
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
       arg(:facets, list_of(non_null(:string)))
-      resolve(&Profile.GraphQL.Resolver.profiles/2)
+      resolve(&CommonsPub.Profile.GraphQL.Resolver.profiles/2)
     end
   end
 
@@ -44,20 +44,20 @@ defmodule Profile.GraphQL.Schema do
     #   arg :profileistic_id, :string
     #   arg :context_id, :string
     #   arg :profile, non_null(:profile_input)
-    #   resolve &Profile.GraphQL.Resolver.create_profile/2
+    #   resolve &CommonsPub.Profile.GraphQL.Resolver.create_profile/2
     # end
 
     # @desc "Update a profile. You usually wouldn't do this directly."
     # field :update_profile, :profile do
     #   arg :profile_id, non_null(:string)
     #   arg :profile, non_null(:profile_update_input)
-    #   resolve &Profile.GraphQL.Resolver.update_profile/2
+    #   resolve &CommonsPub.Profile.GraphQL.Resolver.update_profile/2
     # end
 
-    @desc "Create a Profile to represent something (which already exists, pass the ID passed as context) in feeds and federation"
+    @desc "Create a profile to represent something (which already exists, pass the ID passed as context) in feeds and federation"
     field :add_profile_to, :profile do
       arg(:context_id, non_null(:string))
-      resolve(&Profile.GraphQL.Resolver.add_profile_to/2)
+      resolve(&CommonsPub.Profile.GraphQL.Resolver.add_profile_to/2)
     end
   end
 
@@ -68,10 +68,10 @@ defmodule Profile.GraphQL.Schema do
     @desc "An instance-local UUID identifying the profile. Not to be confused with the associated thing's ID (available under profileistic.id)"
     field(:id, non_null(:string))
 
-    # @desc "A reference to the thing that this Profile represents"
+    # @desc "A reference to the thing that this profile represents"
     # field :profileistic_id, :string
     # field :profileistic, :profile_tropes do
-    #   resolve &Profile.GraphQL.Resolver.profileistic_edge/3
+    #   resolve &CommonsPub.Profile.GraphQL.Resolver.profileistic_edge/3
     # end
 
     @desc "A url for the profile, may be to a remote instance"

@@ -23,25 +23,25 @@ defmodule Tag.Migrations do
     end
 
     create_pointable_table(CommonsPub.Tag.Category) do
-      # add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
-      # add(:caretaker_id, weak_pointer(), null: true)
+      add(:caretaker_id, weak_pointer(), null: true)
 
-      # # eg. Mamals is a parent of Cat
-      # add(
-      #   :parent_category_id,
-      #   references(category_table(), on_update: :update_all, on_delete: :nilify_all)
-      # )
+      # eg. Mamals is a parent of Cat
+      add(
+        :parent_category_id,
+        references(category_table(), on_update: :update_all, on_delete: :nilify_all)
+      )
 
-      # # eg. Olive Oil is the same as Huile d'olive
-      # add(
-      #   :same_as_category_id,
-      #   references(category_table(), on_update: :update_all, on_delete: :nilify_all)
-      # )
+      # eg. Olive Oil is the same as Huile d'olive
+      add(
+        :same_as_category_id,
+        references(category_table(), on_update: :update_all, on_delete: :nilify_all)
+      )
 
-      # add(:published_at, :timestamptz)
-      # add(:deleted_at, :timestamptz)
-      # add(:disabled_at, :timestamptz)
+      add(:published_at, :timestamptz)
+      add(:deleted_at, :timestamptz)
+      add(:disabled_at, :timestamptz)
     end
 
     create_if_not_exists table(:tags_things, primary_key: false) do

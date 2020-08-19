@@ -31,7 +31,7 @@ defmodule CommonsPub.Tag.Taggable do
     # Optionally, a profile and character (if not using context)
     has_one(:category, CommonsPub.Tag.Category, references: :id, foreign_key: :id)
     ## stores common fields like name/description
-    has_one(:profile, Profile, references: :id, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profile, references: :id, foreign_key: :id)
     ## allows it to be follow-able and federate activities
     has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
 

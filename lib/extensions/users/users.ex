@@ -242,6 +242,20 @@ defmodule MoodleNet.Users do
   @spec update(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
   def update(%User{} = user, attrs) do
     Repo.transact_with(fn ->
+      attrs =
+        attrs
+        |> Map.put(
+          :summary,
+          CommonsPub.HTML.parse_input(
+            Map.get(
+              attrs,
+              "summary",
+              Map.get(attrs, :summary, "")
+            ),
+            "text/markdown"
+          )
+        )
+
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
            {:ok, actor} <- Actors.update(user, user.actor, attrs),
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)),

@@ -78,7 +78,11 @@ defmodule CommonsPub.Tag.Autocomplete do
   end
 
   def tag_add_field(hit, "ck5", prefix, as) do
-    Map.merge(hit, %{"id" => prefix <> to_string(as)})
+    if String.at(as, 0) == prefix do
+      Map.merge(hit, %{"id" => to_string(as)})
+    else
+      Map.merge(hit, %{"id" => prefix <> to_string(as)})
+    end
   end
 
   # def tag_suggestion_display(hit, tag_search) do

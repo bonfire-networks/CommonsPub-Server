@@ -1,10 +1,10 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Profile.GraphQL.FacetsResolvers do
-  @moduledoc "These resolver functions are to be called by other modules that use Profile, for fields or foreign keys that are part of the Profile table rather than that module's table."
+defmodule CommonsPub.Profile.GraphQL.FacetsResolvers do
+  @moduledoc "These resolver functions are to be called by other modules that use profile, for fields or foreign keys that are part of the profile table rather than that module's table."
 
-  alias Profile
+  alias CommonsPub.Profile
   alias Pointers
 
   def creator_edge(%{profile: %{creator_id: id}}, _, info),

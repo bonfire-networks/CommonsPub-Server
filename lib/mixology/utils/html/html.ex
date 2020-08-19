@@ -6,29 +6,42 @@ defmodule CommonsPub.HTML do
   @doc """
   For use for things like a bio, where we want links but not to actually trigger mentions.
   """
-  def parse_input(text) when is_binary(text) and text != "" do
+  def parse_input(
+        text,
+        content_type \\ "text/plain",
+        user \\ nil
+      )
+      when is_binary(text) and text != "" do
+    options = [mentions_format: :full, user: user]
+    content_type = get_content_type(content_type)
+
     text
-    |> format_input("text/plain", mentions_format: :full)
+    |> format_input(content_type, options)
     |> elem(0)
   end
+
+  def parse_input(_, _, _), do: ""
 
   @doc """
   For use for things like a post/comment, to process the content, and get back any @/&/+ mentions and hashtags
   """
   def parse_input_and_tags(
-        status,
-        content_type \\ "text/plain"
-      ) do
+        text,
+        content_type \\ "text/plain",
+        user \\ nil
+      )
+      when is_binary(text) and text != "" do
+    options = [tagging_save_and_publish: true, user: user]
     content_type = get_content_type(content_type)
 
-    options = []
-
-    status
+    text
     |> format_input(content_type, options)
 
     # |> maybe_add_attachments(attachments, attachment_links)
     # |> maybe_add_nsfw_tag(data)
   end
+
+  def parse_input_and_tags(text, _, _), do: {text, [], []}
 
   defp get_content_type(content_type) do
     if Enum.member?(

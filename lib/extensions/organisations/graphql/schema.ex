@@ -79,7 +79,7 @@ defmodule Organisation.GraphQL.Schema do
     @desc "An instance-unique identifier shared with users and communities"
     field(:preferred_username, :string)
 
-    @desc "The Profile associated with this organisation"
+    @desc "The profile associated with this organisation"
     field(:profile, :profile)
 
     @desc "The character associated with this organisation"

@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(MoodleNetWeb.GraphQL.UploadSchema)
 
   # Extension Modules
-  import_types(Profile.GraphQL.Schema)
+  import_types(CommonsPub.Profile.GraphQL.Schema)
   import_types(CommonsPub.Character.GraphQL.Schema)
   import_types(Organisation.GraphQL.Schema)
   import_types(CommonsPub.Locales.GraphQL.Schema)

@@ -104,6 +104,7 @@ defmodule MoodleNet.Threads.Comments do
           attrs = clean_and_prepare_tags(attrs)
 
           with {:ok, comment} <- insert(creator, thread, attrs),
+               {:ok, tagged} = save_attached_tags(creator, comment, attrs),
                #  thread = preload_ctx(thread), #FIXME
                act_attrs = %{verb: "created", is_local: comment.is_local},
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
@@ -122,12 +123,20 @@ defmodule MoodleNet.Threads.Comments do
     {content, mentions, hashtags} =
       CommonsPub.HTML.parse_input_and_tags(attrs.content, "text/markdown")
 
-    IO.inspect(tagging: content)
+    IO.inspect(tagging: {content, mentions, hashtags})
 
     attrs
     |> Map.put(:content, content)
     |> Map.put(:mentions, mentions)
     |> Map.put(:hashtags, hashtags)
+  end
+
+  def save_attached_tags(creator, comment, attrs) do
+    with {ok, taggable} <-
+           CommonsPub.Tag.TagThings.thing_attach_tags(creator, comment, attrs.mentions) do
+      # {:ok, MoodleNet.Repo.preload(comment, :tags)}
+      {:ok, nil}
+    end
   end
 
   defp insert(creator, thread, attrs) do
