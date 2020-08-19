@@ -3,10 +3,21 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  def update(assigns, socket) do
-    object = prepare_common(assigns.object)
+  def category_link(cat) do
+    "/++" <> e(cat, :id, "#no-parent")
+  end
 
-    IO.inspect(unknown_preview: object)
+  def update(assigns, socket) do
+    # object = prepare_common(assigns.object)
+
+    object =
+      maybe_preload(assigns.object, [
+        :profile,
+        :character,
+        parent_category: [:profile, :character, parent_category: [:profile, :character]]
+      ])
+
+    IO.inspect(category_preview: object)
 
     {:ok,
      assign(socket,
@@ -19,22 +30,14 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
     <div class="story__preview">
       <div class="preview__info">
         <h2>
-        <a href="<%= e(@object, :link, "#") %>"><%= e(@object, :parent_category, :profile, :name, "") %></a>
+        <a href="<%= category_link(e(@object, :parent_category, :parent_category, nil)) %>"><%= e(@object, :parent_category, :parent_category, :profile, :name, "") %></a>
         »
-        <a href="<%= e(@object, :link, "#") %>"><%= e(@object, :name, "") %></a></h2>
+        <a href="<%= category_link(e(@object, :parent_category, nil)) %>"><%= e(@object, :parent_category, :profile, :name, "") %></a>
+        »
+        <a href="<%= category_link(@object) %>"><%= e(@object, :name, "") %></a></h2>
         <p><%= e(@object, :summary, "") %></p>
-        <div class="preview__meta">
-          <div class="meta__item">
-            <i class="feather-message-square"></i>
-            5
-          </div>
-          <div class="meta__item">
-            <i class="feather-star"></i>
-            13
-          </div>
-        </div>
+
       </div>
-      <div class="preview__icon" style="background-image: url('<%= e(@object, :icon, "") %>')"></div>
     </div>
     """
   end

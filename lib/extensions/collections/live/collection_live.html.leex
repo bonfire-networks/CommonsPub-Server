@@ -22,10 +22,11 @@
             </summary>
             <ul class="dropdown__list">
             <li class="list__page-link">
-             <%= live_patch "View timeline",
-              to: "/+" <> @collection.actor.preferred_username <>  "/timeline",
-              class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
-            %>
+               <%= live_patch link_body("Discussions","feather-message-square"),
+                  to: "/+" <> @collection.actor.preferred_username <>  "/discussions",
+                  class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
+                %>
+
             </li>
             <li>
               <%= if @collection.creator_id==@current_user.id do %>
@@ -81,9 +82,21 @@
   <% else %>
     <div class="community__layout">
       <div class="mainContent__selected">
+
+      <div class="layout__menu">
+        <%= live_patch link_body("Resources","feather-file"),
+          to: "/+" <> @collection.actor.preferred_username <> "/resources",
+          class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
+        %>
+       <%= live_patch "Timeline",
+              to: "/+" <> @collection.actor.preferred_username <>  "/timeline",
+              class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
+            %>
+      </div>
+
         <%= cond do %>
         <% @selected_tab == "timeline" ->  %>
-          <h3 class="area__title">Collection timeline</h3>
+          <%# <h3 class="area__title">Collection timeline</h3> %>
           <%= live_component(
             @socket,
             CollectionActivitiesLive,
@@ -99,16 +112,7 @@
             pagination_target: "#collection-activities"
           ) %>
         <% @selected_tab == "resources" ->  %>
-          <div class="layout__menu">
-            <%= live_patch link_body("Resources","feather-file"),
-              to: "/+" <> @collection.actor.preferred_username <> "/resources",
-              class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
-            %>
-            <%= live_patch link_body("Discussions","feather-message-square"),
-              to: "/+" <> @collection.actor.preferred_username <>  "/discussions",
-              class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
-            %>
-          </div>
+
           <%= live_component(
               @socket,
               CollectionResourcesLive,
@@ -124,16 +128,7 @@
               pagination_target: "#collection-activities"
             ) %>
         <% @selected_tab == "discussions" ->  %>
-          <div class="layout__menu">
-            <%= live_patch link_body("Resources","feather-file"),
-              to: "/+" <> @collection.actor.preferred_username <> "/resources",
-              class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
-            %>
-            <%= live_patch link_body("Discussions","feather-message-square"),
-              to: "/+" <> @collection.actor.preferred_username <>  "/discussions",
-              class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
-            %>
-          </div>
+
           <%= live_component(
             @socket,
             CollectionDiscussionsLive,
@@ -149,16 +144,7 @@
             pagination_target: "#collection-threads"
           ) %>
         <% true -> %>
-          <div class="layout__menu">
-            <%= live_patch link_body("Resources","feather-file"),
-              to: "/+" <> @collection.actor.preferred_username <> "/resources",
-              class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
-            %>
-            <%= live_patch link_body("Discussions","feather-message-square"),
-              to: "/+" <> @collection.actor.preferred_username <>  "/discussions",
-              class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
-            %>
-          </div>
+
           <%= live_component(
               @socket,
               CollectionResourcesLive,
