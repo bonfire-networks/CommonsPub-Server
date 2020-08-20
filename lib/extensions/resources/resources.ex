@@ -34,11 +34,15 @@ defmodule MoodleNet.Resources do
           {:ok, Resource.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = collection_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      collection_or_context = Repo.preload(collection_or_context, :actor)
-      actor = collection_or_context.actor
+      collection_or_context =
+        MoodleNetWeb.Helpers.Common.maybe_preload(collection_or_context, :actor)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
-           act_attrs = %{verb: "created", is_local: is_nil(Map.get(actor, :peer_id, nil))},
+           act_attrs = %{
+             verb: "created",
+             is_local:
+               is_nil(MoodleNetWeb.Helpers.Common.e(collection_or_context, :actor, :peer_id, nil))
+           },
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection_or_context, resource, activity),
            :ok <- ap_publish("create", resource) do
@@ -122,9 +126,14 @@ defmodule MoodleNet.Resources do
     end
   end
 
-  defp publish(_creator, context, _resource, activity) do
+  defp publish(_creator, %{outbox_id: context_outbox}, _resource, activity) do
     # _community = Repo.preload(collection, :community).community
-    feeds = [context.outbox_id, Feeds.instance_outbox_id()]
+    feeds = [context_outbox, Feeds.instance_outbox_id()]
+    FeedActivities.publish(activity, feeds)
+  end
+
+  defp publish(_creator, _context, _resource, activity) do
+    feeds = [Feeds.instance_outbox_id()]
     FeedActivities.publish(activity, feeds)
   end
 
