@@ -11,7 +11,7 @@
     )
 %>
 <% end %>
-<section class="map">
+<section class="map" id="map" phx-hook="MapLeaflet">
   <leaflet-map points="<%= "#{inspect @points}"%>">
     <%= for marker <- @markers do %>
       <%= if Map.get(marker, :lat) do %>

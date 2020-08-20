@@ -3,6 +3,8 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
 
   import MoodleNetWeb.Helpers.Common
 
+  @postgis_srid 4326
+
   @impl true
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
@@ -13,7 +15,7 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
   end
 
   def handle_params(%{"id" => id} = params, _url, socket) when id != "" do
-    fetch_place_things(id, socket)
+    show_place_things(id, socket)
   end
 
   def handle_params(_params, _url, socket) do
@@ -24,6 +26,16 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
     IO.inspect(click: id)
 
     {:noreply, socket |> push_redirect(to: "@@" <> id)}
+  end
+
+  def handle_event(
+        "bounds",
+        polygon,
+        socket
+      ) do
+    IO.inspect(bounds: polygon)
+
+    show_place_things(Enum.at(polygon, 0), socket)
   end
 
   # @impl true
@@ -69,9 +81,37 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
     end
   end
 
-  defp fetch_place_things("intents", socket) do
+  defp show_place_things("intents", socket) do
+    fetch_place_things([preload: :at_location], socket)
+  end
+
+  defp show_place_things(id, socket) when is_binary(id) do
+    fetch_place_things([at_location: id], socket)
+  end
+
+  defp show_place_things(
+         polygon,
+         socket
+       ) do
+    polygon = Enum.map(polygon, &Map.values(&1))
+    polygon = Enum.map(polygon, &{List.first(&1), List.last(&1)})
+    polygon = polygon ++ [List.first(polygon)]
+
+    IO.inspect(polygon)
+
+    geom = %Geo.Polygon{
+      coordinates: [polygon],
+      srid: @postgis_srid
+    }
+
+    IO.inspect(geom)
+
+    fetch_place_things([location_within: geom], socket)
+  end
+
+  defp fetch_place_things(filters, socket) do
     with {:ok, things} <-
-           ValueFlows.Planning.Intent.Intents.many(preload: :at_location) do
+           ValueFlows.Planning.Intent.Intents.many(filters) do
       things =
         Enum.map(
           things,
@@ -87,29 +127,6 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
     else
       _e ->
         fetch_places(socket)
-    end
-  end
-
-  defp fetch_place_things(id, socket) do
-    with {:ok, things} <-
-           ValueFlows.Planning.Intent.GraphQL.intents_filter(%{at_location: id}, %{
-             context: %{current_user: socket.assigns.current_user}
-           }) do
-      things =
-        Enum.map(
-          things,
-          &Map.merge(
-            Geolocation.Geolocations.populate_coordinates(&1.at_location),
-            &1
-          )
-        )
-
-      IO.inspect(things)
-
-      mark_places(socket, things, nil)
-    else
-      _e ->
-        fetch_place(id, socket)
     end
   end
 

@@ -197,6 +197,13 @@ defmodule ValueFlows.Planning.Intent.Queries do
     |> where([intent: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
   end
 
+  def filter(q, {:location_within, geom_point}) do
+    q
+    |> join_to(:geolocation)
+    |> preload(:at_location)
+    |> where([intent: c, geolocation: g], st_within(g.geom, ^geom_point))
+  end
+
   def filter(q, {:tag_ids, ids}) when is_list(ids) do
     q
     |> preload(:tags)
