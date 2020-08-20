@@ -17,11 +17,12 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
         parent_category: [:profile, :character, parent_category: [:profile, :character]]
       ])
 
-    IO.inspect(category_preview: object)
+    # IO.inspect(category_preview: object)
 
     {:ok,
      assign(socket,
-       object: object
+       object: object,
+       top_level_category: System.get_env("TOP_LEVEL_CATEGORY", "")
      )}
   end
 
@@ -29,12 +30,22 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
     ~L"""
     <div class="story__preview">
       <div class="preview__info">
-        <h2>
-        <a href="<%= category_link(e(@object, :parent_category, :parent_category, nil)) %>"><%= e(@object, :parent_category, :parent_category, :profile, :name, "") %></a>
+      <%= if !is_nil(e(@object, :parent_category, :parent_category, :id, nil)) and @object.parent_category.parent_category.id != @top_level_category do %>
+      <%= live_redirect to:  category_link(e(@object, :parent_category, :parent_category, nil)) do %>
+        <%= e(@object, :parent_category, :parent_category, :profile, :name, "") %>
+      <% end %>
         »
-        <a href="<%= category_link(e(@object, :parent_category, nil)) %>"><%= e(@object, :parent_category, :profile, :name, "") %></a>
+      <% end %>
+      <%= if !is_nil(e(@object, :parent_category, :id, nil)) and @object.parent_category.id != @top_level_category do %>
+        <%= live_redirect to:  category_link(e(@object, :parent_category, nil)) do %>
+        <%= e(@object, :parent_category, :profile, :name, "") %>
+        <% end %>
         »
-        <a href="<%= category_link(@object) %>"><%= e(@object, :name, "") %></a></h2>
+        <% end %>
+      <%= live_redirect to:  category_link(@object) do %>
+        <%= e(@object, :name, "") %>
+        <% end %>
+
         <p><%= e(@object, :summary, "") %></p>
 
       </div>

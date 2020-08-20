@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   alias MoodleNet.{Collections, GraphQL, Repo, Resources}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.GraphQL.{FetchFields, ResolveFields}
+  alias MoodleNet.GraphQL.{FetchFields, ResolveFields, ResolvePages, FetchPage}
   alias MoodleNet.Resources.Resource
   alias MoodleNetWeb.GraphQL.UploadResolver
 
@@ -55,6 +55,84 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
       query: Collection,
       group_fn: & &1.id,
       filters: [:default, id: ids]
+    })
+  end
+
+  def resource_count_edge(%Collection{id: id}, _, info) do
+    ResolveFields.run(%ResolveFields{
+      module: __MODULE__,
+      fetcher: :fetch_resource_count_edge,
+      context: id,
+      info: info,
+      default: 0
+    })
+  end
+
+  def fetch_resource_count_edge(_, ids) do
+    FetchFields.run(%FetchFields{
+      queries: Resources.Queries,
+      query: Resource,
+      group_fn: &elem(&1, 0),
+      map_fn: &elem(&1, 1),
+      filters: [collection: ids, group_count: :collection_id]
+    })
+  end
+
+  def resources_edge(%{id: id}, %{} = page_opts, info) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_resources_edge,
+      context: id,
+      page_opts: page_opts,
+      info: info
+    })
+  end
+
+  # def fetch_resources_edge({page_opts, info}, ids) do
+  #   limit = page_opts.limit
+  #   user = GraphQL.current_user(info)
+  #   base_query = from c in Collection, where: c.id in ^ids
+  #   data_query = from c in subquery(base_query), as: :collection,
+  #     inner_lateral_join: r in ^subquery(
+  #       from r in Resource, as: :resource,
+  #       where: r.collection_id == parent_as(:collection).id,
+  #       order_by: [desc: r.id],
+  #       limit: ^limit
+  #     ),
+  #     select: %Resource{
+  #       id: r.id, creator_id: r.creator_id, collection_id: r.collection_id,
+  #       content_id: r.content_id, icon_id: r.icon_id, name: r.name,
+  #       summary: r.summary, license: r.license, author: r.author,
+  #       published_at: r.published_at, disabled_at: r.disabled_at,
+  #       deleted_at: r.deleted_at, updated_at: r.updated_at,
+  #     }
+
+  #   count_query = Resources.Queries.query Resource,
+  #     collection_id: ids,
+  #     group_count: :collection_id
+
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       cursor_fn: &[&1.id],
+  #       group_fn: &(&1.collection_id),
+  #       page_opts: page_opts,
+  #       base_filters: [:deleted, user: user, collection_id: ids],
+  #       data_query: data_query,
+  #       count_query: count_query,
+  #     }
+  #   )
+  # end
+
+  def fetch_resources_edge(page_opts, info, id) do
+    user = GraphQL.current_user(info)
+
+    FetchPage.run(%FetchPage{
+      queries: Resources.Queries,
+      query: Resource,
+      cursor_fn: &[&1.id],
+      page_opts: page_opts,
+      base_filters: [deleted: false, user: user, collection: id],
+      data_filters: [page: [desc: [created: page_opts]]]
     })
   end
 

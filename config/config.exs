@@ -71,10 +71,10 @@ config :moodle_net, GarbageCollector,
   grace: 302_400
 
 config :moodle_net, Feeds,
-  valid_contexts: [Collection, Comment, Community, Resource, Like],
+  valid_contexts: [Collection, Comment, Community, Resource, Like, CommonsPub.Tag.Category],
   default_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Blocks, valid_contexts: [Collection, Community, User]
+config :moodle_net, Blocks, valid_contexts: [Collection, Community, User, CommonsPub.Tag.Category]
 
 desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
 
@@ -91,9 +91,10 @@ config :moodle_net, Communities,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Resources, valid_contexts: [Collection, Community, User]
+config :moodle_net, Resources,
+  valid_contexts: [Collection, Community, User, CommonsPub.Tag.Category]
 
-config :moodle_net, Features, valid_contexts: [Collection, Community]
+config :moodle_net, Features, valid_contexts: [Collection, Community, CommonsPub.Tag.Category]
 
 config :moodle_net, Flags,
   valid_contexts: [
@@ -103,7 +104,8 @@ config :moodle_net, Flags,
     Resource,
     User,
     Organisation,
-    CommonsPub.Character
+    CommonsPub.Character,
+    CommonsPub.Tag.Category
   ]
 
 config :moodle_net, Follows,
@@ -115,11 +117,11 @@ config :moodle_net, Follows,
     Geolocation,
     Organisation,
     CommonsPub.Character,
-    CommonsPub.Category
+    CommonsPub.Tag.Category
   ]
 
 config :moodle_net, Likes,
-  valid_contexts: [Collection, Community, Comment, Resource, CommonsPub.Category]
+  valid_contexts: [Collection, Community, Comment, Resource, CommonsPub.Tag.Category]
 
 config :moodle_net, Threads,
   valid_contexts: [
@@ -129,7 +131,7 @@ config :moodle_net, Threads,
     Resource,
     User,
     Organisation,
-    CommonsPub.Category,
+    CommonsPub.Tag.Category,
     CommonsPub.Character,
     ValueFlows.Planning.Intent
   ]
@@ -140,13 +142,19 @@ config :moodle_net, Users,
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
 config :moodle_net, Units,
-  valid_contexts: [CommonsPub.Category, Organisation, Community, Collection]
+  valid_contexts: [CommonsPub.Tag.Category, Organisation, Community, Collection]
 
 config :moodle_net, Organisation,
-  valid_contexts: [CommonsPub.Category, Organisation, Community, Collection]
+  valid_contexts: [CommonsPub.Tag.Category, Organisation, Community, Collection]
 
 config :moodle_net, CommonsPub.Character,
-  valid_contexts: [CommonsPub.Category, CommonsPub.Character, Organisation, Community, Collection],
+  valid_contexts: [
+    CommonsPub.Tag.Category,
+    CommonsPub.Character,
+    Organisation,
+    Community,
+    Collection
+  ],
   default_outbox_query_contexts: [
     Collection,
     CommonsPub.Character,

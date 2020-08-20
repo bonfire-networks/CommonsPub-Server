@@ -6,7 +6,7 @@ defmodule MoodleNetWeb.CollectionLive.CollectionResourcesLive do
   }
 
   alias MoodleNetWeb.GraphQL.{
-    CollectionsResolver
+    ResourcesResolver
   }
 
   # def mount(socket) do
@@ -38,8 +38,8 @@ defmodule MoodleNetWeb.CollectionLive.CollectionResourcesLive do
     # IO.inspect(after: assigns.after)
 
     {:ok, resources} =
-      CollectionsResolver.resources_edge(
-        %{id: assigns.collection.id},
+      ResourcesResolver.resources_edge(
+        %{id: assigns.context_id},
         %{after: assigns.after, limit: 3},
         %{context: %{current_user: assigns.current_user}}
       )

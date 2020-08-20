@@ -340,11 +340,15 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> Map.merge(%{context: context})
   end
 
-  def context_type(context) do
-    context.__struct__
+  def context_type(%{__struct__: name}) do
+    name
     |> Module.split()
     |> Enum.at(-1)
     |> String.downcase()
+  end
+
+  def context_type(_) do
+    nil
   end
 
   def prepare_common(object) do

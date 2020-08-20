@@ -174,7 +174,7 @@ defmodule MoodleNetWeb.Router do
     live "/&:username/:tab", CommunityLive
 
     live "/+:id/unknown", Page.Unknown
-    live "/++:id", Page.Unknown
+    live "/++:id", Page.Category
 
     live "/+:username", CollectionLive
     live "/+:username/:tab", CollectionLive

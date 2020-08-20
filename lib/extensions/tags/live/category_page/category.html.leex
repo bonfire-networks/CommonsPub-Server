@@ -1,0 +1,65 @@
+<div>
+  <%= if @object_type do %>
+    <%=
+  live_component(
+      @socket,
+      MoodleNetWeb.Component.PreviewLive,
+      object: @category,
+      object_type: @object_type,
+      current_user: @current_user,
+      preview_id: e(@category, :id, 'unknown')
+
+    )
+%>
+    <div class="mainContent__selected">
+      <h3 class="area__title">Collections</h3>
+      <%= live_component(
+          @socket,
+          CommunityCollectionsLive,
+          context: @category,
+          selected_tab: "collections",
+          id: :collections,
+          current_user: @current_user,
+          page: 1,
+          has_next_page: false,
+          after: [],
+          before: [],
+          pagination_target: "#category-collections"
+        ) %>
+    </div>
+    <div class="mainContent__selected">
+      <h3 class="area__title">Resources</h3>
+      <%= live_component(
+              @socket,
+              CollectionResourcesLive,
+              context_id: @category.id,
+              selected_tab: "resources",
+              id: :resources,
+              current_user: @current_user,
+              resources: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#collection-activities"
+            ) %>
+    </div>
+  <% end %>
+  <div class="mainContent__selected">
+    <h3 class="area__title">(Sub)Categories</h3>
+    <%= live_component(
+              @socket,
+              SubcategoriesLive,
+              selected_tab: "",
+              id: :subcategories,
+              current_user: @current_user,
+              category_id: @category.id,
+              categories: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#sub-categories"
+          ) %>
+  </div>
+</div>

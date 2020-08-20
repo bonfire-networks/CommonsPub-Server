@@ -37,18 +37,18 @@
                     <section class="dialog__content">
                       <form phx-submit="edit_community">
                         <input name="name" value="<%= @collection.name %>" placeholder="Type the collection name..." />
-                        <textarea name="summary" placeholder="Describe your collection..."><%= @collection.summary %></textarea>
-                        <footer class="dialog__footer">
-                          <button value="default">Confirm</button>
-                        </footer>
-                      </form>
-                    </section>
-                  </dialog>
-                </details>
-              <% end %>
-            </li>
-            <li>
-              <%=
+<textarea name="summary" placeholder="Describe your collection..."><%= @collection.summary %></textarea>
+<footer class="dialog__footer">
+  <button value="default">Confirm</button>
+</footer>
+</form>
+</section>
+</dialog>
+</details>
+<% end %>
+</li>
+<li>
+  <%=
                 live_component(
                   @socket,
                   MoodleNetWeb.Component.FlagLive,
@@ -58,9 +58,9 @@
                   flag_object_name: @collection.name
                 )
               %>
-            </li>
-            <li>
-              <%=
+</li>
+<li>
+  <%=
                   live_component(
                     @socket,
                     MoodleNetWeb.Component.BlockLive,
@@ -70,32 +70,30 @@
                     block_object_name: @collection.name
                   )
                 %>
-            </li>
-          </ul>
-        </details>
-      </div>
-    </div>
-  </div>
+</li>
+</ul>
+</details>
+</div>
+</div>
+</div>
 <%= if @selected_tab == "write" do %>
   <div class="mainContent__all community__write">
     <h3 class="area__title">Start a new discussion</h3>
   <% else %>
     <div class="community__layout">
       <div class="mainContent__selected">
-
-      <div class="layout__menu">
-        <%= live_patch link_body("Resources","feather-file"),
+        <div class="layout__menu">
+          <%= live_patch link_body("Resources","feather-file"),
           to: "/+" <> @collection.actor.preferred_username <> "/resources",
           class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
         %>
-       <%= live_patch "Timeline",
+          <%= live_patch "Timeline",
               to: "/+" <> @collection.actor.preferred_username <>  "/timeline",
               class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
             %>
-      </div>
-
+        </div>
         <%= cond do %>
-        <% @selected_tab == "timeline" ->  %>
+          <% @selected_tab == "timeline" ->  %>
           <%# <h3 class="area__title">Collection timeline</h3> %>
           <%= live_component(
             @socket,
@@ -111,12 +109,11 @@
             before: [],
             pagination_target: "#collection-activities"
           ) %>
-        <% @selected_tab == "resources" ->  %>
-
+          <% @selected_tab == "resources" ->  %>
           <%= live_component(
               @socket,
               CollectionResourcesLive,
-              collection: @collection,
+              context_id: @collection.id,
               selected_tab: @selected_tab,
               id: :resources,
               current_user: @current_user,
@@ -127,8 +124,7 @@
               before: [],
               pagination_target: "#collection-activities"
             ) %>
-        <% @selected_tab == "discussions" ->  %>
-
+          <% @selected_tab == "discussions" ->  %>
           <%= live_component(
             @socket,
             CollectionDiscussionsLive,
@@ -143,12 +139,11 @@
             before: [],
             pagination_target: "#collection-threads"
           ) %>
-        <% true -> %>
-
+          <% true -> %>
           <%= live_component(
               @socket,
               CollectionResourcesLive,
-              collection: @collection,
+              context_id: @collection.id,
               selected_tab: @selected_tab,
               id: :resources,
               current_user: @current_user,
@@ -176,7 +171,6 @@
             </div>
           </div>
         <% end %>
-
         <div class="navigation__block">
           <h3 class="block__title">Followers</h3>
           <div class="block__context">

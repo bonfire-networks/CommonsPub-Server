@@ -30,6 +30,39 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     })
   end
 
+  def fetch_categories(page_opts, _info) do
+    FetchPage.run(%FetchPage{
+      queries: Category.Queries,
+      query: Category,
+      # cursor_fn: Tags.cursor,
+      page_opts: page_opts,
+      # base_filters: [user: GraphQL.current_user(info)],
+      data_filters: [:default, page: [desc: [id: page_opts]]]
+    })
+  end
+
+  def categories_toplevel(page_opts, info) do
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_categories_toplevel,
+      page_opts: page_opts,
+      info: info,
+      # popularity
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
+  end
+
+  def fetch_categories_toplevel(page_opts, _info) do
+    FetchPage.run(%FetchPage{
+      queries: Category.Queries,
+      query: Category,
+      # cursor_fn: Tags.cursor,
+      page_opts: page_opts,
+      # base_filters: [user: GraphQL.current_user(info)],
+      data_filters: [:default, :toplevel, page: [desc: [id: page_opts]]]
+    })
+  end
+
   def category(%{category_id: id}, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
@@ -56,17 +89,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   def fetch_category(_info, id) do
     Categories.get(id)
-  end
-
-  def fetch_categories(page_opts, _info) do
-    FetchPage.run(%FetchPage{
-      queries: Category.Queries,
-      query: Category,
-      # cursor_fn: Tags.cursor,
-      page_opts: page_opts,
-      # base_filters: [user: GraphQL.current_user(info)],
-      data_filters: [:default, page: [desc: [id: page_opts]]]
-    })
   end
 
   def parent_category(%Category{parent_category_id: id}, _, info) do

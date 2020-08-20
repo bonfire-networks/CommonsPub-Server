@@ -158,7 +158,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&CommunitiesResolver.collections_edge/3)
+      resolve(&CollectionsResolver.collections_edge/3)
     end
 
     @desc "The total number of times this community has been featured"
