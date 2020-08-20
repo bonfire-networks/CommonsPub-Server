@@ -59,16 +59,19 @@ ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
 # Essentials
 RUN apk add --update --no-cache \
-  ca-certificates \
   mailcap \
+  ca-certificates \
   openssh-client \
   openssl-dev \
+  # ^ for HTTPS
+  git \ 
   build-base \ 
   # ^ required by tree_magic 
   tzdata \
+  gettext \
+  # ^ localisation
   bash \
-  curl \
-  gettext 
+  curl
 
 WORKDIR /opt/app
 

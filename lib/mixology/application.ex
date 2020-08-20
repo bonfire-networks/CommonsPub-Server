@@ -41,6 +41,7 @@ defmodule MoodleNet.Application do
     # start, endpoint should attempt to serve users without the repo
     # and does not need it to start up
     children = [
+      CommonsPub.Utils.Metrics,
       supervisor(Repo, []),
       worker(TableService, []),
       {Phoenix.PubSub, [name: MoodleNet.PubSub, adapter: Phoenix.PubSub.PG2]},

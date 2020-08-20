@@ -48,6 +48,7 @@ defmodule MoodleNet.Mixfile do
       extra_applications: [
         :logger,
         :runtime_tools,
+        :os_mon,
         :hackney,
         :mime,
         :belt,
@@ -135,6 +136,9 @@ defmodule MoodleNet.Mixfile do
       # Monitoring
       # stats
       {:telemetry, "~> 0.4.0"},
+      {:phoenix_live_dashboard, "~> 0.2.0"},
+      {:telemetry_metrics, "~> 0.4"},
+      {:telemetry_poller, "~> 0.4"},
       # production only
       {:sentry, "~> 7.1", runtime: sentry?()},
       # Misc

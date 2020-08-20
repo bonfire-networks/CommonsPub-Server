@@ -4,12 +4,19 @@ ENV HOME=/opt/app/ TERM=xterm
 
 WORKDIR $HOME
 
-# dev deps
+# dev tools
 RUN apk update && \
-    apk add --no-cache bash openssl-dev inotify-tools 
+    apk add --no-cache bash curl inotify-tools 
 
-# useful deps
-RUN apk add --no-cache curl git rust cargo npm build-base
+# various dependencies of dependencies
+RUN apk add --no-cache git \
+    rust cargo \
+    npm \
+    git build-base \  
+    mailcap \
+    ca-certificates openssh-client openssl-dev \
+    tzdata \
+    gettext 
 
 # dependencies for comeonin
 RUN apk add --no-cache cmake make gcc libc-dev
