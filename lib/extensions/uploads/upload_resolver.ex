@@ -29,8 +29,15 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     end
   end
 
+  # defp do_upload(user, {:resource, fields}, acc) do
+  #   IO.inspect(do_upload_1: fields)
+  #   upload(user, MoodleNetWeb.Helpers.Common.input_to_atoms(fields), nil)
+  # end
+
   defp do_upload(user, {field_name, content_input}, acc) do
+    IO.inspect(do_upload: {field_name, content_input})
     uploader = @uploader_fields[field_name]
+
     if uploader do
       case Uploads.upload(uploader, user, content_input, %{}) do
         {:ok, content} ->

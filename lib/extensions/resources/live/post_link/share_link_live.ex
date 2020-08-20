@@ -66,24 +66,28 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
 
       # IO.inspect(context_id, label: "context_id CHOOSEN")
 
-      {:ok, resource} =
-        MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
-          %{
-            context_id: context_id,
-            resource: input_to_atoms(data),
-            content: input_to_atoms(content),
-            icon: input_to_atoms(icon)
-          },
-          %{context: %{current_user: socket.assigns.current_user}}
-        )
+      with {:ok, resource} <-
+             MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
+               %{
+                 context_id: context_id,
+                 resource: input_to_atoms(data),
+                 content: input_to_atoms(content),
+                 icon: input_to_atoms(icon)
+               },
+               %{context: %{current_user: socket.assigns.current_user}}
+             ) do
+        {:noreply,
+         socket
+         |> put_flash(:info, "Published!")
+         |> push_redirect(to: "/instance/timeline")}
 
-      {:noreply,
-       socket
-       |> put_flash(:info, "Published!")
-       |> push_redirect(to: "/instance/timeline")}
-
-      # change redirect
-      #  |> push_redirect(to: "/!" <> resource.id)}
+        # change redirect
+      else
+        e ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "There was an error sharing this link...")}
+      end
     end
   end
 end

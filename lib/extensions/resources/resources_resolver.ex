@@ -136,25 +136,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     })
   end
 
-  @doc """
-  Deprecated - create resource in collection
-  """
-  def create_resource(%{resource: res_attrs, collection_id: collection_id} = input_attrs, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      Repo.transact_with(fn ->
-        with {:ok, uploads} <- UploadResolver.upload(user, input_attrs, info),
-             {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
-             res_attrs = Map.merge(res_attrs, uploads),
-             {:ok, resource} <- Resources.create(user, collection, res_attrs) do
-          {:ok, %{resource | collection: collection}}
-        end
-      end)
-    end
-  end
-
-  def create_resource(%{resource: res_attrs, context_id: context_id}, info)
+  def create_resource(%{context_id: context_id} = input_attrs, info)
       when is_nil(context_id) or context_id == "" do
-    create_resource(%{resource: res_attrs}, info)
+    create_resource(Map.drop(input_attrs, [:context_id]), info)
   end
 
   @doc """
@@ -173,6 +157,13 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
         end
       end)
     end
+  end
+
+  @doc """
+  Deprecated - create resource in collection
+  """
+  def create_resource(%{resource: res_attrs, collection_id: collection_id} = input_attrs, info) do
+    create_resource(Map.merge(input_attrs, %{context_id: collection_id}), info)
   end
 
   @doc """
