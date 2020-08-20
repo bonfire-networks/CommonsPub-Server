@@ -6,40 +6,40 @@
           <%= live_patch to: "/&" <> e(@community, :actor, :preferred_username, "deleted") <> "/about" do %>
             <div class="named-avatar">
               <img alt="profile pic" src="<%= e(@community, :icon_url, e(@community, :image_url, "")) %>" />
-              <h3><%= @community.name %></h3>
-            </div>
-          <% end %>
-        </div>
-        <div class="suphero__actions">
-          <%= if @community.is_followed do %>
-            <button class="button follow" phx-click="unfollow">Leave</button>
-            <%= if @community.creator_id==@current_user.id do %>
-              <details class="dialog__container">
-                <summary class="button button__edit__community">Edit</summary>
-                <dialog open class="dialog dialog__create">
-                  <header class="dialog__header">Edit community</header>
-                  <section class="dialog__content">
-                    <form phx-submit="edit_community">
-                      <input type="text" name="name" value="<%= @community.name %>" placeholder="Type the community name..." />
-                      <textarea name="summary" placeholder="Describe your community..."><%= @community.summary %></textarea>
-                      <footer class="dialog__footer">
-                        <button value="default">Confirm</button>
-                      </footer>
-                    </form>
-                  </section>
-                </dialog>
-              </details>
-            <% end %>
-          <% else %>
-            <button class="button follow" phx-click="follow">Join</button>
-          <% end %>
-          <details class="more__dropdown">
-            <summary>
-              <i class="feather-more-horizontal"></i>
-            </summary>
-            <ul class="dropdown__list">
-              <li>
-                <%=
+<h3><%= @community.name %></h3>
+</div>
+<% end %>
+</div>
+<div class="suphero__actions">
+  <%= if @community.is_followed do %>
+    <button class="button follow" phx-click="unfollow">Leave</button>
+    <%= if @community.creator_id==@current_user.id do %>
+      <details class="dialog__container">
+        <summary class="button button__edit__community">Edit</summary>
+        <dialog open class="dialog dialog__create">
+          <header class="dialog__header">Edit community</header>
+          <section class="dialog__content">
+            <form phx-submit="edit_community">
+              <input type="text" name="name" value="<%= @community.name %>" placeholder="Type the community name..." />
+              <textarea name="summary" placeholder="Describe your community..."><%= @community.summary %></textarea>
+              <footer class="dialog__footer">
+                <button value="default">Confirm</button>
+              </footer>
+            </form>
+          </section>
+        </dialog>
+      </details>
+    <% end %>
+  <% else %>
+    <button class="button follow" phx-click="follow">Join</button>
+  <% end %>
+  <details class="more__dropdown">
+    <summary>
+      <i class="feather-more-horizontal"></i>
+    </summary>
+    <ul class="dropdown__list">
+      <li>
+        <%=
                 live_component(
                   @socket,
                   MoodleNetWeb.Component.FlagLive,
@@ -49,9 +49,9 @@
                   flag_object_name: @community.name
                 )
               %>
-              </li>
-              <li>
-                <%=
+      </li>
+      <li>
+        <%=
                   live_component(
                     @socket,
                     MoodleNetWeb.Component.BlockLive,
@@ -61,48 +61,48 @@
                     block_object_name: @community.name
                   )
                 %>
-              </li>
-            </ul>
-          </details>
-        </div>
-      </div>
-    </div>
-  <div class="community__layout">
+      </li>
+    </ul>
+  </details>
+</div>
+</div>
+</div>
+<div class="community__layout">
   <%= cond do %>
     <% @selected_tab == "about" ->  %>
     <div>
-    <div class="mainContent__selected">
-      <div class="selected__area">
-        <div class="area__community-hero">
-          <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
+      <div class="mainContent__selected">
+        <div class="selected__area">
+          <div class="area__community-hero">
+            <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
             <h1><%= @community.name %></h1>
             <h4><%= e(@community, :display_username, e(@community, :actor, :preferred_username, "")) %>
-          </div>
-          <%= live_component(
+            </div>
+            <%= live_component(
               @socket,
               AboutLive,
               description: @community.summary
             )
           %>
-        </div>
-      </div>
-      <%= if @community.is_followed do %>
-      <div class="mainContent__selected">
-        <div class="block__publish">
-          <div class="avatar" style="background-image: url(<%= e(@current_user, :icon_url, "") %>)"></div>
-          <div phx-target="#write_widget" phx-click="toggle_post" class="fake__input">Publish something in <%= @community.name %></div>
-        </div>
-        <div class="block__new">
-          <div phx-target="#new_collection" phx-click="toggle_collection" class="new__collection">
-            <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" class="mc-icon mc-icon-template-content mc-icon-template-content--folder-small brws-file-name-cell-icon" role="img"><g fill="none" fill-rule="evenodd"><path d="M18.422 11h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 32 5 31.331 5 30.507V9.493C5 8.663 5.671 8 6.5 8h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#71B9F4"></path><path d="M18.422 10h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 31 5 30.331 5 29.507V8.493C5 7.663 5.671 7 6.5 7h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#92CEFF"></path></g></svg>
-            <h4>New collection</h4>
           </div>
         </div>
-      </div>
-      <% end %>
-      <div class="mainContent__selected">
-        <h3 class="area__title">timeline</h3>
-        <%= live_component(
+        <%= if @community.is_followed do %>
+          <div class="mainContent__selected">
+            <div class="block__publish">
+              <div class="avatar" style="background-image: url(<%= e(@current_user, :icon_url, "") %>)"></div>
+              <div phx-target="#write_widget" phx-click="toggle_post" class="fake__input">Publish something in <%= @community.name %></div>
+            </div>
+            <div class="block__new">
+              <div phx-target="#new_collection" phx-click="toggle_collection" class="new__collection">
+                <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" class="mc-icon mc-icon-template-content mc-icon-template-content--folder-small brws-file-name-cell-icon" role="img"><g fill="none" fill-rule="evenodd"><path d="M18.422 11h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 32 5 31.331 5 30.507V9.493C5 8.663 5.671 8 6.5 8h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#71B9F4"></path><path d="M18.422 10h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 31 5 30.331 5 29.507V8.493C5 7.663 5.671 7 6.5 7h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#92CEFF"></path></g></svg>
+                <h4>New collection</h4>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">timeline</h3>
+          <%= live_component(
           @socket,
           CommunityActivitiesLive,
           community: @community,
@@ -116,7 +116,7 @@
           before: [],
           pagination_target: "#community-activities"
         ) %>
-      </div>
+        </div>
       </div>
       <% @selected_tab == "discussions" ->  %>
       <%= live_component(
@@ -134,12 +134,12 @@
                     pagination_target: "#community-threads"
                   ) %>
       <% @selected_tab == "collections" ->  %>
-       <div class="mainContent__selected">
+      <div class="mainContent__selected">
         <h3 class="area__title">Collections</h3>
         <%= live_component(
           @socket,
           CommunityCollectionsLive,
-          community: @community,
+          context: @community,
           selected_tab: @selected_tab,
           id: :collections,
           current_user: @current_user,
@@ -177,28 +177,27 @@
       </div>
     <% end %>
     <div>
-    <div class="community__navigation">
-      <h3 class="block__title">Menu</h3>
-      <%= live_component(
+      <div class="community__navigation">
+        <h3 class="block__title">Menu</h3>
+        <%= live_component(
                 @socket,
                 MoodleNetWeb.Component.ContextLive,
                 object: @community,
                 current_user: @current_user
               )%>
-
-      <%= live_patch link_body("Discussions","feather-message-square"),
+        <%= live_patch link_body("Discussions","feather-message-square"),
                     to: "/&" <> @community.actor.preferred_username <>  "/discussions",
                     class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
                   %>
-      <%= live_patch link_body("Collections","feather-folder"),
+        <%= live_patch link_body("Collections","feather-folder"),
                     to: "/&" <> @community.actor.preferred_username <>  "/collections",
                     class: if @selected_tab == "collections", do: "navigation__item active", else: "navigation__item"
                   %>
-    </div>
+      </div>
       <div class="navigation__block">
-      <h3 class="block__title">Members</h3>
-      <div class="block__context">
-        <%= live_component(
+        <h3 class="block__title">Members</h3>
+        <div class="block__context">
+          <%= live_component(
           @socket,
           CommunityMembersLive,
           community: @community,
@@ -212,7 +211,7 @@
           before: [],
           pagination_target: "#community-members-preview"
         ) %>
-      </div>
+        </div>
       </div>
     </div>
   </div>

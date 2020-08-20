@@ -139,9 +139,13 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   end
 
   defp validate_thread_context(pointer) do
-    if MoodleNet.Meta.Pointers.table!(pointer).schema in valid_contexts() do
+    schema = MoodleNet.Meta.Pointers.table!(pointer).schema
+
+    if schema in valid_contexts() do
       :ok
     else
+      IO.inspect(not_permitted_context: schema)
+      IO.inspect(valid_contexts())
       GraphQL.not_permitted()
     end
   end

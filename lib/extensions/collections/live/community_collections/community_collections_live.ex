@@ -20,7 +20,8 @@ defmodule MoodleNetWeb.CommunityLive.CommunityCollectionsLive do
 
   defp fetch(socket, assigns) do
     {:ok, collections} =
-      CollectionsResolver.collections(
+      CollectionsResolver.collections_edge(
+        %{id: assigns.context.id},
         %{limit: 10},
         %{context: %{current_user: assigns.current_user}}
       )

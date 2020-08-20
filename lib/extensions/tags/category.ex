@@ -2,6 +2,8 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Category do
+  use MoodleNet.Common.Schema
+
   use Pointers.Pointable,
     otp_app: :moodle_net,
     source: "category",

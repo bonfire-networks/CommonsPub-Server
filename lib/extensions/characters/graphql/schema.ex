@@ -207,7 +207,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&CommunitiesResolver.collections_edge/3)
+      resolve(&CollectionsResolver.collections_edge/3)
     end
 
     # @desc "The total number of resources in the collection, including private ones"
@@ -220,7 +220,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&CollectionsResolver.resources_edge/3)
+      resolve(&ResourcesResolver.resources_edge/3)
     end
 
     # @desc "Any tags linked under this character"

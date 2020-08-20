@@ -2,6 +2,8 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Taggable do
+  use MoodleNet.Common.Schema
+
   use Pointers.Mixin,
     otp_app: :my_app,
     source: "taggable"
@@ -13,7 +15,7 @@ defmodule CommonsPub.Tag.Taggable do
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Taggable
-  alias MoodleNet.{Repo}
+  alias MoodleNet.Repo
 
   @type t :: %__MODULE__{}
   @required ~w(id prefix facet)a

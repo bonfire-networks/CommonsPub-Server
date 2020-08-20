@@ -33,7 +33,11 @@ defmodule Taxonomy.IndexingBatch do
 
       # IO.inspect(obj)
 
-      CommonsPub.Search.Indexer.index_objects(obj, @tags_index_name, false)
+      ## add to search index as is
+      # CommonsPub.Search.Indexer.index_objects(obj, @tags_index_name, false)
+
+      ## import into Categories
+      Taxonomy.TaxonomyTags.maybe_make_category(nil, id)
 
       # results = results ++ [obj]
     end

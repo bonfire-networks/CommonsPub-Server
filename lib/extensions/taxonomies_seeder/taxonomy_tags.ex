@@ -72,19 +72,17 @@ defmodule Taxonomy.TaxonomyTags do
 
   @doc "Takes an existing TaxonomyTag and makes it a category, if one doesn't already exist"
   def maybe_make_category(user, %TaxonomyTag{} = tag) do
-    Repo.transact_with(fn ->
-      tag = Repo.preload(tag, [:category, :parent_tag])
+    tag = Repo.preload(tag, [:category, :parent_tag])
 
-      # with CommonsPub.Tag.categories.one(taxonomy_tag_id: tag.id) do
-      if !is_nil(tag.category_id) and
-           Ecto.assoc_loaded?(tag.category) and
-           !is_nil(tag.category.id) do
-        # already exists
-        {:ok, tag.category}
-      else
-        make_category(user, tag)
-      end
-    end)
+    # with CommonsPub.Tag.categories.one(taxonomy_tag_id: tag.id) do
+    if !is_nil(tag.category_id) and
+         Ecto.assoc_loaded?(tag.category) and
+         !is_nil(tag.category.id) do
+      # already exists
+      {:ok, tag.category}
+    else
+      make_category(user, tag)
+    end
   end
 
   def maybe_make_category(user, id) when is_number(id) do
@@ -102,24 +100,30 @@ defmodule Taxonomy.TaxonomyTags do
     tag = Repo.preload(tag, [:category, :parent_tag])
     parent_tag = tag.parent_tag
 
-    IO.inspect(pointerise_parent: parent_tag)
+    create_tag = cleanup(tag)
+
+    # IO.inspect(pointerise_parent: parent_tag)
 
     # pointerise the parent(s) first (recursively)
-    {:ok, parent_category} = maybe_make_category(user, parent_tag)
+    with {:ok, parent_category} <- maybe_make_category(user, parent_tag) do
+      # IO.inspect(parent_category: parent_category)
 
-    IO.inspect(parent_category: parent_category)
-
-    create_tag =
-      if(parent_category) do
+      create_tag =
         cleanup(tag)
         |> Map.merge(%{parent_category: parent_category})
         |> Map.merge(%{parent_category_id: parent_category.id})
-      else
-        cleanup(tag)
-      end
+        |> Map.merge(%{
+          preferred_username: slug(tag.name, 150) <> "-" <> slug(parent_tag.name, 100)
+        })
 
-    # finally pointerise the child(ren), in hierarchical order
-    create_category(user, tag, create_tag)
+      # finally pointerise the child(ren), in hierarchical order
+      create_category(user, tag, create_tag)
+    else
+      e ->
+        IO.inspect("could not create parent tag")
+        # create the child anyway
+        create_category(user, tag, create_tag)
+    end
   end
 
   defp make_category(user, %TaxonomyTag{} = tag) do
@@ -149,9 +153,14 @@ defmodule Taxonomy.TaxonomyTags do
     |> Map.delete(:__meta__)
     # use Thing name as facet/trope
     |> Map.put(:facet, "Category")
+    |> Map.put(:name, slug(thing.name))
     |> Map.put(:prefix, "+")
     # avoid reusing IDs
     |> Map.delete(:id)
+  end
+
+  def slug(input, length \\ 244) do
+    Regex.run(~r/\A(.{0,#{length}})(?: |\Z)/, input) |> List.last()
   end
 
   def update(_user, %TaxonomyTag{} = tag, attrs) do

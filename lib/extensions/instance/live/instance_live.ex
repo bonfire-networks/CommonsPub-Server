@@ -14,7 +14,8 @@ defmodule MoodleNetWeb.InstanceLive do
     InstanceMembersLive,
     InstanceMembersPreviewLive,
     InstanceCommunitiesLive,
-    InstanceCollectionsLive
+    InstanceCollectionsLive,
+    InstanceCategoriesLive
   }
 
   def mount(params, session, socket) do
