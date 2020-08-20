@@ -2,6 +2,7 @@ defmodule MoodleNetWeb.CollectionLive do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
+
   alias MoodleNetWeb.Helpers.{Collections, Profiles}
   alias MoodleNetWeb.GraphQL.CollectionsResolver
 
@@ -47,6 +48,7 @@ defmodule MoodleNetWeb.CollectionLive do
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     collection = Collections.collection_load(socket, params, socket.assigns.current_user)
     IO.inspect(tab)
+
     {:noreply,
      assign(socket,
        selected_tab: tab,

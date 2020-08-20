@@ -1,0 +1,19 @@
+<section class="map">
+  <leaflet-map points="<%= "#{inspect @points}"%>">
+    <%= for marker <- @markers do %>
+      <leaflet-marker
+        lat="<%= marker.lat %>"
+        lng="<%= marker.long %>"
+        selected="<%= Map.get(marker, :is_disabled, false) %>"
+        phx-click="toggle_marker"
+        phx-value-id="<%= marker.id %>"
+        popup="<%= marker.name %>">
+        <leaflet-icon
+          icon-url="<%= get_icon_url(Map.get(marker, :is_disabled, false)) %>"
+          width="64"
+          height="64">
+        </leaflet-icon>
+      </leaflet-marker>
+    <% end %>
+  </leaflet-map>
+</section>

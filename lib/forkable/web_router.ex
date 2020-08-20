@@ -169,6 +169,8 @@ defmodule MoodleNetWeb.Router do
     live "/instance/search/:tab", SearchLive
     live "/instance/search/:tab/:search", SearchLive
 
+    live "/instance/map", Geolocation.MapLive
+
     live "/instance/:tab", InstanceLive
 
     live "/@:username", MemberLive
