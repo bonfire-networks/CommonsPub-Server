@@ -19,6 +19,10 @@ defmodule MoodleNetWeb.Router do
     plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
   end
 
+  pipeline :ensure_admin do
+    plug(MoodleNetWeb.Plugs.EnsureAdminPlug)
+  end
+
   @doc """
   General pipeline for webpage requests
   """
@@ -231,7 +235,7 @@ defmodule MoodleNetWeb.Router do
     pipe_through :browser
     pipe_through :liveview
     pipe_through :protect_forgery
-    pipe_through :ensure_authenticated
+    pipe_through :ensure_admin
 
     live_dashboard "/dashboard", metrics: CommonsPub.Utils.Metrics
   end
