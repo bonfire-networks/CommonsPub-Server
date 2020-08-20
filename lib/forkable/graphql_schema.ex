@@ -113,7 +113,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields(:geolocation_mutation)
     import_fields(:measurement_mutation)
 
-    # import_fields(:value_flows_mutation)
+    import_fields(:value_flows_mutation)
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do

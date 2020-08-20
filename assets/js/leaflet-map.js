@@ -53,17 +53,26 @@ class LeafletMap extends HTMLElement {
       const lat = markerEl.getAttribute("lat");
       const lng = markerEl.getAttribute("lng");
 
-      const leafletMarker = L.marker([lat, lng], {
+      const marker = L.marker([lat, lng], {
         icon: this.defaultIcon,
       }).addTo(this.map);
 
       const popup = markerEl.getAttribute("popup");
 
-      if (popup) leafletMarker.bindPopup(popup).openPopup();
+      if (popup) {
+        marker.bindPopup(popup).openPopup();
 
-      // leafletMarker.addEventListener("click", (_event) => {
-      //   markerEl.click();
-      // });
+        marker.on("mouseover", function (e) {
+          this.openPopup();
+        });
+        marker.on("mouseout", function (e) {
+          this.closePopup();
+        });
+      }
+
+      marker.addEventListener("click", (_event) => {
+        markerEl.click();
+      });
 
       const iconEl = markerEl.querySelector("leaflet-icon");
       const iconSize = [
@@ -72,7 +81,7 @@ class LeafletMap extends HTMLElement {
       ];
 
       // iconEl.addEventListener("url-updated", (e) => {
-      //   leafletMarker.setIcon(
+      //   marker.setIcon(
       //     L.icon({
       //       iconUrl: e.detail,
       //       iconSize: iconSize,

@@ -1,19 +1,34 @@
+<%= if @place do %>
+  <%=
+  live_component(
+      @socket,
+      MoodleNetWeb.Component.PreviewLive,
+      object: @place,
+      object_type: "geolocation",
+      current_user: @current_user,
+      preview_id: e(@place, :id, 'unknown')
+
+    )
+%>
+<% end %>
 <section class="map">
   <leaflet-map points="<%= "#{inspect @points}"%>">
     <%= for marker <- @markers do %>
-      <leaflet-marker
+      <%= if Map.get(marker, :lat) do %>
+        <leaflet-marker
         lat="<%= marker.lat %>"
         lng="<%= marker.long %>"
         selected="<%= Map.get(marker, :is_disabled, false) %>"
-        phx-click="toggle_marker"
+        phx-click="marker_click"
         phx-value-id="<%= marker.id %>"
         popup="<%= marker.name %>">
-        <leaflet-icon
+          <leaflet-icon
           icon-url="<%= get_icon_url(Map.get(marker, :is_disabled, false)) %>"
           width="64"
           height="64">
-        </leaflet-icon>
-      </leaflet-marker>
+          </leaflet-icon>
+        </leaflet-marker>
+      <% end %>
     <% end %>
   </leaflet-map>
 </section>

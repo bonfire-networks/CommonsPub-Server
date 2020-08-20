@@ -185,12 +185,15 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:at_location_id, at_location_id}) do
     q
+    |> join_to(:geolocation)
+    |> preload(:at_location)
     |> where([intent: c], c.at_location_id == ^at_location_id)
   end
 
   def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
     q
     |> join_to(:geolocation)
+    |> preload(:at_location)
     |> where([intent: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
   end
 
@@ -293,6 +296,10 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def filter(q, {:preload, :at_location}) do
-    preload(q, [at_location: l], at_location: l)
+    q
+    |> join_to(:geolocation)
+    |> preload(:at_location)
+
+    # preload(q, [geolocation: g], at_location: g)
   end
 end
