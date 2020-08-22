@@ -85,7 +85,7 @@ dev-rebuild: init ## Rebuild the dev image (without cache)
 
 licenses: init
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix licenses
-	mv DEPENDENCIES.md docs/
+	mv -f DEPENDENCIES.md docs/
 
 dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force && mix local.rebar --force && mix deps.get
