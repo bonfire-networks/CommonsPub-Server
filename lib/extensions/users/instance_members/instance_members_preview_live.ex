@@ -4,9 +4,9 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersPreviewLive do
   alias MoodleNetWeb.Helpers.{Profiles}
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.{
-    UserPreviewLive
-  }
+  # alias MoodleNetWeb.Component.{
+  #   UserPreviewLive
+  # }
 
   alias MoodleNetWeb.GraphQL.{
     UsersResolver

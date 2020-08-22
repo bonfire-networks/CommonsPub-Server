@@ -55,7 +55,7 @@ defmodule CommonsPub.Tag.Autocomplete do
     end
   end
 
-  def tag_hit_prepare(hit, tag_search, prefix, consumer) do
+  def tag_hit_prepare(hit, _tag_search, prefix, consumer) do
     # IO.inspect(consumer)
     # IO.inspect(Map.new(consumer: "test"))
 
@@ -73,7 +73,7 @@ defmodule CommonsPub.Tag.Autocomplete do
     end
   end
 
-  def tag_add_field(hit, "tag_as", prefix, as) do
+  def tag_add_field(hit, "tag_as", _prefix, as) do
     Map.merge(hit, %{tag_as: as})
   end
 

@@ -3,17 +3,16 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   @moduledoc """
   Performs the GraphQL Community queries.
   """
-  alias MoodleNet.{Activities, Collections, Communities, GraphQL, Repo}
-  alias MoodleNet.Collections.Collection
+  alias MoodleNet.{Activities, Communities, GraphQL, Repo}
   alias MoodleNet.Communities.Community
 
   alias MoodleNet.GraphQL.{
-    FetchFields,
+    # FetchFields,
     Page,
     FetchPage,
     # FetchPages,
     ResolveField,
-    ResolveFields,
+    # ResolveFields,
     ResolvePage,
     ResolvePages,
     ResolveRootPage

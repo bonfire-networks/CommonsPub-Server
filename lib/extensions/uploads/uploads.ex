@@ -258,7 +258,7 @@ defmodule MoodleNet.Uploads do
     end
   end
 
-  defp allow_media_type(upload_def, nil) do
+  defp allow_media_type(_upload_def, nil) do
     :ok
   end
 

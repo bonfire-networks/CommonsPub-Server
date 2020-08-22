@@ -9,14 +9,12 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
     InstanceResolver
   }
 
-  def mount(params, session, socket) do
+  def mount(_params, _session, socket) do
     # IO.inspect(socket, label: "SOCKET")
     {
       :ok,
       socket
-      |> assign(
-        current_user: socket.assigns.current_user
-      )
+      |> assign(current_user: socket.assigns.current_user)
       #  |> fetch(), temporary_assigns: [activities: []]
     }
   end

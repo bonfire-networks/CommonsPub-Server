@@ -7,7 +7,7 @@ defmodule MoodleNet.Threads.Thread do
   alias Ecto.Changeset
   alias MoodleNet.Follows.FollowerCount
   alias MoodleNet.Feeds.Feed
-  alias Pointers.Pointer
+  # alias Pointers.Pointer
   alias MoodleNet.Threads
   alias MoodleNet.Threads.{LastComment, Comment, Thread}
   alias MoodleNet.Users.User

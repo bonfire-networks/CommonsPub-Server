@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.Helpers.Communities do
-  alias MoodleNet.{
-    Repo
-  }
+  # alias MoodleNet.{
+  #   Repo
+  # }
 
   alias MoodleNetWeb.GraphQL.{
     UsersResolver,

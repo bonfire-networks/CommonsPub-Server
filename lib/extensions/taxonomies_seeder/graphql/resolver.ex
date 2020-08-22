@@ -52,7 +52,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     TaxonomyTags.get(id)
   end
 
-  def fetch_tag_by_pointer(info, id) do
+  def fetch_tag_by_pointer(_info, id) do
     TaxonomyTags.one(
       # user: GraphQL.current_user(info),
       category_id: id,

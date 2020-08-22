@@ -2,10 +2,10 @@
 defmodule Organisation.Test.Faking do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  alias CommonsPub.Utils.Simulation
+  # alias CommonsPub.Utils.Simulation
 
   alias Organisation
-  import Organisation.Simulate
+  # import Organisation.Simulate
 
   def assert_organisation(%Organisation{} = org) do
     assert_organisation(Map.from_struct(org))

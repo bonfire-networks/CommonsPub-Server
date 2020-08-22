@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.SignupLive do
         "signup",
         %{
           "email" => email,
-          "preferred_username" => username,
+          "preferred_username" => _username,
           "password" => password,
           "password2" => password2
         } = data,
@@ -46,7 +46,7 @@ defmodule MoodleNetWeb.SignupLive do
       IO.inspect(input)
 
       case MoodleNetWeb.GraphQL.UsersResolver.create_user(%{user: input}, %{}) do
-        {:ok, user} ->
+        {:ok, _user} ->
           # IO.inspect(user)
 
           {:noreply,
@@ -71,7 +71,7 @@ defmodule MoodleNetWeb.SignupLive do
 
   def handle_event(
         "signup",
-        data,
+        _data,
         socket
       ) do
     {:noreply,

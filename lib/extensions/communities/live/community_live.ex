@@ -3,26 +3,26 @@ defmodule MoodleNetWeb.CommunityLive do
 
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Communities, Profiles}
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias MoodleNetWeb.CommunityLive.{
     CommunityDiscussionsLive,
     CommunityMembersLive,
     # CommunityNavigationLive,
     CommunityCollectionsLive,
-    CommunityWriteLive,
+    # CommunityWriteLive,
     CommunityActivitiesLive
   }
 
   alias MoodleNetWeb.Component.{
-    HeaderLive,
+    # HeaderLive,
     AboutLive,
     TabNotFoundLive
   }
 
-  alias MoodleNet.{
-    Repo
-  }
+  # alias MoodleNet.{
+  #   Repo
+  # }
 
   # FIXME
   # def mount(%{auth_token: auth_token}, socket) do
@@ -60,7 +60,7 @@ defmodule MoodleNetWeb.CommunityLive do
      )}
   end
 
-  def handle_params(%{} = params, url, socket) do
+  def handle_params(%{} = params, _url, socket) do
     community =
       Communities.community_load(socket, params, %{
         icon: true,
@@ -102,7 +102,7 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_event("follow", _data, socket) do
-    f =
+    _f =
       MoodleNetWeb.GraphQL.FollowsResolver.create_follow(
         %{context_id: socket.assigns.community.id},
         %{
@@ -123,7 +123,7 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.community.id)
+    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.community.id)
 
     # IO.inspect(uf)
     # TODO: error handling

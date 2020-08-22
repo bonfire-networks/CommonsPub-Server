@@ -43,7 +43,7 @@ defmodule Geolocation.GraphQL do
     })
   end
 
-  def all_geolocations(page_opts, info) do
+  def all_geolocations(_page_opts, _info) do
     Geolocations.many()
   end
 
@@ -160,7 +160,7 @@ defmodule Geolocation.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, geo} <- geolocation(%{id: id}, info),
          :ok <- ensure_delete_allowed(user, geo),
-         {:ok, geo} <- Geolocations.soft_delete(user, geo) do
+         {:ok, _geo} <- Geolocations.soft_delete(user, geo) do
       {:ok, true}
     end
   end

@@ -29,7 +29,7 @@ defmodule Taxonomy.IndexingBatch do
     for item <- tags.rows do
       # IO.inspect(item)
       [id, name, name_crumbs, summary] = item
-      obj = %{id: id, name: name, name_crumbs: name_crumbs, summary: summary}
+      # obj = %{id: id, name: name, name_crumbs: name_crumbs, summary: summary}
 
       # IO.inspect(obj)
 

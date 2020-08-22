@@ -7,10 +7,6 @@ defmodule MoodleNetWeb.TermsLive do
 
     {:ok,
      socket
-     |> assign(
-       app_name: Application.get_env(:moodle_net, :app_name),
-     )}
+     |> assign(app_name: Application.get_env(:moodle_net, :app_name))}
   end
-
-
 end

@@ -3,12 +3,6 @@ defmodule MoodleNetWeb.InstanceLive do
   # alias MoodleNetWeb.Helpers.{Profiles}
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.{
-    # HeaderLive,
-    AboutLive,
-    TabNotFoundLive
-  }
-
   alias MoodleNetWeb.InstanceLive.{
     InstanceActivitiesLive,
     InstanceMembersLive,
@@ -40,12 +34,12 @@ defmodule MoodleNetWeb.InstanceLive do
     {:noreply, socket}
   end
 
-  defp link_body(name, icon) do
-    assigns = %{name: name, icon: icon}
+  # defp link_body(name, icon) do
+  #   assigns = %{name: name, icon: icon}
 
-    ~L"""
-      <i class="<%= @icon %>"></i>
-      <%= @name %>
-    """
-  end
+  #   ~L"""
+  #     <i class="<%= @icon %>"></i>
+  #     <%= @name %>
+  #   """
+  # end
 end

@@ -1,5 +1,5 @@
 defmodule MoodleNetWeb.Helpers.Profiles do
-  alias MoodleNet.{Repo}
+  # alias MoodleNet.{Repo}
   alias MoodleNetWeb.GraphQL.UsersResolver
   import MoodleNetWeb.Helpers.Common
 
@@ -31,7 +31,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     false
   end
 
-  defp is_followed_by(map) do
+  defp is_followed_by(_map) do
     true
   end
 
@@ -42,9 +42,13 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     MoodleNet.Follows.soft_delete(current_user, follow)
   end
 
-  def prepare(%{username: username} = profile) do
+  def prepare(%{username: _username} = profile) do
     IO.inspect("profile already prepared")
     profile
+  end
+
+  def prepare(profile) do
+    prepare_website(prepare_username(profile))
   end
 
   def prepare(profile, %{icon: _} = preload) do
@@ -82,10 +86,6 @@ defmodule MoodleNetWeb.Helpers.Profiles do
       end
 
     prepare(profile)
-  end
-
-  def prepare(profile) do
-    prepare_website(prepare_username(profile))
   end
 
   def prepare_username(profile) do

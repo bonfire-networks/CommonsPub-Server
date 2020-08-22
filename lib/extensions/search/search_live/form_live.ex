@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.SearchLive.Form do
 
   import MoodleNetWeb.Helpers.Common
 
-  def handle_event("search", params, %{assigns: assigns} = socket) do
+  def handle_event("search", params, %{assigns: _assigns} = socket) do
     IO.inspect(search: params)
     IO.inspect(socket)
 

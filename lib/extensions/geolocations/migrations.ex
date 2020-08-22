@@ -1,7 +1,7 @@
 defmodule Geolocation.Migrations do
   use Ecto.Migration
-  alias MoodleNet.Repo
-  alias Ecto.ULID
+  # alias MoodleNet.Repo
+  # alias Ecto.ULID
   import Pointers.Migration
 
   def change do

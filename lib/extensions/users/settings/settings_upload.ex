@@ -31,12 +31,4 @@ defmodule MoodleNetWeb.My.SettingsUpload do
     conn
     |> redirect(external: "/~/profile")
   end
-
-  defp maybe_upload(%Plug.Upload{} = file, field) do
-    IO.inspect(file: file)
-  end
-
-  defp maybe_upload(_, _) do
-    nil
-  end
 end

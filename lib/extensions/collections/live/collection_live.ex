@@ -4,27 +4,12 @@ defmodule MoodleNetWeb.CollectionLive do
   import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Helpers.{Collections, Profiles}
-  alias MoodleNetWeb.GraphQL.CollectionsResolver
-
-  alias MoodleNetWeb.CommunityLive.{
-    CommunityWriteLive
-  }
 
   alias MoodleNetWeb.CollectionLive.{
     CollectionActivitiesLive,
     CollectionFollowersLive,
     CollectionResourcesLive,
     CollectionDiscussionsLive
-  }
-
-  alias MoodleNetWeb.Component.{
-    HeaderLive,
-    AboutLive,
-    TabNotFoundLive
-  }
-
-  alias MoodleNet.{
-    Repo
   }
 
   # FIXME
@@ -58,7 +43,7 @@ defmodule MoodleNetWeb.CollectionLive do
      )}
   end
 
-  def handle_params(%{} = params, url, socket) do
+  def handle_params(%{} = params, _url, socket) do
     collection = Collections.collection_load(socket, params, socket.assigns.current_user)
 
     IO.inspect(collection: collection)
@@ -94,7 +79,7 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_event("follow", _data, socket) do
-    f =
+    _f =
       MoodleNetWeb.GraphQL.FollowsResolver.create_follow(
         %{context_id: socket.assigns.collection.id},
         %{
@@ -115,7 +100,7 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
+    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
 
     # IO.inspect(uf)
     # TODO: error handling

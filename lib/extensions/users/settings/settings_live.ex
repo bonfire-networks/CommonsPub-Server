@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.SettingsLive do
     {:noreply, socket}
   end
 
-  def handle_event("profile_save", data, %{assigns: %{trigger_submit: trigger_submit}} = socket)
+  def handle_event("profile_save", _data, %{assigns: %{trigger_submit: trigger_submit}} = socket)
       when trigger_submit == true do
     {
       :noreply,

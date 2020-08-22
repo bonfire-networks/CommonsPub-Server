@@ -18,7 +18,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
     ResolveRootPage
   }
 
-  alias CommonsPub.Character
+  # alias CommonsPub.Character
 
   alias CommonsPub.Character.{
     Characters

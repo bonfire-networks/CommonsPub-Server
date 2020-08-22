@@ -8,6 +8,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
     CollectionsResolver,
+    ResourcesResolver,
     CommonResolver,
     FeaturesResolver,
     FlagsResolver,
@@ -157,7 +158,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "The total number of resources in the collection, including private ones"
     field :resource_count, :integer do
-      resolve(&CollectionsResolver.resource_count_edge/3)
+      resolve(&ResourcesResolver.resource_count_edge/3)
     end
 
     @desc "The resources in the collection, most recently created last"

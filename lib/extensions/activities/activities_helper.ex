@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def prepare(%{display_verb: _, display_object: _} = activity, current_user) do
+  def prepare(%{display_verb: _, display_object: _} = activity, _current_user) do
     IO.inspect("activity already prepared")
     activity
   end
@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
     prepare_activity(activity, current_user)
   end
 
-  defp prepare_activity(activity, current_user) do
+  defp prepare_activity(activity, _current_user) do
     # guess what type of thing we're dealing with
     activity = prepare_context(activity)
 
@@ -67,11 +67,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
     context_url(activity)
   end
 
-  def display_activity_verb(%{display_verb: display_verb}) do
-    display_verb
-  end
-
-  def display_activity_verb(%{display_verb: display_verb}) do
+  def display_activity_verb(%{display_verb: display_verb}) when not is_nil(display_verb) do
     display_verb
   end
 
@@ -83,7 +79,8 @@ defmodule MoodleNetWeb.Helpers.Activites do
     "posted"
   end
 
-  def display_activity_verb(%{verb: verb, context_type: context_type} = activity) do
+  def display_activity_verb(%{verb: verb, context_type: context_type} = activity)
+      when not is_nil(verb) and not is_nil(context_type) do
     cond do
       context_type == "flag" ->
         "flagged:"
@@ -126,11 +123,11 @@ defmodule MoodleNetWeb.Helpers.Activites do
     end
   end
 
-  def display_activity_verb(%{verb: verb}) do
+  def display_activity_verb(%{verb: verb}) when not is_nil(verb) do
     verb
   end
 
-  def display_activity_verb(%{context_type: context_type}) do
+  def display_activity_verb(%{context_type: context_type}) when not is_nil(context_type) do
     "acted on"
   end
 
@@ -138,7 +135,8 @@ defmodule MoodleNetWeb.Helpers.Activites do
     "did"
   end
 
-  def display_activity_object(%{verb: verb, context_type: context_type} = activity) do
+  def display_activity_object(%{verb: verb, context_type: context_type} = activity)
+      when not is_nil(verb) and not is_nil(context_type) do
     cond do
       context_type == "comment" ->
         cond do
@@ -163,7 +161,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
     end
   end
 
-  def display_activity_object(%{context_type: context_type}) do
+  def display_activity_object(%{context_type: context_type}) when not is_nil(context_type) do
     "a " <> context_type
   end
 

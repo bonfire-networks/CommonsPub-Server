@@ -15,15 +15,8 @@ defmodule CommonsPub.Character.GraphQL.Schema do
     UsersResolver,
     # UploadResolver,
     CommunitiesResolver,
-    CollectionsResolver
-  }
-
-  alias MoodleNet.{
-    Communities.Community,
-    Collections.Collection,
-    Resources.Resource,
-    Threads.Thread,
-    Threads.Comment
+    CollectionsResolver,
+    ResourcesResolver
   }
 
   # alias CommonsPub.Character.GraphQL.Resolver

@@ -12,10 +12,10 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     ResolvePages
   }
 
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Threads.{Comment, Thread}
+  # alias MoodleNet.Likes.Like
+  # alias MoodleNet.Follows.Follow
+  # alias MoodleNet.Flags.Flag
+  # alias MoodleNet.Threads.Comment
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Common
 

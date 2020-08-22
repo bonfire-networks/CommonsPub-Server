@@ -18,7 +18,7 @@ defmodule CommonsPub.Profile.GraphQL.Resolver do
     ResolveRootPage
   }
 
-  alias CommonsPub.Profile
+  # alias CommonsPub.Profile
 
   alias CommonsPub.Profile.{
     Profiles
