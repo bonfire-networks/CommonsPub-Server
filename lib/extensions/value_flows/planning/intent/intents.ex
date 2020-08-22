@@ -221,8 +221,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
     image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
 
-    Repo.preload(obj, :creator)
-
     %{
       "index_type" => "Intent",
       "id" => obj.id,
@@ -232,22 +230,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
-      "creator" => format_creator(obj.creator)
+      "creator" => CommonsPub.Search.Indexer.format_creator(obj)
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
-  end
-
-  def format_creator(%{id: id} = creator) when not is_nil(id) do
-    %{
-      "id" => creator.id,
-      "name" => creator.name,
-      "username" => MoodleNet.Actors.display_username(creator),
-      "canonical_url" => creator.actor.canonical_url
-    }
-  end
-
-  def format_creator(_) do
-    %{}
   end
 
   defp index(obj) do

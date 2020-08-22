@@ -36,7 +36,7 @@ defmodule CommonsPub.Search.Indexer do
 
   # add to general instance search index
   def index_object(objects) do
-    IO.inspect(search_indexing: objects)
+    # IO.inspect(search_indexing: objects)
     index_objects(objects, @public_index, true)
   end
 
@@ -84,7 +84,8 @@ defmodule CommonsPub.Search.Indexer do
   def set_facets(index_name, facets) when is_list(facets) do
     CommonsPub.Search.Meili.post(
       facets,
-      index_name <> "/settings/attributes-for-faceting"
+      index_name <> "/settings/attributes-for-faceting",
+      true
     )
   end
 
@@ -234,5 +235,20 @@ defmodule CommonsPub.Search.Indexer do
 
   def indexing_object_format(_) do
     nil
+  end
+
+  def format_creator(%{creator: %{id: id}} = obj) when not is_nil(id) do
+    creator = MoodleNetWeb.Helpers.Common.maybe_preload(obj, :creator).creator
+
+    %{
+      "id" => creator.id,
+      "name" => creator.name,
+      "username" => MoodleNet.Actors.display_username(creator),
+      "canonical_url" => creator.actor.canonical_url
+    }
+  end
+
+  def format_creator(_) do
+    %{}
   end
 end

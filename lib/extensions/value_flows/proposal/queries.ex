@@ -3,7 +3,7 @@ defmodule ValueFlows.Proposal.Queries do
   # alias MoodleNet.Communities
   alias ValueFlows.Proposal
   # alias ValueFlows.Proposals
-  # alias MoodleNet.Follows.{Follow, FollowerCount}
+  alias MoodleNet.Follows.Follow
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query

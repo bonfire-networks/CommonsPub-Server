@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   # end
 
   defp do_upload(user, {field_name, content_input}, acc) do
-    IO.inspect(do_upload: {field_name, content_input})
+    # IO.inspect(do_upload: {field_name, content_input})
     uploader = @uploader_fields[field_name]
 
     if uploader do

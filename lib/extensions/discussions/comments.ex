@@ -263,12 +263,7 @@ defmodule MoodleNet.Threads.Comments do
         "id" => comment.thread_id,
         "name" => comment.thread.name
       },
-      "creator" => %{
-        "id" => comment.creator.id,
-        "name" => comment.creator.name,
-        "username" => MoodleNet.Actors.display_username(comment.creator),
-        "canonical_url" => comment.creator.actor.canonical_url
-      },
+      "creator" => CommonsPub.Search.Indexer.format_creator(comment),
       "canonical_url" => canonical_url,
       # "followers" => %{
       #   "totalCount" => follower_count

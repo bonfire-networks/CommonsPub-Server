@@ -232,12 +232,7 @@ defmodule ValueFlows.Proposals do
       "name" => obj.name,
       "note" => Map.get(obj, :note),
       "published_at" => obj.published_at,
-      "creator" => %{
-        "id" => obj.creator.id,
-        "name" => obj.creator.name,
-        "username" => MoodleNet.Actors.display_username(obj.creator),
-        "canonical_url" => obj.creator.actor.canonical_url
-      }
+      "creator" => CommonsPub.Search.Indexer.format_creator(obj)
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
   end
