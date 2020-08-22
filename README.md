@@ -10,20 +10,19 @@ This is the main repository, written in Elixir (running on Erlang/OTP).
 
 The federation API uses [ActivityPub](http://activitypub.rocks/) and the client API uses [GraphQL](https://graphql.org/).
 
-
 ---
 
 ## Documentation
 
 Do you want to...
 
-- Read about the CommonsPub architecture? Read our [overview](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/ARCHITECTURE.md).
+- Read about the CommonsPub architecture? Read our [overview](./docs/ARCHITECTURE.md).
 
-- Hack on the code? Read our [Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/HACKING.md).
+- Hack on the code? Read our [Developer FAQs](./docs/HACKING.md).
 
-- Understand the client API? Read our [GraphQL guide](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/GRAPHQL.md).
+- Understand the client API? Read our [GraphQL guide](./docs/GRAPHQL.md).
 
-- Deploy in production? Read our [Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/DEPLOY.md).
+- Deploy in production? Read our [Deployment Docs](./docs/DEPLOY.md).
 
 ---
 
