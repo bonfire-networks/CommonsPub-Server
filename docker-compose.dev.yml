@@ -31,14 +31,14 @@ services:
     env_file:
       - config/dev/public.env
       - config/dev/secrets.env
-  dbeaver:
-    image: dalongrong/cloudbeaver
-    ports:
-      - "8978:8978"
-    depends_on:
-      - db
-    # volumes:
-    #   - "/var/log/cloudbeaver.log:/var/log/cloudbeaver/server.log"
+  # dbeaver:
+  #   image: dalongrong/cloudbeaver
+  #   ports:
+  #     - "8978:8978"
+  #   depends_on:
+  #     - db
+  #   # volumes:
+  #   #   - "/var/log/cloudbeaver.log:/var/log/cloudbeaver/server.log"
   # redis:
   #   image: redislabs/redisgraph
   #   ports:

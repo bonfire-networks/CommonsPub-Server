@@ -60,17 +60,17 @@ push_stable: init tag_stable ## Tag stable, latest and version tags to the last 
 	@echo docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 	@docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
-hq_deploy_staging: init ## Used by Moodle HQ to trigger deploys to k8s
-	@curl https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://mothership.next.moodle.net/devops/respawn/$(MAIL_KEY)
-
-hq_deploy_stable: init ## Used by Moodle HQ to trigger prod deploys to k8s
-	@curl https://home.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://team.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
-
 dev-exports: init ## Load env vars from a dotenv file
 	awk '{print "export " $$0}' $(APP_DEV_DOTENV)
+
+dev: init ## Run the app in dev 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
+
+dev-shell: init ## Run the app in dev 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web bash
+
+dev-bg: init ## Run the app in dev 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --detach --service-ports web elixir -S mix phx.server
 
 dev-pull: init ## Build the dev image
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) pull 
@@ -99,16 +99,16 @@ dev-deps-update-all: init ## Upgrade all deps
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm update --prefix assets && npm outdated --prefix assets
 
 dev-db-up: init ## Start the dev DB
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up --service-ports db
 
 dev-search-up: init ## Start the dev search index
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up search
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up --service-ports search
 
 dev-services-up: init ## Start the dev DB & search index
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db search
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up --service-ports db search
 
 dev-db-admin: init ## Start the dev DB and dbeaver admin UI
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up dbeaver 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up --service-ports dbeaver 
 
 dev-db: init ## Create the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.create
@@ -140,13 +140,10 @@ dev-test-psql: init ## Run postgres for tests (without Docker)
 dev-setup: dev-deps dev-db dev-db-migrate ## Prepare dependencies and DB for dev
 
 dev-run: init ## Run a custom command in dev env, eg: `make dev-run cmd="mix deps.update plug`
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web $(cmd)
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web $(cmd)
 
 dev-logs: init ## Run tests
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) logs
-
-dev: init ## Run the app in dev 
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) logs -f
 
 dev-stop: init ## Stop the dev app
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) stop
@@ -172,3 +169,6 @@ prepare: init ## Run the app in Docker
 
 run: init ## Run the app in Docker
 	docker-compose up 
+
+run-bg: init ## Run the app in Docker, and keep running in the background
+	docker-compose up -d

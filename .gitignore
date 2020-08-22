@@ -10,6 +10,8 @@
 /priv/static
 .mix
 .hex
+/.mix
+/.hex
 .\#*
 *~
 *.data.sql
@@ -24,6 +26,7 @@ docs/exdoc
 
 # Generated on crash by the VM
 erl_crash.dump
+*.dump
 
 # Files matching config/*.secret.exs pattern contain sensitive
 # data and you should not commit them into version control.
@@ -39,16 +42,13 @@ config/secret.exs
 
 .DS_Store
 .env
+.bash_history
 
 # Editor config
 /.vscode
 
-cover
-priv/repo/structure.sql
 
-*.dump
-/.mix
-/.hex
+
 
 # Generated test files
 /test_uploads/
@@ -61,6 +61,7 @@ priv/gettext/*/LC_MESSAGES
 !/uploads/index.html
 /test/uploads
 /data/*
+priv/repo/structure.sql
 
 #Custom configs
 config/dev
