@@ -83,8 +83,13 @@ dev-build: init dev-pull ## Build the dev image
 dev-rebuild: init ## Rebuild the dev image (without cache)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build --no-cache
 
+licenses: init
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix licenses
+	mv -f DEPENDENCIES.md docs/
+
 dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force && mix local.rebar --force && mix deps.get
+	make licenses
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm install --prefix assets
 
 dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild lib=pointers` 
@@ -95,9 +100,11 @@ dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild l
 
 dev-dep-update: init ## Upgrade a dep, eg: `make dev-dep-update lib=plug` 
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update $(lib)
+	make licenses
 
 dev-deps-update-all: init ## Upgrade all deps
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update --all
+	make licenses
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm update --prefix assets && npm outdated --prefix assets
 
 dev-db-up: init ## Start the dev DB

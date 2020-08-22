@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.ErrorHelpers do
@@ -14,9 +11,9 @@ defmodule MoodleNetWeb.ErrorHelpers do
   """
 
   def error_tag(form, field) do
-
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
       IO.inspect(error, label: "ERROR")
+
       content_tag(:span, translate_error(error),
         class: "invalid-feedback",
         phx_feedback_for: input_id(form, field)

@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule HttpRequestMock do
@@ -84,10 +81,10 @@ defmodule HttpRequestMock do
 
   def get("https://niu.moe/.well-known/webfinger?resource=acct:karen@niu.moe", _, _, _) do
     {:ok,
-    %Tesla.Env{
-      status: 200,
-      body: File.read!("test/fixtures/mastodon_webfinger.json")
-    }}
+     %Tesla.Env{
+       status: 200,
+       body: File.read!("test/fixtures/mastodon_webfinger.json")
+     }}
   end
 
   def get("http://mastodon.example.org/users/admin", _, _, Accept: "application/activity+json") do

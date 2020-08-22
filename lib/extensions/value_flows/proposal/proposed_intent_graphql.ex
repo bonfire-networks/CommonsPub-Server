@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   use Absinthe.Schema.Notation
@@ -7,7 +5,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,
-    FetchFields,
+    FetchFields
   }
 
   alias ValueFlows.{Proposal, Proposals}
@@ -56,7 +54,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
 
   def delete_proposed_intent(%{id: id}, info) do
     with {:ok, proposed_intent} <- proposed_intent(%{id: id}, info),
-        {:ok, _} <- Proposals.delete_proposed_intent(proposed_intent) do
+         {:ok, _} <- Proposals.delete_proposed_intent(proposed_intent) do
       {:ok, true}
     end
   end

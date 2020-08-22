@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Test.ConnHelpers do
   require Phoenix.ConnTest
@@ -17,9 +15,9 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
 
   def with_method(conn, :post), do: %{conn | method: "POST"}
 
-  def with_params(conn, %{}=params), do: %{conn | params: params}
+  def with_params(conn, %{} = params), do: %{conn | params: params}
 
-  def with_user(conn, %User{}=user), do: Conn.assign(conn, :current_user, user)
+  def with_user(conn, %User{} = user), do: Conn.assign(conn, :current_user, user)
 
   def with_accept_json(conn),
     do: Conn.put_req_header(conn, "accept", "application/json")
@@ -73,13 +71,17 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   def gql_post_data(conn, query) do
     case gql_post_200(conn, query) do
       %{"data" => _data, "errors" => errors} ->
-        throw {:additional_errors, errors}
+        throw({:additional_errors, errors})
+
       %{"errors" => errors} ->
-        throw {:unexpected_errors, errors}
+        throw({:unexpected_errors, errors})
+
       %{"data" => data} ->
         # IO.inspect(client_received: data)
         data
-      other -> throw {:horribly_wrong, other}
+
+      other ->
+        throw({:horribly_wrong, other})
     end
   end
 
@@ -88,11 +90,13 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
     vars = camel_map(vars)
     # IO.puts("query: " <> query)
     # IO.inspect(vars: vars)
-    query = extract_files(%{
-      query: query,
-      variables: vars,
-      operationName: name,
-    })
+    query =
+      extract_files(%{
+        query: query,
+        variables: vars,
+        operationName: name
+      })
+
     gql_post_data(conn, query)
   end
 
@@ -110,17 +114,19 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
     vars = camel_map(vars)
     # IO.inspect(query: query)
     # IO.inspect(vars: vars)
-    query = extract_files(%{
-      query: query,
-      variables: vars,
-      operationName: name,
-    })
-   Map.fetch!(gql_post_200(conn, query), "errors")
+    query =
+      extract_files(%{
+        query: query,
+        variables: vars,
+        operationName: name
+      })
+
+    Map.fetch!(gql_post_200(conn, query), "errors")
   end
 
   @doc false
-  def camel_map(%{}=vars) do
-    Enum.reduce(vars, %{}, fn {k,v}, acc -> Map.put(acc, camel(k), v) end)
+  def camel_map(%{} = vars) do
+    Enum.reduce(vars, %{}, fn {k, v}, acc -> Map.put(acc, camel(k), v) end)
   end
 
   @doc false
@@ -128,8 +134,8 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   def camel(binary) when is_binary(binary), do: Recase.to_camel(binary)
 
   @doc false
-  def uncamel_map(%{}=map) do
-    Enum.reduce(map, %{}, fn {k,v}, acc -> Map.put(acc, uncamel(k), v) end)
+  def uncamel_map(%{} = map) do
+    Enum.reduce(map, %{}, fn {k, v}, acc -> Map.put(acc, uncamel(k), v) end)
   end
 
   @doc false
@@ -150,26 +156,27 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   end
 
   defp extract_file_vars(vars, path \\ []) do
-    {new_files, new_vars} = Enum.flat_map_reduce(vars, %{}, fn {key, val}, acc ->
-      path = path ++ [key]
+    {new_files, new_vars} =
+      Enum.flat_map_reduce(vars, %{}, fn {key, val}, acc ->
+        path = path ++ [key]
 
-      case val do
-        %Plug.Upload{} = file ->
-          file_key = Enum.join(path, "_")
+        case val do
+          %Plug.Upload{} = file ->
+            file_key = Enum.join(path, "_")
 
-          {
-            %{String.to_atom(file_key) => file},
-            put_in_map(acc, path, file_key),
-          }
+            {
+              %{String.to_atom(file_key) => file},
+              put_in_map(acc, path, file_key)
+            }
 
-        inner when not is_struct(inner) and is_map(inner) ->
-          {files, vars} = extract_file_vars(inner, path)
-          {files, Map.merge(acc, vars)}
+          inner when not is_struct(inner) and is_map(inner) ->
+            {files, vars} = extract_file_vars(inner, path)
+            {files, Map.merge(acc, vars)}
 
-        _other ->
-          {%{}, acc}
-      end
-    end)
+          _other ->
+            {%{}, acc}
+        end
+      end)
 
     {Enum.into(new_files, %{}), new_vars}
   end
@@ -179,9 +186,10 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   end
 
   defp put_in_map(%{} = map, [key | path], val) when is_list(path) do
-    {_, ret} = Map.get_and_update(map, key, fn existing ->
-      {val, put_in_map(existing || %{}, path, val)}
-    end)
+    {_, ret} =
+      Map.get_and_update(map, key, fn existing ->
+        {val, put_in_map(existing || %{}, path, val)}
+      end)
 
     ret
   end

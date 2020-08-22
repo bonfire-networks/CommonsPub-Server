@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Users.LocalUser do
   @moduledoc """
@@ -29,7 +27,7 @@ defmodule MoodleNet.Users.LocalUser do
   @email_regexp ~r/.+\@.+\..+/
 
   @register_cast_attrs [] ++
-    ~w(email password wants_email_digest wants_notifications is_instance_admin)a
+                         ~w(email password wants_email_digest wants_notifications is_instance_admin)a
   @register_required_attrs ~w(email password)a
 
   @doc "Create a changeset for registration"
@@ -61,7 +59,7 @@ defmodule MoodleNet.Users.LocalUser do
 
   @instance_admin_update_cast_attrs [
     :is_instance_admin,
-    :is_confirmed,
+    :is_confirmed
   ]
 
   def instance_admin_update_changeset(%LocalUser{} = local_user, attrs) do

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposals do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
@@ -212,7 +210,8 @@ defmodule ValueFlows.Proposals do
     end)
   end
 
-  @spec propose_intent(Proposal.t(), Intent.t(), map) :: {:ok, ProposedIntent.t()} | {:error, term}
+  @spec propose_intent(Proposal.t(), Intent.t(), map) ::
+          {:ok, ProposedIntent.t()} | {:error, term}
   def propose_intent(%Proposal{} = proposal, %Intent{} = intent, attrs) do
     Repo.insert(ProposedIntent.changeset(proposal, intent, attrs))
   end

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.Revision do
   alias MoodleNet.Repo
@@ -20,6 +18,6 @@ defmodule MoodleNet.Common.Revision do
 
   def preload(module, queryable) do
     query = from(r in module, order_by: [desc: r.inserted_at])
-    Repo.preload(queryable, [:current ,revisions: query])
+    Repo.preload(queryable, [:current, revisions: query])
   end
 end

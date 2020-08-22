@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
   use MoodleNetWeb.ConnCase, async: true
@@ -12,11 +10,12 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
   alias MoodleNet.Communities
 
   describe "communities" do
-
     test "works for a guest" do
       users = some_fake_users!(9)
-      communities = some_fake_communities!(3, users) # 27
-      root_page_test %{
+      # 27
+      communities = some_fake_communities!(3, users)
+
+      root_page_test(%{
         query: communities_query(),
         connection: json_conn(),
         return_key: :communities,
@@ -27,10 +26,9 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
         cursor_fn: Communities.test_cursor(:followers),
         after: :communities_after,
         before: :communities_before,
-        limit: :communities_limit,
-      }
+        limit: :communities_limit
+      })
     end
-
   end
 
   # describe "communities.last_activity" do
@@ -334,6 +332,4 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
   #   test "placeholder" do
   #   end
   # end
-
 end
-

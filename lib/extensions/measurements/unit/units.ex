@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Unit.Units do
   alias MoodleNet.{
@@ -175,7 +173,7 @@ defmodule Measurement.Unit.Units do
   def soft_delete(%Unit{} = unit) do
     Repo.transact_with(fn ->
       with {:ok, unit} <- Common.soft_delete(unit) do
-           # :ok <- publish(unit, :deleted) do
+        # :ok <- publish(unit, :deleted) do
         {:ok, unit}
       end
     end)

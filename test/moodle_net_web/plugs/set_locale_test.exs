@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Plugs.SetLocaleTest do
   use MoodleNetWeb.ConnCase, async: true
@@ -30,5 +28,4 @@ defmodule MoodleNetWeb.Plugs.SetLocaleTest do
 
     assert "es_MX" == Gettext.get_locale(MoodleNetWeb.Gettext)
   end
-
 end

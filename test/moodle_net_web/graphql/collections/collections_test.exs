@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
   use MoodleNetWeb.ConnCase, async: true
@@ -14,12 +12,14 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
   import Zest
 
   describe "collections" do
-
     test "works for a guest" do
       users = some_fake_users!(3)
-      communities = some_fake_communities!(3, users) # 9
-      collections = some_fake_collections!(1, users, communities) # 27
-      root_page_test %{
+      # 9
+      communities = some_fake_communities!(3, users)
+      # 27
+      collections = some_fake_collections!(1, users, communities)
+
+      root_page_test(%{
         query: collections_query(),
         connection: json_conn(),
         return_key: :collections,
@@ -30,48 +30,55 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
         cursor_fn: Collections.test_cursor(:followers),
         after: :collections_after,
         before: :collections_before,
-        limit: :collections_limit,
-      }
+        limit: :collections_limit
+      })
     end
-
   end
 
   describe "collections.resources" do
-
     test "works for anyone for public stuff" do
       [alice, bob, dave, eve] = some_fake_users!(4)
       users = [alice, bob, dave]
       lucy = fake_admin!(%{is_instance_admin: true})
-      comms = some_fake_communities!(1, users) # 3
-      colls = some_fake_collections!(1, users, comms) # 9
-      colls = Enum.map colls, fn coll ->
-        Map.put(coll, :resources, some_fake_resources!(1, users, [coll])) # 3
-      end
-      q = collections_query(
-        params: [resources_limit: :int],
-        fields: [
-          :resource_count,
-          field(
-            :resources,
-            args: [limit: var(:resources_limit)],
-            fields: page_fields(resource_fields())
-          )
-        ]
-      )
+      # 3
+      comms = some_fake_communities!(1, users)
+      # 9
+      colls = some_fake_collections!(1, users, comms)
+
+      colls =
+        Enum.map(colls, fn coll ->
+          # 3
+          Map.put(coll, :resources, some_fake_resources!(1, users, [coll]))
+        end)
+
+      q =
+        collections_query(
+          params: [resources_limit: :int],
+          fields: [
+            :resource_count,
+            field(
+              :resources,
+              args: [limit: var(:resources_limit)],
+              fields: page_fields(resource_fields())
+            )
+          ]
+        )
+
       vars = %{}
       conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
-      each [json_conn() | conns], fn conn ->
+
+      each([json_conn() | conns], fn conn ->
         colls2 = grumble_post_key(q, conn, :collections, vars)
         colls2 = assert_page(colls2, 5, 9, false, true, Collections.test_cursor(:followers))
-        each colls, colls2.edges, fn coll, coll2 ->
+
+        each(colls, colls2.edges, fn coll, coll2 ->
           coll2 = assert_collection(coll, coll2)
           assert coll2.resource_count == 3
           resources = assert_page(coll2.resources, 3, 3, false, false, &[&1.id])
           each(coll.resources, resources.edges, &assert_resource/2)
-        end
-      end
+        end)
+      end)
     end
-
   end
 
   # describe "collections.my_like" do
@@ -106,5 +113,4 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
   #   end
 
   # end
-
 end
