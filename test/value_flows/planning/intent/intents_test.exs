@@ -3,7 +3,11 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   use MoodleNetWeb.ConnCase, async: true
 
   import MoodleNet.Test.Faking
+
+  import Measurement.Simulate
   import Measurement.Test.Faking
+
+  import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
   alias ValueFlows.Planning.Intent.Intents
@@ -26,31 +30,60 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   describe "create" do
     test "can create an intent" do
       user = fake_user!()
+
+      assert {:ok, intent} = Intents.create(user, action(), intent())
+      assert_intent(intent)
+    end
+
+    test "can create an intent with measure" do
+      user = fake_user!()
       unit = fake_unit!(user)
 
       measures = %{
-        resource_quantity: fake_measure!(user, unit),
-        effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit),
+        resource_quantity: measure(%{unit_id: unit.id}),
+        effort_quantity: measure(%{unit_id: unit.id}),
+        available_quantity: measure(%{unit_id: unit.id})
       }
-      assert {:ok, intent} = Intents.create(user, measures, intent())
+
+      assert {:ok, intent} = Intents.create(user, action(), intent(measures))
       assert_intent(intent)
-      assert intent.resource_quantity_id == measures.resource_quantity.id
-      assert intent.effort_quantity_id == measures.effort_quantity.id
-      assert intent.available_quantity_id == measures.available_quantity.id
+    end
+
+    test "can create an intent with provider and receiver" do
+      user = fake_user!()
+      attrs = %{
+        provider: fake_user!().id
+      }
+      assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
+      assert intent.provider_id == attrs.provider
+
+      attrs = %{
+        receiver: fake_user!().id
+      }
+      assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
+      assert intent.receiver_id == attrs.receiver
+
+      attrs = %{
+        receiver: fake_user!().id,
+        provider: fake_user!().id
+      }
+      assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
+      assert intent.receiver_id == attrs.receiver
+      assert intent.provider_id == attrs.provider
     end
 
     test "can create an intent with a context" do
       user = fake_user!()
       unit = fake_unit!(user)
       another_user = fake_user!()
+
       measures = %{
-        resource_quantity: fake_measure!(user, unit),
-        effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit),
+        resource_quantity: measure(%{unit_id: unit.id}),
+        effort_quantity: measure(%{unit_id: unit.id}),
+        available_quantity: measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, intent} = Intents.create(user, another_user, measures, intent())
+      assert {:ok, intent} = Intents.create(user, action(), another_user, intent(measures))
       assert_intent(intent)
       assert intent.context_id == another_user.id
     end
@@ -63,17 +96,27 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       intent = fake_intent!(user, unit)
 
       measures = %{
-        resource_quantity: fake_measure!(user, unit),
+        resource_quantity: measure(%{unit_id: unit.id}),
         # don't update one of them
-        # effort_quantity: fake_measure!(user, unit),
-        available_quantity: fake_measure!(user, unit),
+        # effort_quantity: measure(%{unit_id: unit.id}),
+        available_quantity: measure(%{unit_id: unit.id})
       }
-      assert {:ok, updated} = Intents.update(intent, measures, intent())
+
+      assert {:ok, updated} = Intents.update(intent, intent(measures))
       assert_intent(updated)
       assert intent != updated
       assert intent.effort_quantity_id == updated.effort_quantity_id
       assert intent.resource_quantity_id != updated.resource_quantity_id
       assert intent.available_quantity_id != updated.available_quantity_id
+    end
+
+    test "fails if invalid action is given" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+
+      assert {:error, %MoodleNet.Common.NotFoundError{}} =
+        Intents.update(intent, intent(%{action: "sleeping"}))
     end
   end
 end

@@ -1,7 +1,8 @@
 defmodule ValueFlows.Hydration do
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
-    CommonResolver
+    CommonResolver,
+    UploadResolver
   }
 
   alias MoodleNet.Users.User
@@ -57,6 +58,12 @@ defmodule ValueFlows.Hydration do
         ],
         receiver: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_receiver_edge/3
+        ],
+        action: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
+        ],
+        at_location: [
+          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
@@ -155,9 +162,12 @@ defmodule ValueFlows.Hydration do
   end
 
   # support for interface type
+  @spec agent_resolve_type(%{agent_type: nil | :organization | :person}, any) ::
+          :organization | :person
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
-  def agent_resolve_type(%{agent_type: nil}, _), do: :person
+  def agent_resolve_type(_, _), do: :person
+  # def agent_resolve_type(%User{}, _), do: :user
 
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true

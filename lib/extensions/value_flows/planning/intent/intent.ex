@@ -33,8 +33,9 @@ defmodule ValueFlows.Planning.Intent do
     field(:note, :string)
     belongs_to(:image, Content)
 
-    belongs_to(:provider, Pointer) # TODO - use pointer like context?
-    belongs_to(:receiver, Pointer)
+    # TODO - use pointer like context?
+    belongs_to(:provider, Pointers.Pointer)
+    belongs_to(:receiver, Pointers.Pointer)
 
     belongs_to(:available_quantity, Measure, on_replace: :nilify)
     belongs_to(:resource_quantity, Measure, on_replace: :nilify)
@@ -45,13 +46,15 @@ defmodule ValueFlows.Planning.Intent do
     field(:has_point_in_time, :utc_datetime_usec)
     field(:due, :utc_datetime_usec)
 
-    field(:resource_classified_as, {:array, :string}) # array of URI
+    # array of URI
+    field(:resource_classified_as, {:array, :string})
+
     # belongs_to(:resource_conforms_to, ResourceSpecification)
     # belongs_to(:resource_inventoried_as, EconomicResource)
 
     belongs_to(:at_location, Geolocation)
 
-    belongs_to(:action, Action)
+    belongs_to(:action, Action, type: :string)
 
     # belongs_to(:input_of, Process)
     # belongs_to(:output_of, Process)
@@ -63,9 +66,10 @@ defmodule ValueFlows.Planning.Intent do
     # has_many(:satisfied_by, Satisfaction)
 
     belongs_to(:creator, User)
-    belongs_to(:context, Pointer)
+    belongs_to(:context, Pointers.Pointer)
 
     field(:finished, :boolean, default: false)
+
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
     field(:is_public, :boolean, virtual: true)
@@ -84,12 +88,12 @@ defmodule ValueFlows.Planning.Intent do
     timestamps(inserted_at: false)
   end
 
-
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note is_disabled)a
+  @cast @required ++ ~w(note at_location_id is_disabled image_id)a
 
   def create_changeset(
         %User{} = creator,
+        %Action{} = action,
         %{id: _} = context,
         attrs
       ) do
@@ -99,30 +103,34 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.change(
       creator_id: creator.id,
       context_id: context.id,
+      # TODO: move action to context and validate that it's a valid action
+      action_id: action.id,
       is_public: true
     )
     |> common_changeset()
   end
 
   def create_changeset(
-      %User{} = creator,
-      attrs
-    ) do
+        %User{} = creator,
+        %Action{} = action,
+        attrs
+      ) do
     %Intent{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
+      action_id: action.id,
       is_public: true
     )
     |> common_changeset()
   end
 
   def update_changeset(
-    %Intent{} = intent,
-    %{id: _} = context,
-    attrs
-  ) do
+        %Intent{} = intent,
+        %{id: _} = context,
+        attrs
+      ) do
     intent
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(context_id: context.id)
@@ -135,15 +143,50 @@ defmodule ValueFlows.Planning.Intent do
     |> common_changeset()
   end
 
-  def change_measures(changeset, measures) when is_map(measures) do
+  def measure_fields do
+    [:resource_quantity, :effort_quantity, :available_quantity]
+  end
+
+  def change_measures(changeset, %{} = attrs) do
+    measures = Map.take(attrs, measure_fields())
+
     Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
       Changeset.put_assoc(c, field_name, measure)
     end)
+  end
+
+  def change_at_location(changeset, %Geolocation{} = location) do
+    Changeset.change(changeset,
+      at_location: location,
+      at_location_id: location.id
+    )
+  end
+
+  def change_action(changeset, %Action{} = action) do
+    Changeset.change(changeset, action_id: action.id)
+  end
+
+  def change_provider(changeset, %{id: _} = provider) do
+    Changeset.change(changeset, provider_id: provider.id)
+  end
+
+  def change_receiver(changeset, %{id: _} = receiver) do
+    Changeset.change(changeset, receiver_id: receiver.id)
   end
 
   defp common_changeset(changeset) do
     changeset
     |> change_public()
     |> change_disabled()
+    |> Changeset.foreign_key_constraint(
+      :at_location_id,
+      name: :vf_intent_at_location_id_fkey
+    )
   end
+
+  def context_module, do: ValueFlows.Planning.Intent.Intents
+
+  def queries_module, do: ValueFlows.Planning.Intent.Queries
+
+  def follow_filters, do: [:default]
 end

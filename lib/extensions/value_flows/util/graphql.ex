@@ -2,7 +2,6 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util.GraphQL do
-
   use Absinthe.Schema.Notation
   alias MoodleNet.Repo
   require Logger

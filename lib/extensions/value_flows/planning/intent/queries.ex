@@ -8,13 +8,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
+  import Geo.PostGIS
 
   def query(Intent) do
-    from c in Intent, as: :intent
+    from(c in Intent, as: :intent)
   end
 
   def query(:count) do
-    from c in Intent, as: :intent
+    from(c in Intent, as: :intent)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -33,12 +34,22 @@ defmodule ValueFlows.Planning.Intent.Queries do
   end
 
   def join_to(q, :context, jq) do
-    join q, jq, [intent: c], c2 in assoc(c, :context), as: :context
+    join(q, jq, [intent: c], c2 in assoc(c, :context), as: :context)
   end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [intent: c], f in Follow, as: :follow,
+    join(q, jq, [intent: c], f in Follow,
+      as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
+  end
+
+  def join_to(q, :geolocation, jq) do
+    join(q, jq, [intent: c], g in assoc(c, :at_location), as: :geolocation)
+  end
+
+  def join_to(q, :tags, jq) do
+    join(q, jq, [intent: c], t in assoc(c, :tags), as: :tags)
   end
 
   # def join_to(q, :provider, jq) do
@@ -48,7 +59,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # def join_to(q, :receiver, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :receiver), as: :pointer
   # end
-
 
   # def join_to(q, :follower_count, jq) do
   #   join q, jq, [intent: c],
@@ -67,8 +77,16 @@ defmodule ValueFlows.Planning.Intent.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted]
+    filter(q, [:deleted])
     # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
+  end
+
+  def filter(q, :offer) do
+    where(q, [intent: c], is_nil(c.receiver_id))
+  end
+
+  def filter(q, :need) do
+    where(q, [intent: c], is_nil(c.provider_id))
   end
 
   ## by join
@@ -86,7 +104,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to([follow: id])
+    |> join_to(follow: id)
     |> where([intent: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
     |> filter(~w(disabled)a)
   end
@@ -94,47 +112,64 @@ defmodule ValueFlows.Planning.Intent.Queries do
   ## by status
 
   def filter(q, :deleted) do
-    where q, [intent: c], is_nil(c.deleted_at)
+    where(q, [intent: c], is_nil(c.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where q, [intent: c], is_nil(c.disabled_at)
+    where(q, [intent: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do
-    where q, [intent: c], not is_nil(c.published_at)
+    where(q, [intent: c], not is_nil(c.published_at))
   end
 
   ## by field values
 
   def filter(q, {:cursor, [count, id]})
-  when is_integer(count) and is_binary(id) do
-    where q,[intent: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [intent: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
   end
 
   def filter(q, {:cursor, [count, id]})
-  when is_integer(count) and is_binary(id) do
-    where q,[intent: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [intent: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
+    )
   end
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [intent: c], c.id == ^id
+    where(q, [intent: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [intent: c], c.id in ^ids
+    where(q, [intent: c], c.id in ^ids)
   end
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where q, [intent: c], c.context_id == ^id
+    where(q, [intent: c], c.context_id == ^id)
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [intent: c], c.context_id in ^ids
+    where(q, [intent: c], c.context_id in ^ids)
   end
 
+  def filter(q, {:agent_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.provider_id == ^id or c.receiver_id == ^id)
+  end
+
+  def filter(q, {:agent_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.provider_id in ^ids or c.receiver_id in ^ids)
+  end
+
+  def filter(q, {:provider_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.provider_id == ^id)
+  end
 
   def filter(q, {:provider_id, ids}) when is_list(ids) do
     where(q, [intent: c], c.provider_id in ^ids)
@@ -191,15 +226,15 @@ defmodule ValueFlows.Planning.Intent.Queries do
   ## by ordering
 
   def filter(q, {:order, :id}) do
-    filter q, order: [desc: :id]
+    filter(q, order: [desc: :id])
   end
 
   def filter(q, {:order, [desc: :id]}) do
-    order_by q, [intent: c, id: id],
+    order_by(q, [intent: c, id: id],
       desc: coalesce(id.count, 0),
       desc: c.id
+    )
   end
-
 
   # grouping and counting
 
@@ -215,7 +250,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
     select(q, [intent: c], {field(c, ^key), count(c.id)})
   end
 
-
   # pagination
 
   def filter(q, {:limit, limit}) do
@@ -224,6 +258,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
+
     q
     |> where([intent: c], c.id >= ^a)
     |> limit(^limit)
@@ -259,13 +294,13 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
-  # def filter(q, {:preload, :provider}) do
-  #   preload q, [pointer: p], [provider: p]
-  # end
+  def filter(q, {:preload, :provider}) do
+    preload(q, [pointer: p], provider: p)
+  end
 
-  # def filter(q, {:preload, :receiver}) do
-  #   preload q, [pointer: p], [receiver: p]
-  # end
+  def filter(q, {:preload, :receiver}) do
+    preload(q, [pointer: p], receiver: p)
+  end
 
   def filter(q, {:preload, :at_location}) do
     q

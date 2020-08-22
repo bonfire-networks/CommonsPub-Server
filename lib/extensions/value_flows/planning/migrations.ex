@@ -11,12 +11,9 @@ defmodule ValueFlows.Planning.Migrations do
       add(:name, :string)
       add(:note, :text)
 
-      add :name, :string
-      add :note, :text
+      add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
-      add :creator_id, references("mn_user", on_delete: :nilify_all)
-
-      add :image_id, references(:mn_content)
+      add(:image_id, references(:mn_content))
 
       # belongs_to(:provider, Pointer) # TODO - use pointer like context?
       # belongs_to(:receiver, Pointer)
@@ -33,16 +30,15 @@ defmodule ValueFlows.Planning.Migrations do
       # # belongs_to(:resource_conforms_to, ResourceSpecification)
       # # belongs_to(:resource_inventoried_as, EconomicResource)
 
-      add :at_location_id, references(:geolocation)
+      add(:at_location_id, references(:geolocation))
 
-      add :action_id, references(:vf_action)
+      add(:action_id, :string)
 
       # optional context as scope
       add(:context_id, weak_pointer(), null: true)
 
       add(:finished, :boolean, default: false)
 
-      add :finished, :boolean, default: false
       # # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
       # belongs_to(:input_of, Process)
@@ -54,24 +50,20 @@ defmodule ValueFlows.Planning.Migrations do
       # has_many(:published_in, ProposedIntent)
       # has_many(:satisfied_by, Satisfaction)
 
-      add :has_beginning, :timestamptz
-      add :has_end, :timestamptz
-      add :has_point_in_time, :timestamptz
-      add :due, :timestamptz
+      add(:has_beginning, :timestamptz)
+      add(:has_end, :timestamptz)
+      add(:has_point_in_time, :timestamptz)
+      add(:due, :timestamptz)
 
-      add :published_at, :timestamptz
-      add :deleted_at, :timestamptz
-      add :disabled_at, :timestamptz
+      add(:published_at, :timestamptz)
+      add(:deleted_at, :timestamptz)
+      add(:disabled_at, :timestamptz)
 
       timestamps(inserted_at: false, type: :utc_datetime_usec)
-
     end
-
   end
 
   def down do
     drop_pointable_table(ValueFlows.Planning.Intent)
   end
-
-
 end

@@ -1,7 +1,6 @@
 """
  Grouping around something to create a boundary or context, used for documenting,
-accounting, planning. Extended from the default of `Person | Organization` 
-
+accounting, planning. Extended from the default of `Person | Organization`
 """
 union AccountingScope = Person | Organization | Community | Collection
 
@@ -13,7 +12,9 @@ in order that references to `Action`s elsewhere in the system are easily readabl
 type Action {
   id: ID!
 
-  """A unique verb which defines the action."""
+  """
+  A unique verb which defines the action.
+  """
   label: String!
 
   """
@@ -22,16 +23,30 @@ type Action {
   """
   resourceEffect: String!
 
-  """Denotes if a process input or output, or not related to a process."""
+  """
+  Denotes if a process input or output, or not related to a process.
+  """
   inputOutput: String
 
   """
   The action that should be included on the other direction of the process, for example accept with modify.
   """
   pairsWith: String
+
+  """
+  added by cpub
+  """
+  onhandEffect: String
+
+  """
+  added by cpub
+  """
+  note: String
 }
 
-"""A person or group or organization with economic agency."""
+"""
+A person or group or organization with economic agency.
+"""
 interface Agent {
   id: ID!
 
@@ -45,7 +60,9 @@ interface Agent {
   """
   image: URI
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
   relationships(roleId: ID): [AgentRelationship!]
   relationshipsAsSubject(roleId: ID): [AgentRelationship!]
@@ -59,7 +76,9 @@ interface Agent {
   """
   primaryLocation: SpatialThing
   economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
-  inventoriedEconomicResources(filter: agentResourceSearchParams): [EconomicResource!]
+  inventoriedEconomicResources(
+    filter: agentResourceSearchParams
+  ): [EconomicResource!]
   processes(filter: agentProcessSearchParams): [Process!]
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
@@ -69,7 +88,9 @@ interface Agent {
   displayUsername: String
 }
 
-"""Query parameters for reading `Commitment`s related to an `Agent`"""
+"""
+Query parameters for reading `Commitment`s related to an `Agent`
+"""
 input agentCommitmentSearchParams {
   searchString: String
   action: ID
@@ -97,11 +118,15 @@ input AgentCreateParams {
   """
   primaryLocation: ID
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
-"""Query parameters for reading `EconomicEvent`s related to an `Agent`"""
+"""
+Query parameters for reading `EconomicEvent`s related to an `Agent`
+"""
 input agentEventSearchParams {
   searchString: String
   action: ID
@@ -109,7 +134,9 @@ input agentEventSearchParams {
   endDate: DateTime
 }
 
-"""Query parameters for reading `Intent`s related to an `Agent`"""
+"""
+Query parameters for reading `Intent`s related to an `Agent`
+"""
 input agentIntentSearchParams {
   searchString: String
   action: ID
@@ -118,13 +145,17 @@ input agentIntentSearchParams {
   finished: Boolean
 }
 
-"""Query parameters for reading `Plan`s related to an `Agent`"""
+"""
+Query parameters for reading `Plan`s related to an `Agent`
+"""
 input agentPlanSearchParams {
   searchString: String
   finished: Boolean
 }
 
-"""Query parameters for reading `Process`es related to an `Agent`"""
+"""
+Query parameters for reading `Process`es related to an `Agent`
+"""
 input agentProcessSearchParams {
   searchString: String
   finished: Boolean
@@ -146,7 +177,9 @@ type AgentRelationship {
   """
   object: Agent!
 
-  """A kind of relationship that exists between 2 agents."""
+  """
+  A kind of relationship that exists between 2 agents.
+  """
   relationship: AgentRelationshipRole!
 
   """
@@ -154,7 +187,9 @@ type AgentRelationship {
   """
   inScopeOf: [AccountingScope!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -177,7 +212,9 @@ input AgentRelationshipCreateParams {
   """
   relationship: ID!
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -191,13 +228,19 @@ A relationship role defining the kind of association one agent can have with ano
 type AgentRelationshipRole {
   id: ID!
 
-  """The human readable name of the role, from the subject to the object."""
+  """
+  The human readable name of the role, from the subject to the object.
+  """
   roleLabel: String!
 
-  """The human readable name of the role, from the object to the subject."""
+  """
+  The human readable name of the role, from the object to the subject.
+  """
   inverseRoleLabel: String
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -212,7 +255,9 @@ input AgentRelationshipRoleCreateParams {
   """
   inverseRoleLabel: String
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -233,7 +278,9 @@ input AgentRelationshipRoleUpdateParams {
   """
   inverseRoleLabel: String
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -258,11 +305,15 @@ input AgentRelationshipUpdateParams {
   """
   relationship: ID
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
-"""Query parameters for reading `EconomicResource`s related to an `Agent`"""
+"""
+Query parameters for reading `EconomicResource`s related to an `Agent`
+"""
 input agentResourceSearchParams {
   searchString: String
   resourceClassification: URI
@@ -295,11 +346,15 @@ input AgentUpdateParams {
   """
   primaryLocation: ID
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
-"""Any type of agreement among economic agents."""
+"""
+Any type of agreement among economic agents.
+"""
 type Agreement {
   id: ID!
 
@@ -308,10 +363,14 @@ type Agreement {
   """
   name: String
 
-  """The date and time the agreement was created."""
+  """
+  The date and time the agreement was created.
+  """
   created: DateTime
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
   involvedAgents: [Agent!]
   economicEvents: [EconomicEvent!]
@@ -324,10 +383,14 @@ input AgreementCreateParams {
   """
   name: String!
 
-  """The date and time the agreement was created."""
+  """
+  The date and time the agreement was created.
+  """
   created: DateTime!
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -343,10 +406,14 @@ input AgreementUpdateParams {
   """
   name: String
 
-  """The date and time the agreement was created."""
+  """
+  The date and time the agreement was created.
+  """
   created: DateTime
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -363,10 +430,14 @@ type Appreciation {
   """
   appreciationOf: EconomicEvent!
 
-  """The economic event provided as a gift in this appreciation."""
+  """
+  The economic event provided as a gift in this appreciation.
+  """
   appreciationWith: EconomicEvent!
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -381,7 +452,9 @@ input AppreciationCreateParams {
   """
   appreciationWith: ID!
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -402,7 +475,9 @@ input AppreciationUpdateParams {
   """
   appreciationWith: ID
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -418,10 +493,14 @@ type Claim {
   """
   action: Action!
 
-  """The economic agent from whom the claim is initiated."""
+  """
+  The economic agent from whom the claim is initiated.
+  """
   provider: Agent!
 
-  """The economic agent whom the claim is for."""
+  """
+  The economic agent whom the claim is for.
+  """
   receiver: Agent!
 
   """
@@ -436,7 +515,9 @@ type Claim {
   """
   resourceConformsTo: ResourceSpecification
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: Measure
 
   """
@@ -451,10 +532,14 @@ type Claim {
   """
   triggeredBy: EconomicEvent!
 
-  """The time the claim is expected to be settled."""
+  """
+  The time the claim is expected to be settled.
+  """
   due: DateTime
 
-  """The data on which the claim was made."""
+  """
+  The data on which the claim was made.
+  """
   created: DateTime
 
   """
@@ -463,7 +548,9 @@ type Claim {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -483,10 +570,14 @@ input ClaimCreateParams {
   """
   action: ID!
 
-  """(`Agent`) The economic agent from whom the claim is initiated."""
+  """
+  (`Agent`) The economic agent from whom the claim is initiated.
+  """
   provider: ID!
 
-  """(`Agent`) The economic agent whom the claim is for."""
+  """
+  (`Agent`) The economic agent whom the claim is for.
+  """
   receiver: ID!
 
   """
@@ -501,7 +592,9 @@ input ClaimCreateParams {
   """
   resourceConformsTo: ID
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -511,7 +604,9 @@ input ClaimCreateParams {
   """
   effortQuantity: IMeasure
 
-  """The time the claim is expected to be settled."""
+  """
+  The time the claim is expected to be settled.
+  """
   due: DateTime
 
   """
@@ -519,7 +614,9 @@ input ClaimCreateParams {
   """
   triggeredBy: ID
 
-  """The data on which the claim was made."""
+  """
+  The data on which the claim was made.
+  """
   created: DateTime
 
   """
@@ -528,7 +625,9 @@ input ClaimCreateParams {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -554,10 +653,14 @@ input ClaimUpdateParams {
   """
   action: ID
 
-  """(`Agent`) The economic agent from whom the claim is initiated."""
+  """
+  (`Agent`) The economic agent from whom the claim is initiated.
+  """
   provider: ID
 
-  """(`Agent`) The economic agent whom the claim is for."""
+  """
+  (`Agent`) The economic agent whom the claim is for.
+  """
   receiver: ID
 
   """
@@ -572,7 +675,9 @@ input ClaimUpdateParams {
   """
   resourceConformsTo: ID
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -582,7 +687,9 @@ input ClaimUpdateParams {
   """
   effortQuantity: IMeasure
 
-  """The time the claim is expected to be settled."""
+  """
+  The time the claim is expected to be settled.
+  """
   due: DateTime
 
   """
@@ -590,7 +697,9 @@ input ClaimUpdateParams {
   """
   triggeredBy: ID
 
-  """The data on which the claim was made."""
+  """
+  The data on which the claim was made.
+  """
   created: DateTime
 
   """
@@ -599,7 +708,9 @@ input ClaimUpdateParams {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -624,16 +735,24 @@ type Commitment {
   """
   action: Action!
 
-  """Defines the process to which this commitment is an input."""
+  """
+  Defines the process to which this commitment is an input.
+  """
   inputOf: Process
 
-  """Defines the process for which this commitment is an output."""
+  """
+  Defines the process for which this commitment is an output.
+  """
   outputOf: Process
 
-  """The economic agent from whom the commitment is initiated."""
+  """
+  The economic agent from whom the commitment is initiated.
+  """
   provider: Agent!
 
-  """The economic agent whom the commitment is for."""
+  """
+  The economic agent whom the commitment is for.
+  """
   receiver: Agent!
 
   """
@@ -648,10 +767,14 @@ type Commitment {
   """
   resourceConformsTo: ResourceSpecification
 
-  """Exact economic resource involved in the commitment."""
+  """
+  Exact economic resource involved in the commitment.
+  """
   resourceInventoriedAs: EconomicResource
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: Measure
 
   """
@@ -661,10 +784,14 @@ type Commitment {
   """
   effortQuantity: Measure
 
-  """The planned beginning of the commitment."""
+  """
+  The planned beginning of the commitment.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the commitment."""
+  """
+  The planned end of the commitment.
+  """
   hasEnd: DateTime
 
   """
@@ -672,10 +799,14 @@ type Commitment {
   """
   hasPointInTime: DateTime
 
-  """The time something is expected to be complete."""
+  """
+  The time something is expected to be complete.
+  """
   due: DateTime
 
-  """The creation time of the commitment."""
+  """
+  The creation time of the commitment.
+  """
   created: DateTime
 
   """
@@ -684,7 +815,9 @@ type Commitment {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -709,16 +842,24 @@ type Commitment {
   satisfies: [Satisfaction!]
   involvedAgents: [Agent!]
 
-  """The commitment can be safely deleted, has no dependent information."""
+  """
+  The commitment can be safely deleted, has no dependent information.
+  """
   deletable: Boolean
 
-  """This commitment is part of the exchange agreement."""
+  """
+  This commitment is part of the exchange agreement.
+  """
   clauseOf: Agreement
 
-  """The place where a commitment occurs. Usually mappable."""
+  """
+  The place where a commitment occurs. Usually mappable.
+  """
   atLocation: SpatialThing
 
-  """Represents a desired deliverable expected from this plan."""
+  """
+  Represents a desired deliverable expected from this plan.
+  """
   independentDemandOf: Plan
 }
 
@@ -728,7 +869,9 @@ input CommitmentCreateParams {
   """
   action: ID!
 
-  """(`Process`) Defines the process to which this commitment is an input."""
+  """
+  (`Process`) Defines the process to which this commitment is an input.
+  """
   inputOf: ID
 
   """
@@ -736,10 +879,14 @@ input CommitmentCreateParams {
   """
   outputOf: ID
 
-  """(`Agent`) The economic agent from whom the commitment is initiated."""
+  """
+  (`Agent`) The economic agent from whom the commitment is initiated.
+  """
   provider: ID!
 
-  """(`Agent`) The economic agent whom the commitment is for."""
+  """
+  (`Agent`) The economic agent whom the commitment is for.
+  """
   receiver: ID!
 
   """
@@ -759,7 +906,9 @@ input CommitmentCreateParams {
   """
   resourceInventoriedAs: ID
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -769,10 +918,14 @@ input CommitmentCreateParams {
   """
   effortQuantity: IMeasure
 
-  """The planned beginning of the commitment."""
+  """
+  The planned beginning of the commitment.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the commitment."""
+  """
+  The planned end of the commitment.
+  """
   hasEnd: DateTime
 
   """
@@ -780,7 +933,9 @@ input CommitmentCreateParams {
   """
   hasPointInTime: DateTime
 
-  """The time something is expected to be complete."""
+  """
+  The time something is expected to be complete.
+  """
   due: DateTime
 
   """
@@ -789,7 +944,9 @@ input CommitmentCreateParams {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -797,7 +954,9 @@ input CommitmentCreateParams {
   """
   inScopeOf: [ID!]
 
-  """(`Plan`) Represents a desired deliverable expected from this plan."""
+  """
+  (`Plan`) Represents a desired deliverable expected from this plan.
+  """
   independentDemandOf: ID
 
   """
@@ -811,7 +970,9 @@ input CommitmentCreateParams {
   """
   agreedIn: URI
 
-  """(`Agreement`) This commitment is part of the agreement."""
+  """
+  (`Agreement`) This commitment is part of the agreement.
+  """
   clauseOf: ID
 }
 
@@ -822,7 +983,9 @@ type CommitmentResponse {
 input CommitmentUpdateParams {
   id: ID!
 
-  """(`Process`) Defines the process to which this commitment is an input."""
+  """
+  (`Process`) Defines the process to which this commitment is an input.
+  """
   inputOf: ID
 
   """
@@ -830,10 +993,14 @@ input CommitmentUpdateParams {
   """
   outputOf: ID
 
-  """(`Agent`) The economic agent from whom the commitment is initiated."""
+  """
+  (`Agent`) The economic agent from whom the commitment is initiated.
+  """
   provider: ID
 
-  """(`Agent`) The economic agent whom the commitment is for."""
+  """
+  (`Agent`) The economic agent whom the commitment is for.
+  """
   receiver: ID
 
   """
@@ -853,7 +1020,9 @@ input CommitmentUpdateParams {
   """
   resourceInventoriedAs: ID
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -863,10 +1032,14 @@ input CommitmentUpdateParams {
   """
   effortQuantity: IMeasure
 
-  """The planned beginning of the commitment."""
+  """
+  The planned beginning of the commitment.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the commitment."""
+  """
+  The planned end of the commitment.
+  """
   hasEnd: DateTime
 
   """
@@ -874,7 +1047,9 @@ input CommitmentUpdateParams {
   """
   hasPointInTime: DateTime
 
-  """The time something is expected to be complete."""
+  """
+  The time something is expected to be complete.
+  """
   due: DateTime
 
   """
@@ -883,7 +1058,9 @@ input CommitmentUpdateParams {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -891,7 +1068,9 @@ input CommitmentUpdateParams {
   """
   inScopeOf: [ID!]
 
-  """(`Plan`) Represents a desired deliverable expected from this plan."""
+  """
+  (`Plan`) Represents a desired deliverable expected from this plan.
+  """
   independentDemandOf: ID
 
   """
@@ -905,19 +1084,11 @@ input CommitmentUpdateParams {
   """
   agreedIn: URI
 
-  """(`Agreement`) This commitment is part of the agreement."""
+  """
+  (`Agreement`) This commitment is part of the agreement.
+  """
   clauseOf: ID
 }
-
-
-
-"""
-The `DateTime` scalar type represents a DateTime value as specified by
-[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar DateTime
-
-
 
 """
 An observed economic flow, as opposed to a flow planned to happen in the future.
@@ -932,19 +1103,29 @@ type EconomicEvent {
   """
   action: Action!
 
-  """Defines the process to which this event is an input."""
+  """
+  Defines the process to which this event is an input.
+  """
   inputOf: Process
 
-  """Defines the process for which this event is an output."""
+  """
+  Defines the process for which this event is an output.
+  """
   outputOf: Process
 
-  """The economic agent from whom the actual economic event is initiated."""
+  """
+  The economic agent from whom the actual economic event is initiated.
+  """
   provider: Agent!
 
-  """The economic agent whom the actual economic event is for."""
+  """
+  The economic agent whom the actual economic event is for.
+  """
   receiver: Agent!
 
-  """Economic resource involved in the economic event."""
+  """
+  Economic resource involved in the economic event.
+  """
   resourceInventoriedAs: EconomicResource
 
   """
@@ -980,10 +1161,14 @@ type EconomicEvent {
   """
   effortQuantity: Measure
 
-  """The beginning of the economic event."""
+  """
+  The beginning of the economic event.
+  """
   hasBeginning: DateTime
 
-  """The end of the economic event."""
+  """
+  The end of the economic event.
+  """
   hasEnd: DateTime
 
   """
@@ -991,7 +1176,9 @@ type EconomicEvent {
   """
   hasPointInTime: DateTime
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -1017,12 +1204,16 @@ type EconomicEvent {
   """
   deletable: Boolean
 
-  """This economic event occurs as part of this agreement."""
+  """
+  This economic event occurs as part of this agreement.
+  """
   realizationOf: Agreement
   appreciationOf: [Appreciation!]
   appreciatedBy: [Appreciation!]
 
-  """The place where an economic event occurs.  Usually mappable."""
+  """
+  The place where an economic event occurs.  Usually mappable.
+  """
   atLocation: SpatialThing
 
   """
@@ -1042,10 +1233,14 @@ input EconomicEventCreateParams {
   """
   action: ID!
 
-  """(`Process`) Defines the process to which this event is an input."""
+  """
+  (`Process`) Defines the process to which this event is an input.
+  """
   inputOf: ID
 
-  """(`Process`) Defines the process for which this event is an output."""
+  """
+  (`Process`) Defines the process for which this event is an output.
+  """
   outputOf: ID
 
   """
@@ -1053,7 +1248,9 @@ input EconomicEventCreateParams {
   """
   provider: ID!
 
-  """(`Agent`) The economic agent whom the actual economic event is for."""
+  """
+  (`Agent`) The economic agent whom the actual economic event is for.
+  """
   receiver: ID!
 
   """
@@ -1061,7 +1258,9 @@ input EconomicEventCreateParams {
   """
   inScopeOf: [ID!]
 
-  """(`EconomicResource`) Economic resource involved in the economic event."""
+  """
+  (`EconomicResource`) Economic resource involved in the economic event.
+  """
   resourceInventoriedAs: ID
 
   """
@@ -1095,10 +1294,14 @@ input EconomicEventCreateParams {
   """
   atLocation: ID
 
-  """The beginning of the economic event."""
+  """
+  The beginning of the economic event.
+  """
   hasBeginning: DateTime
 
-  """The end of the economic event."""
+  """
+  The end of the economic event.
+  """
   hasEnd: DateTime
 
   """
@@ -1106,7 +1309,9 @@ input EconomicEventCreateParams {
   """
   hasPointInTime: DateTime
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -1115,7 +1320,9 @@ input EconomicEventCreateParams {
   """
   agreedIn: URI
 
-  """(`Agreement`) This economic event occurs as part of this agreement."""
+  """
+  (`Agreement`) This economic event occurs as part of this agreement.
+  """
   realizationOf: ID
 
   """
@@ -1132,7 +1339,9 @@ input EconomicEventCreateParams {
 }
 
 type EconomicEventResponse {
-  """Details of the newly created event."""
+  """
+  Details of the newly created event.
+  """
   economicEvent: EconomicEvent!
 
   """
@@ -1144,7 +1353,9 @@ type EconomicEventResponse {
 input EconomicEventUpdateParams {
   id: ID!
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -1153,7 +1364,9 @@ input EconomicEventUpdateParams {
   """
   agreedIn: URI
 
-  """(`Agreement`) This economic event occurs as part of this agreement."""
+  """
+  (`Agreement`) This economic event occurs as part of this agreement.
+  """
   realizationOf: ID
 
   """
@@ -1167,7 +1380,9 @@ input EconomicEventUpdateParams {
   inScopeOf: [ID!]
 }
 
-"""A resource which is useful to people or the ecosystem."""
+"""
+A resource which is useful to people or the ecosystem.
+"""
 type EconomicResource {
   id: ID!
 
@@ -1222,10 +1437,14 @@ type EconomicResource {
   """
   onhandQuantity: Measure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
-  """The unit used for use or work or cite actions for this resource."""
+  """
+  The unit used for use or work or cite actions for this resource.
+  """
   unitOfEffort: Unit
 
   """
@@ -1315,7 +1534,9 @@ input EconomicResourceCreateParams {
   """
   currentLocation: ID
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -1347,13 +1568,17 @@ input EconomicResourceUpdateParams {
   """
   unitOfEffort: ID
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
 union EventOrCommitment = EconomicEvent | Commitment
 
-""" Only used for workaround mentioned in readme """
+"""
+Only used for workaround mentioned in readme
+"""
 scalar ExternalType
 
 """
@@ -1373,7 +1598,9 @@ type Fulfillment {
   """
   fulfills: Commitment!
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: Measure
 
   """
@@ -1383,7 +1610,9 @@ type Fulfillment {
   """
   effortQuantity: Measure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -1398,7 +1627,9 @@ input FulfillmentCreateParams {
   """
   fulfills: ID!
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -1408,7 +1639,9 @@ input FulfillmentCreateParams {
   """
   effortQuantity: IMeasure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -1429,7 +1662,9 @@ input FulfillmentUpdateParams {
   """
   fulfills: ID
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -1439,11 +1674,11 @@ input FulfillmentUpdateParams {
   """
   effortQuantity: IMeasure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
-
-
 
 """
 A planned economic flow which has not been committed to, which can lead to economic events (sometimes through commitments).
@@ -1461,26 +1696,38 @@ type Intent {
   """
   action: Action!
 
-  """Defines the process to which this intent is an input."""
+  """
+  Defines the process to which this intent is an input.
+  """
   inputOf: Process
 
-  """Defines the process to which this intent is an output."""
+  """
+  Defines the process to which this intent is an output.
+  """
   outputOf: Process
 
   """
   The economic agent from whom the intent is initiated. This implies that the intent is an offer.
   """
   provider: Agent
+  # provider: User   # WIP untill we will implement agent
 
   """
   The economic agent whom the intent is for.  This implies that the intent is a request.
   """
   receiver: Agent
+  # receiver: User
 
   """
   References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
   resourceClassifiedAs: [URI!]
+
+  """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext]
 
   """
   The primary resource specification or definition of an existing or potential
@@ -1508,13 +1755,19 @@ type Intent {
   """
   effortQuantity: Measure
 
-  """The total quantity of the offered resource available."""
+  """
+  The total quantity of the offered resource available.
+  """
   availableQuantity: Measure
 
-  """The planned beginning of the intent."""
+  """
+  The planned beginning of the intent.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the intent."""
+  """
+  The planned end of the intent.
+  """
   hasEnd: DateTime
 
   """
@@ -1522,7 +1775,9 @@ type Intent {
   """
   hasPointInTime: DateTime
 
-  """The time something is expected to be complete."""
+  """
+  The time something is expected to be complete.
+  """
   due: DateTime
 
   """
@@ -1531,10 +1786,14 @@ type Intent {
   """
   finished: Boolean
 
-  """The uri to an image relevant to the intent, such as a photo."""
-  image: URI
+  """
+  The uri to an image relevant to the intent, such as a photo. // WIP FIXME adding content rather than uri
+  """
+  image: Content
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -1547,11 +1806,15 @@ type Intent {
   """
   agreedIn: URI
 
-  """The intent can be safely deleted, has no dependent information."""
+  """
+  The intent can be safely deleted, has no dependent information.
+  """
   deletable: Boolean
   satisfiedBy: [Satisfaction!]
 
-  """The place where an intent would occur. Usually mappable."""
+  """
+  The place where an intent would occur. Usually mappable.
+  """
   atLocation: SpatialThing
   publishedIn: [ProposedIntent!]
 }
@@ -1560,17 +1823,21 @@ input IntentCreateParams {
   """
   (`Action`) Relates an intent to a verb, such as consume, produce, work, improve, etc.
   """
-  action: ID
+  action: String!
 
   """
   An informal or formal textual identifier for an intent. Does not imply uniqueness.
   """
   name: String
 
-  """(`Process`) Defines the process to which this intent is an input."""
+  """
+  (`Process`) Defines the process to which this intent is an input.
+  """
   inputOf: ID
 
-  """(`Process`) Defines the process to which this intent is an output."""
+  """
+  (`Process`) Defines the process to which this intent is an output.
+  """
   outputOf: ID
 
   """
@@ -1596,6 +1863,11 @@ input IntentCreateParams {
   resourceClassifiedAs: [URI!]
 
   """
+  Same as resourceClassifiedAs, but uses tag IDs
+  """
+  tags: [ID!]
+
+  """
   (`EconomicResource`) When a specific `EconomicResource` is known which can
   service the `Intent`, this defines that resource.
   """
@@ -1615,13 +1887,19 @@ input IntentCreateParams {
   """
   effortQuantity: IMeasure
 
-  """The total quantity of the offered resource available."""
+  """
+  The total quantity of the offered resource available.
+  """
   availableQuantity: IMeasure
 
-  """The planned beginning of the intent."""
+  """
+  The planned beginning of the intent.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the intent."""
+  """
+  The planned end of the intent.
+  """
   hasEnd: DateTime
 
   """
@@ -1629,13 +1907,19 @@ input IntentCreateParams {
   """
   hasPointInTime: DateTime
 
-  """The time something is expected to be complete."""
+  """
+  The time something is expected to be complete.
+  """
   due: DateTime
 
-  """The uri to an image relevant to the intent, such as a photo."""
-  image: URI
+  """
+  The uri to an image relevant to the intent, such as a photo.
+  """
+  image: UploadInput
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -1643,7 +1927,9 @@ input IntentCreateParams {
   """
   inScopeOf: [ID!]
 
-  """(`SpatialThing`) The place where an intent occurs. Usually mappable."""
+  """
+  (`SpatialThing`) The place where an intent occurs. Usually mappable.
+  """
   atLocation: ID
 
   """
@@ -1673,12 +1959,16 @@ input IntentUpdateParams {
   """
   (`Action`) Relates an intent to a verb, such as consume, produce, work, improve, etc.
   """
-  action: ID
+  action: String
 
-  """(`Process`) Defines the process to which this intent is an input."""
+  """
+  (`Process`) Defines the process to which this intent is an input.
+  """
   inputOf: ID
 
-  """(`Process`) Defines the process to which this intent is an output."""
+  """
+  (`Process`) Defines the process to which this intent is an output.
+  """
   outputOf: ID
 
   """
@@ -1723,13 +2013,19 @@ input IntentUpdateParams {
   """
   effortQuantity: IMeasure
 
-  """The total quantity of the offered resource available."""
+  """
+  The total quantity of the offered resource available.
+  """
   availableQuantity: IMeasure
 
-  """The planned beginning of the intent."""
+  """
+  The planned beginning of the intent.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the intent."""
+  """
+  The planned end of the intent.
+  """
   hasEnd: DateTime
 
   """
@@ -1737,11 +2033,15 @@ input IntentUpdateParams {
   """
   hasPointInTime: DateTime
 
-  """The time something is expected to be complete."""
+  """
+  The time something is expected to be complete.
+  """
   due: DateTime
 
-  """The uri to an image relevant to the intent, such as a photo."""
-  image: URI
+  """
+  The uri to an image relevant to the intent, such as a photo.
+  """
+  image: UploadInput
 
   """
   The intent is complete or not.  This is irrespective of if the original goal
@@ -1749,7 +2049,9 @@ input IntentUpdateParams {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -1757,7 +2059,9 @@ input IntentUpdateParams {
   """
   inScopeOf: [ID!]
 
-  """(`SpatialThing`) The place where an intent occurs. Usually mappable."""
+  """
+  (`SpatialThing`) The place where an intent occurs. Usually mappable.
+  """
   atLocation: ID
 
   """
@@ -1766,13 +2070,15 @@ input IntentUpdateParams {
   agreedIn: URI
 }
 
-
-
 type ValueFlowsMutation {
-  """Registers a new (human) person with the collaboration space"""
+  """
+  Registers a new (human) person with the collaboration space
+  """
   createPerson(person: AgentCreateParams!): PersonResponse
 
-  """Update profile details"""
+  """
+  Update profile details
+  """
   updatePerson(person: AgentUpdateParams!): PersonResponse
 
   """
@@ -1785,24 +2091,38 @@ type ValueFlowsMutation {
   """
   createOrganization(organization: AgentCreateParams!): OrganizationResponse
 
-  """Update organization profile details"""
+  """
+  Update organization profile details
+  """
   updateOrganization(organization: AgentUpdateParams!): OrganizationResponse
 
   """
   Erase record of an organization and thus remove it from the collaboration space
   """
   deleteOrganization(id: ID!): Boolean
-  createAgentRelationship(relationship: AgentRelationshipCreateParams!): AgentRelationshipResponse
-  updateAgentRelationship(relationship: AgentRelationshipUpdateParams!): AgentRelationshipResponse
+  createAgentRelationship(
+    relationship: AgentRelationshipCreateParams!
+  ): AgentRelationshipResponse
+  updateAgentRelationship(
+    relationship: AgentRelationshipUpdateParams!
+  ): AgentRelationshipResponse
   deleteAgentRelationship(id: ID!): Boolean
-  createAgentRelationshipRole(agentRelationshipRole: AgentRelationshipRoleCreateParams): AgentRelationshipRoleResponse
-  updateAgentRelationshipRole(agentRelationshipRole: AgentRelationshipRoleUpdateParams): AgentRelationshipRoleResponse
+  createAgentRelationshipRole(
+    agentRelationshipRole: AgentRelationshipRoleCreateParams
+  ): AgentRelationshipRoleResponse
+  updateAgentRelationshipRole(
+    agentRelationshipRole: AgentRelationshipRoleUpdateParams
+  ): AgentRelationshipRoleResponse
   deleteAgentRelationshipRole(id: ID!): Boolean
   createAgreement(agreement: AgreementCreateParams): AgreementResponse
   updateAgreement(agreement: AgreementUpdateParams): AgreementResponse
   deleteAgreement(id: ID!): Boolean
-  createAppreciation(appreciation: AppreciationCreateParams!): AppreciationResponse
-  updateAppreciation(appreciation: AppreciationUpdateParams!): AppreciationResponse
+  createAppreciation(
+    appreciation: AppreciationCreateParams!
+  ): AppreciationResponse
+  updateAppreciation(
+    appreciation: AppreciationUpdateParams!
+  ): AppreciationResponse
   deleteAppreciation(id: ID!): Boolean
   createClaim(claim: ClaimCreateParams!): ClaimResponse
   updateClaim(claim: ClaimUpdateParams!): ClaimResponse
@@ -1810,19 +2130,36 @@ type ValueFlowsMutation {
   createSettlement(settlement: SettlementCreateParams!): SettlementResponse
   updateSettlement(s0ettlement: SettlementUpdateParams!): SettlementResponse
   deleteSettlement(id: ID!): Boolean
-  createResourceSpecification(resourceSpecification: ResourceSpecificationCreateParams): ResourceSpecificationResponse
-  updateResourceSpecification(resourceSpecification: ResourceSpecificationUpdateParams): ResourceSpecificationResponse
+  createResourceSpecification(
+    resourceSpecification: ResourceSpecificationCreateParams
+  ): ResourceSpecificationResponse
+  updateResourceSpecification(
+    resourceSpecification: ResourceSpecificationUpdateParams
+  ): ResourceSpecificationResponse
   deleteResourceSpecification(id: ID!): Boolean
-  createProcessSpecification(processSpecification: ProcessSpecificationCreateParams): ProcessSpecificationResponse
-  updateProcessSpecification(processSpecification: ProcessSpecificationUpdateParams): ProcessSpecificationResponse
+  createProcessSpecification(
+    processSpecification: ProcessSpecificationCreateParams
+  ): ProcessSpecificationResponse
+  updateProcessSpecification(
+    processSpecification: ProcessSpecificationUpdateParams
+  ): ProcessSpecificationResponse
   deleteProcessSpecification(id: ID!): Boolean
-  createEconomicEvent(event: EconomicEventCreateParams!, newInventoriedResource: EconomicResourceCreateParams): EconomicEventResponse
+  createEconomicEvent(
+    event: EconomicEventCreateParams!
+    newInventoriedResource: EconomicResourceCreateParams
+  ): EconomicEventResponse
   updateEconomicEvent(event: EconomicEventUpdateParams!): EconomicEventResponse
   deleteEconomicEvent(id: ID!): Boolean
-  updateEconomicResource(resource: EconomicResourceUpdateParams!): EconomicResourceResponse
+  updateEconomicResource(
+    resource: EconomicResourceUpdateParams!
+  ): EconomicResourceResponse
   deleteEconomicResource(id: ID!): Boolean
-  createProductBatch(productBatch: ProductBatchCreateParams!): ProductBatchResponse
-  updateProductBatch(productBatch: ProductBatchUpdateParams!): ProductBatchResponse
+  createProductBatch(
+    productBatch: ProductBatchCreateParams!
+  ): ProductBatchResponse
+  updateProductBatch(
+    productBatch: ProductBatchUpdateParams!
+  ): ProductBatchResponse
   deleteProductBatch(id: ID!): Boolean
   createProcess(process: ProcessCreateParams!): ProcessResponse
   updateProcess(process: ProcessUpdateParams!): ProcessResponse
@@ -1833,6 +2170,7 @@ type ValueFlowsMutation {
   createCommitment(commitment: CommitmentCreateParams): CommitmentResponse
   updateCommitment(commitment: CommitmentUpdateParams): CommitmentResponse
   deleteCommitment(id: ID!): Boolean
+
   createIntent(intent: IntentCreateParams): IntentResponse
 
   """
@@ -1850,8 +2188,12 @@ type ValueFlowsMutation {
   createFulfillment(fulfillment: FulfillmentCreateParams!): FulfillmentResponse
   updateFulfillment(fulfillment: FulfillmentUpdateParams!): FulfillmentResponse
   deleteFulfillment(id: ID!): Boolean
-  createSatisfaction(satisfaction: SatisfactionCreateParams): SatisfactionResponse
-  updateSatisfaction(satisfaction: SatisfactionUpdateParams): SatisfactionResponse
+  createSatisfaction(
+    satisfaction: SatisfactionCreateParams
+  ): SatisfactionResponse
+  updateSatisfaction(
+    satisfaction: SatisfactionUpdateParams
+  ): SatisfactionResponse
   deleteSatisfaction(id: ID!): Boolean
   createProposal(proposal: ProposalCreateParams): ProposalResponse
   updateProposal(proposal: ProposalUpdateParams): ProposalResponse
@@ -1862,7 +2204,11 @@ type ValueFlowsMutation {
   @param publishedIn the (`Proposal`) to include the intent in
   @param publishes the (`Intent`) to include as part of the proposal
   """
-  proposeIntent(publishedIn: ID!, publishes: ID!, reciprocal: Boolean): ProposedIntentResponse
+  proposeIntent(
+    publishedIn: ID!
+    publishes: ID!
+    reciprocal: Boolean
+  ): ProposedIntentResponse
   deleteProposedIntent(id: ID!): Boolean
 
   """
@@ -1875,25 +2221,41 @@ type ValueFlowsMutation {
   createRecipeFlow(recipeFlow: RecipeFlowCreateParams): RecipeFlowResponse
   updateRecipeFlow(recipeFlow: RecipeFlowUpdateParams): RecipeFlowResponse
   deleteRecipeFlow(id: ID!): Boolean
-  createRecipeProcess(recipeProcess: RecipeProcessCreateParams): RecipeProcessResponse
-  updateRecipeProcess(recipeProcess: RecipeProcessUpdateParams): RecipeProcessResponse
+  createRecipeProcess(
+    recipeProcess: RecipeProcessCreateParams
+  ): RecipeProcessResponse
+  updateRecipeProcess(
+    recipeProcess: RecipeProcessUpdateParams
+  ): RecipeProcessResponse
   deleteRecipeProcess(id: ID!): Boolean
-  createRecipeResource(recipeResource: RecipeResourceCreateParams): RecipeResourceResponse
-  updateRecipeResource(recipeResource: RecipeResourceUpdateParams): RecipeResourceResponse
+  createRecipeResource(
+    recipeResource: RecipeResourceCreateParams
+  ): RecipeResourceResponse
+  updateRecipeResource(
+    recipeResource: RecipeResourceUpdateParams
+  ): RecipeResourceResponse
   deleteRecipeResource(id: ID!): Boolean
   createScenario(plan: ScenarioCreateParams!): ScenarioResponse
   updateScenario(plan: ScenarioUpdateParams!): ScenarioResponse
   deleteScenario(id: ID!): Boolean
-  createScenarioDefinition(plan: ScenarioDefinitionCreateParams!): ScenarioDefinitionResponse
-  updateScenarioDefinition(plan: ScenarioDefinitionUpdateParams!): ScenarioDefinitionResponse
+  createScenarioDefinition(
+    plan: ScenarioDefinitionCreateParams!
+  ): ScenarioDefinitionResponse
+  updateScenarioDefinition(
+    plan: ScenarioDefinitionUpdateParams!
+  ): ScenarioDefinitionResponse
   deleteScenarioDefinition(id: ID!): Boolean
 }
 
-"""A formal or informal group, or legal organization."""
+"""
+A formal or informal group, or legal organization.
+"""
 type Organization implements Agent {
   id: ID!
 
-  """The name that this agent will be referred to by."""
+  """
+  The name that this agent will be referred to by.
+  """
   name: String!
 
   """
@@ -1901,7 +2263,9 @@ type Organization implements Agent {
   """
   image: URI
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
   relationships(roleId: ID): [AgentRelationship!]
   relationshipsAsSubject(roleId: ID): [AgentRelationship!]
@@ -1915,7 +2279,9 @@ type Organization implements Agent {
   """
   primaryLocation: SpatialThing
   economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
-  inventoriedEconomicResources(filter: agentResourceSearchParams): [EconomicResource!]
+  inventoriedEconomicResources(
+    filter: agentResourceSearchParams
+  ): [EconomicResource!]
   processes(filter: agentProcessSearchParams): [Process!]
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
@@ -1930,12 +2296,15 @@ type OrganizationResponse {
   agent: Organization!
 }
 
-
-"""A natural person."""
+"""
+A natural person.
+"""
 type Person implements Agent {
   id: ID!
 
-  """The name that this agent will be referred to by."""
+  """
+  The name that this agent will be referred to by.
+  """
   name: String!
 
   """
@@ -1943,7 +2312,9 @@ type Person implements Agent {
   """
   image: URI
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
   relationships(roleId: ID): [AgentRelationship!]
   relationshipsAsSubject(roleId: ID): [AgentRelationship!]
@@ -1957,7 +2328,9 @@ type Person implements Agent {
   """
   primaryLocation: SpatialThing
   economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
-  inventoriedEconomicResources(filter: agentResourceSearchParams): [EconomicResource!]
+  inventoriedEconomicResources(
+    filter: agentResourceSearchParams
+  ): [EconomicResource!]
   processes(filter: agentProcessSearchParams): [Process!]
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
@@ -1982,16 +2355,24 @@ type Plan {
   """
   name: String
 
-  """The time the plan was made."""
+  """
+  The time the plan was made.
+  """
   created: DateTime
 
-  """The time the plan is expected to be complete."""
+  """
+  The time the plan is expected to be complete.
+  """
   due: DateTime
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
-  """This plan refines a scenario, making it operational."""
+  """
+  This plan refines a scenario, making it operational.
+  """
   refinementOf: Scenario
 
   """
@@ -1999,7 +2380,9 @@ type Plan {
   """
   inScopeOf: [AccountingScope!]
 
-  """The plan is able to be deleted or not."""
+  """
+  The plan is able to be deleted or not.
+  """
   deletable: Boolean
   processes(filter: planProcessSearchParams): [Process!]
   independentDemands: [Commitment!]
@@ -2011,20 +2394,30 @@ input PlanCreateParams {
   """
   name: String!
 
-  """The time the plan was made."""
+  """
+  The time the plan was made.
+  """
   created: DateTime
 
-  """The time the plan is expected to be complete."""
+  """
+  The time the plan is expected to be complete.
+  """
   due: DateTime
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
-  """(`Scenario`) This plan refines a scenario, making it operational."""
+  """
+  (`Scenario`) This plan refines a scenario, making it operational.
+  """
   refinementOf: ID
 }
 
-"""Query parameters for reading `Process`es related to a `Plan`"""
+"""
+Query parameters for reading `Process`es related to a `Plan`
+"""
 input planProcessSearchParams {
   searchString: String
   after: DateTime
@@ -2044,16 +2437,24 @@ input PlanUpdateParams {
   """
   name: String
 
-  """The time the plan was made."""
+  """
+  The time the plan was made.
+  """
   created: DateTime
 
-  """The time the plan is expected to be complete."""
+  """
+  The time the plan is expected to be complete.
+  """
   due: DateTime
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
-  """(`Scenario`) This plan refines a scenario, making it operational."""
+  """
+  (`Scenario`) This plan refines a scenario, making it operational.
+  """
   refinementOf: ID
 }
 
@@ -2068,10 +2469,14 @@ type Process {
   """
   name: String!
 
-  """The planned beginning of the process."""
+  """
+  The planned beginning of the process.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the process."""
+  """
+  The planned end of the process.
+  """
   hasEnd: DateTime
 
   """
@@ -2080,7 +2485,9 @@ type Process {
   """
   finished: Boolean
 
-  """The definition or specification for a process."""
+  """
+  The definition or specification for a process.
+  """
   basedOn: ProcessSpecification
 
   """
@@ -2089,7 +2496,9 @@ type Process {
   """
   classifiedAs: [URI!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -2105,17 +2514,23 @@ type Process {
   trace: [EconomicEvent!]
   track: [EconomicEvent!]
 
-  """The process can be safely deleted, has no dependent information."""
+  """
+  The process can be safely deleted, has no dependent information.
+  """
   deletable: Boolean
 
-  """The process with its inputs and outputs is part of the plan."""
+  """
+  The process with its inputs and outputs is part of the plan.
+  """
   plannedWithin: Plan
   committedInputs(action: ID): [Commitment!]
   committedOutputs(action: ID): [Commitment!]
   intendedInputs(action: ID): [Intent!]
   intendedOutputs(action: ID): [Intent!]
 
-  """The process with its inputs and outputs is part of the scenario."""
+  """
+  The process with its inputs and outputs is part of the scenario.
+  """
   nestedIn: Scenario
 }
 
@@ -2125,10 +2540,14 @@ input ProcessCreateParams {
   """
   name: String!
 
-  """The planned beginning of the process."""
+  """
+  The planned beginning of the process.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the process."""
+  """
+  The planned end of the process.
+  """
   hasEnd: DateTime
 
   """
@@ -2137,7 +2556,9 @@ input ProcessCreateParams {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -2145,7 +2566,9 @@ input ProcessCreateParams {
   """
   inScopeOf: [ID!]
 
-  """(`Plan`) The process with its inputs and outputs is part of the plan."""
+  """
+  (`Plan`) The process with its inputs and outputs is part of the plan.
+  """
   plannedWithin: ID
 
   """
@@ -2164,7 +2587,9 @@ type ProcessResponse {
   process: Process
 }
 
-"""Specifies the kind of process."""
+"""
+Specifies the kind of process.
+"""
 type ProcessSpecification {
   id: ID!
 
@@ -2173,7 +2598,9 @@ type ProcessSpecification {
   """
   name: String!
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2183,7 +2610,9 @@ input ProcessSpecificationCreateParams {
   """
   name: String!
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2199,7 +2628,9 @@ input ProcessSpecificationUpdateParams {
   """
   name: String
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2211,10 +2642,14 @@ input ProcessUpdateParams {
   """
   name: String
 
-  """The planned beginning of the process."""
+  """
+  The planned beginning of the process.
+  """
   hasBeginning: DateTime
 
-  """The planned end of the process."""
+  """
+  The planned end of the process.
+  """
   hasEnd: DateTime
 
   """
@@ -2223,7 +2658,9 @@ input ProcessUpdateParams {
   """
   finished: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -2231,7 +2668,9 @@ input ProcessUpdateParams {
   """
   inScopeOf: [ID!]
 
-  """(`Plan`) The process with its inputs and outputs is part of the plan."""
+  """
+  (`Plan`) The process with its inputs and outputs is part of the plan.
+  """
   plannedWithin: ID
 
   """
@@ -2253,10 +2692,14 @@ From DataFoodConsortium vocabulary https://datafoodconsortium.gitbook.io/dfc-sta
 type ProductBatch {
   id: ID!
 
-  """The standard unique identifier of the batch."""
+  """
+  The standard unique identifier of the batch.
+  """
   batchNumber: String!
 
-  """Expiration date of the batch, commonly used for food."""
+  """
+  Expiration date of the batch, commonly used for food.
+  """
   expiryDate: DateTime
 
   """
@@ -2266,10 +2709,14 @@ type ProductBatch {
 }
 
 input ProductBatchCreateParams {
-  """The standard unique identifier of the batch."""
+  """
+  The standard unique identifier of the batch.
+  """
   batchNumber: String!
 
-  """Expiration date of the batch, commonly used for food."""
+  """
+  Expiration date of the batch, commonly used for food.
+  """
   expiryDate: DateTime
 
   """
@@ -2285,10 +2732,14 @@ type ProductBatchResponse {
 input ProductBatchUpdateParams {
   id: ID!
 
-  """The standard unique identifier of the batch."""
+  """
+  The standard unique identifier of the batch.
+  """
   batchNumber: String
 
-  """Expiration date of the batch, commonly used for food."""
+  """
+  Expiration date of the batch, commonly used for food.
+  """
   expiryDate: DateTime
 
   """
@@ -2310,10 +2761,14 @@ type Proposal {
   """
   name: String
 
-  """The beginning time of proposal publication."""
+  """
+  The beginning time of proposal publication.
+  """
   hasBeginning: DateTime
 
-  """The end time of proposal publication."""
+  """
+  The end time of proposal publication.
+  """
   hasEnd: DateTime
 
   """
@@ -2327,15 +2782,21 @@ type Proposal {
   """
   unitBased: Boolean
 
-  """The date and time the proposal was created."""
+  """
+  The date and time the proposal was created.
+  """
   created: DateTime
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
   publishes: [ProposedIntent!]
   publishedTo: [ProposedTo!]
 
-  """Location or area where the proposal is valid."""
+  """
+  Location or area where the proposal is valid.
+  """
   eligibleLocation: SpatialThing
 }
 
@@ -2345,13 +2806,19 @@ input ProposalCreateParams {
   """
   name: String
 
-  """The beginning time of proposal publication."""
+  """
+  The beginning time of proposal publication.
+  """
   hasBeginning: DateTime
 
-  """The end time of proposal publication."""
+  """
+  The end time of proposal publication.
+  """
   hasEnd: DateTime
 
-  """(`SpatialThing`) The location at which this proposal is eligible."""
+  """
+  (`SpatialThing`) The location at which this proposal is eligible.
+  """
   eligibleLocation: ID
 
   """
@@ -2365,10 +2832,14 @@ input ProposalCreateParams {
   """
   unitBased: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
-  """The date and time the proposal was created."""
+  """
+  The date and time the proposal was created.
+  """
   created: DateTime
 }
 
@@ -2384,13 +2855,19 @@ input ProposalUpdateParams {
   """
   name: String
 
-  """The beginning date/time of proposal publication."""
+  """
+  The beginning date/time of proposal publication.
+  """
   hasBeginning: DateTime
 
-  """The end time of proposal publication."""
+  """
+  The end time of proposal publication.
+  """
   hasEnd: DateTime
 
-  """(`SpatialThing`) The location at which this proposal is eligible."""
+  """
+  (`SpatialThing`) The location at which this proposal is eligible.
+  """
   eligibleLocation: ID
 
   """
@@ -2404,7 +2881,9 @@ input ProposalUpdateParams {
   """
   unitBased: Boolean
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2421,10 +2900,14 @@ type ProposedIntent {
   """
   reciprocal: Boolean
 
-  """The intent which is part of this published proposal."""
+  """
+  The intent which is part of this published proposal.
+  """
   publishes: Intent!
 
-  """The published proposal which this intent is part of."""
+  """
+  The published proposal which this intent is part of.
+  """
   publishedIn: Proposal!
 }
 
@@ -2438,10 +2921,14 @@ An agent to which the proposal is to be published.  A proposal can be published 
 type ProposedTo {
   id: ID!
 
-  """The agent to which the proposal is published."""
+  """
+  The agent to which the proposal is published.
+  """
   proposedTo: Agent!
 
-  """The proposal that is published to a specific agent."""
+  """
+  The proposal that is published to a specific agent.
+  """
   proposed: Proposal!
 }
 
@@ -2450,16 +2937,24 @@ type ProposedToResponse {
 }
 
 type ValueFlowsQuery {
-  """Loads details of the currently authenticated REA agent"""
+  """
+  Loads details of the currently authenticated REA agent
+  """
   myAgent: Agent
 
-  """Find an agent (person or organization) by their ID"""
+  """
+  Find an agent (person or organization) by their ID
+  """
   agent(id: ID): Agent
 
-  """Loads all agents publicly registered within this collaboration space"""
+  """
+  Loads all agents publicly registered within this collaboration space
+  """
   agents(start: ID, limit: Int): [Agent!]
 
-  """Find an organization (group) agent by its ID"""
+  """
+  Find an organization (group) agent by its ID
+  """
   organization(id: ID): Organization
 
   """
@@ -2467,7 +2962,9 @@ type ValueFlowsQuery {
   """
   organizations(start: ID, limit: Int): [Organization!]
 
-  """Find a person by their ID"""
+  """
+  Find a person by their ID
+  """
   person(id: ID): Person
 
   """
@@ -2475,7 +2972,9 @@ type ValueFlowsQuery {
   """
   people(start: ID, limit: Int): [Person!]
 
-  """Retrieve details of an agent relationship by its ID"""
+  """
+  Retrieve details of an agent relationship by its ID
+  """
   agentRelationship(id: ID): AgentRelationship
 
   """
@@ -2483,7 +2982,9 @@ type ValueFlowsQuery {
   """
   agentRelationships(start: ID, limit: Int): [AgentRelationship!]
 
-  """Retrieve details of an agent relationship role by its ID"""
+  """
+  Retrieve details of an agent relationship role by its ID
+  """
   agentRelationshipRole(id: ID): AgentRelationshipRole
 
   """
@@ -2504,7 +3005,14 @@ type ValueFlowsQuery {
   processSpecifications(start: ID, limit: Int): [ProcessSpecification!]
   economicEvent(id: ID): EconomicEvent
   economicEvents(start: ID, limit: Int): [EconomicEvent!]
-  economicEventsFiltered(providerId: ID, receiverId: ID, resourceClassifiedAs: [URI!], action: ID, startDate: String, endDate: String): [EconomicEvent!]
+  economicEventsFiltered(
+    providerId: ID
+    receiverId: ID
+    resourceClassifiedAs: [URI!]
+    action: ID
+    startDate: String
+    endDate: String
+  ): [EconomicEvent!]
   economicResource(id: ID): EconomicResource
   economicResources(start: ID, limit: Int): [EconomicResource!]
   productBatch(id: ID): ProductBatch
@@ -2541,7 +3049,9 @@ The specification of a resource inflow to, or outflow from, a recipe process.
 type RecipeFlow {
   id: ID!
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: Measure
 
   """
@@ -2551,7 +3061,9 @@ type RecipeFlow {
   """
   effortQuantity: Measure
 
-  """The resource definition referenced by this flow in the recipe."""
+  """
+  The resource definition referenced by this flow in the recipe.
+  """
   recipeFlowResource: RecipeResource
 
   """
@@ -2559,13 +3071,19 @@ type RecipeFlow {
   """
   action: Action!
 
-  """Relates an input flow to its process in a recipe."""
+  """
+  Relates an input flow to its process in a recipe.
+  """
   recipeInputOf: RecipeProcess
 
-  """Relates an output flow to its process in a recipe."""
+  """
+  Relates an output flow to its process in a recipe.
+  """
   recipeOutputOf: RecipeProcess
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2580,7 +3098,9 @@ input RecipeFlowCreateParams {
   """
   recipeFlowResource: ID!
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -2590,10 +3110,14 @@ input RecipeFlowCreateParams {
   """
   effortQuantity: IMeasure
 
-  """(`RecipeProcess`) Relates an input flow to its process in a recipe."""
+  """
+  (`RecipeProcess`) Relates an input flow to its process in a recipe.
+  """
   recipeInputOf: ID
 
-  """(`RecipeProcess`) Relates an output flow to its process in a recipe."""
+  """
+  (`RecipeProcess`) Relates an output flow to its process in a recipe.
+  """
   recipeOutputOf: ID
 
   """
@@ -2609,7 +3133,9 @@ input RecipeFlowCreateParams {
   """
   state: String
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2630,7 +3156,9 @@ input RecipeFlowUpdateParams {
   """
   recipeFlowResource: ID
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -2640,10 +3168,14 @@ input RecipeFlowUpdateParams {
   """
   effortQuantity: IMeasure
 
-  """(`RecipeProcess`) Relates an input flow to its process in a recipe."""
+  """
+  (`RecipeProcess`) Relates an input flow to its process in a recipe.
+  """
   recipeInputOf: ID
 
-  """(`RecipeProcess`) Relates an output flow to its process in a recipe."""
+  """
+  (`RecipeProcess`) Relates an output flow to its process in a recipe.
+  """
   recipeOutputOf: ID
 
   """
@@ -2659,11 +3191,15 @@ input RecipeFlowUpdateParams {
   """
   state: String
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
-"""Specifies a process in a recipe for use in planning from recipe."""
+"""
+Specifies a process in a recipe for use in planning from recipe.
+"""
 type RecipeProcess {
   id: ID!
 
@@ -2682,10 +3218,14 @@ type RecipeProcess {
   """
   processClassifiedAs: [URI!]
 
-  """The standard specification or definition of a process."""
+  """
+  The standard specification or definition of a process.
+  """
   processConformsTo: ProcessSpecification!
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2710,7 +3250,9 @@ input RecipeProcessCreateParams {
   """
   processClassifiedAs: [URI!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2741,7 +3283,9 @@ input RecipeProcessUpdateParams {
   """
   processClassifiedAs: [URI!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2756,7 +3300,9 @@ type RecipeResource {
   """
   name: String!
 
-  """The unit of inventory used for this resource in the recipe."""
+  """
+  The unit of inventory used for this resource in the recipe.
+  """
   unitOfResource: Unit
 
   """
@@ -2769,7 +3315,9 @@ type RecipeResource {
   """
   image: URI
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -2797,7 +3345,9 @@ input RecipeResourceCreateParams {
   """
   name: String!
 
-  """(`Unit`) The unit of inventory used for this resource in the recipe."""
+  """
+  (`Unit`) The unit of inventory used for this resource in the recipe.
+  """
   unitOfResource: ID
 
   """
@@ -2828,7 +3378,9 @@ input RecipeResourceCreateParams {
   """
   resourceClassifiedAs: [URI!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2844,7 +3396,9 @@ input RecipeResourceUpdateParams {
   """
   name: String
 
-  """(`Unit`) The unit of inventory used for this resource in the recipe."""
+  """
+  (`Unit`) The unit of inventory used for this resource in the recipe.
+  """
   unitOfResource: ID
 
   """
@@ -2875,7 +3429,9 @@ input RecipeResourceUpdateParams {
   """
   resourceClassifiedAs: [URI!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -2901,10 +3457,14 @@ type ResourceSpecification {
   """
   resourceClassifiedAs: [URI!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
-  """[UNSTABLE] The default unit used for quantifying this resource type."""
+  """
+  [UNSTABLE] The default unit used for quantifying this resource type.
+  """
   defaultUnitOfEffort: Unit
   conformingResources: [EconomicResource!]
 }
@@ -2925,7 +3485,9 @@ input ResourceSpecificationCreateParams {
   """
   resourceClassifiedAs: [URI!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -2956,7 +3518,9 @@ input ResourceSpecificationUpdateParams {
   """
   resourceClassifiedAs: [URI!]
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 
   """
@@ -2982,7 +3546,9 @@ type Satisfaction {
   """
   satisfiedBy: EventOrCommitment!
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: Measure
 
   """
@@ -2992,7 +3558,9 @@ type Satisfaction {
   """
   effortQuantity: Measure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3007,7 +3575,9 @@ input SatisfactionCreateParams {
   """
   satisfiedBy: ID!
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -3017,7 +3587,9 @@ input SatisfactionCreateParams {
   """
   effortQuantity: IMeasure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3038,7 +3610,9 @@ input SatisfactionUpdateParams {
   """
   satisfiedBy: ID
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -3048,7 +3622,9 @@ input SatisfactionUpdateParams {
   """
   effortQuantity: IMeasure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3078,7 +3654,9 @@ type Scenario {
   """
   inScopeOf: [AccountingScope!]
 
-  """The scenario definition for this scenario, for example yearly budget."""
+  """
+  The scenario definition for this scenario, for example yearly budget.
+  """
   definedAs: ScenarioDefinition
 
   """
@@ -3086,7 +3664,9 @@ type Scenario {
   """
   refinementOf: Scenario
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3121,11 +3701,15 @@ input ScenarioCreateParams {
   """
   refinementOf: ID
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
-"""The type definition of one or more scenarios, such as Yearly Budget."""
+"""
+The type definition of one or more scenarios, such as Yearly Budget.
+"""
 type ScenarioDefinition {
   id: ID!
 
@@ -3134,10 +3718,14 @@ type ScenarioDefinition {
   """
   name: String!
 
-  """The duration of the scenario, often an accounting period."""
+  """
+  The duration of the scenario, often an accounting period.
+  """
   hasDuration: Duration
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3147,10 +3735,14 @@ input ScenarioDefinitionCreateParams {
   """
   name: String
 
-  """The duration of the scenario, often an accounting period."""
+  """
+  The duration of the scenario, often an accounting period.
+  """
   hasDuration: IDuration
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3166,10 +3758,14 @@ input ScenarioDefinitionUpdateParams {
   """
   name: String!
 
-  """The duration of the scenario, often an accounting period."""
+  """
+  The duration of the scenario, often an accounting period.
+  """
   hasDuration: IDuration
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3210,7 +3806,9 @@ input ScenarioUpdateParams {
   """
   refinementOf: ID
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3220,13 +3818,19 @@ Represents many-to-many relationships between claim and economic events that ful
 type Settlement {
   id: ID!
 
-  """A claim which is fully or partially settled by an economic event."""
+  """
+  A claim which is fully or partially settled by an economic event.
+  """
   settles: Claim!
 
-  """The economic event fully or partially settling a claim."""
+  """
+  The economic event fully or partially settling a claim.
+  """
   settledBy: EconomicEvent!
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: Measure
 
   """
@@ -3236,7 +3840,9 @@ type Settlement {
   """
   effortQuantity: Measure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3251,7 +3857,9 @@ input SettlementCreateParams {
   """
   settledBy: ID!
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -3261,7 +3869,9 @@ input SettlementCreateParams {
   """
   effortQuantity: IMeasure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
 
@@ -3282,7 +3892,9 @@ input SettlementUpdateParams {
   """
   settledBy: ID
 
-  """The amount and unit of the economic resource counted or inventoried."""
+  """
+  The amount and unit of the economic resource counted or inventoried.
+  """
   resourceQuantity: IMeasure
 
   """
@@ -3292,10 +3904,11 @@ input SettlementUpdateParams {
   """
   effortQuantity: IMeasure
 
-  """A textual description or comment."""
+  """
+  A textual description or comment.
+  """
   note: String
 }
-
 
 """
 The `URI` type simply declares a reference to an external web URL, Holochain entry or other resource.
