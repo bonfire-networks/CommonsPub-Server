@@ -109,4 +109,10 @@ defmodule Geolocation do
       changeset
     end
   end
+
+  def context_module, do: Geolocation.Geolocations
+
+  def queries_module, do: Geolocation.Queries
+
+  def follow_filters, do: []
 end

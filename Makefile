@@ -1,6 +1,6 @@
 .PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
-ORG_NAME=haha
+ORG_NAME=commonspub
 APP_NAME=commonspub
 APP_DOTENV=config/docker.env
 APP_DEV_DOTENV=config/docker.dev.env
@@ -13,7 +13,9 @@ APP_BUILD ?= `git rev-parse --short HEAD`
 init: 
 	@echo "Running build scripts for $(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
 	@chmod 700 .erlang.cookie 
-	@mkdir -p config/prod ; mkdir -p config/dev ; cp -n config/templates/* config/prod/ ; cp -n config/templates/* config/dev/
+	@mkdir -p config/prod ; mkdir -p config/dev 
+	@cp -n config/templates/public.env config/dev/ ; cp -n config/templates/public.env config/prod/
+	@cp -n config/templates/not_secret.env config/dev/secrets.env ; cp -n config/templates/not_secret.env config/prod/secrets.env
 
 help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

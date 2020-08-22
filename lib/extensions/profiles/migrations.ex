@@ -8,7 +8,7 @@ defmodule CommonsPub.Profile.Migrations do
 
   def migrate(index_opts, :up) do
     # a profile is a group actor that is home to resources
-    create_mixin_table(Profile) do
+    create_mixin_table(CommonsPub.Profile) do
       add(:name, :string)
       add(:summary, :text)
       add(:extra_info, :map)
