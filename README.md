@@ -1,8 +1,8 @@
-# CommonsPub Federated Server
+# ZenPub Federated Server
 
 ## About the project
 
-[CommonsPub](http://commonspub.org) is a project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards).
+ZenPub is a flavour of [CommonsPub](http://commonspub.org), a project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards).
 
 This is the main repository, written in Elixir (running on Erlang/OTP).
 
