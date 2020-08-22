@@ -2,13 +2,14 @@
 
 ## About the project
 
-ZenPub is a flavour of [CommonsPub](http://commonspub.org), a project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards).
+ZenPub is a WIP backend for the Reflow project, which has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 820937.
+
+It is a flavour of [CommonsPub](http://commonspub.org), a federated app ecosystem based on the `ActivityPub` and `ActivityStreams` web standards).
 
 This is the main repository, written in Elixir (running on Erlang/OTP).
 
 The federation API uses [ActivityPub](http://activitypub.rocks/) and the client API uses [GraphQL](https://graphql.org/).
 
-There is a bundled front-end built with [Phoenix LiveView](https://www.phoenixframework.org/) (and an older React frontend in a [seperate repo](https://gitlab.com/CommonsPub/Client).
 
 ---
 
