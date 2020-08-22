@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Mixfile do
   use Mix.Project
@@ -215,6 +213,7 @@ defmodule MoodleNet.Mixfile do
       # {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
       # doc gen
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
+      {:licensir, "~> 0.6", only: :dev, runtime: false, git: "https://github.com/mayel/licensir"},
       # test coverage statistics
       {:excoveralls, "~> 0.10", only: :test},
       # module mocking

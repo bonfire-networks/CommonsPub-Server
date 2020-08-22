@@ -1,5 +1,3 @@
-# Based on code from MoodleNet
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Simulate do
   @moduledoc false
@@ -101,11 +99,13 @@ defmodule ValueFlows.Simulate do
 
   def fake_intent!(user, unit, overrides) do
     measure_attrs = %{unit_id: unit.id}
+
     measures = %{
       resource_quantity: measure(measure_attrs),
       effort_quantity: measure(measure_attrs),
       available_quantity: measure(measure_attrs)
     }
+
     overrides = Map.merge(overrides, measures)
     {:ok, intent} = Intents.create(user, action(), intent(overrides))
     intent
@@ -117,7 +117,9 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_proposed_intent!(proposal, intent, overrides \\ %{}) do
-    {:ok, proposed_intent} = Proposals.propose_intent(proposal, intent, proposed_intent(overrides))
+    {:ok, proposed_intent} =
+      Proposals.propose_intent(proposal, intent, proposed_intent(overrides))
+
     proposed_intent
   end
 end

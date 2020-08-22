@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.ChangesetView do
@@ -17,9 +14,11 @@ defmodule MoodleNetWeb.ChangesetView do
   end
 
   def render("conflict.json", %{changeset: %{data: %{__struct__: struct_name}}}) do
-    model_name = struct_name
-                 |> Module.split
-                 |> List.last
+    model_name =
+      struct_name
+      |> Module.split()
+      |> List.last()
+
     %{
       error_message: "#{model_name} is already created",
       error_code: "conflict"

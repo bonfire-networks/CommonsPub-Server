@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.Actor do
   use MoodleNet.Common.Schema
@@ -15,14 +13,14 @@ defmodule MoodleNet.Actors.Actor do
   @local_username_regex ~r/^[a-zA-Z][a-zA-Z0-9-]{2,}$/
 
   table_schema "mn_actor" do
-    belongs_to :peer, Peer
-    has_one :user, User
-    has_one :community, Community
-    has_one :collection, Collection
+    belongs_to(:peer, Peer)
+    has_one(:user, User)
+    has_one(:community, Community)
+    has_one(:collection, Collection)
     # has_one :following_count, ActorFollowingCount
-    field :preferred_username, :string
-    field :canonical_url, :string
-    field :signing_key, :string
+    field(:preferred_username, :string)
+    field(:canonical_url, :string)
+    field(:signing_key, :string)
     timestamps()
   end
 
@@ -30,7 +28,7 @@ defmodule MoodleNet.Actors.Actor do
   @create_cast @required ++ ~w(peer_id canonical_url signing_key)a
   @update_cast ~w(peer_id canonical_url signing_key)a
 
-  @spec create_changeset(map) :: Changeset.t
+  @spec create_changeset(map) :: Changeset.t()
   @doc "Creates a changeset for insertion from the given pointer and attrs"
   def create_changeset(attrs) do
     %Actor{}
@@ -38,10 +36,12 @@ defmodule MoodleNet.Actors.Actor do
     |> Changeset.validate_required(@required)
     |> validate_username()
     |> cast_url()
-    |> Changeset.unique_constraint(:preferred_username, # with peer
+    # with peer
+    |> Changeset.unique_constraint(:preferred_username,
       name: "mn_actor_preferred_username_peer_id_index"
     )
-    |> Changeset.unique_constraint(:preferred_username, # without peer (local)
+    # without peer (local)
+    |> Changeset.unique_constraint(:preferred_username,
       name: "mn_actor_peer_id_null_index"
     )
   end
@@ -53,8 +53,7 @@ defmodule MoodleNet.Actors.Actor do
   end
 
   defp validate_username(changeset) do
-    Changeset.validate_format changeset, :preferred_username,
-      username_regex(is_local(changeset))
+    Changeset.validate_format(changeset, :preferred_username, username_regex(is_local(changeset)))
   end
 
   defp cast_url(changeset) do
@@ -62,6 +61,7 @@ defmodule MoodleNet.Actors.Actor do
   end
 
   defp cast_url(cs, x) when not is_nil(x), do: cs
+
   defp cast_url(cs, _) do
     name = Changeset.get_field(cs, :preferred_username)
     url = ActivityPub.Utils.actor_url(%{preferred_username: "#{name}"})
@@ -72,5 +72,4 @@ defmodule MoodleNet.Actors.Actor do
   defp username_regex(false), do: @remote_username_regex
 
   defp is_local(changeset), do: is_nil(Changeset.fetch_field(changeset, :peer_id))
-
 end

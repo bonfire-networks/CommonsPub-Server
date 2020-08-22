@@ -10,21 +10,19 @@ The federation API uses [ActivityPub](http://activitypub.rocks/) and the client 
 
 There is a bundled front-end built with [Phoenix LiveView](https://www.phoenixframework.org/) (and an older React frontend in a [seperate repo](https://gitlab.com/CommonsPub/Client).
 
-Some of this code was forked from [MoodleNet](http://moodle.net/), which was originally forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma).
-
 ---
 
 ## Documentation
 
 Do you want to...
 
-- Read about the CommonsPub architecture? Read our [overview](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/ARCHITECTURE.md).
+- Read about the CommonsPub architecture? Read our [overview](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/ARCHITECTURE.md).
 
-- Hack on the code? Read our [Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/HACKING.md).
+- Hack on the code? Read our [Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/HACKING.md).
 
-- Understand the client API? Read our [GraphQL guide](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/GRAPHQL.md).
+- Understand the client API? Read our [GraphQL guide](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/GRAPHQL.md).
 
-- Deploy in production? Read our [Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/DEPLOY.md).
+- Deploy in production? Read our [Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/DEPLOY.md).
 
 ---
 
@@ -56,10 +54,18 @@ For example, do not merge directly from `flavour/commonspub`-->`flavour/zenpub`.
 
 ---
 
-## Copyright and License
+## Licensing
 
-Copyright © 2018-2019 by Git Contributors.
+CommonsPub is licensed under the GNU Affero GPL version 3.0 (GNU AGPLv3).
 
-Licensed under the GNU Affero GPL version 3.0 (GNU AGPLv3).
+Copyright © 2017-2020 by all contributors.
 
-Contains code from [CommonsPub](https://commonspub.org/), [Pleroma](https://pleroma.social/), and [MoodleNet](http://moodle.net/)
+This repository includes code from:
+
+- [CommonsPub](https://commonspub.org), copyright (c) 2018-2020, CommonsPub Contributors
+- [Reflow](https://reflowproject.eu), copyright (c) 2020 Dyne.org foundation, Amsterdam
+- [HAHA Academy](https://haha.academy/), copyright (c) 2020, Mittetulundusühing HAHA Academy
+- [MoodleNet](http://moodle.net), copyright (c) 2018-2020 Moodle Pty Ltd
+- [Pleroma](https://pleroma.social), copyright (c) 2017-2020, Pleroma Authors
+
+For a list of linked libraries, including their origin and licenses, see [docs/DEPENDENCIES.md](./docs/DEPENDENCIES.md)

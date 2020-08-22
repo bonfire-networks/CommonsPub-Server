@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL.ResolveField do
   @moduledoc """
@@ -12,16 +10,14 @@ defmodule MoodleNet.GraphQL.ResolveField do
 
   alias MoodleNet.GraphQL.ResolveField
 
-  def run(
-    %ResolveField{
-      module: module,
-      fetcher: fetcher,
-      context: context,
-      info: info,
-    }
-  ) do
-    info2 = Map.take(info, [:context]) # not strictly required - no batch
+  def run(%ResolveField{
+        module: module,
+        fetcher: fetcher,
+        context: context,
+        info: info
+      }) do
+    # not strictly required - no batch
+    info2 = Map.take(info, [:context])
     apply(module, fetcher, [info2, context])
   end
-  
 end

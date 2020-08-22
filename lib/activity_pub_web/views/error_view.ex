@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.ErrorView do
@@ -14,7 +11,6 @@ defmodule ActivityPubWeb.ErrorView do
   # def render("500.html", _assigns) do
   #   "Internal Server Error"
   # end
-
 
   @doc """
     By default, Phoenix returns the status message from the template name. For example, "404.html" becomes "Not Found".

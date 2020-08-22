@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads.Storage do
   @type file_source :: Belt.Provider.file_source()
@@ -34,9 +32,10 @@ defmodule MoodleNet.Uploads.Storage do
   end
 
   defp upload_provider do
-    {:ok, provider} = :moodle_net
-    |> Application.fetch_env!(MoodleNet.Uploads)
-    |> Belt.Provider.Filesystem.new()
+    {:ok, provider} =
+      :moodle_net
+      |> Application.fetch_env!(MoodleNet.Uploads)
+      |> Belt.Provider.Filesystem.new()
 
     provider
   end

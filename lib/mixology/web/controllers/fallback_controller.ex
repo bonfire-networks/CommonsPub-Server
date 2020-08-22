@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.FallbackController do
@@ -86,7 +83,8 @@ defmodule MoodleNetWeb.FallbackController do
   end
 
   def call(conn, {:error, {status, error, error_code}})
-      when (is_integer(status) or is_atom(status)) and (is_atom(error) or is_binary(error)) and is_binary(error_code) do
+      when (is_integer(status) or is_atom(status)) and (is_atom(error) or is_binary(error)) and
+             is_binary(error_code) do
     conn
     |> put_status(status)
     |> json(%{error_message: to_string(error), error_code: error_code})

@@ -1,11 +1,9 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Mail.Checker do
   @moduledoc """
   Functions for checking the validity of email addresses and domains
   """
-  alias EmailChecker.Check.{Format,MX}
+  alias EmailChecker.Check.{Format, MX}
 
   @type error_reason :: :format | :mx
 
@@ -15,6 +13,7 @@ defmodule MoodleNet.Mail.Checker do
     config = config()
     check_format = Keyword.get(config, :format, true)
     check_mx = Keyword.get(config, :mx, true)
+
     cond do
       check_format and not Format.valid?(email) -> {:error, :format}
       check_mx and not MX.valid?(email) -> {:error, :mx}

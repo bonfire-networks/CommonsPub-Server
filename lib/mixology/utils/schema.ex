@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.Schema do
   @moduledoc "Macros for defining Ecto Schemas"
@@ -55,5 +53,4 @@ defmodule MoodleNet.Common.Schema do
       schema(unquote(view), unquote(body))
     end
   end
-
 end

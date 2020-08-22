@@ -1,8 +1,5 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Feeds.Queries do
-
   alias MoodleNet.Feeds.Feed
   import Ecto.Query
 
@@ -22,9 +19,12 @@ defmodule MoodleNet.Feeds.Queries do
   def filter(q, {:deleted, :not_nil}), do: where(q, [feed: f], not is_nil(f.deleted_at))
   def filter(q, {:deleted, false}), do: where(q, [feed: f], is_nil(f.deleted_at))
   def filter(q, {:deleted, true}), do: where(q, [feed: f], not is_nil(f.deleted_at))
-  def filter(q, {:deleted, {:gte, %DateTime{}=time}}), do: where(q, [feed: f], f.deleted_at >= ^time)
-  def filter(q, {:deleted, {:lte, %DateTime{}=time}}), do: where(q, [feed: f], f.deleted_at <= ^time)
+
+  def filter(q, {:deleted, {:gte, %DateTime{} = time}}),
+    do: where(q, [feed: f], f.deleted_at >= ^time)
+
+  def filter(q, {:deleted, {:lte, %DateTime{} = time}}),
+    do: where(q, [feed: f], f.deleted_at <= ^time)
 
   def filter(q, {:select, :id}), do: select(q, [feed: f], f.id)
-
 end

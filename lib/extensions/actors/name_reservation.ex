@@ -1,8 +1,4 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 defmodule MoodleNet.Actors.NameReservation do
-
   use Ecto.Schema
   alias Ecto.Changeset
   alias MoodleNet.Actors.NameReservation
@@ -15,5 +11,4 @@ defmodule MoodleNet.Actors.NameReservation do
   def changeset(name) when is_binary(name) do
     Changeset.change(%NameReservation{}, id: name)
   end
-
 end

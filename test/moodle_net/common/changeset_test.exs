@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.ChangesetTest do
   use ExUnit.Case, async: true
@@ -42,7 +40,7 @@ defmodule MoodleNet.Common.ChangesetTest do
     test "fails if provided an invalid URL" do
       invalid = [
         "//elixir-lang.org/",
-        "ftp://elixir-lang.org",
+        "ftp://elixir-lang.org"
         # "http:///test"
       ]
 

@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.ErrorView do
@@ -53,9 +50,9 @@ defmodule MoodleNetWeb.ErrorView do
   """
   def template_not_found(template, assigns) do
     if String.ends_with?(template, "json") do
-      render "500.json", assigns
+      render("500.json", assigns)
     else
-      render "500.html", assigns
+      render("500.html", assigns)
     end
   end
 end

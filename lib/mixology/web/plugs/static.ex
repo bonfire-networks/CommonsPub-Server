@@ -1,8 +1,5 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Plugs.Static do
-
   alias Plug.Static
 
   def init(opts) do
@@ -14,7 +11,7 @@ defmodule MoodleNetWeb.Plugs.Static do
       et_cache: Keyword.get(opts, :cache_control_for_etags, "public"),
       et_generation: Keyword.get(opts, :etag_generation, nil),
       headers: Keyword.get(opts, :headers, %{}),
-      content_types: Keyword.get(opts, :content_types, %{}),
+      content_types: Keyword.get(opts, :content_types, %{})
     }
   end
 
@@ -25,5 +22,4 @@ defmodule MoodleNetWeb.Plugs.Static do
     opts = Map.merge(opts, %{from: from, at: at})
     Static.call(conn, opts)
   end
-
 end

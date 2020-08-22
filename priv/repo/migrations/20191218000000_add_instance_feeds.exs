@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 defmodule MoodleNet.Repo.Migrations.AddInstanceFeeds do
   use Ecto.Migration
 
@@ -11,9 +8,11 @@ defmodule MoodleNet.Repo.Migrations.AddInstanceFeeds do
     {:ok, outbox} = Ecto.UUID.cast(outbox)
     {:ok, inbox} = Ecto.ULID.dump(@instance_inbox_id)
     {:ok, inbox} = Ecto.UUID.cast(inbox)
-    :ok = execute """
-    insert into mn_feed (id) values ('#{inbox}'), ('#{outbox}')
-    """
+
+    :ok =
+      execute("""
+      insert into mn_feed (id) values ('#{inbox}'), ('#{outbox}')
+      """)
   end
 
   # We specify `version: 1` in `down`, ensuring that we'll roll all the way back down if

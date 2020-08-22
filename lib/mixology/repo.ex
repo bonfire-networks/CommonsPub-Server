@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Repo do
   @moduledoc """
@@ -9,6 +7,7 @@ defmodule MoodleNet.Repo do
   use Ecto.Repo,
     otp_app: :moodle_net,
     adapter: Ecto.Adapters.Postgres
+
   import Ecto.Query
   alias MoodleNet.Common.NotFoundError
 
@@ -57,10 +56,11 @@ defmodule MoodleNet.Repo do
   Run a transaction, similar to `Repo.transaction/1`, but it expects an ok or error
   tuple. If an error tuple is returned, the transaction is aborted.
   """
-  @spec transact_with(fun :: (-> {:ok, any} | {:error, any})) :: {:ok, any} | {:error, any}
+  @spec transact_with(fun :: (() -> {:ok, any} | {:error, any})) :: {:ok, any} | {:error, any}
   def transact_with(fun) do
     transaction(fn ->
       ret = fun.()
+
       case ret do
         :ok -> :ok
         {:ok, v} -> v
@@ -81,6 +81,7 @@ defmodule MoodleNet.Repo do
   end
 
   def transact_many([]), do: {:ok, []}
+
   def transact_many(queries) when is_list(queries) do
     transaction(fn -> Enum.map(queries, &transact/1) end)
   end
@@ -88,6 +89,7 @@ defmodule MoodleNet.Repo do
   defp transact({:all, q}), do: all(q)
   defp transact({:count, q}), do: aggregate(q, :count)
   defp transact({:one, q}), do: one(q)
+
   defp transact({:one!, q}) do
     {:ok, ret} = single(q)
     ret

@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Transmogrifier do
@@ -88,6 +85,7 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp can_delete_object?(ap_id) do
     Logger.info("Checking delete permission for #{ap_id}")
+
     case Fetcher.fetch_remote_object_from_id(ap_id) do
       {:error, "Object has been deleted"} -> true
       %{"type" => "Tombstone"} -> true

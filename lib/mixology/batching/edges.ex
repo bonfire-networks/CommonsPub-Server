@@ -1,12 +1,10 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Batching.Edges do
   @enforce_keys ~w(data)a
   defstruct @enforce_keys
 
   alias MoodleNet.Batching.Edges
-  
+
   @type t :: %Edges{data: %{term => [term]}}
 
   @doc "Creates a new Edges from the data and a grouping key"
@@ -24,5 +22,4 @@ defmodule MoodleNet.Batching.Edges do
   def getter(key) do
     fn edges -> get(edges, key) end
   end
-
 end

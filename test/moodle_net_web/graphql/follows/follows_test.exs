@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.FollowsTest do
   use MoodleNetWeb.ConnCase
@@ -23,7 +21,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
   describe "follow" do
     test "works for guest for a public follow of a user" do
       [alice, bob] = some_fake_users!(2)
-      {:ok, follow} = Follows.create(alice, bob, %{is_local: true}) # alice follows bob
+      # alice follows bob
+      {:ok, follow} = Follows.create(alice, bob, %{is_local: true})
       q = follow_query()
       conn = json_conn()
       follow2 = grumble_post_key(q, conn, :follow, %{follow_id: follow.id})
@@ -50,14 +49,14 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       follow2 = grumble_post_key(q, conn, :follow, %{follow_id: follow.id})
       assert_follow(follow, follow2)
     end
-
   end
 
   describe "follow.creator" do
     test "works for guest" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, follow} = Follows.create(alice, bob, %{is_local: true}) # alice follows bob
+      # alice follows bob
+      {:ok, follow} = Follows.create(alice, bob, %{is_local: true})
       q = follow_query(fields: [creator: user_fields()])
       conn = json_conn()
       follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
@@ -109,7 +108,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
     end
 
     @remote_actor "https://kawen.space/users/karen"
-    @tag :skip # bizarre error possibly related to cachex
+    # bizarre error possibly related to cachex
+    @tag :skip
     test "works for a user following a remote user" do
       actor = fake_user!()
       conn = user_conn(actor)
@@ -120,7 +120,6 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       {:ok, follow} = Follows.one(creator: actor.id, context: followed.id)
       assert_follow(follow, follow2)
     end
-
   end
 
   # defp assert_already_following(errs, path) do
@@ -131,5 +130,4 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
   #   assert message == "already following"
   #   assert_location(loc)
   # end
-
 end

@@ -1,8 +1,5 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Test.GraphQLFields do
-
   import Grumble
 
   def page_info_fields do
@@ -81,7 +78,6 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     extra ++ ~w(id canonical_url is_local is_public created_at updated_at __typename)a
   end
 
-
   def followed_collection_fields(extra \\ []) do
     extra ++ [follow: follow_fields(), collection: collection_fields()]
   end
@@ -89,7 +85,6 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def followed_community_fields(extra \\ []) do
     extra ++ [follow: follow_fields(), community: community_fields()]
   end
-
 
   def activity_fields(extra \\ []) do
     extra ++ ~w(is canonical_url verb is_local is_public created_at __typename)a
@@ -136,57 +131,73 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     params = Keyword.get(options, :params, [])
     name = Keyword.get(options, :name, "test")
     id_type = Keyword.get(options, :id_type, :string)
-    query name: name, params: params,
+
+    query(
+      name: name,
+      params: params,
       param: param(param_name, type!(id_type)),
       field: field_fn.(options)
+    )
   end
 
   def gen_query(field_fn, options) do
     params = Keyword.get(options, :params, [])
     name = Keyword.get(options, :name, "test")
-    query name: name, params: params, field: field_fn.(options)
+    query(name: name, params: params, field: field_fn.(options))
   end
 
   def gen_subquery(arg_name, field_name, fields_fn, options) do
     args = Keyword.get(options, :args, [])
     fields = Keyword.get(options, :fields, [])
-    field field_name, args: args,
+
+    field(field_name,
+      args: args,
       arg: arg(arg_name, var(arg_name)),
       fields: fields_fn.(fields)
+    )
   end
 
   def gen_subquery(field_name, fields_fn, options) do
     args = Keyword.get(options, :args, [])
     fields = Keyword.get(options, :fields, [])
-    field field_name, args: args,
+
+    field(field_name,
+      args: args,
       fields: fields_fn.(fields)
+    )
   end
 
   def page_subquery(arg_name, field_name, fields_fn, options) do
     args = Keyword.get(options, :args, [])
     fields = Keyword.get(options, :fields, [])
-    field field_name, args: args,
+
+    field(field_name,
+      args: args,
       arg: arg(arg_name, var(arg_name)),
       fields: page_fields(fields_fn.(fields))
+    )
   end
 
   def page_subquery(field_name, fields_fn, options) do
     args = Keyword.get(options, :args, [])
     fields = Keyword.get(options, :fields, [])
-    field field_name, args: args,
+
+    field(field_name,
+      args: args,
       fields: page_fields(fields_fn.(fields))
+    )
   end
 
   def gen_mutation(params, field_fn, options) do
     params2 = Keyword.get(options, :params, [])
     name = Keyword.get(options, :name, "test")
-    mutation name: name, params: params, params: params2, field: field_fn.(options)
+    mutation(name: name, params: params, params: params2, field: field_fn.(options))
   end
 
   def gen_submutation(args, field_name, field_fn, options) do
     args2 = Keyword.get(options, :args, [])
     fields = Keyword.get(options, :fields, [])
-    field field_name, args: args, args: args2, fields: field_fn.(fields)
+    field(field_name, args: args, args: args2, fields: field_fn.(fields))
   end
 
   ### collections
@@ -205,27 +216,36 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def collections_query(options \\ []) do
-    params = [
-      collections_after: list_type(:cursor),
-      collections_before: list_type(:cursor),
-      collections_limit: :int,
-    ] ++ Keyword.get(options, :params, [])
-    gen_query(&collections_subquery/1, [ {:params, params} | options ])
+    params =
+      [
+        collections_after: list_type(:cursor),
+        collections_before: list_type(:cursor),
+        collections_limit: :int
+      ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&collections_subquery/1, [{:params, params} | options])
   end
 
   def collections_subquery(options \\ []) do
     args = [
       after: var(:collections_after),
       before: var(:collections_before),
-      limit: var(:collections_limit),
+      limit: var(:collections_limit)
     ]
-    page_subquery :collections,
-      &[ :follower_count | collection_fields(&1)],
-      [ {:args, args} | options ]
+
+    page_subquery(
+      :collections,
+      &[:follower_count | collection_fields(&1)],
+      [{:args, args} | options]
+    )
   end
 
   def create_collection_mutation(options \\ []) do
-    [collection: type!(:collection_input), community_id: type!(:string), icon: type(:upload_input)]
+    [
+      collection: type!(:collection_input),
+      community_id: type!(:string),
+      icon: type(:upload_input)
+    ]
     |> gen_mutation(&create_collection_submutation/1, options)
   end
 
@@ -244,9 +264,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     |> gen_submutation(:update_collection, &collection_fields/1, options)
   end
 
-
   ### communities
-
 
   def community_spread(fields \\ []) do
     object_spread(:community, fields: community_fields(fields))
@@ -264,20 +282,24 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     params = [
       communities_after: list_type(:cursor),
       communities_before: list_type(:cursor),
-      communities_limit: :int,
+      communities_limit: :int
     ]
-    gen_query(&communities_subquery/1, [ {:params, params} | options ])
+
+    gen_query(&communities_subquery/1, [{:params, params} | options])
   end
 
   def communities_subquery(options \\ []) do
     args = [
       after: var(:communities_after),
       before: var(:communities_before),
-      limit: var(:communities_limit),
+      limit: var(:communities_limit)
     ]
-    page_subquery :communities,
-      &[ :follower_count | community_fields(&1)],
-      [ {:args, args} | options ]
+
+    page_subquery(
+      :communities,
+      &[:follower_count | community_fields(&1)],
+      [{:args, args} | options]
+    )
   end
 
   def create_community_mutation(options \\ []) do
@@ -300,9 +322,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     |> gen_submutation(:update_community, &community_fields/1, options)
   end
 
-
   ### flags
-
 
   def flag_query(options \\ []) do
     gen_query(:flag_id, &flag_subquery/1, options)
@@ -320,8 +340,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:flags_after),
       before: var(:flags_before),
-      limit: var(:flags_limit),
+      limit: var(:flags_limit)
     ]
+
     page_subquery(:flags, &flag_fields/1, [{:args, args} | options])
   end
 
@@ -363,8 +384,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:features_after),
       before: var(:features_before),
-      limit: var(:features_limit),
+      limit: var(:features_limit)
     ]
+
     page_subquery(:features, &feature_fields/1, [{:args, args} | options])
   end
 
@@ -382,8 +404,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:followers_after),
       before: var(:followers_before),
-      limit: var(:followers_limit),
+      limit: var(:followers_limit)
     ]
+
     page_subquery(:followers, &follow_fields/1, [{:args, args} | options])
   end
 
@@ -391,8 +414,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:follows_after),
       before: var(:follows_before),
-      limit: var(:follows_limit),
+      limit: var(:follows_limit)
     ]
+
     page_subquery(:follows, &follow_fields/1, [{:args, args} | options])
   end
 
@@ -400,8 +424,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:collection_follows_after),
       before: var(:collection_follows_before),
-      limit: var(:collection_follows_limit),
+      limit: var(:collection_follows_limit)
     ]
+
     page_subquery(:collection_follows, &follow_fields/1, [{:args, args} | options])
   end
 
@@ -409,8 +434,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:community_follows_after),
       before: var(:community_follows_before),
-      limit: var(:community_follows_limit),
+      limit: var(:community_follows_limit)
     ]
+
     page_subquery(:community_follows, &follow_fields/1, [{:args, args} | options])
   end
 
@@ -418,8 +444,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:user_follows_after),
       before: var(:user_follows_before),
-      limit: var(:user_follows_limit),
+      limit: var(:user_follows_limit)
     ]
+
     page_subquery(:user_follows, &follow_fields/1, [{:args, args} | options])
   end
 
@@ -442,7 +469,6 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     [url: var(:url)]
     |> gen_submutation(:createFollowByURL, &follow_fields/1, options)
   end
-
 
   ### invites
 
@@ -470,7 +496,6 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   ### likes
 
-
   def like_query(options \\ []) do
     gen_query(:like_id, &like_subquery/1, options)
   end
@@ -483,8 +508,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:likers_after),
       before: var(:likers_before),
-      limit: var(:likers_limit),
+      limit: var(:likers_limit)
     ]
+
     page_subquery(:likers, &like_fields/1, [{:args, args} | options])
   end
 
@@ -492,8 +518,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:likes_after),
       before: var(:likes_before),
-      limit: var(:likes_limit),
+      limit: var(:likes_limit)
     ]
+
     page_subquery(:likes, &like_fields/1, [{:args, args} | options])
   end
 
@@ -507,9 +534,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     |> gen_submutation(:create_like, &like_fields/1, options)
   end
 
-
   ### resources
-
 
   def resource_spread(fields \\ []) do
     object_spread(:resource, fields: resource_fields(fields))
@@ -531,9 +556,10 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     args = [
       after: var(:resources_after),
       before: var(:resources_before),
-      limit: var(:resources_limit),
+      limit: var(:resources_limit)
     ]
-    page_subquery(:resources, &resource_fields/1, [{:args, args} | options ])
+
+    page_subquery(:resources, &resource_fields/1, [{:args, args} | options])
   end
 
   def create_resource_mutation(options \\ []) do
@@ -541,7 +567,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       collection_id: type!(:string),
       resource: type!(:resource_input),
       content: type!(:upload_input),
-      icon: type(:upload_input),
+      icon: type(:upload_input)
     ]
     |> gen_mutation(&create_resource_submutation/1, options)
   end
@@ -551,7 +577,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       collection_id: var(:collection_id),
       resource: var(:resource),
       content: var(:content),
-      icon: var(:icon),
+      icon: var(:icon)
     ]
     |> gen_submutation(:create_resource, &resource_fields/1, options)
   end
@@ -561,7 +587,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       resource_id: type!(:string),
       resource: type!(:resource_input),
       content: type(:upload_input),
-      icon: type(:upload_input),
+      icon: type(:upload_input)
     ]
     |> gen_mutation(&update_resource_submutation/1, options)
   end
@@ -571,7 +597,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       resource_id: var(:resource_id),
       resource: var(:resource),
       content: var(:content),
-      icon: var(:icon),
+      icon: var(:icon)
     ]
     |> gen_submutation(:update_resource, &resource_fields/1, options)
   end
@@ -588,23 +614,26 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   ### threads
 
-
   def threads_subquery(options \\ []) do
     args = Keyword.get(options, :args, [])
     fields = Keyword.get(options, :fields, [])
-    field :threads, args: args,
+
+    field(:threads,
+      args: args,
       fields: page_fields(thread_fields(fields))
+    )
   end
 
-
   ### comments
-
 
   def comments_subquery(options \\ []) do
     args = Keyword.get(options, :args, [])
     fields = Keyword.get(options, :fields, [])
-    field :comments, args: args,
+
+    field(:comments,
+      args: args,
       fields: page_fields(comment_fields(fields))
+    )
   end
 
   ### users
@@ -614,12 +643,15 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def me_query(fields \\ []) do
-    query name: :test, fields: [me: me_fields(fields)]
+    query(name: :test, fields: [me: me_fields(fields)])
   end
 
   def username_available_query() do
-    query name: :test, params: [username: type!(:string)],
+    query(
+      name: :test,
+      params: [username: type!(:string)],
       fields: [field(:username_available, args: [username: var(:username)])]
+    )
   end
 
   def user_query(options \\ []) do
@@ -669,9 +701,11 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def reset_password_request_mutation(_options \\ []) do
-    mutation name: :test,
+    mutation(
+      name: :test,
       params: [email: type!(:string)],
       fields: [field(:reset_password_request, args: [email: var(:email)])]
+    )
   end
 
   def reset_password_mutation(options \\ []) do
@@ -712,7 +746,4 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     id canonicalUrl isLocal createdAt __typename
     """
   end
-
-
-
 end

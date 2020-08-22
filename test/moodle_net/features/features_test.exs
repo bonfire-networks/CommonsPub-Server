@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.FeaturesTest do
   use MoodleNet.DataCase, async: true
@@ -34,13 +32,13 @@ defmodule MoodleNet.FeaturesTest do
       assert {:ok, feat} = Features.create(alice, coll, %{is_local: true})
       assert feat.context_id == coll.id
     end
+
     test "creates a feature for a community" do
       alice = fake_user!()
       comm = fake_community!(alice)
       assert {:ok, feat} = Features.create(alice, comm, %{is_local: true})
       assert feat.context_id == comm.id
     end
-
   end
 
   describe "delete/1" do

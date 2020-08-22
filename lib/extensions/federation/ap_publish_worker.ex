@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Workers.APPublishWorker do
   use ActivityPub.Workers.WorkerHelper, queue: "mn_ap_publish", max_attempts: 1
@@ -40,18 +38,22 @@ defmodule MoodleNet.Workers.APPublishWorker do
   def perform(%{"context_id" => context_id, "op" => "delete"}, _job) do
     object =
       with {:error, _e} <- MoodleNet.Users.one(join: :actor, preload: :actor, id: context_id),
-           {:error, _e} <- MoodleNet.Communities.one(join: :actor, preload: :actor, id: context_id),
-           {:error, _e} <- MoodleNet.Collections.one(join: :actor, preload: :actor, id: context_id) do
+           {:error, _e} <-
+             MoodleNet.Communities.one(join: :actor, preload: :actor, id: context_id),
+           {:error, _e} <-
+             MoodleNet.Collections.one(join: :actor, preload: :actor, id: context_id) do
         {:error, "not found"}
       end
 
-      case object do
-        {:ok, object} -> only_local(object, &publish/2, "delete")
-        _ ->
-          Pointers.one!(id: context_id)
-          |> Pointers.follow!()
-          |> only_local(&publish/2, "delete")
-      end
+    case object do
+      {:ok, object} ->
+        only_local(object, &publish/2, "delete")
+
+      _ ->
+        Pointers.one!(id: context_id)
+        |> Pointers.follow!()
+        |> only_local(&publish/2, "delete")
+    end
   end
 
   def perform(%{"context_id" => context_id, "op" => verb}, _job) do

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Plugs.ScrubParamsTest do
   use MoodleNetWeb.ConnCase
@@ -10,6 +8,7 @@ defmodule MoodleNetWeb.Plugs.ScrubParamsTest do
       json_conn()
       |> with_method(:post)
       |> plugged()
+
     assert %{"error_message" => "Param not found: linux", "error_code" => "missing_param"} =
              conn
              |> ScrubParams.call("linux")
@@ -21,6 +20,7 @@ defmodule MoodleNetWeb.Plugs.ScrubParamsTest do
       html_conn()
       |> with_method(:post)
       |> plugged()
+
     assert conn
            |> ScrubParams.call("linux")
            |> html_response(422) =~ "Param not found: linux"
@@ -32,6 +32,7 @@ defmodule MoodleNetWeb.Plugs.ScrubParamsTest do
       |> with_method(:post)
       |> with_params(%{"linux" => "cool"})
       |> plugged()
+
     assert ^conn = ScrubParams.call(conn, "linux")
   end
 
@@ -41,7 +42,7 @@ defmodule MoodleNetWeb.Plugs.ScrubParamsTest do
       |> with_method(:post)
       |> with_params(%{"linux" => %{"empty" => ""}})
       |> plugged()
+
     assert %{params: %{"linux" => %{"empty" => nil}}} = ScrubParams.call(conn, "linux")
   end
-
 end
