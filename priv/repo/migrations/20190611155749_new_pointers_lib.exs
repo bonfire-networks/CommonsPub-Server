@@ -24,8 +24,8 @@ defmodule MoodleNet.Repo.Migrations.NewPointersLib do
   end
 
   def pointers_upgrade_table_key(:up) do
-    pt = Application.get_env(:pointers, :schema_pointers, "mn_pointer")
-    ptt = Application.get_env(:pointers, :schema_pointers, "mn_table")
+    pt = Application.get_env(:pointers, :schema_pointers, "pointers_pointer")
+    ptt = Application.get_env(:pointers, :schema_pointers, "pointers_table")
 
     drop(constraint(pt, "mn_pointer_table_id_fkey"))
 

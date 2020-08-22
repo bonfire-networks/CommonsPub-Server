@@ -1,0 +1,54 @@
+
+
+<div id="write_widget" class="dialog__create">
+
+<%= if @toggle_post == true do %>
+
+  <div id="<%= @toggle_post %>" phx-target="<%= @myself %>" phx-click="toggle_post" class="dialog__backdrop"></div>
+  <dialog open class="dialog dialog__create <%= if @toggle_fullmodal, do: "fullpage" %>">
+    <header class="dialog__header">
+    <h2>Create a new post</h2>
+    <i class="feather-x-circle" id="<%= @toggle_post %>-cancel" phx-target="<%= @myself %>" phx-click="toggle_post"> </i>
+    </header>
+    <section class="dialog__content">
+      <form phx-submit="post" phx-target="<%= @myself %>" class="general__post">
+        <%= live_component(
+                @socket,
+                MoodleNetWeb.My.ContextSelect,
+                current_user: @current_user,
+                my_communities: @my_communities,
+                current_context: @current_context
+              ) %>
+        <div class="post__toggle post__title <%= if @show_title, do: "form__visible" %>">
+          <input id="name" name="name"  type="text" placeholder="Choose a title">
+        </div>
+        <div class="post__wrapper">
+
+          <%= live_component(
+              @socket,
+              MoodleNetWeb.EditorLive,
+              current_user: @current_user,
+              content_placeholder: "What are you thinking?",
+              id: "modal_editor"
+            ) %>
+
+
+          <div class="post__actions">
+
+            <div phx-click="toggle_title" phx-target="<%= @myself %>" class="button-outline-only-icon <%= if @show_title, do: "active", else: "" %>"><i class="feather-type"></i></div>
+
+            <div phx-click="toggle_fullmodal" phx-target="<%= @myself %>" class="button-outline-only-icon">
+                <i class="feather-maximize"></i>
+            </div>
+          </div>
+        </div>
+        <div class="post__sub__actions">
+          <button phx-disable-with="Posting..." type="submit">Publish</button>
+        </div>
+      </form>
+    </section>
+  </dialog>
+
+<% end %>
+
+</div>

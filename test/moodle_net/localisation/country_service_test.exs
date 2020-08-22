@@ -1,22 +1,22 @@
-defmodule MoodleNet.Localisation.CountryServiceTest do
+defmodule CommonsPub.Locales.Country.ServiceTest do
   # use ExUnit.Case, async: true
 
   # import ExUnit.Assertions
   # alias MoodleNet.Repo
-  # alias MoodleNet.Localisation.{Country, CountryService, CountryNotFoundError}
-  
+  # alias CommonsPub.Locales.{Country, CountryService, Country.Error.NotFound}
+
   # @countries [
   #   {"nl", "Netherlands", "Nederland"}
   # ]
   # @expected_country_codes Enum.sort(Enum.map(@countries, fn {x,_,_} -> x end))
 
-  # describe "MoodleNet.Localisation.CountryService" do
-    
+  # describe "CommonsPub.Locales.Country.Service" do
+
   #   setup do
   #     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
   #     {:ok, %{}}
   #   end
-    
+
   #   test "is fetching from good source data" do
   #     in_db = Repo.all(Country)
   #     |> Enum.map(&(&1.iso_code2))
@@ -41,12 +41,11 @@ defmodule MoodleNet.Localisation.CountryServiceTest do
   #     end
 
   #     for c <- @bad_country_codes do
-  # 	assert {:error, %CountryNotFoundError{id: c}} ==
+  # 	assert {:error, %Country.Error.NotFound{id: c}} ==
   # 	  CountryService.lookup(c)
-  # 	assert %CountryNotFoundError{id: c} ==
+  # 	assert %Country.Error.NotFound{id: c} ==
   # 	  catch_throw(CountryService.lookup!(c))
   #     end
   #   end
   # end
-
 end

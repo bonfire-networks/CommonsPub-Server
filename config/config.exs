@@ -32,6 +32,7 @@ alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
 alias Measurement.Unit.Units
+alias CommonsPub.Tag.Taggable
 
 hostname = System.get_env("HOSTNAME", "localhost")
 
@@ -70,14 +71,16 @@ config :moodle_net, GarbageCollector,
   grace: 302_400
 
 config :moodle_net, Feeds,
-  valid_contexts: [Collection, Comment, Community, Resource, Like],
+  valid_contexts: [Collection, Comment, Community, Resource, Like, CommonsPub.Tag.Category],
   default_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Blocks, valid_contexts: [Collection, Community, User]
+config :moodle_net, Blocks, valid_contexts: [Collection, Community, User, CommonsPub.Tag.Category]
+
+desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
 
 config :moodle_net, Instance,
   hostname: hostname,
-  description: "Local development instance",
+  description: desc,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
 config :moodle_net, Collections,
@@ -88,17 +91,37 @@ config :moodle_net, Communities,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Resources, valid_contexts: [Collection, Community, User]
+config :moodle_net, Resources,
+  valid_contexts: [Collection, Community, User, CommonsPub.Tag.Category]
 
-config :moodle_net, Features, valid_contexts: [Collection, Community]
+config :moodle_net, Features, valid_contexts: [Collection, Community, CommonsPub.Tag.Category]
 
 config :moodle_net, Flags,
-  valid_contexts: [Collection, Comment, Community, Resource, User, Organisation, Character]
+  valid_contexts: [
+    Collection,
+    Comment,
+    Community,
+    Resource,
+    User,
+    Organisation,
+    CommonsPub.Character,
+    CommonsPub.Tag.Category
+  ]
 
 config :moodle_net, Follows,
-  valid_contexts: [Collection, Community, Thread, User, Geolocation, Organisation, Character]
+  valid_contexts: [
+    Collection,
+    Community,
+    Thread,
+    User,
+    Geolocation,
+    Organisation,
+    CommonsPub.Character,
+    CommonsPub.Tag.Category
+  ]
 
-config :moodle_net, Likes, valid_contexts: [Collection, Community, Comment, Resource]
+config :moodle_net, Likes,
+  valid_contexts: [Collection, Community, Comment, Resource, CommonsPub.Tag.Category]
 
 config :moodle_net, Threads,
   valid_contexts: [
@@ -108,7 +131,8 @@ config :moodle_net, Threads,
     Resource,
     User,
     Organisation,
-    Character,
+    CommonsPub.Tag.Category,
+    CommonsPub.Character,
     ValueFlows.Planning.Intent
   ]
 
@@ -117,15 +141,23 @@ config :moodle_net, Users,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Units, valid_contexts: [Organisation, Community, Collection]
+config :moodle_net, Units,
+  valid_contexts: [CommonsPub.Tag.Category, Organisation, Community, Collection]
 
-config :moodle_net, Organisation, valid_contexts: [Organisation, Community, Collection]
+config :moodle_net, Organisation,
+  valid_contexts: [CommonsPub.Tag.Category, Organisation, Community, Collection]
 
-config :moodle_net, Character,
-  valid_contexts: [Character, Organisation, Community, Collection],
+config :moodle_net, CommonsPub.Character,
+  valid_contexts: [
+    CommonsPub.Tag.Category,
+    CommonsPub.Character,
+    Organisation,
+    Community,
+    Collection
+  ],
   default_outbox_query_contexts: [
     Collection,
-    Character,
+    CommonsPub.Character,
     Community,
     Comment,
     Community,
@@ -232,7 +264,7 @@ config :moodle_net, :instance,
 config :moodle_net, ecto_repos: [MoodleNet.Repo]
 
 config :moodle_net, MoodleNet.Repo,
-  types: MoodleNet.PostgresTypes,
+  types: Forkable.PostgresTypes,
   migration_primary_key: [name: :id, type: :binary_id]
 
 config :logger, :console,
@@ -281,17 +313,12 @@ config :sentry,
 
 config :moodle_net, :env, Mix.env()
 
-config :pointers,
-  table_table: "mn_table",
-  pointer_table: "mn_pointer",
-  trigger_function: "insert_pointer",
-  trigger_prefix: "insert_pointer_"
-
 config :pointers, Pointers.Pointer,
-  source: "mn_pointer",
+  source: "pointers_pointer",
   many_to_many: [
     tags: {
-      CommonsPub.Tag.Taggable,
+      # if(Code.ensure_loaded?(Taggable), do: Taggable, else: :taggable),
+      Taggable,
       join_through: "tags_things",
       unique: true,
       join_keys: [pointer_id: :id, tag_id: :id],
@@ -299,7 +326,7 @@ config :pointers, Pointers.Pointer,
     }
   ]
 
-config :pointers, Pointers.Table, source: "mn_table"
+config :pointers, Pointers.Table, source: "pointers_table"
 
 config :moodle_net, :ux,
   # prosemirror or ck5 as content editor:

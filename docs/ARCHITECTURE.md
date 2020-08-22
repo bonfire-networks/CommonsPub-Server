@@ -107,7 +107,6 @@ Here are the current contexts:
 
 - `MoodleNet.Application` (OTP application)
 - `MoodleNet.ActivityPub` (ActivityPub integration)
-- `MoodleNet.Algolia` (Mothership search)
 - `MoodleNet.Common` (stuff that gets used everywhere)
 - `MoodleNet.GraphQL` (GraphQL abstractions)
 - `MoodleNet.MediaProxy` (for fetching remote media)
@@ -117,6 +116,7 @@ Here are the current contexts:
 - `CommonsPub.ReleaseTasks` (OTP release tasks)
 - `MoodleNet.Repo` (Ecto repository)
 - `MoodleNet.Workers` (background tasks)
+- `CommonsPub.Search` (local search indexing and search API, powered by Meili)
 
 ### `MoodleNetWeb`
 

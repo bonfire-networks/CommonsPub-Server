@@ -1,0 +1,39 @@
+.page__instance {
+  @include content;
+}
+
+.instance {
+  @include content_two_sides
+}
+
+.preview__wrapper {
+  padding: var(--m2);
+  padding-bottom: 0;
+  &:last-of-type {
+    padding-bottom: var(--m2);
+  }
+}
+
+.instance__about {
+  padding: var(--m3)
+}
+
+.instance__showreel {
+  background: var(--color-surface);
+  border-radius: 6px;
+  margin-top: var(--m3);
+  .area__title {
+    margin: 0
+  }
+}
+
+#instance-members {
+  display: flex;
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    border: 2px solid var(--color-text-subtle);
+    margin-right: var(--m2);
+  }
+}

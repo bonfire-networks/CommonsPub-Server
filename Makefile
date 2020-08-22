@@ -1,23 +1,29 @@
 .PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
+ORG_NAME=commonspub
 APP_NAME=commonspub
 APP_DOTENV=config/docker.env
 APP_DEV_DOTENV=config/docker.dev.env
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
-APP_DOCKER_REPO="$(APP_NAME)/$(APP_NAME)"
-APP_DEV_CONTAINER="$(APP_NAME)_dev"
+APP_DOCKER_REPO="$(ORG_NAME)/$(APP_NAME)"
+APP_DEV_CONTAINER="$(ORG_NAME)_$(APP_NAME)_dev"
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
 APP_BUILD ?= `git rev-parse --short HEAD`
 
 init: 
 	@echo "Running build scripts for $(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
 	@chmod 700 .erlang.cookie 
+	@mkdir -p config/prod ; mkdir -p config/dev 
+	@cp -n config/templates/public.env config/dev/ ; cp -n config/templates/public.env config/prod/
+	@cp -n config/templates/not_secret.env config/dev/secrets.env ; cp -n config/templates/not_secret.env config/prod/secrets.env
 
 help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-build_without_cache: init ## Build the Docker image
-	@cp lib/*/overlay/* rel/overlays/
+prepare_for_release:
+	@cp lib/*/*/overlay/* rel/overlays/
+
+build_without_cache: init prepare_for_release ## Build the Docker image
 	@docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
@@ -26,8 +32,7 @@ build_without_cache: init ## Build the Docker image
 		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
 	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
-build: init ## Build the Docker image using previous cache
-	@cp lib/*/overlay/* rel/overlays/
+build: init prepare_for_release ## Build the Docker image using previous cache
 	@docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
@@ -57,17 +62,17 @@ push_stable: init tag_stable ## Tag stable, latest and version tags to the last 
 	@echo docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 	@docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
-hq_deploy_staging: init ## Used by Moodle HQ to trigger deploys to k8s
-	@curl https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://mothership.next.moodle.net/devops/respawn/$(MAIL_KEY)
-
-hq_deploy_stable: init ## Used by Moodle HQ to trigger prod deploys to k8s
-	@curl https://home.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://team.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
-
 dev-exports: init ## Load env vars from a dotenv file
 	awk '{print "export " $$0}' $(APP_DEV_DOTENV)
+
+dev: init ## Run the app in dev 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
+
+dev-shell: init ## Run the app in dev 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web bash
+
+dev-bg: init ## Run the app in dev 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --detach --service-ports web elixir -S mix phx.server
 
 dev-pull: init ## Build the dev image
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) pull 
@@ -83,7 +88,8 @@ dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm install --prefix assets
 
 dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild lib=pointers` 
-	rm -rf _build/$(lib)
+	sudo rm -rf deps/$(lib)
+	sudo rm -rf _build/$(lib)
 	sudo rm -rf _build/dev/lib/$(lib)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web rm -rf _build/$(lib) && mix deps.compile $(lib)
 
@@ -95,16 +101,16 @@ dev-deps-update-all: init ## Upgrade all deps
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm update --prefix assets && npm outdated --prefix assets
 
 dev-db-up: init ## Start the dev DB
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up --service-ports db
 
 dev-search-up: init ## Start the dev search index
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up search
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up --service-ports search
 
 dev-services-up: init ## Start the dev DB & search index
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db search
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up --service-ports db search
 
 dev-db-admin: init ## Start the dev DB and dbeaver admin UI
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up dbeaver 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up --service-ports dbeaver 
 
 dev-db: init ## Create the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.create
@@ -136,10 +142,10 @@ dev-test-psql: init ## Run postgres for tests (without Docker)
 dev-setup: dev-deps dev-db dev-db-migrate ## Prepare dependencies and DB for dev
 
 dev-run: init ## Run a custom command in dev env, eg: `make dev-run cmd="mix deps.update plug`
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web $(cmd)
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web $(cmd)
 
-dev: init ## Run the app in dev 
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
+dev-logs: init ## Run tests
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) logs -f
 
 dev-stop: init ## Stop the dev app
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) stop
@@ -159,18 +165,12 @@ manual-deps: init ## Prepare dependencies (without Docker)
 manual-db: init ## Create or reset the DB (without Docker)
 	mix ecto.reset
 
-good-tests: init
-	mix test test/moodle_net/{access,activities,actors,collections,comments,common} \
-                 test/moodle_net/{communities,localisation,meta,peers,resources,users} \
-                 test/moodle_net_web/plugs/ \
-                 test/moodle_net_web/graphql/{users,temporary}_test.exs \
-
-vf-tests: init
-	mix test lib/value_flows/{geolocation}/tests.ex 
-
 prepare: init ## Run the app in Docker
 	docker-compose pull 
 	docker-compose build 
 
 run: init ## Run the app in Docker
 	docker-compose up 
+
+run-bg: init ## Run the app in Docker, and keep running in the background
+	docker-compose up -d

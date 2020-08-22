@@ -75,10 +75,10 @@ config :cors_plug,
 config :moodle_net, MoodleNetWeb.Endpoint,
   live_reload: [
     patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
+      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg|ico|html)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{lib/.*/(live|templates)/.*(leex|eex|scss|css)$},
-      ~r{lib/.*(_view|_live).*(ex|leex|eex|scss|css)$}
+      ~r{lib/.*(leex|eex|scss|css)$},
+      ~r{lib/.*(view|live|templates|layout).*ex$}
     ]
   ]
 
@@ -95,7 +95,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  # types: MoodleNet.PostgresTypes,
+  # types: Forkable.PostgresTypes,
   username: System.get_env("POSTGRES_USER", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   database: System.get_env("POSTGRES_DB", "commonspub_dev"),
@@ -110,7 +110,7 @@ config :moodle_net, :ap_base_path, System.get_env("AP_BASE_PATH", "/pub")
 
 config :moodle_net,
        :frontend_base_url,
-       System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")
+       System.get_env("FRONTEND_BASE_URL", base_url)
 
 config :moodle_net, MoodleNet.Users,
   # enable open signups in dev
@@ -121,10 +121,10 @@ config :moodle_net, MoodleNet.Mail.Checker, mx: false
 config :moodle_net, MoodleNet.Mail.MailService, adapter: Bamboo.LocalAdapter
 
 config :moodle_net, MoodleNet.OAuth,
-  client_name: "MoodleNet",
-  client_id: "MoodleNET",
-  redirect_uri: "https://moodlenet.dev.local/",
-  website: "https://moodlenet.dev.local/",
+  client_name: "CommonsPub",
+  client_id: "CommonsPUB",
+  redirect_uri: "https://commonspub.dev.local/",
+  website: "https://commonspub.dev.local/",
   scopes: "read,write,follow"
 
 {:ok, cwd} = File.cwd()

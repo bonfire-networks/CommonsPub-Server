@@ -1,0 +1,68 @@
+<%= if @static_changed do %>
+  <script>
+    window.location.reload()
+  </script>
+<% end %>
+<script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@socket, "/js/app.js") %>"></script>
+<div id="template" class="page__container">
+  <div class="cpub__header">
+    <div class="header__left">
+      <%= live_redirect to: "/~" do %>
+        <h3><%=@app_name%></h3>
+      <% end %>
+      <%= live_component(
+          @socket,
+          MoodleNetWeb.SearchLive.Form,
+          id: :search_form,
+          search: @search,
+          current_user: @current_user
+        ) %>
+    </div>
+    <div class="header__right">
+      <%= if @current_user do %>
+        <%= live_component(
+          @socket,
+          MoodleNetWeb.My.MyHeader,
+          id: :my_header,
+          current_user: @current_user,
+          my_communities: @my_communities,
+          show_title: @show_title,
+          toggle_post: @toggle_post,
+          toggle_community: @toggle_community,
+          toggle_collection: @toggle_collection,
+          toggle_link: @toggle_link,
+          toggle_ad: @toggle_ad,
+          current_context: @current_context
+        ) %>
+      <% end %>
+      <%= if @current_user == nil do %>
+        <div class="panel__item">
+          <%= live_redirect to: "/~/login", class: "button" do %>
+            <i class="feather-log-in"></i> Log in
+          <% end %>
+        </div>
+        <div class="panel__item">
+          <%= live_redirect to: "/~/signup", class: "button" do %>
+            <i class="feather-zap"></i> Sign up
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <div  class="page <%= if !@current_user , do: "guest", else: "logged" %>">
+    <%= if @current_user do %>
+      <%= live_component(
+          @socket,
+          MoodleNetWeb.My.MySidebar,
+          current_user: @current_user,
+          my_communities: @my_communities,
+          id: :my_sidebar
+        ) %>
+    <% end %>
+    <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
+      <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+      <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+      <%= @inner_content %>
+    </section>
+  </div>
+</div>

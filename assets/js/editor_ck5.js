@@ -105,11 +105,9 @@ ExtensionHooks.MarkdownEditor = {
       },
     })
       .then((editor) => {
-        console.log("qui tutto bene");
         window.editor = editor;
       })
       .catch((error) => {
-        console.log("nein");
         console.error("There was a problem initializing the editor.", error);
       });
   },
@@ -130,12 +128,16 @@ function getFeedItems(queryText, prefix) {
     return new Promise((resolve) => {
       fetch("/api/tag/autocomplete/ck5/" + prefix + "/" + queryText)
         .then((response) => response.json())
-        .then((data) => resolve(data))
+        .then((data) => {
+          console.log(data);
+          resolve(data);
+        })
         .catch((error) => {
           console.error("There has been a problem with the tag search:", error);
+          resolve([]);
         });
     });
-  }
+  } else return [];
 }
 
 function MentionCustomization(editor) {

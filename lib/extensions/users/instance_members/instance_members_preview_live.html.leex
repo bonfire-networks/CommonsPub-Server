@@ -1,0 +1,17 @@
+<div id="instance-members">
+  <%= for user <- @members do %>
+    <%= live_redirect to: "/"<>e(user, :username, "unknown") do %>
+      <div class="avatar" style="background-image: url(<%= e(user, :icon_url, "") %>)"></div>
+    <% end %>
+  <% end %>
+  <%= if @has_next_page do %>
+    <div class="pagination">
+      <button
+        class="button--outline"
+        phx-click="load-more"
+        phx-target="<%= @myself %>">
+        view more
+      </button>
+    </div>
+  <% end %>
+</div>

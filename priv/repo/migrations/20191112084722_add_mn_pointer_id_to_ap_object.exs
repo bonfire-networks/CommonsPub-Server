@@ -3,12 +3,13 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 defmodule MoodleNet.Repo.Migrations.AddMnPointerIdToApObject do
   use Ecto.Migration
+  import Pointers.Migration
 
   def change do
     alter table("ap_object") do
-      add :mn_pointer_id, references("mn_pointer")
+      add(:mn_pointer_id, strong_pointer())
     end
 
-    create index("ap_object", [:mn_pointer_id])
+    create(index("ap_object", [:mn_pointer_id]))
   end
 end

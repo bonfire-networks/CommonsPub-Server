@@ -104,16 +104,7 @@ defmodule ActivityPubWeb.Publisher do
           "https://mothership.moodle.net/pub/shared_inbox"
       end
 
-    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" and
-         (activity.public or activity.data["type"] == "Delete") and
-         activity.data["type"] in ["Create", "Update", "Delete"] do
-      recipients ++
-        [
-          mothership_inbox
-        ]
-    else
-      recipients
-    end
+    recipients
   end
 
   @doc """

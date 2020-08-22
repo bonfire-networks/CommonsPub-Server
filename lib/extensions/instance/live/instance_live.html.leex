@@ -1,0 +1,136 @@
+<div class="page__instance">
+  <h1>Discover</h1>
+  <section class="instance">
+    <div>
+      <%= cond do %>
+        <% @selected_tab == "timeline" -> %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">Timeline</h3>
+          <%= live_component(
+                @socket,
+                InstanceActivitiesLive,
+                selected_tab: @selected_tab,
+                id: :timeline,
+                current_user: @current_user,
+                activities: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#instance-activities"
+              ) %>
+        </div>
+        <% @selected_tab == "members" -> %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">Members</h3>
+          <%= live_component(
+              @socket,
+              InstanceMembersLive,
+              selected_tab: @selected_tab,
+              id: :members,
+              current_user: @current_user,
+              members: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-members"
+          ) %>
+        </div>
+        <% true -> %>
+        <div class="mainContent__selected">
+          <h3 class="area__title">Timeline</h3>
+          <%= live_component(
+              @socket,
+              InstanceActivitiesLive,
+              selected_tab: @selected_tab,
+              id: :timeline,
+              current_user: @current_user,
+              activities: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-activities"
+            ) %>
+        </div>
+      <% end %>
+    </div>
+    <div class="instance__aside">
+      <%= if @description do %>
+        <div class="navigation__block">
+          <h3 class="block__title">About this instance</h3>
+          <div class="block__context">
+            <h4><%= @description %></h4>
+          </div>
+        </div>
+      <% end %>
+      <div class="navigation__block">
+        <h3 class="block__title">Members</h3>
+        <div class="block__context">
+          <%= live_component(
+              @socket,
+              InstanceMembersPreviewLive,
+              selected_tab: @selected_tab,
+              id: :instance_members_previews,
+              current_user: @current_user,
+              members: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-members-previews"
+          ) %>
+        </div>
+      </div>
+      <div class="instance__showreel communities">
+        <h2 class="area__title">Communities</h2>
+        <%= live_component(
+              @socket,
+              InstanceCommunitiesLive,
+              selected_tab: @selected_tab,
+              id: :communities,
+              current_user: @current_user,
+              communities: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-communities"
+          ) %>
+      </div>
+      <div class="instance__showreel collections">
+        <h2 class="area__title">Collections</h2>
+        <%= live_component(
+              @socket,
+              InstanceCollectionsLive,
+              selected_tab: @selected_tab,
+              id: :collections,
+              current_user: @current_user,
+              collections: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-collections"
+          ) %>
+      </div>
+      <div class="instance__showreel collections">
+        <h2 class="area__title">Categories</h2>
+        <%= live_component(
+              @socket,
+              InstanceCategoriesLive,
+              selected_tab: @selected_tab,
+              id: :categories,
+              current_user: @current_user,
+              categories: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-categories"
+          ) %>
+      </div>
+    </div>
+  </section>
+</div>

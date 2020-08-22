@@ -9,7 +9,7 @@ defmodule MoodleNet.Mixfile do
     [
       app: :moodle_net,
       version: "0.9.6-dev",
-      elixir: "~> 1.10.0",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
       start_permanent: Mix.env() == :prod,
@@ -48,6 +48,7 @@ defmodule MoodleNet.Mixfile do
       extra_applications: [
         :logger,
         :runtime_tools,
+        :os_mon,
         :hackney,
         :mime,
         :belt,
@@ -101,6 +102,7 @@ defmodule MoodleNet.Mixfile do
       {:belt, git: "https://github.com/commonspub/belt"},
       # File format parsing
       {:twinkle_star, git: "https://github.com/commonspub/twinkle_star"},
+      {:tree_magic, git: "https://github.com/commonspub/tree_magic.ex"},
       # database
       # {:ecto, "~> 3.3.4", override: true},
       # {:ecto_sql, "~> 3.3.4", override: true},
@@ -134,6 +136,9 @@ defmodule MoodleNet.Mixfile do
       # Monitoring
       # stats
       {:telemetry, "~> 0.4.0"},
+      {:phoenix_live_dashboard, "~> 0.2.0"},
+      {:telemetry_metrics, "~> 0.4"},
+      {:telemetry_poller, "~> 0.4"},
       # production only
       {:sentry, "~> 7.1", runtime: sentry?()},
       # Misc
@@ -163,6 +168,15 @@ defmodule MoodleNet.Mixfile do
       # caching
       {:cachex, "~> 3.2"},
       # CommonsPub:
+      # process HTML content
+      {:html_sanitize_ex, "~> 1.4"},
+      {
+        :linkify,
+        git: "https://gitlab.com/CommonsPub/linkify.git",
+        ref: "9360ed495ec04ab0f9f254670484f01dea668d38"
+        # path: "uploads/linkify"
+        # "~> 0.2.0"
+      },
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
       # geocoding
@@ -172,10 +186,12 @@ defmodule MoodleNet.Mixfile do
       # {:pointers, "~> 0.2.2"},
       {
         :pointers,
-        # git: "https://github.com/commonspub/pointers.git", branch: "main"
-        git: "https://github.com/mayel/pointers.git",
-        ref: "5e46f61c185faa4cf16e57c10e241cee15a05d42"
-        # path: "uploads/pointers"
+        # "~> 0.4"
+        git: "https://github.com/commonspub/pointers.git", branch: "main"
+        # ref: "b0cbc4b1a2f83b870f24436dd5968fec428c6530"
+        # path: "uploads/pointers-main"
+        # git: "https://github.com/mayel/pointers.git",
+        # ref: "01751caa54b15c4928eb8389bd7635aa0bd20584"
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},
@@ -191,7 +207,7 @@ defmodule MoodleNet.Mixfile do
       # fake app data generation, also used in prototype API endponts
       {:faker, "~> 0.12"},
       # required by CommonsPub.Utils.Simulation
-      {:zest, "~> 0.1.1", only: [:dev, :test]},
+      {:zest, "~> 0.1.1"},
       # fake data generation for AP
       {:ex_machina, "~> 2.3", only: [:dev, :test]},
       # property testing
