@@ -2,10 +2,6 @@ defmodule MoodleNetWeb.Helpers.Common do
   import Phoenix.LiveView
   require Logger
 
-  alias MoodleNet.{
-    Repo
-  }
-
   alias MoodleNetWeb.Helpers.{
     # Profiles,
     Account,
@@ -200,7 +196,7 @@ defmodule MoodleNetWeb.Helpers.Common do
           "auth_token" => auth_token,
           "current_user" => current_user,
           "_csrf_token" => csrf_token
-        } = session,
+        } = _session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
     # Logger.info(session_preloaded: session)
@@ -259,7 +255,7 @@ defmodule MoodleNetWeb.Helpers.Common do
         _params,
         %{
           "_csrf_token" => csrf_token
-        } = session,
+        } = _session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
     socket
@@ -313,7 +309,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     add_context_type(thing, context)
   end
 
-  defp context_follow(thing, %{id: id} = context) do
+  defp context_follow(thing, %{id: _id} = context) do
     # IO.inspect("already have a loaded object")
     add_context_type(thing, context)
   end
@@ -522,7 +518,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     canonical_url
   end
 
-  def context_url(%{__struct__: module_name} = activity) do
+  def context_url(%{__struct__: module_name} = _activity) do
     IO.inspect(unsupported_by_activity_url: module_name)
     "#unsupported_by_activity_url/" <> to_string(module_name)
   end

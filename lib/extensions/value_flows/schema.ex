@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Schema do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
   import_types(Absinthe.Type.Custom)

@@ -244,7 +244,7 @@ defmodule MoodleNetWeb.Router do
   # end
 
   if Mix.env() != :dev do
-    def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
+    def handle_errors(conn, %{kind: _kind, reason: reason, stack: _stack} = _info) do
       msg =
         if Map.has_key?(reason, :message) and !is_nil(reason.message) and
              String.length(reason.message) > 0 do

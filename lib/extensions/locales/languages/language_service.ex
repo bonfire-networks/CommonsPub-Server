@@ -14,7 +14,7 @@ defmodule CommonsPub.Locales.Language.Service do
   supervision hierarchy neatly.
   """
 
-  alias CommonsPub.Locales.{Language, Language.Error.NotFound}
+  alias CommonsPub.Locales.{Language}
 
   alias MoodleNet.Repo
 

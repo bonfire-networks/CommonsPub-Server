@@ -29,10 +29,6 @@ defmodule MoodleNet.Follows do
     create(follower, MoodleNet.Meta.Pointers.follow!(followed), fields, opts)
   end
 
-  def create(%User{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
-    create(follower, MoodleNet.Meta.Pointers.follow!(followed), fields, opts)
-  end
-
   def create(%User{} = follower, %struct{outbox_id: _} = followed, fields, _opts) do
     if struct in valid_contexts() do
       Repo.transact_with(fn ->

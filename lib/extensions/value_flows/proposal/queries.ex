@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.Queries do
-  alias MoodleNet.Communities
+  # alias MoodleNet.Communities
   alias ValueFlows.Proposal
-  alias ValueFlows.Proposals
-  alias MoodleNet.Follows.{Follow, FollowerCount}
+  # alias ValueFlows.Proposals
+  # alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -215,6 +215,18 @@ defmodule ValueFlows.Proposal.Queries do
     filter(q, limit: limit + 1)
   end
 
+  def filter(q, {:preload, :provider}) do
+    preload(q, [pointer: p], provider: p)
+  end
+
+  def filter(q, {:preload, :receiver}) do
+    preload(q, [pointer: p], receiver: p)
+  end
+
+  def filter(q, {:preload, :eligible_location}) do
+    preload(q, [eligible_location: l], eligible_location: l)
+  end
+
   # def filter(q, {:page, [desc: [followers: page_opts]]}) do
   #   q
   #   |> filter(join: :follower_count, order: [desc: :followers])
@@ -234,16 +246,4 @@ defmodule ValueFlows.Proposal.Queries do
   # end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
-  def filter(q, {:preload, :provider}) do
-    preload(q, [pointer: p], provider: p)
-  end
-
-  def filter(q, {:preload, :receiver}) do
-    preload(q, [pointer: p], receiver: p)
-  end
-
-  def filter(q, {:preload, :eligible_location}) do
-    preload(q, [eligible_location: l], eligible_location: l)
-  end
 end

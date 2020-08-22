@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Feeds.FeedActivities
@@ -8,7 +8,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias MoodleNet.Meta.Pointers
 
   alias Geolocation.Geolocations
-  alias Measurement.Measure
+  # alias Measurement.Measure
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
   alias ValueFlows.Knowledge.Action
@@ -176,7 +176,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     do_update(intent, attrs, &Intent.update_changeset(&1, attrs))
   end
 
-  def update(%Intent{} = intent, %{id: id} = context, attrs) do
+  def update(%Intent{} = intent, %{id: _id} = context, attrs) do
     do_update(intent, attrs, &Intent.update_changeset(&1, context, attrs))
   end
 

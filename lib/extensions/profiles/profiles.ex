@@ -172,7 +172,7 @@ defmodule CommonsPub.Profile.Profiles do
     update(user, profile, attrs)
   end
 
-  def update(user, %CommonsPub.Profile{} = profile, attrs) do
+  def update(_user, %CommonsPub.Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Repo.update(CommonsPub.Profile.update_changeset(profile, attrs)) do
         {:ok, profile}

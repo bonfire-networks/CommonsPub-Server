@@ -30,7 +30,7 @@ defmodule CommonsPub.Tag.TagThings do
   @doc """
   Prepare a tag to be used, by loading or even creating it
   """
-  defp tag_preprocess(user, %Taggable{} = tag) do
+  defp tag_preprocess(_user, %Taggable{} = tag) do
     tag
   end
 
@@ -38,12 +38,12 @@ defmodule CommonsPub.Tag.TagThings do
     nil
   end
 
-  defp tag_preprocess(user, {:error, e}) do
+  defp tag_preprocess(_user, {:error, e}) do
     IO.inspect(invalid_taggable: e)
     nil
   end
 
-  defp tag_preprocess(user, {at_mention, taggable}) do
+  defp tag_preprocess(user, {_at_mention, taggable}) do
     tag_preprocess(user, taggable)
   end
 

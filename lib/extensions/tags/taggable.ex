@@ -54,7 +54,7 @@ defmodule CommonsPub.Tag.Taggable do
         attrs
       ) do
     tag
-    # |> Changeset.cast(attrs, @cast)
+    |> Changeset.cast(attrs, @required)
     |> common_changeset()
   end
 

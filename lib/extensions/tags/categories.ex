@@ -1,6 +1,6 @@
 defmodule CommonsPub.Tag.Categories do
   # import Ecto.Query
-  alias Ecto.Changeset
+  # alias Ecto.Changeset
 
   alias MoodleNet.{
     Common,
@@ -12,7 +12,7 @@ defmodule CommonsPub.Tag.Categories do
     Feeds
   }
 
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Users.User
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Workers.APPublishWorker
 

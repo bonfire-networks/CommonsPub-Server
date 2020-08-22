@@ -9,10 +9,10 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     ThreadsResolver
   }
 
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Resources.Resource
+  # alias MoodleNet.Communities.Community
+  # alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Flags.Flag
+  # alias MoodleNet.Resources.Resource
 
   object :threads_queries do
     @desc "Get a thread"

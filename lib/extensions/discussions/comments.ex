@@ -3,12 +3,12 @@ defmodule MoodleNet.Threads.Comments do
   import Ecto.Query
   alias MoodleNet.{Activities, Common, Feeds, Flags, Repo}
   alias MoodleNet.Access.NotPermittedError
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
+  # alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Communities.Community
   # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias Pointers.Pointer
-  alias MoodleNet.Resources.Resource
+  # alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, CommentsQueries, Thread}
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
@@ -102,7 +102,7 @@ defmodule MoodleNet.Threads.Comments do
           attrs = clean_and_prepare_tags(attrs)
 
           with {:ok, comment} <- insert(creator, thread, attrs),
-               {:ok, tagged} = save_attached_tags(creator, comment, attrs),
+               {:ok, _tagged} = save_attached_tags(creator, comment, attrs),
                #  thread = preload_ctx(thread), #FIXME
                act_attrs = %{verb: "created", is_local: comment.is_local},
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
@@ -130,7 +130,7 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   def save_attached_tags(creator, comment, attrs) do
-    with {ok, taggable} <-
+    with {:ok, _taggable} <-
            CommonsPub.Tag.TagThings.thing_attach_tags(creator, comment, attrs.mentions) do
       # {:ok, MoodleNet.Repo.preload(comment, :tags)}
       {:ok, nil}

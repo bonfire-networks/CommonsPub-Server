@@ -42,8 +42,8 @@ defmodule ValueFlows.Knowledge.Action do
     timestamps()
   end
 
-  @required ~w(label resource_effect)a
-  @cast @required ++ ~w(input_output pairs_with note)a
+  # @required ~w(label resource_effect)a
+  # @cast @required ++ ~w(input_output pairs_with note)a
 
   # def create_changeset(attrs) do
   #   %Action{}

@@ -9,8 +9,8 @@ defmodule ValueFlows.Proposal.GraphQL do
     # Activities,
     # Communities,
     GraphQL,
-    Repo,
-    User
+    Repo
+    # User
   }
 
   alias MoodleNet.GraphQL.{
@@ -27,7 +27,7 @@ defmodule ValueFlows.Proposal.GraphQL do
   # alias MoodleNet.Resources.Resource
   # alias MoodleNet.Common.Enums
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Communities.Community
+  # alias MoodleNet.Communities.Community
   # alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   # alias ValueFlows.Proposal

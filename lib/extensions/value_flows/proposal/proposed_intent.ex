@@ -23,7 +23,7 @@ defmodule ValueFlows.Proposal.ProposedIntent do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       published_in_id: published_in.id,
-      publishes_id: publishes.id,
+      publishes_id: publishes.id
     )
   end
 end

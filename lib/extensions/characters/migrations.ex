@@ -10,7 +10,7 @@ defmodule CommonsPub.Character.Migrations do
 
   def migrate(index_opts, :up) do
     # a character is a group actor that is home to resources
-    create_mixin_table(CommonsPub.Character) do
+    create_mixin_table(Character) do
       # add table_name()istic_id, :uuid # points to the Thing that this character represents
       # points to the Actor who plays this character in the fediverse
       add(:actor_id, references("mn_actor", on_delete: :delete_all))

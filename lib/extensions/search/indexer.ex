@@ -41,7 +41,9 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   # index several things in an existing index
-  def index_objects(objects, index_name, init_index_first \\ true) when is_list(objects) do
+  def index_objects(objects, index_name, init_index_first \\ true)
+
+  def index_objects(objects, index_name, init_index_first) when is_list(objects) do
     # IO.inspect(objects)
     # FIXME - should create the index only once
     if init_index_first, do: init_index(index_name, true)
@@ -71,10 +73,10 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def index_exists(index_name) do
-    with {:ok, index} <- CommonsPub.Search.Meili.get(nil, index_name) do
+    with {:ok, _index} <- CommonsPub.Search.Meili.get(nil, index_name) do
       true
     else
-      e ->
+      _e ->
         false
     end
   end
@@ -99,7 +101,7 @@ defmodule CommonsPub.Search.Indexer do
     Logger.warn("Couldn't get object ID in order to delete")
   end
 
-  defp delete_object(object_id) do
+  defp delete_object(_object_id) do
     # TODO
   end
 

@@ -248,6 +248,22 @@ defmodule ValueFlows.Planning.Intent.Queries do
     select(q, [intent: c], {field(c, ^key), count(c.id)})
   end
 
+  def filter(q, {:preload, :provider}) do
+    preload(q, [pointer: p], provider: p)
+  end
+
+  def filter(q, {:preload, :receiver}) do
+    preload(q, [pointer: p], receiver: p)
+  end
+
+  def filter(q, {:preload, :at_location}) do
+    q
+    |> join_to(:geolocation)
+    |> preload(:at_location)
+
+    # preload(q, [geolocation: g], at_location: g)
+  end
+
   # pagination
 
   def filter(q, {:limit, limit}) do
@@ -291,20 +307,4 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
-  def filter(q, {:preload, :provider}) do
-    preload(q, [pointer: p], provider: p)
-  end
-
-  def filter(q, {:preload, :receiver}) do
-    preload(q, [pointer: p], receiver: p)
-  end
-
-  def filter(q, {:preload, :at_location}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:at_location)
-
-    # preload(q, [geolocation: g], at_location: g)
-  end
 end

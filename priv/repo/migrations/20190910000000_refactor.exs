@@ -11,14 +11,14 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
                  ~w(mn_like mn_flag mn_follow mn_feature mn_block) ++
                  ~w(mn_access_register_email mn_access_register_email_domain)
 
-  @languages [
-    {"en", "eng", "English", "English"}
-  ]
-  @tag_categories ["Hashtag", "K-12 Classification"]
+  # @languages [
+  #   {"en", "eng", "English", "English"}
+  # ]
+  # @tag_categories ["Hashtag", "K-12 Classification"]
+  # @countries [
+  #   {"nl", "nld", "Netherlands", "Nederland"}
+  # ]
 
-  @countries [
-    {"nl", "nld", "Netherlands", "Nederland"}
-  ]
   def up do
     ### meta system ###
 
@@ -501,7 +501,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # as we happen to know we're not, carry on...
     flush()
 
-    now = DateTime.utc_now()
+    # now = DateTime.utc_now()
 
     tables =
       Enum.map(@meta_tables, fn name ->

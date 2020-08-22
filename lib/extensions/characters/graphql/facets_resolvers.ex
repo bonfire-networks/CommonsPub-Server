@@ -19,7 +19,7 @@ defmodule CommonsPub.Character.GraphQL.FacetsResolvers do
   #   # ResolveRootPage
   # }
 
-  alias CommonsPub.Character
+  # alias CommonsPub.Character
   # alias CommonsPub.Character.{Characters, Queries}
   # alias MoodleNet.Resources.Resource
   # alias MoodleNet.Common.Enums

@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character.Characters do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias CommonsPub.Character
+  # alias CommonsPub.Character
   alias CommonsPub.Character.Queries
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
   alias Pointers.Pointer
   alias Pointers

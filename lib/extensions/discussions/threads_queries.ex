@@ -21,6 +21,13 @@ defmodule MoodleNet.Threads.Queries do
   defp join_to(q, :last_comment, jq),
     do: join(q, jq, [thread: t], lc in LastComment, as: :last_comment)
 
+  defp join_to(q, :follower_count, jq) do
+    join(q, jq, [thread: t], fnum in FollowerCount,
+      as: :follower_count,
+      on: t.id == fnum.context_id
+    )
+  end
+
   defp join_to(q, :comments, jq, creators) when is_list(creators),
     do:
       join(q, jq, [thread: t], c in Comment,
@@ -34,13 +41,6 @@ defmodule MoodleNet.Threads.Queries do
         on: t.id == c.thread_id and c.creator_id == ^creator,
         as: :comments
       )
-
-  defp join_to(q, :follower_count, jq) do
-    join(q, jq, [thread: t], fnum in FollowerCount,
-      as: :follower_count,
-      on: t.id == fnum.context_id
-    )
-  end
 
   @doc "Filter the query according to arbitrary criteria"
   def filter(query, filter_or_filters)

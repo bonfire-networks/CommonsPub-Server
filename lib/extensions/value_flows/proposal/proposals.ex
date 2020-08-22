@@ -1,14 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposals do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
-  alias MoodleNet.Meta.Pointers
 
   alias Geolocation.Geolocations
-  alias Measurement.Measure
+  # alias Measurement.Measure
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
 
@@ -178,7 +177,7 @@ defmodule ValueFlows.Proposals do
     do_update(proposal, attrs, &Proposal.update_changeset(&1, attrs))
   end
 
-  def update(%Proposal{} = proposal, %{id: id} = context, attrs) do
+  def update(%Proposal{} = proposal, %{id: _id} = context, attrs) do
     do_update(proposal, attrs, &Proposal.update_changeset(&1, context, attrs))
   end
 

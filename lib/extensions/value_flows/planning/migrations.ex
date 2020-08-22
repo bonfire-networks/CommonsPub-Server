@@ -1,10 +1,10 @@
 defmodule ValueFlows.Planning.Migrations do
   use Ecto.Migration
-  alias MoodleNet.Repo
-  alias Ecto.ULID
+  # alias MoodleNet.Repo
+  # alias Ecto.ULID
   import Pointers.Migration
 
-  defp intent_table(), do: ValueFlows.Planning.Intent.__schema__(:source)
+  # defp intent_table(), do: ValueFlows.Planning.Intent.__schema__(:source)
 
   def up do
     create_pointable_table(ValueFlows.Planning.Intent) do
