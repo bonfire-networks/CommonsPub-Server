@@ -1,14 +1,13 @@
 defmodule MoodleNetWeb.Component.AdsPreviewLive do
   use Phoenix.LiveComponent
   import MoodleNetWeb.Helpers.Common
-  import MoodleNetWeb.Helpers.Profiles
+  # import MoodleNetWeb.Helpers.Profiles
   # def mount(_, _session, socket) do
   #   {:ok, assign(socket, current_user: socket.assigns.current_user)}
   # end
 
   def update(assigns, socket) do
-    ads =
-      MoodleNetWeb.Helpers.Profiles.prepare(assigns.ads, %{image: true})
+    ads = MoodleNetWeb.Helpers.Profiles.prepare(assigns.ads, %{image: true})
 
     {:ok,
      socket

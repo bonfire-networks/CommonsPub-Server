@@ -5,7 +5,6 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
 
   @postgis_srid 4326
 
-  @impl true
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
 
@@ -14,7 +13,7 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
      |> assign(page_title: "Map")}
   end
 
-  def handle_params(%{"id" => id} = params, _url, socket) when id != "" do
+  def handle_params(%{"id" => id} = _params, _url, socket) when id != "" do
     show_place_things(id, socket)
   end
 
@@ -38,7 +37,6 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
     show_place_things(Enum.at(polygon, 0), socket)
   end
 
-  # @impl true
   # def handle_event("toggle_marker", %{"id" => id} = _params, socket) do
   #   {id, _} = Integer.parse(id)
 

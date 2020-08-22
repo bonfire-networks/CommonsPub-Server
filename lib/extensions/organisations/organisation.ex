@@ -11,7 +11,7 @@ defmodule Organisation do
 
   alias Ecto.Changeset
   alias Organisation
-  alias CommonsPub.Character
+  # alias CommonsPub.Character
   alias Pointers.Pointer
   alias MoodleNet.Actors.Actor
 

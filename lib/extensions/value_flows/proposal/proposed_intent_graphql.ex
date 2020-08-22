@@ -29,7 +29,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
-  def fetch_proposed_intent(info, id) do
+  def fetch_proposed_intent(_info, id) do
     Proposals.one_proposed_intent([:default, id: id])
   end
 

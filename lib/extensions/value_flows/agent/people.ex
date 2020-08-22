@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Agent.People do
-  alias ValueFlows.{Simulate}
+  # alias ValueFlows.{Simulate}
   require Logger
 
   def people(signed_in_user) do

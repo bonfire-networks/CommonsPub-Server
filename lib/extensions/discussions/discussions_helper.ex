@@ -1,8 +1,4 @@
 defmodule MoodleNetWeb.Helpers.Discussions do
-  alias MoodleNet.{
-    Repo
-  }
-
   import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Helpers.{Profiles}
@@ -14,7 +10,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     )
   end
 
-  def prepare_comment(%MoodleNet.Threads.Comment{} = comment, current_user) do
+  def prepare_comment(%MoodleNet.Threads.Comment{} = comment, _current_user) do
     comment = maybe_preload(comment, :creator)
 
     creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
@@ -34,7 +30,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     comment
   end
 
-  def prepare_thread(thread, with_context) do
+  def prepare_thread(thread, _with_context) do
     thread =
       if(!is_nil(thread.context_id)) do
         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
@@ -97,7 +93,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
 
     comments
     |> Enum.reduce(lum, fn
-      %{reply_to_id: nil} = comment, acc ->
+      %{reply_to_id: nil} = _comment, acc ->
         acc
 
       comment, acc ->

@@ -9,11 +9,11 @@ defmodule CommonsPub.Tag.Category do
 
   # use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  # import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Category
-  alias MoodleNet.{Repo}
+  # alias MoodleNet.{Repo}
 
   @type t :: %__MODULE__{}
   @cast ~w(caretaker_id parent_category_id same_as_category_id)a

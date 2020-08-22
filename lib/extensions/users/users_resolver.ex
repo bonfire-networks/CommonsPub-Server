@@ -378,11 +378,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     {:error, "Now is not the time to have second thoughts."}
   end
 
-  def create_session(%{email: email, password: password}, info) do
+  def create_session(%{email: email, password: password}, _info) do
     login(email, password)
   end
 
-  def create_session(%{login: login, password: password}, info) do
+  def create_session(%{login: login, password: password}, _info) do
     login(login, password)
   end
 

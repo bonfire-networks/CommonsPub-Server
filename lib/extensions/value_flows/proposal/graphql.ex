@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.GraphQL do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
-  import ValueFlows.Util, only: [maybe_put: 3]
+  # import ValueFlows.Util, only: [maybe_put: 3]
 
   alias MoodleNet.{
-    Activities,
-    Communities,
+    # Activities,
+    # Communities,
     GraphQL,
     Repo,
     User
@@ -15,25 +15,25 @@ defmodule ValueFlows.Proposal.GraphQL do
 
   alias MoodleNet.GraphQL.{
     ResolveField,
-    ResolveFields,
-    ResolvePage,
-    ResolvePages,
+    # ResolveFields,
+    # ResolvePage,
+    # ResolvePages,
     ResolveRootPage,
-    FetchPage,
-    FetchPages,
-    CommonResolver
+    FetchPage
+    # FetchPages,
+    # CommonResolver
   }
 
   # alias MoodleNet.Resources.Resource
-  alias MoodleNet.Common.Enums
+  # alias MoodleNet.Common.Enums
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Communities.Community
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
-  alias ValueFlows.Proposal
+  # alias ValueFlows.Proposal
   alias ValueFlows.Proposals
-  alias ValueFlows.Proposal.Queries
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias ValueFlows.Proposal.Queries
+  # alias MoodleNetWeb.GraphQL.CommonResolver
 
   # import_sdl path: "lib/value_flows/graphql/schemas/proposal.gql"
 
@@ -59,7 +59,7 @@ defmodule ValueFlows.Proposal.GraphQL do
     })
   end
 
-  def all_proposals(page_opts, info) do
+  def all_proposals(_page_opts, _info) do
     Proposals.many()
   end
 
@@ -159,16 +159,16 @@ defmodule ValueFlows.Proposal.GraphQL do
     end
   end
 
-  defp validate_agent(pointer) do
-    if Pointers.table!(pointer).schema in valid_contexts() do
-      :ok
-    else
-      GraphQL.not_permitted()
-    end
-  end
+  # defp validate_agent(pointer) do
+  #   if Pointers.table!(pointer).schema in valid_contexts() do
+  #     :ok
+  #   else
+  #     GraphQL.not_permitted()
+  #   end
+  # end
 
-  defp valid_contexts() do
-    [User, Community, Organisation]
-    # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
-  end
+  # defp valid_contexts() do
+  #   [User, Community, Organisation]
+  #   # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  # end
 end

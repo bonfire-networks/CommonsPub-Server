@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
   use MoodleNetWeb, :live_component
 
-  alias MoodleNetWeb.Helpers.{Communities, Profiles}
+  alias MoodleNetWeb.Helpers.{Profiles}
 
   alias MoodleNetWeb.GraphQL.{
     CommunitiesResolver

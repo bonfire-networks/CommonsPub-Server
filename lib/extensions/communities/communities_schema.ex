@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     ActorsResolver,
     CommonResolver,
     CommunitiesResolver,
+    CollectionsResolver,
     FlagsResolver,
     FeaturesResolver,
     FollowsResolver,
@@ -148,7 +149,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "The total number of collections in the community, including private ones"
     field :collection_count, :integer do
-      resolve(&CommunitiesResolver.collection_count_edge/3)
+      resolve(&CollectionsResolver.collection_count_edge/3)
     end
 
     @desc "The collections in this community"

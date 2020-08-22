@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.Page.Unknown do
      |> assign(object_type: nil)}
   end
 
-  def handle_params(%{} = params, url, socket) do
+  def handle_params(%{} = params, _url, socket) do
     obj = context_fetch(params["id"])
 
     {:noreply,

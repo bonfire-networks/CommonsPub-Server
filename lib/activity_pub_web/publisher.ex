@@ -88,22 +88,6 @@ defmodule ActivityPubWeb.Publisher do
   defp maybe_use_sharedinbox(%{data: data}),
     do: (is_map(data["endpoints"]) && Map.get(data["endpoints"], "sharedInbox")) || data["inbox"]
 
-  defp maybe_federate_to_mothership(recipients, activity) do
-    mothership_inbox =
-      cond do
-        System.get_env("MOTHERSHIP_AP_INBOX_URL") ->
-          System.get_env("MOTHERSHIP_AP_INBOX_URL")
-
-        System.get_env("REACT_APP_MOTHERSHIP_ENV") == "moodlenet_mothership_next" ->
-          "https://mothership.next.moodle.net/pub/shared_inbox"
-
-        true ->
-          "https://mothership.moodle.net/pub/shared_inbox"
-      end
-
-    recipients
-  end
-
   @doc """
   Determine a user inbox to use based on heuristics.  These heuristics
   are based on an approximation of the ``sharedInbox`` rules in the
@@ -149,7 +133,7 @@ defmodule ActivityPubWeb.Publisher do
       determine_inbox(activity, actor)
     end)
     |> Enum.uniq()
-    |> maybe_federate_to_mothership(activity)
+    # |> maybe_federate_to_mothership(activity)
     |> Instances.filter_reachable()
     |> Enum.each(fn {inbox, unreachable_since} ->
       ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{

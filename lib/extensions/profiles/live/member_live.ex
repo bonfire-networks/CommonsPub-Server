@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.MemberLive do
     HeroProfileLive,
     MemberNavigationLive,
     MemberActivitiesLive,
-    MemberAdsLive,
+    # MemberAdsLive,
     MemberCommunitiesLive,
     MemberFollowingLive,
     MemberLikesLive
@@ -17,8 +17,8 @@ defmodule MoodleNetWeb.MemberLive do
 
   alias MoodleNetWeb.Component.{
     # HeaderLive,
-    AboutLive,
-    TabNotFoundLive
+    AboutLive
+    # TabNotFoundLive
   }
 
   # alias MoodleNet.{
@@ -53,7 +53,7 @@ defmodule MoodleNetWeb.MemberLive do
      )}
   end
 
-  def handle_params(%{"tab" => tab} = params, _url, socket) do
+  def handle_params(%{"tab" => tab} = _params, _url, socket) do
     {:noreply,
      assign(socket,
        selected_tab: tab
@@ -61,7 +61,7 @@ defmodule MoodleNetWeb.MemberLive do
      )}
   end
 
-  def handle_params(%{} = params, url, socket) do
+  def handle_params(%{} = _params, _url, socket) do
     # logged_url = url =~ "my/profile"
 
     {:noreply,
@@ -73,7 +73,7 @@ defmodule MoodleNetWeb.MemberLive do
   end
 
   def handle_event("follow", _data, socket) do
-    f =
+    _f =
       MoodleNetWeb.GraphQL.FollowsResolver.create_follow(%{context_id: socket.assigns.user.id}, %{
         context: %{current_user: socket.assigns.current_user}
       })
@@ -90,7 +90,7 @@ defmodule MoodleNetWeb.MemberLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.user.id)
+    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.user.id)
 
     # IO.inspect(uf)
 

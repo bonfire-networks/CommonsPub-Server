@@ -3,9 +3,9 @@ defmodule MoodleNetWeb.Component.PreviewActionsLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.{PreviewLive, FlagLive}
+  alias MoodleNetWeb.Component.{FlagLive}
 
-  alias MoodleNetWeb.Helpers.{Activites}
+  # alias MoodleNetWeb.Helpers.{Activites}
 
   def update(assigns, socket) do
     is_liked = is_liked(assigns.current_user, e(assigns, :object, :id, nil))

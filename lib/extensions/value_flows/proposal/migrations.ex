@@ -1,7 +1,7 @@
 defmodule ValueFlows.Proposal.Migrations do
   use Ecto.Migration
-  alias MoodleNet.Repo
-  alias Ecto.ULID
+  # alias MoodleNet.Repo
+  # alias Ecto.ULID
   import Pointers.Migration
 
   defp proposal_table(), do: ValueFlows.Proposal.__schema__(:source)

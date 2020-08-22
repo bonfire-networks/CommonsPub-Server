@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.Component.CommunityPreviewLive do
   use Phoenix.LiveComponent
   import MoodleNetWeb.Helpers.Common
-  import MoodleNetWeb.Helpers.Profiles
+  # import MoodleNetWeb.Helpers.Profiles
 
   # def mount(_, _session, socket) do
   #   {:ok, assign(socket, current_user: socket.assigns.current_user)}

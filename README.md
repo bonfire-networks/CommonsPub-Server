@@ -2,7 +2,7 @@
 
 ## About the project
 
-[CommonsPub](http://commonspub.org) is a project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards).
+[CommonsPub](http://commonspub.org) is a federated app ecosystem based on the `ActivityPub` and `ActivityStreams` web standards).
 
 This is the main repository, written in Elixir (running on Erlang/OTP).
 
@@ -16,13 +16,13 @@ There is a bundled front-end built with [Phoenix LiveView](https://www.phoenixfr
 
 Do you want to...
 
-- Read about the CommonsPub architecture? Read our [overview](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/ARCHITECTURE.md).
+- Read about the CommonsPub architecture? Read our [overview](./docs/ARCHITECTURE.md).
 
-- Hack on the code? Read our [Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/HACKING.md).
+- Hack on the code? Read our [Developer FAQs](./docs/HACKING.md).
 
-- Understand the client API? Read our [GraphQL guide](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/GRAPHQL.md).
+- Understand the client API? Read our [GraphQL guide](./docs/GRAPHQL.md).
 
-- Deploy in production? Read our [Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/docs/DEPLOY.md).
+- Deploy in production? Read our [Deployment Docs](./docs/DEPLOY.md).
 
 ---
 

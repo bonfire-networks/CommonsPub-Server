@@ -7,8 +7,8 @@ defmodule ValueFlows.Proposal do
   import MoodleNet.Common.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
+  # alias MoodleNet.Actors.Actor
+  # alias MoodleNet.Communities.Community
   alias ValueFlows.Proposal
   alias ValueFlows.Planning.Intent
 

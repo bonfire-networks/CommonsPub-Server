@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
     {:noreply, assign(socket, :toggle_link, !socket.assigns.toggle_link)}
   end
 
-  def handle_event("fetch_link", %{"content" => %{"url" => url}} = data, socket)
+  def handle_event("fetch_link", %{"content" => %{"url" => url}} = _data, socket)
       when byte_size(url) > 5 do
     if !Map.get(socket.assigns, :fetched_url) or url != Map.get(socket.assigns, :fetched_url) do
       IO.inspect(fetch_url: url)
@@ -66,7 +66,7 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
 
       # IO.inspect(context_id, label: "context_id CHOOSEN")
 
-      with {:ok, resource} <-
+      with {:ok, _resource} <-
              MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
                %{
                  context_id: context_id,
@@ -83,7 +83,7 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
 
         # change redirect
       else
-        e ->
+        _e ->
           {:noreply,
            socket
            |> put_flash(:error, "There was an error sharing this link...")}

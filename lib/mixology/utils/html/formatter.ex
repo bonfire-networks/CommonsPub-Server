@@ -5,7 +5,7 @@
 defmodule CommonsPub.HTML.Formatter do
   alias CommonsPub.HTML.Scrubber
   alias MoodleNet.Config
-  alias MoodleNet.Repo
+  # alias MoodleNet.Repo
   alias MoodleNet.Users.User
   alias MoodleNet.Users
 
@@ -35,11 +35,11 @@ defmodule CommonsPub.HTML.Formatter do
     end
   end
 
-  def escape_mention_handler("&" <> nickname = mention, buffer, _, _) do
+  def escape_mention_handler("&" <> _nickname = mention, _buffer, _, _) do
     String.replace(mention, @markdown_characters_regex, "\\\\\\1")
   end
 
-  def escape_mention_handler("+" <> nickname = mention, buffer, _, _) do
+  def escape_mention_handler("+" <> _nickname = mention, _buffer, _, _) do
     String.replace(mention, @markdown_characters_regex, "\\\\\\1")
   end
 
@@ -57,7 +57,7 @@ defmodule CommonsPub.HTML.Formatter do
     # IO.inspect(mention: nickname)
 
     case Users.get(nickname) do
-      %{id: id} = user ->
+      %{id: _id} = user ->
         mention_process(opts, user, acc, Map.get(opts, :content_type))
 
       _ ->
@@ -69,7 +69,7 @@ defmodule CommonsPub.HTML.Formatter do
     IO.inspect(mention: nickname)
 
     case MoodleNet.Communities.get(nickname) do
-      %{id: id} = character ->
+      %{id: _id} = character ->
         # IO.inspect(found: character)
         mention_process(opts, character, acc, Map.get(opts, :content_type))
 
@@ -93,7 +93,7 @@ defmodule CommonsPub.HTML.Formatter do
       end
     else
       case MoodleNet.Collections.get(nickname) do
-        %{id: id} = character ->
+        %{id: _id} = character ->
           IO.inspect(found: character)
           mention_process(opts, character, acc, content_type)
 
@@ -111,7 +111,7 @@ defmodule CommonsPub.HTML.Formatter do
     end
   end
 
-  defp mention_process(opts, obj, acc, content_type) do
+  defp mention_process(_opts, obj, acc, content_type) do
     obj = MoodleNet.Actors.obj_load_actor(obj)
     url = MoodleNet.Actors.obj_actor(obj).canonical_url
     display_name = MoodleNet.Actors.display_username(obj)
@@ -126,7 +126,7 @@ defmodule CommonsPub.HTML.Formatter do
   defp tag_link(type, url, display_name, nil),
     do: tag_link(type, url, display_name, "text/html")
 
-  defp tag_link(type, url, display_name, "text/markdown") do
+  defp tag_link(_type, url, display_name, "text/markdown") do
     "[#{display_name}](#{url})"
   end
 
@@ -140,7 +140,7 @@ defmodule CommonsPub.HTML.Formatter do
     |> Phoenix.HTML.safe_to_string()
   end
 
-  defp tag_link(type, url, display_name, "text/html") do
+  defp tag_link(_type, url, display_name, "text/html") do
     Phoenix.HTML.Tag.content_tag(
       :span,
       Phoenix.HTML.Tag.content_tag(

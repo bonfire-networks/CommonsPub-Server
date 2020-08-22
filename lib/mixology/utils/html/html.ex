@@ -6,10 +6,17 @@ defmodule CommonsPub.HTML do
   @doc """
   For use for things like a bio, where we want links but not to actually trigger mentions.
   """
+
   def parse_input(
         text,
         content_type \\ "text/plain",
         user \\ nil
+      )
+
+  def parse_input(
+        text,
+        content_type,
+        user
       )
       when is_binary(text) and text != "" do
     options = [mentions_format: :full, user: user]
@@ -29,6 +36,12 @@ defmodule CommonsPub.HTML do
         text,
         content_type \\ "text/plain",
         user \\ nil
+      )
+
+  def parse_input_and_tags(
+        text,
+        content_type,
+        user
       )
       when is_binary(text) and text != "" do
     options = [tagging_save_and_publish: true, user: user]

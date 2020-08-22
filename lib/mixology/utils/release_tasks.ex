@@ -5,7 +5,7 @@ defmodule CommonsPub.ReleaseTasks do
 
   @start_apps [:moodle_net]
   @repos Application.get_env(:moodle_net, :ecto_repos, [])
-  alias MoodleNet.{Communities, Meta, Repo, Users}
+  alias MoodleNet.{Communities, Repo, Users}
   alias MoodleNet.Users.User
 
   def create_db() do
@@ -25,9 +25,6 @@ defmodule CommonsPub.ReleaseTasks do
       case repo.__adapter__.storage_up(repo.config) do
         :ok ->
           Logger.info("The database for #{inspect(repo)} has been created")
-
-        :ok ->
-          Logger.warn("The database for #{inspect(repo)} has already been created")
 
         {:error, term} when is_binary(term) ->
           raise "The database for #{inspect(repo)} couldn't be created: #{term}"

@@ -9,7 +9,7 @@ defmodule ValueFlows.Simulate do
 
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Proposals
-  alias ValueFlows.Proposal.ProposedIntent
+  # alias ValueFlows.Proposal.ProposedIntent
 
   alias ValueFlows.Knowledge.Action.Actions
 

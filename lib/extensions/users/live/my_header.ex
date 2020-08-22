@@ -13,6 +13,10 @@ defmodule MoodleNetWeb.My.MyHeader do
     }
   end
 
+  def handle_params(%{"signout" => _name} = _data, _socket) do
+    IO.inspect("signout!")
+  end
+
   def handle_event("toggle_post", _data, socket) do
     IO.inspect(socket.assigns.toggle_post)
 
@@ -74,10 +78,6 @@ defmodule MoodleNetWeb.My.MyHeader do
          |> push_redirect(to: "/!" <> thread.thread_id)}
       end
     end
-  end
-
-  def handle_params(%{"signout" => name} = data, socket) do
-    IO.inspect("signout!")
   end
 
   def handle_event("new_community", %{"name" => name} = data, socket) do

@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCategoriesLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  # alias MoodleNetWeb.Helpers.{Profiles}
 
   alias MoodleNetWeb.Component.CategoryPreviewLive
 

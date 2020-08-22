@@ -3,9 +3,9 @@ defmodule MoodleNetWeb.SearchLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.{
-    TabNotFoundLive
-  }
+  # alias MoodleNetWeb.Component.{
+  #   TabNotFoundLive
+  # }
 
   alias MoodleNetWeb.SearchLive.ResultsLive
 
@@ -27,7 +27,7 @@ defmodule MoodleNetWeb.SearchLive do
      )}
   end
 
-  def handle_params(%{"search" => q, "tab" => tab} = params, _url, socket)
+  def handle_params(%{"search" => q, "tab" => tab} = _params, _url, socket)
       when q != "" do
     IO.inspect(q, label: "SEARCH")
     IO.inspect(tab, label: "TAB")
@@ -44,7 +44,7 @@ defmodule MoodleNetWeb.SearchLive do
     hits =
       if(Map.has_key?(search, "hits") and length(search["hits"])) do
         # search["hits"]
-        hits = Enum.map(search["hits"], &search_hit_prepare/1)
+        Enum.map(search["hits"], &search_hit_prepare/1)
         # Enum.filter(hits, & &1)
       end
 
@@ -70,7 +70,7 @@ defmodule MoodleNetWeb.SearchLive do
      )}
   end
 
-  def handle_params(%{"tab" => tab} = params, _url, socket) do
+  def handle_params(%{"tab" => tab} = _params, _url, socket) do
     IO.inspect(tab, label: "TAB")
 
     {:noreply,
@@ -80,7 +80,7 @@ defmodule MoodleNetWeb.SearchLive do
      )}
   end
 
-  def handle_params(params, _url, socket) do
+  def handle_params(_params, _url, socket) do
     # community =
     # Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
 

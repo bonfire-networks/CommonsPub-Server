@@ -6,7 +6,7 @@ defmodule CommonsPub.Character.Migrations do
 
   defp table_name(), do: Character.__schema__(:source)
 
-  IO.inspect(cs: Character.__schema__(:source))
+  # IO.inspect(cs: Character.__schema__(:source))
 
   def migrate(index_opts, :up) do
     # a character is a group actor that is home to resources

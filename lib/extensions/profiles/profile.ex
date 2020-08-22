@@ -7,7 +7,7 @@ defmodule CommonsPub.Profile do
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Profile
+  # alias CommonsPub.Profile
   # alias MoodleNet.Actors.Actor
   # alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User

@@ -7,22 +7,22 @@
             <div class="info__name">
               <i class="feather-edit"></i>
               <h3><%= if @thread.name == nil, do: "Thread without title", else: @thread.name %></h3>
-            </div>
-            <div class="head__meta">
-              <div class="meta__status">Open</div>
-              <div class="meta__info">17 Comments - 29 Starred</div>
+              </div>
+              <div class="head__meta">
+                <div class="meta__status">Open</div>
+                <div class="meta__info">17 Comments - 29 Starred</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="suphero__actions">
-          <button class="button follow">Subscribe</button>
-          <details class="more__dropdown">
-            <summary>
-              <i class="feather-more-horizontal"></i>
-            </summary>
-            <ul class="dropdown__list">
-              <li>
-                <%=
+          <div class="suphero__actions">
+            <button class="button follow">Subscribe</button>
+            <details class="more__dropdown">
+              <summary>
+                <i class="feather-more-horizontal"></i>
+              </summary>
+              <ul class="dropdown__list">
+                <li>
+                  <%=
                     live_component(
                       @socket,
                       MoodleNetWeb.Component.FlagLive,
@@ -32,18 +32,18 @@
                       flag_object_name: "this entire thread"
                     )
                   %>
-              </li>
-            </ul>
-          </details>
+                </li>
+              </ul>
+            </details>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="discussion__layout">
-      <div class="wrapper__discussion">
-        <div class="discussion__context"></div>
-        <div class="discussion__replies">
-          <%= for {comment_id, comment} <- @comments do %>
-            <%= live_component(
+      <div class="discussion__layout">
+        <div class="wrapper__discussion">
+          <div class="discussion__context"></div>
+          <div class="discussion__replies">
+            <%= for {_comment_id, comment} <- @comments do %>
+              <%= live_component(
                 @socket,
                 DiscussionCommentLive,
                 id: "comment-#{comment.id}",
@@ -52,48 +52,48 @@
                 reply_to: @reply_to,
                 actions: true
               )%>
-          <% end %>
+            <% end %>
+          </div>
         </div>
-      </div>
-      <div class="discussion__aside">
-        <%= live_component(
+        <div class="discussion__aside">
+          <%= live_component(
                 @socket,
                 MoodleNetWeb.Component.ContextLive,
                 object: @thread,
                 current_user: @current_user
               )%>
-      </div>
-    </div>
-    <div class="layout__text">
-      <%= if @reply != nil do %>
-        <div class="text__inreplyto">
-          <i class="feather-corner-up-left"></i>
-          <div class="reply">
-            <%= live_redirect to: "/@"<> e(@reply, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@reply, :creator, :name, "Somebody") %><% end %>
-            <p><%= @reply.content %></p>
-          </div>
-          <%= live_redirect to: "/!"<> @thread.id <> "/discuss"  do %><i class="feather-x-circle"></i><% end %>
         </div>
-      <% end %>
-      <div id="reply" class="discussion__reply">
-        <form phx-submit="reply">
-          <div class="reply__meta">
-            <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+      </div>
+      <div class="layout__text">
+        <%= if @reply != nil do %>
+          <div class="text__inreplyto">
+            <i class="feather-corner-up-left"></i>
+            <div class="reply">
+              <%= live_redirect to: "/@"<> e(@reply, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@reply, :creator, :name, "Somebody") %><% end %>
+              <p><%= @reply.content %></p>
+            </div>
+            <%= live_redirect to: "/!"<> @thread.id <> "/discuss"  do %><i class="feather-x-circle"></i><% end %>
           </div>
-          <div class="reply__box">
-            <%= live_component(
+        <% end %>
+        <div id="reply" class="discussion__reply">
+          <form phx-submit="reply">
+            <div class="reply__meta">
+              <img src="<%= e(@current_user, :icon_url, "") %>" alt="logged icon" />
+            </div>
+            <div class="reply__box">
+              <%= live_component(
                 @socket,
                 MoodleNetWeb.EditorLive,
                 current_user: @current_user,
                 content_placeholder: "Write a thoughtful comment...",
                 id: "comment_editor"
               ) %>
-            <div class="header__actions">
-              <button>Comment</button>
+              <div class="header__actions">
+                <button>Comment</button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>

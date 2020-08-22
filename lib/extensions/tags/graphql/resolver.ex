@@ -161,7 +161,8 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     {:ok, tags}
   end
 
-  def tag_prepare(%{category: %{id: id} = category} = tag, page_opts, info) when not is_nil(id) do
+  def tag_prepare(%{category: %{id: id} = category} = tag, _page_opts, _info)
+      when not is_nil(id) do
     # TODO: do this better
     Map.merge(
       category,
@@ -211,7 +212,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   def make_pointer_taggable(%{context_id: pointer_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {ok, taggable} <- CommonsPub.Tag.Taggables.maybe_make_taggable(me, pointer_id, %{}) do
+           {:ok, taggable} <- CommonsPub.Tag.Taggables.maybe_make_taggable(me, pointer_id, %{}) do
         {:ok, taggable}
       end
     end)
@@ -219,7 +220,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   def thing_attach_tags(%{thing: thing_id, taggables: taggables}, info) do
     with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, tagged} = CommonsPub.Tag.TagThings.thing_attach_tags(me, thing_id, taggables) do
+         {:ok, _tagged} = CommonsPub.Tag.TagThings.thing_attach_tags(me, thing_id, taggables) do
       {:ok, true}
     end
   end

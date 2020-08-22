@@ -2,7 +2,7 @@
 defmodule MoodleNet.Resources do
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Common, Feeds, Flags, Likes, Repo, Threads}
-  alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Collections.Collection
   # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Resources.{Resource, Queries}

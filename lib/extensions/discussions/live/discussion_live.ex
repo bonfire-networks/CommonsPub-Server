@@ -50,8 +50,8 @@ defmodule MoodleNetWeb.DiscussionLive do
   end
 
   def handle_params(
-        %{"id" => thread_id, "sub_id" => comment_id} = params,
-        session,
+        %{"id" => _thread_id, "sub_id" => comment_id} = _params,
+        _session,
         socket
       ) do
     {_, reply_comment} =
@@ -67,7 +67,7 @@ defmodule MoodleNetWeb.DiscussionLive do
      )}
   end
 
-  def handle_params(%{"id" => thread_id} = params, session, socket) do
+  def handle_params(%{"id" => _thread_id} = _params, _session, socket) do
     {:noreply,
      assign(socket,
        reply_to: nil,

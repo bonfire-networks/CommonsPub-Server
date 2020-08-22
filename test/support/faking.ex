@@ -13,9 +13,8 @@ defmodule MoodleNet.Test.Faking do
     Features,
     Likes,
     Peers,
-    Uploads,
+    # Uploads,
     Users,
-    Localisation,
     Resources,
     Threads,
     Threads.Comments,
@@ -106,6 +105,8 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_collection!(user, community, overrides \\ %{})
+
+  def fake_collection!(user, community, overrides)
       when is_map(overrides) and is_nil(community) do
     {:ok, collection} = Collections.create(user, collection(overrides))
     assert collection.creator_id == user.id
@@ -130,7 +131,9 @@ defmodule MoodleNet.Test.Faking do
     resource
   end
 
-  def fake_thread!(user, context, overrides \\ %{}) when is_map(overrides) and is_nil(context) do
+  def fake_thread!(user, context, overrides \\ %{})
+
+  def fake_thread!(user, context, overrides) when is_map(overrides) and is_nil(context) do
     {:ok, thread} = Threads.create(user, thread(overrides))
     assert thread.creator_id == user.id
     thread

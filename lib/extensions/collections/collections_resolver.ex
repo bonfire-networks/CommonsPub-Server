@@ -5,8 +5,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Collections,
     Communities,
     GraphQL,
-    Repo,
-    Resources
+    Repo
+    # Resources
   }
 
   alias MoodleNet.GraphQL.{
@@ -20,8 +20,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   }
 
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Resources.Resource
-  alias MoodleNetWeb.GraphQL.{CommunitiesResolver, UploadResolver}
+  # alias MoodleNet.Resources.Resource
+  alias MoodleNetWeb.GraphQL.UploadResolver
 
   ## resolvers
 

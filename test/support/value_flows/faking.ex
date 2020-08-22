@@ -13,8 +13,13 @@ defmodule ValueFlows.Test.Faking do
 
   alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
-  alias ValueFlows.Planning.Intent.Intents
-  alias ValueFlows.{Proposal, Proposals}
+  # alias ValueFlows.Planning.Intent.Intents
+
+  alias ValueFlows.{
+    Proposal
+    # Proposals
+  }
+
   alias ValueFlows.Proposal.ProposedIntent
 
   def assert_proposal(%Proposal{} = proposal) do
@@ -59,7 +64,7 @@ defmodule ValueFlows.Test.Faking do
   def assert_proposed_intent(pi) do
     assert_object(pi, :assert_proposed_intent,
       id: &assert_ulid/1,
-      reciprocal: assert_optional(&assert_boolean/1),
+      reciprocal: assert_optional(&assert_boolean/1)
     )
   end
 
@@ -196,7 +201,7 @@ defmodule ValueFlows.Test.Faking do
     [
       published_in: type!(:id),
       publishes: type!(:id),
-      reciprocal: type(:boolean),
+      reciprocal: type(:boolean)
     ]
     |> gen_mutation(&propose_intent_submutation/1, options)
   end
@@ -205,7 +210,7 @@ defmodule ValueFlows.Test.Faking do
     [
       published_in: var(:published_in),
       publishes: var(:publishes),
-      reciprocal: var(:reciprocal),
+      reciprocal: var(:reciprocal)
     ]
     |> gen_submutation(:propose_intent, &proposed_intent_response_fields/1, options)
   end
@@ -215,7 +220,7 @@ defmodule ValueFlows.Test.Faking do
     |> gen_mutation(&delete_proposed_intent_submutation/1, options)
   end
 
-  def delete_proposed_intent_submutation(options \\ []) do
+  def delete_proposed_intent_submutation(_options \\ []) do
     field(:delete_proposed_intent, args: [id: var(:id)])
   end
 end
