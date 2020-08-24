@@ -1,0 +1,22 @@
+.resource__preview {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  svg {
+    width: 32px;
+  }
+  .preview__info {
+    margin-left: var(--m2);
+    h4 {
+      color: var(--color-text);
+      font-size: 14px;;
+    }
+    p {
+      color: var(--color-text-subtle);
+      margin: 0;
+      margin-top: var(--m1);
+      font-weight: 400;
+      font-size: 13px;
+    }
+  }
+}

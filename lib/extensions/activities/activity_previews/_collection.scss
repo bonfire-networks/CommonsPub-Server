@@ -16,5 +16,13 @@
       color: var(--color-text);
     }
   }
+}
 
+.collection__navigation {
+  .navigation__share-link {
+    button {
+      margin-bottom: 16px;
+      width: 100%;
+    }
+  }
 }

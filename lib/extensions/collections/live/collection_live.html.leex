@@ -37,18 +37,18 @@
                     <section class="dialog__content">
                       <form phx-submit="edit_community">
                         <input name="name" value="<%= @collection.name %>" placeholder="Type the collection name..." />
-<textarea name="summary" placeholder="Describe your collection..."><%= @collection.summary %></textarea>
-<footer class="dialog__footer">
-  <button value="default">Confirm</button>
-</footer>
-</form>
-</section>
-</dialog>
-</details>
-<% end %>
-</li>
-<li>
-  <%=
+                        <textarea name="summary" placeholder="Describe your collection..."><%= @collection.summary %></textarea>
+                        <footer class="dialog__footer">
+                          <button value="default">Confirm</button>
+                        </footer>
+                      </form>
+                    </section>
+                  </dialog>
+                </details>
+              <% end %>
+            </li>
+            <li>
+              <%=
                 live_component(
                   @socket,
                   MoodleNetWeb.Component.FlagLive,
@@ -58,24 +58,24 @@
                   flag_object_name: @collection.name
                 )
               %>
-</li>
-<li>
-  <%=
-                  live_component(
-                    @socket,
-                    MoodleNetWeb.Component.BlockLive,
-                    object: @collection,
-                    current_user: @current_user,
-                    id: "block-"<>@collection.id,
-                    block_object_name: @collection.name
-                  )
-                %>
-</li>
-</ul>
-</details>
-</div>
-</div>
-</div>
+            </li>
+            <li>
+              <%=
+              live_component(
+                @socket,
+                MoodleNetWeb.Component.BlockLive,
+                object: @collection,
+                current_user: @current_user,
+                id: "block-"<>@collection.id,
+                block_object_name: @collection.name
+              )
+              %>
+            </li>
+          </ul>
+        </details>
+      </div>
+    </div>
+  </div>
 <%= if @selected_tab == "write" do %>
   <div class="mainContent__all community__write">
     <h3 class="area__title">Start a new discussion</h3>
@@ -157,6 +157,9 @@
         <% end %>
       </div>
       <div class="collection__navigation">
+        <a class="navigation__share-link" phx-target="#post_link" phx-click="toggle_link">
+          <button >Share a link</button>
+        </a>
         <%= live_component(
                 @socket,
                 MoodleNetWeb.Component.ContextLive,

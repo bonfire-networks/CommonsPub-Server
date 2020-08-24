@@ -61,12 +61,6 @@ defmodule MoodleNetWeb.CollectionLive.CollectionResourcesLive do
   def render(assigns) do
     ~L"""
     <div>
-      <div class="community__discussion__actions">
-        <%# <input placeholder="Search resources..."/> %>
-        <a phx-target="#post_link" phx-click="toggle_link">
-          <button >Share a link</button>
-        </a>
-      </div>
       <div id="collection-resources">
         <%= live_component(
           @socket,
