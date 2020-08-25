@@ -181,6 +181,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], c.receiver_id in ^ids)
   end
 
+  def filter(q, {:action_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.action_id in ^ids)
+  end
+
+  def filter(q, {:action_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.action_id == ^id)
+  end
+
   def filter(q, {:at_location_id, at_location_id}) do
     q
     |> join_to(:geolocation)

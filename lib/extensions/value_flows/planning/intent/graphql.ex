@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.GraphQL do
   use Absinthe.Schema.Notation
+
+  # default to 100 km radius
+  @radius_default_distance 100_000
+
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
@@ -64,83 +68,158 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     })
   end
 
-  def all_intents(_page_opts, _info) do
+  def all_intents(_, _) do
     Intents.many()
   end
 
+  def intents_filtered(page_opts, _) do
+    IO.inspect(intents_filtered: page_opts)
+    intents_filter(page_opts, [])
+  end
+
+  # def intents_filtered(page_opts, _) do
+  #   IO.inspect(unhandled_filtering: page_opts)
+  #   all_intents(page_opts, nil)
+  # end
+
   # TODO: support several filters combined, plus pagination on filtered queries
 
-  def intents_filter(%{agent: id} = _page_opts, _info) do
-    Intents.many(agent_id: id)
+  defp intents_filter(%{agent: id} = page_opts, filters_acc) do
+    intents_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
   end
 
-  def intents_filter(%{provider: id} = _page_opts, _info) do
-    Intents.many(provider_id: id)
+  defp intents_filter(%{provider: id} = page_opts, filters_acc) do
+    intents_filter_next(:provider, [provider_id: id], page_opts, filters_acc)
   end
 
-  def intents_filter(%{receiver: id} = _page_opts, _info) do
-    Intents.many(receiver_id: id)
+  defp intents_filter(%{receiver: id} = page_opts, filters_acc) do
+    intents_filter_next(:receiver, [receiver_id: id], page_opts, filters_acc)
   end
 
-  def intents_filter(%{in_scope_of: context_id} = _page_opts, _info) do
-    Intents.many(context_id: context_id)
+  defp intents_filter(%{action: id} = page_opts, filters_acc) do
+    intents_filter_next(:action, [action_id: id], page_opts, filters_acc)
   end
 
-  def intents_filter(%{tag_ids: tag_ids} = _page_opts, _info) do
-    Intents.many(tag_ids: tag_ids)
+  defp intents_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
+    intents_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
   end
 
-  def intents_filter(%{at_location: at_location_id} = _page_opts, _info) do
-    Intents.many(at_location_id: at_location_id)
+  defp intents_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
+    intents_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
   end
 
-  def intents_filter(
-        %{
-          geolocation: %{
-            near_point: %{lat: lat, long: long},
-            distance: %{meters: distance_meters}
-          }
-        } = _page_opts,
-        _info
-      ) do
-    # IO.inspect(geo1: page_opts)
-
-    Intents.many({
-      :near_point,
-      %Geo.Point{coordinates: {lat, long}, srid: 4326},
-      :distance_meters,
-      distance_meters
-    })
+  defp intents_filter(%{at_location: at_location_id} = page_opts, filters_acc) do
+    intents_filter_next(:at_location, [at_location_id: at_location_id], page_opts, filters_acc)
   end
 
-  def intents_filter(
-        %{
-          geolocation: %{near_address: address, distance: %{meters: distance_meters}}
-        } = _page_opts,
-        info
-      ) do
-    # IO.inspect(geo2: page_opts)
+  defp intents_filter(
+         %{
+           geolocation: %{
+             near_point: %{lat: lat, long: long},
+             distance: %{meters: distance_meters}
+           }
+         } = page_opts,
+         filters_acc
+       ) do
+    IO.inspect(geo_with_point: page_opts)
+
+    intents_filter_next(
+      :geolocation,
+      {
+        :near_point,
+        %Geo.Point{coordinates: {lat, long}, srid: 4326},
+        :distance_meters,
+        distance_meters
+      },
+      page_opts,
+      filters_acc
+    )
+  end
+
+  defp intents_filter(
+         %{
+           geolocation: %{near_address: address} = geolocation
+         } = page_opts,
+         filters_acc
+       ) do
+    IO.inspect(geo_with_address: page_opts)
 
     with {:ok, coords} <- Geocoder.call(address) do
       # IO.inspect(coords)
 
       intents_filter(
-        %{
-          geolocation: %{
-            near_point: %{lat: coords.lat, long: coords.lon},
-            distance: %{meters: distance_meters}
+        Map.merge(
+          page_opts,
+          %{
+            geolocation:
+              Map.merge(geolocation, %{
+                near_point: %{lat: coords.lat, long: coords.lon},
+                distance: Map.get(geolocation, :distance, %{meters: @radius_default_distance})
+              })
           }
-        },
-        info
+        ),
+        filters_acc
       )
     else
-      _ -> {:ok, nil}
+      _ ->
+        intents_filter_next(
+          :geolocation,
+          [],
+          page_opts,
+          filters_acc
+        )
     end
   end
 
-  def intents_filter(page_opts, info) do
-    # IO.inspect(page_opts: page_opts)
-    all_intents(page_opts, info)
+  defp intents_filter(
+         %{
+           geolocation: geolocation
+         } = page_opts,
+         filters_acc
+       ) do
+    IO.inspect(geo_without_distance: page_opts)
+
+    intents_filter(
+      Map.merge(
+        page_opts,
+        %{
+          geolocation:
+            Map.merge(geolocation, %{
+              # default to 100 km radius
+              distance: %{meters: @radius_default_distance}
+            })
+        }
+      ),
+      filters_acc
+    )
+  end
+
+  defp intents_filter(
+         _,
+         filters_acc
+       ) do
+    IO.inspect(filters_query: filters_acc)
+
+    # finally, if there's no more known params to acumulate, query with the filters
+    Intents.many(filters_acc)
+  end
+
+  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc)
+       when is_list(param_remove) and is_list(filter_add) do
+    IO.inspect(intents_filter_next: param_remove)
+    IO.inspect(intents_filter_add: filter_add)
+
+    intents_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
+  end
+
+  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc)
+       when not is_list(filter_add) do
+    intents_filter_next(param_remove, [filter_add], page_opts, filters_acc)
+  end
+
+  defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc)
+       when not is_list(param_remove) do
+    intents_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
   def offers(page_opts, info) do

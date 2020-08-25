@@ -61,7 +61,9 @@ defmodule ValueFlows.Schema do
       arg(:provider, list_of(:id))
       arg(:receiver, list_of(:id))
 
-      resolve(&ValueFlows.Planning.Intent.GraphQL.intents_filter/2)
+      arg(:action, list_of(:id))
+
+      resolve(&ValueFlows.Planning.Intent.GraphQL.intents_filtered/2)
     end
 
     #   intents(start: ID, limit: Int): [Intent!]
