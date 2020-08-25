@@ -10,14 +10,11 @@ defmodule ValueFlows.Simulate do
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Proposals
   # alias ValueFlows.Proposal.ProposedIntent
-
   alias ValueFlows.Knowledge.Action.Actions
-
-  def agent_type(), do: Faker.Util.pick([:person, :organization])
 
   ### Start fake data functions
 
-  ## ValueFlows
+  def agent_type(), do: Faker.Util.pick([:person, :organization])
 
   def agent(base \\ %{}) do
     base
@@ -26,6 +23,18 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:agent_type, &agent_type/0)
+  end
+
+  def resource_specification(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &uuid/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
+    # |> Map.put_new_lazy(:image, &icon/0)
+    # |> Map.put_new_lazy(:default_unit_of_effort, &unit/0)
+    |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
@@ -62,6 +71,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     # |> Map.put_new_lazy(:image, &icon/0)
+    |> Map.put_new_lazy(:action, &action_id/0)
     |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
     |> Map.put_new_lazy(:has_end, &future_datetime/0)
     |> Map.put_new_lazy(:has_point_in_time, &future_datetime/0)
@@ -77,8 +87,8 @@ defmodule ValueFlows.Simulate do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("note", &summary/0)
-    |> Map.put_new_lazy("action", &action_id/0)
     # |> Map.put_new_lazy("image", &icon/0)
+    |> Map.put_new_lazy("action", &action_id/0)
     |> Map.put_new_lazy("resource_classified_as", fn -> some(1..5, &url/0) end)
     |> Map.put_new_lazy("has_beginning", &past_datetime_iso/0)
     |> Map.put_new_lazy("has_end", &future_datetime_iso/0)

@@ -117,6 +117,12 @@ defmodule ValueFlows.Hydration do
         actions: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
         ],
+        resource_specification: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.simulate/2
+        ],
+        resource_specifications: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.simulate/2
+        ],
 
         # Planning
         intent: [
