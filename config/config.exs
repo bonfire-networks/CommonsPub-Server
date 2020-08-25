@@ -242,16 +242,17 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 
 version =
   with {version, 0} <- System.cmd("git", ["rev-parse", "HEAD"]) do
-    "MoodleNet #{Mix.Project.config()[:version]} #{String.trim(version)}"
+    "CommonsPub #{Mix.Project.config()[:version]} #{String.trim(version)}"
   else
-    _ -> "MoodleNet #{Mix.Project.config()[:version]} dev"
+    _ -> "CommonsPub #{Mix.Project.config()[:version]} dev"
   end
 
 config :moodle_net, :instance,
   version: version,
-  name: "MoodleNet",
-  email: "moodlenet-moderators@moodle.com",
-  description: "An instance of MoodleNet, a federated educational commons",
+  name: "CommonsPub",
+  email: "root@localhost",
+  description:
+    "An instance of CommonsPub, a federated app ecosystem for open and cooperative networks",
   federation_publisher_modules: [ActivityPubWeb.Publisher],
   federation_reachability_timeout_days: 7,
   federating: true,
