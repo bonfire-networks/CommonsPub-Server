@@ -125,11 +125,23 @@ defmodule ValueFlows.Hydration do
         ],
 
         # Observation
+        economic_event: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.simulate/2
+        ],
+        economic_events: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.simulate/2
+        ],
         economic_resource: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.simulate/2
         ],
         economic_resources: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.simulate/2
+        ],
+        process: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2
+        ],
+        processes: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2
         ],
 
         # Planning

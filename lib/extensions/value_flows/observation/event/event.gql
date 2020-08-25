@@ -1,0 +1,247 @@
+"""
+An observed economic flow, as opposed to a flow planned to happen in the future.
+This could reflect a change in the quantity of an economic resource. It is also
+defined by its behavior in relation to the economic resource (see `Action`)
+"""
+type EconomicEvent {
+  id: ID!
+
+  """
+  Relates an economic event to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: Action!
+
+  """
+  Defines the process to which this event is an input.
+  """
+  inputOf: Process
+
+  """
+  Defines the process for which this event is an output.
+  """
+  outputOf: Process
+
+  """
+  The economic agent from whom the actual economic event is initiated.
+  """
+  provider: Agent!
+
+  """
+  The economic agent whom the actual economic event is for.
+  """
+  receiver: Agent!
+
+  """
+  Economic resource involved in the economic event.
+  """
+  resourceInventoriedAs: EconomicResource
+
+  """
+  Additional economic resource on the economic event when needed by the
+  receiver. Used when a transfer or move, or sometimes other actions, requires
+  explicitly identifying an economic resource on the receiving side.
+  """
+  toResourceInventoriedAs: EconomicResource
+
+  """
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  The primary resource specification or definition of an existing or potential
+  economic resource. A resource will have only one, as this specifies exactly
+  what the resource is.
+  """
+  resourceConformsTo: ResourceSpecification
+
+  """
+  The amount and unit of the economic resource counted or inventoried. This is
+  the quantity that could be used to increment or decrement a resource,
+  depending on the type of resource and resource effect of action.
+  """
+  resourceQuantity: Measure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This
+  is often a time duration, but also could be cycle counts or other measures of
+  effort or usefulness.
+  """
+  effortQuantity: Measure
+
+  """
+  The beginning of the economic event.
+  """
+  hasBeginning: DateTime
+
+  """
+  The end of the economic event.
+  """
+  hasEnd: DateTime
+
+  """
+  The date/time at which the economic event occurred. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies
+  or calculations which govern this economic event.
+  """
+  agreedIn: URI
+
+  """
+  References another economic event that implied this economic event, often based on a prior agreement.
+  """
+  triggeredBy: EconomicEvent
+  track: [ProductionFlowItem!]
+  trace: [ProductionFlowItem!]
+
+  """
+  The economic event can be safely deleted, has no dependent information.
+  """
+  deletable: Boolean
+
+  """
+  This economic event occurs as part of this agreement.
+  """
+  realizationOf: Agreement
+  appreciationOf: [Appreciation!]
+  appreciatedBy: [Appreciation!]
+
+  """
+  The place where an economic event occurs.  Usually mappable.
+  """
+  atLocation: SpatialThing
+
+  """
+  The commitment which is completely or partially fulfilled by an economic event.
+  """
+  fulfills: [Fulfillment!]
+
+  """
+  An event satisfied fully or partially by an economic event or commitment.
+  """
+  satisfies: [Satisfaction!]
+}
+
+input EconomicEventCreateParams {
+  """
+  (`Action`) Relates an economic event to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: ID!
+
+  """
+  (`Process`) Defines the process to which this event is an input.
+  """
+  inputOf: ID
+
+  """
+  (`Process`) Defines the process for which this event is an output.
+  """
+  outputOf: ID
+
+  """
+  (`Agent`) The economic agent from whom the actual economic event is initiated.
+  """
+  provider: ID!
+
+  """
+  (`Agent`) The economic agent whom the actual economic event is for.
+  """
+  receiver: ID!
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [ID!]
+
+  """
+  (`EconomicResource`) Economic resource involved in the economic event.
+  """
+  resourceInventoriedAs: ID
+
+  """
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  (`ResourceSpecification`) The primary resource specification or definition of
+  an existing or potential economic resource. A resource will have only one, as
+  this specifies exactly what the resource is.
+  """
+  resourceConformsTo: ID
+
+  """
+  The amount and unit of the economic resource counted or inventoried. This is
+  the quantity that could be used to increment or decrement a resource,
+  depending on the type of resource and resource effect of action.
+  """
+  resourceQuantity: IMeasure
+
+  """
+  The amount and unit of the work or use or citation effort-based action. This
+  is often a time duration, but also could be cycle counts or other measures of
+  effort or usefulness.
+  """
+  effortQuantity: IMeasure
+
+  """
+  (`SpatialThing`) The place where an economic event occurs.  Usually mappable.
+  """
+  atLocation: ID
+
+  """
+  The beginning of the economic event.
+  """
+  hasBeginning: DateTime
+
+  """
+  The end of the economic event.
+  """
+  hasEnd: DateTime
+
+  """
+  The date/time at which the economic event occurred. Can be used instead of beginning and end.
+  """
+  hasPointInTime: DateTime
+
+  """
+  A textual description or comment.
+  """
+  note: String
+
+  """
+  Reference to an agreement between agents which specifies the rules or policies
+  or calculations which govern this economic event.
+  """
+  agreedIn: URI
+
+  """
+  (`Agreement`) This economic event occurs as part of this agreement.
+  """
+  realizationOf: ID
+
+  """
+  (`EconomicEvent`) References another economic event that implied this economic event, often based on a prior agreement.
+  """
+  triggeredBy: ID
+
+  """
+  (`EconomicResource`) Additional economic resource on the economic event when
+  needed by the receiver. Used when a transfer or move, or sometimes other
+  actions, requires explicitly identifying an economic resource on the receiving side.
+  """
+  toResourceInventoriedAs: ID
+}
