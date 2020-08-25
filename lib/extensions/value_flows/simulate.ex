@@ -43,6 +43,23 @@ defmodule ValueFlows.Simulate do
 
   def action_id, do: action().id
 
+  def economic_resource(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &uuid/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
+    |> Map.put_new_lazy(:tracking_identifier, &uuid/0)
+    |> Map.put_new_lazy(:conforms_to, &resource_specification/0)
+    |> Map.put_new_lazy(:state, &action/0)
+    # |> Map.put_new_lazy(:accounting_quantity, &measure/0)
+    # |> Map.put_new_lazy(:onhand_quantity, &measure/0)
+    # |> Map.put_new_lazy(:unit_of_effort, &unit/0)
+    # |> Map.put_new_lazy(:image, &icon/0)
+    |> Map.put_new_lazy(:classified_as, fn -> some(1..5, &url/0) end)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
   def proposal(base \\ %{}) do
     base
     |> Map.put_new_lazy(:name, &name/0)

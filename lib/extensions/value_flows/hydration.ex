@@ -124,6 +124,14 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.simulate/2
         ],
 
+        # Observation
+        economic_resource: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.simulate/2
+        ],
+        economic_resources: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.simulate/2
+        ],
+
         # Planning
         intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.intent/2
