@@ -49,8 +49,8 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
         publishes: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intents/3,
-        ],
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intents/3
+        ]
       },
       intent: %{
         provider: [
@@ -76,7 +76,7 @@ defmodule ValueFlows.Hydration do
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
-        ],
+        ]
       },
 
       # start Query resolvers
@@ -85,6 +85,9 @@ defmodule ValueFlows.Hydration do
         agents: [
           resolve: &ValueFlows.Agent.GraphQL.all_agents/2
         ],
+        # agents_pages: [
+        #   resolve: &ValueFlows.Agent.GraphQL.agents/2
+        # ],
         agent: [
           resolve: &ValueFlows.Agent.GraphQL.agent/2
         ],
@@ -94,11 +97,17 @@ defmodule ValueFlows.Hydration do
         people: [
           resolve: &ValueFlows.Agent.GraphQL.all_people/2
         ],
+        people_pages: [
+          resolve: &ValueFlows.Agent.GraphQL.people/2
+        ],
         organization: [
           resolve: &ValueFlows.Agent.GraphQL.organization/2
         ],
         organizations: [
           resolve: &ValueFlows.Agent.GraphQL.all_organizations/2
+        ],
+        organizations_pages: [
+          resolve: &ValueFlows.Agent.GraphQL.organizations/2
         ],
 
         # Knowledge
@@ -116,6 +125,18 @@ defmodule ValueFlows.Hydration do
         intents: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.all_intents/2
         ],
+        intents_pages: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.intents/2
+        ],
+        offers_pages: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.offers/2
+        ],
+        needs_pages: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.needs/2
+        ],
+        intents_filter: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.intents_filtered/2
+        ],
 
         # Proposal
         proposal: [
@@ -123,6 +144,9 @@ defmodule ValueFlows.Hydration do
         ],
         proposals: [
           resolve: &ValueFlows.Proposal.GraphQL.all_proposals/2
+        ],
+        proposals_pages: [
+          resolve: &ValueFlows.Proposal.GraphQL.proposals/2
         ]
       },
 

@@ -82,7 +82,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields(:measurement_query)
     import_fields(:geolocation_query)
     import_fields(:value_flows_query)
-    import_fields(:value_flows_extra_queries)
+    # import_fields(:value_flows_extra_queries)
   end
 
   mutation do
