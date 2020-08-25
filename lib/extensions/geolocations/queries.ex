@@ -211,6 +211,11 @@ defmodule Geolocation.Queries do
     )
   end
 
+  def filter(q, filter_name) when is_binary(filter_name) do
+    filter(q, String.to_existing_atom(filter_name))
+  end
+
+
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
     filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)
   end

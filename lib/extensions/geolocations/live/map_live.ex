@@ -110,12 +110,14 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
   defp fetch_place_things(filters, socket) do
     with {:ok, things} <-
            ValueFlows.Planning.Intent.Intents.many(filters) do
+      IO.inspect(things)
+
       things =
-        Enum.map(
-          things,
+        things
+        |> Enum.map(
           &Map.merge(
-            Geolocation.Geolocations.populate_coordinates(&1.at_location),
-            &1
+            Geolocation.Geolocations.populate_coordinates(Map.get(&1, :at_location)),
+            &1 || %{}
           )
         )
 
