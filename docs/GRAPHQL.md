@@ -2,7 +2,9 @@
 
 ## GraphQL Introduction
 
-Let's start with a simple GraphQL query:
+Go to http://your-app-url/api/ to start playing with the GraphQL API. The GraphiQL UI should autocomplete types, queries and mutations for you, and you can also explore the schema there.
+
+Let's start with a simple GraphQL thoeretical query:
 
 ```graphql
 query {
@@ -122,7 +124,7 @@ end
 The keen-eyed amongst you may have noticed I said the default resolver
 is a map lookup and our `to_edge/3` is a map lookup too, so
 technically we didn't need to write it. But then you wouldn't have an
-example of a `/3` resolver! In most of moodlenet, these will be querying
+example of a `/3` resolver! In most of the app, these will be querying
 from the database, not looking up in a constant.
 
 So for every field, a resolver function is run. It defaults to a map

@@ -1,15 +1,3 @@
-# relations TODO:
-# SpatialThing
-# Action
-# AgentRelationship
-# AgentRelationshipRole
-# ResourceSpecification
-# Proposal
-# ProposedIntent
-# ProposedTo(maybe?)
-# Process
-# ProcessSpecification
-
 defmodule ValueFlows.Planning.Intent do
   use Pointers.Pointable,
     otp_app: :moodle_net,

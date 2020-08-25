@@ -1,4 +1,7 @@
 defmodule ValueFlows.Proposal do
+  @moduledoc """
+  Schema for proposal, using `Pointers.Pointable`
+  """
   use Pointers.Pointable,
     otp_app: :moodle_net,
     source: "vf_proposal",

@@ -8,7 +8,7 @@ This is the main repository, written in Elixir (running on Erlang/OTP).
 
 The federation API uses [ActivityPub](http://activitypub.rocks/) and the client API uses [GraphQL](https://graphql.org/).
 
-There is a bundled front-end built with [Phoenix LiveView](https://www.phoenixframework.org/) (and an older React frontend in a [seperate repo](https://gitlab.com/CommonsPub/Client).
+There is a bundled front-end built with [Phoenix LiveView](https://www.phoenixframework.org/) (and an older React frontend in a [seperate repo](https://gitlab.com/CommonsPub/Client)).
 
 ---
 

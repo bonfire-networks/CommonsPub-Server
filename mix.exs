@@ -6,7 +6,7 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.9.6-dev",
+      version: "0.10.0-dev",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
@@ -14,22 +14,22 @@ defmodule MoodleNet.Mixfile do
       aliases: aliases(),
       deps: deps(),
       releases: releases(),
-      name: "MoodleNet",
-      homepage_url: "http://moodle.net/",
-      source_url: "https://gitlab.com/moodlenet/backend",
+      name: "CommonsPub",
+      homepage_url: "http://CommonsPub.org/",
+      source_url: "https://gitlab.com/CommonsPub/CommonsPub-Server",
       docs: [
         # The first page to display from the docs
         main: "readme",
         logo: "assets/static/images/logo_commonspub.png",
         # extra pages to include
-        # extra pages to include
         extras: [
           "README.md",
           "docs/HACKING.md",
           "docs/DEPLOY.md",
-          "docs/MRF.md",
+          "docs/ARCHITECTURE.md",
+          "docs/DEPENDENCIES.md",
           "docs/GRAPHQL.md",
-          "docs/ARCHITECTURE.md"
+          "docs/MRF.md"
         ],
         output: "docs/exdoc"
       ],
