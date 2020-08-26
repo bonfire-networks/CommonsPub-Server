@@ -17,7 +17,7 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
 
       add(:image_id, references(:mn_content))
 
-      belongs_to(:conforms_to, weak_pointer(ResourceSpecification), null: true )
+      add(:conforms_to, weak_pointer(ResourceSpecification), null: true)
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
@@ -29,7 +29,6 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
 
       # usually linked to Agent
       add(:primary_accountable_id, weak_pointer(), null: true)
-
 
       add(:accounting_quantity_id, references("measurement_measure", on_delete: :nilify_all))
       add(:onhand_quantity_id, references("measurement_measure", on_delete: :nilify_all))
