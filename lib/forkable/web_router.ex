@@ -232,12 +232,13 @@ defmodule MoodleNetWeb.Router do
   # if Mix.env() in [:dev, :test] do
   import Phoenix.LiveDashboard.Router
 
-  scope "/admin/" do
+  scope "/admin/", MoodleNetWeb do
     pipe_through :browser
     pipe_through :liveview
     pipe_through :protect_forgery
     pipe_through :ensure_admin
-
+    live "/settings/:tab", AdminLive
+    live "/settings/:tab/:sub", AdminLive
     live_dashboard "/dashboard", metrics: CommonsPub.Utils.Metrics
   end
 

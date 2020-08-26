@@ -73,42 +73,4 @@ defmodule MoodleNetWeb.SettingsLive do
     end
   end
 
-  def handle_event("invite", params, socket) do
-    params = input_to_atoms(params)
-
-    invite =
-      MoodleNetWeb.GraphQL.AdminResolver.send_invite(params, %{
-        context: %{current_user: socket.assigns.current_user}
-      })
-
-    IO.inspect(invite)
-
-    # TODO error handling
-
-    {:noreply, socket |> put_flash(:info, "Invite sent!")}
-  end
-
-  def handle_event("add-domain", params, socket) do
-    params = input_to_atoms(params)
-
-    add =
-      MoodleNetWeb.GraphQL.AccessResolver.create_register_email_domain_access(params, %{
-        context: %{current_user: socket.assigns.current_user}
-      })
-
-    IO.inspect(add)
-
-    # TODO error handling
-
-    {:noreply, socket |> put_flash(:info, "Added!")}
-  end
-
-  # def handle_params(%{} = params, url, socket) do
-  #   user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
-
-  #   {:noreply,
-  #    assign(socket,
-  #      user: user
-  #    )}
-  # end
 end
