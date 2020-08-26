@@ -3,10 +3,10 @@ defmodule MoodleNet.Repo.Migrations.VF.Intent do
 
   def up do
     # ValueFlows.Knowledge.Migrations.change_action()
-    ValueFlows.Planning.Migrations.up()
+    ValueFlows.Planning.Intent.Migrations.up()
   end
 
   def down do
-    ValueFlows.Planning.Migrations.down()
+    ValueFlows.Planning.Intent.Migrations.down()
   end
 end

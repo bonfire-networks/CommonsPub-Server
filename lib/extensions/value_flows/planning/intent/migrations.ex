@@ -1,4 +1,4 @@
-defmodule ValueFlows.Planning.Migrations do
+defmodule ValueFlows.Planning.Intent.Migrations do
   use Ecto.Migration
   # alias MoodleNet.Repo
   # alias Ecto.ULID

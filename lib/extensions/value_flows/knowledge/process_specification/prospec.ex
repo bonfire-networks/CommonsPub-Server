@@ -1,8 +1,8 @@
-defmodule ValueFlows.Knowledge.ResourceSpecification do
+defmodule ValueFlows.Knowledge.ProcessSpecification do
   use Pointers.Pointable,
     otp_app: :moodle_net,
-    source: "vf_respec_spec",
-    table_id: "SPEC1F1CAT10NK1ND0FRES0VRC"
+    source: "vf_prospec",
+    table_id: "WAYF0R1NPVTST0BEC0ME0VTPVT"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
@@ -11,31 +11,50 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   # alias MoodleNet.Actors.Actor
   # alias MoodleNet.Communities.Community
   alias ValueFlows.Knowledge.Action
-  alias ValueFlows.Knowledge.ResourceSpecification
-  alias Measurement.Unit
+  alias ValueFlows.Knowledge.ProcessSpecification
+  alias Measurement.Measure
 
   @type t :: %__MODULE__{}
 
   pointable_schema do
     field(:name, :string)
     field(:note, :string)
+    # belongs_to(:image, Content)
 
-    belongs_to(:image, Content)
+    field(:has_beginning, :utc_datetime_usec)
+    field(:has_end, :utc_datetime_usec)
 
-    # array of URI
-    field(:resource_classified_as, {:array, :string}, virtual: true)
+    field(:finished, :boolean, default: false)
 
-    belongs_to(:default_unit_of_effort, Unit, on_replace: :nilify)
+    field(:classified_as, {:array, :string}, virtual: true)
+
+    belongs_to(:context, Pointers.Pointer)
+
+    # TODO
+    # workingAgents: [Agent!]
+    # basedOn: ProcessSpecification
+    # nextProcesses: [ProcessSpecification!]
+    # previousProcesses: [ProcessSpecification!]
+    # intendedInputs(action: ID): [ProcessSpecification!]
+    # intendedOutputs(action: ID): [ProcessSpecification!]
+    # inputs(action: ID): [EconomicEvent!]
+    # outputs(action: ID): [EconomicEvent!]
+    # unplannedEconomicEvents(action: ID): [EconomicEvent!]
+    # trace: [EconomicEvent!]
+    # track: [EconomicEvent!]
+    # plannedWithin: Plan
+    # committedInputs(action: ID): [Commitment!]
+    # committedOutputs(action: ID): [Commitment!]
+    # nestedIn: Scenario
+
+    # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
     belongs_to(:creator, User)
-    belongs_to(:context, Pointers.Pointer)
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
-
     field(:is_disabled, :boolean, virtual: true, default: false)
     field(:disabled_at, :utc_datetime_usec)
-
     field(:deleted_at, :utc_datetime_usec)
 
     many_to_many(:tags, CommonsPub.Tag.Taggable,
@@ -49,19 +68,18 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note is_disabled image_id)a
+  @cast @required ++ ~w(note has_beginning has_end finished is_disabled image_id)a
 
   def create_changeset(
         %User{} = creator,
         %{id: _} = context,
         attrs
       ) do
-    %ResourceSpecification{}
+    %ProcessSpecification{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      default_unit_of_effort_id: Map.get(attrs, :default_unit_of_effort),
       context_id: context.id,
       is_public: true
     )
@@ -72,35 +90,30 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
         %User{} = creator,
         attrs
       ) do
-    %ResourceSpecification{}
+    %ProcessSpecification{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      default_unit_of_effort_id: Map.get(attrs, :default_unit_of_effort),
       is_public: true
     )
     |> common_changeset()
   end
 
   def update_changeset(
-        %ResourceSpecification{} = respec,
+        %ProcessSpecification{} = prospec,
         %{id: _} = context,
         attrs
       ) do
-    respec
+    prospec
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(
-      context_id: context.id,
-      default_unit_of_effort_id: Map.get(attrs, :default_unit_of_effort)
-    )
+    |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
 
-  def update_changeset(%ResourceSpecification{} = respec, attrs) do
-    respec
+  def update_changeset(%ProcessSpecification{} = prospec, attrs) do
+    prospec
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(default_unit_of_effort_id: Map.get(attrs, :default_unit_of_effort))
     |> common_changeset()
   end
 
@@ -110,9 +123,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     |> change_disabled()
   end
 
-  def context_module, do: ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
+  def context_module, do: ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
 
-  def queries_module, do: ValueFlows.Knowledge.ResourceSpecification.Queries
+  def queries_module, do: ValueFlows.Knowledge.ProcessSpecification.Queries
 
   def follow_filters, do: [:default]
 end

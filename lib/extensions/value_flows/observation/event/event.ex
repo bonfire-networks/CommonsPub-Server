@@ -12,6 +12,8 @@ defmodule ValueFlows.Observation.EconomicEvent do
   # alias MoodleNet.Communities.Community
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Observation.EconomicEvent
+  alias ValueFlows.Observation.EconomicResource
+
   alias Measurement.Measure
 
   @type t :: %__MODULE__{}
@@ -19,6 +21,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
   pointable_schema do
     field(:name, :string)
     field(:note, :string)
+
     belongs_to(:image, Content)
 
     belongs_to(:action, Action, type: :string)

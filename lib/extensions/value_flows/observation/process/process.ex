@@ -32,11 +32,11 @@ defmodule ValueFlows.Observation.Process do
 
     # TODO
     # workingAgents: [Agent!]
+    # basedOn: ProcessSpecification
     # nextProcesses: [Process!]
     # previousProcesses: [Process!]
     # intendedInputs(action: ID): [Process!]
     # intendedOutputs(action: ID): [Process!]
-    # basedOn: ProcessSpecification
     # inputs(action: ID): [EconomicEvent!]
     # outputs(action: ID): [EconomicEvent!]
     # unplannedEconomicEvents(action: ID): [EconomicEvent!]
