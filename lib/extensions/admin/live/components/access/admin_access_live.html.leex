@@ -1,37 +1,37 @@
- <section class="settings__section">
-    <div class="section__main">
-      <div class="settings_header">
-        <h1>Who has access</h1>
-        <details class="dialog__container">
-          <summary class="button-primary">Invite</summary>
-          <dialog open class="dialog dialog__create">
-            <header class="dialog__header">Invite a person to join</header>
-            <section class="dialog__content">
-              <form action="#" phx-target="<%= @myself %>" phx-submit="invite">
-                <input name="email" type="text" placeholder="Email address of someone to invite to this instance" />
-                <footer class="dialog__footer">
-                  <button type="submit" phx-disable-with="Sending...">Send invite</button>
-                </footer>
-              </form>
-            </section>
-          </dialog>
-        </details>
-        <details class="dialog__container">
-          <summary class="button-link">Whitelist an email</summary>
-          <dialog open class="dialog dialog__create">
-            <header class="dialog__header">Whitelist an email</header>
-            <section class="dialog__content">
-              <form action="#" phx-target="<%= @myself %>" phx-submit="add-domain">
-                <input name="domain" type="text" placeholder="Enter domain (e.g. riseup.org)" />
-                <footer class="dialog__footer">
-                  <button type="submit" phx-disable-with="Saving...">Whitelist</button>
-                </footer>
-              </form>
-            </section>
-          </dialog>
-        </details>
-      </div>
-      <div class="settings_list">
+<section class="settings__section">
+  <div class="section__main">
+    <div class="settings_header">
+      <h1>Who has access</h1>
+      <details class="dialog__container">
+        <summary class="button-primary">Invite</summary>
+        <dialog open class="dialog dialog__create">
+          <header class="dialog__header">Invite a person to join</header>
+          <section class="dialog__content">
+            <form action="#" phx-target="<%= @myself %>" phx-submit="invite">
+              <input name="email" type="text" placeholder="Email address of someone to invite to this instance" />
+              <footer class="dialog__footer">
+                <button type="submit" phx-disable-with="Sending...">Send invite</button>
+              </footer>
+            </form>
+          </section>
+        </dialog>
+      </details>
+      <details class="dialog__container">
+        <summary class="button-link">Authorise a domain</summary>
+        <dialog open class="dialog dialog__create">
+          <header class="dialog__header">Allow everyone with an email @ a certain domain to sign up</header>
+          <section class="dialog__content">
+            <form action="#" phx-target="<%= @myself %>" phx-submit="add-domain">
+              <input name="domain" type="text" placeholder="Enter domain (e.g. riseup.org)" />
+              <footer class="dialog__footer">
+                <button type="submit" phx-disable-with="Saving...">Authorise</button>
+              </footer>
+            </form>
+          </section>
+        </dialog>
+      </details>
+    </div>
+    <div class="settings_list">
       <div class="settings_menu">
         <%= live_patch "All",
           to: "/admin/settings/access/all",
@@ -46,7 +46,6 @@
           class: if @selected == "domains", do: "navigation__item active", else: "navigation__item"
         %>
       </div>
-
       <%= cond do %>
         <% @selected == "all" ->  %>
         <%= for user <- @users do %>
@@ -59,9 +58,9 @@
               <h4><%= user.username %></h4>
             </div>
             <div class="preview__actions">
-            <%= if user.local_user.is_instance_admin do %>
-              <span class="actions_flag">admin</span>
-            <% end %>
+              <%= if user.local_user.is_instance_admin do %>
+                <span class="actions_flag">admin</span>
+              <% end %>
               <i class="feather-trash-2"></i>
             </div>
           </div>
@@ -93,14 +92,14 @@
               <h4><%= user.username %></h4>
             </div>
             <div class="preview__actions">
-            <%= if user.local_user.is_instance_admin do %>
-              <span class="actions_flag">admin</span>
-            <% end %>
+              <%= if user.local_user.is_instance_admin do %>
+                <span class="actions_flag">admin</span>
+              <% end %>
               <i class="feather-trash-2"></i>
             </div>
           </div>
         <% end %>
-        <% end %>
-      </div>
+      <% end %>
     </div>
-    </section>
+  </div>
+</section>
