@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.SettingsLive.SettingsFlagsLive do
+defmodule MoodleNetWeb.AdminLive.AdminFlagsLive do
   use MoodleNetWeb, :live_component
   alias MoodleNetWeb.GraphQL.FlagsResolver
 
@@ -56,21 +56,4 @@ defmodule MoodleNetWeb.SettingsLive.SettingsFlagsLive do
     {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
   end
 
-  def render(assigns) do
-    ~L"""
-    <section class="settings__section">
-        <div class="section__main">
-          <h1>Flags</h1>
-
-          <%= live_component(
-            @socket,
-            MoodleNetWeb.Component.ActivitiesListLive,
-            assigns
-            )
-          %>
-
-        </div>
-      </section>
-    """
-  end
 end

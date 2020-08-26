@@ -1,9 +1,15 @@
 .users_list {
   padding: var(--m2);
 }
-
+.email__only {
+  h4 {
+    margin: 0 !important;
+    font-size: 14px !important;
+  }
+}
 .users_list .user__preview {
   margin-bottom: var(--m2);
+  
 }
 
 .users_list a:last-of-type .user__preview {
@@ -16,6 +22,7 @@
   display: flex;
   padding: var(--m2);
   align-items: center;
+  position: relative;
 }
 
 .user__preview:hover {
@@ -39,6 +46,7 @@
   letter-spacing: 0.5px;
   font-size: 16px;
   color: var(--color-text);
+  display: inline;
 }
 
 .user__preview .preview__info h4 {
@@ -48,4 +56,27 @@
   font-size: 13px;
   color: var(--color-text-subtle);
   margin-top: var(--m1);
+}
+
+.user__preview {
+  .preview__actions {
+    margin-right: var(--m2);
+    .actions_flag {
+      color: var(--color-secondary-dark);
+      border: var(--border);
+      border-color: var(--color-secondary-dark);
+      border-radius: 12px;
+      height: 24px;
+      padding: 0 8px;
+      line-height: 24px;
+      margin-right: 8px;
+      font-size: 14px;
+    }
+    i {
+      cursor: pointer;
+      color: var(--color-text);
+      font-size: 18;
+      font-weight: 300
+    }
+  }
 }

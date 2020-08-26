@@ -1,0 +1,11 @@
+<section class="settings__section">
+  <div class="section__main">
+    <h1>Flags</h1>
+    <%= live_component(
+      @socket,
+      MoodleNetWeb.Component.ActivitiesListLive,
+      assigns
+      )
+    %>
+  </div>
+</section>
