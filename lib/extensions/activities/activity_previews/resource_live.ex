@@ -14,7 +14,7 @@ defmodule MoodleNetWeb.Component.ResourcePreviewLive do
 
     resource = prepare_common(assigns.resource)
 
-    IO.inspect(resource_post_prep: resource)
+    # IO.inspect(resource_post_prep: resource)
 
     {:ok,
      socket
@@ -31,7 +31,11 @@ defmodule MoodleNetWeb.Component.ResourcePreviewLive do
         <svg class="icon svg-icon svg-icon-note-empty" viewBox="0 0 32 32"><g fill-rule="evenodd"><rect fill="#DBDFE2" x="4" y="2" width="24" height="30" rx="1.5"></rect><rect fill="#F7F9FA" x="4" y="1" width="24" height="30" rx="1.5"></rect></g></svg>
         <div class="preview__info">
           <h4><%= e(@resource, :name, "Resource") %></h4>
-          <p><a target="blank" href="<%= e(@resource, :link, "no link") %>">View link</a> | License: <%= e(@resource, :license, "Undefined") %></p>
+          <p><%= e(@resource, :summary, "") %>
+          <%= if e(@resource, :license, nil) do  %>
+          | License: <%= e(@resource, :license, "Undefined") %>
+          <% end %>
+          </p>
         </div>
       </div>
     </a>

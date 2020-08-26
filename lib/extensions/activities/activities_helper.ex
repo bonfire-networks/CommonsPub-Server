@@ -9,7 +9,8 @@ defmodule MoodleNetWeb.Helpers.Activites do
   end
 
   def prepare(%{:__struct__ => _} = activity, current_user) do
-    activity = maybe_preload(activity, :creator)
+    activity = maybe_preload(activity, [:creator, :context])
+
     prepare_activity(activity, current_user)
   end
 
@@ -17,9 +18,34 @@ defmodule MoodleNetWeb.Helpers.Activites do
     prepare_activity(activity, current_user)
   end
 
+  defp prepare_parent_context(%{context: %{thread_id: thread_id} = context} = activity)
+       when not is_nil(thread_id) do
+    activity = maybe_preload(activity, context: [:thread])
+
+    activity
+    |> Map.merge(%{
+      context:
+        Map.merge(
+          activity.context,
+          %{context: prepare_context(activity.context.thread)}
+        )
+    })
+  end
+
+  defp prepare_parent_context(%{context: %{} = context} = activity) do
+    activity
+    |> Map.merge(%{context: prepare_context(context)})
+  end
+
+  defp prepare_parent_context(activity) do
+    activity
+  end
+
   defp prepare_activity(activity, _current_user) do
     # guess what type of thing we're dealing with
     activity = prepare_context(activity)
+
+    activity = prepare_parent_context(activity)
 
     # get the OP
     creator = Profiles.prepare(activity.creator, %{icon: true, actor: true})
@@ -29,13 +55,14 @@ defmodule MoodleNetWeb.Helpers.Activites do
     # a friendly date
     from_now = activity_date_from_now(activity)
 
-    # IO.inspect(prepare_activity: activity)
+    # IO.inspect(preparing_activity: activity)
 
     activity
     |> Map.merge(%{published_at: from_now})
     |> Map.merge(%{creator: creator})
     |> Map.merge(%{display_verb: display_activity_verb(activity)})
     |> Map.merge(%{display_object: display_activity_object(activity)})
+    |> Map.merge(%{display_object_context: display_object_context(Map.get(activity, :context))})
     |> Map.merge(%{activity_url: activity_url(activity)})
   end
 
@@ -60,11 +87,11 @@ defmodule MoodleNetWeb.Helpers.Activites do
   def activity_url(%{
         context: %{} = context
       }) do
-    context_url(context)
+    object_url(context)
   end
 
   def activity_url(%{} = activity) do
-    context_url(activity)
+    object_url(activity)
   end
 
   def display_activity_verb(%{display_verb: display_verb}) when not is_nil(display_verb) do
@@ -150,8 +177,13 @@ defmodule MoodleNetWeb.Helpers.Activites do
       context_type == "like" ->
         ""
 
+      context_type == "resource" ->
+        "a " <> context_type <> " "
+
       Map.has_key?(activity.context, :name) and strlen(activity.context.name) > 0 ->
-        "a " <> context_type <> ": " <> activity.context.name
+        "a " <> context_type
+
+      # <> ": " <> activity.context.name
 
       Map.has_key?(activity.context, :message) and strlen(activity.context.message) > 0 ->
         "«" <> activity.context.message <> "»"
@@ -167,5 +199,26 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   def display_activity_object(_) do
     "something"
+  end
+
+  def display_object_context(%{
+        context: %MoodleNet.Threads.Thread{} = parent_context
+      }) do
+    display_object_context(parent_context)
+  end
+
+  def display_object_context(%{context: %{name: name} = parent_context})
+      when not is_nil(name) do
+    # IO.inspect(parent_context: parent_context)
+    # TODO: remove hacky HTML
+    "in <a data-phx-link='redirect' data-phx-link-state='push' href='#{object_url(parent_context)}'>#{
+      name
+    }</a>"
+  end
+
+  def display_object_context(activity) do
+    # IO.inspect(display_object_context: activity)
+
+    ""
   end
 end

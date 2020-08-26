@@ -52,17 +52,22 @@ defmodule MoodleNetWeb.My.WriteModalLive do
 
       IO.inspect(context_id, label: "context_id CHOOSEN")
 
-      {:ok, thread} =
-        MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
-          %{context_id: context_id, comment: comment},
-          %{context: %{current_user: socket.assigns.current_user}}
-        )
-
-      {:noreply,
-       socket
-       |> put_flash(:info, "Published!")
-       # change redirect
-       |> push_redirect(to: "/!" <> thread.thread_id)}
+      with {:ok, thread} <-
+             MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+               %{context_id: context_id, comment: comment},
+               %{context: %{current_user: socket.assigns.current_user}}
+             ) do
+        {:noreply,
+         socket
+         |> put_flash(:info, "Published!")
+         # change redirect
+         |> push_redirect(to: "/!" <> thread.thread_id)}
+      else
+        _e ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Error, could not publish :(")}
+      end
     end
   end
 end

@@ -83,3 +83,10 @@
 .editor {
 }
 
+#post_title {
+  display: none;
+}
+
+#post_title:target {
+  display: block;
+}

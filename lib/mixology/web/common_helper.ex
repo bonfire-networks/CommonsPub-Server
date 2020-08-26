@@ -287,53 +287,68 @@ defmodule MoodleNetWeb.Helpers.Common do
     end
   end
 
-  def prepare_context(thing) do
+  def prepare_context(%{} = thing) do
     if Map.has_key?(thing, :context_id) and !is_nil(thing.context_id) do
       thing = maybe_do_preload(thing, :context)
 
-      # IO.inspect(context_maybe_preloaded: thing)
+      IO.inspect(context_maybe_preloaded: thing)
 
-      context_follow(thing, thing.context)
+      context_follow(thing)
     else
       if Map.has_key?(thing, :context) do
-        context_follow(thing, thing.context)
+        # Pointer already loaded?
+        context_follow(thing)
       else
         thing
       end
     end
   end
 
-  defp context_follow(thing, %Pointers.Pointer{} = pointer) do
+  def prepare_context(thing) do
+    thing
+  end
+
+  defp context_follow(%{context: %Pointers.Pointer{} = pointer} = thing) do
     context = MoodleNet.Meta.Pointers.follow!(pointer)
 
-    add_context_type(thing, context)
+    add_context_type(
+      thing
+      |> Map.merge(%{context: context})
+    )
   end
 
-  defp context_follow(thing, %{id: _id} = context) do
-    # IO.inspect("already have a loaded object")
-    add_context_type(thing, context)
+  defp context_follow(%{context: %{id: _id}} = thing) do
+    # IO.inspect("we already have a loaded object")
+    add_context_type(thing)
   end
 
-  defp context_follow(%{context_id: nil} = thing, context) do
-    add_context_type(thing, context)
+  defp context_follow(%{context_id: nil} = thing) do
+    add_context_type(thing)
   end
 
-  defp context_follow(%{context_id: context_id} = thing, _) do
+  defp context_follow(%{context_id: context_id} = thing) do
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id)
-    context_follow(thing, pointer)
+
+    context_follow(
+      thing
+      |> Map.merge(%{context: pointer})
+    )
   end
 
-  defp add_context_type(%{context_type: _} = thing, context) do
+  defp add_context_type(%{context_type: _} = thing) do
     thing
-    |> Map.merge(%{context: context})
   end
 
-  defp add_context_type(thing, context) do
+  defp add_context_type(%{context: context} = thing) do
     type = context_type(context)
 
     thing
     |> Map.merge(%{context_type: type})
-    |> Map.merge(%{context: context})
+  end
+
+  defp add_context_type(thing) do
+    thing
+    |> Map.merge(%{context_type: "unknown"})
   end
 
   def context_type(%{__struct__: name}) do
@@ -472,58 +487,58 @@ defmodule MoodleNetWeb.Helpers.Common do
     false
   end
 
-  def context_url(%MoodleNet.Communities.Community{
+  def object_url(%MoodleNet.Communities.Community{
         actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/&" <> preferred_username
   end
 
-  def context_url(%MoodleNet.Users.User{
+  def object_url(%MoodleNet.Users.User{
         actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/@" <> preferred_username
   end
 
-  def context_url(%CommonsPub.Tag.Category{
+  def object_url(%CommonsPub.Tag.Category{
         id: id
       })
       when not is_nil(id) do
     "/++" <> id
   end
 
-  def context_url(%{
+  def object_url(%{
         actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/+" <> preferred_username
   end
 
-  def context_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
+  def object_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
       when not is_nil(thread_id) and not is_nil(is_reply) do
     "/!" <> thread_id <> "/discuss/" <> comment_id <> "#reply"
   end
 
-  def context_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
+  def object_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
     "/!" <> thread_id
   end
 
-  def context_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+  def object_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def context_url(%{actor: %{canonical_url: canonical_url}})
+  def object_url(%{actor: %{canonical_url: canonical_url}})
       when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def context_url(%{__struct__: module_name} = _activity) do
+  def object_url(%{__struct__: module_name} = _activity) do
     IO.inspect(unsupported_by_activity_url: module_name)
     "#unsupported_by_activity_url/" <> to_string(module_name)
   end
 
-  def context_url(activity) do
+  def object_url(activity) do
     IO.inspect(unsupported_by_activity_url: activity)
     "#unsupported_by_activity_url"
   end

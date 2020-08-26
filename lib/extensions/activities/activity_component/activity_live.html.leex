@@ -9,6 +9,7 @@
     <p>
       <%= e(@activity, :display_verb, "acted on") %>
       <%= live_redirect to: e(@activity, :activity_url, "#unknown")  do %><%= e(@activity, :display_object, "something") %><% end %>
+      <%= r(e(@activity, :display_object_context, "")) %>
     </p>
   </div>
   <div class="meta__secondary">
@@ -30,7 +31,7 @@
 
         )
     %>
-   <%= if @activity.context_type != "like" do %>
+  <%= if Map.get(@activity, :context_type) != "like" do %>
     <%=
       live_component(
           @socket,
