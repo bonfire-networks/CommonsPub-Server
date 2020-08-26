@@ -36,4 +36,9 @@ defmodule MoodleNetWeb.My.PublishAdLive do
      socket
      |> put_flash(:info, "intent created !")}
   end
+
+  # need to alias some form posting events here to workaround having two events but one target on a form
+  def handle_event("tag_suggest", data, socket) do
+    MoodleNetWeb.Component.TagAutocomplete.tag_suggest(data, socket)
+  end
 end

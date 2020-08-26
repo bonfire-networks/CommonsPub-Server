@@ -17,6 +17,18 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
     {:noreply, assign(socket, :toggle_link, !socket.assigns.toggle_link)}
   end
 
+  def handle_event("form_changes", data, socket) do
+    # attempt anything that's triggered by a form edit
+
+    maybe_fetch = handle_event("fetch_link", data, socket)
+
+    if maybe_fetch do
+      maybe_fetch
+    else
+      MoodleNetWeb.Component.TagAutocomplete.tag_suggest(data, socket)
+    end
+  end
+
   def handle_event("fetch_link", %{"content" => %{"url" => url}} = _data, socket)
       when byte_size(url) > 5 do
     if !Map.get(socket.assigns, :fetched_url) or url != Map.get(socket.assigns, :fetched_url) do
@@ -34,7 +46,7 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
       {:noreply,
        socket
        |> assign(fetched_url: url, link_input: fetch)
-       |> put_flash(:info, "Fetched link !")}
+       |> put_flash(:info, "Fetched link...")}
     else
       IO.inspect(ignore_url: url)
       {:noreply, socket}
@@ -42,7 +54,7 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
   end
 
   def handle_event("fetch_link", _, socket) do
-    {:noreply, socket}
+    nil
   end
 
   def handle_event(

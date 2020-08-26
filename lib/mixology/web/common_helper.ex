@@ -166,7 +166,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     maybe_do_preload(obj, preloads)
   end
 
-  defp maybe_do_preload(obj, preloads) do
+  defp maybe_do_preload(obj, preloads) when is_struct(obj) do
     # IO.inspect(maybe_preload_obj: obj)
     # IO.inspect(maybe_preload_preloads: preloads)
     MoodleNet.Repo.preload(obj, preloads)
@@ -185,6 +185,11 @@ defmodule MoodleNetWeb.Helpers.Common do
       #   IO.inspect(protocol_undefined_error_preload: preloads)
       #   IO.inspect(from_maybe_preload: obj)
       #   obj
+  end
+
+  defp maybe_do_preload(obj, _) do
+    # IO.inspect(cannot_preload_non_struct: preloads)
+    obj
   end
 
   @doc """
@@ -291,7 +296,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     if Map.has_key?(thing, :context_id) and !is_nil(thing.context_id) do
       thing = maybe_do_preload(thing, :context)
 
-      IO.inspect(context_maybe_preloaded: thing)
+      # IO.inspect(context_maybe_preloaded: thing)
 
       context_follow(thing)
     else

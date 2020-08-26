@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: "Dockerfile.dev"
     ports:
-      - "4002:4000"
+      - "4007:4000"
     env_file:
       - config/dev/public.env
       - config/dev/secrets.env
@@ -52,7 +52,7 @@ services:
   search:
     image: getmeili/meilisearch:latest
     ports:
-      - "7702:7700"
+      - "7707:7700"
     volumes:
       - "./data/search/dev:/data.ms"
     env_file:

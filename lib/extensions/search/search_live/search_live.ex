@@ -37,7 +37,7 @@ defmodule MoodleNetWeb.SearchLive do
         %{"index_type" => tab}
       end
 
-    search = CommonsPub.Search.Meili.search(q, nil, ["index_type"], facet_filters)
+    search = CommonsPub.Search.search(q, nil, ["index_type"], facet_filters)
 
     IO.inspect(search)
 

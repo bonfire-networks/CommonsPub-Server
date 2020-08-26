@@ -46,9 +46,17 @@
             to: "/instance/search/comment/" <> @search ,
             class: if @selected_tab == "comment", do: "navigation__item active", else: "navigation__item"
           %>
-          <%= live_patch link_body(to_string(e(@facets, "index_type", "category", ""))<>" Tags", "feather-hash"),
-            to: "/instance/search/tags/" <> @search ,
-            class: if @selected_tab == "tags", do: "navigation__item active", else: "navigation__item"
+           <%= live_patch link_body(to_string(e(@facets, "index_type", "collection", ""))<>" Collections","feather-users"),
+            to: "/instance/search/collection/" <> @search ,
+            class: if @selected_tab == "collection", do: "navigation__item active", else: "navigation__item"
+          %>
+           <%= live_patch link_body(to_string(e(@facets, "index_type", "resource", ""))<>" Links","feather-users"),
+            to: "/instance/search/resource/" <> @search ,
+            class: if @selected_tab == "resource", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "category", ""))<>" Categories", "feather-hash"),
+            to: "/instance/search/category/" <> @search ,
+            class: if @selected_tab == "category", do: "navigation__item active", else: "navigation__item"
           %>
         </div>
         <div class="additional__filters">
