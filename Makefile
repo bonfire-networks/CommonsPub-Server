@@ -1,6 +1,6 @@
 .PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
-ORG_NAME=haha
+ORG_NAME=commonspub
 APP_NAME=commonspub
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
 APP_DOCKER_REPO="$(ORG_NAME)/$(APP_NAME)"
