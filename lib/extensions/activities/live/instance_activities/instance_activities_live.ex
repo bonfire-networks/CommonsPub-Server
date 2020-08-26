@@ -15,10 +15,26 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
       :ok,
       socket
       |> assign(current_user: socket.assigns.current_user)
-      #  |> fetch(), temporary_assigns: [activities: []]
+      # |> fetch(socket.assigns)
     }
   end
 
+  @doc """
+  Handle pushed activities from PubSub
+  """
+  def update(%{activity: activity}, socket) do
+    IO.inspect(pushed_activity: activity)
+
+    {
+      :ok,
+      socket
+      |> assign(:activities, List.insert_at(socket.assigns.activities, 0, activity))
+    }
+  end
+
+  @doc """
+  Load initial activities
+  """
   def update(assigns, socket) do
     {
       :ok,
@@ -31,12 +47,18 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   defp fetch(socket, assigns) do
     # IO.inspect(after: assigns.after)
 
+    feed_id = MoodleNet.Feeds.instance_outbox_id()
+    tables = MoodleNet.Instance.default_outbox_query_contexts()
+
     {:ok, outboxes} =
-      InstanceResolver.outbox_edge(
-        %{},
-        %{after: assigns.after, limit: 10},
-        %{context: %{current_user: assigns.current_user}}
+      MoodleNetWeb.GraphQL.ActivitiesResolver.fetch_outbox_edge(
+        feed_id,
+        tables,
+        %{after: assigns.after, limit: 10}
       )
+
+    # subscribe to the feed for realtime updates
+    if connected?(socket), do: MoodleNet.Feeds.FeedActivities.pubsub_subscribe(feed_id)
 
     # IO.inspect(outboxes: outboxes)
 
