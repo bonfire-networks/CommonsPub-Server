@@ -41,27 +41,10 @@ defmodule MoodleNet.Threads.Comments do
     )
   end
 
-  def create(%User{} = creator, %Thread{} = thread, attrs, context \\ nil) when is_map(attrs) do
-    Repo.transact_with(fn ->
-      attrs = clean_and_prepare_tags(attrs)
-      thread = preload_ctx(thread)
-
-      with {:ok, comment} <- insert(creator, thread, attrs),
-           act_attrs = %{verb: "created", is_local: comment.is_local},
-           {:ok, activity} <- Activities.create(creator, comment, act_attrs),
-           :ok <- publish(creator, thread, comment, activity, context),
-           :ok <- ap_publish("create", comment) do
-        comment = %{comment | thread: thread, creator: creator}
-        index(comment)
-        {:ok, comment}
-      end
-    end)
-  end
-
   @doc """
   Create a comment in reply to another comment.
 
-  Will fail with `NotPermittedError` if the parent thread is locked.
+  Will fail with `NotPermittedError` if the reply doesn't match the thread.
   """
   def create_reply(
         %User{} = creator,
@@ -86,8 +69,9 @@ defmodule MoodleNet.Threads.Comments do
 
   @doc """
   Create a comment within a thread.
-  """
 
+  Will fail with `NotPermittedError` if the parent thread is locked.
+  """
   def create_reply(
         %User{} = creator,
         %Thread{} = thread,
@@ -98,24 +82,33 @@ defmodule MoodleNet.Threads.Comments do
         {:error, NotPermittedError.new("create")}
 
       true ->
-        Repo.transact_with(fn ->
-          attrs = clean_and_prepare_tags(attrs)
-          thread = preload_ctx(thread)
-
-          with {:ok, comment} <- insert(creator, thread, attrs),
-               {:ok, _tagged} = save_attached_tags(creator, comment, attrs),
-               #  thread = preload_ctx(thread), #FIXME
-               act_attrs = %{verb: "created", is_local: comment.is_local},
-               {:ok, activity} <- Activities.create(creator, comment, act_attrs),
-               #  thread = preload_ctx(thread),
-               :ok <- publish(creator, thread, comment, activity, thread.context_id),
-               :ok <- ap_publish("create", comment) do
-            comment = %{comment | thread: thread, creator: creator}
-            index(comment)
-            {:ok, comment}
-          end
-        end)
+        create(creator, thread, attrs)
     end
+  end
+
+  @doc "Create a comment in a newly created thread.
+
+  You usually want `create_reply/3` instead.
+
+  Or if you a comment and a new thread together, use `Threads.create_with_comment/3`
+  "
+  def create(%User{} = creator, %Thread{} = thread, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      attrs = clean_and_prepare_tags(attrs)
+      thread = preload_ctx(thread)
+
+      with {:ok, comment} <- insert(creator, thread, attrs),
+           {:ok, _tagged} = save_attached_tags(creator, comment, attrs),
+           act_attrs = %{verb: "created", is_local: comment.is_local},
+           {:ok, activity} <- Activities.create(creator, comment, act_attrs),
+           :ok <- pubsub_broadcast(comment.thread_id, comment),
+           :ok <- publish(creator, thread, comment, activity, thread.context_id),
+           :ok <- ap_publish("create", comment) do
+        comment = %{comment | thread: thread, creator: creator}
+        index(comment)
+        {:ok, comment}
+      end
+    end)
   end
 
   def clean_and_prepare_tags(attrs) do
@@ -230,6 +223,12 @@ defmodule MoodleNet.Threads.Comments do
         ]
 
     FeedActivities.publish(activity, feeds)
+  end
+
+  def pubsub_broadcast(thread_id, comment) do
+    IO.inspect(pubbed: thread_id)
+    Phoenix.PubSub.broadcast(CommonsPub.PubSub, thread_id, {:pub_feed_comment, comment})
+    :ok
   end
 
   defp ap_publish(verb, comments) when is_list(comments) do

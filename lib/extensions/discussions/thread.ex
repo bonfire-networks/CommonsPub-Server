@@ -37,7 +37,9 @@ defmodule MoodleNet.Threads.Thread do
   @required ~w(is_local outbox_id)a
   @cast @required ++ ~w(name canonical_url is_locked is_hidden)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id}, attrs) do
+  def create_changeset(creator, attrs, context \\ nil)
+
+  def create_changeset(%User{id: creator_id}, attrs, %{id: context_id}) do
     %Thread{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
@@ -49,7 +51,7 @@ defmodule MoodleNet.Threads.Thread do
     |> common_changeset()
   end
 
-  def create_changeset(%User{id: creator_id}, attrs) do
+  def create_changeset(%User{id: creator_id}, attrs, _) do
     %Thread{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
