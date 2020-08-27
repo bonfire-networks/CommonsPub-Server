@@ -26,3 +26,17 @@
     }
   }
 }
+
+#collection-activities {
+  margin: 0 -16px
+}
+
+#collection-resources {
+  margin: -16px;
+  margin-top: 0px;
+  .resource__preview {
+    border-bottom: var(--border);
+    padding-bottom: 16px;
+    padding: 16px;
+  }
+}

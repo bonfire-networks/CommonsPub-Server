@@ -58,11 +58,11 @@
               <% end %>
               <h4><%= user.username %></h4>
             </div>
-            <div class="preview__action">
+            <div class="preview__actions">
             <%= if user.local_user.is_instance_admin do %>
               <span class="actions_flag">admin</span>
             <% end %>
-              <i class="feather-trash-2"></i>
+              <i phx-target="<%= @myself %>" phx-click="deactivate-user" phx-value-id="<%= user.id %>" class="feather-trash-2"></i>
             </div>
           </div>
         <% end %>

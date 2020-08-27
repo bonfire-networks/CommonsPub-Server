@@ -18,6 +18,7 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
       %{context: %{current_user: assigns.current_user}}
     )
     members = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
+    IO.inspect(members)
     {
       :ok,
       socket
@@ -44,6 +45,20 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
     # TODO error handling
 
     {:noreply, socket |> put_flash(:info, "Invite sent!")}
+  end
+
+  def handle_event("deactivate-user", %{"id" => id}, socket) do
+    IO.inspect(id)
+    delete =
+      MoodleNetWeb.GraphQL.AdminResolver.deactivate_user(%{id: id}, %{
+        context: %{current_user: socket.assigns.current_user}
+      })
+
+    IO.inspect(delete)
+
+    # TODO error handling
+
+    {:noreply, socket |> put_flash(:info, "User deactivated!")}
   end
 
   def handle_event("delete-invite", %{"id" => id}, socket) do
