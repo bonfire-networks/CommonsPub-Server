@@ -41,14 +41,16 @@ defmodule MoodleNet.Feeds.FeedActivities do
 
   defp publish_activity(%{id: activity_id} = activity, feed_id)
        when is_binary(feed_id) and is_binary(activity_id) do
-    Phoenix.PubSub.broadcast(CommonsPub.PubSub, feed_id, {:pub_feed_activity, activity})
+    # start already sending it via PubSub
+    pubsub_broadcast(feed_id, activity)
+
     [%{feed_id: feed_id, activity_id: activity_id, id: ULID.generate()}]
   end
 
   defp publish_activity(_, _), do: []
 
-  def pubsub_subscribe(feed_id) do
-    Phoenix.PubSub.subscribe(CommonsPub.PubSub, feed_id)
+  def pubsub_broadcast(feed_id, activity) do
+    Phoenix.PubSub.broadcast(CommonsPub.PubSub, feed_id, {:pub_feed_activity, activity})
   end
 
   def default_query_contexts() do

@@ -300,14 +300,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def user_outbox_edge(%User{outbox_id: id}, page_opts, info) do
     ResolvePage.run(%ResolvePage{
       module: __MODULE__,
-      fetcher: :fetch_outbox_edge,
+      fetcher: :fetch_user_outbox_edge,
       context: id,
       page_opts: page_opts,
       info: info
     })
   end
 
-  def fetch_outbox_edge(page_opts, _info, id) do
+  def fetch_user_outbox_edge(page_opts, _info, id) do
     tables = Users.default_outbox_query_contexts()
 
     FetchPage.run(%FetchPage{

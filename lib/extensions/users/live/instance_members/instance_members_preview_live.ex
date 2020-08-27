@@ -1,11 +1,12 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
+defmodule MoodleNetWeb.InstanceLive.InstanceMembersPreviewLive do
   use MoodleNetWeb, :live_component
 
   alias MoodleNetWeb.Helpers.{Profiles}
+  import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.{
-    UserPreviewLive
-  }
+  # alias MoodleNetWeb.Component.{
+  #   UserPreviewLive
+  # }
 
   alias MoodleNetWeb.GraphQL.{
     UsersResolver
@@ -20,7 +21,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
     }
   end
 
-  defp fetch(socket, assigns) do
+  def fetch(socket, assigns) do
     {:ok, users} =
       UsersResolver.users(%{after: assigns.after, limit: 10}, %{
         context: %{current_user: assigns.current_user}
@@ -36,7 +37,6 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
     )
   end
 
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
+  def handle_event("load-more", _, socket),
+    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
 end

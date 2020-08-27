@@ -9,9 +9,9 @@
 @import "../extensions/instance/live/instance";
 @import "../extensions/instance/live/about/about";
 
-@import "../extensions/users/login/login";
-@import "../extensions/users/signup/signup";
-@import "../extensions/users/settings/settings";
+@import "../extensions/users/live/login/login";
+@import "../extensions/users/live/signup/signup";
+@import "../extensions/users/live/settings/settings";
 
 @import "../extensions/discussions/live/discussion";
 @import "../extensions/discussions/live/write/write.scss";

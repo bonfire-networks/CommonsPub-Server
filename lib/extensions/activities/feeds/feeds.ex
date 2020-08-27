@@ -7,6 +7,18 @@ defmodule MoodleNet.Feeds do
   def instance_outbox_id(), do: "10CA11NSTANCE00TB0XFEED1D0"
   def instance_inbox_id(), do: "10CA11NSTANCE1NB0XFEED1D00"
 
+  def outbox_id(%{outbox_id: id}) do
+    id
+  end
+
+  def outbox_id(%{character: %{outbox_id: id}}) do
+    id
+  end
+
+  def outbox_id(%{character_id: character_id} = obj) when not is_nil(character_id) do
+    outbox_id(Repo.preload(obj, :character))
+  end
+
   @doc "Retrieves a single feed by arbitrary filters."
   def one(filters), do: Repo.single(Queries.query(Feed, filters))
 

@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
     }
   end
 
-  defp fetch(socket, assigns) do
+  def fetch(socket, assigns) do
     # IO.inspect(inbox_for: assigns.current_user)
 
     {:ok, inbox} =
@@ -46,13 +46,11 @@ defmodule MoodleNetWeb.My.TimelineLive do
       has_next_page: inbox.page_info.has_next_page,
       after: inbox.page_info.end_cursor,
       before: inbox.page_info.start_cursor
-
     )
   end
 
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
+  def handle_event("load-more", _, socket),
+    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

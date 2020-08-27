@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityMembersLive do
     }
   end
 
-  defp fetch(socket, assigns) do
+  def fetch(socket, assigns) do
     {:ok, follows} =
       MoodleNetWeb.GraphQL.FollowsResolver.followers_edge(
         %{id: assigns.community.id},
@@ -44,7 +44,6 @@ defmodule MoodleNetWeb.CommunityLive.CommunityMembersLive do
     )
   end
 
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
+  def handle_event("load-more", _, socket),
+    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
 end

@@ -101,13 +101,13 @@
           </div>
         <% end %>
         <div class="mainContent__selected">
-          <h3 class="area__title">timeline</h3>
+          <h3 class="area__title">Updates</h3>
           <%= live_component(
           @socket,
           CommunityActivitiesLive,
           community: @community,
           selected_tab: @selected_tab,
-          id: :timeline,
+          id: :community_timeline,
           current_user: @current_user,
           activities: [],
           page: 1,

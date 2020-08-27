@@ -4,7 +4,7 @@
       <h1><%=@page_title%></h1>
     </div>
     <div class="mainContent__navigation home__navigation">
-      <%= live_patch link_body("Timeline","feather-activity"),
+      <%= live_patch link_body("My Timeline","feather-activity"),
         to: "/~",
         class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
       %>

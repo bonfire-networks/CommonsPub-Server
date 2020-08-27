@@ -19,7 +19,7 @@ defmodule MoodleNetWeb.AdminLive.AdminFlagsLive do
     }
   end
 
-  defp fetch(socket, assigns) do
+  def fetch(socket, assigns) do
     {:ok, flags} =
       FlagsResolver.flags(
         %{after: [], limit: 10},
@@ -52,8 +52,6 @@ defmodule MoodleNetWeb.AdminLive.AdminFlagsLive do
     })
   end
 
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
-
+  def handle_event("load-more", _, socket),
+    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
 end

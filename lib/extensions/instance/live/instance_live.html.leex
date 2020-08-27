@@ -2,59 +2,21 @@
   <h1>Discover</h1>
   <section class="instance">
     <div>
-      <%= cond do %>
-        <% @selected_tab == "timeline" -> %>
-        <div class="mainContent__selected">
-          <h3 class="area__title">Timeline</h3>
-          <%= live_component(
-                @socket,
-                InstanceActivitiesLive,
-                selected_tab: @selected_tab,
-                id: :timeline,
-                current_user: @current_user,
-                activities: @activities,
-                page: 1,
-                has_next_page: false,
-                after: [],
-                before: [],
-                pagination_target: "#instance-activities"
-              ) %>
-        </div>
-        <% @selected_tab == "members" -> %>
-        <div class="mainContent__selected">
-          <h3 class="area__title">Members</h3>
-          <%= live_component(
+      <div class="mainContent__selected">
+        <h3 class="area__title">Instance Timeline</h3>
+        <%= live_component(
               @socket,
-              InstanceMembersLive,
-              selected_tab: @selected_tab,
-              id: :members,
-              current_user: @current_user,
-              members: [],
-              page: 1,
-              has_next_page: false,
-              after: [],
-              before: [],
-              pagination_target: "#instance-members"
-          ) %>
-        </div>
-        <% true -> %>
-        <div class="mainContent__selected">
-          <h3 class="area__title">Timeline</h3>
-          <%= live_component(
-              @socket,
-              InstanceActivitiesLive,
-              selected_tab: @selected_tab,
-              id: :timeline,
+              MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
+              id: :instance_timeline,
               current_user: @current_user,
               activities: [],
               page: 1,
               has_next_page: false,
               after: [],
               before: [],
-              pagination_target: "#instance-activities"
+              pagination_target: "#instance_activities"
             ) %>
-        </div>
-      <% end %>
+      </div>
     </div>
     <div class="instance__aside">
       <%= if @description do %>
