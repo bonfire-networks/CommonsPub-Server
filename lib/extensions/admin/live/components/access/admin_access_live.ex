@@ -34,7 +34,6 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
 
   def handle_event("invite", params, socket) do
     params = input_to_atoms(params)
-    IO.inspect(socket)
     invite =
       MoodleNetWeb.GraphQL.AdminResolver.send_invite(params, %{
         context: %{current_user: socket.assigns.current_user}
@@ -48,7 +47,6 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
   end
 
   def handle_event("deactivate-user", %{"id" => id}, socket) do
-    IO.inspect(id)
     delete =
       MoodleNetWeb.GraphQL.AdminResolver.deactivate_user(%{id: id}, %{
         context: %{current_user: socket.assigns.current_user}
@@ -62,7 +60,6 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
   end
 
   def handle_event("delete-invite", %{"id" => id}, socket) do
-    IO.inspect(id)
     invite =
       MoodleNetWeb.GraphQL.AccessResolver.delete_register_email_access(%{id: id}, %{
         context: %{current_user: socket.assigns.current_user}

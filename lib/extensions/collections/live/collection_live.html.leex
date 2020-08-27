@@ -83,7 +83,7 @@
     <div class="community__layout">
       <div class="mainContent__selected">
         <div class="layout__menu">
-          <%= live_patch link_body("Resources","feather-file"),
+          <%= live_patch "Resources",
           to: "/+" <> @collection.actor.preferred_username <> "/resources",
           class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
         %>
