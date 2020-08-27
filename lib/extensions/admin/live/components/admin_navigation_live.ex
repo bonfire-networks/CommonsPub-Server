@@ -3,10 +3,6 @@ defmodule MoodleNetWeb.AdminLive.AdminNavigationLive do
 
   def render(assigns) do
     ~L"""
-    <%= live_patch link_body("instance", "feather-droplet"),
-      to: "/admin/settings/instance",
-      class: if @selected == "instance", do: "navigation__item active", else: "navigation__item"
-    %>
     <%= live_patch link_body("Manage access", "feather-users"),
       to: "/admin/settings/access",
       class: if @selected == "access", do: "navigation__item active", else: "navigation__item"

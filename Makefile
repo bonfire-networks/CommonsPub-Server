@@ -2,8 +2,8 @@
 
 ORG_NAME=commonspub
 APP_NAME=commonspub
-APP_DOTENV=config/docker.env
-APP_DEV_DOTENV=config/docker.dev.env
+APP_DOTENV=config/prod/public.env
+APP_DEV_DOTENV=config/dev/public.env
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
 APP_DOCKER_REPO="$(ORG_NAME)/$(APP_NAME)"
 APP_DEV_CONTAINER="$(ORG_NAME)_$(APP_NAME)_dev"

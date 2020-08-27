@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.AdminLive do
      socket
      |> assign(
        page_title: "Settings",
-       selected_tab: "instance",
+       selected_tab: "access",
        selected_sub: "all",
        trigger_submit: false
        #  current_user: user,
