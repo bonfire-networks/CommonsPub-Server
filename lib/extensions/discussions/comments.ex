@@ -100,11 +100,11 @@ defmodule MoodleNet.Threads.Comments do
       with {:ok, comment} <- insert(creator, thread, attrs),
            {:ok, _tagged} = save_attached_tags(creator, comment, attrs),
            act_attrs = %{verb: "created", is_local: comment.is_local},
+           comment = %{comment | thread: thread, creator: creator},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- pubsub_broadcast(comment.thread_id, comment),
            :ok <- publish(creator, thread, comment, activity, thread.context_id),
            :ok <- ap_publish("create", comment) do
-        comment = %{comment | thread: thread, creator: creator}
         index(comment)
         {:ok, comment}
       end

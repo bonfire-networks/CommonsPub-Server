@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
   Forward PubSub activities in timeline to our timeline component
   """
   def pubsub_activity_forward(activity, module, timeline_component_id, socket) do
-    IO.inspect(pub_feed_activity: activity)
+    # IO.inspect(pubsub_activity_forward: activity)
 
     Phoenix.LiveView.send_update(module,
       id: timeline_component_id,
@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
   Handles a pushed activity from PubSub, by adding it it to the top of timelines
   """
   def pubsub_receive(activity, socket) do
-    IO.inspect(pushed_activity: activity)
+    # IO.inspect(pubsub_receive: activity)
 
     {
       :ok,

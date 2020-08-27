@@ -11,7 +11,7 @@
       <%= live_redirect to: "/@"<> e(@comment, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@comment, :creator, :name, "Somebody") %><% end %>
     </div>
     <div class="meta__secondary">
-     · <%= e(@comment, :published_at, "one day") %>
+      · <%= e(@comment, :published_at, "one day") %>
     </div>
   </div>
   <div class="activity__preview">
@@ -22,8 +22,8 @@
           comment: @comment,
           id: @comment.id
         ) %>
-<%= if @actions == true do %>
-    <%=
+    <%= if @actions == true do %>
+      <%=
       live_component(
           @socket,
           PreviewActionsLive,
@@ -34,9 +34,9 @@
           id: "actions-"<>@comment.id
         )
     %>
-  <% end %>
+    <% end %>
   </div>
-  <%= if length(@comment.comments)>0 do %>
+  <%= if Map.has_key?(@comment, :comments) and length(@comment.comments)>0 do %>
     <%= if @comment.id == @reply_to do %>
       <div class="inline__replies">
         <%= for reply <- @comment.comments do %>
@@ -52,7 +52,6 @@
         <% end %>
       </div>
     <% end %>
-
     <%= if @comment.id != @reply_to do %>
       <div class="preview__fork">
         <div class="fork__item">
@@ -67,14 +66,13 @@
                   sublevel: 5
                 )%>
           <% end %>
-          </div>
+        </div>
         <%= live_patch to: "/!"<> e(@comment, :thread_id, "") <>"/discuss/"<> e(@comment, :id, "")<>"#reply" do %>
           <div class="comment__fork">View full thread (<%= length(@comment.comments) %>)</div>
         <% end %>
       </div>
     <% end %>
   <% end %>
-
 </div>
 </div>
 </div>

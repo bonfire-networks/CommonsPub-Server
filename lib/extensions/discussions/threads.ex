@@ -19,7 +19,7 @@ defmodule MoodleNet.Threads do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Thread, filters))}
 
-  @doc "Create a thread with a comment and no context. You usually want this rather than creating a thread on its own."
+  @doc "Create a thread with a first comment. You usually want this rather than creating a thread on its own."
   def create_with_comment(creator, attrs, context \\ nil)
 
   def create_with_comment(creator, attrs, nil) do
