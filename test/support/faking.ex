@@ -133,14 +133,14 @@ defmodule MoodleNet.Test.Faking do
 
   def fake_thread!(user, context, overrides \\ %{})
 
-  def fake_thread!(user, context, overrides) when is_map(overrides) and is_nil(context) do
+  def fake_thread!(user, nil, overrides) when is_map(overrides) do
     {:ok, thread} = Threads.create(user, thread(overrides))
     assert thread.creator_id == user.id
     thread
   end
 
   def fake_thread!(user, context, overrides) when is_map(overrides) do
-    {:ok, thread} = Threads.create(user, context, thread(overrides))
+    {:ok, thread} = Threads.create(user, thread(overrides), context)
     assert thread.creator_id == user.id
     thread
   end

@@ -20,6 +20,12 @@ defmodule MoodleNetWeb.My.TimelineLive do
   #   }
   # end
 
+  @doc """
+  Handle pushed activities from PubSub
+  """
+  def update(%{activity: activity}, socket),
+    do: MoodleNetWeb.Helpers.Activites.pubsub_receive(activity, socket)
+
   def update(assigns, socket) do
     {
       :ok,
@@ -29,25 +35,16 @@ defmodule MoodleNetWeb.My.TimelineLive do
     }
   end
 
-  def fetch(socket, assigns) do
-    # IO.inspect(inbox_for: assigns.current_user)
-
-    {:ok, inbox} =
-      UsersResolver.user_inbox_edge(
+  @doc """
+  Load a page of activities
+  """
+  def fetch(socket, assigns),
+    do:
+      MoodleNetWeb.Helpers.Activites.inbox_live(
         assigns.current_user,
-        %{after: assigns.after, limit: 10},
-        %{context: %{current_user: assigns.current_user}}
+        assigns,
+        socket
       )
-
-    # IO.inspect(inbox: inbox)
-
-    assign(socket,
-      activities: inbox.edges,
-      has_next_page: inbox.page_info.has_next_page,
-      after: inbox.page_info.end_cursor,
-      before: inbox.page_info.start_cursor
-    )
-  end
 
   def handle_event("load-more", _, socket),
     do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)

@@ -32,6 +32,18 @@ defmodule MoodleNetWeb.My.MyLive do
     {:noreply, assign(socket, selected_tab: "timeline")}
   end
 
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def handle_info({:pub_feed_activity, activity}, socket),
+    do:
+      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+        activity,
+        TimelineLive,
+        :my_timeline,
+        socket
+      )
+
   defp link_body(name, icon) do
     assigns = %{name: name, icon: icon}
 

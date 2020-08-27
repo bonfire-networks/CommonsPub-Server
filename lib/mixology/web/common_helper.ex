@@ -280,11 +280,17 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   @doc """
-  Subscribe to a feed or thread for realtime updates
+  Subscribe to feed(s) or thread(s) for realtime updates
   """
-  def pubsub_subscribe(feed_or_thread_id, socket) do
+  def pubsub_subscribe(ids, socket) when is_list(ids) do
+    Enum.each(ids, &pubsub_subscribe(&1, socket))
+  end
+
+  def pubsub_subscribe(id, socket) do
+    IO.inspect(pubsubscribed: id)
+
     if Phoenix.LiveView.connected?(socket),
-      do: Phoenix.PubSub.subscribe(CommonsPub.PubSub, feed_or_thread_id)
+      do: Phoenix.PubSub.subscribe(CommonsPub.PubSub, id)
   end
 
   def paginate_next(fetch_function, %{assigns: assigns} = socket) do

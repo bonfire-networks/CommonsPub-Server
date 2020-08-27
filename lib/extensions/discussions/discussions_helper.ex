@@ -3,14 +3,32 @@ defmodule MoodleNetWeb.Helpers.Discussions do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def prepare_comments(comments, current_user) do
+  # {:pub_feed_comment, comment}
+
+  @doc """
+  Handles a pushed activity from PubSub, by adding it it to the top of timelines
+  """
+  def pubsub_receive(comment, socket) do
+    IO.inspect(pubsub_receive_comment: comment)
+
+    {
+      :noreply,
+      socket
+      |> Phoenix.LiveView.assign(
+        :comments,
+        Map.merge(socket.assigns.comments, %{comment.id => prepare_comment(comment)})
+      )
+    }
+  end
+
+  def prepare_comments(comments, current_user \\ nil) do
     Enum.map(
       comments,
       &prepare_comment(&1, current_user)
     )
   end
 
-  def prepare_comment(%MoodleNet.Threads.Comment{} = comment, _current_user) do
+  def prepare_comment(%MoodleNet.Threads.Comment{} = comment, _current_user \\ nil) do
     comment = maybe_preload(comment, :creator)
 
     creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
