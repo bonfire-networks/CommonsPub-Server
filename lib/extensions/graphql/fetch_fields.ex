@@ -20,15 +20,15 @@ defmodule MoodleNet.GraphQL.FetchFields do
           filters: list
         }
 
-  def run(%FetchFields{
-        queries: queries,
-        query: query,
-        group_fn: group_fn,
-        map_fn: map_fn,
-        filters: filters
-      }) do
-    IO.inspect(queries: queries, query: query)
-
+  def run(
+    %FetchFields{
+      queries: queries,
+      query: query,
+      group_fn: group_fn,
+      map_fn: map_fn,
+      filters: filters,
+    }
+  ) do
     apply(queries, :query, [query, filters])
     |> Repo.all()
     |> Fields.new(group_fn, map_fn)

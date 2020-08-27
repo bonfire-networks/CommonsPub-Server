@@ -25,14 +25,14 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       user = fake_user!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
-      proposal_intent = some(5, fn ->
+      some(5, fn ->
         fake_proposed_intent!(proposal, intent)
       end)
 
       q = proposal_query(fields: [publishes: [:id]])
       conn = user_conn(user)
       assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
-      assert Enum.count(proposal["publishes"]) == 1
+      assert Enum.count(proposal["publishes"]) == 5
     end
   end
 

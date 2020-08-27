@@ -20,13 +20,15 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
-  def proposed_intents(%{id: proposal_id}, _, info) do
-    ResolveFields.run(%ResolveFields{
-      module: __MODULE__,
-      fetcher: :fetch_proposed_intents,
-      context: proposal_id,
-      info: info
-    })
+  def proposed_intents(%{id: proposal_id} = prop, _, info) do
+    # ResolveFields.run(%ResolveFields{
+    #   module: __MODULE__,
+    #   fetcher: :fetch_proposed_intents,
+    #   context: proposal_id,
+    #   info: info
+    # })
+
+    Proposals.many_proposed_intents([:default, published_in_id: proposal_id])
   end
 
   def fetch_proposed_intent(_info, id) do
@@ -34,12 +36,12 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   end
 
   def fetch_proposed_intents(_info, ids) do
-    FetchFields.run(%FetchFields{
-      queries: Proposal.ProposedIntentQueries,
-      query: ProposedIntent,
-      group_fn: & &1.publishes_id,
-      filters: [:default, publishes_id: ids]
-    })
+    # FetchFields.run(%FetchFields{
+    #   queries: Proposal.ProposedIntentQueries,
+    #   query: ProposedIntent,
+    #   group_fn: & &1.id,
+    #   filters: [:deleted, published_in_id: ids]
+    # })
   end
 
   def propose_intent(%{published_in: published_in_id, publishes: publishes_id} = params, info) do

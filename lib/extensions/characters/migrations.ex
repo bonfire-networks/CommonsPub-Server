@@ -2,15 +2,13 @@ defmodule CommonsPub.Character.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  alias CommonsPub.Character
-
-  defp table_name(), do: Character.__schema__(:source)
+  defp table_name(), do: CommonsPub.Character.__schema__(:source)
 
   # IO.inspect(cs: Character.__schema__(:source))
 
   def migrate(index_opts, :up) do
     # a character is a group actor that is home to resources
-    create_mixin_table(Character) do
+    create_mixin_table(CommonsPub.Character) do
       # add table_name()istic_id, :uuid # points to the Thing that this character represents
       # points to the Actor who plays this character in the fediverse
       add(:actor_id, references("mn_actor", on_delete: :delete_all))

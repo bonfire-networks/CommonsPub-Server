@@ -2,13 +2,10 @@ defmodule Tag.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  alias CommonsPub.Tag.Category
-  alias CommonsPub.Tag.Taggable
+  def category_table(), do: CommonsPub.Tag.Category.__schema__(:source)
+  def category_id(), do: CommonsPub.Tag.Category.__schema__(:table_id)
 
-  def category_table(), do: Category.__schema__(:source)
-  def category_id(), do: Category.__schema__(:table_id)
-
-  def taggable_table(), do: Taggable.__schema__(:source)
+  def taggable_table(), do: CommonsPub.Tag.Taggable.__schema__(:source)
 
   def up() do
     # cleanup old stuff first
