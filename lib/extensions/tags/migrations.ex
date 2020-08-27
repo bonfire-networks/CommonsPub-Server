@@ -15,7 +15,7 @@ defmodule Tag.Migrations do
     drop_pointable_table(CommonsPub.Tag.Category)
     flush()
 
-    create_mixin_table(Taggable) do
+    create_mixin_table(CommonsPub.Tag.Taggable) do
       add(:prefix, :string)
       add(:facet, :string)
     end

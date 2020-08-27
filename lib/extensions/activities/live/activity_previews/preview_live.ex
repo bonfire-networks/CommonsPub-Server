@@ -12,10 +12,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
   def render(assigns) do
     ~L"""
     <div id="preview-<%=@preview_id%>">
-    <%=
-      IO.inspect(preview_object_type: @object_type)
-      # IO.inspect(preview_object: @object)
-      cond do
+    <%= cond do
           @object_type == "community" ->
             live_component(
               @socket,
