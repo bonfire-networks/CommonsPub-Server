@@ -44,9 +44,9 @@ defmodule MoodleNet.Threads.Comments do
   def create(%User{} = creator, %Thread{} = thread, attrs, context \\ nil) when is_map(attrs) do
     Repo.transact_with(fn ->
       attrs = clean_and_prepare_tags(attrs)
+      thread = preload_ctx(thread)
 
       with {:ok, comment} <- insert(creator, thread, attrs),
-           thread = preload_ctx(thread),
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity, context),
@@ -100,6 +100,7 @@ defmodule MoodleNet.Threads.Comments do
       true ->
         Repo.transact_with(fn ->
           attrs = clean_and_prepare_tags(attrs)
+          thread = preload_ctx(thread)
 
           with {:ok, comment} <- insert(creator, thread, attrs),
                {:ok, _tagged} = save_attached_tags(creator, comment, attrs),
@@ -219,7 +220,7 @@ defmodule MoodleNet.Threads.Comments do
     FeedActivities.publish(activity, feeds)
   end
 
-  defp publish(creator, thread, _comment, activity, _context) do
+  defp publish(creator, thread, _comment, activity, context_id) do
     feeds =
       MoodleNet.Common.Contexts.context_feeds(thread.context.pointed) ++
         [

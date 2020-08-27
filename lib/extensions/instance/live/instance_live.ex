@@ -35,18 +35,17 @@ defmodule MoodleNetWeb.InstanceLive do
     {:noreply, socket}
   end
 
-  def handle_info({:pub_feed_activity, activity}, socket) do
-    IO.inspect(handle_info: activity)
-
-    send_update(MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
-      id: :timeline,
-      activity: activity
-    )
-
-    {:noreply, socket}
-
-    # {:noreply, update(socket, :activities, fn activities -> [activity | activities] end)}
-  end
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def handle_info({:pub_feed_activity, activity}, socket),
+    do:
+      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+        activity,
+        MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
+        :instance_timeline,
+        socket
+      )
 
   # defp link_body(name, icon) do
   #   assigns = %{name: name, icon: icon}

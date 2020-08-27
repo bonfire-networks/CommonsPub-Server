@@ -9,33 +9,18 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
     InstanceResolver
   }
 
-  def mount(_params, _session, socket) do
-    # IO.inspect(socket, label: "SOCKET")
-    {
-      :ok,
-      socket
-      |> assign(current_user: socket.assigns.current_user)
-      # |> fetch(socket.assigns)
-    }
-  end
-
   @doc """
   Handle pushed activities from PubSub
   """
-  def update(%{activity: activity}, socket) do
-    IO.inspect(pushed_activity: activity)
-
-    {
-      :ok,
-      socket
-      |> assign(:activities, List.insert_at(socket.assigns.activities, 0, activity))
-    }
-  end
+  def update(%{activity: activity}, socket),
+    do: MoodleNetWeb.Helpers.Activites.pubsub_receive(activity, socket)
 
   @doc """
   Load initial activities
   """
   def update(assigns, socket) do
+    IO.inspect(update_assigns: assigns)
+
     {
       :ok,
       socket
@@ -44,40 +29,24 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
     }
   end
 
-  defp fetch(socket, assigns) do
-    # IO.inspect(after: assigns.after)
-
-    feed_id = MoodleNet.Feeds.instance_outbox_id()
-    tables = MoodleNet.Instance.default_outbox_query_contexts()
-
-    {:ok, outboxes} =
-      MoodleNetWeb.GraphQL.ActivitiesResolver.fetch_outbox_edge(
-        feed_id,
-        tables,
-        %{after: assigns.after, limit: 10}
+  @doc """
+  Load a page of activities
+  """
+  def fetch(socket, assigns),
+    do:
+      MoodleNetWeb.Helpers.Activites.outbox_live(
+        &MoodleNet.Feeds.instance_outbox_id/0,
+        &MoodleNet.Instance.default_outbox_query_contexts/0,
+        assigns,
+        socket
       )
 
-    # subscribe to the feed for realtime updates
-    if connected?(socket), do: MoodleNet.Feeds.FeedActivities.pubsub_subscribe(feed_id)
-
-    # IO.inspect(outboxes: outboxes)
-
-    assign(socket,
-      activities: outboxes.edges,
-      has_next_page: outboxes.page_info.has_next_page,
-      after: outboxes.page_info.end_cursor,
-      before: outboxes.page_info.start_cursor,
-      current_user: assigns.current_user
-    )
-  end
-
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
+  def handle_event("load-more", _, socket),
+    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""
-      <div id="instance-activities">
+      <div id="instance_activities">
 
       <%= live_component(
         @socket,

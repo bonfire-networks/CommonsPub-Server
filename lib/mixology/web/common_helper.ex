@@ -279,6 +279,18 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
   end
 
+  @doc """
+  Subscribe to a feed or thread for realtime updates
+  """
+  def pubsub_subscribe(feed_or_thread_id, socket) do
+    if Phoenix.LiveView.connected?(socket),
+      do: Phoenix.PubSub.subscribe(CommonsPub.PubSub, feed_or_thread_id)
+  end
+
+  def paginate_next(fetch_function, %{assigns: assigns} = socket) do
+    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch_function.(assigns)}
+  end
+
   def contexts_fetch!(ids) do
     with {:ok, ptrs} <-
            MoodleNet.Meta.Pointers.many(id: List.flatten(ids)) do

@@ -3,6 +3,81 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def pubsub_activity_forward(activity, module, timeline_component_id, socket) do
+    IO.inspect(pub_feed_activity: activity)
+
+    Phoenix.LiveView.send_update(module,
+      id: timeline_component_id,
+      activity: activity
+    )
+
+    {:noreply, socket}
+  end
+
+  @doc """
+  Handles a pushed activity from PubSub, by adding it it to the top of timelines
+  """
+  def pubsub_receive(activity, socket) do
+    IO.inspect(pushed_activity: activity)
+
+    {
+      :ok,
+      socket
+      |> Phoenix.LiveView.assign(:activities, Enum.concat([activity], socket.assigns.activities))
+    }
+  end
+
+  def outbox_live({feed_id_func, feed_param}, feed_tables, assigns, socket)
+      when is_function(feed_id_func) do
+    feed_id = Map.get(assigns, :feed_id) || feed_id_func.(feed_param)
+    outbox_live(feed_id, feed_tables, assigns, socket)
+  end
+
+  def outbox_live(feed_id_func, feed_tables, assigns, socket) when is_function(feed_id_func) do
+    feed_id = Map.get(assigns, :feed_id) || feed_id_func.()
+    outbox_live(feed_id, feed_tables, assigns, socket)
+  end
+
+  def outbox_live(feed_id, feed_tables_func, assigns, socket)
+      when is_function(feed_tables_func) do
+    feed_tables = Map.get(assigns, :feed_tables) || feed_tables_func.()
+    outbox_live(feed_id, feed_tables, assigns, socket)
+  end
+
+  def outbox_live(feed_id, feed_tables, assigns, socket) do
+    {:ok, outboxes} =
+      MoodleNetWeb.GraphQL.ActivitiesResolver.fetch_outbox_edge(
+        feed_id,
+        feed_tables,
+        %{after: assigns.after, limit: 10}
+      )
+
+    # subscribe to the feed for realtime updates
+    MoodleNetWeb.Helpers.Common.pubsub_subscribe(feed_id, socket)
+
+    # IO.inspect(outboxes: outboxes)
+
+    activities =
+      if is_map(outboxes) and length(outboxes.edges) do
+        Enum.concat(assigns.activities, outboxes.edges)
+      else
+        assigns.activities
+      end
+
+    Phoenix.LiveView.assign(socket,
+      activities: activities,
+      feed_id: feed_id,
+      feed_tables: feed_tables,
+      has_next_page: outboxes.page_info.has_next_page,
+      after: outboxes.page_info.end_cursor,
+      before: outboxes.page_info.start_cursor,
+      current_user: assigns.current_user
+    )
+  end
+
   def prepare(%{display_verb: _, display_object: _} = activity, _current_user) do
     IO.inspect("activity already prepared")
     activity

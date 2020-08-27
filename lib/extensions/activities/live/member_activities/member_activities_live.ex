@@ -11,15 +11,11 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
     ActivitiesListLive
   }
 
-  # def mount(socket) do
-  #   # IO.inspect(assigns)
-
-  #   {
-  #     :ok,
-  #     socket,
-  #     temporary_assigns: [activities: [], page: 1, has_next_page: false, after: [], before: []]
-  #   }
-  # end
+  @doc """
+  Handle pushed activities from PubSub
+  """
+  def update(%{activity: activity}, socket),
+    do: MoodleNetWeb.Helpers.Activites.pubsub_receive(activity, socket)
 
   def update(assigns, socket) do
     {
@@ -30,26 +26,20 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
     }
   end
 
-  defp fetch(socket, assigns) do
-    {:ok, outboxes} =
-      UsersResolver.user_outbox_edge(
-        assigns.user,
-        %{after: assigns.after, limit: 10},
-        # %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
-        %{context: %{current_user: assigns.current_user}}
+  @doc """
+  Load a page of activities
+  """
+  def fetch(socket, assigns),
+    do:
+      MoodleNetWeb.Helpers.Activites.outbox_live(
+        {&MoodleNet.Feeds.outbox_id/1, assigns.user},
+        &MoodleNet.Users.default_outbox_query_contexts/0,
+        assigns,
+        socket
       )
 
-    assign(socket,
-      activities: outboxes.edges,
-      has_next_page: outboxes.page_info.has_next_page,
-      after: outboxes.page_info.end_cursor,
-      before: outboxes.page_info.start_cursor
-    )
-  end
-
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
+  def handle_event("load-more", _, socket),
+    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

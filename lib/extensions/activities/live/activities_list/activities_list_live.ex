@@ -2,6 +2,15 @@ defmodule MoodleNetWeb.Component.ActivitiesListLive do
   use MoodleNetWeb, :live_component
   alias MoodleNetWeb.Component.{ActivityLive}
 
+  # def update(assigns, socket) do
+  #   {
+  #     :ok,
+  #     socket
+  #     # FIXME, workaround of assigns not present or complaint about flash
+  #     |> assign(Map.drop(assigns, [:flash]))
+  #   }
+  # end
+
   def render(assigns) do
     # phx-update="append"
     ~L"""
