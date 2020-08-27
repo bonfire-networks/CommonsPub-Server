@@ -3,6 +3,8 @@ defmodule MoodleNetWeb.Component.TagAutocomplete do
 
   import MoodleNetWeb.Helpers.Common
 
+  # TODO: consolidate CommonsPub.Tag.Autocomplete and MoodleNetWeb.Component.TagAutocomplete
+
   # TODO: put in config
   @tag_terminator " "
   @tags_seperator " "
@@ -26,7 +28,38 @@ defmodule MoodleNetWeb.Component.TagAutocomplete do
     MoodleNetWeb.My.PublishAdLive.publish_ad(data, socket)
   end
 
-  def handle_event("tag_suggest", %{"content" => content}, socket)
+  # need to alias some form posting events here to workaround having two events but one target on a form
+  def handle_event("form_changes" = event, data, socket) do
+    MoodleNetWeb.My.ShareLinkLive.handle_event(event, data, socket)
+  end
+
+  def handle_event("share_link" = event, data, socket) do
+    MoodleNetWeb.My.ShareLinkLive.handle_event(event, data, socket)
+  end
+
+  def handle_event("tag_suggest", data, socket) do
+    tag_suggest(data, socket)
+  end
+
+  def tag_suggest(%{"tags" => tags}, socket) when byte_size(tags) >= 1 do
+    IO.inspect(tag_suggest_tags: tags)
+
+    found = try_tag_search(tags)
+    # IO.inspect(found: found)
+
+    if(is_map(found) and Map.has_key?(found, :tag_results) and length(found.tag_results) > 0) do
+      {:noreply,
+       assign(socket,
+         tag_search: found.tag_search,
+         tag_prefix: @tags_seperator,
+         tag_results: found.tag_results
+       )}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def tag_suggest(%{"content" => content}, socket)
       when byte_size(content) >= 1 do
     IO.inspect(tag_suggest_content: content)
 
@@ -44,25 +77,7 @@ defmodule MoodleNetWeb.Component.TagAutocomplete do
     end
   end
 
-  def handle_event("tag_suggest", %{"tags" => tags}, socket)
-      when byte_size(tags) >= 1 do
-    IO.inspect(tag_suggest_tags: tags)
-
-    found = try_tag_search(tags)
-
-    if(found) do
-      {:noreply,
-       assign(socket,
-         tag_search: found.tag_search,
-         tag_prefix: @tags_seperator,
-         tag_results: found.tag_results
-       )}
-    else
-      {:noreply, socket}
-    end
-  end
-
-  def handle_event("tag_suggest", data, socket) do
+  def tag_suggest(data, socket) do
     IO.inspect(ignore_tag_suggest: data)
 
     {:noreply,
@@ -145,15 +160,26 @@ defmodule MoodleNetWeb.Component.TagAutocomplete do
   end
 
   def search_prefix(tag_search, "+") do
-    search_from_index(tag_search, @taxonomy_index)
+    search_from_index(tag_search, @taxonomy_index, %{"index_type" => ["category", "collection"]})
+  end
+
+  def search_prefix(tag_search, "@") do
+    search_from_index(tag_search, @taxonomy_index, %{"index_type" => "User"})
+  end
+
+  def search_prefix(tag_search, "&") do
+    search_from_index(tag_search, @taxonomy_index, %{"index_type" => "Community"})
   end
 
   def search_prefix(tag_search, _) do
-    search_from_index(tag_search, @search_index)
+    search_from_index(tag_search, @search_index, %{
+      "index_type" => ["User", "Community", "Category", "Collection"]
+    })
   end
 
-  def search_from_index(tag_search, index) do
-    search = CommonsPub.Search.Meili.search(tag_search, index)
+  def search_from_index(tag_search, index, facets \\ nil) do
+    search = CommonsPub.Search.search(tag_search, index, false, facets)
+    IO.inspect(searched: search)
 
     if(Map.has_key?(search, "hits") and length(search["hits"])) do
       # search["hits"]

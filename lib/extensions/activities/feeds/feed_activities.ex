@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Feeds.FeedActivities do
+  @moduledoc """
+  Handles publishing of activities to feeds/timelines, both in DB and over LiveView/PubSub
+  """
   alias MoodleNet.{Repo, Feeds}
   alias MoodleNet.Feeds.{FeedActivity, FeedActivitiesQueries}
   alias Ecto.ULID
@@ -30,16 +33,22 @@ defmodule MoodleNet.Feeds.FeedActivities do
   def publish(nil, _), do: :ok
 
   def publish(activity, feed_ids) when is_list(feed_ids) do
-    case Enum.flat_map(feed_ids, &publish_activity(activity.id, &1)) do
+    case Enum.flat_map(feed_ids, &publish_activity(activity, &1)) do
       [] -> :ok
       many -> with {_, _} <- Repo.insert_all(FeedActivity, many), do: :ok
     end
   end
 
-  defp publish_activity(_, nil), do: []
+  defp publish_activity(%{id: activity_id} = activity, feed_id)
+       when is_binary(feed_id) and is_binary(activity_id) do
+    Phoenix.PubSub.broadcast(CommonsPub.PubSub, feed_id, {:pub_feed_activity, activity})
+    [%{feed_id: feed_id, activity_id: activity_id, id: ULID.generate()}]
+  end
 
-  defp publish_activity(activity_id, id) when is_binary(id) do
-    [%{feed_id: id, activity_id: activity_id, id: ULID.generate()}]
+  defp publish_activity(_, _), do: []
+
+  def pubsub_subscribe(feed_id) do
+    Phoenix.PubSub.subscribe(CommonsPub.PubSub, feed_id)
   end
 
   def default_query_contexts() do

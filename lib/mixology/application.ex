@@ -42,7 +42,7 @@ defmodule MoodleNet.Application do
       CommonsPub.Utils.Metrics,
       supervisor(Repo, []),
       worker(TableService, []),
-      {Phoenix.PubSub, [name: MoodleNet.PubSub, adapter: Phoenix.PubSub.PG2]},
+      {Phoenix.PubSub, [name: CommonsPub.PubSub, adapter: Phoenix.PubSub.PG2]},
       supervisor(Endpoint, []),
       {Oban, Application.get_env(:moodle_net, Oban)},
       %{

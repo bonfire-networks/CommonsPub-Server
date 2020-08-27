@@ -58,7 +58,7 @@
               <% end %>
               <h4><%= user.username %></h4>
             </div>
-            <div class="preview__actions">
+            <div class="preview__action">
             <%= if user.local_user.is_instance_admin do %>
               <span class="actions_flag">admin</span>
             <% end %>
@@ -72,6 +72,9 @@
             <div class="preview__info">
               <h4><%= user.email %></h4>
             </div>
+            <div phx-target="<%= @myself %>" phx-click="delete-invite" phx-value-id="<%= user.id %>" class="preview__actions">
+              <i class="feather-trash-2"></i>
+            </div>
           </div>
         <% end %>
         <% @selected == "domains" ->  %>
@@ -79,6 +82,9 @@
           <div class="user__preview email__only">
             <div class="preview__info">
               <h4>*@<%= user.domain %></h4>
+            </div>
+            <div phx-target="<%= @myself %>" phx-click="remove-domain" phx-value-id="<%= user.id %>" class="preview__actions">
+              <i class="feather-trash-2"></i>
             </div>
           </div>
         <% end %>

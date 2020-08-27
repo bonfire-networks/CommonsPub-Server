@@ -3,9 +3,9 @@ defmodule MoodleNetWeb.Component.ActivitiesListLive do
   alias MoodleNetWeb.Component.{ActivityLive}
 
   def render(assigns) do
+    # phx-update="append"
     ~L"""
     <div
-    phx-update="append"
     data-page="<%= @page %>"
     class="selected__area">
       <%= for activity <- @activities do %>

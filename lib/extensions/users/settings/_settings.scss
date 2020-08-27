@@ -42,8 +42,12 @@
   h1 {
     margin: 0;
     font-size: 24px;
-    margin-bottom: var(--m3)
+    margin-bottom: var(--m3);
   }
+}
+
+.flags__wrapper {
+  margin: -16px
 }
 
 .settings_list {

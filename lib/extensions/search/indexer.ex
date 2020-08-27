@@ -57,7 +57,7 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   # create a new index
-  def init_index(index_name, fail_silently \\ false)
+  def init_index(index_name \\ "public", fail_silently \\ false)
 
   def init_index("public" = index_name, fail_silently) do
     create_index(index_name, fail_silently)
@@ -81,6 +81,10 @@ defmodule CommonsPub.Search.Indexer do
     end
   end
 
+  # def set_attributes(attrs, index) do
+  #   settings(%{attributesForFaceting: attrs}, index)
+  # end
+
   def set_facets(index_name, facets) when is_list(facets) do
     CommonsPub.Search.Meili.post(
       facets,
@@ -91,6 +95,10 @@ defmodule CommonsPub.Search.Indexer do
 
   def set_facets(index_name, facet) do
     set_facets(index_name, [facet])
+  end
+
+  def list_facets(index_name \\ "public") do
+    CommonsPub.Search.Meili.get(nil, index_name <> "/settings/attributes-for-faceting")
   end
 
   def maybe_delete_object(object) do

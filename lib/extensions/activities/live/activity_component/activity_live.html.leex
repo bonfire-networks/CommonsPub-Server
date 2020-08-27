@@ -9,6 +9,7 @@
     <p>
       <%= e(@activity, :display_verb, "acted on") %>
       <%= live_redirect to: e(@activity, :activity_url, "#unknown")  do %><%= e(@activity, :display_object, "something") %><% end %>
+      <%= r(e(@activity, :display_object_context, "")) %>
     </p>
   </div>
   <div class="meta__secondary">
@@ -27,11 +28,26 @@
           object_type: e(@activity, :context_type, nil),
           current_user: @current_user,
           preview_id: @preview_id
-
         )
     %>
-   <%= if @activity.context_type != "like" do %>
-    <%=
+  <%= cond do %>
+  
+    <%=  Map.get(@activity, :context_type) == "like" -> %>
+      <div></div>
+    <%=  Map.get(@activity, :context_type) == "flag" -> %>
+      <%=
+      live_component(
+          @socket,
+          PreviewActionsAdminLive,
+          object: e(@activity, :context, @activity),
+          object_type: e(@activity, :context_type, nil),
+          current_user: @current_user,
+          preview_id: @preview_id,
+          id: "actions-"<>@preview_id
+        )
+      %>
+    <%= true -> %>
+      <%=
       live_component(
           @socket,
           PreviewActionsLive,
@@ -41,7 +57,7 @@
           preview_id: @preview_id,
           id: "actions-"<>@preview_id
         )
-    %>
+      %>
   <% end %>
 </div>
 </div>

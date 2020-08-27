@@ -2,8 +2,6 @@
 
 ORG_NAME=commonspub
 APP_NAME=commonspub
-APP_DOTENV=config/prod/public.env
-APP_DEV_DOTENV=config/dev/public.env
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
 APP_DOCKER_REPO="$(ORG_NAME)/$(APP_NAME)"
 APP_DEV_CONTAINER="$(ORG_NAME)_$(APP_NAME)_dev"
@@ -66,7 +64,7 @@ push_stable: init tag_stable ## Tag stable, latest and version tags to the last 
 	docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
 dev-exports: init ## Load env vars from a dotenv file
-	awk '{print "export " $$0}' $(APP_DEV_DOTENV)
+	awk '{print "export " $$0}' config/dev/*.env
 
 dev: init ## Run the app in dev
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web

@@ -2,6 +2,15 @@
   display: flex;
   align-items: center;
   margin-top: var(--m2);
+  .error {
+    background: var(--color-error);
+    border: var(--color-error);
+  }
+  .warning {
+    background: var(--color-warning);
+    border: var(--color-warning);
+  }
+  
   i.liked:before {
     color: yellow;
   }
@@ -18,7 +27,6 @@
     }
   }
   button {
-    color: var(--color-primary);
     margin-right: var(--m3);
     font-weight: 500;
     display: flex;

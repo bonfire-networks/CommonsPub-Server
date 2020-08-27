@@ -4,7 +4,7 @@
     <dialog open class="dialog dialog__create">
       <header class="dialog__header">Publish a new ad</header>
       <section class="dialog__content">
-        <form phx-submit="publish_ad" phx-change="tag_suggest" phx-target="#ad_tags_tag_results" phx-target="<%= @myself %>">
+        <form phx-submit="publish_ad" phx-change="tag_suggest" phx-target="#ad_tags_tag_results" >
           <div class="ads__type">
             <div class="type">
               <input type="radio" id="need" name="intent" value="need" checked>

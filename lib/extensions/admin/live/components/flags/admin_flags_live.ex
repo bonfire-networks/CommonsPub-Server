@@ -48,7 +48,8 @@ defmodule MoodleNetWeb.AdminLive.AdminFlagsLive do
     flag
     |> Map.merge(%{
       context: flag,
-      verb: "flag"
+      verb: "flag",
+      context_type: "flag"
     })
   end
 

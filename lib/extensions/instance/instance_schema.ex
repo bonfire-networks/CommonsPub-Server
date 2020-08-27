@@ -41,7 +41,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&InstanceResolver.outbox_edge/3)
+      resolve(&MoodleNetWeb.GraphQL.InstanceResolver.instance_outbox_edge/3)
     end
   end
 end

@@ -3,6 +3,8 @@ defmodule CommonsPub.Tag.Autocomplete do
 
   import MoodleNetWeb.Helpers.Common
 
+  # TODO: consolidate CommonsPub.Tag.Autocomplete and MoodleNetWeb.Component.TagAutocomplete
+
   def get(conn, %{"prefix" => prefix, "search" => search, "consumer" => consumer}) do
     tags = tag_lookup(search, prefix, consumer)
 
@@ -16,21 +18,7 @@ defmodule CommonsPub.Tag.Autocomplete do
   end
 
   def tag_lookup(tag_search, "+" = prefix, consumer) do
-    collections =
-      tag_lookup_public(tag_search, prefix, consumer, ["Collection", "Category", "Taggable"])
-
-    taxonomy_tags =
-      if(
-        Code.ensure_loaded?(Taxonomy.TaxonomyTags) and
-          CommonsPub.Search.Indexer.index_exists("taxonomy_tags")
-      ) do
-        search = CommonsPub.Search.Meili.search(tag_search, "taxonomy_tags")
-        tag_lookup_process(tag_search, search, prefix, consumer)
-      else
-        []
-      end
-
-    collections ++ taxonomy_tags
+    tag_lookup_public(tag_search, prefix, consumer, ["Collection", "Category", "Taggable"])
   end
 
   def tag_lookup(tag_search, "@" = prefix, consumer) do
@@ -42,7 +30,7 @@ defmodule CommonsPub.Tag.Autocomplete do
   end
 
   def tag_lookup_public(tag_search, prefix, consumer, index_type) do
-    search = CommonsPub.Search.Meili.search(tag_search, nil, false, %{"index_type" => index_type})
+    search = CommonsPub.Search.search(tag_search, nil, false, %{"index_type" => index_type})
     IO.inspect(search)
     tag_lookup_process(tag_search, search, prefix, consumer)
   end

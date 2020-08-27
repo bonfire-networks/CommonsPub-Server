@@ -22,6 +22,7 @@ defmodule MoodleNetWeb.InstanceLive do
        page_title: "Home",
        hostname: MoodleNet.Instance.hostname(),
        description: MoodleNet.Instance.description(),
+       activities: [],
        selected_tab: "about"
      )}
   end
@@ -32,6 +33,19 @@ defmodule MoodleNetWeb.InstanceLive do
 
   def handle_params(_, _url, socket) do
     {:noreply, socket}
+  end
+
+  def handle_info({:pub_feed_activity, activity}, socket) do
+    IO.inspect(handle_info: activity)
+
+    send_update(MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
+      id: :timeline,
+      activity: activity
+    )
+
+    {:noreply, socket}
+
+    # {:noreply, update(socket, :activities, fn activities -> [activity | activities] end)}
   end
 
   # defp link_body(name, icon) do

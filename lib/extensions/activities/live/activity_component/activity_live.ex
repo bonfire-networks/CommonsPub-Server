@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
 
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.{PreviewLive, PreviewActionsLive}
+  alias MoodleNetWeb.Component.{PreviewLive, PreviewActionsLive, PreviewActionsAdminLive}
 
   # alias MoodleNetWeb.Component.DiscussionPreviewLive
 
@@ -15,21 +15,10 @@ defmodule MoodleNetWeb.Component.ActivityLive do
 
     if(Map.has_key?(assigns, :activity) and assigns.activity != %{}) do
       activity = Activites.prepare(assigns.activity, assigns.current_user)
-
-      IO.inspect(activity.context_type)
-
-      # creator_link =
-      #   if e(activity, :creator, :id, nil) do
-      #     e_actor_field(activity.creator, :preferred_username, "#deleted")
-      #   else
-      #     "#unknown"
-      #   end
-
       reply_link =
         "/!" <>
           e(e(activity, :context, activity), :thread_id, "new") <>
           "/discuss/" <> e(e(activity, :context, activity), :id, "") <> "#reply"
-
       {:ok,
        assign(socket,
          activity: activity,
@@ -37,8 +26,9 @@ defmodule MoodleNetWeb.Component.ActivityLive do
          reply_link: reply_link,
          #  creator_link: creator_link,
          activity_id: activity_id,
-         preview_id: preview_id
+         preview_id: preview_id,
        )}
+
     else
       {:ok,
        assign(socket,
@@ -47,7 +37,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
          reply_link: "#",
          #  creator_link: "#",
          activity_id: activity_id,
-         preview_id: preview_id
+         preview_id: preview_id,
        )}
     end
   end

@@ -2,10 +2,17 @@
   padding: var(--m2);
 }
 .email__only {
-  h4 {
-    margin: 0 !important;
-    font-size: 14px !important;
+  .preview__info {
+    display: flex;
+    h4 {
+      flex: 1;
+      margin: 0 !important;
+      font-size: 14px !important;
+    }
+
   }
+
+  
 }
 .users_list .user__preview {
   margin-bottom: var(--m2);
@@ -60,6 +67,7 @@
 
 .user__preview {
   .preview__actions {
+    margin-top: 0;
     margin-right: var(--m2);
     .actions_flag {
       color: var(--color-secondary-dark);

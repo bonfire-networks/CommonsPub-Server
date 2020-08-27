@@ -46,6 +46,20 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
     {:noreply, socket |> put_flash(:info, "Invite sent!")}
   end
 
+  def handle_event("delete-invite", %{"id" => id}, socket) do
+    IO.inspect(id)
+    invite =
+      MoodleNetWeb.GraphQL.AccessResolver.delete_register_email_access(%{id: id}, %{
+        context: %{current_user: socket.assigns.current_user}
+      })
+
+    IO.inspect(invite)
+
+    # TODO error handling
+
+    {:noreply, socket |> put_flash(:info, "Invite sent!")}
+  end
+
 
   def handle_event("add-domain", params, socket) do
     params = input_to_atoms(params)
@@ -60,6 +74,20 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
     # TODO error handling
 
     {:noreply, socket |> put_flash(:info, "Added!")}
+  end
+
+  def handle_event("remove-domain", %{"id" => id}, socket) do
+    IO.inspect(id)
+    invite =
+      MoodleNetWeb.GraphQL.AccessResolver.delete_register_email_domain_access(%{id: id}, %{
+        context: %{current_user: socket.assigns.current_user}
+      })
+
+    IO.inspect(invite)
+
+    # TODO error handling
+
+    {:noreply, socket |> put_flash(:info, "Invite sent!")}
   end
 
 end

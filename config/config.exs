@@ -237,7 +237,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   protocol: "https",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
   render_errors: [view: MoodleNetWeb.ErrorView, accepts: ["json", "activity+json"]],
-  pubsub_server: MoodleNet.PubSub,
+  pubsub_server: CommonsPub.PubSub,
   secure_cookie_flag: true
 
 version =

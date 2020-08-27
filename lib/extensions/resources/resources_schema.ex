@@ -77,46 +77,51 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     @desc "What license is it available under?"
     field(:license, :string)
 
-    @desc "The original author"
+    @desc "The original resource author"
     field(:author, :string)
 
-    # TODO: add these 3 fields to DB:
-
-    # @desc "The file type"
-    # field :mime_type, :string
-
-    # @desc "The type of content that may be embeded"
-    # field :embed_type, :string
-
-    # @desc "The HTML code of content that may be embeded"
-    # field :embed_code, :string
-
-    # No longer or not yet in use:
-    # @desc "approx reading time in minutes"
-    # field :time_required, :integer
-    # @desc "free text"
-    # field :typical_age_range, :string
-    # @desc "??? Something about link aliasing"
-    # field :same_as, :string
-    # @desc "Can you use this without an institutional email or such"
-    # field :public_access, :boolean
-    # @desc "Can you use it without paying?"
-    # field :free_access, :boolean
-    # @desc "???"
-    # field :learning_resource_type, :string
-    # @desc "???"
-    # field :educational_use, list_of(non_null(:string))
     @desc "Resource's subject"
     field(:subject, :string)
 
     @desc "Resource's level"
     field(:level, :string)
+    # field :typical_age_range, :string
 
     @desc "Resource's language"
     field(:language, :string)
 
     @desc "Resource's type"
     field(:type, :string)
+    # field :learning_resource_type, :string
+
+    @desc "The file type"
+    field(:mime_type, :string)
+
+    @desc "The type of content that may be embeded"
+    field(:embed_type, :string)
+
+    @desc "The HTML code of content that may be embeded"
+    field(:embed_code, :string)
+
+    @desc "Can you use this without needing an account somewhere?"
+    field(:public_access, :boolean)
+
+    @desc "Can you use it without paying?"
+    field(:free_access, :boolean)
+
+    @desc "How can you access it? see https://www.w3.org/wiki/WebSchemas/Accessibility"
+    field(:accessibility_feature, list_of(:string))
+
+    # No longer or not yet in use:
+
+    # @desc "approx reading time in minutes"
+    # field :time_required, :integer
+
+    # @desc "??? Something about link aliasing"
+    # field :same_as, :string
+
+    # @desc "???"
+    # field :educational_use, list_of(non_null(:string))
 
     @desc "A JSON document containing more info beyond the default fields"
     field(:extra_info, :json)
@@ -218,6 +223,24 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field(:level, :string)
     field(:language, :string)
     field(:type, :string)
+
+    @desc "The file type"
+    field(:mime_type, :string)
+
+    @desc "The type of content that may be embeded"
+    field(:embed_type, :string)
+
+    @desc "The HTML code of content that may be embeded"
+    field(:embed_code, :string)
+
+    @desc "Can you use this without needing an account somewhere?"
+    field(:public_access, :boolean)
+
+    @desc "Can you use it without paying?"
+    field(:free_access, :boolean)
+
+    @desc "How can you access it? see https://www.w3.org/wiki/WebSchemas/Accessibility"
+    field(:accessibility_feature, list_of(:string))
   end
 
   object :resources_page do
