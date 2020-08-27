@@ -1,0 +1,42 @@
+.collection__preview {
+  display: flex;
+  align-items: center;
+  /* background: var(--color-background); */
+  border-radius: 6px;
+  /* padding: 0 8px; */
+  width: fit-content;
+  background: var(--color-selection);
+  padding: 0 4px;
+  &:hover {
+    background: var(--color-border);
+  }
+  .preview__info {
+    margin-left: 8px;
+    h4 {
+      color: var(--color-text);
+    }
+  }
+}
+
+.collection__navigation {
+  .navigation__share-link {
+    button {
+      margin-bottom: 16px;
+      width: 100%;
+    }
+  }
+}
+
+#collection-activities {
+  margin: 0 -16px
+}
+
+#collection-resources {
+  margin: -16px;
+  margin-top: 0px;
+  .resource__preview {
+    border-bottom: var(--border);
+    padding-bottom: 16px;
+    padding: 16px;
+  }
+}

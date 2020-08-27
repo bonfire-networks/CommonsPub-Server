@@ -53,12 +53,12 @@ defmodule MoodleNet.Threads.CommentsTest do
   describe "Threads.create/3" do
     test "creates a new thread with any parent", %{user: creator, parent: parent} do
       attrs = Simulation.thread()
-      assert {:ok, thread} = Threads.create(creator, parent, attrs)
+      assert {:ok, thread} = Threads.create(creator, attrs, parent)
       assert thread.canonical_url == attrs[:canonical_url]
     end
 
     test "fails to create a thread with invalid attributes", %{user: creator, parent: parent} do
-      assert {:error, changeset} = Threads.create(creator, parent, %{})
+      assert {:error, changeset} = Threads.create(creator, %{}, parent)
       assert Keyword.get(changeset.errors, :is_local)
     end
   end

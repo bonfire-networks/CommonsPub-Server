@@ -22,6 +22,7 @@ defmodule MoodleNetWeb.InstanceLive do
        page_title: "Home",
        hostname: MoodleNet.Instance.hostname(),
        description: MoodleNet.Instance.description(),
+       activities: [],
        selected_tab: "about"
      )}
   end
@@ -33,6 +34,18 @@ defmodule MoodleNetWeb.InstanceLive do
   def handle_params(_, _url, socket) do
     {:noreply, socket}
   end
+
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def handle_info({:pub_feed_activity, activity}, socket),
+    do:
+      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+        activity,
+        MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
+        :instance_timeline,
+        socket
+      )
 
   # defp link_body(name, icon) do
   #   assigns = %{name: name, icon: icon}

@@ -5,6 +5,8 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
   alias MoodleNet.GraphQL.{Fields, ResolveFields}
   alias MoodleNet.Meta.Pointers
 
+  alias MoodleNet.GraphQL.{FetchPage}
+
   def activity(%{activity_id: id}, %{context: %{current_user: user}}) do
     Activities.one(id: id, user: user)
   end
@@ -20,5 +22,15 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
 
   def fetch_context_edge(_, contexts) do
     Fields.new(Pointers.follow!(contexts), &Map.get(&1, :id))
+  end
+
+  def fetch_outbox_edge(feed_id, tables, page_opts) do
+    FetchPage.run(%FetchPage{
+      queries: Activities.Queries,
+      query: Activities.Activity,
+      page_opts: page_opts,
+      base_filters: [deleted: false, feed_timeline: feed_id, table: tables],
+      data_filters: [page: [desc: [created: page_opts]], preload: :context]
+    })
   end
 end

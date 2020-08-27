@@ -68,100 +68,73 @@ config :moodle_net, GarbageCollector,
   # one week
   grace: 302_400
 
-config :moodle_net, Feeds,
-  valid_contexts: [Collection, Comment, Community, Resource, Like, CommonsPub.Tag.Category],
-  default_query_contexts: [Collection, Comment, Community, Resource, Like]
+contexts_characters = [
+  User,
+  Collection,
+  Community,
+  Geolocation,
+  Organisation,
+  CommonsPub.Tag.Category
+]
 
-config :moodle_net, Blocks, valid_contexts: [Collection, Community, User, CommonsPub.Tag.Category]
+contexts_all =
+  contexts_characters ++
+    [
+      Thread,
+      Comment,
+      Resource,
+      Like,
+      ValueFlows.Planning.Intent
+    ]
 
 desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
 
 config :moodle_net, Instance,
   hostname: hostname,
   description: desc,
-  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like]
-
-config :moodle_net, Collections,
-  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
-  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
-
-config :moodle_net, Communities,
-  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
-  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
-
-config :moodle_net, Resources,
-  valid_contexts: [Collection, Community, User, CommonsPub.Tag.Category]
-
-config :moodle_net, Features, valid_contexts: [Collection, Community, CommonsPub.Tag.Category]
-
-config :moodle_net, Flags,
-  valid_contexts: [
-    Collection,
-    Comment,
-    Community,
-    Resource,
-    User,
-    Organisation,
-    CommonsPub.Character,
-    CommonsPub.Tag.Category
-  ]
-
-config :moodle_net, Follows,
-  valid_contexts: [
-    Collection,
-    Community,
-    Thread,
-    User,
-    Geolocation,
-    Organisation,
-    CommonsPub.Character,
-    CommonsPub.Tag.Category
-  ]
-
-config :moodle_net, Likes,
-  valid_contexts: [Collection, Community, Comment, Resource, CommonsPub.Tag.Category]
-
-config :moodle_net, Threads,
-  valid_contexts: [
-    Collection,
-    Community,
-    Flag,
-    Resource,
-    User,
-    Organisation,
-    CommonsPub.Tag.Category,
-    CommonsPub.Character,
-    ValueFlows.Planning.Intent
-  ]
+  # what to show or exclude in Instance Timeline
+  default_outbox_query_contexts: List.delete(contexts_all, Like)
 
 config :moodle_net, Users,
   public_registration: false,
-  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
-  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
+  default_outbox_query_contexts: contexts_all,
+  default_inbox_query_contexts: contexts_all
 
-config :moodle_net, Units,
-  valid_contexts: [CommonsPub.Tag.Category, Organisation, Community, Collection]
+config :moodle_net, Communities,
+  valid_contexts: contexts_characters,
+  default_outbox_query_contexts: contexts_all,
+  default_inbox_query_contexts: contexts_all
 
-config :moodle_net, Organisation,
-  valid_contexts: [CommonsPub.Tag.Category, Organisation, Community, Collection]
+config :moodle_net, Collections,
+  valid_contexts: contexts_characters,
+  default_outbox_query_contexts: contexts_all,
+  default_inbox_query_contexts: contexts_all
+
+config :moodle_net, Organisation, valid_contexts: contexts_characters
 
 config :moodle_net, CommonsPub.Character,
-  valid_contexts: [
-    CommonsPub.Tag.Category,
-    CommonsPub.Character,
-    Organisation,
-    Community,
-    Collection
-  ],
-  default_outbox_query_contexts: [
-    Collection,
-    CommonsPub.Character,
-    Community,
-    Comment,
-    Community,
-    Resource,
-    Like
-  ]
+  valid_contexts: contexts_characters,
+  default_outbox_query_contexts: contexts_all
+
+config :moodle_net, Feeds,
+  valid_contexts: contexts_characters,
+  default_query_contexts: contexts_all
+
+config :moodle_net, Blocks, valid_contexts: contexts_characters
+
+config :moodle_net, Follows, valid_contexts: contexts_characters
+
+config :moodle_net, Features, valid_contexts: contexts_all
+
+config :moodle_net, Flags, valid_contexts: contexts_all
+
+config :moodle_net, Likes, valid_contexts: contexts_all
+
+config :moodle_net, Threads, valid_contexts: contexts_all
+
+config :moodle_net, Resources, valid_contexts: contexts_all
+
+config :moodle_net, Units, valid_contexts: contexts_all
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
@@ -237,7 +210,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   protocol: "https",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
   render_errors: [view: MoodleNetWeb.ErrorView, accepts: ["json", "activity+json"]],
-  pubsub_server: MoodleNet.PubSub,
+  pubsub_server: CommonsPub.PubSub,
   secure_cookie_flag: true
 
 version =

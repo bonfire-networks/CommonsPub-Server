@@ -42,7 +42,9 @@
            <div class="selected__area">
             <%= live_component(
                   @socket,
-                  AdminInstanceLive,
+                  AdminAccessLive,
+                  id: :access,
+                  selected: @selected_sub,
                   current_user: @current_user
                 )  %>
           </div>

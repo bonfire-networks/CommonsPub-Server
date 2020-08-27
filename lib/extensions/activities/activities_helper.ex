@@ -3,6 +3,108 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def pubsub_activity_forward(activity, module, timeline_component_id, socket) do
+    # IO.inspect(pubsub_activity_forward: activity)
+
+    Phoenix.LiveView.send_update(module,
+      id: timeline_component_id,
+      activity: activity
+    )
+
+    {:noreply, socket}
+  end
+
+  @doc """
+  Handles a pushed activity from PubSub, by adding it it to the top of timelines
+  """
+  def pubsub_receive(activity, socket) do
+    # IO.inspect(pubsub_receive: activity)
+
+    {
+      :ok,
+      socket
+      |> Phoenix.LiveView.assign(:activities, Enum.concat([activity], socket.assigns.activities))
+    }
+  end
+
+  def outbox_live({feed_id_func, feed_param}, feed_tables, assigns, socket)
+      when is_function(feed_id_func) do
+    feed_id = Map.get(assigns, :feed_id) || feed_id_func.(feed_param)
+    outbox_live(feed_id, feed_tables, assigns, socket)
+  end
+
+  def outbox_live(feed_id_func, feed_tables, assigns, socket) when is_function(feed_id_func) do
+    feed_id = Map.get(assigns, :feed_id) || feed_id_func.()
+    outbox_live(feed_id, feed_tables, assigns, socket)
+  end
+
+  def outbox_live(feed_id, feed_tables_func, assigns, socket)
+      when is_function(feed_tables_func) do
+    feed_tables = Map.get(assigns, :feed_tables) || feed_tables_func.()
+    outbox_live(feed_id, feed_tables, assigns, socket)
+  end
+
+  def outbox_live(feed_id, feed_tables, assigns, socket) do
+    {:ok, box} =
+      MoodleNetWeb.GraphQL.ActivitiesResolver.fetch_outbox_edge(
+        feed_id,
+        feed_tables,
+        %{after: assigns.after, limit: 10}
+      )
+
+    # subscribe to the feed for realtime updates
+    MoodleNetWeb.Helpers.Common.pubsub_subscribe(feed_id, socket)
+
+    # IO.inspect(box: box)
+
+    activities_live_output(box, feed_id, feed_tables, assigns, socket)
+  end
+
+  def activities_live_output(box, feed_id, feed_tables, assigns, socket) do
+    activities =
+      if is_map(box) and length(box.edges) do
+        Enum.concat(assigns.activities, box.edges)
+      else
+        assigns.activities
+      end
+
+    Phoenix.LiveView.assign(socket,
+      activities: activities,
+      feed_id: feed_id,
+      feed_tables: feed_tables,
+      has_next_page: box.page_info.has_next_page,
+      after: box.page_info.end_cursor,
+      before: box.page_info.start_cursor,
+      current_user: assigns.current_user
+    )
+  end
+
+  def inbox_live(user, assigns, socket) do
+    # user inbox feed
+    inbox_id = Map.get(assigns, :feed_id) || MoodleNet.Feeds.inbox_id(user)
+
+    # feeds the user is subscribed to
+    feed_ids = MoodleNetWeb.GraphQL.UsersResolver.user_inbox_feeds(user, inbox_id)
+
+    # IO.inspect(inbox_feed_ids: feed_ids)
+    MoodleNetWeb.Helpers.Common.pubsub_subscribe(feed_ids, socket)
+
+    # what to include
+    feed_tables = Map.get(assigns, :feed_tables) || MoodleNet.Users.default_inbox_query_contexts()
+
+    {:ok, box} =
+      MoodleNetWeb.GraphQL.UsersResolver.fetch_feeds_edge(
+        %{after: assigns.after, limit: 10},
+        feed_ids,
+        feed_tables
+      )
+
+    activities_live_output(box, inbox_id, feed_tables, assigns, socket)
+  end
+
   def prepare(%{display_verb: _, display_object: _} = activity, _current_user) do
     IO.inspect("activity already prepared")
     activity

@@ -269,7 +269,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, pointer} <- Pointers.one(id: pointer_id),
          parent = MoodleNet.Meta.Pointers.follow!(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
-         {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
+         {:ok, thread} <- Threads.create(actor, %{is_public: true, is_local: false}, parent),
          {:ok, comment} <-
            Comments.create(actor, thread, %{
              is_public: object.public,
