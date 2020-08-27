@@ -50,6 +50,7 @@ defmodule MoodleNet.Feeds.FeedActivities do
   defp publish_activity(_, _), do: []
 
   def pubsub_broadcast(feed_id, activity) do
+    IO.inspect(pubbed: feed_id)
     Phoenix.PubSub.broadcast(CommonsPub.PubSub, feed_id, {:pub_feed_activity, activity})
   end
 

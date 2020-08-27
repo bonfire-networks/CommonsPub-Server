@@ -264,31 +264,41 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def user_inbox_edge(%User{} = user, page_opts, info) do
     ResolvePage.run(%ResolvePage{
       module: __MODULE__,
-      fetcher: :fetch_inbox_edge,
+      fetcher: :fetch_user_inbox_edge,
       context: user.inbox_id,
       page_opts: page_opts,
       info: info
     })
   end
 
-  def fetch_inbox_edge(page_opts, info, id) do
+  def fetch_user_inbox_edge(page_opts, info, inbox_id) do
     with {:ok, %User{} = user} <- GraphQL.current_user_or_empty_page(info) do
+      feed_ids = user_inbox_feeds(user, inbox_id)
       tables = Users.default_inbox_query_contexts()
 
-      Repo.transact_with(fn ->
-        with {:ok, subs} <- Users.feed_subscriptions(user) do
-          ids = [id | Enum.map(subs, & &1.feed_id)]
-
-          FetchPage.run(%FetchPage{
-            queries: Activities.Queries,
-            query: Activities.Activity,
-            page_opts: page_opts,
-            base_filters: [deleted: false, feed_timeline: ids, table: tables],
-            data_filters: [page: [desc: [created: page_opts]], preload: :context]
-          })
-        end
-      end)
+      fetch_feeds_edge(page_opts, feed_ids, tables)
     end
+  end
+
+  def user_inbox_feeds(user, inbox_id) do
+    with {:ok, subs} <- Users.feed_subscriptions(user) do
+      ids = [inbox_id | Enum.map(subs, & &1.feed_id)]
+    else
+      _e ->
+        [inbox_id]
+    end
+  end
+
+  def fetch_feeds_edge(page_opts, feed_ids, tables) do
+    Repo.transact_with(fn ->
+      FetchPage.run(%FetchPage{
+        queries: Activities.Queries,
+        query: Activities.Activity,
+        page_opts: page_opts,
+        base_filters: [deleted: false, feed_timeline: feed_ids, table: tables],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context]
+      })
+    end)
   end
 
   def outbox_edge(%User{outbox_id: _id} = user, page_opts, info) do
