@@ -18,6 +18,8 @@ defmodule MoodleNet.Meta.TableService do
   supervision hierarchy neatly...
   """
 
+  require Logger
+
   alias MoodleNet.Meta.{Introspection, TableNotFoundError}
 
   alias Pointers.Table
