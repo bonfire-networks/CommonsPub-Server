@@ -36,6 +36,6 @@ defmodule ValueFlows.Observation.Process.Migrations do
   end
 
   def down do
-    drop_pointable_table(ValueFlows.Knowledge.ResourceSpecification)
+    drop_pointable_table(ValueFlows.Observation.Process)
   end
 end
