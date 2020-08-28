@@ -20,7 +20,7 @@ defmodule ValueFlows.Test.Faking do
     # Proposals
   }
 
-  alias ValueFlows.Proposal.ProposedIntent
+  alias ValueFlows.Proposal.{ProposedTo, ProposedIntent}
 
   def assert_proposal(%Proposal{} = proposal) do
     assert_proposal(Map.from_struct(proposal))
@@ -65,6 +65,16 @@ defmodule ValueFlows.Test.Faking do
     assert_object(pi, :assert_proposed_intent,
       id: &assert_ulid/1,
       reciprocal: assert_optional(&assert_boolean/1)
+    )
+  end
+
+  def assert_proposed_to(%ProposedTo{} = pt) do
+    assert_proposed_to(Map.from_struct(pt))
+  end
+
+  def assert_proposed_to(pt) do
+    assert_object(pt, :assert_proposed_to,
+      id: &assert_ulid/1,
     )
   end
 

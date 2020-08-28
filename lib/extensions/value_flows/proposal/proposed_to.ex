@@ -7,6 +7,7 @@ defmodule ValueFlows.Proposal.ProposedTo do
   @type t :: %__MODULE__{}
 
   table_schema "vf_proposed_to" do
+    field(:deleted_at, :utc_datetime_usec)
     belongs_to(:proposed_to, Pointer)
     belongs_to(:proposed, Proposal)
   end

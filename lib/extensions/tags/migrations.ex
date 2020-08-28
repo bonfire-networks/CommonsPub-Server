@@ -39,6 +39,8 @@ defmodule Tag.Migrations do
       add(:disabled_at, :timestamptz)
     end
 
+    flush()
+
     create_if_not_exists table(:tags_things, primary_key: false) do
       add(:pointer_id, strong_pointer(), null: false)
 

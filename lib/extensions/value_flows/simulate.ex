@@ -203,4 +203,9 @@ defmodule ValueFlows.Simulate do
 
     proposed_intent
   end
+
+  def fake_proposed_to!(proposed_to, proposed) do
+    {:ok, proposed_to} = Proposals.propose_to(proposed_to, proposed)
+    proposed_to
+  end
 end

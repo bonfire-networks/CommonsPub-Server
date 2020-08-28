@@ -141,4 +141,54 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       assert proposed_intent.deleted_at
     end
   end
+
+  describe "one_proposed_to" do
+    test "fetches an existing item" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      agent = fake_user!()
+      proposed_to = fake_proposed_to!(agent, proposal)
+
+      assert {:ok, fetched} = Proposals.one_proposed_to([id: proposed_to.id])
+      assert_proposed_to(fetched)
+      assert fetched.id == proposed_to.id
+
+      assert {:ok, fetched} = Proposals.one_proposed_to([proposed_to_id: agent.id])
+      assert_proposed_to(fetched)
+      assert fetched.proposed_to_id == agent.id
+
+      assert {:ok, fetched} = Proposals.one_proposed_to([proposed_id: proposal.id])
+      assert_proposed_to(fetched)
+      assert fetched.proposed_id == proposal.id
+    end
+
+    test "ignores deleted items when using :deleted filter" do
+      user = fake_user!()
+      proposed_to = fake_proposed_to!(fake_user!(), fake_proposal!(user))
+      assert {:ok, proposed_to} = Proposals.delete_proposed_to(proposed_to)
+      assert {:error, %MoodleNet.Common.NotFoundError{}} =
+        Proposals.one_proposed_to([:deleted, id: proposed_to.id])
+    end
+  end
+
+  describe "propose_to" do
+    test "creates a new proposed to thing" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      agent = fake_user!()
+      assert {:ok, proposed_to} = Proposals.propose_to(agent, proposal)
+      assert_proposed_to(proposed_to)
+    end
+  end
+
+  describe "delete_proposed_to" do
+    test "deletes an existing proposed to" do
+      user = fake_user!()
+      proposed_to = fake_proposed_to!(fake_user!(), fake_proposal!(user))
+
+      refute proposed_to.deleted_at
+      assert {:ok, proposed_to} = Proposals.delete_proposed_to(proposed_to)
+      assert proposed_to.deleted_at
+    end
+  end
 end

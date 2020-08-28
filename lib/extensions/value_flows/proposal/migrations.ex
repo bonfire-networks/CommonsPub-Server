@@ -8,7 +8,7 @@ defmodule ValueFlows.Proposal.Migrations do
   defp proposed_intent_table(),
     do: ValueFlows.Proposal.ProposedIntent.__schema__(:source)
   defp proposed_to_table(),
-    do: ValueFlows.Proposal.PropsedTo.__schema__(:source)
+    do: ValueFlows.Proposal.ProposedTo.__schema__(:source)
 
   def up do
     create_pointable_table(ValueFlows.Proposal) do
@@ -43,6 +43,7 @@ defmodule ValueFlows.Proposal.Migrations do
     end
 
     create table(proposed_to_table()) do
+      add(:deleted_at, :timestamptz)
       add(:proposed_to_id, weak_pointer(), null: false)
       add(:proposed_id, weak_pointer(), null: false)
     end
