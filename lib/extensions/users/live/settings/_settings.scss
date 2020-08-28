@@ -153,14 +153,18 @@
   width: 268px;
   width: 100%;
   border-radius: 4px;
+  color: var(--color-text);
   background: var(--color-background);
   &::placeholder {
     color: var(--color-text-subtle)
   }
 }
 
+
+
 .section__item textarea {
   height: 250px;
+  padding: 8px;
 }
 
 .settings_list {
