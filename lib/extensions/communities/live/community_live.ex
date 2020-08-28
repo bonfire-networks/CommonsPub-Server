@@ -4,10 +4,10 @@ defmodule MoodleNetWeb.CommunityLive do
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Communities, Profiles}
   # alias MoodleNetWeb.GraphQL.CommunitiesResolver
-
   alias MoodleNetWeb.CommunityLive.{
     CommunityDiscussionsLive,
     CommunityMembersLive,
+    CommunityMembersPreviewLive,
     # CommunityNavigationLive,
     CommunityCollectionsLive,
     # CommunityWriteLive,

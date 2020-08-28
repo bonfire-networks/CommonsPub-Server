@@ -154,63 +154,63 @@
       <div class="mainContent__selected">
         <h3 class="area__title">members</h3>
         <%= live_component(
-                      @socket,
-                      CommunityMembersLive,
-                      community: @community,
-                      selected_tab: @selected_tab,
-                      id: :members,
-                      current_user: @current_user,
-                      members: [],
-                      page: 1,
-                      has_next_page: false,
-                      after: [],
-                      before: [],
-                      pagination_target: "#community-members"
-                    ) %>
-      </div>
-      <% true -> %>
-      <div class="mainContent__selected">
-        <%= live_component(
-                        @socket,
-                        TabNotFoundLive
-                    ) %>
-      </div>
-    <% end %>
-    <div>
-      <div class="community__navigation">
-        <h3 class="block__title">Menu</h3>
-        <%= live_component(
-                @socket,
-                MoodleNetWeb.Component.ContextLive,
-                object: @community,
-                current_user: @current_user
-              )%>
-        <%= live_patch link_body("Discussions","feather-message-square"),
-                    to: "/&" <> @community.actor.preferred_username <>  "/discussions",
-                    class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
-                  %>
-        <%= live_patch link_body("Collections","feather-folder"),
-                    to: "/&" <> @community.actor.preferred_username <>  "/collections",
-                    class: if @selected_tab == "collections", do: "navigation__item active", else: "navigation__item"
-                  %>
-      </div>
-      <div class="navigation__block">
-        <h3 class="block__title">Members</h3>
-        <div class="block__context">
-          <%= live_component(
           @socket,
           CommunityMembersLive,
           community: @community,
           selected_tab: @selected_tab,
-          id: :members_preview,
+          id: :members,
           current_user: @current_user,
           members: [],
           page: 1,
           has_next_page: false,
           after: [],
           before: [],
-          pagination_target: "#community-members-preview"
+          pagination_target: "#community-members"
         ) %>
+      </div>
+      <% true -> %>
+      <div class="mainContent__selected">
+        <%= live_component(
+          @socket,
+          TabNotFoundLive
+        ) %>
+      </div>
+    <% end %>
+    <div>
+      <%= live_component(
+        @socket,
+        MoodleNetWeb.Component.ContextLive,
+        object: @community,
+        current_user: @current_user
+      )%>
+      <div class="community__navigation">
+        <h3 class="block__title">Menu</h3>
+        <%= live_patch link_body("Discussions","feather-message-square"),
+          to: "/&" <> @community.actor.preferred_username <>  "/discussions",
+          class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
+        %>
+        <%= live_patch link_body("Collections","feather-folder"),
+          to: "/&" <> @community.actor.preferred_username <>  "/collections",
+          class: if @selected_tab == "collections", do: "navigation__item active", else: "navigation__item"
+        %>
+      </div>
+      <div class="navigation__block">
+        <h3 class="block__title">Members</h3>
+        <div class="block__context">
+          <%= live_component(
+              @socket,
+              CommunityMembersPreviewLive,
+              community: @community,
+              selected_tab: @selected_tab,
+              id: :community_members_previews,
+              current_user: @current_user,
+              members: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#community-members-previews"
+          ) %>
         </div>
       </div>
     </div>
