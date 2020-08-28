@@ -68,6 +68,11 @@ config :moodle_net, GarbageCollector,
   # one week
   grace: 302_400
 
+contexts_agents = [
+  User,
+  Organisation,
+]
+
 contexts_characters = [
   User,
   Collection,
@@ -135,6 +140,9 @@ config :moodle_net, Threads, valid_contexts: contexts_all
 config :moodle_net, Resources, valid_contexts: contexts_all
 
 config :moodle_net, Units, valid_contexts: contexts_all
+
+config :moodle_net, ValueFlows.Proposals,
+  valid_agent_contexts: contexts_agents
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
