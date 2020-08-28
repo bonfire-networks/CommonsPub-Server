@@ -7,14 +7,7 @@ defmodule MoodleNetWeb.SettingsLive do
 
   alias MoodleNetWeb.SettingsLive.{
     SettingsNavigationLive,
-    SettingsGeneralLive,
-    SettingsInstanceLive,
-    SettingsFlagsLive,
-    SettingsInvitesLive
-  }
-
-  alias MoodleNetWeb.Component.{
-    TabNotFoundLive
+    SettingsGeneralLive
   }
 
   def mount(params, session, socket) do

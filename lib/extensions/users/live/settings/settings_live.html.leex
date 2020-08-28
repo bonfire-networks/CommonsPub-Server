@@ -31,39 +31,14 @@
                   assigns
                 )  %>
           </div>
-          <% @selected_tab == "preferences" ->  %>
-          <div class="selected__area"></div>
-          <% @selected_tab == "instance" ->  %>
-          <div class="selected__area">
-            <%= live_component(
-                  @socket,
-                  SettingsInstanceLive,
-                  current_user: @current_user
-                )  %>
-          </div>
-          <% @selected_tab == "invites" ->  %>
-          <div class="selected__area">
-            <%= live_component(
-                  @socket,
-                  SettingsInvitesLive,
-                  current_user: @current_user
-                )  %>
-          </div>
-          <% @selected_tab == "flags" ->  %>
-          <div class="selected__area">
-            <%= live_component(
-                    @socket,
-                    SettingsFlagsLive,
-                    current_user: @current_user,
-                    id: :flags
-
-                ) %>
-          </div>
           <% true -> %>
-          <%= live_component(
-                    @socket,
-                    TabNotFoundLive
-                ) %>
+          <div class="selected__area">
+            <%= live_component(
+                  @socket,
+                  SettingsGeneralLive,
+                  assigns
+                )  %>
+          </div>
         <% end %>
       </div>
       <div class="settings__navigation">
