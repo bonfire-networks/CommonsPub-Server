@@ -251,38 +251,36 @@ defmodule MoodleNet.Mixfile do
   end
 
   defp dep_prepare(lib, nil, params) do
-
-    params =
-      if @library_dev_mode and dep_have_devmode(lib, params) do
-        params
-        |> Keyword.drop([:git, :github])
-        |> Keyword.put_new(:path, dep_devpath(lib, params))
-        |> Keyword.put_new(:override, true)
-      else
-        Keyword.delete(params, :path)
-      end
-
-    {lib, params}
+    {lib, dep_params(lib, params)}
   end
 
   defp dep_prepare(lib, version, params) do
+    params = dep_params(lib, params)
 
-    if @library_dev_mode and dep_have_devmode(lib, params) do
-      {lib,
-       params
-       |> Keyword.drop([:git, :github])
-       |> Keyword.put_new(:path, dep_devpath(lib, params))
-       |> Keyword.put_new(:override, true)
-      }
+    if dep_can_devmode(lib, params) do
+      {lib, params}
     else
-      Keyword.delete(params, :path)
       {lib, version, params}
     end
   end
 
-  defp dep_have_devmode(lib, params) do
+  defp dep_params(lib, params) do
+
+    if dep_can_devmode(lib, params) do
+      params
+      |> Keyword.drop([:git, :github])
+      |> Keyword.put_new(:path, dep_devpath(lib, params))
+      |> Keyword.put_new(:override, true)
+    else
+      Keyword.delete(params, :path)
+    end
+  end
+
+  defp dep_can_devmode(lib, params) do
     # check if a devpath is specified or already exists or the lib is coming from SCM
-    Keyword.has_key?(params, :path) or Keyword.has_key?(params, :git) or Keyword.has_key?(params, :github) or File.exists?(@library_dev_dir <> Atom.to_string(lib))
+    @library_dev_mode and (
+      Keyword.has_key?(params, :path) or Keyword.has_key?(params, :git) or Keyword.has_key?(params, :github) or File.exists?(@library_dev_dir <> Atom.to_string(lib))
+    )
   end
 
   defp dep_devpath(lib, params) do
