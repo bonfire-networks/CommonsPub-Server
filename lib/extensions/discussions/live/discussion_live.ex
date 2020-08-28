@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.DiscussionLive do
 
     tree = Discussions.build_comment_tree(comments_edges)
 
-    IO.inspect(tree: tree)
+    # IO.inspect(tree: tree)
 
     {main_comment_id, _} = Enum.fetch!(tree, 0)
 

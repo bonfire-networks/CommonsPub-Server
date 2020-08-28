@@ -2,6 +2,9 @@
 defmodule MoodleNet.Mixfile do
   use Mix.Project
 
+  @library_dev_mode false
+  @library_dev_dir "./extensions/"
+
   # General configuration of the project
   def project do
     [
@@ -70,7 +73,7 @@ defmodule MoodleNet.Mixfile do
   defp elixirc_paths(:dev), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  defp deps do
+  defp deps_list do
     # graphql
     [
       {
@@ -170,10 +173,10 @@ defmodule MoodleNet.Mixfile do
       {:html_sanitize_ex, "~> 1.4"},
       {
         :linkify,
+        # "~> 0.2.0"
         git: "https://gitlab.com/CommonsPub/linkify.git",
         ref: "9360ed495ec04ab0f9f254670484f01dea668d38"
         # path: "uploads/linkify"
-        # "~> 0.2.0"
       },
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
@@ -185,9 +188,10 @@ defmodule MoodleNet.Mixfile do
       {
         :pointers,
         # "~> 0.4"
-        git: "https://github.com/commonspub/pointers.git", branch: "main"
         # ref: "b0cbc4b1a2f83b870f24436dd5968fec428c6530"
-        # path: "uploads/pointers-main"
+        git: "https://github.com/commonspub/pointers.git",
+        branch: "main",
+        path: "uploads/pointers-main"
         # git: "https://github.com/mayel/pointers.git",
         # ref: "01751caa54b15c4928eb8389bd7635aa0bd20584"
       },
@@ -219,6 +223,90 @@ defmodule MoodleNet.Mixfile do
       # module mocking
       {:mock, "~> 0.3.3", only: :test}
     ]
+  end
+
+  defp deps() do
+    configured_deps = Enum.map(deps_list(), &dep_process/1)
+    IO.inspect(configured_deps, limit: :infinity)
+  end
+
+  defp dep_process(dep) do
+
+    case dep do
+      {lib, [_] = params} ->
+        # library without a hex version specified
+        dep_prepare(lib, nil, params)
+
+      {lib, [_ | _] = params} ->
+        dep_prepare(lib, nil, params)
+
+      {lib, version, [_ | _] = params} ->
+        # library with a hex version and other params specified
+        dep_prepare(lib, version, params)
+
+      _ ->
+        # library with only a hex version specified
+        dep
+    end
+  end
+
+  defp dep_prepare(lib, nil, params) do
+
+    params =
+      if @library_dev_mode and dep_have_devmode(lib, params) do
+        params
+        |> Keyword.drop([:git, :github])
+        |> Keyword.put_new(:path, dep_devpath(lib, params))
+        |> Keyword.put_new(:override, true)
+      else
+        Keyword.delete(params, :path)
+      end
+
+    {lib, params}
+  end
+
+  defp dep_prepare(lib, version, params) do
+
+    if @library_dev_mode and dep_have_devmode(lib, params) do
+      {lib,
+       params
+       |> Keyword.drop([:git, :github])
+       |> Keyword.put_new(:path, dep_devpath(lib, params))
+       |> Keyword.put_new(:override, true)
+      }
+    else
+      Keyword.delete(params, :path)
+      {lib, version, params}
+    end
+  end
+
+  defp dep_have_devmode(lib, params) do
+    # check if a devpath is specified or already exists or the lib is coming from SCM
+    Keyword.has_key?(params, :path) or Keyword.has_key?(params, :git) or Keyword.has_key?(params, :github) or File.exists?(@library_dev_dir <> Atom.to_string(lib))
+  end
+
+  defp dep_devpath(lib, params) do
+    if Keyword.has_key?(params, :path) do
+      # if a path is set in deps_list() just use that
+      Keyword.get(params, :path)
+    else
+      lib = Atom.to_string(lib)
+      mixpath = "./deps/"<>lib
+      devpath = @library_dev_dir <> lib
+
+      if File.exists?(devpath) do
+        devpath
+      else
+        # try to copy git repo from ./deps to devpath
+        with {:ok, copied} <- File.cp_r(mixpath, devpath) do
+          devpath
+        else
+          e ->
+            IO.inspect(could_not_copy_dep: e)
+            mixpath
+          end
+      end
+    end
   end
 
   defp sentry?(), do: Mix.env() not in [:dev, :test]
