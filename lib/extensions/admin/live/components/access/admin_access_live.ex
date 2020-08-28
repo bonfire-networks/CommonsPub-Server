@@ -18,7 +18,6 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
       %{context: %{current_user: assigns.current_user}}
     )
     members = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
-    IO.inspect(members)
     {
       :ok,
       socket
@@ -39,8 +38,6 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
         context: %{current_user: socket.assigns.current_user}
       })
 
-    IO.inspect(invite)
-
     # TODO error handling
 
     {:noreply, socket |> put_flash(:info, "Invite sent!")}
@@ -52,8 +49,6 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
         context: %{current_user: socket.assigns.current_user}
       })
 
-    IO.inspect(delete)
-
     # TODO error handling
 
     {:noreply, socket |> put_flash(:info, "User deactivated!")}
@@ -64,8 +59,6 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
       MoodleNetWeb.GraphQL.AccessResolver.delete_register_email_access(%{id: id}, %{
         context: %{current_user: socket.assigns.current_user}
       })
-
-    IO.inspect(invite)
 
     # TODO error handling
 
@@ -81,21 +74,16 @@ defmodule MoodleNetWeb.AdminLive.AdminAccessLive do
         context: %{current_user: socket.assigns.current_user}
       })
 
-    IO.inspect(add)
-
     # TODO error handling
 
     {:noreply, socket |> put_flash(:info, "Added!")}
   end
 
   def handle_event("remove-domain", %{"id" => id}, socket) do
-    IO.inspect(id)
     invite =
       MoodleNetWeb.GraphQL.AccessResolver.delete_register_email_domain_access(%{id: id}, %{
         context: %{current_user: socket.assigns.current_user}
       })
-
-    IO.inspect(invite)
 
     # TODO error handling
 

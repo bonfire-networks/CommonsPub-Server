@@ -30,8 +30,6 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
-    # IO.inspect(e: map)
-
     if(is_map(map)) do
       # attempt using key as atom or string
       map_get(map, key, fallback)
@@ -68,13 +66,12 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def map_get(%Ecto.Association.NotLoaded{} = map, key, fallback) when is_atom(key) do
-    IO.inspect("ERROR: cannot get key `#{key}` from an unloaded map:")
-    IO.inspect(map)
+    Logger.error("Cannot get key `#{key}` from an unloaded map: #{inspect(map)}")
     fallback
   end
 
   def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) do
-    IO.inspect("WARNING: cannot get from an unloaded key, trying to preload...")
+    Logger.warn("Cannot get from an unloaded key, trying to preload...")
     map_get(map, maybe_preload(map, key), fallback)
   end
 
@@ -167,28 +164,16 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   defp maybe_do_preload(obj, preloads) when is_struct(obj) do
-    # IO.inspect(maybe_preload_obj: obj)
-    # IO.inspect(maybe_preload_preloads: preloads)
     MoodleNet.Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
-      IO.inspect(arg_error_preload: preloads)
-      # IO.inspect(from_maybe_preload: obj)
       obj
 
     MatchError ->
-      IO.inspect(match_error_preload: preloads)
-      # IO.inspect(from_maybe_preload: obj)
       obj
-
-      # Protocol.UndefinedError ->
-      #   IO.inspect(protocol_undefined_error_preload: preloads)
-      #   IO.inspect(from_maybe_preload: obj)
-      #   obj
   end
 
   defp maybe_do_preload(obj, _) do
-    # IO.inspect(cannot_preload_non_struct: preloads)
     obj
   end
 
@@ -225,8 +210,6 @@ defmodule MoodleNetWeb.Helpers.Common do
     # Logger.info(session_load: session)
 
     current_user = Account.current_user(session["auth_token"])
-
-    # IO.inspect(session_loaded_user: current_user)
 
     communities_follows =
       if(current_user) do

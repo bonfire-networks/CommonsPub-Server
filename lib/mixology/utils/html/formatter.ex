@@ -54,8 +54,6 @@ defmodule CommonsPub.HTML.Formatter do
   end
 
   def tag_handler("@" <> nickname, buffer, opts, acc) do
-    # IO.inspect(mention: nickname)
-
     case Users.get(nickname) do
       %{id: _id} = user ->
         mention_process(opts, user, acc, Map.get(opts, :content_type))
@@ -66,11 +64,8 @@ defmodule CommonsPub.HTML.Formatter do
   end
 
   def tag_handler("&" <> nickname, buffer, opts, acc) do
-    IO.inspect(mention: nickname)
-
     case MoodleNet.Communities.get(nickname) do
       %{id: _id} = character ->
-        # IO.inspect(found: character)
         mention_process(opts, character, acc, Map.get(opts, :content_type))
 
       _ ->
@@ -79,8 +74,6 @@ defmodule CommonsPub.HTML.Formatter do
   end
 
   def tag_handler("+" <> nickname, buffer, opts, acc) do
-    IO.inspect(mention: nickname)
-
     content_type = Map.get(opts, :content_type)
 
     # TODO, link to Collection and Taggable
@@ -88,20 +81,17 @@ defmodule CommonsPub.HTML.Formatter do
     if MoodleNetWeb.Helpers.Common.is_numeric(nickname) and
          Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
       with {:ok, category} <- Taxonomy.TaxonomyTags.maybe_make_category(nil, nickname) do
-        IO.inspect(found_or_created: category)
         mention_process(opts, category, acc, content_type)
       end
     else
       case MoodleNet.Collections.get(nickname) do
         %{id: _id} = character ->
-          IO.inspect(found: character)
           mention_process(opts, character, acc, content_type)
 
         _ ->
           # TODO after the character/actor refactor so we can easily query by category by username
           # case CommonsPub.Tag.Categories.get(nickname) do
           #   %{id: id} = category ->
-          #     IO.inspect(found: category)
           #     mention_process(opts, category, acc, content_type)
 
           #   _ ->

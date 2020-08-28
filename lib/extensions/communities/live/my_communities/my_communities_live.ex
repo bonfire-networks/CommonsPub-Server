@@ -38,14 +38,10 @@ defmodule MoodleNetWeb.My.MyCommunitiesLive do
         )
       end
 
-    # IO.inspect(communities_follows: communities_follows)
-
     my_communities =
       if(communities_follows) do
         Communities.communities_from_follows(communities_follows)
       end
-
-    # IO.inspect(communities: my_communities)
 
     assign(socket,
       my_communities: my_communities,

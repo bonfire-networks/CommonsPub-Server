@@ -13,7 +13,6 @@ defmodule MoodleNetWeb.InstanceLive do
   }
 
   def mount(params, session, socket) do
-    IO.inspect(instance_session: session)
     socket = init_assigns(params, session, socket)
 
     {:ok,

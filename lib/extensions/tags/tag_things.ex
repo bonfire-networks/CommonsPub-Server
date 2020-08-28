@@ -13,7 +13,6 @@ defmodule CommonsPub.Tag.TagThings do
   """
   def thing_attach_tags(user, thing, taggables) when is_list(taggables) do
     thing = thing_to_pointer(thing)
-    # IO.inspect(pre_tags: taggables)
     tags = Enum.map(taggables, &tag_preprocess(user, &1))
     # {:ok, thing |> Map.merge(%{tags: things_add_tags})}
     thing_tags_save(thing, tags)
@@ -51,7 +50,6 @@ defmodule CommonsPub.Tag.TagThings do
     IO.inspect(tag_preprocess: taggable)
 
     with {:ok, tag} <- CommonsPub.Tag.Taggables.maybe_make_taggable(user, taggable) do
-      IO.inspect(taggable)
       # with an object that we have just made taggable
       tag_preprocess(user, tag)
     else

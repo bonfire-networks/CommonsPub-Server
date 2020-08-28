@@ -127,8 +127,7 @@ defmodule MoodleNet.Meta.TableService do
       {:ok, []}
     rescue
       e ->
-        IO.inspect("INFO: TableService could not init because:")
-        IO.inspect(e)
+        Logger.info("TableService could not init because: #{inspect(e)}")
         {:ok, []}
     end
   end
