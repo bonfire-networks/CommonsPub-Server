@@ -20,7 +20,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
-  def proposed_intents(%{id: proposal_id} = prop, _, info) do
+  def publishes_edge(%{id: proposal_id}, _, info) do
     # ResolveFields.run(%ResolveFields{
     #   module: __MODULE__,
     #   fetcher: :fetch_proposed_intents,
@@ -31,7 +31,11 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     Proposals.many_proposed_intents([:default, published_in_id: proposal_id])
   end
 
-  def fetch_proposed_intent(_info, id) do
+  def published_in_edge(%{id: intent_id}, _, info) do
+    Proposals.many_proposed_intents([:default, publishes_id: intent_id])
+  end
+
+  def fetch_proposed_intent(info, id) do
     Proposals.one_proposed_intent([:default, id: id])
   end
 
