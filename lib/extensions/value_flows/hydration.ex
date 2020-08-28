@@ -207,6 +207,9 @@ defmodule ValueFlows.Hydration do
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
         ],
+        delete_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.delete_proposal/2
+        ],
         delete_proposed_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
         ],

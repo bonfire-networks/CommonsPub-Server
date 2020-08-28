@@ -95,5 +95,13 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   end
 
   describe "deleteProposal" do
+    test "deletes an existing proposal" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+
+      q = delete_proposal_mutation()
+      conn = user_conn(user)
+      assert grumble_post_key(q, conn, :delete_proposal, %{"id" => proposal.id})
+    end
   end
 end
