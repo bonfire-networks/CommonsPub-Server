@@ -177,7 +177,7 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def proposal_fields(extra \\ []) do
-    extra ++ ~w(name note created has_beginning has_end unit_based)a
+    extra ++ ~w(id name note created has_beginning has_end unit_based)a
   end
 
   def proposal_query(options \\ []) do
