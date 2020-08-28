@@ -34,6 +34,15 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       assert {:ok, proposal} = Proposals.create(user, proposal())
       assert_proposal(proposal)
     end
+
+    test "can create a proposal with a scope" do
+      user = fake_user!()
+      parent = fake_user!()
+
+      assert {:ok, proposal} = Proposals.create(user, parent, proposal())
+      assert_proposal(proposal)
+      assert proposal.context_id == parent.id
+    end
   end
 
   describe "one_proposed_intent" do

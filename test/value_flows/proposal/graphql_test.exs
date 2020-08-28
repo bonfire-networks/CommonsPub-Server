@@ -43,6 +43,25 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   end
 
   describe "createProposal" do
+    test "creates a new proposal" do
+      user = fake_user!()
+      q = create_proposal_mutation()
+      conn = user_conn(user)
+      vars = %{proposal: proposal_input()}
+      assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
+      assert_proposal(proposal)
+    end
+
+    test "creates a new proposal with a scope" do
+      user = fake_user!()
+      parent = fake_user!()
+
+      q = create_proposal_mutation()
+      conn = user_conn(user)
+      vars = %{proposal: proposal_input(%{"inScopeOf" => parent.id})}
+      assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
+      assert_proposal(proposal)
+    end
   end
 
   describe "updateProposal" do

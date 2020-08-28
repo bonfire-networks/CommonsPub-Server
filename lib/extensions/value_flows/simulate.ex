@@ -105,6 +105,16 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
+  def proposal_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
+    |> Map.put_new_lazy("hasBeginning", &past_datetime_iso/0)
+    |> Map.put_new_lazy("hasEnd", &future_datetime_iso/0)
+    |> Map.put_new_lazy("created", &future_datetime_iso/0)
+    |> Map.put_new_lazy("unitBased", &bool/0)
+  end
+
   def proposed_intent(base \\ %{}) do
     base
     |> Map.put_new_lazy(:reciprocal, &maybe_bool/0)

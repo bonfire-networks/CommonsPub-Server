@@ -180,6 +180,10 @@ defmodule ValueFlows.Test.Faking do
     extra ++ ~w(id name note created has_beginning has_end unit_based)a
   end
 
+  def proposal_response_fields(extra \\ []) do
+    [proposal: proposal_fields(extra)]
+  end
+
   def proposal_query(options \\ []) do
     options = Keyword.put_new(options, :id_type, :id)
     gen_query(:id, &proposal_subquery/1, options)
@@ -187,6 +191,16 @@ defmodule ValueFlows.Test.Faking do
 
   def proposal_subquery(options \\ []) do
     gen_subquery(:id, :proposal, &proposal_fields/1, options)
+  end
+
+  def create_proposal_mutation(options \\ []) do
+    [proposal: type!(:proposal_create_params)]
+    |> gen_mutation(&create_proposal_submutation/1, options)
+  end
+
+  def create_proposal_submutation(options \\ []) do
+    [proposal: var(:proposal)]
+    |> gen_submutation(:create_proposal, &proposal_response_fields/1, options)
   end
 
   def proposed_intent_fields(extra \\ []) do
