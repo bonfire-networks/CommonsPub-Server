@@ -30,6 +30,8 @@ defmodule CommonsPub.Character.Migrations do
       # timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
+    flush()
+
     # create_if_not_exists(index(table_name(), :updated_at, index_opts))
     create_if_not_exists(index(table_name(), :actor_id, index_opts))
     create_if_not_exists(index(table_name(), :creator_id, index_opts))
