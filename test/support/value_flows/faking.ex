@@ -203,6 +203,16 @@ defmodule ValueFlows.Test.Faking do
     |> gen_submutation(:create_proposal, &proposal_response_fields/1, options)
   end
 
+  def update_proposal_mutation(options \\ []) do
+    [proposal: type!(:proposal_update_params)]
+    |> gen_mutation(&update_proposal_submutation/1, options)
+  end
+
+  def update_proposal_submutation(options \\ []) do
+    [proposal: var(:proposal)]
+    |> gen_submutation(:update_proposal, &proposal_response_fields/1, options)
+  end
+
   def proposed_intent_fields(extra \\ []) do
     extra ++ ~w(id reciprocal)a
   end

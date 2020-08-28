@@ -115,6 +115,11 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("unitBased", &bool/0)
   end
 
+  def update_proposal_input(base \\ %{}) do
+    proposal_input(base)
+    |> Map.drop(["created"])
+  end
+
   def proposed_intent(base \\ %{}) do
     base
     |> Map.put_new_lazy(:reciprocal, &maybe_bool/0)
@@ -180,8 +185,15 @@ defmodule ValueFlows.Simulate do
     intent
   end
 
-  def fake_proposal!(user, overrides \\ %{}) do
+  def fake_proposal!(user, context \\ nil, overrides \\ %{})
+
+  def fake_proposal!(user, context, overrides) when is_nil(context) do
     {:ok, proposal} = Proposals.create(user, proposal(overrides))
+    proposal
+  end
+
+  def fake_proposal!(user, context, overrides) do
+    {:ok, proposal} = Proposals.create(user, context, proposal(overrides))
     proposal
   end
 

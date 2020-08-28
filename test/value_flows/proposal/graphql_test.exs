@@ -25,6 +25,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       user = fake_user!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
+
       some(5, fn ->
         fake_proposed_intent!(proposal, intent)
       end)
@@ -65,6 +66,32 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   end
 
   describe "updateProposal" do
+    test "updates an existing proposal" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+
+      q = update_proposal_mutation()
+      conn = user_conn(user)
+      vars = %{proposal: update_proposal_input(%{"id" => proposal.id})}
+      assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
+      assert_proposal(proposal)
+    end
+
+    test "updates an existing proposal with a new scope" do
+      user = fake_user!()
+      scope = fake_community!(user)
+      proposal = fake_proposal!(user, scope)
+
+      new_scope = fake_community!(user)
+      q = update_proposal_mutation()
+      conn = user_conn(user)
+
+      vars = %{
+        proposal: update_proposal_input(%{"id" => proposal.id, "inScopeOf" => [new_scope.id]})
+      }
+      assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
+      assert_proposal(proposal)
+    end
   end
 
   describe "deleteProposal" do

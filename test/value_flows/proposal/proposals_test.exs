@@ -45,6 +45,29 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     end
   end
 
+  describe "update" do
+    test "can update an existing proposal" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+
+      assert {:ok, updated} = Proposals.update(proposal, proposal())
+      assert_proposal(updated)
+      assert updated.updated_at != proposal.updated_at
+    end
+
+    test "can update an existing proposal with a new context" do
+      user = fake_user!()
+      context = fake_community!(user)
+      proposal = fake_proposal!(user, context)
+
+      new_context = fake_community!(user)
+      assert {:ok, updated} = Proposals.update(proposal, new_context, proposal())
+      assert_proposal(updated)
+      assert updated.updated_at != proposal.updated_at
+      assert updated.context_id == new_context.id
+    end
+  end
+
   describe "one_proposed_intent" do
     test "fetches an existing proposed intent" do
       user = fake_user!()

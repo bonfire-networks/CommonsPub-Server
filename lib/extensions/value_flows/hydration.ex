@@ -189,9 +189,6 @@ defmodule ValueFlows.Hydration do
         propose_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.propose_intent/2
         ],
-        delete_proposed_intent: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
-        ],
         create_offer: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_offer/2
         ],
@@ -204,9 +201,15 @@ defmodule ValueFlows.Hydration do
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],
+        update_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.update_proposal/2
+        ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
-        ]
+        ],
+        delete_proposed_intent: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        ],
       }
     }
   end
