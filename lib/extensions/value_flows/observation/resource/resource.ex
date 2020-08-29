@@ -42,8 +42,9 @@ defmodule ValueFlows.Observation.EconomicResource do
 
     belongs_to(:unit_of_effort, Unit, on_replace: :nilify)
 
+    belongs_to(:stage, ProcessSpecification)
+
     # TODO relations:
-    # stage: ProcessSpecification
     # lot: ProductBatch
 
     belongs_to(:creator, User)

@@ -1,8 +1,8 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification do
   use Pointers.Pointable,
     otp_app: :moodle_net,
-    source: "vf_prospec",
-    table_id: "WAYF0R1NPVTST0BEC0ME0VTPVT"
+    source: "vf_process_spec",
+    table_id: "ASPEC1F1CAT10NF0RPR0CESSES"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 

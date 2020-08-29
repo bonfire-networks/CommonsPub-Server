@@ -1,7 +1,7 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification do
   use Pointers.Pointable,
     otp_app: :moodle_net,
-    source: "vf_respec_spec",
+    source: "vf_resource_spec",
     table_id: "SPEC1F1CAT10NK1ND0FRES0VRC"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]

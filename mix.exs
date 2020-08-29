@@ -227,11 +227,10 @@ defmodule MoodleNet.Mixfile do
 
   defp deps() do
     configured_deps = Enum.map(deps_list(), &dep_process/1)
-    IO.inspect(configured_deps, limit: :infinity)
+    # IO.inspect(configured_deps, limit: :infinity)
   end
 
   defp dep_process(dep) do
-
     case dep do
       {lib, [_] = params} ->
         # library without a hex version specified
@@ -265,7 +264,6 @@ defmodule MoodleNet.Mixfile do
   end
 
   defp dep_params(lib, params) do
-
     if dep_can_devmode(lib, params) do
       params
       |> Keyword.drop([:git, :github])
@@ -278,9 +276,10 @@ defmodule MoodleNet.Mixfile do
 
   defp dep_can_devmode(lib, params) do
     # check if a devpath is specified or already exists or the lib is coming from SCM
-    @library_dev_mode and (
-      Keyword.has_key?(params, :path) or Keyword.has_key?(params, :git) or Keyword.has_key?(params, :github) or File.exists?(@library_dev_dir <> Atom.to_string(lib))
-    )
+    @library_dev_mode and
+      (Keyword.has_key?(params, :path) or Keyword.has_key?(params, :git) or
+         Keyword.has_key?(params, :github) or
+         File.exists?(@library_dev_dir <> Atom.to_string(lib)))
   end
 
   defp dep_devpath(lib, params) do
@@ -289,7 +288,7 @@ defmodule MoodleNet.Mixfile do
       Keyword.get(params, :path)
     else
       lib = Atom.to_string(lib)
-      mixpath = "./deps/"<>lib
+      mixpath = "./deps/" <> lib
       devpath = @library_dev_dir <> lib
 
       if File.exists?(devpath) do
@@ -302,7 +301,7 @@ defmodule MoodleNet.Mixfile do
           e ->
             IO.inspect(could_not_copy_dep: e)
             mixpath
-          end
+        end
       end
     end
   end

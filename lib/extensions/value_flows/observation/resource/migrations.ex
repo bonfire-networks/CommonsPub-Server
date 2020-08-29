@@ -4,8 +4,11 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
   # alias Ecto.ULID
   import Pointers.Migration
 
+  alias ValueFlows.Knowledge.ResourceSpecification
+  alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicEvent
+  alias ValueFlows.Observation.Process
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 
@@ -33,6 +36,8 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
       add(:accounting_quantity_id, references("measurement_measure", on_delete: :nilify_all))
       add(:onhand_quantity_id, references("measurement_measure", on_delete: :nilify_all))
       add(:unit_of_effort_id, references("measurement_unit", on_delete: :nilify_all))
+
+      add(:stage_id, weak_pointer(ProcessSpecification), null: true)
 
       # optional context as in_scope_of
       add(:context_id, weak_pointer(), null: true)

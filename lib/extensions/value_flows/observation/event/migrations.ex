@@ -4,8 +4,10 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
   # alias Ecto.ULID
   import Pointers.Migration
 
+  alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicResource
+  alias ValueFlows.Observation.Process
 
   # defp event_table(), do: EconomicEvent.__schema__(:source)
 

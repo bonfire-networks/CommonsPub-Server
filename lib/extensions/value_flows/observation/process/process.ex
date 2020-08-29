@@ -10,9 +10,11 @@ defmodule ValueFlows.Observation.Process do
   alias MoodleNet.Users.User
   # alias MoodleNet.Actors.Actor
   # alias MoodleNet.Communities.Community
-  alias ValueFlows.Knowledge.Action
   alias ValueFlows.Observation.Process
   alias Measurement.Measure
+
+  alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.ProcessSpecification
 
   @type t :: %__MODULE__{}
 
@@ -28,11 +30,12 @@ defmodule ValueFlows.Observation.Process do
 
     field(:classified_as, {:array, :string}, virtual: true)
 
+    belongs_to(:based_on, ProcessSpecification)
+
     belongs_to(:context, Pointers.Pointer)
 
     # TODO
     # workingAgents: [Agent!]
-    # basedOn: ProcessSpecification
     # nextProcesses: [Process!]
     # previousProcesses: [Process!]
     # intendedInputs(action: ID): [Process!]
@@ -42,9 +45,9 @@ defmodule ValueFlows.Observation.Process do
     # unplannedEconomicEvents(action: ID): [EconomicEvent!]
     # trace: [EconomicEvent!]
     # track: [EconomicEvent!]
-    # plannedWithin: Plan
     # committedInputs(action: ID): [Commitment!]
     # committedOutputs(action: ID): [Commitment!]
+    # plannedWithin: Plan
     # nestedIn: Scenario
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?

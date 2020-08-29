@@ -5,6 +5,7 @@ defmodule ValueFlows.Observation.Process.Migrations do
   import Pointers.Migration
 
   alias ValueFlows.Observation.Process
+  alias ValueFlows.Knowledge.ProcessSpecification
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 
@@ -21,6 +22,8 @@ defmodule ValueFlows.Observation.Process.Migrations do
       add(:finished, :boolean, default: false)
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
+
+      add(:based_on_id, weak_pointer(ProcessSpecification), null: true)
 
       # optional context as in_scope_of
       add(:context_id, weak_pointer(), null: true)
