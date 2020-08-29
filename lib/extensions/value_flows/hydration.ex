@@ -49,8 +49,8 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
         publishes: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intents/3
-        ]
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.publishes_edge/3,
+        ],
       },
       intent: %{
         provider: [
@@ -76,7 +76,10 @@ defmodule ValueFlows.Hydration do
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
-        ]
+        ],
+        published_in: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3,
+        ],
       },
 
       # start Query resolvers
@@ -189,8 +192,8 @@ defmodule ValueFlows.Hydration do
         propose_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.propose_intent/2
         ],
-        delete_proposed_intent: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        propose_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.propose_to/2
         ],
         create_offer: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_offer/2
@@ -204,9 +207,18 @@ defmodule ValueFlows.Hydration do
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],
+        update_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.update_proposal/2
+        ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
-        ]
+        ],
+        delete_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.delete_proposal/2
+        ],
+        delete_proposed_intent: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        ],
       }
     }
   end

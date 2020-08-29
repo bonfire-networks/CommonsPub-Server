@@ -49,11 +49,6 @@ defmodule MoodleNet.Common do
         if Kernel.function_exported?(context.__struct__, :context_module, 0),
           do: apply(context.__struct__, :context_module, [])
 
-      IO.inspect(context)
-      IO.inspect(context_module)
-      IO.inspect(Kernel.function_exported?(context_module, :soft_delete, 2))
-      IO.inspect(Kernel.function_exported?(context_module, :soft_delete, 1))
-
       if !is_nil(context) and !is_nil(context.id) and !is_nil(context_module) and
            allow_delete?(user, context) do
         if Kernel.function_exported?(context_module, :soft_delete, 2) do

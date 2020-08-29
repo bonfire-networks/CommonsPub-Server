@@ -226,7 +226,6 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   def pubsub_broadcast(thread_id, comment) do
-    IO.inspect(pubbed: thread_id)
     Phoenix.PubSub.broadcast(CommonsPub.PubSub, thread_id, {:pub_feed_comment, comment})
     :ok
   end

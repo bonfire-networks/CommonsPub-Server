@@ -2,13 +2,14 @@
 defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   use Absinthe.Schema.Notation
 
+  alias MoodleNet.GraphQL
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,
     FetchFields
   }
 
-  alias ValueFlows.{Proposal, Proposals}
+  alias ValueFlows.Proposals
   alias ValueFlows.Proposal.ProposedIntent
 
   def proposed_intent(%{id: id}, info) do
@@ -20,30 +21,37 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
-  def proposed_intents(%{id: proposal_id}, _, info) do
-    ResolveFields.run(%ResolveFields{
-      module: __MODULE__,
-      fetcher: :fetch_proposed_intents,
-      context: proposal_id,
-      info: info
-    })
+  def publishes_edge(%{id: proposal_id}, _, info) do
+    # ResolveFields.run(%ResolveFields{
+    #   module: __MODULE__,
+    #   fetcher: :fetch_proposed_intents,
+    #   context: proposal_id,
+    #   info: info
+    # })
+
+    Proposals.many_proposed_intents([:default, published_in_id: proposal_id])
   end
 
-  def fetch_proposed_intent(_info, id) do
+  def published_in_edge(%{id: intent_id}, _, info) do
+    Proposals.many_proposed_intents([:default, publishes_id: intent_id])
+  end
+
+  def fetch_proposed_intent(info, id) do
     Proposals.one_proposed_intent([:default, id: id])
   end
 
   def fetch_proposed_intents(_info, ids) do
-    FetchFields.run(%FetchFields{
-      queries: Proposal.ProposedIntentQueries,
-      query: ProposedIntent,
-      group_fn: & &1.publishes_id,
-      filters: [:default, publishes_id: ids]
-    })
+    # FetchFields.run(%FetchFields{
+    #   queries: Proposal.ProposedIntentQueries,
+    #   query: ProposedIntent,
+    #   group_fn: & &1.id,
+    #   filters: [:deleted, published_in_id: ids]
+    # })
   end
 
   def propose_intent(%{published_in: published_in_id, publishes: publishes_id} = params, info) do
-    with {:ok, published_in} <-
+    with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, published_in} <-
            ValueFlows.Proposal.GraphQL.proposal(%{id: published_in_id}, info),
          {:ok, publishes} <- ValueFlows.Planning.Intent.GraphQL.intent(%{id: publishes_id}, info),
          {:ok, proposed_intent} <- Proposals.propose_intent(published_in, publishes, params) do
@@ -53,7 +61,8 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   end
 
   def delete_proposed_intent(%{id: id}, info) do
-    with {:ok, proposed_intent} <- proposed_intent(%{id: id}, info),
+    with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, proposed_intent} <- proposed_intent(%{id: id}, info),
          {:ok, _} <- Proposals.delete_proposed_intent(proposed_intent) do
       {:ok, true}
     end

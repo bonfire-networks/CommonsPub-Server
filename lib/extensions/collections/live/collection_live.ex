@@ -32,7 +32,6 @@ defmodule MoodleNetWeb.CollectionLive do
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     collection = Collections.collection_load(socket, params, socket.assigns.current_user)
-    IO.inspect(tab)
 
     {:noreply,
      assign(socket,
@@ -45,8 +44,6 @@ defmodule MoodleNetWeb.CollectionLive do
 
   def handle_params(%{} = params, _url, socket) do
     collection = Collections.collection_load(socket, params, socket.assigns.current_user)
-
-    IO.inspect(collection: collection)
 
     {:noreply,
      assign(socket,
@@ -65,9 +62,6 @@ defmodule MoodleNetWeb.CollectionLive do
         }
       )
 
-    IO.inspect(flag, label: "FLAG")
-
-    # IO.inspect(f)
     # TODO: error handling
 
     {
@@ -87,7 +81,6 @@ defmodule MoodleNetWeb.CollectionLive do
         }
       )
 
-    # IO.inspect(f)
     # TODO: error handling
 
     {
@@ -102,7 +95,6 @@ defmodule MoodleNetWeb.CollectionLive do
   def handle_event("unfollow", _data, socket) do
     _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
 
-    # IO.inspect(uf)
     # TODO: error handling
 
     {
@@ -114,8 +106,6 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_event("edit_collection", %{"name" => name} = data, socket) do
-    # IO.inspect(data, label: "DATA")
-
     if(is_nil(name) or !Map.has_key?(socket.assigns, :current_user)) do
       {:noreply,
        socket
@@ -132,7 +122,6 @@ defmodule MoodleNetWeb.CollectionLive do
         )
 
       # TODO: handle errors
-      # IO.inspect(community, label: "community updated")
 
       if(collection) do
         collection =

@@ -109,7 +109,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   @doc "List child categories"
   def category_children(%{id: id}, %{} = page_opts, info) do
-    # IO.inspect(info)
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
       fetcher: :fetch_categories_children,
@@ -144,7 +143,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
     # |> Map.new()
 
-    # IO.inspect(pointers)
     MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
@@ -153,8 +151,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   """
   def tags_edges(%{tags: _tags} = thing, page_opts, info) do
     thing = Repo.preload(thing, tags: [:category, :profile, character: [:actor]])
-
-    # IO.inspect(categories_edges_thing: thing)
 
     tags = Enum.map(thing.tags, &tag_prepare(&1, page_opts, info))
 
@@ -237,13 +233,11 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   # def name(%{name: name, context_id: context_id}, _, _info)
   #     when is_nil(name) and not is_nil(context_id) do
-  #   # IO.inspect(context_id)
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
   #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
   #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
   #     name = if Map.has_key?(context, :name), do: context.name
-  #     # IO.inspect(name)
   #     {:ok, name}
   #   end
   # end
@@ -262,13 +256,11 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   # def summary(%{summary: summary, context_id: context_id}, _, _info)
   #     when is_nil(summary) and not is_nil(context_id) do
-  #   # IO.inspect(context_id)
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
   #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
   #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
   #     summary = if Map.has_key?(context, :summary), do: context.summary
-  #     # IO.inspect(summary)
   #     {:ok, summary}
   #   end
   # end

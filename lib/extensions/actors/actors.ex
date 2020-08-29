@@ -39,8 +39,6 @@ defmodule MoodleNet.Actors do
   #       } = attrs
   #     )
   #     when is_map(attrs) do
-  #   IO.inspect(is_username_available?(preferred_username))
-  #   IO.inspect(is_username_available?(alternative_username))
 
   #   if(is_username_available?(preferred_username)) do
   #     attrs =
@@ -51,8 +49,6 @@ defmodule MoodleNet.Actors do
   #   attrs =
   #     attrs
   #     |> Map.delete(:alternative_username)
-
-  #   IO.inspect(attrs)
 
   #   create(attrs)
   # end

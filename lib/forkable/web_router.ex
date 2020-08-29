@@ -255,7 +255,6 @@ defmodule MoodleNetWeb.Router do
                Map.has_key?(reason.term, :message) do
             reason.term.message
           else
-            # IO.inspect(handle_error: info)
             "An unhandled error has occured"
           end
         end

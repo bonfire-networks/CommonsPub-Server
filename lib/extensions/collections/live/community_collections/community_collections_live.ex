@@ -26,8 +26,6 @@ defmodule MoodleNetWeb.CommunityLive.CommunityCollectionsLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    # IO.inspect(collections: collections)
-
     collections_list =
       Enum.map(
         collections.edges,

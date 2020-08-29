@@ -40,7 +40,6 @@ defmodule CommonsPub.Profile.GraphQL.Resolver do
   end
 
   def profile(%{profile_id: id}, info) do
-    # IO.inspect(id)
     ResolveField.run(%ResolveField{
       module: __MODULE__,
       fetcher: :fetch_profile,
@@ -54,7 +53,6 @@ defmodule CommonsPub.Profile.GraphQL.Resolver do
   end
 
   # def profile(opts, _, info) do
-  #   IO.inspect(unmatched_profile_resolver, opts)
   #   {:ok, nil}
   # end
 

@@ -6,7 +6,6 @@ defmodule MoodleNetWeb.CollectionLive.CollectionFollowersLive do
   }
 
   def update(assigns, socket) do
-    # IO.inspect(assigns, label: "ASSIGNS:")
     {
       :ok,
       socket
@@ -16,8 +15,6 @@ defmodule MoodleNetWeb.CollectionLive.CollectionFollowersLive do
   end
 
   def fetch(socket, assigns) do
-    # IO.inspect(after: assigns.after)
-
     {:ok, users} =
       MoodleNetWeb.GraphQL.UsersResolver.user_follows_edge(
         %{id: assigns.collection.id},

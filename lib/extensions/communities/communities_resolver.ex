@@ -47,8 +47,6 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def communities(%{} = page_opts, info) do
-    # IO.inspect(page_opts)
-    # IO.inspect(info)
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
       fetcher: :fetch_communities,

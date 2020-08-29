@@ -185,7 +185,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       # %ValueFlows.Agent.People{}, _ -> :person
       # %ValueFlows.Agent.Organizations{}, _ -> :organization
       %ValueFlows.Planning.Intent{}, _ -> :intent
-      o, _ -> IO.inspect(any_context_resolve_unknown_type: o)
+      o, _ ->
+        Logger.warn("Any context resolved to an unknown type: #{inspect(o)}")
     end)
   end
 end

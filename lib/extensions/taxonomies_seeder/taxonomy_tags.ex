@@ -1,6 +1,8 @@
 defmodule Taxonomy.TaxonomyTags do
   # import Ecto.Query
   # alias Ecto.Changeset
+  require Logger
+
 
   alias MoodleNet.{
     # Common, GraphQL,
@@ -120,7 +122,7 @@ defmodule Taxonomy.TaxonomyTags do
       create_category(user, tag, create_tag)
     else
       _e ->
-        IO.inspect("could not create parent tag")
+        Logger.error("could not create parent tag")
         # create the child anyway
         create_category(user, tag, create_tag)
     end
