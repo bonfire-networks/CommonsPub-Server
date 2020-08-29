@@ -7,7 +7,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   alias MoodleNet.Users.User
   alias MoodleNet.Meta.Pointers
 
-  alias Geolocation.Geolocations
   # alias Measurement.Measure
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
@@ -88,17 +87,17 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   ## mutations
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = state, %{id: _id} = context, attrs)
+  def create(%User{} = creator, %{id: _id} = context, attrs)
       when is_map(attrs) do
     do_create(creator, attrs, fn ->
-      ResourceSpecification.create_changeset(creator, state, context, attrs)
+      ResourceSpecification.create_changeset(creator, context, attrs)
     end)
   end
 
   # @spec create(User.t(), attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = state, attrs) when is_map(attrs) do
+  def create(%User{} = creator, attrs) when is_map(attrs) do
     do_create(creator, attrs, fn ->
-      ResourceSpecification.create_changeset(creator, state, attrs)
+      ResourceSpecification.create_changeset(creator, attrs)
     end)
   end
 

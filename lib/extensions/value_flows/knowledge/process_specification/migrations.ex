@@ -15,11 +15,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Migrations do
 
       add(:image_id, references(:mn_content))
 
-      add(:has_beginning, :timestamptz)
-      add(:has_end, :timestamptz)
-
-      add(:finished, :boolean, default: false)
-
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
       # optional context as in_scope_of

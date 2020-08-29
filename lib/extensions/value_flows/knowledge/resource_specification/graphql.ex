@@ -89,12 +89,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   # TODO: support several filters combined, plus pagination on filtered queries
 
-  defp resource_specs_filter(%{agent: id} = page_opts, filters_acc) do
-    resource_specs_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
-  end
-
   defp resource_specs_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
     resource_specs_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
+  end
+
+  defp resource_specs_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
+    resource_specs_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
   end
 
   defp resource_specs_filter(
@@ -174,12 +174,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Knowledge.ResourceSpecification.Queries,
       query: ValueFlows.Knowledge.ResourceSpecification,
-      # preload: [:primary_accountable, :receiver, :tags],
+      # preload: [:tags],
       # cursor_fn: ResourceSpecifications.cursor(:followers),
       page_opts: page_opts,
       base_filters: [
         :default,
-        # preload: [:primary_accountable, :receiver, :tags],
+        # preload: [:tags],
         user: GraphQL.current_user(info)
       ]
       # data_filters: [page: [desc: [followers: page_opts]]],
@@ -207,36 +207,33 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def create_resource_spec(
-        %{resource_spec: %{in_scope_of: context_id, state: state_id} = resource_spec_attrs},
+        %{resource_spec: %{in_scope_of: context_id} = resource_spec_attrs},
         info
       )
       when not is_nil(context_id) do
-    # FIXME, need to do something like validate_thread_context to validate the primary_accountable/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, state} <- Actions.action(state_id),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
            {:ok, uploads} <- UploadResolver.upload(user, resource_spec_attrs, info),
            resource_spec_attrs = Map.merge(resource_spec_attrs, uploads),
            resource_spec_attrs = Map.merge(resource_spec_attrs, %{is_public: true}),
            {:ok, resource_spec} <-
-             ResourceSpecifications.create(user, state, context, resource_spec_attrs) do
-        {:ok, %{resource_spec: %{resource_spec | state: state}}}
+             ResourceSpecifications.create(user, context, resource_spec_attrs) do
+        {:ok, %{resource_spec: resource_spec}}
       end
     end)
   end
 
   # FIXME: duplication!
-  def create_resource_spec(%{resource_spec: %{state: state_id} = resource_spec_attrs}, info) do
+  def create_resource_spec(%{resource_spec: resource_spec_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, state} <- Actions.action(state_id),
            {:ok, uploads} <- UploadResolver.upload(user, resource_spec_attrs, info),
            resource_spec_attrs = Map.merge(resource_spec_attrs, uploads),
            resource_spec_attrs = Map.merge(resource_spec_attrs, %{is_public: true}),
-           {:ok, resource_spec} <- ResourceSpecifications.create(user, state, resource_spec_attrs) do
-        {:ok, %{resource_spec: %{resource_spec | state: state}}}
+           {:ok, resource_spec} <- ResourceSpecifications.create(user, resource_spec_attrs) do
+        {:ok, %{resource_spec: resource_spec}}
       end
     end)
   end

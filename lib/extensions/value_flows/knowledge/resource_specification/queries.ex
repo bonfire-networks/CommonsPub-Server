@@ -35,34 +35,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     join(q, jq, [resource_spec: c], c2 in assoc(c, :context), as: :context)
   end
 
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [resource_spec: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
-  end
-
-  def join_to(q, :geolocation, jq) do
-    join(q, jq, [resource_spec: c], g in assoc(c, :current_location), as: :geolocation)
-  end
-
   def join_to(q, :tags, jq) do
     join(q, jq, [resource_spec: c], t in assoc(c, :tags), as: :tags)
   end
-
-  # def join_to(q, :primary_accountable, jq) do
-  #   join q, jq, [follow: f], c in assoc(f, :primary_accountable), as: :pointer
-  # end
-
-  # def join_to(q, :receiver, jq) do
-  #   join q, jq, [follow: f], c in assoc(f, :receiver), as: :pointer
-  # end
-
-  # def join_to(q, :follower_count, jq) do
-  #   join q, jq, [resource_spec: c],
-  #     f in FollowerCount, on: c.id == f.context_id,
-  #     as: :follower_count
-  # end
 
   ### filter/2
 
@@ -76,15 +51,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   def filter(q, :default) do
     filter(q, [:deleted])
-    # filter q, [:deleted, {:preload, :primary_accountable}, {:preload, :receiver}]
-  end
-
-  def filter(q, :offer) do
-    where(q, [resource_spec: c], is_nil(c.receiver_id))
-  end
-
-  def filter(q, :need) do
-    where(q, [resource_spec: c], is_nil(c.primary_accountable_id))
   end
 
   ## by join
@@ -123,24 +89,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   ## by field values
 
-  def filter(q, {:cursor, [count, id]})
-      when is_integer(count) and is_binary(id) do
-    where(
-      q,
-      [resource_spec: c, follower_count: fc],
-      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
-    )
-  end
-
-  def filter(q, {:cursor, [count, id]})
-      when is_integer(count) and is_binary(id) do
-    where(
-      q,
-      [resource_spec: c, follower_count: fc],
-      (fc.count == ^count and c.id <= ^id) or fc.count < ^count
-    )
-  end
-
   def filter(q, {:id, id}) when is_binary(id) do
     where(q, [resource_spec: c], c.id == ^id)
   end
@@ -155,62 +103,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
     where(q, [resource_spec: c], c.context_id in ^ids)
-  end
-
-  def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [resource_spec: c], c.primary_accountable_id == ^id or c.receiver_id == ^id)
-  end
-
-  def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [resource_spec: c], c.primary_accountable_id in ^ids or c.receiver_id in ^ids)
-  end
-
-  def filter(q, {:primary_accountable_id, id}) when is_binary(id) do
-    where(q, [resource_spec: c], c.primary_accountable_id == ^id)
-  end
-
-  def filter(q, {:primary_accountable_id, ids}) when is_list(ids) do
-    where(q, [resource_spec: c], c.primary_accountable_id in ^ids)
-  end
-
-  def filter(q, {:receiver_id, id}) when is_binary(id) do
-    where(q, [resource_spec: c], c.receiver_id == ^id)
-  end
-
-  def filter(q, {:receiver_id, ids}) when is_list(ids) do
-    where(q, [resource_spec: c], c.receiver_id in ^ids)
-  end
-
-  def filter(q, {:state_id, ids}) when is_list(ids) do
-    where(q, [resource_spec: c], c.state_id in ^ids)
-  end
-
-  def filter(q, {:state_id, id}) when is_binary(id) do
-    where(q, [resource_spec: c], c.state_id == ^id)
-  end
-
-  def filter(q, {:current_location_id, current_location_id}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:current_location)
-    |> where([resource_spec: c], c.current_location_id == ^current_location_id)
-  end
-
-  def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:current_location)
-    |> where(
-      [resource_spec: c, geolocation: g],
-      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
-    )
-  end
-
-  def filter(q, {:location_within, geom_point}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:current_location)
-    |> where([resource_spec: c, geolocation: g], st_within(g.geom, ^geom_point))
   end
 
   def filter(q, {:tag_ids, ids}) when is_list(ids) do
@@ -267,14 +159,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     preload(q, [pointer: p], receiver: p)
   end
 
-  def filter(q, {:preload, :current_location}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:current_location)
-
-    # preload(q, [geolocation: g], current_location: g)
-  end
-
   # pagination
 
   def filter(q, {:limit, limit}) do
@@ -298,16 +182,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   def filter(q, {:paginate_id, %{limit: limit}}) do
     filter(q, limit: limit + 1)
   end
-
-  # def filter(q, {:page, [desc: [followers: page_opts]]}) do
-  #   q
-  #   |> filter(join: :follower_count, order: [desc: :followers])
-  #   |> page(page_opts, [desc: :followers])
-  #   |> select(
-  #     [resource_spec: c,  follower_count: fc],
-  #     %{c | follower_count: coalesce(fc.count, 0)}
-  #   )
-  # end
 
   # defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
   #   filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2

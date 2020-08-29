@@ -22,6 +22,13 @@ defmodule ValueFlows.Observation.EconomicEvent do
     field(:name, :string)
     field(:note, :string)
 
+    # TODO: link to Agreement?
+    field(:agreed_in, :string)
+
+    field(:has_beginning, :utc_datetime_usec)
+    field(:has_end, :utc_datetime_usec)
+    field(:has_point_in_time, :utc_datetime_usec)
+
     belongs_to(:image, Content)
 
     belongs_to(:action, Action, type: :string)
@@ -41,13 +48,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
     belongs_to(:resource_quantity, Measure, on_replace: :nilify)
     belongs_to(:effort_quantity, Measure, on_replace: :nilify)
 
-    field(:has_beginning, :utc_datetime_usec)
-    field(:has_end, :utc_datetime_usec)
-    field(:has_point_in_time, :utc_datetime_usec)
-
     belongs_to(:context, Pointers.Pointer)
-
-    field(:agreed_in, :string)
 
     belongs_to(:at_location, SpatialThing)
 
@@ -82,7 +83,8 @@ defmodule ValueFlows.Observation.EconomicEvent do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note at_location_id is_disabled image_id)a
+  @cast @required ++
+          ~w(note agreed_in has_beginning has_end has_point_in_time action_id is_disabled image_id)a
 
   def create_changeset(
         %User{} = creator,

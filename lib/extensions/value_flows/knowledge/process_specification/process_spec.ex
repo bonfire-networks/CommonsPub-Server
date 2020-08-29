@@ -21,33 +21,9 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
     field(:note, :string)
     # belongs_to(:image, Content)
 
-    field(:has_beginning, :utc_datetime_usec)
-    field(:has_end, :utc_datetime_usec)
-
-    field(:finished, :boolean, default: false)
-
     field(:classified_as, {:array, :string}, virtual: true)
 
     belongs_to(:context, Pointers.Pointer)
-
-    # TODO
-    # workingAgents: [Agent!]
-    # basedOn: ProcessSpecification
-    # nextProcesses: [ProcessSpecification!]
-    # previousProcesses: [ProcessSpecification!]
-    # intendedInputs(action: ID): [ProcessSpecification!]
-    # intendedOutputs(action: ID): [ProcessSpecification!]
-    # inputs(action: ID): [EconomicEvent!]
-    # outputs(action: ID): [EconomicEvent!]
-    # unplannedEconomicEvents(action: ID): [EconomicEvent!]
-    # trace: [EconomicEvent!]
-    # track: [EconomicEvent!]
-    # plannedWithin: Plan
-    # committedInputs(action: ID): [Commitment!]
-    # committedOutputs(action: ID): [Commitment!]
-    # nestedIn: Scenario
-
-    # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
     belongs_to(:creator, User)
 

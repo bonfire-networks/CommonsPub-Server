@@ -42,27 +42,9 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
     )
   end
 
-  def join_to(q, :geolocation, jq) do
-    join(q, jq, [process_spec: c], g in assoc(c, :at_location), as: :geolocation)
-  end
-
   def join_to(q, :tags, jq) do
     join(q, jq, [process_spec: c], t in assoc(c, :tags), as: :tags)
   end
-
-  # def join_to(q, :provider, jq) do
-  #   join q, jq, [follow: f], c in assoc(f, :provider), as: :pointer
-  # end
-
-  # def join_to(q, :receiver, jq) do
-  #   join q, jq, [follow: f], c in assoc(f, :receiver), as: :pointer
-  # end
-
-  # def join_to(q, :follower_count, jq) do
-  #   join q, jq, [process_spec: c],
-  #     f in FollowerCount, on: c.id == f.context_id,
-  #     as: :follower_count
-  # end
 
   ### filter/2
 
@@ -77,14 +59,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   def filter(q, :default) do
     filter(q, [:deleted])
     # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
-  end
-
-  def filter(q, :offer) do
-    where(q, [process_spec: c], is_nil(c.receiver_id))
-  end
-
-  def filter(q, :need) do
-    where(q, [process_spec: c], is_nil(c.provider_id))
   end
 
   ## by join
@@ -123,24 +97,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
 
   ## by field values
 
-  def filter(q, {:cursor, [count, id]})
-      when is_integer(count) and is_binary(id) do
-    where(
-      q,
-      [process_spec: c, follower_count: fc],
-      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
-    )
-  end
-
-  def filter(q, {:cursor, [count, id]})
-      when is_integer(count) and is_binary(id) do
-    where(
-      q,
-      [process_spec: c, follower_count: fc],
-      (fc.count == ^count and c.id <= ^id) or fc.count < ^count
-    )
-  end
-
   def filter(q, {:id, id}) when is_binary(id) do
     where(q, [process_spec: c], c.id == ^id)
   end
@@ -155,62 +111,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
     where(q, [process_spec: c], c.context_id in ^ids)
-  end
-
-  def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [process_spec: c], c.provider_id == ^id or c.receiver_id == ^id)
-  end
-
-  def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [process_spec: c], c.provider_id in ^ids or c.receiver_id in ^ids)
-  end
-
-  def filter(q, {:provider_id, id}) when is_binary(id) do
-    where(q, [process_spec: c], c.provider_id == ^id)
-  end
-
-  def filter(q, {:provider_id, ids}) when is_list(ids) do
-    where(q, [process_spec: c], c.provider_id in ^ids)
-  end
-
-  def filter(q, {:receiver_id, id}) when is_binary(id) do
-    where(q, [process_spec: c], c.receiver_id == ^id)
-  end
-
-  def filter(q, {:receiver_id, ids}) when is_list(ids) do
-    where(q, [process_spec: c], c.receiver_id in ^ids)
-  end
-
-  def filter(q, {:action_id, ids}) when is_list(ids) do
-    where(q, [process_spec: c], c.action_id in ^ids)
-  end
-
-  def filter(q, {:action_id, id}) when is_binary(id) do
-    where(q, [process_spec: c], c.action_id == ^id)
-  end
-
-  def filter(q, {:at_location_id, at_location_id}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:at_location)
-    |> where([process_spec: c], c.at_location_id == ^at_location_id)
-  end
-
-  def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:at_location)
-    |> where(
-      [process_spec: c, geolocation: g],
-      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
-    )
-  end
-
-  def filter(q, {:location_within, geom_point}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:at_location)
-    |> where([process_spec: c, geolocation: g], st_within(g.geom, ^geom_point))
   end
 
   def filter(q, {:tag_ids, ids}) when is_list(ids) do
@@ -257,22 +157,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
 
   def filter(q, {:count, key}) when is_atom(key) do
     select(q, [process_spec: c], {field(c, ^key), count(c.id)})
-  end
-
-  def filter(q, {:preload, :provider}) do
-    preload(q, [pointer: p], provider: p)
-  end
-
-  def filter(q, {:preload, :receiver}) do
-    preload(q, [pointer: p], receiver: p)
-  end
-
-  def filter(q, {:preload, :at_location}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:at_location)
-
-    # preload(q, [geolocation: g], at_location: g)
   end
 
   # pagination
