@@ -92,10 +92,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   # TODO: support several filters combined, plus pagination on filtered queries
 
-  defp resources_filter(%{agent: id} = page_opts, filters_acc) do
-    resources_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
-  end
-
   defp resources_filter(%{primary_accountable: id} = page_opts, filters_acc) do
     resources_filter_next(
       :primary_accountable,
@@ -103,10 +99,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
       page_opts,
       filters_acc
     )
-  end
-
-  defp resources_filter(%{receiver: id} = page_opts, filters_acc) do
-    resources_filter_next(:receiver, [receiver_id: id], page_opts, filters_acc)
   end
 
   defp resources_filter(%{state: id} = page_opts, filters_acc) do
@@ -240,28 +232,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     resources_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
-  def offers(page_opts, info) do
-    ResolveRootPage.run(%ResolveRootPage{
-      module: __MODULE__,
-      fetcher: :fetch_offers,
-      page_opts: page_opts,
-      info: info,
-      # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
-    })
-  end
-
-  def needs(page_opts, info) do
-    ResolveRootPage.run(%ResolveRootPage{
-      module: __MODULE__,
-      fetcher: :fetch_needs,
-      page_opts: page_opts,
-      info: info,
-      # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
-    })
-  end
-
   ## fetchers
 
   def fetch_resource(info, id) do
@@ -323,30 +293,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     })
   end
 
-  def fetch_offers(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Observation.EconomicResource.Queries,
-      query: ValueFlows.Observation.EconomicResource,
-      page_opts: page_opts,
-      base_filters: [
-        [:default, :offer],
-        user: GraphQL.current_user(info)
-      ]
-    })
-  end
-
-  def fetch_needs(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Observation.EconomicResource.Queries,
-      query: ValueFlows.Observation.EconomicResource,
-      page_opts: page_opts,
-      base_filters: [
-        [:default, :need],
-        user: GraphQL.current_user(info)
-      ]
-    })
-  end
-
   def fetch_primary_accountable_edge(%{primary_accountable_id: id}, _, info)
       when not is_nil(id) do
     # CommonResolver.context_edge(%{context_id: id}, nil, info)
@@ -357,94 +303,21 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     {:ok, nil}
   end
 
-  def fetch_receiver_edge(%{receiver_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
-
-  def fetch_receiver_edge(_, _, _) do
-    {:ok, nil}
-  end
-
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
     thing = Repo.preload(thing, tags: [character: [:actor]])
     urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
     {:ok, urls}
   end
 
-  def create_offer(%{resource: resource_attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      create_resource(
-        %{resource: Map.put(resource_attrs, :primary_accountable, user.id)},
-        info
-      )
-    end
-  end
-
-  def create_need(%{resource: resource_attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      create_resource(
-        %{resource: Map.put(resource_attrs, :receiver, user.id)},
-        info
-      )
-    end
-  end
-
-  def create_resource(%{resource: %{in_scope_of: context_ids} = resource_attrs}, info)
-      when is_list(context_ids) do
-    # FIXME: support multiple contexts?
-    context_id = List.first(context_ids)
-
-    create_resource(
-      %{resource: Map.merge(resource_attrs, %{in_scope_of: context_id})},
-      info
-    )
-  end
-
-  def create_resource(
-        %{resource: %{in_scope_of: context_id, state: state_id} = resource_attrs},
-        info
-      )
-      when not is_nil(context_id) do
-    # FIXME, need to do something like validate_thread_context to validate the primary_accountable/receiver agent ID
+  def create_resource(%{resource: resource_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, state} <- Actions.action(state_id),
-           {:ok, pointer} <- Pointers.one(id: context_id),
-           context = Pointers.follow!(pointer),
            {:ok, uploads} <- UploadResolver.upload(user, resource_attrs, info),
            resource_attrs = Map.merge(resource_attrs, uploads),
            resource_attrs = Map.merge(resource_attrs, %{is_public: true}),
-           {:ok, resource} <- EconomicResources.create(user, state, context, resource_attrs) do
-        {:ok, %{resource: %{resource | state: state}}}
+           {:ok, resource} <- EconomicResources.create(user, resource_attrs) do
+        {:ok, %{resource: resource}}
       end
-    end)
-  end
-
-  # FIXME: duplication!
-  def create_resource(%{resource: %{state: state_id} = resource_attrs}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, state} <- Actions.action(state_id),
-           {:ok, uploads} <- UploadResolver.upload(user, resource_attrs, info),
-           resource_attrs = Map.merge(resource_attrs, uploads),
-           resource_attrs = Map.merge(resource_attrs, %{is_public: true}),
-           {:ok, resource} <- EconomicResources.create(user, state, resource_attrs) do
-        {:ok, %{resource: %{resource | state: state}}}
-      end
-    end)
-  end
-
-  def update_resource(%{resource: %{in_scope_of: context_ids} = changes}, info) do
-    context_id = List.first(context_ids)
-
-    Repo.transact_with(fn ->
-      do_update(changes, info, fn resource, changes ->
-        with {:ok, pointer} <- Pointers.one(id: context_id) do
-          context = Pointers.follow!(pointer)
-          EconomicResources.update(resource, context, changes)
-        end
-      end)
     end)
   end
 

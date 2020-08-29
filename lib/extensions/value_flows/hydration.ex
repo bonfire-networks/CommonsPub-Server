@@ -49,8 +49,8 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
         publishes: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.publishes_edge/3,
-        ],
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.publishes_edge/3
+        ]
       },
       intent: %{
         provider: [
@@ -78,8 +78,8 @@ defmodule ValueFlows.Hydration do
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
         published_in: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3,
-        ],
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3
+        ]
       },
 
       # start Query resolvers
@@ -219,6 +219,9 @@ defmodule ValueFlows.Hydration do
         delete_proposed_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
         ],
+        create_economic_event: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.create_event/2
+        ]
       }
     }
   end

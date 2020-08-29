@@ -75,22 +75,6 @@ defmodule ValueFlows.Observation.Process do
 
   def create_changeset(
         %User{} = creator,
-        %{id: _} = context,
-        attrs
-      ) do
-    %Process{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: creator.id,
-      context_id: context.id,
-      is_public: true
-    )
-    |> common_changeset()
-  end
-
-  def create_changeset(
-        %User{} = creator,
         attrs
       ) do
     %Process{}
@@ -100,17 +84,6 @@ defmodule ValueFlows.Observation.Process do
       creator_id: creator.id,
       is_public: true
     )
-    |> common_changeset()
-  end
-
-  def update_changeset(
-        %Process{} = process,
-        %{id: _} = context,
-        attrs
-      ) do
-    process
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
 

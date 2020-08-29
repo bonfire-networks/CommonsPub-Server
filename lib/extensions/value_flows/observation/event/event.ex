@@ -11,8 +11,10 @@ defmodule ValueFlows.Observation.EconomicEvent do
   # alias MoodleNet.Actors.Actor
   # alias MoodleNet.Communities.Community
   alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicResource
+  alias ValueFlows.Observation.Process
 
   alias Measurement.Measure
 
@@ -43,6 +45,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
     belongs_to(:to_resource_inventoried_as, EconomicResource)
 
     field(:resource_classified_as, {:array, :string}, virtual: true)
+
     belongs_to(:resource_conforms_to, ResourceSpecification)
 
     belongs_to(:resource_quantity, Measure, on_replace: :nilify)
@@ -82,14 +85,12 @@ defmodule ValueFlows.Observation.EconomicEvent do
     timestamps(inserted_at: false)
   end
 
-  @required ~w(name is_public)a
+  @required ~w(is_public)a
   @cast @required ++
           ~w(note agreed_in has_beginning has_end has_point_in_time action_id is_disabled image_id)a
 
   def create_changeset(
         %User{} = creator,
-        %Action{} = action,
-        %{id: _} = context,
         attrs
       ) do
     %EconomicEvent{}
@@ -97,38 +98,8 @@ defmodule ValueFlows.Observation.EconomicEvent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      context_id: context.id,
-      # TODO: move action to context and validate that it's a valid action
-      action_id: action.id,
       is_public: true
     )
-    |> common_changeset()
-  end
-
-  def create_changeset(
-        %User{} = creator,
-        %Action{} = action,
-        attrs
-      ) do
-    %EconomicEvent{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: creator.id,
-      action_id: action.id,
-      is_public: true
-    )
-    |> common_changeset()
-  end
-
-  def update_changeset(
-        %EconomicEvent{} = event,
-        %{id: _} = context,
-        attrs
-      ) do
-    event
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
 
@@ -138,22 +109,10 @@ defmodule ValueFlows.Observation.EconomicEvent do
     |> common_changeset()
   end
 
-  def measure_fields do
-    [:resource_quantity, :effort_quantity, :available_quantity]
-  end
-
-  def change_measures(changeset, %{} = attrs) do
-    measures = Map.take(attrs, measure_fields())
-
-    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
-      Changeset.put_assoc(c, field_name, measure)
-    end)
-  end
-
-  def change_at_location(changeset, %Geolocation{} = location) do
+  def change_context(changeset, %{id: _} = context) do
     Changeset.change(changeset,
-      at_location: location,
-      at_location_id: location.id
+      context: context,
+      context_id: context.id
     )
   end
 
@@ -167,6 +126,53 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
   def change_receiver(changeset, %{id: _} = receiver) do
     Changeset.change(changeset, receiver_id: receiver.id)
+  end
+
+  def change_input_process(changeset, %Process{} = item) do
+    Changeset.change(changeset,
+      input_of: item,
+      input_of_id: item.id
+    )
+  end
+
+  def change_output_process(changeset, %Process{} = item) do
+    Changeset.change(changeset,
+      output_of: item,
+      output_of_id: item.id
+    )
+  end
+
+  def change_conforms_to_resource_spec(changeset, %ResourceSpecification{} = conforms_to) do
+    Changeset.change(changeset,
+      conforms_to: conforms_to,
+      conforms_to_id: conforms_to.id
+    )
+  end
+
+  def change_at_location(changeset, %Geolocation{} = location) do
+    Changeset.change(changeset,
+      at_location: location,
+      at_location_id: location.id
+    )
+  end
+
+  def change_triggered_by_event(changeset, %EconomicEvent{} = item) do
+    Changeset.change(changeset,
+      triggered_by: item,
+      triggered_by_in_id: item.id
+    )
+  end
+
+  def change_measures(changeset, %{} = attrs) do
+    measures = Map.take(attrs, measure_fields())
+
+    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
+      Changeset.put_assoc(c, field_name, measure)
+    end)
+  end
+
+  def measure_fields do
+    [:resource_quantity, :effort_quantity]
   end
 
   defp common_changeset(changeset) do

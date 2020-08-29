@@ -13,6 +13,9 @@ defmodule ValueFlows.Observation.EconomicResource do
   alias Measurement.Unit
 
   alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.ResourceSpecification
+  alias ValueFlows.Knowledge.ProcessSpecification
+
   alias ValueFlows.Observation.EconomicResource
 
   @type t :: %__MODULE__{}
@@ -73,8 +76,6 @@ defmodule ValueFlows.Observation.EconomicResource do
 
   def create_changeset(
         %User{} = creator,
-        %Action{} = state,
-        %{id: _} = context,
         attrs
       ) do
     %EconomicResource{}
@@ -82,38 +83,8 @@ defmodule ValueFlows.Observation.EconomicResource do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      context_id: context.id,
-      # TODO: move state to context and validate that it's a valid state
-      state_id: state.id,
       is_public: true
     )
-    |> common_changeset()
-  end
-
-  def create_changeset(
-        %User{} = creator,
-        %Action{} = state,
-        attrs
-      ) do
-    %EconomicResource{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: creator.id,
-      state_id: state.id,
-      is_public: true
-    )
-    |> common_changeset()
-  end
-
-  def update_changeset(
-        %EconomicResource{} = resource,
-        %{id: _} = context,
-        attrs
-      ) do
-    resource
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
 
@@ -123,8 +94,60 @@ defmodule ValueFlows.Observation.EconomicResource do
     |> common_changeset()
   end
 
-  def measure_fields do
-    [:onhand_quantity, :accounting_quantity]
+  def change_context(changeset, %{id: _} = context) do
+    Changeset.change(changeset,
+      context: context,
+      context_id: context.id
+    )
+  end
+
+  def change_primary_accountable(changeset, %{id: _} = primary_accountable) do
+    Changeset.change(changeset,
+      primary_accountable: primary_accountable,
+      primary_accountable_id: primary_accountable.id
+    )
+  end
+
+  def change_state_action(changeset, %Action{} = state) do
+    Changeset.change(changeset,
+      state: state,
+      state_id: state.id
+    )
+  end
+
+  def change_stage_process_spec(changeset, %ProcessSpecification{} = stage) do
+    Changeset.change(changeset,
+      stage: stage,
+      stage: stage.id
+    )
+  end
+
+  def change_current_location(changeset, %Geolocation{} = location) do
+    Changeset.change(changeset,
+      current_location: location,
+      current_location_id: location.id
+    )
+  end
+
+  def change_conforms_to_resource_spec(changeset, %ResourceSpecification{} = conforms_to) do
+    Changeset.change(changeset,
+      conforms_to: conforms_to,
+      conforms_to_id: conforms_to.id
+    )
+  end
+
+  def change_contained_in_resource(changeset, %EconomicResource{} = contained_in) do
+    Changeset.change(changeset,
+      contained_in: contained_in,
+      contained_in_id: contained_in.id
+    )
+  end
+
+  def change_unit_of_effort(changeset, %Unit{} = unit_of_effort) do
+    Changeset.change(changeset,
+      unit_of_effort: unit_of_effort,
+      unit_of_effort_id: unit_of_effort.id
+    )
   end
 
   def change_measures(changeset, %{} = attrs) do
@@ -135,33 +158,14 @@ defmodule ValueFlows.Observation.EconomicResource do
     end)
   end
 
-  def change_current_location(changeset, %Geolocation{} = location) do
-    Changeset.change(changeset,
-      current_location: location,
-      current_location_id: location.id
-    )
-  end
-
-  def change_action(changeset, %Action{} = state) do
-    Changeset.change(changeset, state_id: state.id)
-  end
-
-  def change_primary_accountable(changeset, %{id: _} = primary_accountable) do
-    Changeset.change(changeset, primary_accountable_id: primary_accountable.id)
-  end
-
-  def change_receiver(changeset, %{id: _} = receiver) do
-    Changeset.change(changeset, receiver_id: receiver.id)
+  def measure_fields do
+    [:onhand_quantity, :accounting_quantity]
   end
 
   defp common_changeset(changeset) do
     changeset
     |> change_public()
     |> change_disabled()
-    |> Changeset.foreign_key_constraint(
-      :current_location_id,
-      name: :vf_resource_current_location_id_fkey
-    )
   end
 
   def context_module, do: ValueFlows.Observation.EconomicResource.EconomicResources

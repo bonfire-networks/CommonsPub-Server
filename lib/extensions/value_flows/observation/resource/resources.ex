@@ -87,31 +87,16 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   ## mutations
 
-  # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = state, %{id: _id} = context, attrs)
-      when is_map(attrs) do
-    do_create(creator, attrs, fn ->
-      EconomicResource.create_changeset(creator, state, context, attrs)
-    end)
-  end
-
   # @spec create(User.t(), attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = state, attrs) when is_map(attrs) do
+  def create(%User{} = creator, attrs) when is_map(attrs) do
     do_create(creator, attrs, fn ->
-      EconomicResource.create_changeset(creator, state, attrs)
+      EconomicResource.create_changeset(creator, attrs)
     end)
   end
 
   def do_create(creator, attrs, changeset_fn) do
-    attrs = parse_measurement_attrs(attrs)
-
     Repo.transact_with(fn ->
-      cs =
-        changeset_fn.()
-        |> EconomicResource.change_measures(attrs)
-
-      with {:ok, cs} <- change_current_location(cs, attrs),
-           {:ok, cs} <- change_agent(cs, attrs),
+      with cs <- prepare_changeset(attrs, changeset_fn),
            {:ok, item} <- Repo.insert(cs),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -121,6 +106,160 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
         item = %{item | creator: creator}
         index(item)
         {:ok, item}
+      end
+    end)
+  end
+
+  # TODO: take the user who is performing the update
+  # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
+  def update(%EconomicResource{} = resource, attrs) do
+    do_update(resource, attrs, &EconomicResource.update_changeset(&1, attrs))
+  end
+
+  def do_update(resource, attrs, changeset_fn) do
+    Repo.transact_with(fn ->
+      resource =
+        Repo.preload(resource, [
+          :accounting_quantity,
+          :onhand_quantity,
+          :unit_of_effort,
+          :state,
+          :stage,
+          :primary_accountable,
+          :current_location,
+          :contained_in,
+          :conforms_to
+        ])
+
+      with cs <- prepare_changeset(attrs, changeset_fn, resource),
+           {:ok, resource} <- Repo.update(cs),
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs),
+           :ok <- publish(resource, :updated) do
+        {:ok, resource}
+      end
+    end)
+  end
+
+  defp prepare_changeset(attrs, changeset_fn, resource) do
+    resource
+    |> changeset_fn.()
+    |> changeset_relations(attrs)
+  end
+
+  defp prepare_changeset(attrs, changeset_fn) do
+    changeset_fn.()
+    |> changeset_relations(attrs)
+  end
+
+  defp changeset_relations(cs, attrs) do
+    attrs = parse_measurement_attrs(attrs)
+
+    cs
+    |> EconomicResource.change_measures(attrs)
+    |> change_context(attrs)
+    |> change_primary_accountable(attrs)
+    |> change_state_action(attrs)
+    |> change_stage_process_spec(attrs)
+    |> change_current_location(attrs)
+    |> change_conforms_to_resource_spec(attrs)
+    |> change_contained_in_resource(attrs)
+    |> change_unit_of_effort(attrs)
+  end
+
+  defp change_context(changeset, %{in_scope_of: context_ids} = resource_attrs)
+       when is_list(context_ids) do
+    # FIXME: support multiple contexts?
+    context_id = List.first(context_ids)
+
+    change_context(
+      changeset,
+      Map.merge(resource_attrs, %{in_scope_of: context_id})
+    )
+  end
+
+  defp change_context(changeset, %{in_scope_of: id}) do
+    with {:ok, pointer} <- Pointers.one(id: id) do
+      context = Pointers.follow!(pointer)
+      {:ok, EconomicResource.change_context(changeset, context)}
+    end
+  end
+
+  defp change_context(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_primary_accountable(changeset, %{primary_accountable: id}) do
+    with {:ok, pointer} <- Pointers.one(id: id) do
+      primary_accountable = Pointers.follow!(pointer)
+      {:ok, EconomicResource.change_primary_accountable(changeset, primary_accountable)}
+    end
+  end
+
+  defp change_primary_accountable(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_state_action(changeset, %{state: state_id}) do
+    with {:ok, state} <- Actions.action(state_id) do
+      {:ok, EconomicResource.change_state_action(changeset, state)}
+    end
+  end
+
+  defp change_state_action(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_stage_process_spec(changeset, %{state: id}) do
+    with {:ok, state} <- ProcessSpecifications.one(id: id) do
+      {:ok, EconomicResource.change_stage_process_spec(changeset, state)}
+    end
+  end
+
+  defp change_stage_process_spec(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_current_location(changeset, %{current_location: id}) do
+    with {:ok, location} <- Geolocations.one([:default, id: id]) do
+      {:ok, EconomicResource.change_current_location(changeset, location)}
+    end
+  end
+
+  defp change_current_location(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
+    with {:ok, item} <- ResourceSpecification.one([:default, id: id]) do
+      {:ok, EconomicResource.change_conforms_to_resource_spec(changeset, item)}
+    end
+  end
+
+  defp change_conforms_to_resource_spec(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_contained_in_resource(changeset, %{contained_in: id}) do
+    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
+      {:ok, EconomicResource.change_contained_in_resource(changeset, item)}
+    end
+  end
+
+  defp change_contained_in_resource(changeset, _attrs), do: {:ok, changeset}
+
+  defp change_unit_of_effort(changeset, %{unit_of_effort: id}) do
+    with {:ok, item} <- Units.one([:default, id: id]) do
+      {:ok, EconomicResource.change_unit_of_effort(changeset, item)}
+    end
+  end
+
+  defp change_unit_of_effort(changeset, _attrs), do: {:ok, changeset}
+
+  defp parse_measurement_attrs(attrs) do
+    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
+      if is_map(v) and Map.has_key?(v, :has_unit) do
+        v = ValueFlows.Util.map_key_replace(v, :has_unit, :unit_id)
+        # I have no idea why the numerical value isn't auto converted
+        Map.put(acc, k, v)
+      else
+        Map.put(acc, k, v)
+      end
+    end)
+  end
+
+  def soft_delete(%EconomicResource{} = resource) do
+    Repo.transact_with(fn ->
+      with {:ok, resource} <- Common.soft_delete(resource),
+           :ok <- publish(resource, :deleted) do
+        {:ok, resource}
       end
     end)
   end
@@ -170,53 +309,6 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp ap_publish(_, _, _), do: :ok
 
-  # TODO: take the user who is performing the update
-  # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
-  def update(%EconomicResource{} = resource, attrs) do
-    do_update(resource, attrs, &EconomicResource.update_changeset(&1, attrs))
-  end
-
-  def update(%EconomicResource{} = resource, %{id: _id} = context, attrs) do
-    do_update(resource, attrs, &EconomicResource.update_changeset(&1, context, attrs))
-  end
-
-  def do_update(resource, attrs, changeset_fn) do
-    attrs = parse_measurement_attrs(attrs)
-
-    Repo.transact_with(fn ->
-      resource =
-        Repo.preload(resource, [
-          :accounting_quantity,
-          :onhand_quantity,
-          :effort_quantity,
-          :current_location
-        ])
-
-      cs =
-        resource
-        |> changeset_fn.()
-        |> EconomicResource.change_measures(attrs)
-
-      with {:ok, cs} <- change_current_location(cs, attrs),
-           {:ok, cs} <- change_agent(cs, attrs),
-           {:ok, cs} <- change_action(cs, attrs),
-           {:ok, resource} <- Repo.update(cs),
-           {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs),
-           :ok <- publish(resource, :updated) do
-        {:ok, resource}
-      end
-    end)
-  end
-
-  def soft_delete(%EconomicResource{} = resource) do
-    Repo.transact_with(fn ->
-      with {:ok, resource} <- Common.soft_delete(resource),
-           :ok <- publish(resource, :deleted) do
-        {:ok, resource}
-      end
-    end)
-  end
-
   def indexing_object_format(obj) do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
     image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
@@ -241,57 +333,5 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     CommonsPub.Search.Indexer.index_object(object)
 
     :ok
-  end
-
-  defp change_agent(changeset, attrs) do
-    with {:ok, changeset} <- change_primary_accountable(changeset, attrs) do
-      change_receiver(changeset, attrs)
-    end
-  end
-
-  defp change_primary_accountable(changeset, %{primary_accountable: primary_accountable_id}) do
-    with {:ok, pointer} <- Pointers.one(id: primary_accountable_id) do
-      primary_accountable = Pointers.follow!(pointer)
-      {:ok, EconomicResource.change_primary_accountable(changeset, primary_accountable)}
-    end
-  end
-
-  defp change_primary_accountable(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_receiver(changeset, %{receiver: receiver_id}) do
-    with {:ok, pointer} <- Pointers.one(id: receiver_id) do
-      receiver = Pointers.follow!(pointer)
-      {:ok, EconomicResource.change_receiver(changeset, receiver)}
-    end
-  end
-
-  defp change_receiver(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_action(changeset, %{state: state_id}) do
-    with {:ok, state} <- Actions.action(state_id) do
-      {:ok, EconomicResource.change_action(changeset, state)}
-    end
-  end
-
-  defp change_action(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_current_location(changeset, %{current_location: id}) do
-    with {:ok, location} <- Geolocations.one([:default, id: id]) do
-      {:ok, EconomicResource.change_current_location(changeset, location)}
-    end
-  end
-
-  defp change_current_location(changeset, _attrs), do: {:ok, changeset}
-
-  defp parse_measurement_attrs(attrs) do
-    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
-      if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = ValueFlows.Util.map_key_replace(v, :has_unit, :unit_id)
-        # I have no idea why the numerical value isn't auto converted
-        Map.put(acc, k, v)
-      else
-        Map.put(acc, k, v)
-      end
-    end)
   end
 end
