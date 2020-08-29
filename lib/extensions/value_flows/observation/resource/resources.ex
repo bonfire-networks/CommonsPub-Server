@@ -180,68 +180,68 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp change_context(changeset, %{in_scope_of: id}) do
     with {:ok, pointer} <- Pointers.one(id: id) do
       context = Pointers.follow!(pointer)
-      {:ok, EconomicResource.change_context(changeset, context)}
+      EconomicResource.change_context(changeset, context)
     end
   end
 
-  defp change_context(changeset, _attrs), do: {:ok, changeset}
+  defp change_context(changeset, _attrs), do: changeset
 
   defp change_primary_accountable(changeset, %{primary_accountable: id}) do
     with {:ok, pointer} <- Pointers.one(id: id) do
       primary_accountable = Pointers.follow!(pointer)
-      {:ok, EconomicResource.change_primary_accountable(changeset, primary_accountable)}
+      EconomicResource.change_primary_accountable(changeset, primary_accountable)
     end
   end
 
-  defp change_primary_accountable(changeset, _attrs), do: {:ok, changeset}
+  defp change_primary_accountable(changeset, _attrs), do: changeset
 
   defp change_state_action(changeset, %{state: state_id}) do
     with {:ok, state} <- Actions.action(state_id) do
-      {:ok, EconomicResource.change_state_action(changeset, state)}
+      EconomicResource.change_state_action(changeset, state)
     end
   end
 
-  defp change_state_action(changeset, _attrs), do: {:ok, changeset}
+  defp change_state_action(changeset, _attrs), do: changeset
 
   defp change_stage_process_spec(changeset, %{state: id}) do
     with {:ok, state} <- ProcessSpecifications.one(id: id) do
-      {:ok, EconomicResource.change_stage_process_spec(changeset, state)}
+      EconomicResource.change_stage_process_spec(changeset, state)
     end
   end
 
-  defp change_stage_process_spec(changeset, _attrs), do: {:ok, changeset}
+  defp change_stage_process_spec(changeset, _attrs), do: changeset
 
   defp change_current_location(changeset, %{current_location: id}) do
     with {:ok, location} <- Geolocations.one([:default, id: id]) do
-      {:ok, EconomicResource.change_current_location(changeset, location)}
+      EconomicResource.change_current_location(changeset, location)
     end
   end
 
-  defp change_current_location(changeset, _attrs), do: {:ok, changeset}
+  defp change_current_location(changeset, _attrs), do: changeset
 
   defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
     with {:ok, item} <- ResourceSpecification.one([:default, id: id]) do
-      {:ok, EconomicResource.change_conforms_to_resource_spec(changeset, item)}
+      EconomicResource.change_conforms_to_resource_spec(changeset, item)
     end
   end
 
-  defp change_conforms_to_resource_spec(changeset, _attrs), do: {:ok, changeset}
+  defp change_conforms_to_resource_spec(changeset, _attrs), do: changeset
 
   defp change_contained_in_resource(changeset, %{contained_in: id}) do
     with {:ok, item} <- EconomicResources.one([:default, id: id]) do
-      {:ok, EconomicResource.change_contained_in_resource(changeset, item)}
+      EconomicResource.change_contained_in_resource(changeset, item)
     end
   end
 
-  defp change_contained_in_resource(changeset, _attrs), do: {:ok, changeset}
+  defp change_contained_in_resource(changeset, _attrs), do: changeset
 
   defp change_unit_of_effort(changeset, %{unit_of_effort: id}) do
     with {:ok, item} <- Units.one([:default, id: id]) do
-      {:ok, EconomicResource.change_unit_of_effort(changeset, item)}
+      EconomicResource.change_unit_of_effort(changeset, item)
     end
   end
 
-  defp change_unit_of_effort(changeset, _attrs), do: {:ok, changeset}
+  defp change_unit_of_effort(changeset, _attrs), do: changeset
 
   defp parse_measurement_attrs(attrs) do
     Enum.reduce(attrs, %{}, fn {k, v}, acc ->

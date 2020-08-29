@@ -20,7 +20,7 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
 
       add(:image_id, references(:mn_content))
 
-      add(:conforms_to, weak_pointer(ResourceSpecification), null: true)
+      add(:conforms_to_id, weak_pointer(ResourceSpecification), null: true)
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
