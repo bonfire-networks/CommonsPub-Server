@@ -1,3 +1,4 @@
+
 | Package                | License                            | Version     | Link                                                                |
 |------------------------|------------------------------------|-------------|---------------------------------------------------------------------|
 | absinthe               | MIT                                | 1.5.2       | https://hex.pm/packages/absinthe                                    |
@@ -35,11 +36,11 @@
 | faker                  | MIT                                | 0.14.0      | https://hex.pm/packages/faker                                       |
 | file_system            | WTFPL                              | 0.2.8       | https://hex.pm/packages/file_system                                 |
 | flexto                 | Apache 2.0                         | 0.2.0       | https://hex.pm/packages/flexto                                      |
-| floki                  | MIT                                | 0.27.0      | https://hex.pm/packages/floki                                       |
+| floki                  | MIT                                | 0.28.0      | https://hex.pm/packages/floki                                       |
 | furlex                 | Apache 2.0                         | 0.4.3       | https://gitlab.com/moodlenet/servers/furlex                         |
 | gen_smtp               | BSD 2-clause; Unrecognized license | 0.15.0      | https://hex.pm/packages/gen_smtp                                    |
 | gen_stage              | Apache 2.0                         | 0.14.3      | https://hex.pm/packages/gen_stage                                   |
-| geo                    | MIT                                | 3.3.4       | https://hex.pm/packages/geo                                         |
+| geo                    | MIT                                | 3.3.5       | https://hex.pm/packages/geo                                         |
 | geo_postgis            | MIT                                | 3.3.1       | https://hex.pm/packages/geo_postgis                                 |
 | geocoder               | MIT                                | 1.0.0       | https://hex.pm/packages/geocoder                                    |
 | geohash                | Apache 2.0                         | 1.2.1       | https://hex.pm/packages/geohash                                     |
@@ -79,7 +80,7 @@
 | plug                   | Apache 2.0                         | 1.10.4      | https://hex.pm/packages/plug                                        |
 | plug_cowboy            | Apache 2.0                         | 2.3.0       | https://hex.pm/packages/plug_cowboy                                 |
 | plug_crypto            | Apache 2.0                         | 1.1.2       | https://hex.pm/packages/plug_crypto                                 |
-| pointers               | Apache 2.0                         | 0.4.2       | https://github.com/commonspub/pointers.git                          |
+| pointers               | Apache 2.0                         | 0.5.0       | https://github.com/commonspub/pointers.git                          |
 | pointers_ulid          | MIT                                | 0.2.2       | https://hex.pm/packages/pointers_ulid                               |
 | poison                 | CC0-1.0                            | 4.0.1       | https://hex.pm/packages/poison                                      |
 | poolboy                | Unlicense; Apache 2.0; ISC         | 1.5.2       | https://hex.pm/packages/poolboy                                     |

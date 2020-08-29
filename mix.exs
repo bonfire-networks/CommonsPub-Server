@@ -188,12 +188,10 @@ defmodule MoodleNet.Mixfile do
       {
         :pointers,
         # "~> 0.4"
-        # ref: "b0cbc4b1a2f83b870f24436dd5968fec428c6530"
         git: "https://github.com/commonspub/pointers.git",
         branch: "main",
         path: "uploads/pointers-main"
         # git: "https://github.com/mayel/pointers.git",
-        # ref: "01751caa54b15c4928eb8389bd7635aa0bd20584"
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},
