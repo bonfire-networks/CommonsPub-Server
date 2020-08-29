@@ -40,7 +40,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   end
 
   @doc """
-  Retrieves an Page of prospecs according to various filters
+  Retrieves an Page of process_specs according to various filters
 
   Used by:
   * GraphQL resolver single-parent resolution
@@ -58,7 +58,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   end
 
   @doc """
-  Retrieves an Pages of prospecs according to various filters
+  Retrieves an Pages of process_specs according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
@@ -125,18 +125,18 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     end)
   end
 
-  defp publish(creator, prospec, activity, :created) do
+  defp publish(creator, process_spec, activity, :created) do
     feeds = [
       creator.outbox_id,
       Feeds.instance_outbox_id()
     ]
 
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", prospec.id, creator.id)
+      ap_publish("create", process_spec.id, creator.id)
     end
   end
 
-  defp publish(creator, context, prospec, activity, :created) do
+  defp publish(creator, context, process_spec, activity, :created) do
     feeds = [
       context.outbox_id,
       creator.outbox_id,
@@ -144,18 +144,18 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     ]
 
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", prospec.id, creator.id)
+      ap_publish("create", process_spec.id, creator.id)
     end
   end
 
-  defp publish(prospec, :updated) do
+  defp publish(process_spec, :updated) do
     # TODO: wrong if edited by admin
-    ap_publish("update", prospec.id, prospec.creator_id)
+    ap_publish("update", process_spec.id, process_spec.creator_id)
   end
 
-  defp publish(prospec, :deleted) do
+  defp publish(process_spec, :deleted) do
     # TODO: wrong if edited by admin
-    ap_publish("delete", prospec.id, prospec.creator_id)
+    ap_publish("delete", process_spec.id, process_spec.creator_id)
   end
 
   # FIXME
@@ -172,20 +172,20 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   # TODO: take the user who is performing the update
   # @spec update(%ProcessSpecification{}, attrs :: map) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}
-  def update(%ProcessSpecification{} = prospec, attrs) do
-    do_update(prospec, attrs, &ProcessSpecification.update_changeset(&1, attrs))
+  def update(%ProcessSpecification{} = process_spec, attrs) do
+    do_update(process_spec, attrs, &ProcessSpecification.update_changeset(&1, attrs))
   end
 
-  def update(%ProcessSpecification{} = prospec, %{id: _id} = context, attrs) do
-    do_update(prospec, attrs, &ProcessSpecification.update_changeset(&1, context, attrs))
+  def update(%ProcessSpecification{} = process_spec, %{id: _id} = context, attrs) do
+    do_update(process_spec, attrs, &ProcessSpecification.update_changeset(&1, context, attrs))
   end
 
-  def do_update(prospec, attrs, changeset_fn) do
+  def do_update(process_spec, attrs, changeset_fn) do
     attrs = parse_measurement_attrs(attrs)
 
     Repo.transact_with(fn ->
-      prospec =
-        Repo.preload(prospec, [
+      process_spec =
+        Repo.preload(process_spec, [
           :available_quantity,
           :resource_quantity,
           :effort_quantity,
@@ -193,26 +193,26 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
         ])
 
       cs =
-        prospec
+        process_spec
         |> changeset_fn.()
         |> ProcessSpecification.change_measures(attrs)
 
       with {:ok, cs} <- change_at_location(cs, attrs),
            {:ok, cs} <- change_agent(cs, attrs),
            {:ok, cs} <- change_action(cs, attrs),
-           {:ok, prospec} <- Repo.update(cs),
-           {:ok, prospec} <- ValueFlows.Util.try_tag_thing(nil, prospec, attrs),
-           :ok <- publish(prospec, :updated) do
-        {:ok, prospec}
+           {:ok, process_spec} <- Repo.update(cs),
+           {:ok, process_spec} <- ValueFlows.Util.try_tag_thing(nil, process_spec, attrs),
+           :ok <- publish(process_spec, :updated) do
+        {:ok, process_spec}
       end
     end)
   end
 
-  def soft_delete(%ProcessSpecification{} = prospec) do
+  def soft_delete(%ProcessSpecification{} = process_spec) do
     Repo.transact_with(fn ->
-      with {:ok, prospec} <- Common.soft_delete(prospec),
-           :ok <- publish(prospec, :deleted) do
-        {:ok, prospec}
+      with {:ok, process_spec} <- Common.soft_delete(process_spec),
+           :ok <- publish(process_spec, :deleted) do
+        {:ok, process_spec}
       end
     end)
   end

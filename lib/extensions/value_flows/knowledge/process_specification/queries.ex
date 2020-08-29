@@ -9,11 +9,11 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   import Geo.PostGIS
 
   def query(ProcessSpecification) do
-    from(c in ProcessSpecification, as: :prospec)
+    from(c in ProcessSpecification, as: :process_spec)
   end
 
   def query(:count) do
-    from(c in ProcessSpecification, as: :prospec)
+    from(c in ProcessSpecification, as: :process_spec)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -32,22 +32,22 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   end
 
   def join_to(q, :context, jq) do
-    join(q, jq, [prospec: c], c2 in assoc(c, :context), as: :context)
+    join(q, jq, [process_spec: c], c2 in assoc(c, :context), as: :context)
   end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [prospec: c], f in Follow,
+    join(q, jq, [process_spec: c], f in Follow,
       as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
     )
   end
 
   def join_to(q, :geolocation, jq) do
-    join(q, jq, [prospec: c], g in assoc(c, :at_location), as: :geolocation)
+    join(q, jq, [process_spec: c], g in assoc(c, :at_location), as: :geolocation)
   end
 
   def join_to(q, :tags, jq) do
-    join(q, jq, [prospec: c], t in assoc(c, :tags), as: :tags)
+    join(q, jq, [process_spec: c], t in assoc(c, :tags), as: :tags)
   end
 
   # def join_to(q, :provider, jq) do
@@ -59,7 +59,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   # end
 
   # def join_to(q, :follower_count, jq) do
-  #   join q, jq, [prospec: c],
+  #   join q, jq, [process_spec: c],
   #     f in FollowerCount, on: c.id == f.context_id,
   #     as: :follower_count
   # end
@@ -80,11 +80,11 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   end
 
   def filter(q, :offer) do
-    where(q, [prospec: c], is_nil(c.receiver_id))
+    where(q, [process_spec: c], is_nil(c.receiver_id))
   end
 
   def filter(q, :need) do
-    where(q, [prospec: c], is_nil(c.provider_id))
+    where(q, [process_spec: c], is_nil(c.provider_id))
   end
 
   ## by join
@@ -103,22 +103,22 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   def filter(q, {:user, %User{id: id}}) do
     q
     |> join_to(follow: id)
-    |> where([prospec: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([process_spec: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
     |> filter(~w(disabled)a)
   end
 
   ## by status
 
   def filter(q, :deleted) do
-    where(q, [prospec: c], is_nil(c.deleted_at))
+    where(q, [process_spec: c], is_nil(c.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where(q, [prospec: c], is_nil(c.disabled_at))
+    where(q, [process_spec: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do
-    where(q, [prospec: c], not is_nil(c.published_at))
+    where(q, [process_spec: c], not is_nil(c.published_at))
   end
 
   ## by field values
@@ -127,7 +127,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
       when is_integer(count) and is_binary(id) do
     where(
       q,
-      [prospec: c, follower_count: fc],
+      [process_spec: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
     )
   end
@@ -136,87 +136,90 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
       when is_integer(count) and is_binary(id) do
     where(
       q,
-      [prospec: c, follower_count: fc],
+      [process_spec: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
     )
   end
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where(q, [prospec: c], c.id == ^id)
+    where(q, [process_spec: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where(q, [prospec: c], c.id in ^ids)
+    where(q, [process_spec: c], c.id in ^ids)
   end
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where(q, [prospec: c], c.context_id == ^id)
+    where(q, [process_spec: c], c.context_id == ^id)
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where(q, [prospec: c], c.context_id in ^ids)
+    where(q, [process_spec: c], c.context_id in ^ids)
   end
 
   def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [prospec: c], c.provider_id == ^id or c.receiver_id == ^id)
+    where(q, [process_spec: c], c.provider_id == ^id or c.receiver_id == ^id)
   end
 
   def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [prospec: c], c.provider_id in ^ids or c.receiver_id in ^ids)
+    where(q, [process_spec: c], c.provider_id in ^ids or c.receiver_id in ^ids)
   end
 
   def filter(q, {:provider_id, id}) when is_binary(id) do
-    where(q, [prospec: c], c.provider_id == ^id)
+    where(q, [process_spec: c], c.provider_id == ^id)
   end
 
   def filter(q, {:provider_id, ids}) when is_list(ids) do
-    where(q, [prospec: c], c.provider_id in ^ids)
+    where(q, [process_spec: c], c.provider_id in ^ids)
   end
 
   def filter(q, {:receiver_id, id}) when is_binary(id) do
-    where(q, [prospec: c], c.receiver_id == ^id)
+    where(q, [process_spec: c], c.receiver_id == ^id)
   end
 
   def filter(q, {:receiver_id, ids}) when is_list(ids) do
-    where(q, [prospec: c], c.receiver_id in ^ids)
+    where(q, [process_spec: c], c.receiver_id in ^ids)
   end
 
   def filter(q, {:action_id, ids}) when is_list(ids) do
-    where(q, [prospec: c], c.action_id in ^ids)
+    where(q, [process_spec: c], c.action_id in ^ids)
   end
 
   def filter(q, {:action_id, id}) when is_binary(id) do
-    where(q, [prospec: c], c.action_id == ^id)
+    where(q, [process_spec: c], c.action_id == ^id)
   end
 
   def filter(q, {:at_location_id, at_location_id}) do
     q
     |> join_to(:geolocation)
     |> preload(:at_location)
-    |> where([prospec: c], c.at_location_id == ^at_location_id)
+    |> where([process_spec: c], c.at_location_id == ^at_location_id)
   end
 
   def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
     q
     |> join_to(:geolocation)
     |> preload(:at_location)
-    |> where([prospec: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+    |> where(
+      [process_spec: c, geolocation: g],
+      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
+    )
   end
 
   def filter(q, {:location_within, geom_point}) do
     q
     |> join_to(:geolocation)
     |> preload(:at_location)
-    |> where([prospec: c, geolocation: g], st_within(g.geom, ^geom_point))
+    |> where([process_spec: c, geolocation: g], st_within(g.geom, ^geom_point))
   end
 
   def filter(q, {:tag_ids, ids}) when is_list(ids) do
     q
     |> preload(:tags)
     |> join_to(:tags)
-    |> group_by([prospec: c], c.id)
+    |> group_by([process_spec: c], c.id)
     |> having(
-      [prospec: c, tags: t],
+      [process_spec: c, tags: t],
       fragment("? <@ array_agg(?)", type(^ids, {:array, Ecto.ULID}), t.id)
     )
   end
@@ -236,7 +239,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   end
 
   def filter(q, {:order, [desc: :id]}) do
-    order_by(q, [prospec: c, id: id],
+    order_by(q, [process_spec: c, id: id],
       desc: coalesce(id.count, 0),
       desc: c.id
     )
@@ -249,11 +252,11 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   end
 
   def filter(q, {:group, key}) when is_atom(key) do
-    group_by(q, [prospec: c], field(c, ^key))
+    group_by(q, [process_spec: c], field(c, ^key))
   end
 
   def filter(q, {:count, key}) when is_atom(key) do
-    select(q, [prospec: c], {field(c, ^key), count(c.id)})
+    select(q, [process_spec: c], {field(c, ^key), count(c.id)})
   end
 
   def filter(q, {:preload, :provider}) do
@@ -282,13 +285,13 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
     limit = limit + 2
 
     q
-    |> where([prospec: c], c.id >= ^a)
+    |> where([process_spec: c], c.id >= ^a)
     |> limit(^limit)
   end
 
   def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
     q
-    |> where([prospec: c], c.id <= ^b)
+    |> where([process_spec: c], c.id <= ^b)
     |> filter(limit: limit + 2)
   end
 
@@ -301,7 +304,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   #   |> filter(join: :follower_count, order: [desc: :followers])
   #   |> page(page_opts, [desc: :followers])
   #   |> select(
-  #     [prospec: c,  follower_count: fc],
+  #     [process_spec: c,  follower_count: fc],
   #     %{c | follower_count: coalesce(fc.count, 0)}
   #   )
   # end

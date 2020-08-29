@@ -84,11 +84,11 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   end
 
   def update_changeset(
-        %ResourceSpecification{} = respec,
+        %ResourceSpecification{} = resource_spec,
         %{id: _} = context,
         attrs
       ) do
-    respec
+    resource_spec
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       context_id: context.id,
@@ -97,8 +97,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     |> common_changeset()
   end
 
-  def update_changeset(%ResourceSpecification{} = respec, attrs) do
-    respec
+  def update_changeset(%ResourceSpecification{} = resource_spec, attrs) do
+    resource_spec
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(default_unit_of_effort_id: Map.get(attrs, :default_unit_of_effort))
     |> common_changeset()

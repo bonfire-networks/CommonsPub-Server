@@ -40,7 +40,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   end
 
   @doc """
-  Retrieves an Page of respecs according to various filters
+  Retrieves an Page of resource_specs according to various filters
 
   Used by:
   * GraphQL resolver single-parent resolution
@@ -58,7 +58,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   end
 
   @doc """
-  Retrieves an Pages of respecs according to various filters
+  Retrieves an Pages of resource_specs according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
@@ -119,18 +119,18 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     end)
   end
 
-  defp publish(creator, respec, activity, :created) do
+  defp publish(creator, resource_spec, activity, :created) do
     feeds = [
       creator.outbox_id,
       Feeds.instance_outbox_id()
     ]
 
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", respec.id, creator.id)
+      ap_publish("create", resource_spec.id, creator.id)
     end
   end
 
-  defp publish(creator, context, respec, activity, :created) do
+  defp publish(creator, context, resource_spec, activity, :created) do
     feeds = [
       context.outbox_id,
       creator.outbox_id,
@@ -138,18 +138,18 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     ]
 
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", respec.id, creator.id)
+      ap_publish("create", resource_spec.id, creator.id)
     end
   end
 
-  defp publish(respec, :updated) do
+  defp publish(resource_spec, :updated) do
     # TODO: wrong if edited by admin
-    ap_publish("update", respec.id, respec.creator_id)
+    ap_publish("update", resource_spec.id, resource_spec.creator_id)
   end
 
-  defp publish(respec, :deleted) do
+  defp publish(resource_spec, :deleted) do
     # TODO: wrong if edited by admin
-    ap_publish("delete", respec.id, respec.creator_id)
+    ap_publish("delete", resource_spec.id, resource_spec.creator_id)
   end
 
   # FIXME
@@ -166,38 +166,38 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   # TODO: take the user who is performing the update
   # @spec update(%ResourceSpecification{}, attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
-  def update(%ResourceSpecification{} = respec, attrs) do
-    do_update(respec, attrs, &ResourceSpecification.update_changeset(&1, attrs))
+  def update(%ResourceSpecification{} = resource_spec, attrs) do
+    do_update(resource_spec, attrs, &ResourceSpecification.update_changeset(&1, attrs))
   end
 
-  def update(%ResourceSpecification{} = respec, %{id: _id} = context, attrs) do
-    do_update(respec, attrs, &ResourceSpecification.update_changeset(&1, context, attrs))
+  def update(%ResourceSpecification{} = resource_spec, %{id: _id} = context, attrs) do
+    do_update(resource_spec, attrs, &ResourceSpecification.update_changeset(&1, context, attrs))
   end
 
-  def do_update(respec, attrs, changeset_fn) do
+  def do_update(resource_spec, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      respec =
-        Repo.preload(respec, [
+      resource_spec =
+        Repo.preload(resource_spec, [
           :default_unit_of_effort
         ])
 
       cs =
-        respec
+        resource_spec
         |> changeset_fn.()
 
-      with {:ok, respec} <- Repo.update(cs),
-           {:ok, respec} <- ValueFlows.Util.try_tag_thing(nil, respec, attrs),
-           :ok <- publish(respec, :updated) do
-        {:ok, respec}
+      with {:ok, resource_spec} <- Repo.update(cs),
+           {:ok, resource_spec} <- ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs),
+           :ok <- publish(resource_spec, :updated) do
+        {:ok, resource_spec}
       end
     end)
   end
 
-  def soft_delete(%ResourceSpecification{} = respec) do
+  def soft_delete(%ResourceSpecification{} = resource_spec) do
     Repo.transact_with(fn ->
-      with {:ok, respec} <- Common.soft_delete(respec),
-           :ok <- publish(respec, :deleted) do
-        {:ok, respec}
+      with {:ok, resource_spec} <- Common.soft_delete(resource_spec),
+           :ok <- publish(resource_spec, :deleted) do
+        {:ok, resource_spec}
       end
     end)
   end

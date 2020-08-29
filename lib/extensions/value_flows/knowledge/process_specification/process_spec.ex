@@ -101,18 +101,18 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
   end
 
   def update_changeset(
-        %ProcessSpecification{} = prospec,
+        %ProcessSpecification{} = process_spec,
         %{id: _} = context,
         attrs
       ) do
-    prospec
+    process_spec
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
 
-  def update_changeset(%ProcessSpecification{} = prospec, attrs) do
-    prospec
+  def update_changeset(%ProcessSpecification{} = process_spec, attrs) do
+    process_spec
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
