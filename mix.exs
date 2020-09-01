@@ -73,7 +73,7 @@ defmodule MoodleNet.Mixfile do
   defp elixirc_paths(:dev), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  defp deps_list do
+  def deps_list do
     # graphql
     [
       {
@@ -190,7 +190,7 @@ defmodule MoodleNet.Mixfile do
         # "~> 0.4"
         git: "https://github.com/commonspub/pointers.git",
         branch: "main",
-        path: "uploads/pointers-main"
+        # path: "uploads/pointers-main"
         # git: "https://github.com/mayel/pointers.git",
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
@@ -216,6 +216,7 @@ defmodule MoodleNet.Mixfile do
       # doc gen
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
       {:licensir, "~> 0.6", only: :dev, runtime: false, git: "https://github.com/mayel/licensir"},
+      {:docset_api, only: :dev, runtime: false, git: "https://github.com/mayel/hexdocs_docset_api.git", path: "/home/Code/DATA_CONFIGS/hexdocs_docset_api/"},
       # test coverage statistics
       {:excoveralls, "~> 0.10", only: :test},
       # module mocking
@@ -223,7 +224,7 @@ defmodule MoodleNet.Mixfile do
     ]
   end
 
-  defp deps() do
+  def deps() do
     configured_deps = Enum.map(deps_list(), &dep_process/1)
     # IO.inspect(configured_deps, limit: :infinity)
   end
