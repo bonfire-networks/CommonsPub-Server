@@ -77,7 +77,12 @@ defmodule MoodleNet.Repo do
   end
 
   defp rollback_unexpected(ret) do
-    Logger.error("Transaction with unexpected case clause: #{inspect(ret)}")
+    Logger.error(
+      "Repo transaction expected one of `:ok` `{:ok, value}` `{:error, reason}` but got: #{
+        inspect(ret)
+      }"
+    )
+
     rollback("transact_with_unexpected_case")
   end
 

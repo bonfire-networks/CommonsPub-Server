@@ -81,6 +81,12 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3
         ]
       },
+      economic_event: %{
+        resource_inventoried_as: [
+          resolve:
+            &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
+        ]
+      },
 
       # start Query resolvers
       value_flows_query: %{
@@ -129,16 +135,16 @@ defmodule ValueFlows.Hydration do
 
         # Observation
         economic_event: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.event/2
         ],
         economic_events: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.all_events/2
         ],
         economic_resource: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resource/2
         ],
         economic_resources: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.all_resources/2
         ],
         process: [
           resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2

@@ -149,6 +149,20 @@ defmodule ValueFlows.Observation.EconomicEvent do
     )
   end
 
+  def change_resource_inventoried_as(changeset, %EconomicResource{} = item) do
+    Changeset.change(changeset,
+      resource_inventoried_as: item,
+      resource_inventoried_as_id: item.id
+    )
+  end
+
+  def change_to_resource_inventoried_as(changeset, %EconomicResource{} = item) do
+    Changeset.change(changeset,
+      to_resource_inventoried_as: item,
+      to_resource_inventoried_as_id: item.id
+    )
+  end
+
   def change_at_location(changeset, %Geolocation{} = location) do
     Changeset.change(changeset,
       at_location: location,

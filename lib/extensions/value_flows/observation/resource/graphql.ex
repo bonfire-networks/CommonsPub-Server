@@ -309,14 +309,20 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     {:ok, urls}
   end
 
-  def create_resource(%{resource: resource_attrs}, info) do
+  def create_resource(%{new_inventoried_resource: resource_attrs}, info) do
+    with {:ok, resource} <- create_resource(%{economic_resource: resource_attrs}, info) do
+      {:ok, Map.get(resource, :economic_resource)}
+    end
+  end
+
+  def create_resource(%{economic_resource: resource_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, resource_attrs, info),
            resource_attrs = Map.merge(resource_attrs, uploads),
            resource_attrs = Map.merge(resource_attrs, %{is_public: true}),
            {:ok, resource} <- EconomicResources.create(user, resource_attrs) do
-        {:ok, %{resource: resource}}
+        {:ok, %{economic_resource: resource}}
       end
     end)
   end
@@ -336,7 +342,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, resource} <- update_fn.(resource, changes) do
-      {:ok, %{resource: resource}}
+      {:ok, %{economic_resource: resource}}
     end
   end
 

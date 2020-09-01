@@ -315,15 +315,28 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     {:ok, urls}
   end
 
+  def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
+      when not is_nil(id) do
+    thing = Repo.preload(thing, :resource_inventoried_as)
+    {:ok, Map.get(thing, :resource_inventoried_as)}
+  end
+
+  def fetch_resource_inventoried_as_edge(_, _, _) do
+    {:ok, nil}
+  end
+
   # FIXME: duplication!
-  def create_event(%{event: event_attrs}, info) do
+  def create_event(%{event: event_attrs} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, event_attrs, info),
            event_attrs = Map.merge(event_attrs, uploads),
            event_attrs = Map.merge(event_attrs, %{is_public: true}),
-           {:ok, event} <- EconomicEvents.create(user, event_attrs) do
-        {:ok, %{event: event}}
+           #  {:ok, resource} <- ValueFlows.Observation.EconomicResource.GraphQL.create_resource(params, info),
+           #  event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource}),
+           {:ok, event} <- EconomicEvents.create(user, event_attrs, params) do
+        {:ok,
+         %{economic_event: event, economic_resource: Map.get(event, :resource_inventoried_as)}}
       end
     end)
   end

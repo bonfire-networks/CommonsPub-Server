@@ -10,6 +10,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   alias Geolocation.Geolocations
   # alias Measurement.Measure
   alias ValueFlows.Observation.EconomicEvent
+  alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.EconomicEvent.Queries
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.Action.Actions
@@ -87,18 +88,36 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   ## mutations
 
-  # @spec create(User.t(), attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
-    do_create(creator, attrs, fn ->
-      EconomicEvent.create_changeset(creator, attrs)
-    end)
+  # @spec create(User.t(), event_attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, event_attrs, params \\ []) when is_map(event_attrs) do
+    do_create(
+      creator,
+      fn -> EconomicEvent.create_changeset(creator, event_attrs) end,
+      event_attrs,
+      params
+    )
   end
 
-  def do_create(creator, attrs, changeset_fn) do
+  def do_create(creator, changeset_fn, event_attrs, %{
+        new_inventoried_resource: new_inventoried_resource
+      }) do
+    new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
+
+    with {:ok, resource} <-
+           ValueFlows.Observation.EconomicResource.EconomicResources.create(
+             creator,
+             new_inventoried_resource
+           ) do
+      event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource})
+      do_create(creator, changeset_fn, event_attrs, nil)
+    end
+  end
+
+  def do_create(creator, changeset_fn, event_attrs, _) do
     Repo.transact_with(fn ->
-      with cs <- prepare_changeset(attrs, changeset_fn),
+      with cs <- prepare_changeset(event_attrs, changeset_fn),
            {:ok, item} <- Repo.insert(cs),
-           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
+           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, event_attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
@@ -159,6 +178,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     |> change_action(attrs)
     |> change_current_location(attrs)
     |> change_conforms_to_resource_spec(attrs)
+    |> change_resource_inventoried_as(attrs)
+    |> change_to_resource_inventoried_as(attrs)
   end
 
   defp change_context(changeset, %{in_scope_of: context_ids} = resource_attrs)
@@ -198,12 +219,35 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp change_current_location(changeset, _attrs), do: changeset
 
   defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
-    with {:ok, item} <- ResourceSpecification.one([:default, id: id]) do
+    with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
       EconomicEvent.change_conforms_to_resource_spec(changeset, item)
     end
   end
 
   defp change_conforms_to_resource_spec(changeset, _attrs), do: changeset
+
+  defp change_current_location(changeset, _attrs), do: changeset
+
+  defp change_resource_inventoried_as(changeset, %{resource_inventoried_as: id})
+       when is_binary(id) do
+    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
+      EconomicEvent.change_resource_inventoried_as(changeset, item)
+    end
+  end
+
+  defp change_resource_inventoried_as(changeset, %{resource_inventoried_as: %{} = resource}) do
+    EconomicEvent.change_resource_inventoried_as(changeset, resource)
+  end
+
+  defp change_resource_inventoried_as(changeset, _attrs), do: changeset
+
+  defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: id}) do
+    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
+      EconomicEvent.change_to_resource_inventoried_as(changeset, item)
+    end
+  end
+
+  defp change_to_resource_inventoried_as(changeset, _attrs), do: changeset
 
   defp change_provider(changeset, %{provider: provider_id}) do
     with {:ok, pointer} <- Pointers.one(id: provider_id) do
