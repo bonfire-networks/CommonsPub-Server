@@ -36,7 +36,6 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Processes
   alias ValueFlows.Observation.Process.Queries
-  alias ValueFlows.Knowledge.Action.Actions
   # alias MoodleNetWeb.GraphQL.CommonResolver
   alias MoodleNetWeb.GraphQL.UploadResolver
 
@@ -96,110 +95,12 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     processes_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
   end
 
-  defp processes_filter(%{provider: id} = page_opts, filters_acc) do
-    processes_filter_next(:provider, [provider_id: id], page_opts, filters_acc)
-  end
-
-  defp processes_filter(%{receiver: id} = page_opts, filters_acc) do
-    processes_filter_next(:receiver, [receiver_id: id], page_opts, filters_acc)
-  end
-
-  defp processes_filter(%{action: id} = page_opts, filters_acc) do
-    processes_filter_next(:action, [action_id: id], page_opts, filters_acc)
-  end
-
   defp processes_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
     processes_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
   end
 
   defp processes_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
     processes_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
-  end
-
-  defp processes_filter(%{at_location: at_location_id} = page_opts, filters_acc) do
-    processes_filter_next(:at_location, [at_location_id: at_location_id], page_opts, filters_acc)
-  end
-
-  defp processes_filter(
-         %{
-           geolocation: %{
-             near_point: %{lat: lat, long: long},
-             distance: %{meters: distance_meters}
-           }
-         } = page_opts,
-         filters_acc
-       ) do
-    IO.inspect(geo_with_point: page_opts)
-
-    processes_filter_next(
-      :geolocation,
-      {
-        :near_point,
-        %Geo.Point{coordinates: {lat, long}, srid: 4326},
-        :distance_meters,
-        distance_meters
-      },
-      page_opts,
-      filters_acc
-    )
-  end
-
-  defp processes_filter(
-         %{
-           geolocation: %{near_address: address} = geolocation
-         } = page_opts,
-         filters_acc
-       ) do
-    IO.inspect(geo_with_address: page_opts)
-
-    with {:ok, coords} <- Geocoder.call(address) do
-      # IO.inspect(coords)
-
-      processes_filter(
-        Map.merge(
-          page_opts,
-          %{
-            geolocation:
-              Map.merge(geolocation, %{
-                near_point: %{lat: coords.lat, long: coords.lon},
-                distance: Map.get(geolocation, :distance, %{meters: @radius_default_distance})
-              })
-          }
-        ),
-        filters_acc
-      )
-    else
-      _ ->
-        processes_filter_next(
-          :geolocation,
-          [],
-          page_opts,
-          filters_acc
-        )
-    end
-  end
-
-  defp processes_filter(
-         %{
-           geolocation: geolocation
-         } = page_opts,
-         filters_acc
-       ) do
-    IO.inspect(geo_without_distance: page_opts)
-
-    processes_filter(
-      Map.merge(
-        page_opts,
-        %{
-          geolocation:
-            Map.merge(geolocation, %{
-              # default to 100 km radius
-              distance: %{meters: @radius_default_distance}
-            })
-        }
-      ),
-      filters_acc
-    )
   end
 
   defp processes_filter(
@@ -228,28 +129,6 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   defp processes_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when not is_list(param_remove) do
     processes_filter_next([param_remove], filter_add, page_opts, filters_acc)
-  end
-
-  def offers(page_opts, info) do
-    ResolveRootPage.run(%ResolveRootPage{
-      module: __MODULE__,
-      fetcher: :fetch_offers,
-      page_opts: page_opts,
-      info: info,
-      # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
-    })
-  end
-
-  def needs(page_opts, info) do
-    ResolveRootPage.run(%ResolveRootPage{
-      module: __MODULE__,
-      fetcher: :fetch_needs,
-      page_opts: page_opts,
-      info: info,
-      # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
-    })
   end
 
   ## fetchers
@@ -313,70 +192,10 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     })
   end
 
-  def fetch_offers(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Observation.Process.Queries,
-      query: ValueFlows.Observation.Process,
-      page_opts: page_opts,
-      base_filters: [
-        [:default, :offer],
-        user: GraphQL.current_user(info)
-      ]
-    })
-  end
-
-  def fetch_needs(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Observation.Process.Queries,
-      query: ValueFlows.Observation.Process,
-      page_opts: page_opts,
-      base_filters: [
-        [:default, :need],
-        user: GraphQL.current_user(info)
-      ]
-    })
-  end
-
-  def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
-
-  def fetch_provider_edge(_, _, _) do
-    {:ok, nil}
-  end
-
-  def fetch_receiver_edge(%{receiver_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
-
-  def fetch_receiver_edge(_, _, _) do
-    {:ok, nil}
-  end
-
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
     thing = Repo.preload(thing, tags: [character: [:actor]])
     urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
     {:ok, urls}
-  end
-
-  def create_offer(%{process: process_attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      create_process(
-        %{process: Map.put(process_attrs, :provider, user.id)},
-        info
-      )
-    end
-  end
-
-  def create_need(%{process: process_attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      create_process(
-        %{process: Map.put(process_attrs, :receiver, user.id)},
-        info
-      )
-    end
   end
 
   def create_process(%{process: %{in_scope_of: context_ids} = process_attrs}, info)
@@ -391,35 +210,33 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   end
 
   def create_process(
-        %{process: %{in_scope_of: context_id, action: action_id} = process_attrs},
+        %{process: %{in_scope_of: context_id} = process_attrs},
         info
       )
       when not is_nil(context_id) do
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, action} <- Actions.action(action_id),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
            {:ok, uploads} <- UploadResolver.upload(user, process_attrs, info),
            process_attrs = Map.merge(process_attrs, uploads),
            process_attrs = Map.merge(process_attrs, %{is_public: true}),
-           {:ok, process} <- Processes.create(user, action, context, process_attrs) do
-        {:ok, %{process: %{process | action: action}}}
+           {:ok, process} <- Processes.create(user, context, process_attrs) do
+        {:ok, %{process: process}}
       end
     end)
   end
 
   # FIXME: duplication!
-  def create_process(%{process: %{action: action_id} = process_attrs}, info) do
+  def create_process(%{process: process_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, action} <- Actions.action(action_id),
            {:ok, uploads} <- UploadResolver.upload(user, process_attrs, info),
            process_attrs = Map.merge(process_attrs, uploads),
            process_attrs = Map.merge(process_attrs, %{is_public: true}),
-           {:ok, process} <- Processes.create(user, action, process_attrs) do
-        {:ok, %{process: %{process | action: action}}}
+           {:ok, process} <- Processes.create(user, process_attrs) do
+        {:ok, %{process: process}}
       end
     end)
   end

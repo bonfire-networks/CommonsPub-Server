@@ -11,8 +11,6 @@ defmodule ValueFlows.Observation.Process.Processes do
   # alias Measurement.Measure
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Queries
-  alias ValueFlows.Knowledge.Action
-  alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -87,32 +85,26 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   ## mutations
 
-  # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = action, %{id: _id} = context, attrs)
+  # @spec create(User.t(), context, attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, %{id: _id} = context, attrs)
       when is_map(attrs) do
     do_create(creator, attrs, fn ->
-      Process.create_changeset(creator, action, context, attrs)
+      Process.create_changeset(creator, context, attrs)
     end)
   end
 
   # @spec create(User.t(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = action, attrs) when is_map(attrs) do
+  def create(%User{} = creator, attrs) when is_map(attrs) do
     do_create(creator, attrs, fn ->
-      Process.create_changeset(creator, action, attrs)
+      Process.create_changeset(creator, attrs)
     end)
   end
 
   def do_create(creator, attrs, changeset_fn) do
-    attrs = parse_measurement_attrs(attrs)
-
     Repo.transact_with(fn ->
-      cs =
-        changeset_fn.()
-        |> Process.change_measures(attrs)
+      cs = changeset_fn.()
 
-      with {:ok, cs} <- change_at_location(cs, attrs),
-           {:ok, cs} <- change_agent(cs, attrs),
-           {:ok, item} <- Repo.insert(cs),
+      with {:ok, item} <- Repo.insert(cs),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -181,26 +173,17 @@ defmodule ValueFlows.Observation.Process.Processes do
   end
 
   def do_update(process, attrs, changeset_fn) do
-    attrs = parse_measurement_attrs(attrs)
-
     Repo.transact_with(fn ->
       process =
         Repo.preload(process, [
-          :available_quantity,
-          :resource_quantity,
-          :effort_quantity,
-          :at_location
+          :based_on
         ])
 
       cs =
         process
         |> changeset_fn.()
-        |> Process.change_measures(attrs)
 
-      with {:ok, cs} <- change_at_location(cs, attrs),
-           {:ok, cs} <- change_agent(cs, attrs),
-           {:ok, cs} <- change_action(cs, attrs),
-           {:ok, process} <- Repo.update(cs),
+      with {:ok, process} <- Repo.update(cs),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(nil, process, attrs),
            :ok <- publish(process, :updated) do
         {:ok, process}
@@ -241,57 +224,5 @@ defmodule ValueFlows.Observation.Process.Processes do
     CommonsPub.Search.Indexer.index_object(object)
 
     :ok
-  end
-
-  defp change_agent(changeset, attrs) do
-    with {:ok, changeset} <- change_provider(changeset, attrs) do
-      change_receiver(changeset, attrs)
-    end
-  end
-
-  defp change_provider(changeset, %{provider: provider_id}) do
-    with {:ok, pointer} <- Pointers.one(id: provider_id) do
-      provider = Pointers.follow!(pointer)
-      {:ok, Process.change_provider(changeset, provider)}
-    end
-  end
-
-  defp change_provider(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_receiver(changeset, %{receiver: receiver_id}) do
-    with {:ok, pointer} <- Pointers.one(id: receiver_id) do
-      receiver = Pointers.follow!(pointer)
-      {:ok, Process.change_receiver(changeset, receiver)}
-    end
-  end
-
-  defp change_receiver(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_action(changeset, %{action: action_id}) do
-    with {:ok, action} <- Actions.action(action_id) do
-      {:ok, Process.change_action(changeset, action)}
-    end
-  end
-
-  defp change_action(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_at_location(changeset, %{at_location: id}) do
-    with {:ok, location} <- Geolocations.one([:default, id: id]) do
-      {:ok, Process.change_at_location(changeset, location)}
-    end
-  end
-
-  defp change_at_location(changeset, _attrs), do: {:ok, changeset}
-
-  defp parse_measurement_attrs(attrs) do
-    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
-      if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = ValueFlows.Util.map_key_replace(v, :has_unit, :unit_id)
-        # I have no idea why the numerical value isn't auto converted
-        Map.put(acc, k, v)
-      else
-        Map.put(acc, k, v)
-      end
-    end)
   end
 end
