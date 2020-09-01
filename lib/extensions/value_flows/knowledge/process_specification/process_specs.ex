@@ -198,14 +198,14 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   def indexing_object_format(obj) do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
-    image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+    # image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
 
     %{
       "index_type" => "ProcessSpecification",
       "id" => obj.id,
       # "canonicalUrl" => obj.actor.canonical_url,
       # "icon" => icon,
-      "image" => image,
+      # "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,

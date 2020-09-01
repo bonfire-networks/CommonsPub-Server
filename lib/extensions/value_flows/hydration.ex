@@ -127,10 +127,16 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
         ],
         resource_specification: [
-          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.simulate/2
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.resource_spec/2
         ],
         resource_specifications: [
-          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.simulate/2
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.all_resource_specs/2
+        ],
+        process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.process_specification/2
+        ],
+        process_specifications: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.all_process_specs/2
         ],
 
         # Observation
@@ -224,6 +230,12 @@ defmodule ValueFlows.Hydration do
         ],
         delete_proposed_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        ],
+        create_resource_specification: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.create_resource_spec/2
+        ],
+        create_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.create_process_spec/2
         ],
         create_economic_event: [
           resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.create_event/2

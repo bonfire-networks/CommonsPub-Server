@@ -193,7 +193,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def create_resource_spec(
-        %{resource_spec: %{in_scope_of: context_ids} = resource_spec_attrs},
+        %{resource_specification: %{in_scope_of: context_ids} = resource_spec_attrs},
         info
       )
       when is_list(context_ids) do
@@ -201,13 +201,13 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     context_id = List.first(context_ids)
 
     create_resource_spec(
-      %{resource_spec: Map.merge(resource_spec_attrs, %{in_scope_of: context_id})},
+      %{resource_specification: Map.merge(resource_spec_attrs, %{in_scope_of: context_id})},
       info
     )
   end
 
   def create_resource_spec(
-        %{resource_spec: %{in_scope_of: context_id} = resource_spec_attrs},
+        %{resource_specification: %{in_scope_of: context_id} = resource_spec_attrs},
         info
       )
       when not is_nil(context_id) do
@@ -220,25 +220,25 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
            resource_spec_attrs = Map.merge(resource_spec_attrs, %{is_public: true}),
            {:ok, resource_spec} <-
              ResourceSpecifications.create(user, context, resource_spec_attrs) do
-        {:ok, %{resource_spec: resource_spec}}
+        {:ok, %{resource_specification: resource_spec}}
       end
     end)
   end
 
   # FIXME: duplication!
-  def create_resource_spec(%{resource_spec: resource_spec_attrs}, info) do
+  def create_resource_spec(%{resource_specification: resource_spec_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, resource_spec_attrs, info),
            resource_spec_attrs = Map.merge(resource_spec_attrs, uploads),
            resource_spec_attrs = Map.merge(resource_spec_attrs, %{is_public: true}),
            {:ok, resource_spec} <- ResourceSpecifications.create(user, resource_spec_attrs) do
-        {:ok, %{resource_spec: resource_spec}}
+        {:ok, %{resource_specification: resource_spec}}
       end
     end)
   end
 
-  def update_resource_spec(%{resource_spec: %{in_scope_of: context_ids} = changes}, info) do
+  def update_resource_spec(%{resource_specification: %{in_scope_of: context_ids} = changes}, info) do
     context_id = List.first(context_ids)
 
     Repo.transact_with(fn ->
@@ -251,7 +251,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     end)
   end
 
-  def update_resource_spec(%{resource_spec: changes}, info) do
+  def update_resource_spec(%{resource_specification: changes}, info) do
     Repo.transact_with(fn ->
       do_update(changes, info, fn resource_spec, changes ->
         ResourceSpecifications.update(resource_spec, changes)

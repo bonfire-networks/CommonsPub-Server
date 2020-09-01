@@ -195,19 +195,22 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     {:ok, urls}
   end
 
-  def create_process_spec(%{process_spec: %{in_scope_of: context_ids} = process_spec_attrs}, info)
+  def create_process_spec(
+        %{process_specification: %{in_scope_of: context_ids} = process_spec_attrs},
+        info
+      )
       when is_list(context_ids) do
     # FIXME: support multiple contexts?
     context_id = List.first(context_ids)
 
     create_process_spec(
-      %{process_spec: Map.merge(process_spec_attrs, %{in_scope_of: context_id})},
+      %{process_specification: Map.merge(process_spec_attrs, %{in_scope_of: context_id})},
       info
     )
   end
 
   def create_process_spec(
-        %{process_spec: %{in_scope_of: context_id} = process_spec_attrs},
+        %{process_specification: %{in_scope_of: context_id} = process_spec_attrs},
         info
       )
       when not is_nil(context_id) do
@@ -221,25 +224,25 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
            process_spec_attrs = Map.merge(process_spec_attrs, %{is_public: true}),
            {:ok, process_spec} <-
              ProcessSpecifications.create(user, context, process_spec_attrs) do
-        {:ok, %{process_spec: process_spec}}
+        {:ok, %{process_specification: process_spec}}
       end
     end)
   end
 
   # FIXME: duplication!
-  def create_process_spec(%{process_spec: process_spec_attrs}, info) do
+  def create_process_spec(%{process_specification: process_spec_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, process_spec_attrs, info),
            process_spec_attrs = Map.merge(process_spec_attrs, uploads),
            process_spec_attrs = Map.merge(process_spec_attrs, %{is_public: true}),
            {:ok, process_spec} <- ProcessSpecifications.create(user, process_spec_attrs) do
-        {:ok, %{process_spec: process_spec}}
+        {:ok, %{process_specification: process_spec}}
       end
     end)
   end
 
-  def update_process_spec(%{process_spec: %{in_scope_of: context_ids} = changes}, info) do
+  def update_process_spec(%{process_specification: %{in_scope_of: context_ids} = changes}, info) do
     context_id = List.first(context_ids)
 
     Repo.transact_with(fn ->
@@ -252,7 +255,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     end)
   end
 
-  def update_process_spec(%{process_spec: changes}, info) do
+  def update_process_spec(%{process_specification: changes}, info) do
     Repo.transact_with(fn ->
       do_update(changes, info, fn process_spec, changes ->
         ProcessSpecifications.update(process_spec, changes)

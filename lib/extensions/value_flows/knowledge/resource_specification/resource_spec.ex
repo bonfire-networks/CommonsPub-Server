@@ -25,6 +25,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     # array of URI
     field(:resource_classified_as, {:array, :string}, virtual: true)
 
+    # TODO hook up unit to contexts/resolvers
     belongs_to(:default_unit_of_effort, Unit, on_replace: :nilify)
 
     belongs_to(:creator, User)
