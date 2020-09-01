@@ -22,6 +22,7 @@
 | db_connection          | Apache 2.0                         | 2.2.2       | https://hex.pm/packages/db_connection                               |
 | dbg                    | Apache 2.0                         | 1.0.1       | https://hex.pm/packages/dbg                                         |
 | decimal                | Apache 2.0                         | 1.8.1       | https://hex.pm/packages/decimal                                     |
+| docset_api             | Undefined                          | 0.1.0       | https://github.com/mayel/hexdocs_docset_api.git                     |
 | earmark                | Apache 2.0                         | 1.4.10      | https://hex.pm/packages/earmark                                     |
 | earmark_parser         | Apache 2.0                         | 1.4.10      | https://hex.pm/packages/earmark_parser                              |
 | ecto                   | Apache 2.0                         | 3.4.6       | https://hex.pm/packages/ecto                                        |
@@ -29,6 +30,7 @@
 | ecto_ulid              | MIT                                | 0.2.0       | https://github.com/irresponsible/ecto-ulid                          |
 | elixir_make            | Apache 2.0                         | 0.6.0       | https://hex.pm/packages/elixir_make                                 |
 | email_checker          | MIT                                | 0.1.3       | https://hex.pm/packages/email_checker                               |
+| esqlite                | Apache; Apache 2.0                 | 0.4.1       | https://hex.pm/packages/esqlite                                     |
 | eternal                | MIT                                | 1.2.1       | https://hex.pm/packages/eternal                                     |
 | ex_doc                 | Apache 2.0                         | 0.22.2      | https://hex.pm/packages/ex_doc                                      |
 | ex_machina             | MIT                                | 2.4.0       | https://hex.pm/packages/ex_machina                                  |
@@ -70,7 +72,7 @@
 | oban                   | Apache 2.0                         | 1.2.0       | https://hex.pm/packages/oban                                        |
 | parse_trans            | Apache 2.0                         | 3.3.0       | https://hex.pm/packages/parse_trans                                 |
 | phoenix                | MIT                                | 1.5.4       | https://hex.pm/packages/phoenix                                     |
-| phoenix_ecto           | MIT                                | 4.1.0       | https://hex.pm/packages/phoenix_ecto                                |
+| phoenix_ecto           | MIT                                | 4.2.0       | https://hex.pm/packages/phoenix_ecto                                |
 | phoenix_html           | MIT                                | 2.14.2      | https://hex.pm/packages/phoenix_html                                |
 | phoenix_integration    | MIT                                | 0.8.2       | https://hex.pm/packages/phoenix_integration                         |
 | phoenix_live_dashboard | MIT                                | 0.2.7       | https://hex.pm/packages/phoenix_live_dashboard                      |
@@ -93,6 +95,7 @@
 | sleeplocks             | MIT                                | 1.1.1       | https://hex.pm/packages/sleeplocks                                  |
 | slugger                | MIT                                | 0.3.0       | https://hex.pm/packages/slugger                                     |
 | socket                 | WTFPL                              | 0.3.13      | https://hex.pm/packages/socket                                      |
+| sqlitex                | MIT                                | 1.7.1       | https://hex.pm/packages/sqlitex                                     |
 | ssl_verify_fun         | MIT                                | 1.1.6       | https://hex.pm/packages/ssl_verify_fun                              |
 | stream_data            | Apache 2.0                         | 0.5.0       | https://hex.pm/packages/stream_data                                 |
 | telemetry              | Apache 2.0                         | 0.4.2       | https://hex.pm/packages/telemetry                                   |
