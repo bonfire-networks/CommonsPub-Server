@@ -19,10 +19,12 @@ defmodule MoodleNet.Mixfile do
       releases: releases(),
       name: "CommonsPub",
       homepage_url: "http://CommonsPub.org/",
-      source_url: "https://gitlab.com/CommonsPub/CommonsPub-Server",
+      source_url: "https://gitlab.com/CommonsPub/Server",
       docs: [
         # The first page to display from the docs
         main: "readme",
+        # git branch to link in docs:
+        source_ref: "flavour/commonspub",
         logo: "assets/static/images/logo_commonspub.png",
         # extra pages to include
         extras: [
@@ -188,8 +190,7 @@ defmodule MoodleNet.Mixfile do
       {
         :pointers,
         # "~> 0.4"
-        git: "https://github.com/commonspub/pointers.git",
-        branch: "main",
+        git: "https://github.com/commonspub/pointers.git", branch: "main"
         # path: "uploads/pointers-main"
         # git: "https://github.com/mayel/pointers.git",
       },
@@ -216,7 +217,11 @@ defmodule MoodleNet.Mixfile do
       # doc gen
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
       {:licensir, "~> 0.6", only: :dev, runtime: false, git: "https://github.com/mayel/licensir"},
-      {:docset_api, only: :dev, runtime: false, git: "https://github.com/mayel/hexdocs_docset_api.git", path: "/home/Code/DATA_CONFIGS/hexdocs_docset_api/"},
+      {:docset_api,
+       only: :dev,
+       runtime: false,
+       git: "https://github.com/mayel/hexdocs_docset_api.git",
+       path: "/home/Code/DATA_CONFIGS/hexdocs_docset_api/"},
       # test coverage statistics
       {:excoveralls, "~> 0.10", only: :test},
       # module mocking
