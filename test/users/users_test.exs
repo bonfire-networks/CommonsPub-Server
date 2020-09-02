@@ -64,7 +64,7 @@ defmodule MoodleNet.UsersTest do
 
     test "creates a user account with valid attrs when email allowed" do
       Repo.transaction(fn ->
-        attrs = Simulation.actor(Simulation.user())
+        attrs = Simulation.character(Simulation.user())
         assert {:ok, _} = Access.create_register_email(attrs.email)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
         assert_user_equal(user, attrs)
@@ -76,7 +76,7 @@ defmodule MoodleNet.UsersTest do
 
     test "creates a user account with valid attrs when domain is denied" do
       Repo.transaction(fn ->
-        attrs = Simulation.actor(Simulation.user())
+        attrs = Simulation.character(Simulation.user())
         [_, domain] = String.split(attrs.email, "@", parts: 2)
         assert {:ok, _} = Access.create_register_email_domain(domain)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
@@ -94,7 +94,7 @@ defmodule MoodleNet.UsersTest do
         attrs =
           %{preferred_username: user.actor.preferred_username}
           |> Simulation.user()
-          |> Simulation.actor()
+          |> Simulation.character()
 
         assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
       end)
@@ -107,7 +107,7 @@ defmodule MoodleNet.UsersTest do
         attrs =
           %{preferred_username: String.upcase(user.actor.preferred_username)}
           |> Simulation.user()
-          |> Simulation.actor()
+          |> Simulation.character()
 
         assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
       end)
@@ -120,7 +120,7 @@ defmodule MoodleNet.UsersTest do
         attrs =
           %{email: user.local_user.email}
           |> Simulation.user()
-          |> Simulation.actor()
+          |> Simulation.character()
 
         assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
       end)
@@ -136,7 +136,7 @@ defmodule MoodleNet.UsersTest do
 
     test "fails if the user's email is not denied - email allowed" do
       Repo.transaction(fn ->
-        attrs = Simulation.actor(Simulation.user())
+        attrs = Simulation.character(Simulation.user())
 
         assert {:error, %NoAccessError{}} = Users.register(attrs, public_registration: false)
       end)

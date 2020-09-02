@@ -3,11 +3,11 @@ defmodule Geolocation.Test.Faking do
   @moduledoc false
 
   import CommonsPub.Utils.Simulation
-  import Grumble
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
-
   import Geolocation.Simulate
+
+  import Grumble
+  import MoodleNetWeb.Test.GraphQLFields
+  import MoodleNetWeb.Test.GraphQLAssertions
 
   ## assertions
 

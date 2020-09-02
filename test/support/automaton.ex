@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Test.Automaton do
   @moduledoc "Pagination testing"
-  import ExUnit.Assertions
+
   import CommonsPub.Utils.Trendy
+
+  import ExUnit.Assertions
+  import Zest
+
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.ConnHelpers
-  import Zest
 
   def root_page_test(
         %{
