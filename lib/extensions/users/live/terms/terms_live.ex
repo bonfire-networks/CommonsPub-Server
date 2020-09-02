@@ -7,6 +7,6 @@ defmodule CommonsPub.Web.TermsLive do
 
     {:ok,
      socket
-     |> assign(app_name: Application.get_env(:commons_pub, :app_name))}
+     |> assign(app_name: CommonsPub.Config.get(:app_name))}
   end
 end

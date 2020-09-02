@@ -4,7 +4,7 @@ defmodule CommonsPub.ReleaseTasks do
   require Logger
 
   @start_apps [:commons_pub]
-  @repos Application.get_env(:commons_pub, :ecto_repos, [])
+  @repos CommonsPub.Config.get(:ecto_repos, [])
   alias CommonsPub.{Communities, Repo, Users}
   alias CommonsPub.Users.User
 

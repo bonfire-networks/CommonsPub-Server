@@ -188,13 +188,13 @@ defmodule CommonsPub.Communities do
   end
 
   # defp default_inbox_query_contexts() do
-  #   Application.fetch_env!(:commons_pub, __MODULE__)
+  #   CommonsPub.Config.get!(__MODULE__)
   #   |> Keyword.fetch!(:default_inbox_query_contexts)
   # end
 
   @doc false
   def default_outbox_query_contexts() do
-    Application.fetch_env!(:commons_pub, __MODULE__)
+    CommonsPub.Config.get!(__MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 

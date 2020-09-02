@@ -6,5 +6,5 @@ defmodule CommonsPub.Web.EmailView do
   """
   use CommonsPub.Web, :view
 
-  def app_name(), do: Application.get_env(:commons_pub, :app_name)
+  def app_name(), do: CommonsPub.Config.get(:app_name)
 end

@@ -197,7 +197,7 @@ defmodule CommonsPub.Collections do
 
   @doc false
   def default_outbox_query_contexts() do
-    Application.fetch_env!(:commons_pub, __MODULE__)
+    CommonsPub.Config.get!(__MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 

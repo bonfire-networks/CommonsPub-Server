@@ -5,7 +5,7 @@ defmodule CommonsPub.Web.PageControllerTest do
 
   describe "index" do
     test "redirects to frontend" do
-      redirect_url = Application.get_env(:commons_pub, :frontend_base_url)
+      redirect_url = CommonsPub.Config.get(:frontend_base_url)
       assert resp = build_conn() |> get("/") |> response(301)
       assert resp =~ redirect_url
     end

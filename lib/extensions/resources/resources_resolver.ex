@@ -276,6 +276,6 @@ defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
   end
 
   defp valid_contexts() do
-    Keyword.fetch!(Application.get_env(:commons_pub, Resources), :valid_contexts)
+    Keyword.fetch!(CommonsPub.Config.get(Resources), :valid_contexts)
   end
 end

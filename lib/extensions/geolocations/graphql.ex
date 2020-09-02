@@ -109,7 +109,7 @@ defmodule Geolocation.GraphQL do
   # end
 
   # defp default_outbox_query_contexts() do
-  #   Application.fetch_env!(:commons_pub, Geolocations)
+  #   CommonsPub.Config.get!(Geolocations)
   #   |> Keyword.fetch!(:default_outbox_query_contexts)
   # end
 

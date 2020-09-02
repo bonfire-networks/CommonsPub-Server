@@ -19,8 +19,8 @@ defmodule ActivityPub.HTTP.Connection do
 
   def hackney_options(opts) do
     options = Keyword.get(opts, :adapter, [])
-    adapter_options = Application.get_env(:commons_pub, :http)[:adapter] || []
-    proxy_url = Application.get_env(:commons_pub, :http)[:proxy_url]
+    adapter_options = CommonsPub.Config.get(:http)[:adapter] || []
+    proxy_url = CommonsPub.Config.get(:http)[:proxy_url]
 
     @hackney_options
     |> Keyword.merge(adapter_options)

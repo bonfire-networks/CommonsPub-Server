@@ -33,5 +33,5 @@ defmodule CommonsPub.Mail.Checker do
     end
   end
 
-  defp config(), do: Application.get_env(:commons_pub, __MODULE__, [])
+  defp config(), do: CommonsPub.Config.get(__MODULE__, [])
 end

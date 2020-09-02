@@ -149,7 +149,7 @@ defmodule CommonsPub.Web.GraphQL.ThreadsResolver do
   end
 
   defp valid_contexts() do
-    Keyword.fetch!(Application.get_env(:commons_pub, Threads), :valid_contexts)
+    Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
   end
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}

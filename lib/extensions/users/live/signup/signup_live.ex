@@ -9,8 +9,8 @@ defmodule CommonsPub.Web.SignupLive do
      socket
      |> assign(
        email: "",
-       app_name: Application.get_env(:commons_pub, :app_name),
-       app_icon: Application.get_env(:commons_pub, :app_icon, "/images/sun_face.png")
+       app_name: CommonsPub.Config.get(:app_name),
+       app_icon: CommonsPub.Config.get(:app_icon, "/images/sun_face.png")
      )}
   end
 

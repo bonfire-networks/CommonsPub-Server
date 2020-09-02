@@ -122,7 +122,7 @@ defmodule CommonsPub.Users do
   end
 
   defp should_check_register_access?(opts) do
-    opts = opts ++ Application.get_env(:commons_pub, __MODULE__, [])
+    opts = opts ++ CommonsPub.Config.get(__MODULE__, [])
     IO.inspect(should_check_register_access: Keyword.get(opts, :public_registration, false))
 
     not Keyword.get(opts, :public_registration, false)
@@ -450,13 +450,13 @@ defmodule CommonsPub.Users do
 
   @doc false
   def default_inbox_query_contexts() do
-    Application.fetch_env!(:commons_pub, __MODULE__)
+    CommonsPub.Config.get!(__MODULE__)
     |> Keyword.fetch!(:default_inbox_query_contexts)
   end
 
   @doc false
   def default_outbox_query_contexts() do
-    Application.fetch_env!(:commons_pub, __MODULE__)
+    CommonsPub.Config.get!(__MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 end

@@ -126,7 +126,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   end
 
   defp default_outbox_query_contexts() do
-    Application.fetch_env!(:commons_pub, CommonsPub.Character)
+    CommonsPub.Config.get!(CommonsPub.Character)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
@@ -199,7 +199,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   # end
 
   # defp valid_contexts do
-  #   Keyword.fetch!(Application.get_env(:commons_pub, Characters), :valid_contexts)
+  #   Keyword.fetch!(CommonsPub.Config.get(Characters), :valid_contexts)
   # end
 
   # def creator_edge(%{character: %{creator_id: id}}, _, info) do

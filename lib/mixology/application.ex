@@ -44,7 +44,7 @@ defmodule CommonsPub.Application do
       worker(TableService, []),
       {Phoenix.PubSub, [name: CommonsPub.PubSub, adapter: Phoenix.PubSub.PG2]},
       supervisor(Endpoint, []),
-      {Oban, Application.get_env(:commons_pub, Oban)},
+      {Oban, CommonsPub.Config.get(Oban)},
       %{
         id: :cachex_actor,
         start:

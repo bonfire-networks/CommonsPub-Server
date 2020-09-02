@@ -4,6 +4,6 @@ defmodule CommonsPub.Web.EditorLive do
   import CommonsPub.Web.Helpers.Common
 
   def mount(socket) do
-    {:ok, assign(socket, :editor, Application.get_env(:commons_pub, :ux)[:editor])}
+    {:ok, assign(socket, :editor, CommonsPub.Config.get(:ux)[:editor])}
   end
 end

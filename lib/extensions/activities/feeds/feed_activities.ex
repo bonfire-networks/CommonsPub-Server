@@ -54,7 +54,7 @@ defmodule CommonsPub.Feeds.FeedActivities do
   end
 
   def default_query_contexts() do
-    Application.fetch_env!(:commons_pub, Feeds)
+    CommonsPub.Config.get!(Feeds)
     |> Map.fetch!(:default_query_contexts)
   end
 end

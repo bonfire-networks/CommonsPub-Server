@@ -36,7 +36,7 @@ defmodule CommonsPub.Config do
 
   def put([parent_key | keys], value) do
     parent =
-      Application.get_env(:commons_pub, parent_key, [])
+      CommonsPub.Config.get(parent_key, [])
       |> put_in(keys, value)
 
     Application.put_env(:commons_pub, parent_key, parent)
@@ -50,7 +50,7 @@ defmodule CommonsPub.Config do
 
   def delete([parent_key | keys]) do
     {_, parent} =
-      Application.get_env(:commons_pub, parent_key)
+      CommonsPub.Config.get(parent_key)
       |> get_and_update_in(keys, fn _ -> :pop end)
 
     Application.put_env(:commons_pub, parent_key, parent)

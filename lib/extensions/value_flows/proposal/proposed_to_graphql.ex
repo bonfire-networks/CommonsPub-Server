@@ -28,7 +28,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   end
 
   def valid_contexts do
-    Application.fetch_env!(:commons_pub, Proposals)
+    CommonsPub.Config.get!(Proposals)
     |> Keyword.fetch!(:valid_agent_contexts)
   end
 end

@@ -10,12 +10,12 @@ defmodule CommonsPub.Instance do
     Keyword.fetch!(config, :description)
   end
 
-  def base_url(), do: Application.fetch_env!(:commons_pub, :base_url)
+  def base_url(), do: CommonsPub.Config.get!(:base_url)
 
   @doc false
   def default_outbox_query_contexts(config \\ config()) do
     Keyword.fetch!(config, :default_outbox_query_contexts)
   end
 
-  defp config(), do: Application.fetch_env!(:commons_pub, __MODULE__)
+  defp config(), do: CommonsPub.Config.get!(__MODULE__)
 end

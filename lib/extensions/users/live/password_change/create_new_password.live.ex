@@ -8,7 +8,7 @@ defmodule CommonsPub.Web.CreateNewPasswordLive do
     {:ok,
      socket
      |> assign(
-       app_name: Application.get_env(:commons_pub, :app_name),
+       app_name: CommonsPub.Config.get(:app_name),
        token: token
      )}
   end

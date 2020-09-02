@@ -263,13 +263,13 @@ defmodule CommonsPub.Uploads do
   end
 
   def allowed_media_types(upload_def) do
-    Application.get_env(:commons_pub, upload_def)
+    CommonsPub.Config.get(upload_def)
     |> Keyword.fetch!(:allowed_media_types)
   end
 
   def max_file_size() do
     {size, ""} =
-      Application.get_env(:commons_pub, __MODULE__)
+      CommonsPub.Config.get(__MODULE__)
       |> Keyword.fetch!(:max_file_size)
       |> Integer.parse()
 
@@ -277,7 +277,7 @@ defmodule CommonsPub.Uploads do
   end
 
   def base_url() do
-    Application.get_env(:commons_pub, __MODULE__) |> Keyword.fetch!(:uploads_base_url)
+    CommonsPub.Config.get(__MODULE__) |> Keyword.fetch!(:uploads_base_url)
   end
 
   def prepend_url(url) do

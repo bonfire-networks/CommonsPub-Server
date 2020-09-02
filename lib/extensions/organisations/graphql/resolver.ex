@@ -165,6 +165,6 @@ defmodule Organisation.GraphQL.Resolver do
   end
 
   defp valid_contexts do
-    Keyword.fetch!(Application.get_env(:commons_pub, Organisation), :valid_contexts)
+    Keyword.fetch!(CommonsPub.Config.get(Organisation), :valid_contexts)
   end
 end

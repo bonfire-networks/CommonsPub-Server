@@ -161,7 +161,7 @@ defmodule CommonsPub.Follows do
   # defp unsubscribe(_), do: {:ok, []}
 
   def valid_contexts() do
-    Application.fetch_env!(:commons_pub, __MODULE__)
+    CommonsPub.Config.get!(__MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
 end

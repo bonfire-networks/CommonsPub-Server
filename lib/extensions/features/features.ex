@@ -58,7 +58,7 @@ defmodule CommonsPub.Features do
   end
 
   defp get_valid_contexts() do
-    Application.fetch_env!(:commons_pub, Features)
+    CommonsPub.Config.get!(Features)
     |> Keyword.fetch!(:valid_contexts)
   end
 

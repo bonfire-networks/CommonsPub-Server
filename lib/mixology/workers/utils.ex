@@ -4,7 +4,7 @@ defmodule CommonsPub.Workers.Utils do
   defp get_log_level(key)
 
   defp get_log_level(key) when is_atom(key) do
-    Application.get_env(:commons_pub, key, [])
+    CommonsPub.Config.get(key, [])
     |> Keyword.get(:log_level, :warn)
   end
 

@@ -38,7 +38,7 @@ defmodule ActivityPubWeb.Federator.Publisher do
 
   @spec publish(Map.t(), Map.t()) :: :ok
   def publish(user, activity) do
-    Application.get_env(:commons_pub, :instance)[:federation_publisher_modules]
+    CommonsPub.Config.get(:instance)[:federation_publisher_modules]
     |> Enum.each(fn module ->
       if module.is_representable?(activity) do
         Logger.info("Publishing #{activity.data["id"]} using #{inspect(module)}")
@@ -56,7 +56,7 @@ defmodule ActivityPubWeb.Federator.Publisher do
 
   @spec gather_webfinger_links(Map.t()) :: list()
   def gather_webfinger_links(user) do
-    Application.get_env(:commons_pub, :instance)[:federation_publisher_modules]
+    CommonsPub.Config.get(:instance)[:federation_publisher_modules]
     |> Enum.reduce([], fn module, links ->
       links ++ module.gather_webfinger_links(user)
     end)

@@ -184,6 +184,6 @@ defmodule Measurement.Unit.GraphQL do
   end
 
   defp valid_contexts do
-    Keyword.fetch!(Application.fetch_env!(:commons_pub, Units), :valid_contexts)
+    Keyword.fetch!(CommonsPub.Config.get!(Units), :valid_contexts)
   end
 end
