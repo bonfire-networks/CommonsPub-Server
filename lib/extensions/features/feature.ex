@@ -3,7 +3,7 @@ defmodule MoodleNet.Features.Feature do
   use MoodleNet.Common.Schema
   alias Ecto.Changeset
   alias MoodleNet.Features
-  alias MoodleNet.Features.Feature
+  alias __MODULE__
   alias Pointers.Pointer
   alias MoodleNet.Users.User
 

@@ -21,7 +21,9 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Uploads.Content
 
   table_schema "mn_community" do
+    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
     belongs_to(:actor, Character)
+
     belongs_to(:creator, User)
     belongs_to(:context, Pointers.Pointer)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
@@ -54,7 +56,6 @@ defmodule MoodleNet.Communities.Community do
   def create_changeset(
         %User{} = creator,
         %{} = context,
-        %Character{} = actor,
         fields
       ) do
     %Community{}
@@ -62,7 +63,6 @@ defmodule MoodleNet.Communities.Community do
     |> Changeset.change(
       # communities are currently all public
       is_public: true,
-      actor_id: actor.id,
       context_id: context.id,
       creator_id: creator.id
     )
@@ -72,7 +72,6 @@ defmodule MoodleNet.Communities.Community do
 
   def create_changeset(
         %User{} = creator,
-        %Character{} = actor,
         fields
       ) do
     %Community{}
@@ -80,7 +79,6 @@ defmodule MoodleNet.Communities.Community do
     |> Changeset.change(
       # communities are currently all public
       is_public: true,
-      actor_id: actor.id,
       creator_id: creator.id
     )
     |> Changeset.validate_required(@create_required)

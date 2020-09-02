@@ -16,7 +16,9 @@ defmodule MoodleNet.Users.User do
   alias MoodleNet.Users.{LocalUser, User}
 
   table_schema "mn_user" do
-    belongs_to(:actor, Character)
+    # belongs_to(:actor, Actor)
+    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
+
     belongs_to(:local_user, LocalUser)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
@@ -39,24 +41,29 @@ defmodule MoodleNet.Users.User do
     timestamps()
   end
 
-  # @register_required ~w(name)a
+  @register_required ~w(name)a
   @register_cast ~w(id name summary location website extra_info icon_id image_id is_public)a ++
                    ~w(is_disabled inbox_id outbox_id)a
 
   @doc "Create a changeset for registration"
-  def register_changeset(%Character{id: id, peer_id: peer_id}, %{} = attrs) do
+  def register_changeset(%{peer_id: peer_id} = attrs) when not is_nil(peer_id) do
     %User{}
     |> Changeset.cast(attrs, @register_cast)
-    # |> Changeset.validate_required(@register_required)
-    |> Changeset.change(actor_id: id)
+    |> Changeset.validate_required(@register_required)
     |> common_changeset()
-    |> local_changeset(is_nil(peer_id))
   end
 
-  def local_register_changeset(%Character{} = actor, %LocalUser{id: id}, %{} = attrs) do
-    register_changeset(actor, attrs)
+  def register_changeset(attrs) do
+    %User{}
+    |> Changeset.cast(attrs, @register_cast)
+    |> Changeset.validate_required(@register_required)
+    |> common_changeset()
+    |> maybe_local_changeset(true)
+  end
+
+  def local_register_changeset(%LocalUser{id: id}, %{} = attrs) do
+    register_changeset(attrs)
     |> Changeset.put_change(:local_user_id, id)
-    |> local_changeset(true)
   end
 
   @update_cast [] ++
@@ -68,7 +75,7 @@ defmodule MoodleNet.Users.User do
     user
     |> Changeset.cast(attrs, @update_cast)
     |> common_changeset()
-    |> local_changeset(is_nil(Map.get(user, :actor, %{}).peer_id))
+    |> maybe_local_changeset(is_nil(Map.get(Map.get(user, :character, %{}), :peer_id)))
   end
 
   defp common_changeset(changeset) do
@@ -77,7 +84,7 @@ defmodule MoodleNet.Users.User do
     |> change_public()
   end
 
-  defp local_changeset(changeset, true) do
+  defp maybe_local_changeset(changeset, true) do
     changeset
     |> Changeset.validate_length(:name, max: 142)
     |> Changeset.validate_length(:summary, max: 500_000)
@@ -85,7 +92,7 @@ defmodule MoodleNet.Users.User do
     |> Changeset.validate_length(:website, max: 255)
   end
 
-  defp local_changeset(changeset, false), do: changeset
+  defp maybe_local_changeset(changeset, false), do: changeset
 
   ### behaviour callbacks
 

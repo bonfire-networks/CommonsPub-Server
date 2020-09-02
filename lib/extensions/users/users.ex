@@ -56,74 +56,76 @@ defmodule MoodleNet.Users do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(User, filters))}
 
-  @doc """
-  Registers a user:
-  1. Splits attrs into actor and user fields
-  2. Inserts user (because the access check isn't very good at crap emails yet)
-  3. Checks the access
-  4. Creates actor, email confirm token
-
-  This is all controlled by options. An optional keyword list
-  provided to this argument will be prepended to the application
-  config under the path`[:moodle_net, MoodleNet.Users]`. Keys:
-
-  `:public_registration` - boolean, default false. if false, accesss will be checked
-  """
   @spec register(map, Keyword.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  def register(attrs, opts \\ []) do
-    attrs = Characters.prepare_username(attrs)
+  def register(attrs, opts \\ [])
 
+  @doc """
+  Registers a remote user
+  """
+  def register(%{peer_id: peer_id} = attrs, opts) when not is_nil(peer_id) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Characters.create(attrs) do
-        case actor.peer_id do
-          nil -> register_local(actor, attrs, opts)
-          _ -> register_remote(actor, attrs, opts)
-        end
+      with {:ok, user} <- Repo.insert(User.register_changeset(attrs)),
+           {:ok, character} <- CommonsPub.Character.Characters.create(user, attrs, user) do
+        CommonsPub.Search.Indexer.maybe_index_object(user)
+
+        {:ok, %{user | character: character}}
       end
     end)
   end
 
-  defp register_local(actor, attrs, opts) do
-    with {:ok, local_user} <- insert_local_user(attrs),
-         :ok <- check_register_access(local_user.email, opts),
-         {:ok, inbox} <- Feeds.create(),
-         {:ok, outbox} <- Feeds.create(),
-         attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
-         {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
-         {:ok, token} <- create_email_confirm_token(local_user) do
-      Logger.info("Minted confirmation token for user: #{token.id}")
+  @doc """
+  Registers a local user:
+  1. Splits attrs into character and user fields
+  2. Inserts user (because the access check isn't very good at crap emails yet)
+  3. Checks the access
+  4. Creates character, emails confirmation token
 
-      user = %{user | actor: actor, local_user: %{local_user | email_confirm_tokens: [token]}}
+  This is controlled by options. An optional keyword list
+  provided to this argument will be prepended to the application
+  config under the path`[:moodle_net, MoodleNet.Users]`. Possible options:
 
-      user
-      |> Email.welcome(token)
-      |> MailService.maybe_deliver_later()
+  `:public_registration` - boolean, default false. if false, accesss will be checked
+  """
+  def register(attrs, opts) do
+    IO.inspect(register: attrs)
+    IO.inspect(register: opts)
 
-      CommonsPub.Search.Indexer.maybe_index_object(user)
+    Repo.transact_with(fn ->
+      with {:ok, local_user} <- insert_local_user(attrs),
+           :ok <- maybe_check_register_access(local_user.email, opts),
+           {:ok, user} <- Repo.insert(User.local_register_changeset(local_user, attrs)),
+           {:ok, character} <- CommonsPub.Character.Characters.create(user, attrs, user),
+           {:ok, token} <- create_email_confirm_token(local_user) do
+        user = %{
+          user
+          | character: character,
+            local_user: %{local_user | email_confirm_tokens: [token]}
+        }
 
-      {:ok, user}
-    end
+        Logger.info("Sending confirmation token for user: #{token.id}")
+
+        user
+        |> Email.welcome(token)
+        |> MailService.maybe_deliver_later()
+
+        CommonsPub.Search.Indexer.maybe_index_object(user)
+
+        {:ok, user}
+      end
+    end)
   end
 
-  defp register_remote(actor, attrs, _opts) do
-    with {:ok, outbox} <- Feeds.create(),
-         attrs2 = Map.put(attrs, :outbox_id, outbox.id),
-         {:ok, user} <- Repo.insert(User.register_changeset(actor, attrs2)) do
-      CommonsPub.Search.Indexer.maybe_index_object(user)
-
-      {:ok, %{user | actor: actor}}
-    end
+  defp maybe_check_register_access(email, opts) do
+    if should_check_register_access?(opts),
+      do: Access.check_register_access(email),
+      else: :ok
   end
 
   defp should_check_register_access?(opts) do
     opts = opts ++ Application.get_env(:moodle_net, __MODULE__, [])
-    not Keyword.get(opts, :public_registration, false)
-  end
+    IO.inspect(should_check_register_access: Keyword.get(opts, :public_registration, false))
 
-  defp check_register_access(email, opts) do
-    if should_check_register_access?(opts),
-      do: Access.check_register_access(email),
-      else: :ok
+    not Keyword.get(opts, :public_registration, false)
   end
 
   defp insert_local_user(attrs) do
@@ -146,7 +148,12 @@ defmodule MoodleNet.Users do
            :ok <- validate_token(token, :confirmed_at, now),
            {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)),
            {:ok, user} <-
-             one(join: :actor, join: :local_user, preload: :all, local_user: token.local_user_id),
+             one(
+               join: :character,
+               join: :local_user,
+               preload: :all,
+               local_user: token.local_user_id
+             ),
            {:ok, user} <- confirm_email(user),
            :ok <- ap_publish("create", user) do
         {:ok, user}
@@ -257,10 +264,10 @@ defmodule MoodleNet.Users do
         )
 
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Characters.update(user, user.actor, attrs),
+           {:ok, character} <- Characters.update(user, user.character, attrs),
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)),
            :ok <- ap_publish("update", user) do
-        user = %{user | local_user: local_user, actor: actor}
+        user = %{user | local_user: local_user, character: character}
 
         CommonsPub.Search.Indexer.maybe_index_object(user)
 
@@ -273,8 +280,8 @@ defmodule MoodleNet.Users do
   def update_remote(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Characters.update(user, user.actor, attrs) do
-        user = %{user | actor: actor}
+           {:ok, character} <- Characters.update(user, user.character, attrs) do
+        user = %{user | character: character}
 
         CommonsPub.Search.Indexer.maybe_index_object(user)
 
@@ -284,7 +291,7 @@ defmodule MoodleNet.Users do
   end
 
   # @spec soft_delete(User.t(), User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  # local user
+  # local userchara
   def soft_delete(deleter, %User{local_user: %LocalUser{}} = user) do
     Repo.transact_with(fn ->
       with {:ok, user2} <- Common.soft_delete(user),
@@ -292,7 +299,7 @@ defmodule MoodleNet.Users do
            %{user: users, feed: feeds} = deleted_ids([user2]),
            :ok <- chase_delete(deleter, users, feeds),
            :ok <- ap_publish("delete", user) do
-        user = %{user2 | local_user: local_user, actor: user.actor}
+        user = %{user2 | local_user: local_user, character: user.character}
         {:ok, user}
       end
     end)
@@ -305,7 +312,7 @@ defmodule MoodleNet.Users do
            %{user: users, feed: feeds} = deleted_ids([user2]),
            :ok <- chase_delete(user, users, feeds),
            :ok <- ap_publish("delete", user) do
-        user = %{user2 | actor: user.actor}
+        user = %{user2 | character: user.character}
         {:ok, user}
       end
     end)
@@ -318,7 +325,7 @@ defmodule MoodleNet.Users do
       with {:ok, user2} <- Common.soft_delete(user),
            %{user: users, feed: feeds} = deleted_ids([user2]),
            :ok <- chase_delete(user, users, feeds) do
-        user = %{user2 | actor: user.actor}
+        user = %{user2 | character: user.character}
         {:ok, user}
       end
     end)
@@ -416,12 +423,12 @@ defmodule MoodleNet.Users do
   def preload(user, opts \\ [])
 
   def preload(%User{} = user, opts) do
-    Repo.preload(user, [:local_user, :actor], opts)
+    Repo.preload(user, [:local_user, :character], opts)
   end
 
   @spec preload_actor(User.t(), Keyword.t()) :: User.t()
   def preload_actor(%User{} = user, opts \\ []) do
-    Repo.preload(user, :actor, opts)
+    Repo.preload(user, :character, opts)
   end
 
   @spec preload_local_user(User.t(), Keyword.t()) :: User.t()
@@ -434,7 +441,7 @@ defmodule MoodleNet.Users do
     :ok
   end
 
-  defp ap_publish(verb, %{actor: %{peer_id: nil}} = user) do
+  defp ap_publish(verb, %{character: %{peer_id: nil}} = user) do
     APPublishWorker.enqueue(verb, %{"context_id" => user.id})
     :ok
   end

@@ -114,6 +114,14 @@ defmodule CommonsPub.Search.Indexer do
     # TODO
   end
 
+  def host(url) when is_binary(url) do
+    URI.parse(url).host
+  end
+
+  def host(_) do
+    ""
+  end
+
   def indexing_object_format(%MoodleNet.Users.User{} = user) do
     follower_count =
       case MoodleNet.Follows.FollowerCounts.one(context: user.id) do
@@ -134,10 +142,10 @@ defmodule CommonsPub.Search.Indexer do
       "icon" => icon,
       "image" => image,
       "name" => user.name,
-      "username" => MoodleNet.Actors.display_username(user),
+      "username" => CommonsPub.Character.Characters.display_username(user),
       "summary" => Map.get(user, :summary),
       "index_type" => "User",
-      "index_instance" => URI.parse(url).host,
+      "index_instance" => host(url),
       "published_at" => user.published_at
     }
   end
@@ -162,10 +170,10 @@ defmodule CommonsPub.Search.Indexer do
       "icon" => icon,
       "image" => image,
       "name" => community.name,
-      "username" => MoodleNet.Actors.display_username(community),
+      "username" => CommonsPub.Character.Characters.display_username(community),
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
-      "index_instance" => URI.parse(url).host,
+      "index_instance" => host(url),
       "published_at" => community.published_at
     }
   end
@@ -190,10 +198,10 @@ defmodule CommonsPub.Search.Indexer do
       },
       "icon" => icon,
       "name" => collection.name,
-      "username" => MoodleNet.Actors.display_username(collection),
+      "username" => CommonsPub.Character.Characters.display_username(collection),
       "summary" => Map.get(collection, :summary),
       "index_type" => "Collection",
-      "index_instance" => URI.parse(url).host,
+      "index_instance" => host(url),
       "published_at" => collection.published_at,
       "community" => indexing_object_format(collection.community)
     }
@@ -251,8 +259,8 @@ defmodule CommonsPub.Search.Indexer do
     %{
       "id" => creator.id,
       "name" => creator.name,
-      "username" => MoodleNet.Actors.display_username(creator),
-      "canonical_url" => creator.actor.canonical_url
+      "username" => CommonsPub.Character.Characters.display_username(creator),
+      "canonical_url" => MoodleNet.ActivityPub.Utils.get_actor_canonical_url(creator)
     }
   end
 

@@ -494,14 +494,14 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def object_url(%MoodleNet.Communities.Community{
-        actor: %{preferred_username: preferred_username}
+        character: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/&" <> preferred_username
   end
 
   def object_url(%MoodleNet.Users.User{
-        actor: %{preferred_username: preferred_username}
+        character: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/@" <> preferred_username
@@ -515,7 +515,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def object_url(%{
-        actor: %{preferred_username: preferred_username}
+        character: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/+" <> preferred_username
@@ -534,7 +534,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     canonical_url
   end
 
-  def object_url(%{actor: %{canonical_url: canonical_url}})
+  def object_url(%{character: %{canonical_url: canonical_url}})
       when not is_nil(canonical_url) do
     canonical_url
   end
@@ -555,20 +555,9 @@ defmodule MoodleNetWeb.Helpers.Common do
       field,
       e(
         obj,
-        :actor,
+        :character,
         field,
-        e(
-          obj,
-          :character,
-          field,
-          e(
-            obj,
-            :character,
-            :actor,
-            field,
-            fallback
-          )
-        )
+        fallback
       )
     )
   end

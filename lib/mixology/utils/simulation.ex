@@ -147,7 +147,7 @@ defmodule CommonsPub.Utils.Simulation do
 
   # Widely useful schemas:
 
-  def actor(base \\ %{}) do
+  def character(base \\ %{}) do
     base
     |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
@@ -232,7 +232,7 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:location, &location/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
-    |> Map.merge(actor(base))
+    |> Map.merge(character(base))
     |> Map.merge(local_user(base))
   end
 
@@ -270,7 +270,7 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &bool/0)
-    |> Map.merge(actor(base))
+    |> Map.merge(character(base))
   end
 
   def community_input(base \\ %{}) do
@@ -296,7 +296,7 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &bool/0)
-    |> Map.merge(actor(base))
+    |> Map.merge(character(base))
   end
 
   def collection_input(base \\ %{}) do

@@ -9,12 +9,12 @@ defmodule CommonsPub.Character.Queries do
 
   def query(CommonsPub.Character) do
     from(c in CommonsPub.Character,
-      as: :character,
-      join: a in assoc(c, :actor),
-      as: :actor,
-      select_merge: %{preferred_username: a.preferred_username},
-      select_merge: %{canonical_url: a.canonical_url},
-      select_merge: %{signing_key: a.signing_key}
+      as: :character
+      # join: a in assoc(c, :actor),
+      # as: :actor,
+      # select_merge: %{preferred_username: a.preferred_username},
+      # select_merge: %{canonical_url: a.canonical_url},
+      # select_merge: %{signing_key: a.signing_key}
     )
   end
 
@@ -73,7 +73,7 @@ defmodule CommonsPub.Character.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter(q, [:deleted, preload: :actor])
+    filter(q, [:deleted])
   end
 
   ## by join
@@ -146,11 +146,11 @@ defmodule CommonsPub.Character.Queries do
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where(q, [actor: a], a.preferred_username == ^username)
+    where(q, [character: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where(q, [actor: a], a.preferred_username in ^usernames)
+    where(q, [character: a], a.preferred_username in ^usernames)
   end
 
   ## by ordering
@@ -180,9 +180,9 @@ defmodule CommonsPub.Character.Queries do
     select(q, [character: c], {field(c, ^key), count(c.id)})
   end
 
-  def filter(q, {:preload, :actor}) do
-    preload(q, [actor: a], actor: a)
-  end
+  # def filter(q, {:preload, :actor}) do
+  #   preload(q, [actor: a], actor: a)
+  # end
 
   def filter(q, {:preload, :context}) do
     preload(q, [context: c], context: c)
@@ -217,8 +217,8 @@ defmodule CommonsPub.Character.Queries do
     |> filter(join: :follower_count, order: [desc: :followers])
     |> page(page_opts, desc: :followers)
     |> select(
-      [character: c, actor: a, follower_count: fc],
-      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+      [character: c, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0)}
     )
   end
 

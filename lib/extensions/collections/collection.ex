@@ -18,10 +18,15 @@ defmodule MoodleNet.Collections.Collection do
 
   table_schema "mn_collection" do
     belongs_to(:actor, Character)
+    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
+
     belongs_to(:creator, User)
+
     # TODO: replace by context
     belongs_to(:community, Community)
+
     belongs_to(:context, Pointers.Pointer)
+
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     # belongs_to(:primary_language, Language)
@@ -46,7 +51,6 @@ defmodule MoodleNet.Collections.Collection do
   def create_changeset(
         %User{} = creator,
         %Community{} = community,
-        %Character{} = actor,
         attrs
       ) do
     %Collection{}
@@ -56,7 +60,6 @@ defmodule MoodleNet.Collections.Collection do
       # commmunity parent is deprecated in favour of context
       community_id: community.id,
       context_id: community.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> Changeset.validate_required(@required)
@@ -66,7 +69,6 @@ defmodule MoodleNet.Collections.Collection do
   def create_changeset(
         %User{} = creator,
         context,
-        %Character{} = actor,
         attrs
       ) do
     %Collection{}
@@ -74,7 +76,6 @@ defmodule MoodleNet.Collections.Collection do
     |> Changeset.change(
       creator_id: creator.id,
       context_id: context.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> Changeset.validate_required(@required)
@@ -83,14 +84,12 @@ defmodule MoodleNet.Collections.Collection do
 
   def create_changeset(
         %User{} = creator,
-        %Character{} = actor,
         attrs
       ) do
     %Collection{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       creator_id: creator.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> Changeset.validate_required(@required)

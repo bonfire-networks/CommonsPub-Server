@@ -104,7 +104,7 @@ defmodule CommonsPub.HTML.Formatter do
   defp mention_process(_opts, obj, acc, content_type) do
     obj = MoodleNet.Actors.obj_load_actor(obj)
     url = MoodleNet.Actors.obj_actor(obj).canonical_url
-    display_name = MoodleNet.Actors.display_username(obj)
+    display_name = CommonsPub.Character.Characters.display_username(obj)
 
     link = tag_link(nil, url, display_name, content_type)
 

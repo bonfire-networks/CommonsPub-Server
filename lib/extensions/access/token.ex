@@ -4,7 +4,7 @@ defmodule MoodleNet.Access.Token do
 
   use MoodleNet.Common.Schema
   alias MoodleNet.Users.User
-  alias MoodleNet.Access.Token
+  alias __MODULE__
   alias Ecto.Changeset
 
   # two weeks, in seconds

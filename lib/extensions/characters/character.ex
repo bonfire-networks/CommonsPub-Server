@@ -54,10 +54,14 @@ defmodule CommonsPub.Character do
     # timestamps()
   end
 
-  @required ~w(id preferred_username facet)a
-  @create_cast @required ++ ~w(peer_id canonical_url signing_key inbox_id outbox_id)a
-  @update_cast @required ++ ~w(peer_id canonical_url signing_key is_disabled)a
+  @required ~w(id canonical_url)a
+  @create_cast @required ++
+                 ~w(preferred_username peer_id facet signing_key inbox_id outbox_id)a
+  @update_cast @required ++ ~w(facet signing_key is_disabled)a
 
+  @doc """
+  Create a character without a known creator
+  """
   def create_changeset(
         nil,
         # %{id: _} = characteristic,
@@ -65,7 +69,7 @@ defmodule CommonsPub.Character do
         attrs
       ) do
     %CommonsPub.Character{}
-    |> Changeset.cast(attrs, @cast)
+    |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       # characteristic_id: characteristic_pointer_id(attrs),
@@ -85,6 +89,9 @@ defmodule CommonsPub.Character do
     |> common_changeset()
   end
 
+  @doc """
+  Create a character
+  """
   def create_changeset(
         %User{} = creator,
         # %{id: _} = characteristic,
@@ -95,7 +102,7 @@ defmodule CommonsPub.Character do
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      # creator_id: creator.id,
+      creator_id: creator.id,
       # characteristic_id: characteristic_pointer_id(attrs),
       # actor_id: actor.id,
       is_public: true
@@ -135,7 +142,7 @@ defmodule CommonsPub.Character do
 
   def update_changeset(%CommonsPub.Character{} = character, attrs) do
     character
-    |> Changeset.cast(character, attrs, @update_cast)
+    |> Changeset.cast(attrs, @update_cast)
     # |> Changeset.change(
     #   characteristic_id: characteristic_pointer_id(attrs)
     # )

@@ -16,7 +16,7 @@ defmodule Geolocation.Simulate do
     |> Map.put_new_lazy(:long, &Faker.Address.longitude/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
-    |> Map.merge(actor(base))
+    |> Map.merge(character(base))
   end
 
   def geolocation_input(base \\ %{}) do

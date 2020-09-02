@@ -48,22 +48,20 @@ defmodule MoodleNet.Communities do
 
   def create(%User{} = creator, %{} = community_or_context, %{} = attrs) do
     Repo.transact_with(fn ->
-      attrs = Characters.prepare_username(attrs)
-
       # TODO: address activity to context's outbox/followers
       community_or_context =
-        MoodleNetWeb.Helpers.Common.maybe_preload(community_or_context, :actor)
+        MoodleNetWeb.Helpers.Common.maybe_preload(community_or_context, :character)
 
-      with {:ok, actor} <- Characters.create(attrs),
-           {:ok, comm_attrs} <- create_boxes(actor, attrs),
-           {:ok, comm} <- insert_community(creator, community_or_context, actor, comm_attrs),
-           {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
-           act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
+      # with {:ok, comm_attrs} <- create_boxes(character, attrs),
+      with {:ok, comm} <- insert_community(creator, community_or_context, attrs),
+           {:ok, character} <- Characters.create(attrs),
+           #  {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
+           act_attrs = %{verb: "created", is_local: is_nil(character.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, community_or_context, comm, activity),
            :ok <- ap_publish("create", comm) do
         CommonsPub.Search.Indexer.maybe_index_object(comm)
-        {:ok, comm}
+        {:ok, %{comm | character: character}}
       end
     end)
   end
@@ -71,18 +69,15 @@ defmodule MoodleNet.Communities do
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do
     Repo.transact_with(fn ->
-      attrs = Characters.prepare_username(attrs)
-
-      with {:ok, actor} <- Characters.create(attrs),
-           {:ok, comm_attrs} <- create_boxes(actor, attrs),
-           {:ok, comm} <- insert_community(creator, actor, comm_attrs),
-           {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
-           act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
+      with {:ok, comm} <- insert_community(creator, attrs),
+           {:ok, character} <- Characters.create(creator, attrs, comm),
+           #  {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
+           act_attrs = %{verb: "created", is_local: is_nil(character.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity),
            :ok <- ap_publish("create", comm) do
         CommonsPub.Search.Indexer.maybe_index_object(comm)
-        {:ok, comm}
+        {:ok, %{comm | character: character}}
       end
     end)
   end
@@ -90,45 +85,27 @@ defmodule MoodleNet.Communities do
   @spec create_remote(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create_remote(%User{} = creator, %{} = attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Characters.create(attrs),
-           {:ok, comm_attrs} <- create_boxes(actor, attrs),
-           {:ok, comm} <- insert_community(creator, actor, comm_attrs),
-           act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
+      with {:ok, comm} <- insert_community(creator, attrs),
+           {:ok, character} <- Characters.create(creator, attrs, comm),
+           act_attrs = %{verb: "created", is_local: is_nil(character.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity) do
         CommonsPub.Search.Indexer.maybe_index_object(comm)
-        {:ok, comm}
+        {:ok, %{comm | character: character}}
       end
     end)
   end
 
-  defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
-  defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
-
-  defp create_local_boxes(attrs) do
-    with {:ok, inbox} <- Feeds.create(),
-         {:ok, outbox} <- Feeds.create() do
-      extra = %{inbox_id: inbox.id, outbox_id: outbox.id}
-      {:ok, Map.merge(attrs, extra)}
-    end
-  end
-
-  defp create_remote_boxes(attrs) do
-    with {:ok, outbox} <- Feeds.create() do
-      {:ok, Map.put(attrs, :outbox_id, outbox.id)}
-    end
-  end
-
-  defp insert_community(creator, context, actor, attrs) do
+  defp insert_community(creator, context, attrs) do
     with {:ok, community} <-
-           Repo.insert(Community.create_changeset(creator, context, actor, attrs)) do
-      {:ok, %{community | actor: actor, context: context}}
+           Repo.insert(Community.create_changeset(creator, context, attrs)) do
+      {:ok, %{community | context: context}}
     end
   end
 
-  defp insert_community(creator, actor, attrs) do
-    with {:ok, community} <- Repo.insert(Community.create_changeset(creator, actor, attrs)) do
-      {:ok, %{community | actor: actor}}
+  defp insert_community(creator, attrs) do
+    with {:ok, community} <- Repo.insert(Community.create_changeset(creator, attrs)) do
+      {:ok, community}
     end
   end
 
@@ -137,8 +114,8 @@ defmodule MoodleNet.Communities do
   def update(%User{} = user, %Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
-           {:ok, actor} <- Characters.update(user, community.actor, attrs),
-           community <- %{comm | actor: actor},
+           {:ok, character} <- Characters.update(user, community.character, attrs),
+           community <- %{comm | character: character},
            :ok <- ap_publish("update", community) do
         {:ok, community}
       end
@@ -243,7 +220,7 @@ defmodule MoodleNet.Communities do
     :ok
   end
 
-  defp ap_publish(verb, %{actor: %{peer_id: nil}} = community) do
+  defp ap_publish(verb, %{character: %{peer_id: nil}} = community) do
     APPublishWorker.enqueue(verb, %{"context_id" => community.id})
     :ok
   end

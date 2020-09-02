@@ -104,41 +104,73 @@ defmodule CommonsPub.Character.Characters do
 
   ## mutations
 
-  def create(creator, %{character: attrs, id: id, profile: %{name: name}})
-      when is_map(attrs) do
-    create(creator, Map.put(Map.put(attrs, :id, id), :name, name))
+  def create(attrs) do
+    create(nil, attrs)
   end
 
-  def create(creator, %{character: attrs, profile: %{name: name}}) when is_map(attrs) do
-    create(creator, Map.put(attrs, :name, name))
-  end
-
-  def create(creator, %{character: attrs, id: id}) when is_map(attrs) do
+  def create(creator, attrs, %{id: id}) when is_map(attrs) and is_binary(id) do
     create(creator, Map.put(attrs, :id, id))
+  end
+
+  def create(creator, attrs, id) when is_map(attrs) and is_binary(id) do
+    create(creator, Map.put(attrs, :id, id))
+  end
+
+  def create(creator, attrs, _) when is_map(attrs) do
+    create(creator, attrs)
   end
 
   def create(creator, %{profile: %{name: name}} = attrs) when is_map(attrs) do
     create(creator, Map.put(Map.delete(attrs, :profile), :name, name))
   end
 
+  def create(creator, %{id: id, character: attrs}) when is_map(attrs) do
+    create(creator, Map.put(attrs, :id, id))
+  end
+
+  @doc """
+  Create a reference to a remote character
+  """
+  def create(creator, %{peer_id: peer_id} = attrs) when is_map(attrs) and not is_nil(peer_id) do
+    do_create(creator, attrs)
+  end
+
+  @doc """
+  Create a local character
+  """
   def create(creator, attrs) when is_map(attrs) do
-    # IO.inspect(character_create: attrs)
     attrs = prepare_username(attrs)
 
-    # IO.inspect(attrs)
+    do_create(creator, attrs)
+  end
+
+  defp do_create(creator, attrs) when is_map(attrs) do
+    # IO.inspect(character_create: attrs)
 
     Repo.transact_with(fn ->
       # with {:ok, actor} <- Actors.create(attrs),
       with {:ok, character_attrs} <- create_boxes(attrs),
-           {:ok, character} <- insert_character(creator, character_attrs),
-           #  act_attrs = %{verb: "created", is_local: true},
-           #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
-           #  :ok <- publish(creator, character, activity, :created),
+           {:ok, character} <- insert_character(creator, character_attrs) do
+        #  act_attrs = %{verb: "created", is_local: true},
+        #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
+        #  :ok <- publish(creator, character, activity, :created),
+        #  {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
 
-           {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
+        maybe_follow(creator, character)
+
         {:ok, character}
       end
     end)
+  end
+
+  def maybe_follow(%{id: user_id} = creator, %{id: character_id} = character)
+      when user_id != character_id do
+    # lets not follow ourself lol
+    Follows.create(creator, character, %{is_local: true})
+  end
+
+  def maybe_follow(_, _) do
+    nil
   end
 
   @doc """
@@ -263,63 +295,16 @@ defmodule CommonsPub.Character.Characters do
     |> Map.delete(:__meta__)
   end
 
-  defp publish(creator, character, activity, :created) do
-    feeds = [
-      creator.outbox_id,
-      character.outbox_id,
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds),
-         {:ok, _} <- ap_publish("create", character.id, creator.id, character.character.peer_id),
-         do: :ok
-  end
-
-  # defp publish(creator, character, context, activity, :created) do
-  #   feeds = [
-  #     context.outbox_id, creator.outbox_id,
-  #     character.outbox_id, Feeds.instance_outbox_id(),
-  #   ]
-  #   with :ok <- FeedActivities.publish(activity, feeds),
-  #        {:ok, _} <- ap_publish("create", character.id, creator.id, character.character.peer_id),
-  #     do: :ok
-  # end
-
-  defp publish(character, :updated) do
-    # TODO: wrong if edited by admin
-    with {:ok, _} <-
-           ap_publish("update", character.id, character.creator_id, character.character.peer_id),
-         do: :ok
-  end
-
-  defp publish(character, :deleted) do
-    # TODO: wrong if edited by admin
-    with {:ok, _} <-
-           ap_publish("delete", character.id, character.creator_id, character.character.peer_id),
-         do: :ok
-  end
-
-  defp ap_publish(verb, context_id, user_id, nil) do
-    APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id
-    })
-  end
-
-  defp ap_publish(_, _, _, _), do: :ok
-
   def update(user, %CommonsPub.Character{} = character, %{character: attrs}) when is_map(attrs) do
     update(user, character, attrs)
   end
 
-  def update(user, %Character{} = character, attrs) when is_map(attrs) do
+  def update(_user, %Character{} = character, attrs) when is_map(attrs) do
     # character = Repo.preload(character, :actor)
 
     Repo.transact_with(fn ->
       with {:ok, character} <-
-             Repo.update(Character.update_changeset(character, attrs)),
-           #  {:ok, actor} <- Actors.update(user, character.actor, attrs),
-           :ok <- publish(character, :updated) do
+             Repo.update(Character.update_changeset(character, attrs)) do
         {:ok, character}
       end
     end)
@@ -332,8 +317,7 @@ defmodule CommonsPub.Character.Characters do
 
   def soft_delete(%Character{} = character) do
     Repo.transact_with(fn ->
-      with {:ok, character} <- Common.soft_delete(character),
-           :ok <- publish(character, :deleted) do
+      with {:ok, character} <- Common.soft_delete(character) do
         {:ok, character}
       end
     end)
@@ -409,7 +393,7 @@ defmodule CommonsPub.Character.Characters do
   end
 
   def display_username(
-        %{actor: %{peer_id: nil, preferred_username: uname}},
+        %{character: %{peer_id: nil, preferred_username: uname}},
         true,
         prefix
       ) do
@@ -417,7 +401,7 @@ defmodule CommonsPub.Character.Characters do
   end
 
   def display_username(
-        %{actor: %{peer_id: nil, preferred_username: uname}},
+        %{character: %{peer_id: nil, preferred_username: uname}},
         false,
         prefix
       )
@@ -425,24 +409,22 @@ defmodule CommonsPub.Character.Characters do
     "#{prefix}#{uname}"
   end
 
-  def display_username(
-        %{
-          character: %{
-            actor: %{peer_id: nil, preferred_username: uname} = actor
-          }
-        },
-        full_hostname,
-        prefix
-      ) do
-    display_username(
-      %{actor: actor},
-      full_hostname,
-      prefix
-    )
-  end
+  # def display_username(
+  #       %{
+  #         character: %{peer_id: nil, preferred_username: uname}
+  #       },
+  #       full_hostname,
+  #       prefix
+  #     ) do
+  #   display_username(
+  #     %{actor: actor},
+  #     full_hostname,
+  #     prefix
+  #   )
+  # end
 
   def display_username(
-        %{actor: %{preferred_username: uname}},
+        %{character: %{preferred_username: uname}},
         full_hostname,
         prefix
       )
@@ -450,8 +432,8 @@ defmodule CommonsPub.Character.Characters do
     "#{prefix}#{uname}"
   end
 
-  def display_username(%{actor_id: _actor_id} = obj, full_hostname, prefix) do
-    obj = MoodleNetWeb.Helpers.Common.maybe_preload(obj, :actor)
+  def display_username(%{id: id} = obj, full_hostname, prefix) do
+    obj = MoodleNetWeb.Helpers.Common.maybe_preload(obj, :character)
     display_username(obj, full_hostname, prefix)
   end
 

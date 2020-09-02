@@ -43,23 +43,25 @@ defmodule MoodleNet.Collections do
           {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = community_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      attrs = Characters.prepare_username(attrs)
+      # attrs = Characters.prepare_username(attrs)
 
       # TODO: address activity to context's outbox/followers
       community_or_context =
-        MoodleNetWeb.Helpers.Common.maybe_preload(community_or_context, :actor)
+        MoodleNetWeb.Helpers.Common.maybe_preload(community_or_context, :character)
 
-      with {:ok, actor} <- Characters.create(creator, attrs),
-           {:ok, coll_attrs} <- create_boxes(actor, attrs),
-           {:ok, coll} <- insert_collection(creator, community_or_context, actor, coll_attrs),
+      # with {:ok, character} <- Characters.create(creator, attrs),
+      #      {:ok, coll_attrs} <- create_boxes(character, attrs),
+      with {:ok, coll} <- insert_collection(creator, community_or_context, attrs),
+           {:ok, character} <- Characters.create(creator, attrs, coll),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, community_or_context, coll, activity),
-           :ok <- ap_publish("create", coll),
-           {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
+           :ok <- ap_publish("create", coll) do
+        #  {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true})
+
         CommonsPub.Search.Indexer.maybe_index_object(coll)
 
-        {:ok, coll}
+        {:ok, %{coll | character: character}}
       end
     end)
   end
@@ -67,19 +69,18 @@ defmodule MoodleNet.Collections do
   # Create without context
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      attrs = Characters.prepare_username(attrs)
+      # attrs = Characters.prepare_username(attrs)
 
-      with {:ok, actor} <- Characters.create(creator, attrs),
-           {:ok, coll_attrs} <- create_boxes(actor, attrs),
-           {:ok, coll} <- insert_collection(creator, actor, coll_attrs),
+      with {:ok, coll} <- insert_collection(creator, attrs),
+           {:ok, character} <- Characters.create(creator, attrs, coll),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, coll, activity),
-           :ok <- ap_publish("create", coll),
-           {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
+           :ok <- ap_publish("create", coll) do
+        #  {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
         CommonsPub.Search.Indexer.maybe_index_object(coll)
 
-        {:ok, coll}
+        {:ok, %{coll | character: character}}
       end
     end)
   end
@@ -88,44 +89,28 @@ defmodule MoodleNet.Collections do
           {:ok, Collection.t()} | {:error, Changeset.t()}
   def create_remote(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Characters.create(creator, attrs),
-           {:ok, coll_attrs} <- create_boxes(actor, attrs),
-           {:ok, coll} <- insert_collection(creator, community, actor, coll_attrs),
+      with {:ok, coll} <- insert_collection(creator, community, attrs),
+           {:ok, character} <- Characters.create(creator, attrs, coll),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, community, coll, activity) do
         CommonsPub.Search.Indexer.maybe_index_object(coll)
 
-        {:ok, coll}
+        {:ok, %{coll | character: character}}
       end
     end)
   end
 
-  defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
-  defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
+  defp insert_collection(creator, context, attrs) do
+    cs = Collection.create_changeset(creator, context, attrs)
 
-  defp create_local_boxes(attrs) do
-    with {:ok, inbox} <- Feeds.create(),
-         {:ok, outbox} <- Feeds.create() do
-      extra = %{inbox_id: inbox.id, outbox_id: outbox.id}
-      {:ok, Map.merge(attrs, extra)}
-    end
+    with {:ok, coll} <- Repo.insert(cs),
+         do: {:ok, %{coll | context: context}}
   end
 
-  defp create_remote_boxes(attrs) do
-    with {:ok, outbox} <- Feeds.create() do
-      {:ok, Map.put(attrs, :outbox_id, outbox.id)}
-    end
-  end
-
-  defp insert_collection(creator, context, actor, attrs) do
-    cs = Collection.create_changeset(creator, context, actor, attrs)
-    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{coll | actor: actor, context: context}}
-  end
-
-  defp insert_collection(creator, actor, attrs) do
-    cs = Collection.create_changeset(creator, actor, attrs)
-    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{coll | actor: actor}}
+  defp insert_collection(creator, attrs) do
+    cs = Collection.create_changeset(creator, attrs)
+    with {:ok, coll} <- Repo.insert(cs), do: {:ok, coll}
   end
 
   @spec update(User.t(), %Collection{}, attrs :: map) ::
@@ -135,8 +120,8 @@ defmodule MoodleNet.Collections do
       collection = Repo.preload(collection, :community)
 
       with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
-           {:ok, actor} <- Characters.update(user, collection.actor, attrs),
-           collection = %{collection | actor: actor},
+           {:ok, character} <- Characters.update(user, collection.character, attrs),
+           collection = %{collection | character: character},
            :ok <- ap_publish("update", collection) do
         {:ok, collection}
       end
@@ -257,7 +242,7 @@ defmodule MoodleNet.Collections do
     :ok
   end
 
-  defp ap_publish(verb, %{actor: %{peer_id: nil}} = collection) do
+  defp ap_publish(verb, %{character: %{peer_id: nil}} = collection) do
     APPublishWorker.enqueue(verb, %{"context_id" => collection.id})
     :ok
   end

@@ -256,7 +256,7 @@ defmodule CommonsPub.Tag.Categories do
       # "icon" => icon,
       # "image" => image,
       "name" => obj.name || obj.profile.name,
-      "username" => MoodleNet.Actors.display_username(obj),
+      "username" => CommonsPub.Character.Characters.display_username(obj),
       # "summary" => character.summary,
       "createdAt" => obj.published_at,
       # home instance of object
