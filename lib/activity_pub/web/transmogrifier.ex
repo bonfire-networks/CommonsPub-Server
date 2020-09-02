@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule ActivityPubWeb.Transmogrifier do
   @moduledoc """
   This module normalises outgoing data to conform with AS2/AP specs

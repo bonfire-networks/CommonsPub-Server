@@ -6,7 +6,7 @@ defmodule ActivityPub.Actor do
   """
   require Ecto.Query
 
-  alias ActivityPub.Actor
+  alias __MODULE__
   alias ActivityPub.Adapter
   alias ActivityPub.Fetcher
   alias ActivityPub.Keys
