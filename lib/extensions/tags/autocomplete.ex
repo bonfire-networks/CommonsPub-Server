@@ -21,8 +21,8 @@ defmodule CommonsPub.Tag.Autocomplete do
     tag_lookup_public(tag_search, prefix, consumer, ["Collection", "Category", "Taggable"])
   end
 
-  def tag_lookup(tag_search, prefix, consumer) do
-    do_tag_lookup(tag_search, "public", prefix, consumer)
+  def tag_lookup(tag_search, "@" = prefix, consumer) do
+    tag_lookup_public(tag_search, prefix, consumer, "User")
   end
 
   def tag_lookup(tag_search, "&" = prefix, consumer) do
@@ -35,8 +35,9 @@ defmodule CommonsPub.Tag.Autocomplete do
     tag_lookup_process(tag_search, search, prefix, consumer)
   end
 
+  def tag_lookup_process(tag_search, search, prefix, consumer) do
     if(Map.has_key?(search, "hits") and length(search["hits"])) do
-      # search["hits"]
+      # IO.inspect(search["hits"])
       hits = Enum.map(search["hits"], &tag_hit_prepare(&1, tag_search, prefix, consumer))
       Enum.filter(hits, & &1)
     end
@@ -47,15 +48,15 @@ defmodule CommonsPub.Tag.Autocomplete do
     # IO.inspect(Map.new(consumer: "test"))
 
     # FIXME: do this by filtering Meili instead?
-    if strlen(hit["preferredUsername"]) > 0 or (prefix == "+" and strlen(hit["id"]) > 0) do
+    if strlen(hit["username"]) > 0 or (prefix == "+" and strlen(hit["id"]) > 0) do
       hit
       |> Map.merge(%{
-        "name" => e(hit, "name_crumbs", e(hit, "name", e(hit, "preferredUsername", nil)))
+        "name" => e(hit, "name_crumbs", e(hit, "name", e(hit, "username", nil)))
       })
       |> Map.merge(%{
-        "link" => e(hit, "canonicalUrl", "#unknown-hit-url")
+        "link" => e(hit, "canonical_url", "#unknown-hit-url")
       })
-      |> tag_add_field(consumer, prefix, e(hit, "preferredUsername", e(hit, "id", "")))
+      |> tag_add_field(consumer, prefix, e(hit, "username", e(hit, "id", "")))
       |> Map.drop(["name_crumbs"])
     end
   end
@@ -73,7 +74,7 @@ defmodule CommonsPub.Tag.Autocomplete do
   end
 
   # def tag_suggestion_display(hit, tag_search) do
-  #   name = e(hit, "name_crumbs", e(hit, "name", e(hit, "preferredUsername", nil)))
+  #   name = e(hit, "name_crumbs", e(hit, "name", e(hit, "username", nil)))
 
   #   if !is_nil(name) and name =~ tag_search do
   #     split = String.split(name, tag_search, parts: 2, trim: false)

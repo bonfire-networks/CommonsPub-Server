@@ -5,7 +5,7 @@ defmodule CommonsPub.Character.Characters do
 
   alias MoodleNet.{Activities, Characters, Common, Feeds, Follows, Repo}
   alias MoodleNet.Feeds.FeedActivities
-  # alias MoodleNet.Users.User
+  alias MoodleNet.Users.User
 
   alias MoodleNet.Workers.APPublishWorker
 
@@ -330,10 +330,6 @@ defmodule CommonsPub.Character.Characters do
     {:ok, character}
   end
 
-  def update_by(%User{}, filters, updates) do
-    Repo.update_all(Queries.query(Character, filters), set: updates)
-  end
-
   def soft_delete(%Character{} = character) do
     Repo.transact_with(fn ->
       with {:ok, character} <- Common.soft_delete(character),
@@ -344,8 +340,6 @@ defmodule CommonsPub.Character.Characters do
   end
 
   def delete(%User{}, %Character{} = character), do: Repo.delete(character)
-
-
 
   # TODO move these to a common module
 

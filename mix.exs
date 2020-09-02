@@ -230,7 +230,7 @@ defmodule MoodleNet.Mixfile do
   end
 
   def deps() do
-    configured_deps = Enum.map(deps_list(), &dep_process/1)
+    _configured_deps = Enum.map(deps_list(), &dep_process/1)
     # IO.inspect(configured_deps, limit: :infinity)
   end
 
@@ -299,7 +299,7 @@ defmodule MoodleNet.Mixfile do
         devpath
       else
         # try to copy git repo from ./deps to devpath
-        with {:ok, copied} <- File.cp_r(mixpath, devpath) do
+        with {:ok, _copied} <- File.cp_r(mixpath, devpath) do
           devpath
         else
           e ->

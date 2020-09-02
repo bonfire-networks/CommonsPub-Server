@@ -17,8 +17,8 @@ defmodule CommonsPub.Search.Meili do
     get(object, "")
   end
 
-  def set_attributes(attrs, index) do
-    settings(%{attributesForFaceting: attrs}, index)
+  def get(object, index_path, fail_silently \\ false) do
+    api(:get, object, index_path, fail_silently)
   end
 
   def post(object) do
@@ -45,7 +45,7 @@ defmodule CommonsPub.Search.Meili do
     search_instance = System.get_env("SEARCH_MEILI_INSTANCE", "localhost:7700")
     api_key = System.get_env("MEILI_MASTER_KEY")
 
-    url = "http://#{search_instance}/indexes" <> index_path
+    url = "http://#{search_instance}/indexes/" <> index_path
 
     # if api_key do
     headers = [
@@ -84,6 +84,10 @@ defmodule CommonsPub.Search.Meili do
         {:error, message}
       end
     end
+  end
+
+  def http_request(http_method, url, headers, nil) do
+    http_request(http_method, url, headers, %{})
   end
 
   def http_request(http_method, url, headers, object) do
