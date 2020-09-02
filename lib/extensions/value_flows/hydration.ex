@@ -49,8 +49,8 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
         publishes: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intents/3,
-        ],
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.publishes_edge/3
+        ]
       },
       intent: %{
         provider: [
@@ -77,6 +77,15 @@ defmodule ValueFlows.Hydration do
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
+        published_in: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3
+        ]
+      },
+      economic_event: %{
+        resource_inventoried_as: [
+          resolve:
+            &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
+        ]
       },
 
       # start Query resolvers
@@ -85,6 +94,9 @@ defmodule ValueFlows.Hydration do
         agents: [
           resolve: &ValueFlows.Agent.GraphQL.all_agents/2
         ],
+        # agents_pages: [
+        #   resolve: &ValueFlows.Agent.GraphQL.agents/2
+        # ],
         agent: [
           resolve: &ValueFlows.Agent.GraphQL.agent/2
         ],
@@ -94,11 +106,17 @@ defmodule ValueFlows.Hydration do
         people: [
           resolve: &ValueFlows.Agent.GraphQL.all_people/2
         ],
+        people_pages: [
+          resolve: &ValueFlows.Agent.GraphQL.people/2
+        ],
         organization: [
           resolve: &ValueFlows.Agent.GraphQL.organization/2
         ],
         organizations: [
           resolve: &ValueFlows.Agent.GraphQL.all_organizations/2
+        ],
+        organizations_pages: [
+          resolve: &ValueFlows.Agent.GraphQL.organizations/2
         ],
 
         # Knowledge
@@ -108,6 +126,38 @@ defmodule ValueFlows.Hydration do
         actions: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
         ],
+        resource_specification: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.resource_spec/2
+        ],
+        resource_specifications: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.all_resource_specs/2
+        ],
+        process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.process_specification/2
+        ],
+        process_specifications: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.all_process_specs/2
+        ],
+
+        # Observation
+        economic_event: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.event/2
+        ],
+        economic_events: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.all_events/2
+        ],
+        economic_resource: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resource/2
+        ],
+        economic_resources: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.all_resources/2
+        ],
+        process: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2
+        ],
+        processes: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2
+        ],
 
         # Planning
         intent: [
@@ -116,6 +166,18 @@ defmodule ValueFlows.Hydration do
         intents: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.all_intents/2
         ],
+        intents_pages: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.intents/2
+        ],
+        offers_pages: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.offers/2
+        ],
+        needs_pages: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.needs/2
+        ],
+        intents_filter: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.intents_filtered/2
+        ],
 
         # Proposal
         proposal: [
@@ -123,6 +185,9 @@ defmodule ValueFlows.Hydration do
         ],
         proposals: [
           resolve: &ValueFlows.Proposal.GraphQL.all_proposals/2
+        ],
+        proposals_pages: [
+          resolve: &ValueFlows.Proposal.GraphQL.proposals/2
         ]
       },
 
@@ -139,8 +204,8 @@ defmodule ValueFlows.Hydration do
         propose_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.propose_intent/2
         ],
-        delete_proposed_intent: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        propose_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.propose_to/2
         ],
         create_offer: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_offer/2
@@ -154,8 +219,26 @@ defmodule ValueFlows.Hydration do
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],
+        update_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.update_proposal/2
+        ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
+        ],
+        delete_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.delete_proposal/2
+        ],
+        delete_proposed_intent: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        ],
+        create_resource_specification: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.create_resource_spec/2
+        ],
+        create_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.create_process_spec/2
+        ],
+        create_economic_event: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.create_event/2
         ]
       }
     }

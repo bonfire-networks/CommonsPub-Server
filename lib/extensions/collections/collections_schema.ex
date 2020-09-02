@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   @moduledoc """
@@ -9,6 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
   alias MoodleNetWeb.GraphQL.{
     CollectionsResolver,
+    ResourcesResolver,
     CommonResolver,
     FeaturesResolver,
     FlagsResolver,
@@ -158,7 +157,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "The total number of resources in the collection, including private ones"
     field :resource_count, :integer do
-      resolve(&CollectionsResolver.resource_count_edge/3)
+      resolve(&ResourcesResolver.resource_count_edge/3)
     end
 
     @desc "The resources in the collection, most recently created last"
@@ -166,7 +165,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&CollectionsResolver.resources_edge/3)
+      resolve(&ResourcesResolver.resources_edge/3)
     end
 
     @desc "Total number of followers, including those we can't see"

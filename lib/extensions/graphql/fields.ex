@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL.Fields do
   @enforce_keys ~w(data)a
@@ -7,7 +5,7 @@ defmodule MoodleNet.GraphQL.Fields do
 
   alias MoodleNet.Common.Enums
   alias MoodleNet.GraphQL.Fields
-  
+
   @type t :: %Fields{data: map}
 
   @doc "Creates a new Fields from the data and a grouping function"
@@ -20,8 +18,8 @@ defmodule MoodleNet.GraphQL.Fields do
   def new(data, group_fn, nil), do: new(data, group_fn)
 
   def new(data, group_fn, map_fn)
-  when is_list(data) and is_function(group_fn, 1)
-  and (is_function(map_fn, 1) or is_nil(map_fn)) do
+      when is_list(data) and is_function(group_fn, 1) and
+             (is_function(map_fn, 1) or is_nil(map_fn)) do
     data = Enums.group_map(data, &{group_fn.(&1), map_fn.(&1)})
     %Fields{data: data}
   end
@@ -32,9 +30,11 @@ defmodule MoodleNet.GraphQL.Fields do
   @spec get(fields :: t, key :: term) :: term
   @spec get(fields :: t, key :: term, default :: term) :: term
   def get(fields, key, default \\ nil)
+
   def get(%Fields{data: data}, %{id: key}, default) do
     {:ok, Map.get(data, key, default)}
   end
+
   def get(%Fields{data: data}, key, default) do
     {:ok, Map.get(data, key, default)}
   end
@@ -48,5 +48,4 @@ defmodule MoodleNet.GraphQL.Fields do
   def getter(key, default \\ nil) do
     fn fields -> get(fields, key, default) end
   end
-
 end

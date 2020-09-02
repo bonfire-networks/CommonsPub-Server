@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Locales.Country.Service do
   @moduledoc """
@@ -16,7 +14,9 @@ defmodule CommonsPub.Locales.Country.Service do
   supervision hierarchy neatly.
   """
 
-  alias CommonsPub.Locales.{Country, Country.Error.NotFound}
+  require Logger
+
+  alias CommonsPub.Locales.{Country}
 
   alias MoodleNet.Repo
   import Ecto.Query, only: [select: 3]
@@ -79,11 +79,17 @@ defmodule CommonsPub.Locales.Country.Service do
 
   @doc false
   def init(_) do
-    q()
-    |> Repo.all(telemetry_event: @init_query_name)
-    |> populate_countries()
+    try do
+      q()
+      |> Repo.all(telemetry_event: @init_query_name)
+      |> populate_countries()
 
-    {:ok, []}
+      {:ok, []}
+    rescue
+      e ->
+        Logger.info("TableService could not init because: #{inspect(e)}")
+        {:ok, []}
+    end
   end
 
   defp populate_countries(entries) do

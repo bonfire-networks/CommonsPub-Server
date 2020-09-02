@@ -98,7 +98,7 @@ defmodule Measurement.Unit.GraphQL do
   end
 
   # without context/scope
-  def create_unit(%{unit: attrs} = params, info) do
+  def create_unit(%{unit: attrs} = _params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            attrs = Map.merge(attrs, %{is_public: true}),

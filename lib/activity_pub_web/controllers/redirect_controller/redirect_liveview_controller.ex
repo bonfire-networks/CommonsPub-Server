@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.RedirectController.LiveView do
@@ -17,17 +14,13 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
   alias MoodleNet.Users.User
 
   def object(conn, %{"uuid" => uuid}) do
-    IO.inspect(RedirectController_uuid: uuid)
-
     with {:ok, pointer} <- Pointers.ULID.cast(uuid),
          {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer) do
       # try simply using AP id as pointer
-      IO.inspect(RedirectController_pointer: pointer)
       object_pointer_redirect(conn, pointer)
     else
       _ ->
         ap_id = ActivityPubWeb.ActivityPubController.ap_route_helper(uuid)
-        IO.inspect(RedirectController_ap_id: ap_id)
         object = ActivityPub.Object.get_cached_by_ap_id(ap_id)
 
         case object do
@@ -38,7 +31,6 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
           _ ->
             # try with request URL as AP id
             url = current_url(conn)
-            IO.inspect(RedirectController_try_url: url)
             object = ActivityPub.Object.get_cached_by_ap_id(url)
             object_redirect(conn, object, uuid)
         end

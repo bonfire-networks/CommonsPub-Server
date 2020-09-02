@@ -1,3 +1,5 @@
+# config for Caddy v1 - deprecated
+
 :80#,:443 
 # uncomment the above to enable SSL / HTTPS
 {

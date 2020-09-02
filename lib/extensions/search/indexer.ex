@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule CommonsPub.Search.Indexer do
@@ -18,13 +16,15 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   # add to general instance search index
-  def index_for_search(objects) do
-    IO.inspect(search_indexing: objects)
+  def index_object(objects) do
+    # IO.inspect(search_indexing: objects)
     index_objects(objects, @public_index, true)
   end
 
   # index several things in an existing index
-  defp index_objects(objects, index_name, create_index_first \\ true) when is_list(objects) do
+  def index_objects(objects, index_name, init_index_first \\ true)
+
+  def index_objects(objects, index_name, init_index_first) when is_list(objects) do
     # IO.inspect(objects)
     # FIXME - should create the index only once
     if create_index_first, do: create_index(index_name, true)
@@ -38,8 +38,48 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   # create a new index
+  def init_index(index_name \\ "public", fail_silently \\ false)
+
+  def init_index("public" = index_name, fail_silently) do
+    create_index(index_name, fail_silently)
+    set_facets(index_name, ["username", "index_type", "index_instance"])
+  end
+
+  def init_index(index_name, fail_silently) do
+    create_index(index_name, fail_silently)
+  end
+
   def create_index(index_name, fail_silently \\ false) do
     CommonsPub.Search.Meili.post(%{uid: index_name}, "", fail_silently)
+  end
+
+  def index_exists(index_name) do
+    with {:ok, _index} <- CommonsPub.Search.Meili.get(nil, index_name) do
+      true
+    else
+      _e ->
+        false
+    end
+  end
+
+  # def set_attributes(attrs, index) do
+  #   settings(%{attributesForFaceting: attrs}, index)
+  # end
+
+  def set_facets(index_name, facets) when is_list(facets) do
+    CommonsPub.Search.Meili.post(
+      facets,
+      index_name <> "/settings/attributes-for-faceting",
+      true
+    )
+  end
+
+  def set_facets(index_name, facet) do
+    set_facets(index_name, [facet])
+  end
+
+  def list_facets(index_name \\ "public") do
+    CommonsPub.Search.Meili.get(nil, index_name <> "/settings/attributes-for-faceting")
   end
 
   def maybe_delete_object(object) do
@@ -51,7 +91,7 @@ defmodule CommonsPub.Search.Indexer do
     Logger.warn("Couldn't get object ID in order to delete")
   end
 
-  defp delete_object(object_id) do
+  defp delete_object(_object_id) do
     # TODO
   end
 
@@ -156,5 +196,20 @@ defmodule CommonsPub.Search.Indexer do
 
   def format_object(_) do
     nil
+  end
+
+  def format_creator(%{creator: %{id: id}} = obj) when not is_nil(id) do
+    creator = MoodleNetWeb.Helpers.Common.maybe_preload(obj, :creator).creator
+
+    %{
+      "id" => creator.id,
+      "name" => creator.name,
+      "username" => MoodleNet.Actors.display_username(creator),
+      "canonical_url" => creator.actor.canonical_url
+    }
+  end
+
+  def format_creator(_) do
+    %{}
   end
 end

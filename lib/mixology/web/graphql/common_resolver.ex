@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias Ecto.ULID
@@ -14,10 +12,10 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     ResolvePages
   }
 
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Threads.{Comment, Thread}
+  # alias MoodleNet.Likes.Like
+  # alias MoodleNet.Follows.Follow
+  # alias MoodleNet.Flags.Flag
+  # alias MoodleNet.Threads.Comment
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Common
 

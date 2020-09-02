@@ -3,21 +3,16 @@ defmodule MoodleNetWeb.InstanceLive do
   # alias MoodleNetWeb.Helpers.{Profiles}
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Component.{
-    # HeaderLive,
-    AboutLive,
-    TabNotFoundLive
-  }
-
   alias MoodleNetWeb.InstanceLive.{
     InstanceActivitiesLive,
     InstanceMembersLive,
+    InstanceMembersPreviewLive,
     InstanceCommunitiesLive,
-    InstanceCollectionsLive
+    InstanceCollectionsLive,
+    InstanceCategoriesLive
   }
 
   def mount(params, session, socket) do
-    IO.inspect(instance_session: session)
     socket = init_assigns(params, session, socket)
 
     {:ok,
@@ -26,6 +21,7 @@ defmodule MoodleNetWeb.InstanceLive do
        page_title: "Home",
        hostname: MoodleNet.Instance.hostname(),
        description: MoodleNet.Instance.description(),
+       activities: [],
        selected_tab: "about"
      )}
   end
@@ -38,12 +34,24 @@ defmodule MoodleNetWeb.InstanceLive do
     {:noreply, socket}
   end
 
-  defp link_body(name, icon) do
-    assigns = %{name: name, icon: icon}
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def handle_info({:pub_feed_activity, activity}, socket),
+    do:
+      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+        activity,
+        MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
+        :instance_timeline,
+        socket
+      )
 
-    ~L"""
-      <i class="<%= @icon %>"></i>
-      <%= @name %>
-    """
-  end
+  # defp link_body(name, icon) do
+  #   assigns = %{name: name, icon: icon}
+
+  #   ~L"""
+  #     <i class="<%= @icon %>"></i>
+  #     <%= @name %>
+  #   """
+  # end
 end

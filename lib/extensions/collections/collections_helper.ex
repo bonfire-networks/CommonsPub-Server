@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.Helpers.Collections do
-  alias MoodleNet.{
-    Repo
-  }
+  # alias MoodleNet.{
+  #   Repo
+  # }
 
   alias MoodleNetWeb.GraphQL.{
     UsersResolver,
@@ -22,8 +22,6 @@ defmodule MoodleNetWeb.Helpers.Collections do
   end
 
   def collection_load(_socket, page_params, %{} = preload) do
-    # IO.inspect(socket)
-
     username = e(page_params, "username", nil)
 
     {:ok, collection} =
@@ -64,23 +62,15 @@ defmodule MoodleNetWeb.Helpers.Collections do
         %{context: %{current_user: current_user}}
       )
 
-    # IO.inspect(my_follows: follows)
-
     follows
   end
 
   def collections_from_follows(%{edges: edges}) when length(edges) > 0 do
     # FIXME: collections should be joined to edges rather than queried seperately
 
-    # IO.inspect(collections_from_follows: edges)
     ids = Enum.map(edges, & &1.context_id)
 
-    # IO.inspect(ids: ids)
-
     collections = contexts_fetch!(ids)
-
-    # IO.inspect(collections: collections)
-
     collections =
       if(collections) do
         Enum.map(

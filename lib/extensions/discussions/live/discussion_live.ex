@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    thread = Discussions.prepare_thread(thread)
+    thread = Discussions.prepare_thread(thread, :with_context)
     IO.inspect(thread, label: "Thread")
     # TODO: tree of replies & pagination
     {:ok, comments} =
@@ -39,6 +39,9 @@ defmodule MoodleNetWeb.DiscussionLive do
 
     {main_comment_id, _} = Enum.fetch!(tree, 0)
 
+    # subscribe to the thread for realtime updates
+    MoodleNetWeb.Helpers.Common.pubsub_subscribe(thread_id, socket)
+
     {:ok,
      assign(socket,
        #  current_user: current_user,
@@ -50,8 +53,8 @@ defmodule MoodleNetWeb.DiscussionLive do
   end
 
   def handle_params(
-        %{"id" => thread_id, "sub_id" => comment_id} = params,
-        session,
+        %{"id" => _thread_id, "sub_id" => comment_id} = _params,
+        _session,
         socket
       ) do
     {_, reply_comment} =
@@ -67,7 +70,7 @@ defmodule MoodleNetWeb.DiscussionLive do
      )}
   end
 
-  def handle_params(%{"id" => thread_id} = params, session, socket) do
+  def handle_params(%{"id" => _thread_id} = _params, _session, socket) do
     {:noreply,
      assign(socket,
        reply_to: nil,
@@ -106,13 +109,21 @@ defmodule MoodleNetWeb.DiscussionLive do
 
       # TODO: error handling
 
-      {:noreply,
-       socket
-       |> put_flash(:info, "Replied!")
-       # redirect in order to reload comments, TODO: just add comment which was returned by resolver?
-       |> push_redirect(
-         to: "/!" <> socket.assigns.thread.id <> "/discuss/" <> comment.reply_to_id
-       )}
+      {
+        :noreply,
+        socket
+        |> put_flash(:info, "Replied!")
+        # redirect in order to reload comments, TODO: just add comment which was returned by resolver?
+        #  |> push_redirect(
+        #    to: "/!" <> socket.assigns.thread.id <> "/discuss/" <> (reply_to_id || "")
+        #  )
+      }
     end
   end
+
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def handle_info({:pub_feed_comment, comment}, socket),
+    do: MoodleNetWeb.Helpers.Discussions.pubsub_receive(comment, socket)
 end

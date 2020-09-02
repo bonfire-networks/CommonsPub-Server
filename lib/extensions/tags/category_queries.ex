@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Category.Queries do
   import Ecto.Query
@@ -93,6 +91,16 @@ defmodule CommonsPub.Tag.Category.Queries do
 
   def filter(q, {:caretaker, ids}) when is_list(ids),
     do: where(q, [category: t], t.caretaker_id in ^ids)
+
+  def filter(q, :toplevel) do
+    top_level_category = System.get_env("TOP_LEVEL_CATEGORY", "")
+
+    if !is_nil(top_level_category) and top_level_category != "" do
+      where(q, [category: t], t.parent_category_id == ^top_level_category)
+    else
+      where(q, [category: t], is_nil(t.parent_category_id))
+    end
+  end
 
   def filter(q, :default) do
     filter(

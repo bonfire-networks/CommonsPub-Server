@@ -3,26 +3,26 @@ defmodule MoodleNetWeb.CommunityLive do
 
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Communities, Profiles}
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
-
+  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
   alias MoodleNetWeb.CommunityLive.{
     CommunityDiscussionsLive,
     CommunityMembersLive,
+    CommunityMembersPreviewLive,
     # CommunityNavigationLive,
     CommunityCollectionsLive,
-    CommunityWriteLive,
+    # CommunityWriteLive,
     CommunityActivitiesLive
   }
 
   alias MoodleNetWeb.Component.{
-    HeaderLive,
+    # HeaderLive,
     AboutLive,
     TabNotFoundLive
   }
 
-  alias MoodleNet.{
-    Repo
-  }
+  # alias MoodleNet.{
+  #   Repo
+  # }
 
   # FIXME
   # def mount(%{auth_token: auth_token}, socket) do
@@ -60,7 +60,7 @@ defmodule MoodleNetWeb.CommunityLive do
      )}
   end
 
-  def handle_params(%{} = params, url, socket) do
+  def handle_params(%{} = params, _url, socket) do
     community =
       Communities.community_load(socket, params, %{
         icon: true,
@@ -90,7 +90,6 @@ defmodule MoodleNetWeb.CommunityLive do
 
     IO.inspect(flag, label: "FLAG")
 
-    # IO.inspect(f)
     # TODO: error handling
 
     {
@@ -102,7 +101,7 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_event("follow", _data, socket) do
-    f =
+    _f =
       MoodleNetWeb.GraphQL.FollowsResolver.create_follow(
         %{context_id: socket.assigns.community.id},
         %{
@@ -110,7 +109,6 @@ defmodule MoodleNetWeb.CommunityLive do
         }
       )
 
-    # IO.inspect(f)
     # TODO: error handling
 
     {
@@ -123,9 +121,8 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.community.id)
+    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.community.id)
 
-    # IO.inspect(uf)
     # TODO: error handling
 
     {
@@ -183,6 +180,18 @@ defmodule MoodleNetWeb.CommunityLive do
       end
     end
   end
+
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def handle_info({:pub_feed_activity, activity}, socket),
+    do:
+      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+        activity,
+        CommunityActivitiesLive,
+        :community_timeline,
+        socket
+      )
 
   defp link_body(name, icon) do
     assigns = %{name: name, icon: icon}

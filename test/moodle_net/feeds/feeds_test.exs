@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.FeedsTest do
   use MoodleNet.DataCase, async: true
@@ -17,5 +15,4 @@ defmodule MoodleNet.Test.FeedsTest do
       assert {:ok, feed} = Feeds.create()
     end
   end
-
 end

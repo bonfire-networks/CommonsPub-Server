@@ -7,22 +7,14 @@ defmodule MoodleNetWeb.MemberLive.MemberNavigationLive do
       to: "/@" <> @username <> "/about",
       class: if @selected == "about", do: "navigation__item active", else: "navigation__item"
     %>
-    <%= live_patch link_body("Timeline", "feather-activity"),
-      to: "/@" <> @username <> "/timeline",
-      class: if @selected == "timeline", do: "navigation__item active", else: "navigation__item"
-    %>
     <%= live_patch link_body("Posts", "feather-message-square"),
-      to: "/@" <> @username <> "/discussions",
-      class: if @selected == "discussions", do: "navigation__item active", else: "navigation__item"
+      to: "/@" <> @username <> "/posts",
+      class: if @selected == "posts", do: "navigation__item active", else: "navigation__item"
       %>
     <%= live_patch link_body("Communities", "feather-users"),
       to: "/@" <> @username <> "/communities",
       class: if @selected == "communities", do: "navigation__item active", else: "navigation__item"
       %>
-    <%= live_patch link_body("Ads", "feather-disc"),
-      to: "/@" <> @username <> "/ads",
-      class: if @selected == "ads", do: "navigation__item active", else: "navigation__item"
-    %>
     <%= live_patch link_body("Favorites", "feather-star"),
       to: "/@" <> @username <> "/likes",
       class: if @selected == "likes", do: "navigation__item active", else: "navigation__item"

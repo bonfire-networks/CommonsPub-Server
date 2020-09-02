@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
   use Absinthe.Schema.Notation
@@ -11,10 +9,10 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     ThreadsResolver
   }
 
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Resources.Resource
+  # alias MoodleNet.Communities.Community
+  # alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Flags.Flag
+  # alias MoodleNet.Resources.Resource
 
   object :threads_queries do
     @desc "Get a thread"

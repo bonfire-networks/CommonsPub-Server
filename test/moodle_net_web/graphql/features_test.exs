@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.FeaturesTest do
   use MoodleNetWeb.ConnCase, async: true
@@ -10,7 +8,6 @@ defmodule MoodleNetWeb.GraphQL.FeaturesTest do
   import MoodleNetWeb.Test.GraphQLFields
 
   describe "feature" do
-
     test "works for anyone for a community feature" do
       [alice, bob] = some_fake_users!(2)
       eve = fake_admin!()
@@ -18,6 +15,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesTest do
       feature = feature!(alice, comm)
       q = feature_query()
       vars = %{feature_id: feature.id}
+
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(eve)] do
         feature2 = grumble_post_key(q, conn, :feature, vars)
         assert_feature(feature, feature2)
@@ -32,12 +30,12 @@ defmodule MoodleNetWeb.GraphQL.FeaturesTest do
       feature = feature!(alice, coll)
       q = feature_query()
       vars = %{feature_id: feature.id}
+
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(eve)] do
         feature2 = grumble_post_key(q, conn, :feature, vars)
         assert_feature(feature, feature2)
       end
     end
-
   end
 
   # describe "feature.creator" do
@@ -118,5 +116,4 @@ defmodule MoodleNetWeb.GraphQL.FeaturesTest do
   #     assert [%{"code" => "unauthorized", "status" => 403}] = gql_post_errors(conn, %{query: q, mutation: "Test"})
   #   end
   # end
-
 end

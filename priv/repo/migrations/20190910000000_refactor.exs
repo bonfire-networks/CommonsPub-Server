@@ -1,10 +1,9 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Repo.Migrations.BigRefactor do
   use Ecto.Migration
   alias MoodleNet.Repo
   alias Ecto.ULID
+  import Pointers.Migration
 
   @meta_tables [] ++
                  ~w(mn_feed mn_country mn_language mn_peer mn_user mn_community) ++
@@ -12,28 +11,28 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
                  ~w(mn_like mn_flag mn_follow mn_feature mn_block) ++
                  ~w(mn_access_register_email mn_access_register_email_domain)
 
-  @languages [
-    {"en", "eng", "English", "English"}
-  ]
-  @tag_categories ["Hashtag", "K-12 Classification"]
+  # @languages [
+  #   {"en", "eng", "English", "English"}
+  # ]
+  # @tag_categories ["Hashtag", "K-12 Classification"]
+  # @countries [
+  #   {"nl", "nld", "Netherlands", "Nederland"}
+  # ]
 
-  @countries [
-    {"nl", "nld", "Netherlands", "Nederland"}
-  ]
   def up do
     ### meta system ###
 
     ## database tables participating in the 'meta' abstraction
     # only updated during migrations!
-    # create table(:mn_table) do
+    # create table(:pointers_table) do
     #   add(:table, :text, null: false)
     # end
 
-    # create(unique_index(:mn_table, :table))
+    # create(unique_index(:pointers_table, :table))
 
     ## a pointer to an entry in any table participating in the meta abstraction
     # create table(:mn_pointer) do
-    #   add(:table_id, references("mn_table", on_delete: :restrict), null: false)
+    #   add(:table_id, references("pointers_table", on_delete: :restrict), null: false)
     # end
 
     # create(index(:mn_pointer, :table_id))
@@ -45,10 +44,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_feed_subscription) do
       add(
         :subscriber_id,
-        references("mn_pointer",
-          on_delete: :delete_all
-        ),
-        null: false
+        strong_pointer()
       )
 
       add(:feed_id, references("mn_feed", on_delete: :delete_all), null: false)
@@ -296,7 +292,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_thread) do
       add(:canonical_url, :text)
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:outbox_id, references("mn_feed", on_delete: :nilify_all))
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
@@ -332,7 +328,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_follow) do
       add(:canonical_url, :text)
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:muted_at, :timestamptz)
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
@@ -348,7 +344,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_like) do
       add(:canonical_url, :text)
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
       add(:is_local, :boolean, null: false)
@@ -365,7 +361,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_flag) do
       add(:canonical_url, :text)
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:community_id, references("mn_community", on_delete: :nilify_all))
       add(:message, :text, null: false)
       add(:resolved_at, :timestamptz)
@@ -389,7 +385,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       # if this is set, it's a block on behalf of a community
       add(:community_id, references("mn_community", on_delete: :nilify_all))
       # the thing being blocked
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:published_at, :timestamptz)
       add(:muted_at, :timestamptz)
       add(:blocked_at, :timestamptz)
@@ -408,7 +404,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_feature) do
       add(:canonical_url, :text)
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
-      add(:context_id, references("mn_pointer", on_delete: :delete_all), null: false)
+      add(:context_id, weak_pointer(), null: true, null: false)
       add(:deleted_at, :timestamptz)
       add(:is_local, :boolean, null: false)
     end
@@ -433,7 +429,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create(unique_index(:mn_tag_category, :name, where: "deleted_at is null"))
 
     create table(:mn_tag, primary_key: false) do
-      add(:id, references("mn_pointer", on_delete: :delete_all), primary_key: true)
+      add(:id, weak_pointer(), null: true, primary_key: true)
       add(:canonical_url, :text)
       add(:name, :text, null: false)
       add(:published_at, :timestamptz)
@@ -447,11 +443,11 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create(unique_index(:mn_tag, :name, where: "deleted_at is null"))
 
     create table(:mn_tagging, primary_key: false) do
-      add(:id, references("mn_pointer", on_delete: :delete_all), primary_key: true)
+      add(:id, weak_pointer(), null: true, primary_key: true)
       add(:canonical_url, :text)
       add(:tag_id, references("mn_tag", on_delete: :nilify_all))
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
       add(:is_local, :boolean, null: false)
@@ -471,7 +467,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_activity) do
       add(:canonical_url, :text)
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
-      add(:context_id, references("mn_pointer", on_delete: :nilify_all))
+      add(:context_id, weak_pointer(), null: true)
       add(:verb, :text, null: false)
       add(:is_local, :boolean, null: false)
       add(:deleted_at, :timestamptz)
@@ -505,14 +501,15 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # as we happen to know we're not, carry on...
     flush()
 
-    now = DateTime.utc_now()
+    # now = DateTime.utc_now()
 
     tables =
       Enum.map(@meta_tables, fn name ->
         %{"id" => ULID.bingenerate(), "table" => name}
       end)
 
-    {_, _} = Repo.insert_all("mn_table", tables)
+    # TODO - fully upgrade to new Pointers
+    {_, _} = Repo.insert_all("pointers_table", tables)
 
     tables =
       Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
@@ -520,17 +517,17 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       end)
 
     # :ok = execute """
-    # create function insert_pointer()
+    # create function pointers_trigger()
     # returns trigger
     # as $$
     # declare
     #   table_id uuid;
     # begin
     #   select id into table_id
-    #   from mn_table
+    #   from pointers_table
     #   where "table" = TG_TABLE_NAME;
     #   if table_id is null then
-    #     raise exception 'Table % not found in mn_table', TG_TABLE_NAME;
+    #     raise exception 'Table % not found in pointers_table', TG_TABLE_NAME;
     #   end if;
     #   insert into mn_pointer (id, table_id)
     #   values (NEW.id, table_id);
@@ -542,48 +539,48 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     for table <- @meta_tables do
       :ok =
         execute("""
-        create trigger "insert_pointer_#{table}"
+        create trigger "pointers_trigger_#{table}"
         before insert on "#{table}"
         for each row
-        execute procedure insert_pointer()
+        execute procedure pointers_trigger()
         """)
     end
 
-    langs =
-      Enum.map(@languages, fn {code2, code3, name, name2} ->
-        %{
-          "id" => ULID.bingenerate(),
-          "iso_code2" => code2,
-          "iso_code3" => code3,
-          "english_name" => name,
-          "local_name" => name2,
-          "updated_at" => now
-        }
-      end)
+    # langs =
+    #   Enum.map(@languages, fn {code2, code3, name, name2} ->
+    #     %{
+    #       "id" => ULID.bingenerate(),
+    #       "iso_code2" => code2,
+    #       "iso_code3" => code3,
+    #       "english_name" => name,
+    #       "local_name" => name2,
+    #       "updated_at" => now
+    #     }
+    #   end)
 
-    Repo.insert_all("mn_language", langs)
+    # Repo.insert_all("mn_language", langs)
 
-    country_pointers = Enum.map(@countries, fn _ -> Ecto.ULID.bingenerate() end)
+    # country_pointers = Enum.map(@countries, fn _ -> Ecto.ULID.bingenerate() end)
 
-    {_, _} =
-      Repo.insert_all(
-        "mn_pointer",
-        Enum.map(country_pointers, fn id -> %{"id" => id, "table_id" => tables["mn_country"]} end)
-      )
+    # {_, _} =
+    #   Repo.insert_all(
+    #     Pointers.Pointer,
+    #     Enum.map(country_pointers, fn id -> %{"id" => id, "table_id" => tables["mn_country"]} end)
+    #   )
 
-    countries =
-      Enum.map(@countries, fn {code2, code3, name, name2} ->
-        %{
-          "id" => ULID.bingenerate(),
-          "iso_code2" => code2,
-          "iso_code3" => code3,
-          "english_name" => name,
-          "local_name" => name2,
-          "updated_at" => now
-        }
-      end)
+    # countries =
+    #   Enum.map(@countries, fn {code2, code3, name, name2} ->
+    #     %{
+    #       "id" => ULID.bingenerate(),
+    #       "iso_code2" => code2,
+    #       "iso_code3" => code3,
+    #       "english_name" => name,
+    #       "local_name" => name2,
+    #       "updated_at" => now
+    #     }
+    #   end)
 
-    Repo.insert_all("mn_country", countries)
+    # Repo.insert_all("mn_country", countries)
 
     # cats =
     #   Enum.map(@tag_categories, fn {pointer, cat} ->
@@ -665,10 +662,10 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
   def down do
     for table <- @meta_tables do
-      :ok = execute("drop trigger insert_pointer_#{table} on #{table}")
+      :ok = execute("drop trigger pointers_trigger_#{table} on #{table}")
     end
 
-    :ok = execute("drop function insert_pointer()")
+    :ok = execute("drop function pointers_trigger()")
 
     :ok = execute("drop view if exists mn_user_following_count")
     :ok = execute("drop view if exists mn_thread_follower_count")
@@ -826,7 +823,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # drop(index(:mn_pointer, :table_id))
     # drop(table(:mn_pointer))
 
-    # drop(index(:mn_table, :table))
-    # drop(table(:mn_table))
+    # drop(index(:pointers_table, :table))
+    # drop(table(:pointers_table))
   end
 end

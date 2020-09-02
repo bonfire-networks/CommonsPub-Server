@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.Queries do
   alias Geolocation
@@ -212,6 +210,11 @@ defmodule Geolocation.Queries do
       %{c | follower_count: coalesce(fc.count, 0), actor: a}
     )
   end
+
+  def filter(q, filter_name) when is_binary(filter_name) do
+    filter(q, String.to_existing_atom(filter_name))
+  end
+
 
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
     filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)

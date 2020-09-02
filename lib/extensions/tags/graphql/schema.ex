@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.GraphQL.TagSchema do
   use Absinthe.Schema.Notation
@@ -102,14 +100,14 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
       # resolve(&MoodleNetWeb.GraphQL.CommonResolver.context_edge/3)
     end
 
-    @desc "The Character that represents this category in feeds and federation"
+    @desc "The character that represents this category in feeds and federation"
     field :character, :character do
       resolve(&CommonsPub.Character.GraphQL.Resolver.character/3)
     end
 
-    @desc "The Profile that represents this category"
+    @desc "The profile that represents this category"
     field :profile, :profile do
-      resolve(&Profile.GraphQL.Resolver.profile/3)
+      resolve(&CommonsPub.Profile.GraphQL.Resolver.profile/3)
     end
 
     @desc "The user who created the character"

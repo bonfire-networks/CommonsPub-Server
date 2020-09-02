@@ -1,10 +1,8 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.FeaturesSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
+  # alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Communities.Community
   alias MoodleNetWeb.GraphQL.{CommonResolver, FeaturesResolver, UsersResolver}
 
   object :features_queries do

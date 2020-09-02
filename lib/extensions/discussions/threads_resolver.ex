@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   alias MoodleNet.{GraphQL, Repo, Threads}
@@ -92,7 +90,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     )
   end
 
-  def list_creator_threads(page_opts, base_filters, data_filters, cursor_type) do
+  def list_creator_threads(page_opts, base_filters, data_filters, _cursor_type) do
     # IO.inspect(
     FetchPage.run(%FetchPage{
       queries: Threads.Queries,
@@ -122,8 +120,8 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
         with {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
              :ok <- validate_thread_context(pointer),
              context = MoodleNet.Meta.Pointers.follow!(pointer),
-             {:ok, thread} <- Threads.create(user, context, attrs) do
-          Comments.create(user, thread, attrs, context)
+             {:ok, thread} <- Threads.create(user, attrs, context) do
+          Comments.create(user, thread, attrs)
         end
       end)
     end
@@ -139,9 +137,13 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   end
 
   defp validate_thread_context(pointer) do
-    if MoodleNet.Meta.Pointers.table!(pointer).schema in valid_contexts() do
+    schema = MoodleNet.Meta.Pointers.table!(pointer).schema
+
+    if schema in valid_contexts() do
       :ok
     else
+      IO.inspect(not_permitted_context: schema)
+      IO.inspect(valid_contexts())
       GraphQL.not_permitted()
     end
   end

@@ -1,7 +1,11 @@
 defmodule MoodleNet.Repo.Migrations.TaxonomyCategory do
   use Ecto.Migration
 
-  def change do
+  def up do
     Taxonomy.Migrations.add_category()
+  end
+
+  def down do
+    # todo
   end
 end

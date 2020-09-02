@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.TableService do
   @moduledoc """
@@ -20,7 +18,12 @@ defmodule MoodleNet.Meta.TableService do
   supervision hierarchy neatly...
   """
 
-  alias MoodleNet.Meta.{Introspection, Table, TableNotFoundError}
+  require Logger
+
+  alias MoodleNet.Meta.{Introspection, TableNotFoundError}
+
+  alias Pointers.Table
+
   alias MoodleNet.Repo
 
   use GenServer
@@ -117,12 +120,18 @@ defmodule MoodleNet.Meta.TableService do
 
   @doc false
   def init(_) do
-    Table
-    |> Repo.all(telemetry_event: @init_query_name)
-    |> pair_schemata()
-    |> populate_table()
+    try do
+      Table
+      |> Repo.all(telemetry_event: @init_query_name)
+      |> pair_schemata()
+      |> populate_table()
 
-    {:ok, []}
+      {:ok, []}
+    rescue
+      e ->
+        Logger.info("TableService could not init because: #{inspect(e)}")
+        {:ok, []}
+    end
   end
 
   # Loops over entries, adding the module name of an Ecto Schema

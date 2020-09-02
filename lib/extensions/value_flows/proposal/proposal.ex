@@ -1,4 +1,7 @@
 defmodule ValueFlows.Proposal do
+  @moduledoc """
+  Schema for proposal, using `Pointers.Pointable`
+  """
   use Pointers.Pointable,
     otp_app: :moodle_net,
     source: "vf_proposal",
@@ -7,7 +10,8 @@ defmodule ValueFlows.Proposal do
   import MoodleNet.Common.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Communities.Community
+  # alias MoodleNet.Actors.Actor
+  # alias MoodleNet.Communities.Community
   alias ValueFlows.Proposal
   alias ValueFlows.Planning.Intent
 

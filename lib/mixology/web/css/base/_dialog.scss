@@ -43,14 +43,14 @@ dialog {
   animation-duration: 300ms;
   width: 600px;
   background: var(--color-text);
-  input[type="text"],input[type="date"], textarea {
-    background: #fff;
+  input[type="text"],input[type="date"], input, textarea {
+    background: var(--color-text);
+    color: var(--color-surface);
     border-radius: 4px;
     border: var(--border);
     padding: 4px;
     font-size: 14px;
     text-indent: 0;
-    color: var(--color-background);
     &:placeholder {
       color: var(--color-background);
     }
@@ -63,6 +63,18 @@ dialog {
     border-width: 1px;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
+    display: flex;
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--color-background);
+      flex: 1;
+    }
+    i {
+      font-size: 18px;
+      color: var(--color-background);
+      cursor: pointer;
+    }
   }
   .dialog__content {
     padding: 16px;

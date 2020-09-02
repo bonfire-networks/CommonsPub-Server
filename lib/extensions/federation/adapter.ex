@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.{Collections, Communities, Common, Repo, Resources, Threads, Users}
@@ -24,7 +22,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:error, _e} <- Users.one([:default, username: username]),
          {:error, _e} <- Communities.one([:default, username: username]),
          {:error, _e} <- Collections.one([:default, username: username]),
-         {:error, _e} <- Character.Characters.one([:default, username: username]) do
+         {:error, _e} <- CommonsPub.Character.Characters.one([:default, username: username]) do
       {:error, "not found"}
     end
   end
@@ -276,7 +274,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, pointer} <- Pointers.one(id: pointer_id),
          parent = MoodleNet.Meta.Pointers.follow!(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
-         {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
+         {:ok, thread} <- Threads.create(actor, %{is_public: true, is_local: false}, parent),
          {:ok, comment} <-
            Comments.create(actor, thread, %{
              is_public: object.public,

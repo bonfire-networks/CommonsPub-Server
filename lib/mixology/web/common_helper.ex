@@ -2,10 +2,6 @@ defmodule MoodleNetWeb.Helpers.Common do
   import Phoenix.LiveView
   require Logger
 
-  alias MoodleNet.{
-    Repo
-  }
-
   alias MoodleNetWeb.Helpers.{
     # Profiles,
     Account,
@@ -34,8 +30,6 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
-    # IO.inspect(e: map)
-
     if(is_map(map)) do
       # attempt using key as atom or string
       map_get(map, key, fallback)
@@ -72,13 +66,12 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def map_get(%Ecto.Association.NotLoaded{} = map, key, fallback) when is_atom(key) do
-    IO.inspect("ERROR: cannot get key `#{key}` from an unloaded map:")
-    IO.inspect(map)
+    Logger.error("Cannot get key `#{key}` from an unloaded map: #{inspect(map)}")
     fallback
   end
 
   def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) do
-    IO.inspect("WARNING: cannot get from an unloaded key, trying to preload...")
+    Logger.warn("Cannot get from an unloaded key, trying to preload...")
     map_get(map, maybe_preload(map, key), fallback)
   end
 
@@ -170,25 +163,18 @@ defmodule MoodleNetWeb.Helpers.Common do
     maybe_do_preload(obj, preloads)
   end
 
-  defp maybe_do_preload(obj, preloads) do
-    # IO.inspect(maybe_preload_obj: obj)
-    # IO.inspect(maybe_preload_preloads: preloads)
+  defp maybe_do_preload(obj, preloads) when is_struct(obj) do
     MoodleNet.Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
-      IO.inspect(arg_error_preload: preloads)
-      # IO.inspect(from_maybe_preload: obj)
       obj
 
     MatchError ->
-      IO.inspect(match_error_preload: preloads)
-      # IO.inspect(from_maybe_preload: obj)
       obj
+  end
 
-      # Protocol.UndefinedError ->
-      #   IO.inspect(protocol_undefined_error_preload: preloads)
-      #   IO.inspect(from_maybe_preload: obj)
-      #   obj
+  defp maybe_do_preload(obj, _) do
+    obj
   end
 
   @doc """
@@ -200,7 +186,7 @@ defmodule MoodleNetWeb.Helpers.Common do
           "auth_token" => auth_token,
           "current_user" => current_user,
           "_csrf_token" => csrf_token
-        } = session,
+        } = _session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
     # Logger.info(session_preloaded: session)
@@ -210,6 +196,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:csrf_token, fn -> csrf_token end)
     |> assign(:static_changed, static_changed?(socket))
     |> assign(:search, "")
+    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
   end
 
   def init_assigns(
@@ -223,8 +210,6 @@ defmodule MoodleNetWeb.Helpers.Common do
     # Logger.info(session_load: session)
 
     current_user = Account.current_user(session["auth_token"])
-
-    # IO.inspect(session_loaded_user: current_user)
 
     communities_follows =
       if(current_user) do
@@ -251,13 +236,14 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
     |> assign(:search, "")
+    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
   end
 
   def init_assigns(
         _params,
         %{
           "_csrf_token" => csrf_token
-        } = session,
+        } = _session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
     socket
@@ -265,12 +251,33 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:static_changed, static_changed?(socket))
     |> assign(:current_user, nil)
     |> assign(:search, "")
+    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
   end
 
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
     socket
     |> assign(:current_user, nil)
+    |> assign(:search, "")
     |> assign(:static_changed, static_changed?(socket))
+    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
+  end
+
+  @doc """
+  Subscribe to feed(s) or thread(s) for realtime updates
+  """
+  def pubsub_subscribe(ids, socket) when is_list(ids) do
+    Enum.each(ids, &pubsub_subscribe(&1, socket))
+  end
+
+  def pubsub_subscribe(id, socket) do
+    IO.inspect(pubsubscribed: id)
+
+    if Phoenix.LiveView.connected?(socket),
+      do: Phoenix.PubSub.subscribe(CommonsPub.PubSub, id)
+  end
+
+  def paginate_next(fetch_function, %{assigns: assigns} = socket) do
+    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch_function.(assigns)}
   end
 
   def contexts_fetch!(ids) do
@@ -286,60 +293,88 @@ defmodule MoodleNetWeb.Helpers.Common do
     end
   end
 
-  def prepare_context(thing) do
+  def prepare_context(%{} = thing) do
     if Map.has_key?(thing, :context_id) and !is_nil(thing.context_id) do
       thing = maybe_do_preload(thing, :context)
 
       # IO.inspect(context_maybe_preloaded: thing)
 
-      context_follow(thing, thing.context)
+      context_follow(thing)
     else
       if Map.has_key?(thing, :context) do
-        context_follow(thing, thing.context)
+        # Pointer already loaded?
+        context_follow(thing)
       else
         thing
       end
     end
   end
 
-  defp context_follow(thing, %Pointers.Pointer{} = pointer) do
+  def prepare_context(thing) do
+    thing
+  end
+
+  defp context_follow(%{context: %Pointers.Pointer{} = pointer} = thing) do
     context = MoodleNet.Meta.Pointers.follow!(pointer)
 
-    add_context_type(thing, context)
+    add_context_type(
+      thing
+      |> Map.merge(%{context: context})
+    )
   end
 
-  defp context_follow(thing, %{id: id} = context) do
-    # IO.inspect("already have a loaded object")
-    add_context_type(thing, context)
+  defp context_follow(%{context: %{id: _id}} = thing) do
+    # IO.inspect("we already have a loaded object")
+    add_context_type(thing)
   end
 
-  defp context_follow(%{context_id: nil} = thing, context) do
-    add_context_type(thing, context)
+  defp context_follow(%{context_id: nil} = thing) do
+    add_context_type(thing)
   end
 
-  defp context_follow(%{context_id: context_id} = thing, _) do
+  defp context_follow(%{context_id: context_id} = thing) do
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id)
-    context_follow(thing, pointer)
+
+    context_follow(
+      thing
+      |> Map.merge(%{context: pointer})
+    )
   end
 
-  defp add_context_type(%{context_type: _} = thing, context) do
+  defp add_context_type(%{context_type: _} = thing) do
     thing
-    |> Map.merge(%{context: context})
   end
 
-  defp add_context_type(thing, context) do
+  defp add_context_type(%{context: context} = thing) do
     type = context_type(context)
 
     thing
     |> Map.merge(%{context_type: type})
-    |> Map.merge(%{context: context})
   end
 
-  def context_type(context) do
-    context.__struct__
+  defp add_context_type(thing) do
+    thing
+    |> Map.merge(%{context_type: "unknown"})
+  end
+
+  def context_type(%{__struct__: name}) do
+    name
     |> Module.split()
     |> Enum.at(-1)
     |> String.downcase()
+  end
+
+  def context_type(_) do
+    nil
+  end
+
+  def prepare_common(object) do
+    link = e(content_url(object), e(object, :canonical_url, "#no-link"))
+    icon = icon(object)
+
+    object
+    |> Map.merge(%{link: link})
+    |> Map.merge(%{icon: icon})
   end
 
   def image(thing) do
@@ -458,51 +493,58 @@ defmodule MoodleNetWeb.Helpers.Common do
     false
   end
 
-  def context_url(%MoodleNet.Communities.Community{
+  def object_url(%MoodleNet.Communities.Community{
         actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/&" <> preferred_username
   end
 
-  def context_url(%MoodleNet.Users.User{
+  def object_url(%MoodleNet.Users.User{
         actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/@" <> preferred_username
   end
 
-  def context_url(%{
+  def object_url(%CommonsPub.Tag.Category{
+        id: id
+      })
+      when not is_nil(id) do
+    "/++" <> id
+  end
+
+  def object_url(%{
         actor: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/+" <> preferred_username
   end
 
-  def context_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
+  def object_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
       when not is_nil(thread_id) and not is_nil(is_reply) do
     "/!" <> thread_id <> "/discuss/" <> comment_id <> "#reply"
   end
 
-  def context_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
+  def object_url(%{thread_id: thread_id}) when not is_nil(thread_id) do
     "/!" <> thread_id
   end
 
-  def context_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+  def object_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def context_url(%{actor: %{canonical_url: canonical_url}})
+  def object_url(%{actor: %{canonical_url: canonical_url}})
       when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def context_url(%{__struct__: module_name} = activity) do
+  def object_url(%{__struct__: module_name} = _activity) do
     IO.inspect(unsupported_by_activity_url: module_name)
     "#unsupported_by_activity_url/" <> to_string(module_name)
   end
 
-  def context_url(activity) do
+  def object_url(activity) do
     IO.inspect(unsupported_by_activity_url: activity)
     "#unsupported_by_activity_url"
   end

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Router do
   @moduledoc """
@@ -17,6 +15,10 @@ defmodule MoodleNetWeb.Router do
 
   pipeline :ensure_authenticated do
     plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
+  end
+
+  pipeline :ensure_admin do
+    plug(MoodleNetWeb.Plugs.EnsureAdminPlug)
   end
 
   @doc """
@@ -165,6 +167,9 @@ defmodule MoodleNetWeb.Router do
     live "/instance/search/:tab", SearchLive
     live "/instance/search/:tab/:search", SearchLive
 
+    live "/instance/map", Geolocation.MapLive
+    live "/@.:id", Geolocation.MapLive
+
     live "/instance/:tab", InstanceLive
 
     live "/@:username", MemberLive
@@ -174,6 +179,7 @@ defmodule MoodleNetWeb.Router do
     live "/&:username/:tab", CommunityLive
 
     live "/+:id/unknown", Page.Unknown
+    live "/++:id", Page.Category
 
     live "/+:username", CollectionLive
     live "/+:username/:tab", CollectionLive
@@ -216,8 +222,30 @@ defmodule MoodleNetWeb.Router do
     get "/api/taxonomy/test", Taxonomy.Utils, :get
   end
 
+  # Enables LiveDashboard only for development
+  #
+  # If you want to use the LiveDashboard in production, you should put
+  # it behind authentication and allow only admins to access it.
+  # If your application does not have an admins-only section yet,
+  # you can use Plug.BasicAuth to set up some basic authentication
+  # as long as you are also using SSL (which you should anyway).
+  # if Mix.env() in [:dev, :test] do
+  import Phoenix.LiveDashboard.Router
+
+  scope "/admin/", MoodleNetWeb do
+    pipe_through :browser
+    pipe_through :liveview
+    pipe_through :protect_forgery
+    pipe_through :ensure_admin
+    live "/settings/:tab", AdminLive
+    live "/settings/:tab/:sub", AdminLive
+    live_dashboard "/dashboard", metrics: CommonsPub.Utils.Metrics
+  end
+
+  # end
+
   if Mix.env() != :dev do
-    def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
+    def handle_errors(conn, %{kind: _kind, reason: reason, stack: _stack} = _info) do
       msg =
         if Map.has_key?(reason, :message) and !is_nil(reason.message) and
              String.length(reason.message) > 0 do
@@ -227,7 +255,6 @@ defmodule MoodleNetWeb.Router do
                Map.has_key?(reason.term, :message) do
             reason.term.message
           else
-            # IO.inspect(handle_error: info)
             "An unhandled error has occured"
           end
         end

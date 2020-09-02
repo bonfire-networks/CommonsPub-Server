@@ -1,14 +1,15 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Mixfile do
   use Mix.Project
+
+  @library_dev_mode false
+  @library_dev_dir "./extensions/"
 
   # General configuration of the project
   def project do
     [
       app: :moodle_net,
-      version: "0.9.6-dev",
+      version: "0.10.0-dev",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
@@ -16,22 +17,24 @@ defmodule MoodleNet.Mixfile do
       aliases: aliases(),
       deps: deps(),
       releases: releases(),
-      name: "MoodleNet",
-      homepage_url: "http://moodle.net/",
-      source_url: "https://gitlab.com/moodlenet/backend",
+      name: "CommonsPub",
+      homepage_url: "http://CommonsPub.org/",
+      source_url: "https://gitlab.com/CommonsPub/Server",
       docs: [
         # The first page to display from the docs
         main: "readme",
+        # git branch to link in docs:
+        source_ref: "flavour/commonspub",
         logo: "assets/static/images/logo_commonspub.png",
-        # extra pages to include
         # extra pages to include
         extras: [
           "README.md",
           "docs/HACKING.md",
           "docs/DEPLOY.md",
-          "docs/MRF.md",
+          "docs/ARCHITECTURE.md",
+          "docs/DEPENDENCIES.md",
           "docs/GRAPHQL.md",
-          "docs/ARCHITECTURE.md"
+          "docs/MRF.md"
         ],
         output: "docs/exdoc"
       ],
@@ -48,6 +51,7 @@ defmodule MoodleNet.Mixfile do
       extra_applications: [
         :logger,
         :runtime_tools,
+        :os_mon,
         :hackney,
         :mime,
         :belt,
@@ -71,7 +75,7 @@ defmodule MoodleNet.Mixfile do
   defp elixirc_paths(:dev), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  defp deps do
+  def deps_list do
     # graphql
     [
       {
@@ -101,6 +105,7 @@ defmodule MoodleNet.Mixfile do
       {:belt, git: "https://github.com/commonspub/belt"},
       # File format parsing
       {:twinkle_star, git: "https://github.com/commonspub/twinkle_star"},
+      {:tree_magic, git: "https://github.com/commonspub/tree_magic.ex"},
       # database
       # {:ecto, "~> 3.3.4", override: true},
       # {:ecto_sql, "~> 3.3.4", override: true},
@@ -134,6 +139,9 @@ defmodule MoodleNet.Mixfile do
       # Monitoring
       # stats
       {:telemetry, "~> 0.4.0"},
+      {:phoenix_live_dashboard, "~> 0.2.0"},
+      {:telemetry_metrics, "~> 0.4"},
+      {:telemetry_poller, "~> 0.4"},
       # production only
       {:sentry, "~> 7.1", runtime: sentry?()},
       # Misc
@@ -167,10 +175,10 @@ defmodule MoodleNet.Mixfile do
       {:html_sanitize_ex, "~> 1.4"},
       {
         :linkify,
+        # "~> 0.2.0"
         git: "https://gitlab.com/CommonsPub/linkify.git",
         ref: "9360ed495ec04ab0f9f254670484f01dea668d38"
         # path: "uploads/linkify"
-        # "~> 0.2.0"
       },
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
@@ -181,10 +189,10 @@ defmodule MoodleNet.Mixfile do
       # {:pointers, "~> 0.2.2"},
       {
         :pointers,
-        # git: "https://github.com/commonspub/pointers.git", branch: "main"
-        git: "https://github.com/mayel/pointers.git",
-        ref: "5e46f61c185faa4cf16e57c10e241cee15a05d42"
-        # path: "uploads/pointers"
+        # "~> 0.4"
+        git: "https://github.com/commonspub/pointers.git", branch: "main"
+        # path: "uploads/pointers-main"
+        # git: "https://github.com/mayel/pointers.git",
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},
@@ -200,7 +208,7 @@ defmodule MoodleNet.Mixfile do
       # fake app data generation, also used in prototype API endponts
       {:faker, "~> 0.12"},
       # required by CommonsPub.Utils.Simulation
-      {:zest, "~> 0.1.1", only: [:dev, :test]},
+      {:zest, "~> 0.1.1"},
       # fake data generation for AP
       {:ex_machina, "~> 2.3", only: [:dev, :test]},
       # property testing
@@ -208,11 +216,98 @@ defmodule MoodleNet.Mixfile do
       # {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
       # doc gen
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
+      {:licensir, "~> 0.6", only: :dev, runtime: false, git: "https://github.com/mayel/licensir"},
+      {:docset_api,
+       only: :dev,
+       runtime: false,
+       git: "https://github.com/mayel/hexdocs_docset_api.git",
+       path: "/home/Code/DATA_CONFIGS/hexdocs_docset_api/"},
       # test coverage statistics
       {:excoveralls, "~> 0.10", only: :test},
       # module mocking
       {:mock, "~> 0.3.3", only: :test}
     ]
+  end
+
+  def deps() do
+    configured_deps = Enum.map(deps_list(), &dep_process/1)
+    # IO.inspect(configured_deps, limit: :infinity)
+  end
+
+  defp dep_process(dep) do
+    case dep do
+      {lib, [_] = params} ->
+        # library without a hex version specified
+        dep_prepare(lib, nil, params)
+
+      {lib, [_ | _] = params} ->
+        dep_prepare(lib, nil, params)
+
+      {lib, version, [_ | _] = params} ->
+        # library with a hex version and other params specified
+        dep_prepare(lib, version, params)
+
+      _ ->
+        # library with only a hex version specified
+        dep
+    end
+  end
+
+  defp dep_prepare(lib, nil, params) do
+    {lib, dep_params(lib, params)}
+  end
+
+  defp dep_prepare(lib, version, params) do
+    params = dep_params(lib, params)
+
+    if dep_can_devmode(lib, params) do
+      {lib, params}
+    else
+      {lib, version, params}
+    end
+  end
+
+  defp dep_params(lib, params) do
+    if dep_can_devmode(lib, params) do
+      params
+      |> Keyword.drop([:git, :github])
+      |> Keyword.put_new(:path, dep_devpath(lib, params))
+      |> Keyword.put_new(:override, true)
+    else
+      Keyword.delete(params, :path)
+    end
+  end
+
+  defp dep_can_devmode(lib, params) do
+    # check if a devpath is specified or already exists or the lib is coming from SCM
+    @library_dev_mode and
+      (Keyword.has_key?(params, :path) or Keyword.has_key?(params, :git) or
+         Keyword.has_key?(params, :github) or
+         File.exists?(@library_dev_dir <> Atom.to_string(lib)))
+  end
+
+  defp dep_devpath(lib, params) do
+    if Keyword.has_key?(params, :path) do
+      # if a path is set in deps_list() just use that
+      Keyword.get(params, :path)
+    else
+      lib = Atom.to_string(lib)
+      mixpath = "./deps/" <> lib
+      devpath = @library_dev_dir <> lib
+
+      if File.exists?(devpath) do
+        devpath
+      else
+        # try to copy git repo from ./deps to devpath
+        with {:ok, copied} <- File.cp_r(mixpath, devpath) do
+          devpath
+        else
+          e ->
+            IO.inspect(could_not_copy_dep: e)
+            mixpath
+        end
+      end
+    end
   end
 
   defp sentry?(), do: Mix.env() not in [:dev, :test]

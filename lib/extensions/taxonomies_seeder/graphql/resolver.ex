@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Taxonomy.GraphQL.TaxonomyResolver do
   @moduledoc "GraphQL tag and Country queries"
@@ -54,7 +52,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     TaxonomyTags.get(id)
   end
 
-  def fetch_tag_by_pointer(info, id) do
+  def fetch_tag_by_pointer(_info, id) do
     TaxonomyTags.one(
       # user: GraphQL.current_user(info),
       category_id: id,
@@ -104,7 +102,6 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
 
   @doc "List all child tags"
   def tag_children(%{id: id}, %{} = page_opts, info) do
-    # IO.inspect(info)
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
       fetcher: :fetch_tags_children,
@@ -129,7 +126,6 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
 
   # @doc "List child tags that already have a character"
   # def character_tags_edge(%{id: id}, %{} = page_opts, info) do
-  #   # IO.inspect(info)
   #   ResolvePages.run(%ResolvePages{
   #     module: __MODULE__,
   #     fetcher: :fetch_character_tags_edge,

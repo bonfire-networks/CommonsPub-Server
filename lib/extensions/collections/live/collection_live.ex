@@ -2,28 +2,14 @@ defmodule MoodleNetWeb.CollectionLive do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Collections, Profiles}
-  alias MoodleNetWeb.GraphQL.CollectionsResolver
 
-  alias MoodleNetWeb.CommunityLive.{
-    CommunityWriteLive
-  }
+  alias MoodleNetWeb.Helpers.{Collections, Profiles}
 
   alias MoodleNetWeb.CollectionLive.{
     CollectionActivitiesLive,
     CollectionFollowersLive,
     CollectionResourcesLive,
     CollectionDiscussionsLive
-  }
-
-  alias MoodleNetWeb.Component.{
-    HeaderLive,
-    AboutLive,
-    TabNotFoundLive
-  }
-
-  alias MoodleNet.{
-    Repo
   }
 
   # FIXME
@@ -39,7 +25,7 @@ defmodule MoodleNetWeb.CollectionLive do
      socket
      |> assign(
        page_title: "Collection",
-       selected_tab: "about",
+       selected_tab: "resources",
        current_user: socket.assigns.current_user
      )}
   end
@@ -56,10 +42,8 @@ defmodule MoodleNetWeb.CollectionLive do
      )}
   end
 
-  def handle_params(%{} = params, url, socket) do
+  def handle_params(%{} = params, _url, socket) do
     collection = Collections.collection_load(socket, params, socket.assigns.current_user)
-
-    IO.inspect(collection: collection)
 
     {:noreply,
      assign(socket,
@@ -78,9 +62,6 @@ defmodule MoodleNetWeb.CollectionLive do
         }
       )
 
-    IO.inspect(flag, label: "FLAG")
-
-    # IO.inspect(f)
     # TODO: error handling
 
     {
@@ -92,7 +73,7 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_event("follow", _data, socket) do
-    f =
+    _f =
       MoodleNetWeb.GraphQL.FollowsResolver.create_follow(
         %{context_id: socket.assigns.collection.id},
         %{
@@ -100,7 +81,6 @@ defmodule MoodleNetWeb.CollectionLive do
         }
       )
 
-    # IO.inspect(f)
     # TODO: error handling
 
     {
@@ -113,9 +93,8 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
+    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
 
-    # IO.inspect(uf)
     # TODO: error handling
 
     {
@@ -127,8 +106,6 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_event("edit_collection", %{"name" => name} = data, socket) do
-    # IO.inspect(data, label: "DATA")
-
     if(is_nil(name) or !Map.has_key?(socket.assigns, :current_user)) do
       {:noreply,
        socket
@@ -145,7 +122,6 @@ defmodule MoodleNetWeb.CollectionLive do
         )
 
       # TODO: handle errors
-      # IO.inspect(community, label: "community updated")
 
       if(collection) do
         collection =
@@ -172,6 +148,18 @@ defmodule MoodleNetWeb.CollectionLive do
       end
     end
   end
+
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def handle_info({:pub_feed_activity, activity}, socket),
+    do:
+      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+        activity,
+        CollectionActivitiesLive,
+        :collection_timeline,
+        socket
+      )
 
   defp link_body(name, icon) do
     assigns = %{name: name, icon: icon}

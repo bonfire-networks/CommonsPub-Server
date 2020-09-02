@@ -1,14 +1,12 @@
-defmodule Profile.Migrations do
-  use Ecto.Migration
+defmodule CommonsPub.Profile.Migrations do
+  import Ecto.Migration
   import Pointers.Migration
 
-  # @meta_tables [] ++ ~w(profile)
-
-  defp table_name(), do: Profile.__schema__(:source)
+  defp table_name(), do: CommonsPub.Profile.__schema__(:source)
 
   def migrate(index_opts, :up) do
     # a profile is a group actor that is home to resources
-    create_mixin_table(table_name()) do
+    create_mixin_table(CommonsPub.Profile) do
       add(:name, :string)
       add(:summary, :text)
       add(:extra_info, :map)
@@ -22,8 +20,10 @@ defmodule Profile.Migrations do
       # timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
+    flush()
+
     # create_if_not_exists(index(:profile, :updated_at))
-    create_if_not_exists(index(:profile, :creator_id, index_opts))
+    create_if_not_exists(index(table_name(), :creator_id, index_opts))
     # create_if_not_exists index(:profile, :primary_language_id)
   end
 
@@ -31,6 +31,6 @@ defmodule Profile.Migrations do
     # drop_if_exists(index(:profile, :updated_at))
     drop_if_exists(index(table_name(), :creator_id, index_opts))
     drop_if_exists(index(table_name(), :primary_language_id, index_opts))
-    drop_mixin_table(table_name())
+    drop_mixin_table(CommonsPub.Profile)
   end
 end

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows do
   alias MoodleNet.{Activities, Common, GraphQL, Repo}
@@ -26,10 +24,6 @@ defmodule MoodleNet.Follows do
   @spec create(User.t(), any, map, create_opts) :: {:ok, Follow.t()} | {:error, Changeset.t()}
 
   def create(follower, followed, fields, opts \\ [])
-
-  def create(%User{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
-    create(follower, MoodleNet.Meta.Pointers.follow!(followed), fields, opts)
-  end
 
   def create(%User{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
     create(follower, MoodleNet.Meta.Pointers.follow!(followed), fields, opts)

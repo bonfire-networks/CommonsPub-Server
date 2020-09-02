@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: "Dockerfile.dev"
     ports:
-      - "4008:4008"
+      - "4002:4000"
     env_file:
-      - config/docker.dev.env
+      - config/dev/public.env
+      - config/dev/secrets.env
     depends_on:
       - db
       - search
@@ -18,25 +19,26 @@ services:
       - type: bind
         source: .
         target: /opt/app
-      - type: bind
-        source: /usr/share/dict/words
-        target: /usr/share/dict/words
+      # - type: bind
+      #   source: /usr/share/dict/words
+      #   target: /usr/share/dict/words
   db:
     image: postgis/postgis:12-3.0-alpine
     volumes:
-      - "./data/postgres:/var/lib/postgresql/data"
+      - "./data/postgres/dev:/var/lib/postgresql/data"
     # ports:
     #   - "5432:5432"
     env_file:
-      - config/docker.dev.env
-  dbeaver:
-    image: dalongrong/cloudbeaver
-    ports:
-      - "8978:8978"
-    depends_on:
-      - db
-    # volumes:
-    #   - "/var/log/cloudbeaver.log:/var/log/cloudbeaver/server.log"
+      - config/dev/public.env
+      - config/dev/secrets.env
+  # dbeaver:
+  #   image: dalongrong/cloudbeaver
+  #   ports:
+  #     - "8978:8978"
+  #   depends_on:
+  #     - db
+  #   # volumes:
+  #   #   - "/var/log/cloudbeaver.log:/var/log/cloudbeaver/server.log"
   # redis:
   #   image: redislabs/redisgraph
   #   ports:
@@ -50,8 +52,9 @@ services:
   search:
     image: getmeili/meilisearch:latest
     ports:
-      - "7700:7700"
+      - "7707:7700"
     volumes:
-      - "./data/search:/data.ms"
+      - "./data/search/dev:/data.ms"
     env_file:
-      - config/docker.dev.env
+      - config/dev/public.env
+      - config/dev/secrets.env

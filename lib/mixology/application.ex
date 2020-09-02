@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Application do
   @moduledoc """
@@ -41,9 +39,10 @@ defmodule MoodleNet.Application do
     # start, endpoint should attempt to serve users without the repo
     # and does not need it to start up
     children = [
+      CommonsPub.Utils.Metrics,
       supervisor(Repo, []),
       worker(TableService, []),
-      {Phoenix.PubSub, [name: MoodleNet.PubSub, adapter: Phoenix.PubSub.PG2]},
+      {Phoenix.PubSub, [name: CommonsPub.PubSub, adapter: Phoenix.PubSub.PG2]},
       supervisor(Endpoint, []),
       {Oban, Application.get_env(:moodle_net, Oban)},
       %{

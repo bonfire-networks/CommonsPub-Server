@@ -1,0 +1,70 @@
+<div class="page__fullContent">
+  <section class="page__member">
+    <div class="member__hero">
+      <div class="suphero">
+        <div class="suphero__actions">
+        </div>
+      </div>
+    </div>
+    <div class="member__layout">
+      <div class="mainContent__selected">
+        <h3 class="area__title"><%=e(@num_hits, "")%> search results</h3>
+        <%=
+        live_component(
+          @socket,
+          ResultsLive,
+          hits: @hits,
+          current_user: @current_user,
+          page: 1,
+          has_next_page: false,
+          after: [],
+          before: [],
+          id: "search_results",
+          pagination_target: "#search_results"
+        )
+          %>
+      </div>
+      <div class="member__filters">
+        <div class="header__controls">
+          <input name="editor-style" type="checkbox" class="editor-style switch">
+          <label for="editor-style">Search this instance only</label>
+        </div>
+        <div class="search__navigation">
+          <%= live_patch link_body("Everything", "feather-globe"),
+            to: "/instance/search/all/" <> @search,
+            class: if @selected_tab =="all", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "user", ""))<>" Users", "feather-user"),
+            to: "/instance/search/user/" <> @search,
+            class: if @selected_tab == "user", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "community", ""))<>" Communities","feather-users"),
+            to: "/instance/search/community/" <> @search ,
+            class: if @selected_tab == "community", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "comment", ""))<>" Discussions","feather-message-square"),
+            to: "/instance/search/comment/" <> @search ,
+            class: if @selected_tab == "comment", do: "navigation__item active", else: "navigation__item"
+          %>
+           <%= live_patch link_body(to_string(e(@facets, "index_type", "collection", ""))<>" Collections","feather-users"),
+            to: "/instance/search/collection/" <> @search ,
+            class: if @selected_tab == "collection", do: "navigation__item active", else: "navigation__item"
+          %>
+           <%= live_patch link_body(to_string(e(@facets, "index_type", "resource", ""))<>" Links","feather-users"),
+            to: "/instance/search/resource/" <> @search ,
+            class: if @selected_tab == "resource", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body(to_string(e(@facets, "index_type", "category", ""))<>" Categories", "feather-hash"),
+            to: "/instance/search/category/" <> @search ,
+            class: if @selected_tab == "category", do: "navigation__item active", else: "navigation__item"
+          %>
+        </div>
+        <div class="additional__filters">
+          <div class="filters__item">
+            <label>Number of likes</label>
+            <input type="range" min="0" max="1000" step="5"  />
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>

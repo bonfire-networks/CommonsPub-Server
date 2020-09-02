@@ -122,7 +122,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
     test "reply to a comment" do
       actor = fake_user!()
       community = fake_user!() |> fake_community!()
-      {:ok, thread} = MoodleNet.Threads.create(actor, community, %{is_local: true})
+      {:ok, thread} = MoodleNet.Threads.create(actor, %{is_local: true}, community)
 
       {:ok, comment} =
         MoodleNet.Threads.Comments.create(actor, thread, %{is_local: true, content: "hi"})

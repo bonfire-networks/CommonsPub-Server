@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.Middleware.CollapseErrors do
   @behaviour Absinthe.Middleware
@@ -7,13 +5,15 @@ defmodule MoodleNetWeb.GraphQL.Middleware.CollapseErrors do
   alias AbsintheErrorPayload.ChangesetParser
 
   def call(resolution, _) do
-    %{resolution | errors: collapse(resolution.errors) }
+    %{resolution | errors: collapse(resolution.errors)}
   end
 
   def collapse(list) when is_list(list), do: List.flatten(Enum.map(list, &collapse/1))
-  def collapse(%Ecto.Changeset{}=changeset),
+
+  def collapse(%Ecto.Changeset{} = changeset),
     do: extract_messages(changeset)
-  def collapse(%{__struct__: _}=struct), do: Map.from_struct(struct)
+
+  def collapse(%{__struct__: _} = struct), do: Map.from_struct(struct)
   def collapse(other), do: other
 
   defp extract_messages(changeset) do

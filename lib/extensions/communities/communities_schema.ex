@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   @moduledoc """
@@ -10,6 +8,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   alias MoodleNetWeb.GraphQL.{
     CommonResolver,
     CommunitiesResolver,
+    CollectionsResolver,
     FlagsResolver,
     FeaturesResolver,
     FollowsResolver,
@@ -149,7 +148,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "The total number of collections in the community, including private ones"
     field :collection_count, :integer do
-      resolve(&CommunitiesResolver.collection_count_edge/3)
+      resolve(&CollectionsResolver.collection_count_edge/3)
     end
 
     @desc "The collections in this community"
@@ -157,7 +156,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&CommunitiesResolver.collections_edge/3)
+      resolve(&CollectionsResolver.collections_edge/3)
     end
 
     @desc "The total number of times this community has been featured"

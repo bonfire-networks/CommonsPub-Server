@@ -1,5 +1,3 @@
-#  MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character.Characters do
   alias MoodleNet.GraphQL.{Fields, Page}
@@ -7,7 +5,7 @@ defmodule CommonsPub.Character.Characters do
 
   alias MoodleNet.{Activities, Characters, Common, Feeds, Follows, Repo}
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Users.User
 
   alias MoodleNet.Workers.APPublishWorker
 
@@ -67,7 +65,7 @@ defmodule CommonsPub.Character.Characters do
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
 
   def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
-    base_q = Queries.query(Character, base_filters)
+    base_q = Queries.query(CommonsPub.Character, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
@@ -136,8 +134,7 @@ defmodule CommonsPub.Character.Characters do
            #  act_attrs = %{verb: "created", is_local: true},
            #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
            #  :ok <- publish(creator, character, activity, :created),
-           # add to search index
-           #  :ok <- index(character),
+
            {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
         {:ok, character}
       end
@@ -207,7 +204,7 @@ defmodule CommonsPub.Character.Characters do
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | character: character, context: context, characteristic: characteristic }}
   # end
 
-  @doc "Takes a Pointer to something and creates a Character based on it"
+  @doc "Takes a Pointer to something and creates a character based on it"
   def characterise(user, %Pointer{} = pointer) do
     thing = MoodleNet.Meta.Pointers.follow!(pointer)
 
@@ -218,7 +215,7 @@ defmodule CommonsPub.Character.Characters do
     end
   end
 
-  @doc "Takes anything and creates a Character based on it"
+  @doc "Takes anything and creates a character based on it"
   def characterise(user, %{} = thing) do
     # IO.inspect(thing)
     thing_name = thing.__struct__
@@ -255,7 +252,7 @@ defmodule CommonsPub.Character.Characters do
   @doc "Transform the generic fields of anything to be turned into a character."
   def characterisation_default(thing_name, thing) do
     thing
-    # use Thing name as Character facet/trope
+    # use Thing name as character facet/trope
     |> Map.put(:facet, thing_name |> to_string() |> String.split(".") |> List.last())
     # include the linked thing
     |> Map.put(:characteristic, thing)
@@ -311,7 +308,7 @@ defmodule CommonsPub.Character.Characters do
 
   defp ap_publish(_, _, _, _), do: :ok
 
-  def update(user, %Character{} = character, %{character: attrs}) when is_map(attrs) do
+  def update(user, %CommonsPub.Character{} = character, %{character: attrs}) when is_map(attrs) do
     update(user, character, attrs)
   end
 
@@ -348,40 +345,7 @@ defmodule CommonsPub.Character.Characters do
 
   def delete(%User{}, %Character{} = character), do: Repo.delete(character)
 
-  # defp index(character) do
-  #   follower_count =
-  #     case MoodleNet.Follows.FollowerCounts.one(context: character.id) do
-  #       {:ok, struct} -> struct.count
-  #       {:error, _} -> nil
-  #     end
 
-  #   # icon = MoodleNet.Uploads.remote_url_from_id(character.icon_id)
-  #   # image = MoodleNet.Uploads.remote_url_from_id(character.image_id)
-
-  #   canonical_url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(character)
-
-  #   object = %{
-  #     "index_type" => "Character",
-  #     "facet" => character.facet,
-  #     "id" => character.id,
-  #     "canonicalUrl" => canonical_url,
-  #     "followers" => %{
-  #       "totalCount" => follower_count
-  #     },
-  #     # "icon" => icon,
-  #     # "image" => image,
-  #     # "name" => character.name,
-  #     "preferredUsername" => character.character.preferred_username,
-  #     # "summary" => character.summary,
-  #     "createdAt" => character.published_at,
-  #     # home instance of object
-  #     "index_instance" => URI.parse(canonical_url).host
-  #   }
-
-  #   CommonsPub.Search.Indexer.index_object(object)
-
-  #   :ok
-  # end
 
   # TODO move these to a common module
 

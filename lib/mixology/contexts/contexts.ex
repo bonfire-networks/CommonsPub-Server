@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.Contexts do
   @doc "Helpers for writing contexts that deal with graphql"
@@ -82,20 +80,20 @@ defmodule MoodleNet.Common.Contexts do
 
   # FIXME: make these config-driven and generic:
 
-  defp context_feeds(%MoodleNet.Resources.Resource{} = resource) do
+  def context_feeds(%MoodleNet.Resources.Resource{} = resource) do
     r = Repo.preload(resource, collection: [:community])
     [r.collection.outbox_id, r.collection.community.outbox_id]
   end
 
-  defp context_feeds(%MoodleNet.Collections.Collection{} = collection) do
+  def context_feeds(%MoodleNet.Collections.Collection{} = collection) do
     c = Repo.preload(collection, [:community])
     [c.outbox_id, c.community.outbox_id]
   end
 
-  defp context_feeds(%MoodleNet.Communities.Community{outbox_id: id}), do: [id]
+  def context_feeds(%MoodleNet.Communities.Community{outbox_id: id}), do: [id]
 
-  defp context_feeds(%MoodleNet.Users.User{inbox_id: inbox, outbox_id: outbox}),
+  def context_feeds(%MoodleNet.Users.User{inbox_id: inbox, outbox_id: outbox}),
     do: [inbox, outbox]
 
-  defp context_feeds(_), do: []
+  def context_feeds(_), do: []
 end

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads.Thread do
   use MoodleNet.Common.Schema
@@ -9,7 +7,7 @@ defmodule MoodleNet.Threads.Thread do
   alias Ecto.Changeset
   alias MoodleNet.Follows.FollowerCount
   alias MoodleNet.Feeds.Feed
-  alias Pointers.Pointer
+  # alias Pointers.Pointer
   alias MoodleNet.Threads
   alias MoodleNet.Threads.{LastComment, Comment, Thread}
   alias MoodleNet.Users.User
@@ -39,7 +37,9 @@ defmodule MoodleNet.Threads.Thread do
   @required ~w(is_local outbox_id)a
   @cast @required ++ ~w(name canonical_url is_locked is_hidden)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id}, attrs) do
+  def create_changeset(creator, attrs, context \\ nil)
+
+  def create_changeset(%User{id: creator_id}, attrs, %{id: context_id}) do
     %Thread{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
@@ -51,7 +51,7 @@ defmodule MoodleNet.Threads.Thread do
     |> common_changeset()
   end
 
-  def create_changeset(%User{id: creator_id}, attrs) do
+  def create_changeset(%User{id: creator_id}, attrs, _) do
     %Thread{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(

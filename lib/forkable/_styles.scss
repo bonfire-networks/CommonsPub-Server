@@ -3,28 +3,28 @@
 
 // comment or add entries for extensions you install/enable/disable:
 
-@import "../extensions/activities/activity_component/activity";
-@import "../extensions/activities/activity_previews/previews";
+@import "../extensions/activities/live/activity_component/activity";
+@import "../extensions/activities/live/activity_previews/previews";
 
 @import "../extensions/instance/live/instance";
 @import "../extensions/instance/live/about/about";
 
-@import "../extensions/users/login/login";
-@import "../extensions/users/signup/signup";
-@import "../extensions/users/settings/settings";
+@import "../extensions/users/live/login/login";
+@import "../extensions/users/live/signup/signup";
+@import "../extensions/users/live/settings/settings";
 
 @import "../extensions/discussions/live/discussion";
-@import "../extensions/discussions/write_live/write.scss";
+@import "../extensions/discussions/live/write/write.scss";
 
 @import "../extensions/communities/live/community.scss";
 
 @import "../extensions/profiles/live/hero";
 @import "../extensions/profiles/live/member";
 
-@import "../extensions/search/search_live/search.scss";
+@import "../extensions/search/live/search.scss";
 
-@import "../extensions/resources/post_link/share_link.scss";
+@import "../extensions/resources/live/post_link/share_link.scss";
 
 @import "../mixology/web/text_editor/editors/prosemirror.scss";
 
-@import "../extensions/value_flows/planning/create_intent/publish_ad_live.scss";
+@import "../extensions/value_flows/planning/intent/create_intent/publish_ad_live.scss";

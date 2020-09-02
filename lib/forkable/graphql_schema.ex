@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.Schema do
   @moduledoc "Root GraphQL Schema"
@@ -42,7 +40,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(MoodleNetWeb.GraphQL.UploadSchema)
 
   # Extension Modules
-  import_types(Profile.GraphQL.Schema)
+  import_types(CommonsPub.Profile.GraphQL.Schema)
   import_types(CommonsPub.Character.GraphQL.Schema)
   import_types(Organisation.GraphQL.Schema)
   import_types(CommonsPub.Locales.GraphQL.Schema)
@@ -83,7 +81,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields(:measurement_query)
     import_fields(:geolocation_query)
     import_fields(:value_flows_query)
-    import_fields(:value_flows_extra_queries)
+    # import_fields(:value_flows_extra_queries)
   end
 
   mutation do
@@ -185,7 +183,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       # %ValueFlows.Agent.People{}, _ -> :person
       # %ValueFlows.Agent.Organizations{}, _ -> :organization
       %ValueFlows.Planning.Intent{}, _ -> :intent
-      o, _ -> IO.inspect(any_context_resolve_unknown_type: o)
+      o, _ ->
+        Logger.warn("Any context resolved to an unknown type: #{inspect(o)}")
     end)
   end
 end

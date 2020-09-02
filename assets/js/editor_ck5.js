@@ -105,11 +105,9 @@ ExtensionHooks.MarkdownEditor = {
       },
     })
       .then((editor) => {
-        console.log("qui tutto bene");
         window.editor = editor;
       })
       .catch((error) => {
-        console.log("nein");
         console.error("There was a problem initializing the editor.", error);
       });
   },

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.Introspection do
   @moduledoc """
@@ -30,7 +28,6 @@ defmodule MoodleNet.Meta.Introspection do
   @doc "true if the given atom names an Ecto Schema module"
   def is_ecto_schema_module?(module) do
     Code.ensure_loaded?(module) and
-    function_exported?(module, :__schema__, 1)
+      function_exported?(module, :__schema__, 1)
   end
-
 end

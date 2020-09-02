@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Locales.Language.Service do
   @moduledoc """
@@ -16,7 +14,7 @@ defmodule CommonsPub.Locales.Language.Service do
   supervision hierarchy neatly.
   """
 
-  alias CommonsPub.Locales.{Language, Language.Error.NotFound}
+  alias CommonsPub.Locales.{Language}
 
   alias MoodleNet.Repo
 
@@ -81,11 +79,18 @@ defmodule CommonsPub.Locales.Language.Service do
 
   @doc false
   def init(_) do
-    Language
-    |> Repo.all(telemetry_event: @init_query_name)
-    |> populate_languages()
+    try do
+      Language
+      |> Repo.all(telemetry_event: @init_query_name)
+      |> populate_languages()
 
-    {:ok, []}
+      {:ok, []}
+    rescue
+      e ->
+        IO.inspect("INFO: TableService could not init because:")
+        IO.inspect(e)
+        {:ok, []}
+    end
   end
 
   defp populate_languages(entries) do

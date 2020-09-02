@@ -1,7 +1,5 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Profile.GraphQL.Resolver do
+defmodule CommonsPub.Profile.GraphQL.Resolver do
   alias MoodleNet.{
     # Activities,
     GraphQL,
@@ -20,9 +18,9 @@ defmodule Profile.GraphQL.Resolver do
     ResolveRootPage
   }
 
-  alias Profile
+  # alias CommonsPub.Profile
 
-  alias Profile.{
+  alias CommonsPub.Profile.{
     Profiles
     # Queries
   }
@@ -42,7 +40,6 @@ defmodule Profile.GraphQL.Resolver do
   end
 
   def profile(%{profile_id: id}, info) do
-    # IO.inspect(id)
     ResolveField.run(%ResolveField{
       module: __MODULE__,
       fetcher: :fetch_profile,
@@ -56,7 +53,6 @@ defmodule Profile.GraphQL.Resolver do
   end
 
   # def profile(opts, _, info) do
-  #   IO.inspect(unmatched_profile_resolver, opts)
   #   {:ok, nil}
   # end
 
@@ -83,8 +79,8 @@ defmodule Profile.GraphQL.Resolver do
 
   def fetch_profiles(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: Profile.Queries,
-      query: Profile,
+      queries: CommonsPub.Profile.Queries,
+      query: CommonsPub.Profile,
       # cursor_fn: Profiles.cursor(:followers),
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)]
@@ -92,9 +88,9 @@ defmodule Profile.GraphQL.Resolver do
     })
   end
 
-  # def profileistic_edge(%Profile{profileistic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def profileistic_edge(%CommonsPub.Profile{profileistic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
-  # def resource_count_edge(%Profile{id: id}, _, info) do
+  # def resource_count_edge(%CommonsPub.Profile{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
   # end
 

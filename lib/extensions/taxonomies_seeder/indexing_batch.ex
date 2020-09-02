@@ -27,19 +27,17 @@ defmodule Taxonomy.IndexingBatch do
     # results = []
 
     for item <- tags.rows do
-      # IO.inspect(item)
       [id, name, name_crumbs, summary] = item
-      obj = %{id: id, name: name, name_crumbs: name_crumbs, summary: summary}
+      # obj = %{id: id, name: name, name_crumbs: name_crumbs, summary: summary}
 
-      # IO.inspect(obj)
+      ## add to search index as is
+      # CommonsPub.Search.Indexer.index_objects(obj, @tags_index_name, false)
 
-      CommonsPub.Search.Indexer.index_objects(obj, @tags_index_name, false)
+      ## import into Categories
+      Taxonomy.TaxonomyTags.maybe_make_category(nil, id)
 
       # results = results ++ [obj]
     end
-
-    # IO.inspect(length(results))
-    # IO.inspect(results)
 
     # Search.Indexer.index_objects(results, @tags_index_name)
   end

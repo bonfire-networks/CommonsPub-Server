@@ -1,26 +1,31 @@
 .PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
+ORG_NAME=commonspub
 APP_NAME=commonspub
-APP_DOTENV=config/docker.env
-APP_DEV_DOTENV=config/docker.dev.env
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
-APP_DOCKER_REPO="$(APP_NAME)/$(APP_NAME)"
-APP_DEV_CONTAINER="$(APP_NAME)_dev"
+APP_DOCKER_REPO="$(ORG_NAME)/$(APP_NAME)"
+APP_DEV_CONTAINER="$(ORG_NAME)_$(APP_NAME)_dev"
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
 APP_BUILD ?= `git rev-parse --short HEAD`
 
-init: 
+init:
 	@echo "Running build scripts for $(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
-	@chmod 700 .erlang.cookie 
+	@chmod 700 .erlang.cookie
+	@mkdir -p config/prod
+	@mkdir -p config/dev
+	@cp -n config/templates/public.env config/dev/ | true
+	@cp -n config/templates/public.env config/prod/ | true
+	@cp -n config/templates/not_secret.env config/dev/secrets.env | true
+	@cp -n config/templates/not_secret.env config/prod/secrets.env | true
 
 help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 prepare_for_release:
-	@cp lib/*/*/overlay/* rel/overlays/
+	cp lib/*/*/overlay/* rel/overlays/
 
 build_without_cache: init prepare_for_release ## Build the Docker image
-	@docker build \
+	docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
@@ -29,7 +34,7 @@ build_without_cache: init prepare_for_release ## Build the Docker image
 	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
 build: init prepare_for_release ## Build the Docker image using previous cache
-	@docker build \
+	docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
 		--build-arg APP_BUILD=$(APP_BUILD) \
@@ -38,61 +43,69 @@ build: init prepare_for_release ## Build the Docker image using previous cache
 
 push: init tag_latest ## Add latest tag to last build and push
 	@echo docker push $(APP_DOCKER_REPO):latest
-	@docker push $(APP_DOCKER_REPO):latest
+	docker push $(APP_DOCKER_REPO):latest
 
-tag_latest: init ## Add latest tag to last build 
+tag_latest: init ## Add latest tag to last build
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
-	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
+	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
 
-tag_stable: init ## Tag stable, latest and version tags to the last build 
+tag_stable: init ## Tag stable, latest and version tags to the last build
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
-	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
+	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
-	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
+	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
 
 push_stable: init tag_stable ## Tag stable, latest and version tags to the last build and push
 	@echo docker push $(APP_DOCKER_REPO):stable
-	@docker push $(APP_DOCKER_REPO):stable
+	docker push $(APP_DOCKER_REPO):stable
 	@echo docker push $(APP_DOCKER_REPO):$(APP_VSN)
-	@docker push $(APP_DOCKER_REPO):$(APP_VSN)
+	docker push $(APP_DOCKER_REPO):$(APP_VSN)
 	@echo docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
-	@docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
-
-hq_deploy_staging: init ## Used by Moodle HQ to trigger deploys to k8s
-	@curl https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://mothership.next.moodle.net/devops/respawn/$(MAIL_KEY)
-
-hq_deploy_stable: init ## Used by Moodle HQ to trigger prod deploys to k8s
-	@curl https://home.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://team.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
+	docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
 dev-exports: init ## Load env vars from a dotenv file
-	awk '{print "export " $$0}' $(APP_DEV_DOTENV)
+	awk '{print "export " $$0}' config/dev/*.env
+
+dev: init ## Run the app in dev
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
+
+dev-shell: init ## Run the app in dev
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web bash
+
+dev-bg: init ## Run the app in dev
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --detach --service-ports web elixir -S mix phx.server
 
 dev-pull: init ## Build the dev image
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) pull 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) pull
 
 dev-build: init dev-pull ## Build the dev image
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build
 
 dev-rebuild: init ## Rebuild the dev image (without cache)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build --no-cache
 
+licenses: init
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix licenses
+	mv -f DEPENDENCIES.md docs/
+
 dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force && mix local.rebar --force && mix deps.get
+	make licenses
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm install --prefix assets
 
-dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild lib=pointers` 
-	rm -rf _build/$(lib)
+dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild lib=pointers`
+	sudo rm -rf deps/$(lib)
+	sudo rm -rf _build/$(lib)
 	sudo rm -rf _build/dev/lib/$(lib)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web rm -rf _build/$(lib) && mix deps.compile $(lib)
 
-dev-dep-update: init ## Upgrade a dep, eg: `make dev-dep-update lib=plug` 
+dev-dep-update: init ## Upgrade a dep, eg: `make dev-dep-update lib=plug`
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update $(lib)
+	make licenses
 
 dev-deps-update-all: init ## Upgrade all deps
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update --all
+	make licenses
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm update --prefix assets && npm outdated --prefix assets
 
 dev-db-up: init ## Start the dev DB
@@ -105,7 +118,7 @@ dev-services-up: init ## Start the dev DB & search index
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db search
 
 dev-db-admin: init ## Start the dev DB and dbeaver admin UI
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up dbeaver 
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up dbeaver
 
 dev-db: init ## Create the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.create
@@ -137,10 +150,10 @@ dev-test-psql: init ## Run postgres for tests (without Docker)
 dev-setup: dev-deps dev-db dev-db-migrate ## Prepare dependencies and DB for dev
 
 dev-run: init ## Run a custom command in dev env, eg: `make dev-run cmd="mix deps.update plug`
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web $(cmd)
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web $(cmd)
 
-dev: init ## Run the app in dev 
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
+dev-logs: init ## Run tests
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) logs -f
 
 dev-stop: init ## Stop the dev app
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) stop
@@ -161,8 +174,11 @@ manual-db: init ## Create or reset the DB (without Docker)
 	mix ecto.reset
 
 prepare: init ## Run the app in Docker
-	docker-compose pull 
-	build
+	docker-compose pull
+	docker-compose build
 
 run: init ## Run the app in Docker
-	docker-compose up 
+	docker-compose up
+
+run-bg: init ## Run the app in Docker, and keep running in the background
+	docker-compose up -d

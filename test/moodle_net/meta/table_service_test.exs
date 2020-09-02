@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.TableServiceTest do
   use ExUnit.Case, async: true
@@ -9,10 +7,11 @@ defmodule MoodleNet.Meta.TableServiceTest do
   alias MoodleNet.Repo
 
   alias MoodleNet.Meta.{
-    Table,
     TableService,
     TableNotFoundError
   }
+
+  alias Pointers.Table
 
   alias MoodleNet.Access.{RegisterEmailAccess, RegisterEmailDomainAccess}
   alias MoodleNet.Activities.Activity

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads do
   alias Ecto.Changeset
@@ -260,7 +258,7 @@ defmodule MoodleNet.Uploads do
     end
   end
 
-  defp allow_media_type(upload_def, nil) do
+  defp allow_media_type(_upload_def, nil) do
     :ok
   end
 

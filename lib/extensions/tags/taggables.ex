@@ -1,20 +1,20 @@
 defmodule CommonsPub.Tag.Taggables do
   # import Ecto.Query
-  alias Ecto.Changeset
+  # alias Ecto.Changeset
 
   alias MoodleNet.{
     # Common,
     # GraphQL,
-    Repo,
-    GraphQL.Page,
-    Common.Contexts
+    Repo
+    # GraphQL.Page,
+    # Common.Contexts
   }
 
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Users.User
   alias CommonsPub.Tag.Taggable
   alias CommonsPub.Tag.Taggable.Queries
 
-  alias CommonsPub.Character.Characters
+  # alias CommonsPub.Character.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -45,7 +45,7 @@ defmodule CommonsPub.Tag.Taggables do
       {:ok, t}
     else
       _e ->
-        {:error, "Please provider a pointer"}
+        {:error, "Please provide a pointer"}
     end
   end
 
@@ -85,32 +85,32 @@ defmodule CommonsPub.Tag.Taggables do
   @doc """
   Create a taggable mixin for an existing poitable object (please use maybe_make_taggable instead)
   """
-  defp make_taggable(creator, %{} = pointer_obj, attrs) when is_map(attrs) do
+  def make_taggable(_creator, %{} = pointable_obj, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       # TODO: check that the taggable doesn't already exist (same name and parent)
 
-      with {:ok, attrs} <- attrs_with_taggable(attrs, pointer_obj),
+      with {:ok, attrs} <- attrs_with_taggable(attrs, pointable_obj),
            {:ok, taggable} <- insert_taggable(attrs) do
         {:ok, taggable}
       end
     end)
   end
 
-  defp attrs_with_taggable(%{facet: facet} = attrs, %{} = pointer_obj) when not is_nil(facet) do
+  defp attrs_with_taggable(%{facet: facet} = attrs, %{} = pointable_obj) when not is_nil(facet) do
     attrs = Map.put(attrs, :prefix, prefix(attrs.facet))
-    attrs = Map.put(attrs, :id, pointer_obj.id)
+    attrs = Map.put(attrs, :id, pointable_obj.id)
     # IO.inspect(attrs)
     {:ok, attrs}
   end
 
-  defp attrs_with_taggable(attrs, %{} = pointer_obj) do
+  defp attrs_with_taggable(attrs, %{} = pointable_obj) do
     attrs_with_taggable(
       Map.put(
         attrs,
         :facet,
-        pointer_obj.__struct__ |> to_string() |> String.split(".") |> List.last()
+        pointable_obj.__struct__ |> to_string() |> String.split(".") |> List.last()
       ),
-      pointer_obj
+      pointable_obj
     )
   end
 
@@ -121,7 +121,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   # TODO: take the user who is performing the update
-  def update(user, %Taggable{} = taggable, attrs) do
+  def update(_user, %Taggable{} = taggable, attrs) do
     Repo.transact_with(fn ->
       # :ok <- publish(taggable, :updated)
       with {:ok, taggable} <- Repo.update(Taggable.update_changeset(taggable, attrs)) do

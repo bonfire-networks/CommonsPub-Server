@@ -13,7 +13,7 @@
       <li phx-target="#new_community" phx-click="toggle_community"><i class="feather-users"></i> Start a community</li>
       <li phx-target="#new_collection" phx-click="toggle_collection"><i class="feather-folder"></i> Create a collection</li>
       <li phx-target="#post_link" phx-click="toggle_link"><i class="feather-link"></i> Share a link</li>
-      <li phx-target="#publish_ad" phx-click="toggle_ad"><i class="feather-disc"></i> Publish an ad</li>
+      <li phx-target="#publish_ad" phx-click="toggle_ad"><i class="feather-disc"></i> Publish an offer/request</li>
     </ul>
   </details>
   <span class="right__notification"><i class="feather-bell"></i></span>
@@ -23,15 +23,10 @@
     </summary>
     <ul class="dropdown__list">
       <li><%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "me")  do %>Profile<% end %></li>
+      <%= if @current_user.local_user.is_instance_admin do %>
+       <li><%= live_redirect to: "/admin/settings/access" do %>Admin<% end %></li> 
+      <% end %>
       <li><%= live_redirect to: "/~/settings" do %>Settings<% end %></li>
-      <li>
-        <div class="theme-switch-wrapper">
-          <label class="theme-switch" for="checkbox">
-            <input type="checkbox" id="checkbox" />
-            <i class="feather-sun"></i>
-          </label>
-        </div>
-      </li>
       <li><a href="/logout">Logout</a></li>
     </ul>
   </details>

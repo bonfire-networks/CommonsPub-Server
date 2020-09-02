@@ -1,13 +1,11 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.Test.Faking do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  alias CommonsPub.Utils.Simulation
+  # alias CommonsPub.Utils.Simulation
 
   alias Organisation
-  import Organisation.Simulate
+  # import Organisation.Simulate
 
   def assert_organisation(%Organisation{} = org) do
     assert_organisation(Map.from_struct(org))

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common do
   alias MoodleNet.Repo
@@ -50,11 +48,6 @@ defmodule MoodleNet.Common do
       context_module =
         if Kernel.function_exported?(context.__struct__, :context_module, 0),
           do: apply(context.__struct__, :context_module, [])
-
-      IO.inspect(context)
-      IO.inspect(context_module)
-      IO.inspect(Kernel.function_exported?(context_module, :soft_delete, 2))
-      IO.inspect(Kernel.function_exported?(context_module, :soft_delete, 1))
 
       if !is_nil(context) and !is_nil(context.id) and !is_nil(context_module) and
            allow_delete?(user, context) do

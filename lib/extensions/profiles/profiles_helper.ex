@@ -1,11 +1,54 @@
 defmodule MoodleNetWeb.Helpers.Profiles do
-  alias MoodleNet.{Repo}
+  # alias MoodleNet.{Repo}
   alias MoodleNetWeb.GraphQL.UsersResolver
   import MoodleNetWeb.Helpers.Common
 
-  def prepare(%{username: username} = profile) do
+  def fetch_users_from_context(user) do
+    # IO.inspect(user.context_id, label: "ContextId")
+    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.context_id)
+    # IO.inspect(pointer, label: "POINTER:")
+    MoodleNet.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, actor: true})
+  end
+
+  def fetch_users_from_creator(user) do
+    # IO.inspect(user.context_id, label: "ContextId")
+    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.creator_id)
+    # IO.inspect(pointer, label: "POINTER:")
+    MoodleNet.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, actor: true})
+  end
+
+  def is_followed_by(current_user, profile_id) when not is_nil(current_user) do
+    is_followed_by(
+      MoodleNetWeb.GraphQL.FollowsResolver.fetch_my_follow_edge(current_user, nil, profile_id)
+    )
+  end
+
+  def is_followed_by(_, _) do
+    false
+  end
+
+  defp is_followed_by(%{data: data}) when data == %{} do
+    false
+  end
+
+  defp is_followed_by(_map) do
+    true
+  end
+
+  def unfollow(current_user, followed_id) do
+    {:ok, follow} =
+      MoodleNet.Follows.one(deleted: false, creator: current_user.id, context: followed_id)
+
+    MoodleNet.Follows.soft_delete(current_user, follow)
+  end
+
+  def prepare(%{username: _username} = profile) do
     IO.inspect("profile already prepared")
     profile
+  end
+
+  def prepare(profile) do
+    prepare_website(prepare_username(profile))
   end
 
   def prepare(profile, %{icon: _} = preload) do
@@ -45,10 +88,6 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     prepare(profile)
   end
 
-  def prepare(profile) do
-    prepare_website(prepare_username(profile))
-  end
-
   def prepare_username(profile) do
     profile
     |> Map.merge(%{
@@ -68,31 +107,6 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     else
       profile
     end
-  end
-
-  def is_followed_by(current_user, profile_id) when not is_nil(current_user) do
-    is_followed_by(
-      MoodleNetWeb.GraphQL.FollowsResolver.fetch_my_follow_edge(current_user, nil, profile_id)
-    )
-  end
-
-  def is_followed_by(_, _) do
-    false
-  end
-
-  defp is_followed_by(%{data: data}) when data == %{} do
-    false
-  end
-
-  defp is_followed_by(map) do
-    true
-  end
-
-  def unfollow(current_user, followed_id) do
-    {:ok, follow} =
-      MoodleNet.Follows.one(deleted: false, creator: current_user.id, context: followed_id)
-
-    MoodleNet.Follows.soft_delete(current_user, follow)
   end
 
   def prepare(profile, %{icon: _} = preload, icon_size) do

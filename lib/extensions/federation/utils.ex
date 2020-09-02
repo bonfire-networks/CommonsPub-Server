@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.ActivityPub.Utils do
@@ -138,6 +136,10 @@ defmodule MoodleNet.ActivityPub.Utils do
 
   def get_actor_canonical_url(%{actor: actor}) do
     get_actor_canonical_url(actor)
+  end
+
+  def get_actor_canonical_url(%{character: character}) do
+    get_actor_canonical_url(character)
   end
 
   def get_actor_canonical_url(%{canonical_url: canonical_url}) do

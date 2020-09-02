@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.DeletionError do
   @enforce_keys [:message, :code, :status]
@@ -9,10 +7,10 @@ defmodule MoodleNet.Common.DeletionError do
   alias MoodleNet.Common.DeletionError
 
   @type t :: %__MODULE__{
-    message: binary,
-    code: binary,
-    status: integer
-  }
+          message: binary,
+          code: binary,
+          status: integer
+        }
 
   @spec new(term) :: t
   @doc "Create a new DeletionError"
@@ -25,7 +23,7 @@ defmodule MoodleNet.Common.DeletionError do
     %DeletionError{
       message: message,
       code: "deletion_error",
-      status: 400,
+      status: 400
     }
   end
 end

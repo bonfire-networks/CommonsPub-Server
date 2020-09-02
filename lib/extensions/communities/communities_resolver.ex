@@ -1,21 +1,18 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   @moduledoc """
   Performs the GraphQL Community queries.
   """
-  alias MoodleNet.{Activities, Collections, Communities, GraphQL, Repo}
-  alias MoodleNet.Collections.Collection
+  alias MoodleNet.{Activities, Communities, GraphQL, Repo}
   alias MoodleNet.Communities.Community
 
   alias MoodleNet.GraphQL.{
-    FetchFields,
+    # FetchFields,
     Page,
     FetchPage,
     # FetchPages,
     ResolveField,
-    ResolveFields,
+    # ResolveFields,
     ResolvePage,
     ResolvePages,
     ResolveRootPage
@@ -50,8 +47,6 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def communities(%{} = page_opts, info) do
-    # IO.inspect(page_opts)
-    # IO.inspect(info)
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
       fetcher: :fetch_communities,
@@ -69,71 +64,6 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       cursor_fn: Communities.cursor(:followers),
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)],
-      data_filters: [:default, page: [desc: [followers: page_opts]]]
-    })
-  end
-
-  def collection_count_edge(%{id: id}, _, info) do
-    ResolveFields.run(%ResolveFields{
-      module: __MODULE__,
-      fetcher: :fetch_collection_count_edge,
-      context: id,
-      info: info,
-      default: 0
-    })
-  end
-
-  def fetch_collection_count_edge(_, ids) do
-    FetchFields.run(%FetchFields{
-      queries: Collections.Queries,
-      query: Collection,
-      group_fn: &elem(&1, 0),
-      map_fn: &elem(&1, 1),
-      filters: [community: ids, group_count: :community_id]
-    })
-  end
-
-  def collections_edge(%{id: id}, %{} = page_opts, info) do
-    ResolvePages.run(%ResolvePages{
-      module: __MODULE__,
-      fetcher: :fetch_collections_edge,
-      context: id,
-      page_opts: page_opts,
-      info: info
-    })
-  end
-
-  # def collections_edge(%Community{collections: cs}, _, _info) when is_list(cs), do: {:ok, cs}
-  # def collections_edge(%Community{id: id}, %{}=page_opts, info) do
-  #   opts = %{default_limit: 10}
-  #   Flow.pages(__MODULE__, :fetch_collections_edge, page_opts, id, info, opts)
-  # end
-
-  # def fetch_collections_edge({page_opts, info}, ids) do
-  #   user = GraphQL.current_user(info)
-  #   FetchPages.run(
-  #     %FetchPages{
-  #       queries: Collections.Queries,
-  #       query: Collection,
-  #       cursor_fn: Collections.cursor(:followers),
-  #       group_fn: &(&1.community_id),
-  #       page_opts: page_opts,
-  #       base_filters: [community: ids, user: user],
-  #       data_filters: [:default, page: [desc: [followers: page_opts]]],
-  #       count_filters: [group_count: :community_id],
-  #     }
-  #   )
-  # end
-
-  def fetch_collections_edge(page_opts, info, ids) do
-    user = GraphQL.current_user(info)
-
-    FetchPage.run(%FetchPage{
-      queries: Collections.Queries,
-      query: Collection,
-      cursor_fn: Collections.cursor(:followers),
-      page_opts: page_opts,
-      base_filters: [community: ids, user: user],
       data_filters: [:default, page: [desc: [followers: page_opts]]]
     })
   end

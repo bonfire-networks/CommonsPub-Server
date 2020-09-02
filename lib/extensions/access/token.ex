@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Access.Token do
   @moduledoc "A session token identified by its uuid id"
@@ -9,11 +7,12 @@ defmodule MoodleNet.Access.Token do
   alias MoodleNet.Access.Token
   alias Ecto.Changeset
 
-  @default_validity 3600 * 24 * 14 # two weeks, in seconds
+  # two weeks, in seconds
+  @default_validity 3600 * 24 * 14
 
   uuidv4_schema "access_token" do
-    field :expires_at, :utc_datetime_usec
-    belongs_to :user, User
+    field(:expires_at, :utc_datetime_usec)
+    belongs_to(:user, User)
     timestamps()
   end
 
@@ -28,5 +27,4 @@ defmodule MoodleNet.Access.Token do
 
   defp expires_at(validity),
     do: DateTime.add(DateTime.utc_now(), validity)
-
 end

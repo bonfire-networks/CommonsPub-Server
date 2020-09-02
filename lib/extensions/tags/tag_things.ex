@@ -29,7 +29,7 @@ defmodule CommonsPub.Tag.TagThings do
   @doc """
   Prepare a tag to be used, by loading or even creating it
   """
-  defp tag_preprocess(user, %Taggable{} = tag) do
+  defp tag_preprocess(_user, %Taggable{} = tag) do
     tag
   end
 
@@ -37,16 +37,19 @@ defmodule CommonsPub.Tag.TagThings do
     nil
   end
 
-  defp tag_preprocess(user, {:error, e}) do
+  defp tag_preprocess(_user, {:error, e}) do
     IO.inspect(invalid_taggable: e)
     nil
+  end
+
+  defp tag_preprocess(user, {_at_mention, taggable}) do
+    tag_preprocess(user, taggable)
   end
 
   defp tag_preprocess(user, taggable) do
     IO.inspect(tag_preprocess: taggable)
 
     with {:ok, tag} <- CommonsPub.Tag.Taggables.maybe_make_taggable(user, taggable) do
-      IO.inspect(taggable)
       # with an object that we have just made taggable
       tag_preprocess(user, tag)
     else
@@ -60,7 +63,7 @@ defmodule CommonsPub.Tag.TagThings do
       # IO.inspect(tags_save: tags)
       # IO.inspect(thing_save: thing)
       cs = Taggable.thing_tags_changeset(thing, tags)
-      IO.inspect(tagging: cs)
+      IO.inspect(thing_tags_save: cs)
       with {:ok, thing} <- Repo.update(cs, on_conflict: :nothing), do: {:ok, thing}
     end)
   end

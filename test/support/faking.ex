@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.Faking do
   import ExUnit.Assertions
@@ -14,9 +12,8 @@ defmodule MoodleNet.Test.Faking do
     Features,
     Likes,
     Peers,
-    Uploads,
+    # Uploads,
     Users,
-    Localisation,
     Resources,
     Threads,
     Threads.Comments,
@@ -109,6 +106,8 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_collection!(user, community, overrides \\ %{})
+
+  def fake_collection!(user, community, overrides)
       when is_map(overrides) and is_nil(community) do
     {:ok, collection} = Collections.create(user, collection(overrides))
     assert collection.creator_id == user.id
@@ -133,14 +132,16 @@ defmodule MoodleNet.Test.Faking do
     resource
   end
 
-  def fake_thread!(user, context, overrides \\ %{}) when is_map(overrides) and is_nil(context) do
+  def fake_thread!(user, context, overrides \\ %{})
+
+  def fake_thread!(user, nil, overrides) when is_map(overrides) do
     {:ok, thread} = Threads.create(user, thread(overrides))
     assert thread.creator_id == user.id
     thread
   end
 
   def fake_thread!(user, context, overrides) when is_map(overrides) do
-    {:ok, thread} = Threads.create(user, context, thread(overrides))
+    {:ok, thread} = Threads.create(user, thread(overrides), context)
     assert thread.creator_id == user.id
     thread
   end

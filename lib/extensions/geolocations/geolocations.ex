@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.Geolocations do
   alias MoodleNet.{
@@ -223,7 +221,7 @@ defmodule Geolocation.Geolocations do
     %{geo | lat: lat, long: long, geom: Geo.JSON.encode!(geom)}
   end
 
-  def populate_coordinates(geo), do: geo
+  def populate_coordinates(geo), do: geo || %{}
 
   def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
     with {:ok, coords} <- Geocoder.call(address) do

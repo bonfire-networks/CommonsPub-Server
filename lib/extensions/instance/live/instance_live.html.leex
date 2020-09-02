@@ -1,6 +1,51 @@
-<div class="page__mainContent">
+<div class="page__instance">
+  <h1>Discover</h1>
   <section class="instance">
-    <div class="instance__showreel communities">
+    <div>
+      <div class="mainContent__selected">
+        <h3 class="area__title">Instance Timeline</h3>
+        <%= live_component(
+              @socket,
+              MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
+              id: :instance_timeline,
+              current_user: @current_user,
+              activities: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance_activities"
+            ) %>
+      </div>
+    </div>
+    <div class="instance__aside">
+      <%= if @description do %>
+        <div class="navigation__block">
+          <h3 class="block__title">About this instance</h3>
+          <div class="block__context">
+            <h4><%= @description %></h4>
+          </div>
+        </div>
+      <% end %>
+      <div class="navigation__block">
+        <h3 class="block__title">Members</h3>
+        <div class="block__context">
+          <%= live_component(
+              @socket,
+              InstanceMembersPreviewLive,
+              selected_tab: @selected_tab,
+              id: :instance_members_previews,
+              current_user: @current_user,
+              members: [],
+              page: 1,
+              has_next_page: false,
+              after: [],
+              before: [],
+              pagination_target: "#instance-members-previews"
+          ) %>
+        </div>
+      </div>
+      <div class="instance__showreel communities">
         <h2 class="area__title">Communities</h2>
         <%= live_component(
               @socket,
@@ -15,9 +60,9 @@
               before: [],
               pagination_target: "#instance-communities"
           ) %>
-    </div>
-    <div class="instance__showreel collections">
-      <h2 class="area__title">Collections</h2>
+      </div>
+      <div class="instance__showreel collections">
+        <h2 class="area__title">Collections</h2>
         <%= live_component(
               @socket,
               InstanceCollectionsLive,
@@ -31,72 +76,23 @@
               before: [],
               pagination_target: "#instance-collections"
           ) %>
-    </div>
-    <div class="instance__showreel instance">
-
-    </div>
-    <div class="mainContent__navigation home__navigation">
-      <%= live_patch link_body("About", "feather-book-open"),
-            to: "/instance/about",
-            class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
-          %>
-      <%= live_patch link_body("Instance Timeline","feather-activity"),
-            to: "/instance/timeline",
-            class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
-          %>
-      <%= live_patch link_body("Members", "feather-user"),
-            to: "/instance/members",
-            class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
-          %>
-    </div>
-    <div class="mainContent__selected">
-      <%= cond do %>
-        <% @selected_tab == "about" ->  %>
-        <div class="selected__area instance__about">
-          <%= live_component(
-                  @socket,
-                  AboutLive,
-                  description: @description,
-                  id: :about
-                )
-              %>
-        </div>
-        <% @selected_tab == "timeline" -> %>
-        <%= live_component(
-                @socket,
-                InstanceActivitiesLive,
-                selected_tab: @selected_tab,
-                id: :timeline,
-                current_user: @current_user,
-                activities: [],
-                page: 1,
-                has_next_page: false,
-                after: [],
-                before: [],
-                pagination_target: "#instance-activities"
-              ) %>
-        <% @selected_tab == "members" -> %>
+      </div>
+      <div class="instance__showreel collections">
+        <h2 class="area__title">Categories</h2>
         <%= live_component(
               @socket,
-              InstanceMembersLive,
+              InstanceCategoriesLive,
               selected_tab: @selected_tab,
-              id: :members,
+              id: :categories,
               current_user: @current_user,
-              members: [],
+              categories: [],
               page: 1,
               has_next_page: false,
               after: [],
               before: [],
-              pagination_target: "#instance-members"
+              pagination_target: "#instance-categories"
           ) %>
-
-
-        <% true -> %>
-        <%= live_component(
-              @socket,
-              TabNotFoundLive
-          ) %>
-      <% end %>
+      </div>
     </div>
   </section>
 </div>

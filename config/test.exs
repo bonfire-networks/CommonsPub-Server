@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 import Config
 # We don't run a server during test. If one is required,
@@ -36,18 +34,18 @@ config :moodle_net, MoodleNet.Mail.MailService, adapter: Bamboo.TestAdapter
 
 config :moodle_net,
   base_url: "http://localhost:4001",
-  ap_base_path: System.get_env("AP_BASE_PATH", "/pub"),
-  frontend_base_url: System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")
+  ap_base_path: "/pub",
+  frontend_base_url: "http://localhost:4001"
 
 config :tesla, adapter: Tesla.Mock
 
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
 config :moodle_net, MoodleNet.OAuth,
-  client_name: "MoodleNet",
-  client_id: "MoodleNET",
-  redirect_uri: "https://moodlenet.dev.local/",
-  website: "https://moodlenet.dev.local/",
+  client_name: "CommonsPub",
+  client_id: "CommonsPUB",
+  redirect_uri: "https://commonspub.dev.local/",
+  website: "https://commonspub.dev.local/",
   scopes: "read,write,follow"
 
 # Do not federate activities during tests

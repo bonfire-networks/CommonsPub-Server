@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.MetadataScraper do
@@ -14,20 +11,26 @@ defmodule MoodleNet.MetadataScraper do
     url = CommonsPub.Utils.File.ensure_valid_url(url)
     IO.inspect(scrape_url: url)
 
-    if url != "" do
-      file_info_res = TwinkleStar.from_uri(url, @request_opts)
+    try do
+      if url != "" do
+        file_info_res = TwinkleStar.from_uri(url, @request_opts)
 
-      with {:ok, file_info} <- file_info_res do
-        data =
-          case unfurl(url, file_info) do
-            {:ok, data} -> data
-            {:error, _} -> %{}
-          end
+        with {:ok, file_info} <- file_info_res do
+          data =
+            case unfurl(url, file_info) do
+              {:ok, data} -> data
+              {:error, _} -> %{}
+            end
 
-        {:ok, Map.put(data, :media_type, file_info.media_type)}
+          {:ok, Map.put(data, :media_type, file_info.media_type)}
+        end
+      else
+        {:error, :invalid_or_missing_url}
       end
-    else
-      {:error, :invalid_or_missing_url}
+    rescue
+      e ->
+        IO.inspect(scraping_error: e)
+        {:error, :scraper_malfunction}
     end
   end
 

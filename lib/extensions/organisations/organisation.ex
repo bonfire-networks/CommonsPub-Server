@@ -1,41 +1,36 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation do
   use MoodleNet.Common.Schema
 
-  # use Pointers.Pointable,
-  #   otp_app: :moodle_net,
-  #   source: "organisation",
-  #   table_id: "01EAQ0ENYEFY2DZHATQWZ2AEEQ"
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "organisation",
+    table_id: "C1RC1E0FPE0P1EAND0RC1RC1ES"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias Organisation
-  alias CommonsPub.Character
+  # alias CommonsPub.Character
   alias Pointers.Pointer
   alias CommonsPub.Character
 
   @type t :: %__MODULE__{}
 
-  # C1RC1E0FPE0P1EAND0RC1RC1ES
-  table_schema "organisation" do
-    # pointable_schema do
-
-    # joined fields from Profile
+  pointable_schema do
+    # joined fields from profile
     field(:name, :string, virtual: true)
     field(:summary, :string, virtual: true)
     field(:updated_at, :utc_datetime_usec, virtual: true)
 
     # mixins
-    has_one(:profile, Profile, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profile, foreign_key: :id)
     has_one(:character, CommonsPub.Character, foreign_key: :id)
 
-    # joined via CommonsPub.Character
+    # joined via character
     # has_one(:actor, Actor, foreign_key: :id)
 
-    # points to the parent Thing of this Character
+    # points to the parent thing of this character
     belongs_to(:context, Pointer)
 
     # joined fields from Actor:

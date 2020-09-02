@@ -1,0 +1,39 @@
+.preview__actions {
+  display: flex;
+  align-items: center;
+  margin-top: var(--m2);
+  .error {
+    background: var(--color-error);
+    border: var(--color-error);
+  }
+  .warning {
+    background: var(--color-warning);
+    border: var(--color-warning);
+  }
+  
+  i.liked:before {
+    color: yellow;
+  }
+  .button-link {
+    padding: 0;
+    width: auto;
+    min-width: auto;
+  }
+  .dialog__container {
+    .button-link {
+      color: var(--color-primary);
+      font-size: 14px;
+      display: inline;
+    }
+  }
+  button {
+    margin-right: var(--m3);
+    font-weight: 500;
+    display: flex;
+    place-content: center;
+    align-items: center;
+    i {
+      margin-right: var(--m1);
+    }
+  }
+}

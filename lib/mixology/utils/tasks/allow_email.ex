@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Mix.Tasks.MoodleNet.AllowEmail do
   use Mix.Task
@@ -20,18 +18,20 @@ defmodule Mix.Tasks.MoodleNet.AllowEmail do
     Mix.Task.run("app.start")
 
     if MoodleNet.Access.is_register_accessed?(email) do
-      Mix.shell.info("#{email} already allowed to sign up.")
+      Mix.shell().info("#{email} already allowed to sign up.")
     else
       {:ok, _} = MoodleNet.Access.create_register_email(email)
-      Mix.shell.info("#{email} added to the allow list.")
+      Mix.shell().info("#{email} added to the allow list.")
     end
   end
 
-  def run(_args), do: Mix.shell.error("""
-  Invalid parameters.
+  def run(_args),
+    do:
+      Mix.shell().error("""
+      Invalid parameters.
 
-  Usage:
+      Usage:
 
-    #{@usage}
-  """)
+        #{@usage}
+      """)
 end

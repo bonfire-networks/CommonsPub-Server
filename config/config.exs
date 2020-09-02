@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 import Config
 
@@ -69,85 +67,81 @@ config :moodle_net, GarbageCollector,
   # one week
   grace: 302_400
 
-config :moodle_net, Feeds,
-  valid_contexts: [Collection, Comment, Community, Resource, Like],
-  default_query_contexts: [Collection, Comment, Community, Resource, Like]
+contexts_agents = [
+  User,
+  Organisation,
+]
 
-config :moodle_net, Blocks, valid_contexts: [Collection, Community, User]
+contexts_characters = [
+  User,
+  Collection,
+  Community,
+  Geolocation,
+  Organisation,
+  CommonsPub.Tag.Category
+]
+
+contexts_all =
+  contexts_characters ++
+    [
+      Thread,
+      Comment,
+      Resource,
+      Like,
+      ValueFlows.Planning.Intent
+    ]
+
+desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
 
 config :moodle_net, Instance,
   hostname: hostname,
-  description: "Local development instance",
-  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like]
-
-config :moodle_net, Collections,
-  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
-  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
-
-config :moodle_net, Communities,
-  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
-  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
-
-config :moodle_net, Resources, valid_contexts: [Collection, Community, User]
-
-config :moodle_net, Features, valid_contexts: [Collection, Community]
-
-config :moodle_net, Flags,
-  valid_contexts: [
-    Collection,
-    Comment,
-    Community,
-    Resource,
-    User,
-    Organisation,
-    CommonsPub.Character
-  ]
-
-config :moodle_net, Follows,
-  valid_contexts: [
-    Collection,
-    Community,
-    Thread,
-    User,
-    Geolocation,
-    Organisation,
-    CommonsPub.Character
-  ]
-
-config :moodle_net, Likes, valid_contexts: [Collection, Community, Comment, Resource]
-
-config :moodle_net, Threads,
-  valid_contexts: [
-    Collection,
-    Community,
-    Flag,
-    Resource,
-    User,
-    Organisation,
-    Character,
-    ValueFlows.Planning.Intent
-  ]
+  description: desc,
+  # what to show or exclude in Instance Timeline
+  default_outbox_query_contexts: List.delete(contexts_all, Like)
 
 config :moodle_net, Users,
   public_registration: false,
-  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
-  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
+  default_outbox_query_contexts: contexts_all,
+  default_inbox_query_contexts: contexts_all
 
-config :moodle_net, Units, valid_contexts: [Organisation, Community, Collection]
+config :moodle_net, Communities,
+  valid_contexts: contexts_characters,
+  default_outbox_query_contexts: contexts_all,
+  default_inbox_query_contexts: contexts_all
 
-config :moodle_net, Organisation, valid_contexts: [Organisation, Community, Collection]
+config :moodle_net, Collections,
+  valid_contexts: contexts_characters,
+  default_outbox_query_contexts: contexts_all,
+  default_inbox_query_contexts: contexts_all
+
+config :moodle_net, Organisation, valid_contexts: contexts_characters
 
 config :moodle_net, CommonsPub.Character,
-  valid_contexts: [CommonsPub.Character, Organisation, Community, Collection],
-  default_outbox_query_contexts: [
-    Collection,
-    CommonsPub.Character,
-    Community,
-    Comment,
-    Community,
-    Resource,
-    Like
-  ]
+  valid_contexts: contexts_characters,
+  default_outbox_query_contexts: contexts_all
+
+config :moodle_net, Feeds,
+  valid_contexts: contexts_characters,
+  default_query_contexts: contexts_all
+
+config :moodle_net, Blocks, valid_contexts: contexts_characters
+
+config :moodle_net, Follows, valid_contexts: contexts_characters
+
+config :moodle_net, Features, valid_contexts: contexts_all
+
+config :moodle_net, Flags, valid_contexts: contexts_all
+
+config :moodle_net, Likes, valid_contexts: contexts_all
+
+config :moodle_net, Threads, valid_contexts: contexts_all
+
+config :moodle_net, Resources, valid_contexts: contexts_all
+
+config :moodle_net, Units, valid_contexts: contexts_all
+
+config :moodle_net, ValueFlows.Proposals,
+  valid_agent_contexts: contexts_agents
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
@@ -223,21 +217,22 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   protocol: "https",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
   render_errors: [view: MoodleNetWeb.ErrorView, accepts: ["json", "activity+json"]],
-  pubsub_server: MoodleNet.PubSub,
+  pubsub_server: CommonsPub.PubSub,
   secure_cookie_flag: true
 
 version =
   with {version, 0} <- System.cmd("git", ["rev-parse", "HEAD"]) do
-    "MoodleNet #{Mix.Project.config()[:version]} #{String.trim(version)}"
+    "CommonsPub #{Mix.Project.config()[:version]} #{String.trim(version)}"
   else
-    _ -> "MoodleNet #{Mix.Project.config()[:version]} dev"
+    _ -> "CommonsPub #{Mix.Project.config()[:version]} dev"
   end
 
 config :moodle_net, :instance,
   version: version,
-  name: "MoodleNet",
-  email: "moodlenet-moderators@moodle.com",
-  description: "An instance of MoodleNet, a federated educational commons",
+  name: "CommonsPub",
+  email: "root@localhost",
+  description:
+    "An instance of CommonsPub, a federated app ecosystem for open and cooperative networks",
   federation_publisher_modules: [ActivityPubWeb.Publisher],
   federation_reachability_timeout_days: 7,
   federating: true,
@@ -297,14 +292,8 @@ config :sentry,
 
 config :moodle_net, :env, Mix.env()
 
-config :pointers,
-  table_table: "mn_table",
-  pointer_table: "mn_pointer",
-  trigger_function: "insert_pointer",
-  trigger_prefix: "insert_pointer_"
-
 config :pointers, Pointers.Pointer,
-  source: "mn_pointer",
+  source: "pointers_pointer",
   many_to_many: [
     tags: {
       # if(Code.ensure_loaded?(Taggable), do: Taggable, else: :taggable),
@@ -316,7 +305,7 @@ config :pointers, Pointers.Pointer,
     }
   ]
 
-config :pointers, Pointers.Table, source: "mn_table"
+config :pointers, Pointers.Table, source: "pointers_table"
 
 config :moodle_net, :ux,
   # prosemirror or ck5 as content editor:

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.Actor do
   @doc """
@@ -19,14 +17,14 @@ defmodule MoodleNet.Actors.Actor do
   @local_username_regex ~r/^[a-zA-Z][a-zA-Z0-9-]{2,}$/
 
   table_schema "mn_actor" do
-    belongs_to :peer, Peer
-    has_one :user, User
-    has_one :community, Community
-    has_one :collection, Collection
+    belongs_to(:peer, Peer)
+    has_one(:user, User)
+    has_one(:community, Community)
+    has_one(:collection, Collection)
     # has_one :following_count, ActorFollowingCount
-    field :preferred_username, :string
-    field :canonical_url, :string
-    field :signing_key, :string
+    field(:preferred_username, :string)
+    field(:canonical_url, :string)
+    field(:signing_key, :string)
     timestamps()
   end
 
@@ -34,7 +32,7 @@ defmodule MoodleNet.Actors.Actor do
   @create_cast @required ++ ~w(peer_id canonical_url signing_key)a
   @update_cast ~w(peer_id canonical_url signing_key)a
 
-  @spec create_changeset(map) :: Changeset.t
+  @spec create_changeset(map) :: Changeset.t()
   @doc "Creates a changeset for insertion from the given pointer and attrs"
   def create_changeset(attrs) do
     %Actor{}
@@ -45,7 +43,8 @@ defmodule MoodleNet.Actors.Actor do
     |> Changeset.unique_constraint(:preferred_username, # with peer
       name: "mn_actor_preferred_username_peer_id_index"
     )
-    |> Changeset.unique_constraint(:preferred_username, # without peer (local)
+    # without peer (local)
+    |> Changeset.unique_constraint(:preferred_username,
       name: "mn_actor_peer_id_null_index"
     )
   end
@@ -55,6 +54,5 @@ defmodule MoodleNet.Actors.Actor do
   def update_changeset(%Actor{} = actor, attrs) do
     Changeset.cast(actor, attrs, @update_cast)
   end
-
 
 end

@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Measure do
-  use MoodleNet.Common.Schema
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "measurement_measure",
+    table_id: "MEASVRES0RQVANT1T1ES0FVN1T"
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
@@ -11,7 +14,7 @@ defmodule Measurement.Measure do
 
   @type t :: %__MODULE__{}
 
-  table_schema "measurement_measure" do
+  pointable_schema do
     field(:has_numerical_value, :float)
 
     field(:is_public, :boolean, virtual: true)
@@ -23,7 +26,7 @@ defmodule Measurement.Measure do
     belongs_to(:unit, Unit)
     belongs_to(:creator, User)
 
-    timestamps()
+    timestamps(inserted_at: false)
   end
 
   @required ~w(has_numerical_value)a

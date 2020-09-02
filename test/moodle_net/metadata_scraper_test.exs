@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.MetadataScraperTest do
@@ -39,7 +36,8 @@ defmodule MoodleNet.MetadataScraperTest do
 
   test "returns media type for remote files" do
     urls = %{
-      "https://upload.wikimedia.org/wikipedia/commons/a/a9/US_Airways_A319-132_LAS_N838AW.jpg" => "image/jpeg",
+      "https://upload.wikimedia.org/wikipedia/commons/a/a9/US_Airways_A319-132_LAS_N838AW.jpg" =>
+        "image/jpeg",
       "http://africau.edu/images/default/sample.pdf" => "application/pdf"
     }
 

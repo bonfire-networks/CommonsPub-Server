@@ -1,8 +1,6 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character.GraphQL.FacetsResolvers do
-  @moduledoc "These resolver functions are to be called by other modules that use CommonsPub.Character, for fields or foreign keys that are part of the CommonsPub.Character table rather than that module's table."
+  @moduledoc "These resolver functions are to be called by other modules that use character, for fields or foreign keys that are part of the character table rather than that module's table."
 
   # alias MoodleNet.{
   #   # Activities,

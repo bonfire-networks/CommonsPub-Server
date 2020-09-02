@@ -11,9 +11,9 @@ defmodule CommonsPub.Utils.Simulation do
 
   @url_fixtures [
     "https://duckduckgo.com",
-    "https://moodle.com/moodlenet",
-    "https://en.wikipedia.org/wiki/Boeing_727#Specifications",
-    "https://upload.wikimedia.org/wikipedia/commons/5/57/B-727_Iberia_%28cropped%29.jpg"
+    "http://commonspub.org",
+    "https://en.wikipedia.org/wiki/Ursula_K._Le_Guin",
+    "https://upload.wikimedia.org/wikipedia/en/f/fc/TheDispossed%281stEdHardcover%29.jpg"
   ]
 
   @doc "Returns true"

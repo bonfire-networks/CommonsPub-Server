@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.Changeset do
   @moduledoc "Helper functions for changesets"
@@ -7,7 +5,7 @@ defmodule MoodleNet.Common.Changeset do
   alias Ecto.Changeset
   alias Ecto.ULID
 
-  alias CommonsPub.Locales
+  # alias CommonsPub.Locales
   alias MoodleNet.Mail.Checker
 
   @doc "Generates the primary ID for an object, and sets the canonical URL based on that"
@@ -26,7 +24,7 @@ defmodule MoodleNet.Common.Changeset do
   @doc "Validates a country code is one of the ones we know about"
   def validate_country_code(changeset, field) do
     Changeset.validate_change(changeset, field, fn _, code ->
-      case Localisation.country(code) do
+      case CommonsPub.Locales.country(code) do
         {:ok, _} -> []
         _ -> [{field, "must be a recognised country code"}]
       end
@@ -36,7 +34,7 @@ defmodule MoodleNet.Common.Changeset do
   @doc "Validates a language code is one of the ones we know about"
   def validate_language_code(changeset, field) do
     Changeset.validate_change(changeset, field, fn _, code ->
-      case Localisation.language(code) do
+      case CommonsPub.Locales.language(code) do
         {:ok, _} -> []
         _ -> [{field, "must be a recognised language code"}]
       end

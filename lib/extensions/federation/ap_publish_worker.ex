@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Workers.APPublishWorker do
   use ActivityPub.Workers.WorkerHelper, queue: "mn_ap_publish", max_attempts: 1

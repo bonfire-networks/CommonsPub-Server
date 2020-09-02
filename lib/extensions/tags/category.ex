@@ -1,7 +1,7 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Category do
+  use MoodleNet.Common.Schema
+
   use Pointers.Pointable,
     otp_app: :moodle_net,
     source: "category",
@@ -9,11 +9,11 @@ defmodule CommonsPub.Tag.Category do
 
   # use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  # import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Category
-  alias MoodleNet.{Repo}
+  # alias MoodleNet.{Repo}
 
   @type t :: %__MODULE__{}
   @cast ~w(caretaker_id parent_category_id same_as_category_id)a
@@ -32,14 +32,14 @@ defmodule CommonsPub.Tag.Category do
     # which community/collection/organisation/etc this category belongs to, if any
     belongs_to(:caretaker, Pointers.Pointer, type: Ecto.ULID)
 
-    # of course, Category is usually a Taggable
+    # of course, category is usually a taggable
     has_one(:taggable, CommonsPub.Tag.Taggable, foreign_key: :id)
 
-    # Optionally, Profile and.or Character mixins
+    # Optionally, profile and/or character mixins
     ## stores common fields like name/description
-    has_one(:profile, Profile, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profile, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, Character, foreign_key: :id)
+    has_one(:character, CommonsPub.Character, foreign_key: :id)
 
     belongs_to(:creator, User)
 

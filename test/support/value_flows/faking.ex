@@ -13,9 +13,14 @@ defmodule ValueFlows.Test.Faking do
 
   alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
-  alias ValueFlows.Planning.Intent.Intents
-  alias ValueFlows.{Proposal, Proposals}
-  alias ValueFlows.Proposal.ProposedIntent
+  # alias ValueFlows.Planning.Intent.Intents
+
+  alias ValueFlows.{
+    Proposal
+    # Proposals
+  }
+
+  alias ValueFlows.Proposal.{ProposedTo, ProposedIntent}
 
   def assert_proposal(%Proposal{} = proposal) do
     assert_proposal(Map.from_struct(proposal))
@@ -59,7 +64,17 @@ defmodule ValueFlows.Test.Faking do
   def assert_proposed_intent(pi) do
     assert_object(pi, :assert_proposed_intent,
       id: &assert_ulid/1,
-      reciprocal: assert_optional(&assert_boolean/1),
+      reciprocal: assert_optional(&assert_boolean/1)
+    )
+  end
+
+  def assert_proposed_to(%ProposedTo{} = pt) do
+    assert_proposed_to(Map.from_struct(pt))
+  end
+
+  def assert_proposed_to(pt) do
+    assert_object(pt, :assert_proposed_to,
+      id: &assert_ulid/1,
     )
   end
 
@@ -172,7 +187,11 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def proposal_fields(extra \\ []) do
-    extra ++ ~w(name note created has_beginning has_end unit_based)a
+    extra ++ ~w(id name note created has_beginning has_end unit_based)a
+  end
+
+  def proposal_response_fields(extra \\ []) do
+    [proposal: proposal_fields(extra)]
   end
 
   def proposal_query(options \\ []) do
@@ -182,6 +201,35 @@ defmodule ValueFlows.Test.Faking do
 
   def proposal_subquery(options \\ []) do
     gen_subquery(:id, :proposal, &proposal_fields/1, options)
+  end
+
+  def create_proposal_mutation(options \\ []) do
+    [proposal: type!(:proposal_create_params)]
+    |> gen_mutation(&create_proposal_submutation/1, options)
+  end
+
+  def create_proposal_submutation(options \\ []) do
+    [proposal: var(:proposal)]
+    |> gen_submutation(:create_proposal, &proposal_response_fields/1, options)
+  end
+
+  def update_proposal_mutation(options \\ []) do
+    [proposal: type!(:proposal_update_params)]
+    |> gen_mutation(&update_proposal_submutation/1, options)
+  end
+
+  def update_proposal_submutation(options \\ []) do
+    [proposal: var(:proposal)]
+    |> gen_submutation(:update_proposal, &proposal_response_fields/1, options)
+  end
+
+  def delete_proposal_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_proposal_submutation/1, options)
+  end
+
+  def delete_proposal_submutation(options \\ []) do
+    field(:delete_proposal, args: [id: var(:id)])
   end
 
   def proposed_intent_fields(extra \\ []) do
@@ -196,7 +244,7 @@ defmodule ValueFlows.Test.Faking do
     [
       published_in: type!(:id),
       publishes: type!(:id),
-      reciprocal: type(:boolean),
+      reciprocal: type(:boolean)
     ]
     |> gen_mutation(&propose_intent_submutation/1, options)
   end
@@ -205,7 +253,7 @@ defmodule ValueFlows.Test.Faking do
     [
       published_in: var(:published_in),
       publishes: var(:publishes),
-      reciprocal: var(:reciprocal),
+      reciprocal: var(:reciprocal)
     ]
     |> gen_submutation(:propose_intent, &proposed_intent_response_fields/1, options)
   end
@@ -215,7 +263,31 @@ defmodule ValueFlows.Test.Faking do
     |> gen_mutation(&delete_proposed_intent_submutation/1, options)
   end
 
-  def delete_proposed_intent_submutation(options \\ []) do
+  def delete_proposed_intent_submutation(_options \\ []) do
     field(:delete_proposed_intent, args: [id: var(:id)])
+  end
+
+  def proposed_to_fields(extra \\ []) do
+    extra ++ ~w(id)a
+  end
+
+  def proposed_to_response_fields(extra \\ []) do
+    [proposed_to: proposed_to_fields(extra)]
+  end
+
+  def propose_to_mutation(options \\ []) do
+    [
+      proposed: type!(:id),
+      proposed_to: type!(:id),
+    ]
+    |> gen_mutation(&propose_to_submutation/1, options)
+  end
+
+  def propose_to_submutation(options \\ []) do
+    [
+      proposed: var(:proposed),
+      proposed_to: var(:proposed_to),
+    ]
+    |> gen_submutation(:propose_to, &proposed_to_response_fields/1, options)
   end
 end

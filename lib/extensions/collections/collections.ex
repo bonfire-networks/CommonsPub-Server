@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
   alias MoodleNet.{
@@ -218,15 +216,30 @@ defmodule MoodleNet.Collections do
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
-  defp publish(creator, community_or_context, collection, activity) do
+  defp publish(creator, %{character: %{outbox_id: context_outbox}}, collection, activity) do
     feeds = [
-      community_or_context.outbox_id,
+      context_outbox,
       creator.outbox_id,
       collection.outbox_id,
       Feeds.instance_outbox_id()
     ]
 
     FeedActivities.publish(activity, feeds)
+  end
+
+  defp publish(creator, %{outbox_id: community_or_context_outbox}, collection, activity) do
+    feeds = [
+      community_or_context_outbox,
+      creator.outbox_id,
+      collection.outbox_id,
+      Feeds.instance_outbox_id()
+    ]
+
+    FeedActivities.publish(activity, feeds)
+  end
+
+  defp publish(creator, _, collection, activity) do
+    publish(creator, collection, activity)
   end
 
   defp publish(creator, collection, activity) do

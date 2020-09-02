@@ -1,7 +1,7 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Taggable do
+  use MoodleNet.Common.Schema
+
   use Pointers.Mixin,
     otp_app: :my_app,
     source: "taggable"
@@ -13,7 +13,7 @@ defmodule CommonsPub.Tag.Taggable do
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Taggable
-  alias MoodleNet.{Repo}
+  alias MoodleNet.Repo
 
   @type t :: %__MODULE__{}
   @required ~w(id prefix facet)a
@@ -28,12 +28,12 @@ defmodule CommonsPub.Tag.Taggable do
 
     field(:facet, :string)
 
-    # Optionally, a profile and Character (if not using context)
+    # Optionally, a profile and character (if not using context)
     has_one(:category, CommonsPub.Tag.Category, references: :id, foreign_key: :id)
     ## stores common fields like name/description
-    has_one(:profile, Profile, references: :id, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profile, references: :id, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, Character, references: :id, foreign_key: :id)
+    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
 
     many_to_many(:things, Pointers.Pointer,
       join_through: "tags_things",
@@ -54,7 +54,7 @@ defmodule CommonsPub.Tag.Taggable do
         attrs
       ) do
     tag
-    # |> Changeset.cast(attrs, @cast)
+    |> Changeset.cast(attrs, @required)
     |> common_changeset()
   end
 

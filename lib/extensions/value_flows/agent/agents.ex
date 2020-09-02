@@ -1,8 +1,6 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Agent.Agents do
-  alias ValueFlows.{Simulate}
+  # alias ValueFlows.{Simulate}
   require Logger
 
   # TODO - change approach to allow pagination
@@ -16,7 +14,7 @@ defmodule ValueFlows.Agent.Agents do
   # FIXME - this works but isn't elegant
   def agent(id, signed_in_user) do
     case ValueFlows.Agent.People.person(id, signed_in_user) do
-      {:error, error} ->
+      {:error, _error} ->
         ValueFlows.Agent.Organizations.organization(id, signed_in_user)
 
       org ->

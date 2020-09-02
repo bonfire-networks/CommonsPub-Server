@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.Helpers.Communities do
-  alias MoodleNet.{
-    Repo
-  }
+  # alias MoodleNet.{
+  #   Repo
+  # }
 
   alias MoodleNetWeb.GraphQL.{
     UsersResolver,
@@ -12,8 +12,6 @@ defmodule MoodleNetWeb.Helpers.Communities do
   alias MoodleNetWeb.Helpers.Profiles
 
   def community_load(_socket, page_params, preload) do
-    # IO.inspect(socket)
-
     username = e(page_params, "username", nil)
 
     {:ok, community} =
@@ -54,23 +52,15 @@ defmodule MoodleNetWeb.Helpers.Communities do
         %{context: %{current_user: current_user}}
       )
 
-    # IO.inspect(my_follows: follows)
-
     follows
   end
 
   def communities_from_follows(%{edges: edges}) when length(edges) > 0 do
     # FIXME: communities should be joined to edges rather than queried seperately
 
-    # IO.inspect(communities_from_follows: edges)
     ids = Enum.map(edges, & &1.context_id)
 
-    # IO.inspect(ids: ids)
-
     communities = contexts_fetch!(ids)
-
-    # IO.inspect(communities: communities)
-
     communities =
       if(communities) do
         Enum.map(

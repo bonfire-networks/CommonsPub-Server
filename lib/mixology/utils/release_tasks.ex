@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule CommonsPub.ReleaseTasks do
@@ -8,7 +5,7 @@ defmodule CommonsPub.ReleaseTasks do
 
   @start_apps [:moodle_net]
   @repos Application.get_env(:moodle_net, :ecto_repos, [])
-  alias MoodleNet.{Communities, Meta, Repo, Users}
+  alias MoodleNet.{Communities, Repo, Users}
   alias MoodleNet.Users.User
 
   def create_db() do
@@ -24,15 +21,19 @@ defmodule CommonsPub.ReleaseTasks do
   end
 
   defp create_repo(repo) do
-    case repo.__adapter__.storage_up(repo.config) do
-      :ok ->
-        Logger.info("The database for #{inspect(repo)} has been created")
+    try do
+      case repo.__adapter__.storage_up(repo.config) do
+        :ok ->
+          Logger.info("The database for #{inspect(repo)} has been created")
 
-      {:error, :already_up} ->
-        Logger.warn("The database for #{inspect(repo)} has already been created")
-
-      {:error, term} when is_binary(term) ->
-        raise "The database for #{inspect(repo)} couldn't be created: #{term}"
+        {:error, term} when is_binary(term) ->
+          raise "The database for #{inspect(repo)} couldn't be created: #{term}"
+      end
+    rescue
+      e ->
+        Logger.warn("The database for #{inspect(repo)} could not be created")
+        IO.inspect(e)
+        :ok
     end
   end
 
@@ -58,10 +59,18 @@ defmodule CommonsPub.ReleaseTasks do
 
   def startup_migrations() do
     if is_nil(System.get_env("DISABLE_DB_AUTOMIGRATION")) do
-      start_repos()
-      # create_repos()
-      migrate_repos()
-      stop_repos()
+
+      try do
+        start_repos()
+        create_repos()
+        migrate_repos()
+        stop_repos()
+      rescue
+        e ->
+          Logger.warn("Could not run migrations on startup: "<>Map.get(e, :message, "unknown reason"))
+          stop_repos()
+          :ok
+      end
     end
   end
 
@@ -239,14 +248,14 @@ defmodule CommonsPub.ReleaseTasks do
   def remove_meta_table(table) do
     import Ecto.Query
 
-    tt = Repo.one(from(x in MoodleNet.Meta.Table, where: x.table == ^table))
+    tt = Repo.one(from(x in Pointers.Table, where: x.table == ^table))
 
     if(!is_nil(tt) and !is_nil(tt.id)) do
       {_rows_deleted, _} =
         Repo.delete_all(from(x in Pointers.Pointer, where: x.table_id == ^tt.id))
     end
 
-    {_rows_deleted, _} = Repo.delete_all(from(x in Meta.Table, where: x.table == ^table))
+    {_rows_deleted, _} = Repo.delete_all(from(x in Pointers.Table, where: x.table == ^table))
   end
 
   @deleted_user %{

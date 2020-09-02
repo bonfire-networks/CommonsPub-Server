@@ -1,6 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule CommonsPub.Utils.File do
@@ -64,12 +61,12 @@ defmodule CommonsPub.Utils.File do
   end
 
   def ensure_valid_url(url) when is_binary(url), do: ensure_valid_url(URI.parse(url))
-  def ensure_valid_url(uri = %URI{host: nil}), do: ""
-  def ensure_valid_url(uri = %URI{host: ""}), do: ""
+  def ensure_valid_url(_uri = %URI{host: nil}), do: ""
+  def ensure_valid_url(_uri = %URI{host: ""}), do: ""
   def ensure_valid_url(uri = %URI{scheme: nil}), do: ensure_valid_url("http://#{to_string(uri)}")
   def ensure_valid_url(uri = %URI{path: nil}), do: ensure_valid_url("#{to_string(uri)}/")
   def ensure_valid_url(%URI{} = uri), do: uri |> URI.to_string()
-  def ensure_valid_url(uri), do: ""
+  def ensure_valid_url(_), do: ""
 
   def fix_relative_url("", _), do: nil
 

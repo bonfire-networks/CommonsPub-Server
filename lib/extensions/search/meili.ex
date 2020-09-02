@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule CommonsPub.Search.Meili do
@@ -7,37 +5,16 @@ defmodule CommonsPub.Search.Meili do
 
   alias ActivityPub.HTTP
 
-  @public_index "public"
-
-  def search(string_or_params) do
-    search(string_or_params, @public_index)
-  end
-
-  def search(%{} = params, index_path) do
-    {:ok, req} = api(:get, params, index_path)
+  def search_meili(%{} = params, index) when is_binary(index) do
+    IO.inspect(search_params: params)
+    {:ok, req} = api(:post, params, index <> "/search")
     res = Jason.decode!(req.body)
     # IO.inspect(res)
     res
   end
 
-  def search(string, index) do
-    object = %{
-      q: string
-    }
-
-    search(object, "/" <> index <> "/search")
-  end
-
-  def put(object) do
-    put(object, "")
-  end
-
-  def put(object, index_path) do
-    api(:put, object, index_path)
-  end
-
-  def settings(object, index) do
-    post(object, "/" <> index <> "/settings")
+  def get(object) do
+    get(object, "")
   end
 
   def set_attributes(attrs, index) do
@@ -50,6 +27,18 @@ defmodule CommonsPub.Search.Meili do
 
   def post(object, index_path, fail_silently \\ false) do
     api(:post, object, index_path, fail_silently)
+  end
+
+  def put(object) do
+    put(object, "")
+  end
+
+  def put(object, index_path, fail_silently \\ false) do
+    api(:put, object, index_path, fail_silently)
+  end
+
+  def settings(object, index) do
+    post(object, index <> "/settings")
   end
 
   def api(http_method, object, index_path, fail_silently \\ false) do
@@ -74,16 +63,26 @@ defmodule CommonsPub.Search.Meili do
       {:ok, ret}
     else
       {_, message} ->
-        if(fail_silently) do
-          # Logger.info("Meili - Couldn't #{http_method} object")
-          # Logger.info(inspect(object))
-          :ok
-        else
-          Logger.error("Meili - Couldn't #{http_method} objects:")
-          Logger.warn(inspect(object))
-          Logger.warn(inspect(message))
-          {:error, message}
-        end
+        http_error(fail_silently, http_method, message, object)
+    end
+  end
+
+  if Mix.env() == :test do
+    def http_error(fail_silently, http_method, _message, _object) do
+      Logger.info("Meili - Could not #{http_method} objects")
+    end
+  else
+    def http_error(fail_silently, http_method, message, object) do
+      if(fail_silently) do
+        Logger.info("Meili - Could not #{http_method} object")
+        # Logger.info(inspect(object))
+        :ok
+      else
+        Logger.error("Meili - Couldn't #{http_method} objects:")
+        Logger.warn(inspect(message))
+        Logger.info(inspect(object))
+        {:error, message}
+      end
     end
   end
 

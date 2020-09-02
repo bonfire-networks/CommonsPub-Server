@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Access do
   @moduledoc """
@@ -138,7 +136,7 @@ defmodule MoodleNet.Access do
     {:error, TokenNotFoundError.new()}
   end
 
-  defp fetch_token_and_user_query(token) do
+  def fetch_token_and_user_query(token) do
     import Ecto.Query, only: [from: 2]
 
     from(t in Token,

@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character.GraphQL.Schema do
   @moduledoc """
@@ -16,7 +14,8 @@ defmodule CommonsPub.Character.GraphQL.Schema do
     UsersResolver,
     # UploadResolver,
     CommunitiesResolver,
-    CollectionsResolver
+    CollectionsResolver,
+    ResourcesResolver
   }
 
   alias MoodleNet.{
@@ -62,7 +61,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
     #   resolve &CommonsPub.Character.GraphQL.Resolver.update_character/2
     # end
 
-    @desc "Create a Character to represent something (which already exists, pass the ID passed as context) in feeds and federation"
+    @desc "Create a character to represent something (which already exists, pass the ID passed as context) in feeds and federation"
     field :characterise, :character do
       arg(:context_id, non_null(:string))
       resolve(&CommonsPub.Character.GraphQL.Resolver.characterise/2)
@@ -76,7 +75,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
     @desc "An instance-local UUID identifying the character. Not to be confused with the associated thing's ID (available under characteristic.id)"
     field(:id, non_null(:string))
 
-    # @desc "A reference to the thing that this Character represents"
+    # @desc "A reference to the thing that this character represents"
     # field :characteristic_id, :string
     # field :characteristic, :character_tropes do
     #   resolve &CommonsPub.Character.GraphQL.Resolver.characteristic_edge/3
@@ -206,7 +205,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&CommunitiesResolver.collections_edge/3)
+      resolve(&CollectionsResolver.collections_edge/3)
     end
 
     # @desc "The total number of resources in the collection, including private ones"
@@ -219,7 +218,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&CollectionsResolver.resources_edge/3)
+      resolve(&ResourcesResolver.resources_edge/3)
     end
 
     # @desc "Any tags linked under this character"

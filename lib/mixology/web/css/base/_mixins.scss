@@ -282,6 +282,19 @@ $grid-columns: 12 !default;
   }
 }
 
+.layout__menu {
+  border-bottom: var(--border);
+  margin: 8px -16px;
+  padding: 0 16px;
+  padding-bottom: 16px;
+  .navigation__item {
+    margin-right: 32px;
+    &.active::before {
+      left: 0;
+    }
+  }
+}
+
 
 .mainContent__all {
     width: 900px;
@@ -366,6 +379,9 @@ $grid-columns: 12 !default;
     }
   }
   .dropdown__list {
+    .list__page-link {
+      font-size: 16px;
+    }
     &:before {
       position: absolute;
       display: inline-block;
@@ -429,6 +445,9 @@ $grid-columns: 12 !default;
       align-items: center;
       font-size: 16px;
       margin-bottom: var(--m2);
+      a {
+        font-size: 16px;
+      }
       &:last-of-type {
         margin-bottom: 0;
       }

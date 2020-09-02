@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.GraphQL.Schema do
   @moduledoc """
@@ -78,10 +76,10 @@ defmodule Organisation.GraphQL.Schema do
     @desc "An instance-unique identifier shared with users and communities"
     field(:preferred_username, :string)
 
-    @desc "The Profile associated with this organisation"
+    @desc "The profile associated with this organisation"
     field(:profile, :profile)
 
-    @desc "The Character associated with this organisation"
+    @desc "The character associated with this organisation"
     field(:character, :character)
 
     @desc "A preferred username + the host domain"

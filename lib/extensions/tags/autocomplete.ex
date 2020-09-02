@@ -3,6 +3,8 @@ defmodule CommonsPub.Tag.Autocomplete do
 
   import MoodleNetWeb.Helpers.Common
 
+  # TODO: consolidate CommonsPub.Tag.Autocomplete and MoodleNetWeb.Component.TagAutocomplete
+
   def get(conn, %{"prefix" => prefix, "search" => search, "consumer" => consumer}) do
     tags = tag_lookup(search, prefix, consumer)
 
@@ -15,16 +17,23 @@ defmodule CommonsPub.Tag.Autocomplete do
     json(conn, tags)
   end
 
-  def tag_lookup(tag_search, "+", consumer) do
-    do_tag_lookup(tag_search, "taxonomy_tags", "+", consumer)
+  def tag_lookup(tag_search, "+" = prefix, consumer) do
+    tag_lookup_public(tag_search, prefix, consumer, ["Collection", "Category", "Taggable"])
   end
 
   def tag_lookup(tag_search, prefix, consumer) do
     do_tag_lookup(tag_search, "public", prefix, consumer)
   end
 
-  def do_tag_lookup(tag_search, index, prefix, consumer) do
-    search = CommonsPub.Search.Meili.search(tag_search, index)
+  def tag_lookup(tag_search, "&" = prefix, consumer) do
+    tag_lookup_public(tag_search, prefix, consumer, "Community")
+  end
+
+  def tag_lookup_public(tag_search, prefix, consumer, index_type) do
+    search = CommonsPub.Search.search(tag_search, nil, false, %{"index_type" => index_type})
+    IO.inspect(search)
+    tag_lookup_process(tag_search, search, prefix, consumer)
+  end
 
     if(Map.has_key?(search, "hits") and length(search["hits"])) do
       # search["hits"]
@@ -33,7 +42,7 @@ defmodule CommonsPub.Tag.Autocomplete do
     end
   end
 
-  def tag_hit_prepare(hit, tag_search, prefix, consumer) do
+  def tag_hit_prepare(hit, _tag_search, prefix, consumer) do
     # IO.inspect(consumer)
     # IO.inspect(Map.new(consumer: "test"))
 
@@ -51,12 +60,16 @@ defmodule CommonsPub.Tag.Autocomplete do
     end
   end
 
-  def tag_add_field(hit, "tag_as", prefix, as) do
+  def tag_add_field(hit, "tag_as", _prefix, as) do
     Map.merge(hit, %{tag_as: as})
   end
 
   def tag_add_field(hit, "ck5", prefix, as) do
-    Map.merge(hit, %{"id" => prefix <> to_string(as)})
+    if String.at(as, 0) == prefix do
+      Map.merge(hit, %{"id" => to_string(as)})
+    else
+      Map.merge(hit, %{"id" => prefix <> to_string(as)})
+    end
   end
 
   # def tag_suggestion_display(hit, tag_search) do

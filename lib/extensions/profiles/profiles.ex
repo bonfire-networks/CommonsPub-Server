@@ -1,15 +1,11 @@
-#  MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Profile.Profiles do
-  alias MoodleNet.{Activities, Common, Feeds, Repo}
-  alias CommonsPub.Character.Characters
-
+defmodule CommonsPub.Profile.Profiles do
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
 
-  alias Profile
-  alias Profile.Queries
+  alias CommonsPub.Profile
+  alias CommonsPub.Profile.Queries
 
   alias Pointers
   alias Pointers.Pointer
@@ -75,7 +71,7 @@ defmodule Profile.Profiles do
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
     Contexts.pages(
       Queries,
-      Profile,
+      CommonsPub.Profile,
       cursor_fn,
       group_fn,
       page_opts,
@@ -103,12 +99,11 @@ defmodule Profile.Profiles do
   end
 
   defp insert_profile(creator, attrs) do
-    cs = Profile.create_changeset(creator, attrs)
-    IO.inspect(cs)
+    cs = CommonsPub.Profile.create_changeset(creator, attrs)
     with {:ok, profile} <- Repo.insert(cs), do: {:ok, profile}
   end
 
-  @doc "Takes a Pointer to something and creates a Profile based on it"
+  @doc "Takes a Pointer to something and creates a profile based on it"
   def add_profile_to(user, %Pointer{} = pointer) do
     thing = MoodleNet.Meta.Pointers.follow!(pointer)
 
@@ -124,15 +119,13 @@ defmodule Profile.Profiles do
     add_profile_to(user, pointer)
   end
 
-  @doc "Takes anything and creates a Profile based on it"
+  @doc "Takes anything and creates a profile based on it"
   def add_profile_to(user, %{} = thing) do
-    # IO.inspect(thing)
     thing_name = thing.__struct__
     thing_context_module = apply(thing_name, :context_module, [])
 
     profile_attrs = profileisation(thing_name, thing, thing_context_module)
 
-    # IO.inspect(profile_attrs)
     # add_profile_to(user, pointer, %{})
 
     Repo.transact_with(fn ->
@@ -146,10 +139,7 @@ defmodule Profile.Profiles do
   def profileisation(thing_name, thing, thing_context_module) do
     attrs = profileisation_default(thing_name, thing)
 
-    # IO.inspect(attrs)
-
     if(Kernel.function_exported?(thing_context_module, :profileisation, 1)) do
-      # IO.inspect(function_exists_in: thing_context_module)
       apply(thing_context_module, :profileisation, [attrs])
     else
       attrs
@@ -159,7 +149,7 @@ defmodule Profile.Profiles do
   @doc "Transform the generic fields of anything to be turned into a profile."
   def profileisation_default(thing_name, thing) do
     thing
-    # use Thing name as Profile facet/trope
+    # use Thing name as profile facet/trope
     |> Map.put(:facet, thing_name |> to_string() |> String.split(".") |> List.last())
     # include the linked thing
     |> Map.put(:profileistic, thing)
@@ -172,21 +162,19 @@ defmodule Profile.Profiles do
 
   # TODO: take the user who is performing the update
 
-  def update(user, %Profile{} = profile, %{profile: attrs}) when is_map(attrs) do
+  def update(user, %CommonsPub.Profile{} = profile, %{profile: attrs}) when is_map(attrs) do
     update(user, profile, attrs)
   end
 
-  def update(user, %Profile{} = profile, attrs) do
+  def update(_user, %CommonsPub.Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, profile} <- Repo.update(Profile.update_changeset(profile, attrs)),
-           {:ok, character} <- Characters.update(user, profile.character, attrs) do
-        #  :ok <- publish(profile, :updated) do
-        {:ok, %{profile | character: character}}
+      with {:ok, profile} <- Repo.update(CommonsPub.Profile.update_changeset(profile, attrs)) do
+        {:ok, profile}
       end
     end)
   end
 
-  def soft_delete(%Profile{} = profile) do
+  def soft_delete(%CommonsPub.Profile{} = profile) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Common.soft_delete(profile) do
         {:ok, profile}

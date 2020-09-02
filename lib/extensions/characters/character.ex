@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character do
   use Pointers.Mixin,
@@ -27,9 +25,9 @@ defmodule CommonsPub.Character do
     # references the Actor who plays this Character in the fediverse
     # belongs_to(:actor, Actor)
 
-    # belongs_to(:context, Pointer) # points to the parent Thing of this Character
+    # belongs_to(:context, Pointer) # points to the parent Thing of this character
 
-    # field(:characteristic_id, Ecto.ULID) # points to the Thing that this Character represents
+    # field(:characteristic_id, Ecto.ULID) # points to the Thing that this character represents
     # field(:characteristic, :any, virtual: true)
     # belongs_to(:characteristic, Pointer)
 
@@ -66,7 +64,7 @@ defmodule CommonsPub.Character do
         # %Actor{} = actor,
         attrs
       ) do
-    %Character{}
+    %CommonsPub.Character{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(

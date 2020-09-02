@@ -1,5 +1,3 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.GraphQL.TagResolver do
   @moduledoc "GraphQL tag/category queries"
@@ -27,6 +25,39 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
       info: info,
       # popularity
       cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
+  end
+
+  def fetch_categories(page_opts, _info) do
+    FetchPage.run(%FetchPage{
+      queries: Category.Queries,
+      query: Category,
+      # cursor_fn: Tags.cursor,
+      page_opts: page_opts,
+      # base_filters: [user: GraphQL.current_user(info)],
+      data_filters: [:default, page: [desc: [id: page_opts]]]
+    })
+  end
+
+  def categories_toplevel(page_opts, info) do
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_categories_toplevel,
+      page_opts: page_opts,
+      info: info,
+      # popularity
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
+  end
+
+  def fetch_categories_toplevel(page_opts, _info) do
+    FetchPage.run(%FetchPage{
+      queries: Category.Queries,
+      query: Category,
+      # cursor_fn: Tags.cursor,
+      page_opts: page_opts,
+      # base_filters: [user: GraphQL.current_user(info)],
+      data_filters: [:default, :toplevel, page: [desc: [id: page_opts]]]
     })
   end
 
@@ -58,17 +89,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     Categories.get(id)
   end
 
-  def fetch_categories(page_opts, _info) do
-    FetchPage.run(%FetchPage{
-      queries: Category.Queries,
-      query: Category,
-      # cursor_fn: Tags.cursor,
-      page_opts: page_opts,
-      # base_filters: [user: GraphQL.current_user(info)],
-      data_filters: [:default, page: [desc: [id: page_opts]]]
-    })
-  end
-
   def parent_category(%Category{parent_category_id: id}, _, info) do
     ResolveFields.run(%ResolveFields{
       module: __MODULE__,
@@ -89,7 +109,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   @doc "List child categories"
   def category_children(%{id: id}, %{} = page_opts, info) do
-    # IO.inspect(info)
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
       fetcher: :fetch_categories_children,
@@ -124,7 +143,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
     # |> Map.new()
 
-    # IO.inspect(pointers)
     MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
@@ -134,14 +152,13 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   def tags_edges(%{tags: _tags} = thing, page_opts, info) do
     thing = Repo.preload(thing, tags: [:category, :profile, character: [:actor]])
 
-    # IO.inspect(categories_edges_thing: thing)
-
     tags = Enum.map(thing.tags, &tag_prepare(&1, page_opts, info))
 
     {:ok, tags}
   end
 
-  def tag_prepare(%{category: %{id: id} = category} = tag, page_opts, info) when not is_nil(id) do
+  def tag_prepare(%{category: %{id: id} = category} = tag, _page_opts, _info)
+      when not is_nil(id) do
     # TODO: do this better
     Map.merge(
       category,
@@ -191,7 +208,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   def make_pointer_taggable(%{context_id: pointer_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {ok, taggable} <- CommonsPub.Tag.Taggables.maybe_make_taggable(me, pointer_id, %{}) do
+           {:ok, taggable} <- CommonsPub.Tag.Taggables.maybe_make_taggable(me, pointer_id, %{}) do
         {:ok, taggable}
       end
     end)
@@ -199,7 +216,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   def thing_attach_tags(%{thing: thing_id, taggables: taggables}, info) do
     with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, tagged} = CommonsPub.Tag.TagThings.thing_attach_tags(me, thing_id, taggables) do
+         {:ok, _tagged} = CommonsPub.Tag.TagThings.thing_attach_tags(me, thing_id, taggables) do
       {:ok, true}
     end
   end
@@ -216,13 +233,11 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   # def name(%{name: name, context_id: context_id}, _, _info)
   #     when is_nil(name) and not is_nil(context_id) do
-  #   # IO.inspect(context_id)
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
   #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
   #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
   #     name = if Map.has_key?(context, :name), do: context.name
-  #     # IO.inspect(name)
   #     {:ok, name}
   #   end
   # end
@@ -241,13 +256,11 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   # def summary(%{summary: summary, context_id: context_id}, _, _info)
   #     when is_nil(summary) and not is_nil(context_id) do
-  #   # IO.inspect(context_id)
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
   #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
   #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
   #     summary = if Map.has_key?(context, :summary), do: context.summary
-  #     # IO.inspect(summary)
   #     {:ok, summary}
   #   end
   # end
