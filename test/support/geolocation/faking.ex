@@ -6,8 +6,8 @@ defmodule Geolocation.Test.Faking do
   import Geolocation.Simulate
 
   import Grumble
-  import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNetWeb.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
+  import CommonsPub.Web.Test.GraphQLAssertions
 
   ## assertions
 

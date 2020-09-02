@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Profile do
   use Pointers.Mixin,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "profile"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   # alias CommonsPub.Profile
-  # alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.Content
+  # alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Users.User
+  alias CommonsPub.Uploads.Content
 
   # alias Pointers.Pointer
 

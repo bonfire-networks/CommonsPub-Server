@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.BlocksSchema do
+defmodule CommonsPub.Web.GraphQL.BlocksSchema do
   use Absinthe.Schema.Notation
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.{CommonResolver, BlocksResolver}
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Web.GraphQL.{CommonResolver, BlocksResolver}
 
   object :blocks_queries do
   end

@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.Mail.MailService do
+defmodule CommonsPub.Mail.MailService do
   @moduledoc """
   A service for sending email
   """
-  use Bamboo.Mailer, otp_app: :moodle_net
+  use Bamboo.Mailer, otp_app: :commons_pub
 
   def maybe_deliver_later(mail) do
-    Application.get_env(:moodle_net, __MODULE__, [])
+    Application.get_env(:commons_pub, __MODULE__, [])
     |> Keyword.get(:adapter)
     |> case do
       nil -> nil
@@ -16,7 +16,7 @@ defmodule MoodleNet.Mail.MailService do
   end
 
   def maybe_deliver_now(mail) do
-    Application.get_env(:moodle_net, __MODULE__, [])
+    Application.get_env(:commons_pub, __MODULE__, [])
     |> Keyword.get(:adapter)
     |> case do
       nil -> nil

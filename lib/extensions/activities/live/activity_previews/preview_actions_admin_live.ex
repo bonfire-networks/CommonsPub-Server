@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.Component.PreviewActionsAdminLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.Component.PreviewActionsAdminLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.Component.{FlagLive}
+  alias CommonsPub.Web.Component.{FlagLive}
 
-  # alias MoodleNetWeb.Helpers.{Activites}
+  # alias CommonsPub.Web.Helpers.{Activites}
 
   def update(assigns, socket) do
     is_liked = is_liked(assigns.current_user, e(assigns, :object, :id, nil))
@@ -27,7 +27,7 @@ defmodule MoodleNetWeb.Component.PreviewActionsAdminLive do
 
   def handle_event("like", _data, socket) do
     {:ok, like} =
-      MoodleNetWeb.GraphQL.LikesResolver.create_like(
+      CommonsPub.Web.GraphQL.LikesResolver.create_like(
         %{context_id: e(socket.assigns.object, :id, nil)},
         %{
           context: %{current_user: socket.assigns.current_user}
@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.Component.PreviewActionsAdminLive do
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
     {:ok, flag} =
-      MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
+      CommonsPub.Web.GraphQL.FlagsResolver.create_flag(
         %{
           context_id: e(socket.assigns.object, :id, nil),
           message: message

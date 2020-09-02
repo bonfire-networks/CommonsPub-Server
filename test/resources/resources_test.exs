@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.ResourcesTest do
-  use MoodleNet.DataCase
-  import MoodleNet.Test.Faking
-  alias MoodleNet.{Resources, Repo}
+defmodule CommonsPub.ResourcesTest do
+  use CommonsPub.DataCase
+  import CommonsPub.Test.Faking
+  alias CommonsPub.{Resources, Repo}
   alias CommonsPub.Utils.Simulation
 
   setup do
@@ -20,7 +20,7 @@ defmodule MoodleNet.ResourcesTest do
     end
 
     test "returns not found if the resource is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.one(id: Simulation.ulid())
+      assert {:error, %CommonsPub.Common.NotFoundError{}} = Resources.one(id: Simulation.ulid())
     end
   end
 

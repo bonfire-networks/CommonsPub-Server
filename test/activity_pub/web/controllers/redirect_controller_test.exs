@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.RedirectControllerTest do
-  use MoodleNetWeb.ConnCase
+  use CommonsPub.Web.ConnCase
   require Ecto.Query
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
 
   describe "redirect object AP IDs" do
     test "works for comments" do

@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Likes.Like do
+defmodule CommonsPub.Likes.Like do
   @doc """
   A Like is an indication that an user enjoyed some content or wants
   to find it again later.
   """
-  use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [change_public: 1]
-  alias MoodleNet.Likes
-  alias MoodleNet.Likes.Like
+  use CommonsPub.Common.Schema
+  import CommonsPub.Common.Changeset, only: [change_public: 1]
+  alias CommonsPub.Likes
+  alias CommonsPub.Likes.Like
   alias Pointers.Pointer
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
   alias Ecto.Changeset
 
   table_schema "mn_like" do

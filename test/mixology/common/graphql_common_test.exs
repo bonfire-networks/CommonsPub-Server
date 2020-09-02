@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.CommonTest do
-  # use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.GraphQL.CommonTest do
+  # use CommonsPub.Web.ConnCase, async: true
   # alias CommonsPub.Utils.Simulation
 
-  # import MoodleNet.Test.Faking
-  # import MoodleNetWeb.Test.ConnHelpers
-  # import MoodleNetWeb.Test.GraphQLAssertions
-  # import MoodleNetWeb.Test.GraphQLFields
+  # import CommonsPub.Test.Faking
+  # import CommonsPub.Web.Test.ConnHelpers
+  # import CommonsPub.Web.Test.GraphQLAssertions
+  # import CommonsPub.Web.Test.GraphQLFields
 
-  # alias MoodleNet.{Flags, Follows, Likes}
+  # alias CommonsPub.{Flags, Follows, Likes}
 
   # defp delete_q(id) do
   #   """

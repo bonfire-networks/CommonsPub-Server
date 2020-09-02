@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.My.MyCommunitiesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.MyCommunitiesLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Helpers.{Communities}
+  alias CommonsPub.Web.Helpers.{Communities}
 
-  alias MoodleNetWeb.Component.CommunityPreviewLive
+  alias CommonsPub.Web.Component.CommunityPreviewLive
 
   def mount(socket) do
     {
@@ -52,5 +52,5 @@ defmodule MoodleNetWeb.My.MyCommunitiesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 end

@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.ActorNameReservation do
+defmodule CommonsPub.Repo.Migrations.ActorNameReservation do
   use Ecto.Migration
 
   def change do

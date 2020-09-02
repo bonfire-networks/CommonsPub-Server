@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.My.PublishAdLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.PublishAdLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  # alias CommonsPub.Web.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
     {
@@ -39,6 +39,6 @@ defmodule MoodleNetWeb.My.PublishAdLive do
 
   # need to alias some form posting events here to workaround having two events but one target on a form
   def handle_event("tag_suggest", data, socket) do
-    MoodleNetWeb.Component.TagAutocomplete.tag_suggest(data, socket)
+    CommonsPub.Web.Component.TagAutocomplete.tag_suggest(data, socket)
   end
 end

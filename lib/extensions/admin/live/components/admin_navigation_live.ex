@@ -1,5 +1,5 @@
-defmodule MoodleNetWeb.AdminLive.AdminNavigationLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.AdminLive.AdminNavigationLive do
+  use CommonsPub.Web, :live_component
 
   def render(assigns) do
     ~L"""

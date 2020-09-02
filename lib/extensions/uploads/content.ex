@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.Content do
-  use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [change_public: 1]
+defmodule CommonsPub.Uploads.Content do
+  use CommonsPub.Common.Schema
+  import CommonsPub.Common.Changeset, only: [change_public: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.{ContentMirror, ContentUpload}
+  alias CommonsPub.Users.User
+  alias CommonsPub.Uploads.{ContentMirror, ContentUpload}
 
   @type t :: %__MODULE__{}
 

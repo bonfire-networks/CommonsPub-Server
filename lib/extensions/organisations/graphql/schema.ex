@@ -5,7 +5,7 @@ defmodule Organisation.GraphQL.Schema do
   """
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     # CommonResolver,
     # FlagsResolver,
     # FollowsResolver,

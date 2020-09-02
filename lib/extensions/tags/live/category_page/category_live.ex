@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.Page.Category do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.Page.Category do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.Page.Category.SubcategoriesLive
-  alias MoodleNetWeb.CommunityLive.CommunityCollectionsLive
-  alias MoodleNetWeb.CollectionLive.CollectionResourcesLive
+  alias CommonsPub.Web.Page.Category.SubcategoriesLive
+  alias CommonsPub.Web.CommunityLive.CommunityCollectionsLive
+  alias CommonsPub.Web.CollectionLive.CollectionResourcesLive
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)

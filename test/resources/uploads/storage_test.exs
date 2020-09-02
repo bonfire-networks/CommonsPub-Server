@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.StorageTest do
+defmodule CommonsPub.Uploads.StorageTest do
   use ExUnit.Case, async: true
   @moduletag :skip
 
-  alias MoodleNet.Uploads.Storage
+  alias CommonsPub.Uploads.Storage
 
   @image_path "test/fixtures/images/150.png"
 
   defmodule DummyUploader do
-    use MoodleNet.Uploads.Definition
+    use CommonsPub.Uploads.Definition
 
     def allowed_extensions, do: :all
     def transform(_), do: :skip

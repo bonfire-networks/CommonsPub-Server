@@ -5,7 +5,7 @@
   <%= if @editor=="prosemirror" do %>
     <%= live_component(
     @socket,
-    MoodleNetWeb.EditorLive.ProsemirrorLive,
+    CommonsPub.Web.EditorLive.ProsemirrorLive,
     current_user: @current_user,
     content_placeholder: @content_placeholder,
     id: @id<>"_prosemirror"
@@ -14,7 +14,7 @@
   <%= if @editor=="ck5"  do %>
     <%= live_component(
     @socket,
-    MoodleNetWeb.EditorLive.Ck5Live,
+    CommonsPub.Web.EditorLive.Ck5Live,
     current_user: @current_user,
     content_placeholder: @content_placeholder,
     id: @id<>"_ck5"
@@ -22,7 +22,7 @@
   <% end %>
   <%= live_component(
     @socket,
-    MoodleNetWeb.Component.TagAutocomplete,
+    CommonsPub.Web.Component.TagAutocomplete,
     current_user: @current_user,
     id: "write_tag",
     tag_target: @id <> "_content"

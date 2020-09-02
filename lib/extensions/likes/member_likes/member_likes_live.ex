@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.MemberLive.MemberLikesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MemberLive.MemberLikesLive do
+  use CommonsPub.Web, :live_component
 
-  # import MoodleNetWeb.Helpers.Common
+  # import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     LikesResolver
   }
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     ActivitiesListLive
   }
 
@@ -49,7 +49,7 @@ defmodule MoodleNetWeb.MemberLive.MemberLikesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

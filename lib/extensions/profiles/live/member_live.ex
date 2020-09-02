@@ -1,10 +1,10 @@
-defmodule MoodleNetWeb.MemberLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.MemberLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Profiles}
+  import CommonsPub.Web.Helpers.Common
+  alias CommonsPub.Web.Helpers.{Profiles}
 
-  alias MoodleNetWeb.MemberLive.{
+  alias CommonsPub.Web.MemberLive.{
     MemberDiscussionsLive,
     HeroProfileLive,
     MemberNavigationLive,
@@ -15,13 +15,13 @@ defmodule MoodleNetWeb.MemberLive do
     MemberLikesLive
   }
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     # HeaderLive,
     AboutLive
     # TabNotFoundLive
   }
 
-  # alias MoodleNet.{
+  # alias CommonsPub.{
   #   Repo
   # }
 
@@ -74,9 +74,12 @@ defmodule MoodleNetWeb.MemberLive do
 
   def handle_event("follow", _data, socket) do
     _f =
-      MoodleNetWeb.GraphQL.FollowsResolver.create_follow(%{context_id: socket.assigns.user.id}, %{
-        context: %{current_user: socket.assigns.current_user}
-      })
+      CommonsPub.Web.GraphQL.FollowsResolver.create_follow(
+        %{context_id: socket.assigns.user.id},
+        %{
+          context: %{current_user: socket.assigns.current_user}
+        }
+      )
 
     #  IO.inspect(f)
 
@@ -110,9 +113,9 @@ defmodule MoodleNetWeb.MemberLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Web.Helpers.Activites.pubsub_activity_forward(
         activity,
-        MoodleNetWeb.MemberLive.MemberActivitiesLive,
+        CommonsPub.Web.MemberLive.MemberActivitiesLive,
         :member_timeline,
         socket
       )

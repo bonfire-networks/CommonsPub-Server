@@ -12,7 +12,7 @@ defmodule ActivityPub.Actor do
   alias ActivityPub.Keys
   alias ActivityPub.WebFinger
   alias ActivityPub.Object
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   require Logger
 
@@ -162,7 +162,7 @@ defmodule ActivityPub.Actor do
   def get_by_ap_id(ap_id) do
     host = URI.parse(ap_id).host
 
-    if host == System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()) do
+    if host == System.get_env("HOSTNAME", CommonsPub.Web.Endpoint.host()) do
       get_local_actor(ap_id)
     else
       get_remote_actor(ap_id)
@@ -285,9 +285,9 @@ defmodule ActivityPub.Actor do
   def format_local_actor(%{actor: %{peer_id: nil}} = actor) do
     type =
       case actor do
-        %MoodleNet.Users.User{} -> "Person"
-        %MoodleNet.Communities.Community{} -> "MN:Community"
-        %MoodleNet.Collections.Collection{} -> "MN:Collection"
+        %CommonsPub.Users.User{} -> "Person"
+        %CommonsPub.Communities.Community{} -> "MN:Community"
+        %CommonsPub.Collections.Collection{} -> "MN:Collection"
         %CommonsPub.Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "Character")
       end
 
@@ -307,17 +307,17 @@ defmodule ActivityPub.Actor do
           actor
       end
 
-    icon_url = MoodleNet.Uploads.remote_url_from_id(actor.icon_id)
+    icon_url = CommonsPub.Uploads.remote_url_from_id(actor.icon_id)
 
     image_url =
       if not Map.has_key?(actor, :resources) do
-        MoodleNet.Uploads.remote_url_from_id(actor.image_id)
+        CommonsPub.Uploads.remote_url_from_id(actor.image_id)
       else
         nil
       end
 
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
+    id = CommonsPub.Web.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
 
     data = %{
       "type" => type,
@@ -407,7 +407,7 @@ defmodule ActivityPub.Actor do
 
   def get_followings(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
-    {:ok, follows} = MoodleNet.Follows.many(creator: actor.id)
+    {:ok, follows} = CommonsPub.Follows.many(creator: actor.id)
 
     followers =
       follows
@@ -419,7 +419,7 @@ defmodule ActivityPub.Actor do
 
   def get_followers(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
-    {:ok, follows} = MoodleNet.Follows.many(context: actor.id)
+    {:ok, follows} = CommonsPub.Follows.many(context: actor.id)
 
     followers =
       follows
@@ -431,7 +431,7 @@ defmodule ActivityPub.Actor do
 
   def get_external_followers(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
-    {:ok, follows} = MoodleNet.Follows.many(context: actor.id)
+    {:ok, follows} = CommonsPub.Follows.many(context: actor.id)
 
     followers =
       follows

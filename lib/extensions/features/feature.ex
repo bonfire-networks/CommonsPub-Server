@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Features.Feature do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Features.Feature do
+  use CommonsPub.Common.Schema
   alias Ecto.Changeset
-  alias MoodleNet.Features
+  alias CommonsPub.Features
   alias __MODULE__
   alias Pointers.Pointer
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
 
   @type t :: %__MODULE__{}
 

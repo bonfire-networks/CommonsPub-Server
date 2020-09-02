@@ -6,16 +6,16 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
   """
 
   use ActivityPubWeb, :controller
-  alias MoodleNet.Threads.Thread
-  alias MoodleNet.Threads.Comment
-  # alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Users.User
+  alias CommonsPub.Threads.Thread
+  alias CommonsPub.Threads.Comment
+  # alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Users.User
 
   def object(conn, %{"uuid" => uuid}) do
     with {:ok, pointer} <- Pointers.ULID.cast(uuid),
-         {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer) do
+         {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer) do
       # try simply using AP id as pointer
       object_pointer_redirect(conn, pointer)
     else
@@ -38,7 +38,7 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
   end
 
   def object_redirect(conn, object, uuid) do
-    frontend_base = MoodleNet.Config.get!(:base_url)
+    frontend_base = CommonsPub.Config.get!(:base_url)
 
     case object do
       %ActivityPub.Object{data: %{"type" => "Create"}} ->
@@ -50,7 +50,7 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
 
       %ActivityPub.Object{} ->
         with pointer_id when not is_nil(pointer_id) <- Map.get(object, :mn_pointer_id),
-             {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
+             {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id) do
           object_pointer_redirect(conn, pointer)
         else
           _e -> redirect(conn, external: "#{frontend_base}/404/ap_has_no_pointer/" <> uuid)
@@ -62,9 +62,9 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
   end
 
   def object_pointer_redirect(conn, pointer) do
-    frontend_base = MoodleNet.Config.get!(:base_url)
+    frontend_base = CommonsPub.Config.get!(:base_url)
 
-    mn_object = MoodleNet.Meta.Pointers.follow!(pointer)
+    mn_object = CommonsPub.Meta.Pointers.follow!(pointer)
 
     case mn_object do
       %Thread{} ->
@@ -93,7 +93,7 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
   end
 
   def actor(conn, %{"username" => username}) do
-    frontend_base = MoodleNet.Config.get!(:frontend_base_url)
+    frontend_base = CommonsPub.Config.get!(:frontend_base_url)
 
     case ActivityPub.Adapter.get_actor_by_username(username) do
       {:ok, %User{preferred_username: preferred_username}} ->

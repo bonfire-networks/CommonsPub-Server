@@ -1,5 +1,5 @@
 defmodule ValueFlows.Proposal.ProposedIntent do
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
   alias Ecto.Changeset
   alias ValueFlows.Proposal

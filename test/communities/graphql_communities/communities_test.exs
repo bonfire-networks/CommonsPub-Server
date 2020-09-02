@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
-  use MoodleNetWeb.ConnCase, async: true
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNetWeb.Test.Orderings
-  import MoodleNetWeb.Test.ConnHelpers
-  import MoodleNetWeb.Test.Automaton
-  alias MoodleNet.Communities
+defmodule CommonsPub.Web.GraphQL.CommunitiesTest do
+  use CommonsPub.Web.ConnCase, async: true
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
+  import CommonsPub.Web.Test.Orderings
+  import CommonsPub.Web.Test.ConnHelpers
+  import CommonsPub.Web.Test.Automaton
+  alias CommonsPub.Communities
 
   describe "communities" do
     test "works for a guest" do

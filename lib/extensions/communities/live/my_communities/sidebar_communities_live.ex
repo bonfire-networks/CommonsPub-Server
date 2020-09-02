@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.My.SidebarCommunitiesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.SidebarCommunitiesLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  # alias CommonsPub.Web.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
     {

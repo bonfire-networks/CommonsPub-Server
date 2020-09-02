@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Collections.Collection do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Collections.Collection do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Collections
+  alias CommonsPub.Collections
   alias CommonsPub.Character
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.Content
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Users.User
+  alias CommonsPub.Uploads.Content
 
   @type t :: %__MODULE__{}
 

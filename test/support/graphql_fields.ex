@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Test.GraphQLFields do
+defmodule CommonsPub.Web.Test.GraphQLFields do
   import Grumble
 
   def page_info_fields do

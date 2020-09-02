@@ -1,6 +1,6 @@
-defmodule MoodleNetWeb.AdminLive.AdminFlagsLive do
-  use MoodleNetWeb, :live_component
-  alias MoodleNetWeb.GraphQL.FlagsResolver
+defmodule CommonsPub.Web.AdminLive.AdminFlagsLive do
+  use CommonsPub.Web, :live_component
+  alias CommonsPub.Web.GraphQL.FlagsResolver
 
   def mount(socket) do
     {
@@ -54,5 +54,5 @@ defmodule MoodleNetWeb.AdminLive.AdminFlagsLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 end

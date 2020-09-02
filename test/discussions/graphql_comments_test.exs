@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommentsTest do
-  use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.GraphQL.CommentsTest do
+  use CommonsPub.Web.ConnCase, async: true
 
   # alias CommonsPub.Utils.Simulation
-  # import MoodleNetWeb.Test.GraphQLAssertions
-  # import MoodleNetWeb.Test.GraphQLFields
-  # import MoodleNet.Test.Faking
-  # alias MoodleNet.{Comments, Threads}
+  # import CommonsPub.Web.Test.GraphQLAssertions
+  # import CommonsPub.Web.Test.GraphQLFields
+  # import CommonsPub.Test.Faking
+  # alias CommonsPub.{Comments, Threads}
 
   describe "thread" do
     test "placeholder" do

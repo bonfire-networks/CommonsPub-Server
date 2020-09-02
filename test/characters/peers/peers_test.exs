@@ -1,8 +1,8 @@
-defmodule MoodleNet.PeersTest do
-  use MoodleNet.DataCase
-  alias MoodleNet.Peers
-  # alias MoodleNet.Peers.Peer
-  import MoodleNet.Test.Faking
+defmodule CommonsPub.PeersTest do
+  use CommonsPub.DataCase
+  alias CommonsPub.Peers
+  # alias CommonsPub.Peers.Peer
+  import CommonsPub.Test.Faking
   alias CommonsPub.Utils.Simulation
 
   describe "CRUD" do

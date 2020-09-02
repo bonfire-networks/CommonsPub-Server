@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Access.Token do
+defmodule CommonsPub.Access.Token do
   @moduledoc "A session token identified by its uuid id"
 
-  use MoodleNet.Common.Schema
-  alias MoodleNet.Users.User
+  use CommonsPub.Common.Schema
+  alias CommonsPub.Users.User
   alias __MODULE__
   alias Ecto.Changeset
 

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
-  use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.GraphQL.Collections.MutationsTest do
+  use CommonsPub.Web.ConnCase, async: true
   import CommonsPub.Utils.Simulation
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Faking
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
+  import CommonsPub.Test.Faking
 
   describe "create_collection" do
     test "works for the community creator, randomer and instance admin" do

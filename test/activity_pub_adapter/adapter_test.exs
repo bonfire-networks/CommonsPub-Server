@@ -1,9 +1,9 @@
-defmodule MoodleNet.ActivityPub.AdapterTest do
+defmodule CommonsPub.ActivityPub.AdapterTest do
   import ActivityPub.Factory
-  import MoodleNet.Test.Faking
-  alias MoodleNet.ActivityPub.Adapter
+  import CommonsPub.Test.Faking
+  alias CommonsPub.ActivityPub.Adapter
 
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
 
   describe "fetching local actors by id" do
     test "users" do
@@ -78,7 +78,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
       assert created_actor.actor.preferred_username == username
-      created_actor = MoodleNet.Repo.preload(created_actor, icon: [:content_mirror])
+      created_actor = CommonsPub.Repo.preload(created_actor, icon: [:content_mirror])
 
       assert created_actor.icon.content_mirror.url ==
                "https://kawen.space/media/39fb9c0661e7de08b69163fee0eb99dee5fa399f2f75d695667cabfd9281a019.png?name=MKIOQWLTKDFA.png"
@@ -104,7 +104,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert %ActivityPub.Object{} =
                object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
 
-      assert {:ok, %Pointers.Pointer{}} = MoodleNet.Meta.Pointers.one(id: object.mn_pointer_id)
+      assert {:ok, %Pointers.Pointer{}} = CommonsPub.Meta.Pointers.one(id: object.mn_pointer_id)
     end
   end
 
@@ -122,12 +122,12 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
     test "reply to a comment" do
       actor = fake_user!()
       community = fake_user!() |> fake_community!()
-      {:ok, thread} = MoodleNet.Threads.create(actor, %{is_local: true}, community)
+      {:ok, thread} = CommonsPub.Threads.create(actor, %{is_local: true}, community)
 
       {:ok, comment} =
-        MoodleNet.Threads.Comments.create(actor, thread, %{is_local: true, content: "hi"})
+        CommonsPub.Threads.Comments.create(actor, thread, %{is_local: true, content: "hi"})
 
-      {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
       reply_actor = actor()
 
       object = %{
@@ -184,7 +184,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
 
       assert {:ok, _} =
-               MoodleNet.Repo.fetch_by(MoodleNet.Resources.Resource, %{
+               CommonsPub.Repo.fetch_by(CommonsPub.Resources.Resource, %{
                  canonical_url: activity.object.data["id"]
                })
     end
@@ -195,8 +195,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, ap_followed} = ActivityPub.Actor.get_by_local_id(followed.id)
       {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
-      assert {:ok, _} = MoodleNet.Follows.one(creator: follower.id, context: followed.id)
+      {:ok, follower} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
+      assert {:ok, _} = CommonsPub.Follows.one(creator: follower.id, context: followed.id)
     end
 
     test "unfollows" do
@@ -207,10 +207,10 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, _} = ActivityPub.unfollow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
+      {:ok, follower} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
 
       assert {:error, _} =
-               MoodleNet.Follows.one(deleted: false, creator: follower.id, context: followed.id)
+               CommonsPub.Follows.one(deleted: false, creator: follower.id, context: followed.id)
     end
 
     test "blocks" do
@@ -219,8 +219,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, ap_blocked} = ActivityPub.Actor.get_by_local_id(blocked.id)
       {:ok, _} = ActivityPub.block(blocker, ap_blocked, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      {:ok, blocker} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
-      assert {:ok, _} = MoodleNet.Blocks.find(blocker, blocked)
+      {:ok, blocker} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
+      assert {:ok, _} = CommonsPub.Blocks.find(blocker, blocked)
     end
 
     test "unblocks" do
@@ -231,8 +231,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, _} = ActivityPub.unblock(blocker, ap_blocked, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      {:ok, blocker} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
-      assert {:error, _} = MoodleNet.Blocks.find(blocker, blocked)
+      {:ok, blocker} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
+      assert {:error, _} = CommonsPub.Blocks.find(blocker, blocked)
     end
 
     test "likes" do
@@ -240,12 +240,12 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor)
       comment = fake_comment!(actor, thread)
-      {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
       like_actor = actor()
       {:ok, _, _} = ActivityPub.like(like_actor, activity.object, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      {:ok, like_actor} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(like_actor.ap_id)
-      assert {:ok, _} = MoodleNet.Likes.one(creator: like_actor.id, context: comment.id)
+      {:ok, like_actor} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(like_actor.ap_id)
+      assert {:ok, _} = CommonsPub.Likes.one(creator: like_actor.id, context: comment.id)
     end
 
     test "flags" do
@@ -253,7 +253,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor)
       comment = fake_comment!(actor, thread)
-      {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
       flag_actor = actor()
       {:ok, account} = ActivityPub.Actor.get_by_local_id(actor.id)
 
@@ -268,7 +268,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.one(creator: flag_actor.id, context: comment.id)
+      assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: comment.id)
     end
 
     test "flags with multiple comments" do
@@ -276,9 +276,9 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor)
       comment_1 = fake_comment!(actor, thread)
-      {:ok, activity_1} = MoodleNet.ActivityPub.Publisher.comment(comment_1)
+      {:ok, activity_1} = CommonsPub.ActivityPub.Publisher.comment(comment_1)
       comment_2 = fake_comment!(actor, thread)
-      {:ok, activity_2} = MoodleNet.ActivityPub.Publisher.comment(comment_2)
+      {:ok, activity_2} = CommonsPub.ActivityPub.Publisher.comment(comment_2)
 
       flag_actor = actor()
       {:ok, account} = ActivityPub.Actor.get_by_local_id(actor.id)
@@ -294,8 +294,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.one(creator: flag_actor.id, context: comment_1.id)
-      assert {:ok, flag} = MoodleNet.Flags.one(creator: flag_actor.id, context: comment_2.id)
+      assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: comment_1.id)
+      assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: comment_2.id)
     end
 
     test "flag with only actor" do
@@ -314,7 +314,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.one(creator: flag_actor.id, context: actor.id)
+      assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: actor.id)
     end
 
     test "user deletes" do
@@ -343,11 +343,11 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor, %{is_local: false})
       comment = fake_comment!(actor, thread, %{is_local: false})
-      {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      assert {:error, _} = MoodleNet.Threads.Comments.one(deleted: false, id: comment.id)
+      assert {:error, _} = CommonsPub.Threads.Comments.one(deleted: false, id: comment.id)
     end
 
     test "resource deletes" do
@@ -355,11 +355,11 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       community = fake_community!(actor)
       collection = fake_collection!(actor, community)
       resource = fake_resource!(actor, collection)
-      {:ok, activity} = MoodleNet.ActivityPub.Publisher.create_resource(resource)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.create_resource(resource)
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      assert {:error, _} = MoodleNet.Resources.one(deleted: false, id: resource.id)
+      assert {:error, _} = CommonsPub.Resources.one(deleted: false, id: resource.id)
     end
 
     test "user updates" do

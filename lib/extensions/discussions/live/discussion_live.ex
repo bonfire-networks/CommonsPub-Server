@@ -1,14 +1,14 @@
-defmodule MoodleNetWeb.DiscussionLive do
-  use MoodleNetWeb, :live_view
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.GraphQL.{ThreadsResolver, CommentsResolver}
+defmodule CommonsPub.Web.DiscussionLive do
+  use CommonsPub.Web, :live_view
+  import CommonsPub.Web.Helpers.Common
+  alias CommonsPub.Web.GraphQL.{ThreadsResolver, CommentsResolver}
 
-  alias MoodleNetWeb.Helpers.{
+  alias CommonsPub.Web.Helpers.{
     # Account,
     Discussions
   }
 
-  alias MoodleNetWeb.Discussion.DiscussionCommentLive
+  alias CommonsPub.Web.Discussion.DiscussionCommentLive
 
   def mount(%{"id" => thread_id} = params, session, socket) do
     socket = init_assigns(params, session, socket)
@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.DiscussionLive do
     {main_comment_id, _} = Enum.fetch!(tree, 0)
 
     # subscribe to the thread for realtime updates
-    MoodleNetWeb.Helpers.Common.pubsub_subscribe(thread_id, socket)
+    CommonsPub.Web.Helpers.Common.pubsub_subscribe(thread_id, socket)
 
     {:ok,
      assign(socket,
@@ -86,7 +86,7 @@ defmodule MoodleNetWeb.DiscussionLive do
        socket
        |> put_flash(:error, "Please write something...")}
     else
-      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+      # CommonsPub.Web.Plugs.Auth.login(socket, session.current_user, session.token)
 
       comment = input_to_atoms(data)
 
@@ -98,7 +98,7 @@ defmodule MoodleNetWeb.DiscussionLive do
         end
 
       {:ok, comment} =
-        MoodleNetWeb.GraphQL.CommentsResolver.create_reply(
+        CommonsPub.Web.GraphQL.CommentsResolver.create_reply(
           %{
             thread_id: socket.assigns.thread.id,
             in_reply_to_id: reply_to_id,
@@ -125,5 +125,5 @@ defmodule MoodleNetWeb.DiscussionLive do
   Forward PubSub activities in timeline to our timeline component
   """
   def handle_info({:pub_feed_comment, comment}, socket),
-    do: MoodleNetWeb.Helpers.Discussions.pubsub_receive(comment, socket)
+    do: CommonsPub.Web.Helpers.Discussions.pubsub_receive(comment, socket)
 end

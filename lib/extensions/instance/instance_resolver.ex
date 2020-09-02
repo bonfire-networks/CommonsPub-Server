@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.InstanceResolver do
-  alias MoodleNet.{
+defmodule CommonsPub.Web.GraphQL.InstanceResolver do
+  alias CommonsPub.{
     Activities,
     Features,
     # GraphQL,
@@ -8,9 +8,9 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     Uploads
   }
 
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.GraphQL.{ResolveRootPage, FetchPage}
 
   def instance(_, _info) do
     {:ok,
@@ -63,9 +63,9 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   end
 
   def instance_outbox_edge(_, page_opts, _info) do
-    feed_id = MoodleNet.Feeds.instance_outbox_id()
-    tables = MoodleNet.Instance.default_outbox_query_contexts()
+    feed_id = CommonsPub.Feeds.instance_outbox_id()
+    tables = CommonsPub.Instance.default_outbox_query_contexts()
 
-    MoodleNetWeb.GraphQL.ActivitiesResolver.fetch_outbox_edge(feed_id, tables, page_opts)
+    CommonsPub.Web.GraphQL.ActivitiesResolver.fetch_outbox_edge(feed_id, tables, page_opts)
   end
 end

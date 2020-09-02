@@ -1,8 +1,8 @@
-defmodule MoodleNetWeb.SearchLive.ResultsLive do
-  use MoodleNetWeb, :live_component
-  alias MoodleNetWeb.Component.{ActivityLive, PreviewLive}
+defmodule CommonsPub.Web.SearchLive.ResultsLive do
+  use CommonsPub.Web, :live_component
+  alias CommonsPub.Web.Component.{ActivityLive, PreviewLive}
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
   def render(assigns) do
     ~L"""

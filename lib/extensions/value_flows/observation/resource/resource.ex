@@ -1,13 +1,13 @@
 defmodule ValueFlows.Observation.EconomicResource do
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "vf_resource",
     table_id: "AN0BSERVEDANDVSEFV1RES0VRC"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
 
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
 
   alias Measurement.Measure
   alias Measurement.Unit

@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.UsersTest do
-  use MoodleNet.DataCase, async: true
+defmodule CommonsPub.UsersTest do
+  use CommonsPub.DataCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   alias Ecto.Changeset
-  alias MoodleNet.{Users, Access}
-  alias MoodleNet.Access.NoAccessError
-  alias MoodleNet.Common.NotFoundError
+  alias CommonsPub.{Users, Access}
+  alias CommonsPub.Access.NoAccessError
+  alias CommonsPub.Common.NotFoundError
 
-  alias MoodleNet.Users.{
+  alias CommonsPub.Users.{
     TokenAlreadyClaimedError,
     TokenExpiredError,
     User

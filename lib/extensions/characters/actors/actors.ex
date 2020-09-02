@@ -1,7 +1,4 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Actors do
+defmodule CommonsPub.Actors do
   @doc """
   A deprecated context for dealing with Actors (use character instead)
 
@@ -11,9 +8,9 @@ defmodule MoodleNet.Actors do
   * Collections
   """
 
-  alias MoodleNet.Actors.{Actor, NameReservation, Queries}
-  alias MoodleNet.Repo
-  alias MoodleNet.Users.User
+  alias CommonsPub.Actors.{Actor, NameReservation, Queries}
+  alias CommonsPub.Repo
+  alias CommonsPub.Users.User
   alias Ecto.Changeset
 
   def one(filters), do: Repo.single(Queries.query(Actor, filters))

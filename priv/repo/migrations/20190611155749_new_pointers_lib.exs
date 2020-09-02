@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.NewPointersLib do
+defmodule CommonsPub.Repo.Migrations.NewPointersLib do
   use Ecto.Migration
   import Pointers.Migration
   import Pointers.ULID.Migration

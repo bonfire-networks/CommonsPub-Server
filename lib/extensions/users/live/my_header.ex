@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.My.MyHeader do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.MyHeader do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  # alias CommonsPub.Web.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
     {
@@ -47,14 +47,14 @@ defmodule MoodleNetWeb.My.MyHeader do
        socket
        |> put_flash(:error, "Please write something...")}
     else
-      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+      # CommonsPub.Web.Plugs.Auth.login(socket, session.current_user, session.token)
       comment = input_to_atoms(data)
 
       IO.inspect(context_id, label: "context_id CHOOSEN")
 
       if strlen(context_id) < 1 do
         {:ok, thread} =
-          MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+          CommonsPub.Web.GraphQL.ThreadsResolver.create_thread(
             %{comment: comment},
             %{context: %{current_user: socket.assigns.current_user}}
           )
@@ -66,7 +66,7 @@ defmodule MoodleNetWeb.My.MyHeader do
          |> push_redirect(to: "/!" <> thread.thread_id)}
       else
         {:ok, thread} =
-          MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+          CommonsPub.Web.GraphQL.ThreadsResolver.create_thread(
             %{context_id: context_id, comment: comment},
             %{context: %{current_user: socket.assigns.current_user}}
           )
@@ -89,7 +89,7 @@ defmodule MoodleNetWeb.My.MyHeader do
       community = input_to_atoms(data)
 
       {:ok, community} =
-        MoodleNetWeb.GraphQL.CommunitiesResolver.create_community(
+        CommonsPub.Web.GraphQL.CommunitiesResolver.create_community(
           %{community: community},
           %{context: %{current_user: socket.assigns.current_user}}
         )

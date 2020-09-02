@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.ResolveField do
+defmodule CommonsPub.GraphQL.ResolveField do
   @moduledoc """
   Encapsulates the flow for resolving a field in the absence of
   multiple parents.
@@ -8,7 +8,7 @@ defmodule MoodleNet.GraphQL.ResolveField do
   @enforce_keys [:module, :fetcher, :context, :info]
   defstruct @enforce_keys
 
-  alias MoodleNet.GraphQL.ResolveField
+  alias CommonsPub.GraphQL.ResolveField
 
   def run(%ResolveField{
         module: module,

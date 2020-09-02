@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.UsersSchema do
+defmodule CommonsPub.Web.GraphQL.UsersSchema do
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CommonResolver,
     FlagsResolver,
     FollowsResolver,
@@ -246,7 +246,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve(&FlagsResolver.my_flag_edge/3)
     end
 
-    # @desc "The language the user wishes to use moodlenet in"
+    # @desc "The language the user wishes to use the app in"
     # field :primary_language, :language do
     #   resolve &LocalisationResolver.primary_language/3
     # end

@@ -1,4 +1,4 @@
-defmodule MoodleNet.Tags do
+defmodule CommonsPub.Tags do
   # @spec tag(User.t, any, map) :: {:ok, Tag.t} | {:error, Changeset.t()}
   # def tag(%User{} = tagger, tagged, fields) do
   #   Repo.transact_with(fn ->

@@ -1,9 +1,9 @@
-defmodule MoodleNet.ActivityPub.PublisherTest do
-  use MoodleNet.DataCase
-  import MoodleNet.Test.Faking
+defmodule CommonsPub.ActivityPub.PublisherTest do
+  use CommonsPub.DataCase
+  import CommonsPub.Test.Faking
   import ActivityPub.Factory
-  alias MoodleNet.ActivityPub.Publisher
-  alias MoodleNet.Follows
+  alias CommonsPub.ActivityPub.Publisher
+  alias CommonsPub.Follows
 
   describe "comments" do
     test "it federates a comment that's threaded on an actor" do
@@ -30,7 +30,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, reply} =
-        MoodleNet.Threads.Comments.create_reply(reply_actor, thread, comment, %{
+        CommonsPub.Threads.Comments.create_reply(reply_actor, thread, comment, %{
           content: "test",
           is_local: true
         })
@@ -68,7 +68,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, actor} = ActivityPub.Actor.get_by_local_id(actor.id)
       assert activity.data["context"] == collection.ap_id
       assert activity.data["actor"] == actor.ap_id
-      {:ok, resource} = MoodleNet.Resources.one(id: resource.id)
+      {:ok, resource} = CommonsPub.Resources.one(id: resource.id)
       assert resource.canonical_url == activity.object.data["id"]
     end
 
@@ -91,7 +91,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert {:ok, activity} = Publisher.create_community(community)
       assert activity.data["object"]["type"] == "Group"
       assert activity.data["object"]["id"]
-      {:ok, community} = MoodleNet.Communities.one([:default, id: community.id])
+      {:ok, community} = CommonsPub.Communities.one([:default, id: community.id])
       assert community.actor.canonical_url == activity.data["object"]["id"]
     end
 
@@ -103,7 +103,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert {:ok, activity} = Publisher.create_collection(collection)
       assert activity.data["object"]["type"] == "Group"
       assert activity.data["object"]["id"]
-      {:ok, collection} = MoodleNet.Collections.one([:default, id: collection.id])
+      {:ok, collection} = CommonsPub.Collections.one([:default, id: collection.id])
       assert collection.actor.canonical_url == activity.data["object"]["id"]
     end
   end
@@ -112,10 +112,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federates a follow of a remote actor" do
       follower = fake_user!()
       ap_followed = actor()
-      {:ok, followed} = MoodleNet.Users.one([:default, username: ap_followed.username])
+      {:ok, followed} = CommonsPub.Users.one([:default, username: ap_followed.username])
 
       {:ok, follow} =
-        MoodleNet.Follows.create(follower, followed, %{
+        CommonsPub.Follows.create(follower, followed, %{
           is_muted: false,
           is_public: true,
           is_local: true
@@ -128,10 +128,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federate an unfollow of a remote actor" do
       follower = fake_user!()
       ap_followed = actor()
-      {:ok, followed} = MoodleNet.Users.one([:default, username: ap_followed.username])
+      {:ok, followed} = CommonsPub.Users.one([:default, username: ap_followed.username])
 
       {:ok, follow} =
-        MoodleNet.Follows.create(follower, followed, %{
+        CommonsPub.Follows.create(follower, followed, %{
           is_muted: false,
           is_public: true,
           is_local: true
@@ -147,10 +147,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it errors when remote account manually approves followers" do
       follower = fake_user!()
       ap_followed = actor(%{data: %{"manuallyApprovesFollowers" => true}})
-      {:ok, followed} = MoodleNet.Users.one([:default, username: ap_followed.username])
+      {:ok, followed} = CommonsPub.Users.one([:default, username: ap_followed.username])
 
       {:ok, follow} =
-        MoodleNet.Follows.create(follower, followed, %{
+        CommonsPub.Follows.create(follower, followed, %{
           is_muted: false,
           is_public: true,
           is_local: true
@@ -164,10 +164,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federates a block of a remote actor" do
       blocker = fake_user!()
       ap_blocked = actor()
-      {:ok, blocked} = MoodleNet.Users.one([:default, username: ap_blocked.username])
+      {:ok, blocked} = CommonsPub.Users.one([:default, username: ap_blocked.username])
 
       {:ok, block} =
-        MoodleNet.Blocks.create(blocker, blocked, %{
+        CommonsPub.Blocks.create(blocker, blocked, %{
           is_muted: false,
           is_public: true,
           is_blocked: false,
@@ -181,10 +181,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federate an unblock of a remote actor" do
       blocker = fake_user!()
       ap_blocked = actor()
-      {:ok, blocked} = MoodleNet.Users.one([:default, username: ap_blocked.username])
+      {:ok, blocked} = CommonsPub.Users.one([:default, username: ap_blocked.username])
 
       {:ok, block} =
-        MoodleNet.Blocks.create(blocker, blocked, %{
+        CommonsPub.Blocks.create(blocker, blocked, %{
           is_muted: false,
           is_public: true,
           is_blocked: false,
@@ -192,7 +192,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
         })
 
       {:ok, block_activity} = Publisher.block(block)
-      {:ok, unblock} = MoodleNet.Blocks.soft_delete(blocker, block)
+      {:ok, unblock} = CommonsPub.Blocks.soft_delete(blocker, block)
 
       assert {:ok, unblock_activity} = Publisher.unblock(unblock)
       assert unblock_activity.data["object"]["id"] == block_activity.data["id"]
@@ -203,10 +203,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it flags an actor" do
       flagger = fake_user!()
       ap_flagged = actor()
-      {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
+      {:ok, flagged} = CommonsPub.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =
-        MoodleNet.Flags.create(flagger, flagged, %{
+        CommonsPub.Flags.create(flagger, flagged, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -217,10 +217,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it flags a community" do
       flagger = fake_user!()
       ap_flagged = community()
-      {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
+      {:ok, flagged} = CommonsPub.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =
-        MoodleNet.Flags.create(flagger, flagged, %{
+        CommonsPub.Flags.create(flagger, flagged, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -231,10 +231,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it flags a collection" do
       flagger = fake_user!()
       ap_flagged = collection()
-      {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
+      {:ok, flagged} = CommonsPub.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =
-        MoodleNet.Flags.create(flagger, flagged, %{
+        CommonsPub.Flags.create(flagger, flagged, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -251,7 +251,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, flag} =
-        MoodleNet.Flags.create(commented_actor, comment, %{
+        CommonsPub.Flags.create(commented_actor, comment, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -268,7 +268,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.create_resource(resource)
 
       {:ok, flag} =
-        MoodleNet.Flags.create(flag_actor, resource, %{
+        CommonsPub.Flags.create(flag_actor, resource, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -287,7 +287,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, like} =
-        MoodleNet.Likes.create(commented_actor, comment, %{is_public: true, is_local: true})
+        CommonsPub.Likes.create(commented_actor, comment, %{is_public: true, is_local: true})
 
       assert {:ok, like_activity, object} = Publisher.like(like)
       assert like_activity.data["object"] == object.data["id"]
@@ -302,7 +302,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, like} =
-        MoodleNet.Likes.create(commented_actor, comment, %{is_public: true, is_local: true})
+        CommonsPub.Likes.create(commented_actor, comment, %{is_public: true, is_local: true})
 
       Publisher.like(like)
       # No context function for unliking

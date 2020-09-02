@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.User do
+defmodule CommonsPub.Users.User do
   @moduledoc """
   User model
   """
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset,
+  import CommonsPub.Common.Changeset,
     only: [change_synced_timestamp: 3, change_public: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Character
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Uploads.Content
-  alias MoodleNet.Users
-  alias MoodleNet.Users.{LocalUser, User}
+  alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Uploads.Content
+  alias CommonsPub.Users
+  alias CommonsPub.Users.{LocalUser, User}
 
   table_schema "mn_user" do
     # belongs_to(:actor, Actor)

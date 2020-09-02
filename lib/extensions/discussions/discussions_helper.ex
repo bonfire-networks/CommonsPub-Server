@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Helpers.Discussions do
-  import MoodleNetWeb.Helpers.Common
+defmodule CommonsPub.Web.Helpers.Discussions do
+  import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  alias CommonsPub.Web.Helpers.{Profiles}
 
   # {:pub_feed_comment, comment}
 
@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     )
   end
 
-  def prepare_comment(%MoodleNet.Threads.Comment{} = comment, _current_user \\ nil) do
+  def prepare_comment(%CommonsPub.Threads.Comment{} = comment, _current_user \\ nil) do
     comment = maybe_preload(comment, :creator)
 
     creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
@@ -51,8 +51,8 @@ defmodule MoodleNetWeb.Helpers.Discussions do
   def prepare_thread(thread, _with_context) do
     thread =
       if(!is_nil(thread.context_id)) do
-        {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
-        context = MoodleNet.Meta.Pointers.follow!(pointer)
+        {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: thread.context_id)
+        context = CommonsPub.Meta.Pointers.follow!(pointer)
         IO.inspect(context, label: "COPNTEXT")
 
         context =
@@ -77,8 +77,8 @@ defmodule MoodleNetWeb.Helpers.Discussions do
   def prepare_thread(thread) do
     thread =
       if(!is_nil(thread.context_id)) do
-        {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
-        context = MoodleNet.Meta.Pointers.follow!(pointer)
+        {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: thread.context_id)
+        context = CommonsPub.Meta.Pointers.follow!(pointer)
 
         thread
         |> Map.merge(%{context: context})

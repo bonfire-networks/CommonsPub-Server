@@ -2,7 +2,7 @@ defmodule CommonsPub.Locales.Country.ServiceTest do
   # use ExUnit.Case, async: true
 
   # import ExUnit.Assertions
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias CommonsPub.Locales.{Country, CountryService, Country.Error.NotFound}
 
   # @countries [
@@ -13,7 +13,7 @@ defmodule CommonsPub.Locales.Country.ServiceTest do
   # describe "CommonsPub.Locales.Country.Service" do
 
   #   setup do
-  #     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+  #     :ok = Ecto.Adapters.SQL.Sandbox.checkout(CommonsPub.Repo)
   #     {:ok, %{}}
   #   end
 

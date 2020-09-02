@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Threads.CommentsTest do
-  use MoodleNet.DataCase, async: true
-  use Oban.Testing, repo: MoodleNet.Repo
+defmodule CommonsPub.Threads.CommentsTest do
+  use CommonsPub.DataCase, async: true
+  use Oban.Testing, repo: CommonsPub.Repo
 
-  import MoodleNet.Test.Faking
-  alias MoodleNet.Access.NotPermittedError
-  alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Threads
-  alias MoodleNet.Threads.Comments
+  import CommonsPub.Test.Faking
+  alias CommonsPub.Access.NotPermittedError
+  alias CommonsPub.Common.NotFoundError
+  alias CommonsPub.Threads
+  alias CommonsPub.Threads.Comments
   alias CommonsPub.Utils.Simulation
 
   setup do

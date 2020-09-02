@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.ReaddOrganisation do
+defmodule CommonsPub.Repo.Migrations.ReaddOrganisation do
   use Ecto.Migration
 
   def up do

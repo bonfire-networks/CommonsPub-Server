@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Component.UnknownPreviewLive do
+defmodule CommonsPub.Web.Component.UnknownPreviewLive do
   use Phoenix.LiveComponent
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
   def update(assigns, socket) do
     object = prepare_common(assigns.object)

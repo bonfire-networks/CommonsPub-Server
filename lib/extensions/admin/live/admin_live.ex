@@ -1,9 +1,10 @@
-defmodule MoodleNetWeb.AdminLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.AdminLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.GraphQL.{UsersResolver, AccessResolver}
-  alias MoodleNetWeb.AdminLive.{
+  import CommonsPub.Web.Helpers.Common
+  alias CommonsPub.Web.GraphQL.{UsersResolver, AccessResolver}
+
+  alias CommonsPub.Web.AdminLive.{
     AdminNavigationLive,
     AdminInstanceLive,
     AdminAccessLive,
@@ -11,7 +12,7 @@ defmodule MoodleNetWeb.AdminLive do
     AdminInvitesLive
   }
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     TabNotFoundLive
   }
 
@@ -33,6 +34,7 @@ defmodule MoodleNetWeb.AdminLive do
 
   def handle_params(%{"sub" => sub, "tab" => tab} = params, _url, socket) do
     IO.inspect(sub, label: "sub")
+
     {:noreply,
      assign(socket,
        selected_sub: sub,
@@ -42,6 +44,7 @@ defmodule MoodleNetWeb.AdminLive do
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     IO.inspect(params, label: "params")
+
     {:noreply,
      assign(socket,
        selected_tab: tab,
@@ -49,22 +52,12 @@ defmodule MoodleNetWeb.AdminLive do
      )}
   end
 
-
-
   def handle_params(%{} = params, _url, socket) do
     {:noreply,
      assign(socket,
        current_user: socket.assigns.current_user
      )}
   end
-
-
-
-
-
-
-
-
 
   # def handle_params(%{} = params, url, socket) do
   #   user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})

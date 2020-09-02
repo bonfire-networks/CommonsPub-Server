@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.Queries do
-  # alias MoodleNet.Communities
+  # alias CommonsPub.Communities
   alias ValueFlows.Proposal
   # alias ValueFlows.Proposals
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
 

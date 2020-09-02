@@ -12,11 +12,11 @@ defmodule ActivityPubWeb do
   def controller do
     quote do
       # Make this namespace configurable
-      use Phoenix.Controller, namespace: MoodleNetWeb
+      use Phoenix.Controller, namespace: CommonsPub.Web
 
       import Plug.Conn
       import ActivityPubWeb.Gettext
-      alias MoodleNetWeb.Router.Helpers, as: Routes
+      alias CommonsPub.Web.Router.Helpers, as: Routes
     end
   end
 
@@ -34,7 +34,7 @@ defmodule ActivityPubWeb do
 
       import ActivityPubWeb.ErrorHelpers
       import ActivityPubWeb.Gettext
-      alias MoodleNetWeb.Router.Helpers, as: Routes
+      alias CommonsPub.Web.Router.Helpers, as: Routes
     end
   end
 

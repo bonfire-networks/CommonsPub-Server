@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.AdminResolver do
+defmodule CommonsPub.Web.GraphQL.AdminResolver do
   alias ActivityPub.Actor
-  alias MoodleNet.Mail.{Email, MailService}
-  alias MoodleNet.{Access, GraphQL, Users}
+  alias CommonsPub.Mail.{Email, MailService}
+  alias CommonsPub.{Access, GraphQL, Users}
 
   def admin(_, _info), do: {:ok, %{}}
 

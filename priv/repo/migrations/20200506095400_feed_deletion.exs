@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.FeedDeletion do
+defmodule CommonsPub.Repo.Migrations.FeedDeletion do
   use Ecto.Migration
 
   def change do

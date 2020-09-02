@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.ActivityPub.Utils do
+defmodule CommonsPub.ActivityPub.Utils do
   alias ActivityPub.Actor
-  alias MoodleNet.Threads.Comments
+  alias CommonsPub.Threads.Comments
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
   def determine_recipients(actor, comment) do
@@ -129,7 +129,7 @@ defmodule MoodleNet.ActivityPub.Utils do
   def generate_object_ap_id(object) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
 
-    "#{MoodleNetWeb.base_url()}#{ap_base_path}/objects/#{object.id}"
+    "#{CommonsPub.Web.base_url()}#{ap_base_path}/objects/#{object.id}"
   end
 
   @doc "Get canonical URL if set, or generate one"
@@ -144,7 +144,7 @@ defmodule MoodleNet.ActivityPub.Utils do
 
   def get_actor_canonical_url(obj) do
     get_actor_canonical_url(
-      Map.get(MoodleNetWeb.Helpers.Common.maybe_preload(obj, :character), :character)
+      Map.get(CommonsPub.Web.Helpers.Common.maybe_preload(obj, :character), :character)
     )
   end
 

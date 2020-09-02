@@ -1,10 +1,10 @@
-defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MemberLive.MemberFollowingLive do
+  use CommonsPub.Web, :live_component
 
-  # import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Profiles}
+  # import CommonsPub.Web.Helpers.Common
+  alias CommonsPub.Web.Helpers.{Profiles}
 
-  alias MoodleNetWeb.Component.UserPreviewLive
+  alias CommonsPub.Web.Component.UserPreviewLive
 
   def update(assigns, socket) do
     {
@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
   def fetch(socket, assigns) do
     # IO.inspect(assigns.user)
     {:ok, follows} =
-      MoodleNetWeb.GraphQL.UsersResolver.user_follows_edge(
+      CommonsPub.Web.GraphQL.UsersResolver.user_follows_edge(
         %{id: assigns.user.id},
         %{limit: 10},
         %{context: %{current_user: assigns.current_user}}
@@ -43,7 +43,7 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

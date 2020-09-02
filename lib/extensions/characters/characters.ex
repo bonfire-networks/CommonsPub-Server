@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character.Characters do
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
 
-  alias MoodleNet.{Activities, Characters, Common, Feeds, Follows, Repo}
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
+  alias CommonsPub.{Activities, Characters, Common, Feeds, Follows, Repo}
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
 
-  alias MoodleNet.Workers.APPublishWorker
+  alias CommonsPub.Workers.APPublishWorker
 
   alias CommonsPub.Character.NameReservation
 
@@ -238,7 +238,7 @@ defmodule CommonsPub.Character.Characters do
 
   @doc "Takes a Pointer to something and creates a character based on it"
   def characterise(user, %Pointer{} = pointer) do
-    thing = MoodleNet.Meta.Pointers.follow!(pointer)
+    thing = CommonsPub.Meta.Pointers.follow!(pointer)
 
     if(is_nil(thing.character_id)) do
       characterise(user, thing)
@@ -358,11 +358,11 @@ defmodule CommonsPub.Character.Characters do
 
   def display_username(obj, full_hostname \\ false)
 
-  def display_username(%MoodleNet.Communities.Community{} = obj, full_hostname) do
+  def display_username(%CommonsPub.Communities.Community{} = obj, full_hostname) do
     display_username(obj, full_hostname, "&")
   end
 
-  def display_username(%MoodleNet.Collections.Collection{} = obj, full_hostname) do
+  def display_username(%CommonsPub.Collections.Collection{} = obj, full_hostname) do
     display_username(obj, full_hostname, "+")
   end
 
@@ -374,7 +374,7 @@ defmodule CommonsPub.Character.Characters do
     display_username(obj, full_hostname, "+")
   end
 
-  def display_username(%MoodleNet.Users.User{} = obj, full_hostname) do
+  def display_username(%CommonsPub.Users.User{} = obj, full_hostname) do
     display_username(obj, full_hostname, "@")
   end
 
@@ -397,7 +397,7 @@ defmodule CommonsPub.Character.Characters do
         true,
         prefix
       ) do
-    "#{prefix}#{uname}" <> "@" <> MoodleNet.Instance.hostname()
+    "#{prefix}#{uname}" <> "@" <> CommonsPub.Instance.hostname()
   end
 
   def display_username(
@@ -433,7 +433,7 @@ defmodule CommonsPub.Character.Characters do
   end
 
   def display_username(%{id: id} = obj, full_hostname, prefix) do
-    obj = MoodleNetWeb.Helpers.Common.maybe_preload(obj, :character)
+    obj = CommonsPub.Web.Helpers.Common.maybe_preload(obj, :character)
     display_username(obj, full_hostname, prefix)
   end
 

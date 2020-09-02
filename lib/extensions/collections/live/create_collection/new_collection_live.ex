@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.My.NewCollectionLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.NewCollectionLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  # alias CommonsPub.Web.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
     {
@@ -27,7 +27,7 @@ defmodule MoodleNetWeb.My.NewCollectionLive do
       IO.inspect(data, label: "collection to create")
 
       {:ok, collection} =
-        MoodleNetWeb.GraphQL.CollectionsResolver.create_collection(
+        CommonsPub.Web.GraphQL.CollectionsResolver.create_collection(
           %{collection: collection, context_id: context_id},
           %{context: %{current_user: socket.assigns.current_user}}
         )

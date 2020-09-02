@@ -1,20 +1,20 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Workers.APPublishWorker do
+defmodule CommonsPub.Workers.APPublishWorker do
   use ActivityPub.Workers.WorkerHelper, queue: "mn_ap_publish", max_attempts: 1
 
   require Logger
 
-  alias MoodleNet.ActivityPub.Publisher
-  alias MoodleNet.Blocks.Block
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.Comment
-  alias MoodleNet.Users.User
+  alias CommonsPub.ActivityPub.Publisher
+  alias CommonsPub.Blocks.Block
+  alias CommonsPub.Flags.Flag
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Likes.Like
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Meta.Pointers
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Threads.Comment
+  alias CommonsPub.Users.User
 
   @moduledoc """
   Module for publishing ActivityPub activities.
@@ -37,11 +37,11 @@ defmodule MoodleNet.Workers.APPublishWorker do
   @impl Worker
   def perform(%{"context_id" => context_id, "op" => "delete"}, _job) do
     object =
-      with {:error, _e} <- MoodleNet.Users.one(join: :actor, preload: :actor, id: context_id),
+      with {:error, _e} <- CommonsPub.Users.one(join: :actor, preload: :actor, id: context_id),
            {:error, _e} <-
-             MoodleNet.Communities.one(join: :actor, preload: :actor, id: context_id),
+             CommonsPub.Communities.one(join: :actor, preload: :actor, id: context_id),
            {:error, _e} <-
-             MoodleNet.Collections.one(join: :actor, preload: :actor, id: context_id) do
+             CommonsPub.Collections.one(join: :actor, preload: :actor, id: context_id) do
         {:error, "not found"}
       end
 
@@ -131,7 +131,7 @@ defmodule MoodleNet.Workers.APPublishWorker do
   end
 
   defp only_local(%Resource{collection_id: collection_id} = context, commit_fn, verb) do
-    with {:ok, collection} <- MoodleNet.Collections.one(id: collection_id),
+    with {:ok, collection} <- CommonsPub.Collections.one(id: collection_id),
          {:ok, actor} <- CommonsPub.Character.Characters.one(id: collection.actor_id),
          true <- is_nil(actor.peer_id) do
       commit_fn.(context, verb)

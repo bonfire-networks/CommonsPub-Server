@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.MetadataScraper do
+defmodule CommonsPub.MetadataScraper do
   @moduledoc """
   Given a url, it downloads the html metadata
   """

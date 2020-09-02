@@ -1,7 +1,7 @@
 image: elixir:1.10.4-alpine #update this when we switch Elixir version in Dockerfile
 
 variables:
-  POSTGRES_DB: moodle_net_test
+  POSTGRES_DB: commons_pub_test
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
   DATABASE_HOST: postgres

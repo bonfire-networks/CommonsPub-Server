@@ -3,7 +3,7 @@
 defmodule ActivityPubWeb.ActivityPubController do
   @moduledoc """
 
-  TODO The only endpoints implemented so far are for serving an object by ID, so the ActivityPub API can be used to read information from a MoodleNet server.
+  TODO The only endpoints implemented so far are for serving an object by ID, so the ActivityPub API can be used to read information from a CommonsPub server.
 
   Even though store the data in AS format, some changes need to be applied to the entity before serving it in the AP REST response. This is done in `ActivityPubWeb.ActivityPubView`.
   """
@@ -23,7 +23,7 @@ defmodule ActivityPubWeb.ActivityPubController do
   def ap_route_helper(uuid) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
 
-    MoodleNetWeb.base_url() <> ap_base_path <> "/objects/" <> uuid
+    CommonsPub.Web.base_url() <> ap_base_path <> "/objects/" <> uuid
   end
 
   def object(conn, %{"uuid" => uuid}) do

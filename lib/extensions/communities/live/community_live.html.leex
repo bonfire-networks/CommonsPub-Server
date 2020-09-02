@@ -42,7 +42,7 @@
         <%=
                 live_component(
                   @socket,
-                  MoodleNetWeb.Component.FlagLive,
+                  CommonsPub.Web.Component.FlagLive,
                   object: @community,
                   current_user: @current_user,
                   id: "flag-"<>@community.id,
@@ -54,7 +54,7 @@
         <%=
                   live_component(
                     @socket,
-                    MoodleNetWeb.Component.BlockLive,
+                    CommonsPub.Web.Component.BlockLive,
                     object: @community,
                     current_user: @current_user,
                     id: "block-"<>@community.id,
@@ -179,7 +179,7 @@
     <div>
       <%= live_component(
         @socket,
-        MoodleNetWeb.Component.ContextLive,
+        CommonsPub.Web.Component.ContextLive,
         object: @community,
         current_user: @current_user
       )%>

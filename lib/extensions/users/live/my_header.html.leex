@@ -24,7 +24,7 @@
     <ul class="dropdown__list">
       <li><%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "me")  do %>Profile<% end %></li>
       <%= if @current_user.local_user.is_instance_admin do %>
-       <li><%= live_redirect to: "/admin/settings/access" do %>Admin<% end %></li> 
+        <li><%= live_redirect to: "/admin/settings/access" do %>Admin<% end %></li>
       <% end %>
       <li><%= live_redirect to: "/~/settings" do %>Settings<% end %></li>
       <li><a href="/logout">Logout</a></li>
@@ -32,7 +32,7 @@
   </details>
   <%= live_component(
       @socket,
-      MoodleNetWeb.My.WriteModalLive,
+      CommonsPub.Web.My.WriteModalLive,
       current_user: @current_user,
       toggle_post: @toggle_post,
       toggle_fullmodal: false,
@@ -43,7 +43,7 @@
     ) %>
   <%= live_component(
       @socket,
-      MoodleNetWeb.My.NewCommunityLive,
+      CommonsPub.Web.My.NewCommunityLive,
       current_user: @current_user,
       toggle_community: @toggle_community,
       my_communities: @my_communities,
@@ -52,7 +52,7 @@
     ) %>
   <%= live_component(
       @socket,
-      MoodleNetWeb.My.NewCollectionLive,
+      CommonsPub.Web.My.NewCollectionLive,
       current_user: @current_user,
       toggle_collection: @toggle_collection,
       my_communities: @my_communities,
@@ -61,7 +61,7 @@
     ) %>
   <%= live_component(
       @socket,
-      MoodleNetWeb.My.ShareLinkLive,
+      CommonsPub.Web.My.ShareLinkLive,
       current_user: @current_user,
       toggle_link: @toggle_link,
       my_communities: @my_communities,
@@ -69,10 +69,9 @@
       link_input: %{},
       id: "post_link"
     ) %>
-
   <%= live_component(
       @socket,
-      MoodleNetWeb.My.PublishAdLive,
+      CommonsPub.Web.My.PublishAdLive,
       current_user: @current_user,
       toggle_ad: @toggle_ad,
       my_communities: @my_communities,

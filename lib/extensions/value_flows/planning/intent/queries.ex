@@ -2,9 +2,9 @@
 defmodule ValueFlows.Planning.Intent.Queries do
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intents
-  alias MoodleNet.Follows.{Follow}
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.Follows.{Follow}
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
 

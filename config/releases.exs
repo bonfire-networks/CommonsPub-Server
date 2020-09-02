@@ -3,7 +3,7 @@ require Logger
 
 fallback_env = fn a, b, c -> System.get_env(a) || System.get_env(b) || c end
 
-config :moodle_net, MoodleNet.Repo,
+config :commons_pub, CommonsPub.Repo,
   username: fallback_env.("POSTGRES_USER", "DATABASE_USER", "postgres"),
   password: fallback_env.("POSTGRES_PASSWORD", "DATABASE_PASS", "postgres"),
   database: fallback_env.("POSTGRES_DB", "DATABASE_NAME", "postgres"),
@@ -15,17 +15,17 @@ desc = System.get_env("INSTANCE_DESCRIPTION")
 port = String.to_integer(fallback_env.("HTTP_PORT", "PORT", "4000"))
 base_url = System.get_env("BASE_URL", "https://" <> hostname)
 
-config :moodle_net, MoodleNet.Instance,
+config :commons_pub, CommonsPub.Instance,
   hostname: hostname,
   description: desc
 
-config :moodle_net, MoodleNetWeb.Endpoint,
+config :commons_pub, CommonsPub.Web.Endpoint,
   http: [port: port],
   url: [host: hostname, port: port],
   root: ".",
   secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
 
-config :moodle_net,
+config :commons_pub,
   base_url: base_url,
   # env variable to customise the ActivityPub URL prefix (needs to be changed at compile time)
   ap_base_path: System.get_env("AP_BASE_PATH", "/pub"),
@@ -33,7 +33,7 @@ config :moodle_net,
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", base_url),
   app_name: System.get_env("APP_NAME", "CommonsPub")
 
-config :moodle_net, MoodleNet.Users,
+config :commons_pub, CommonsPub.Users,
   # enable signups?
   public_registration: !System.get_env("INVITE_ONLY", "true")
 
@@ -41,7 +41,7 @@ upload_dir = System.get_env("UPLOAD_DIR", "/var/www/uploads")
 upload_path = System.get_env("UPLOAD_PATH", "/uploads")
 upload_url = System.get_env("UPLOAD_URL", base_url <> upload_path <> "/")
 
-config :moodle_net, MoodleNet.Uploads,
+config :commons_pub, CommonsPub.Uploads,
   directory: upload_dir,
   path: upload_path,
   uploads_base_url: upload_url,
@@ -52,7 +52,7 @@ mail_blackhole = fn var ->
     "WARNING: The environment variable #{var} was not set or was set incorrectly, mail will NOT be sent."
   )
 
-  config :moodle_net, MoodleNet.Mail.MailService, adapter: Bamboo.LocalAdapter
+  config :commons_pub, CommonsPub.Mail.MailService, adapter: Bamboo.LocalAdapter
 end
 
 mail_mailgun = fn ->
@@ -73,7 +73,7 @@ mail_mailgun = fn ->
               mail_blackhole.("MAIL_FROM")
 
             from ->
-              config :moodle_net, MoodleNet.Mail.MailService,
+              config :commons_pub, CommonsPub.Mail.MailService,
                 adapter: Bamboo.MailgunAdapter,
                 api_key: key,
                 base_uri: base_uri,
@@ -110,7 +110,7 @@ mail_smtp = fn ->
                       mail_blackhole.("MAIL_FROM")
 
                     from ->
-                      config :moodle_net, MoodleNet.Mail.MailService,
+                      config :commons_pub, CommonsPub.Mail.MailService,
                         adapter: Bamboo.SMTPAdapter,
                         server: server,
                         hostname: domain,

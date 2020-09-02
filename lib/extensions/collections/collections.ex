@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Collections do
-  alias MoodleNet.{
+defmodule CommonsPub.Collections do
+  alias CommonsPub.{
     Activities,
     Blocks,
     Common,
@@ -16,12 +16,12 @@ defmodule MoodleNet.Collections do
 
   alias CommonsPub.Character.Characters
 
-  alias MoodleNet.Collections.{Collection, Queries}
-  alias MoodleNet.Communities.Community
-  # alias MoodleNet.FeedPublisher
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+  alias CommonsPub.Collections.{Collection, Queries}
+  alias CommonsPub.Communities.Community
+  # alias CommonsPub.FeedPublisher
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
+  alias CommonsPub.Workers.APPublishWorker
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
 
@@ -47,7 +47,7 @@ defmodule MoodleNet.Collections do
 
       # TODO: address activity to context's outbox/followers
       community_or_context =
-        MoodleNetWeb.Helpers.Common.maybe_preload(community_or_context, :character)
+        CommonsPub.Web.Helpers.Common.maybe_preload(community_or_context, :character)
 
       # with {:ok, character} <- Characters.create(creator, attrs),
       #      {:ok, coll_attrs} <- create_boxes(character, attrs),
@@ -197,7 +197,7 @@ defmodule MoodleNet.Collections do
 
   @doc false
   def default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
+    Application.fetch_env!(:commons_pub, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 

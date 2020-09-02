@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Mixfile do
+defmodule CommonsPub.Mixfile do
   use Mix.Project
 
   @library_dev_mode false
@@ -8,7 +8,7 @@ defmodule MoodleNet.Mixfile do
   # General configuration of the project
   def project do
     [
-      app: :moodle_net,
+      app: :commons_pub,
       version: "0.10.0-dev",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -47,7 +47,7 @@ defmodule MoodleNet.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {MoodleNet.Application, []},
+      mod: {CommonsPub.Application, []},
       extra_applications: [
         :logger,
         :runtime_tools,
@@ -64,7 +64,7 @@ defmodule MoodleNet.Mixfile do
 
   defp releases do
     [
-      moodle_net: [
+      commons_pub: [
         include_executables_for: [:unix]
       ]
     ]

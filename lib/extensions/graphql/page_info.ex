@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.PageInfo do
+defmodule CommonsPub.GraphQL.PageInfo do
   @moduledoc """
   Information about this page's relation to a larger result set
   """
   @enforce_keys ~w(start_cursor end_cursor has_previous_page has_next_page)a
   defstruct @enforce_keys
 
-  alias MoodleNet.GraphQL.PageInfo
+  alias CommonsPub.GraphQL.PageInfo
 
   @type t :: %PageInfo{
           start_cursor: binary | nil,

@@ -1,8 +1,8 @@
-defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
+defmodule CommonsPub.Web.Component.DiscussionPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Discussions}
+  alias CommonsPub.Web.Helpers.{Discussions}
 
   def mount(thread, _session, socket) do
     {:ok, assign(socket, thread: thread)}
@@ -22,6 +22,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
 
   def render(assigns) do
     IO.inspect(assigns, label: "Assign:")
+
     ~L"""
     <div class="discussion__preview">
       <%= live_redirect to: "/!"<> @thread.id <>"/discuss" do %>

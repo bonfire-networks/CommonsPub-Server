@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.CollectionLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.CollectionLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Collections, Profiles}
+  alias CommonsPub.Web.Helpers.{Collections, Profiles}
 
-  alias MoodleNetWeb.CollectionLive.{
+  alias CommonsPub.Web.CollectionLive.{
     CollectionActivitiesLive,
     CollectionFollowersLive,
     CollectionResourcesLive,
@@ -55,7 +55,7 @@ defmodule MoodleNetWeb.CollectionLive do
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
     {:ok, flag} =
-      MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
+      CommonsPub.Web.GraphQL.FlagsResolver.create_flag(
         %{context_id: socket.assigns.collection.id, message: message},
         %{
           context: %{current_user: socket.assigns.current_user}
@@ -74,7 +74,7 @@ defmodule MoodleNetWeb.CollectionLive do
 
   def handle_event("follow", _data, socket) do
     _f =
-      MoodleNetWeb.GraphQL.FollowsResolver.create_follow(
+      CommonsPub.Web.GraphQL.FollowsResolver.create_follow(
         %{context_id: socket.assigns.collection.id},
         %{
           context: %{current_user: socket.assigns.current_user}
@@ -114,7 +114,7 @@ defmodule MoodleNetWeb.CollectionLive do
       changes = input_to_atoms(data)
 
       {:ok, collection} =
-        MoodleNetWeb.GraphQL.CollectionsResolver.update_collection(
+        CommonsPub.Web.GraphQL.CollectionsResolver.update_collection(
           %{collection: changes, collection_id: socket.assigns.collection.id},
           %{
             context: %{current_user: socket.assigns.current_user}
@@ -154,7 +154,7 @@ defmodule MoodleNetWeb.CollectionLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Web.Helpers.Activites.pubsub_activity_forward(
         activity,
         CollectionActivitiesLive,
         :collection_timeline,

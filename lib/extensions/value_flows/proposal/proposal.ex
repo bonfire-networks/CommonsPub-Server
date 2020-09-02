@@ -3,15 +3,15 @@ defmodule ValueFlows.Proposal do
   Schema for proposal, using `Pointers.Pointable`
   """
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "vf_proposal",
     table_id: "PR0P0SA11SMADE0FTW01NTENTS"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
-  # alias MoodleNet.Actors.Actor
-  # alias MoodleNet.Communities.Community
+  alias CommonsPub.Users.User
+  # alias CommonsPub.Actors.Actor
+  # alias CommonsPub.Communities.Community
   alias ValueFlows.Proposal
   alias ValueFlows.Planning.Intent
 

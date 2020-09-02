@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Batching.Edge do
+defmodule CommonsPub.Batching.Edge do
   @enforce_keys [:cursor, :node]
   defstruct @enforce_keys
 
-  alias MoodleNet.Batching.Edge
+  alias CommonsPub.Batching.Edge
 
   @type t :: %Edge{
           node: term,

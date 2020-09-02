@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
-  alias MoodleNet.{GraphQL, Repo, Threads}
+defmodule CommonsPub.Web.GraphQL.ThreadsResolver do
+  alias CommonsPub.{GraphQL, Repo, Threads}
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     FetchPage,
     # FetchPages,
     ResolveField,
@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     # ResolveRootPage
   }
 
-  alias MoodleNet.Threads.{Comments, Thread}
+  alias CommonsPub.Threads.{Comments, Thread}
 
   def thread(%{thread_id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -117,9 +117,9 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
       attrs = Map.put(attrs, :is_local, true)
 
       Repo.transact_with(fn ->
-        with {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
+        with {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id),
              :ok <- validate_thread_context(pointer),
-             context = MoodleNet.Meta.Pointers.follow!(pointer),
+             context = CommonsPub.Meta.Pointers.follow!(pointer),
              {:ok, thread} <- Threads.create(user, attrs, context) do
           Comments.create(user, thread, attrs)
         end
@@ -137,7 +137,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   end
 
   defp validate_thread_context(pointer) do
-    schema = MoodleNet.Meta.Pointers.table!(pointer).schema
+    schema = CommonsPub.Meta.Pointers.table!(pointer).schema
 
     if schema in valid_contexts() do
       :ok
@@ -149,7 +149,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   end
 
   defp valid_contexts() do
-    Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+    Keyword.fetch!(Application.get_env(:commons_pub, Threads), :valid_contexts)
   end
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}

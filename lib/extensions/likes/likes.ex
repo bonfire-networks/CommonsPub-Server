@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Likes do
-  alias MoodleNet.{Activities, Common, Repo}
-  # alias MoodleNet.FeedPublisher
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+defmodule CommonsPub.Likes do
+  alias CommonsPub.{Activities, Common, Repo}
+  # alias CommonsPub.FeedPublisher
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
+  alias CommonsPub.Users.User
+  alias CommonsPub.Workers.APPublishWorker
 
   def one(filters \\ []), do: Repo.single(Queries.query(Like, filters))
 
@@ -49,7 +49,7 @@ defmodule MoodleNet.Likes do
   def create(liker, liked, fields)
 
   def create(%User{} = liker, %Pointers.Pointer{} = liked, fields) do
-    create(liker, MoodleNet.Meta.Pointers.follow!(liked), fields)
+    create(liker, CommonsPub.Meta.Pointers.follow!(liked), fields)
   end
 
   def create(%User{} = liker, %{__struct__: ctx} = liked, fields) do
@@ -111,7 +111,7 @@ defmodule MoodleNet.Likes do
   end
 
   defp valid_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
+    Application.fetch_env!(:commons_pub, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
 end

@@ -1,8 +1,8 @@
 defmodule ValueFlows.Proposal.ProposedToGraphQL do
   use Absinthe.Schema.Notation
 
-  alias MoodleNet.GraphQL
-  alias MoodleNet.Meta.Pointers
+  alias CommonsPub.GraphQL
+  alias CommonsPub.Meta.Pointers
   alias ValueFlows.Proposals
 
   def propose_to(%{proposed_to: agent_id, proposed: proposed_id}, info) do
@@ -28,7 +28,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   end
 
   def valid_contexts do
-    Application.fetch_env!(:moodle_net, Proposals)
+    Application.fetch_env!(:commons_pub, Proposals)
     |> Keyword.fetch!(:valid_agent_contexts)
   end
 end

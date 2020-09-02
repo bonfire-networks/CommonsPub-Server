@@ -1,33 +1,33 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.TableServiceTest do
+defmodule CommonsPub.Meta.TableServiceTest do
   use ExUnit.Case, async: true
 
   import ExUnit.Assertions
-  import MoodleNet.Meta.Introspection, only: [ecto_schema_table: 1]
-  alias MoodleNet.Repo
+  import CommonsPub.Meta.Introspection, only: [ecto_schema_table: 1]
+  alias CommonsPub.Repo
 
-  alias MoodleNet.Meta.{
+  alias CommonsPub.Meta.{
     TableService,
     TableNotFoundError
   }
 
   alias Pointers.Table
 
-  alias MoodleNet.Access.{RegisterEmailAccess, RegisterEmailDomainAccess}
-  alias MoodleNet.Activities.Activity
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.{Comment, Thread}
+  alias CommonsPub.Access.{RegisterEmailAccess, RegisterEmailDomainAccess}
+  alias CommonsPub.Activities.Activity
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Threads.{Comment, Thread}
 
-  alias MoodleNet.Blocks.Block
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Features.Feature
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Peers.Peer
-  alias MoodleNet.Users.User
+  alias CommonsPub.Blocks.Block
+  alias CommonsPub.Flags.Flag
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Features.Feature
+  alias CommonsPub.Likes.Like
+  alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Peers.Peer
+  alias CommonsPub.Users.User
   alias CommonsPub.Locales.{Country, Language}
 
   @known_schemas [
@@ -56,7 +56,7 @@ defmodule MoodleNet.Meta.TableServiceTest do
   @expected_table_names Enum.sort(@known_tables)
 
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CommonsPub.Repo)
     {:ok, %{}}
   end
 

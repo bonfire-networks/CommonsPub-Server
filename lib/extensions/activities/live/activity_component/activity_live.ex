@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.Component.ActivityLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.Component.ActivityLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.Component.{PreviewLive, PreviewActionsLive, PreviewActionsAdminLive}
+  alias CommonsPub.Web.Component.{PreviewLive, PreviewActionsLive, PreviewActionsAdminLive}
 
-  # alias MoodleNetWeb.Component.DiscussionPreviewLive
+  # alias CommonsPub.Web.Component.DiscussionPreviewLive
 
-  alias MoodleNetWeb.Helpers.{Activites}
+  alias CommonsPub.Web.Helpers.{Activites}
 
   def update(assigns, socket) do
     activity_id = e(assigns, :activity, :id, random_string(6))
@@ -15,10 +15,12 @@ defmodule MoodleNetWeb.Component.ActivityLive do
 
     if(Map.has_key?(assigns, :activity) and assigns.activity != %{}) do
       activity = Activites.prepare(assigns.activity, assigns.current_user)
+
       reply_link =
         "/!" <>
           e(e(activity, :context, activity), :thread_id, "new") <>
           "/discuss/" <> e(e(activity, :context, activity), :id, "") <> "#reply"
+
       {:ok,
        assign(socket,
          activity: activity,
@@ -26,9 +28,8 @@ defmodule MoodleNetWeb.Component.ActivityLive do
          reply_link: reply_link,
          #  creator_link: creator_link,
          activity_id: activity_id,
-         preview_id: preview_id,
+         preview_id: preview_id
        )}
-
     else
       {:ok,
        assign(socket,
@@ -37,7 +38,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
          reply_link: "#",
          #  creator_link: "#",
          activity_id: activity_id,
-         preview_id: preview_id,
+         preview_id: preview_id
        )}
     end
   end

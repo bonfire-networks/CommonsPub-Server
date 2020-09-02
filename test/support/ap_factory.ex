@@ -1,5 +1,5 @@
 defmodule ActivityPub.Factory do
-  use ExMachina.Ecto, repo: MoodleNet.Repo
+  use ExMachina.Ecto, repo: CommonsPub.Repo
 
   def actor(attrs \\ %{}) do
     actor = insert(:actor, attrs)

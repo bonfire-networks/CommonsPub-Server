@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Likes.Queries do
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Meta.TableService
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Likes.Queries do
+  alias CommonsPub.Likes.Like
+  alias CommonsPub.Meta.TableService
+  alias CommonsPub.Users.User
   import Ecto.Query
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Common.Query, only: [match_admin: 0]
 
   def query(Like), do: from(l in Like, as: :like)
 

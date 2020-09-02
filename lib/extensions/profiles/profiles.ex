@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Profile.Profiles do
-  alias MoodleNet.{Common, Repo}
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
+  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
 
   alias CommonsPub.Profile
   alias CommonsPub.Profile.Queries
@@ -105,7 +105,7 @@ defmodule CommonsPub.Profile.Profiles do
 
   @doc "Takes a Pointer to something and creates a profile based on it"
   def add_profile_to(user, %Pointer{} = pointer) do
-    thing = MoodleNet.Meta.Pointers.follow!(pointer)
+    thing = CommonsPub.Meta.Pointers.follow!(pointer)
 
     if(is_nil(thing.profile_id)) do
       add_profile_to(user, thing)
@@ -115,7 +115,7 @@ defmodule CommonsPub.Profile.Profiles do
   end
 
   def add_profile_to(user, pointer_id) when is_binary(pointer_id) do
-    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: pointer_id)
+    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: pointer_id)
     add_profile_to(user, pointer)
   end
 

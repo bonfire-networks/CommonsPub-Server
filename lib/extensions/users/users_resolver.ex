@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.UsersResolver do
+defmodule CommonsPub.Web.GraphQL.UsersResolver do
   @moduledoc """
   Performs the GraphQL User queries.
   """
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     Access,
     Activities,
     Follows,
@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   alias CommonsPub.Character.Characters
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -26,11 +26,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     ResolveRootPage
   }
 
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Threads.{Comment, CommentsQueries}
-  alias MoodleNet.Users.{Me, User}
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Threads.{Comment, CommentsQueries}
+  alias CommonsPub.Users.{Me, User}
 
   def username_available(%{username: username}, _info) do
     {:ok, Characters.is_username_available?(username)}
@@ -372,7 +372,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(user, params, info),
-         attrs = MoodleNetWeb.Helpers.Common.input_to_atoms(Map.merge(attrs, uploads)),
+         attrs = CommonsPub.Web.Helpers.Common.input_to_atoms(Map.merge(attrs, uploads)),
          {:ok, user} <- Users.update(user, attrs) do
       {:ok, Me.new(user)}
     end

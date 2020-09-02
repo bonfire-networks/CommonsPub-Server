@@ -35,8 +35,8 @@ end
 # when running `mix release`, the first release in the file
 # will be used by default
 
-release :moodle_net do
-  set(version: current_version(:moodle_net))
+release :commons_pub do
+  set(version: current_version(:commons_pub))
 
   set(
     applications: [

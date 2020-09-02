@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommunityTest do
-  use MoodleNetWeb.ConnCase, async: true
-  import MoodleNetWeb.Test.Automaton
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+defmodule CommonsPub.Web.GraphQL.CommunityTest do
+  use CommonsPub.Web.ConnCase, async: true
+  import CommonsPub.Web.Test.Automaton
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Utils.Trendy
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.Orderings
-  import MoodleNetWeb.Test.Automaton
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.Orderings
+  import CommonsPub.Web.Test.Automaton
   import Grumble
   import Zest
-  alias MoodleNet.{Follows, Likes, Collections, Threads}
+  alias CommonsPub.{Follows, Likes, Collections, Threads}
 
   describe "community" do
     test "works for anyone for a public community" do
@@ -440,14 +440,14 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(user)
 
       assert {:ok, upload} =
-               MoodleNet.Uploads.upload(
-                 MoodleNet.Uploads.IconUploader,
+               CommonsPub.Uploads.upload(
+                 CommonsPub.Uploads.IconUploader,
                  user,
                  %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
                  %{}
                )
 
-      assert {:ok, comm} = MoodleNet.Communities.update(user, comm, %{icon_id: upload.id})
+      assert {:ok, comm} = CommonsPub.Communities.update(user, comm, %{icon_id: upload.id})
 
       conn = user_conn(user)
       q = community_query(fields: [icon: [:id, :url, upload: [:path]]])
@@ -463,14 +463,14 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(user)
 
       assert {:ok, upload} =
-               MoodleNet.Uploads.upload(
-                 MoodleNet.Uploads.ImageUploader,
+               CommonsPub.Uploads.upload(
+                 CommonsPub.Uploads.ImageUploader,
                  user,
                  %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
                  %{}
                )
 
-      assert {:ok, comm} = MoodleNet.Communities.update(user, comm, %{image_id: upload.id})
+      assert {:ok, comm} = CommonsPub.Communities.update(user, comm, %{image_id: upload.id})
 
       conn = user_conn(user)
       q = community_query(fields: [image: [:id, :url, upload: [:path]]])

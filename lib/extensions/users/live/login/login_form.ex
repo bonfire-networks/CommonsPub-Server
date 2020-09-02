@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.LoginForm do
+defmodule CommonsPub.Web.LoginForm do
   import Ecto.Changeset
 
   defstruct [:login, :password]
@@ -24,9 +24,9 @@ defmodule MoodleNetWeb.LoginForm do
   #               %{
   #                 :__struct__ =>
   #                   Ecto.Changeset
-  #                   | MoodleNet.Access.InvalidCredentialError
-  #                   | MoodleNet.Access.UserDisabledError
-  #                   | MoodleNet.Access.UserEmailNotConfirmedError,
+  #                   | CommonsPub.Access.InvalidCredentialError
+  #                   | CommonsPub.Access.UserDisabledError
+  #                   | CommonsPub.Access.UserEmailNotConfirmedError,
   #                 optional(:action) => atom,
   #                 optional(:changes) => map,
   #                 optional(:code) => any,
@@ -47,11 +47,12 @@ defmodule MoodleNetWeb.LoginForm do
   #                 optional(:valid?) => boolean,
   #                 optional(:validations) => [any]
   #               }}
-  #            | %{current_user: MoodleNet.Users.Me.t(), token: any}}
+  #            | %{current_user: CommonsPub.Users.Me.t(), token: any}}
   def send(changeset, %{"login" => login, "password" => password} = _params) do
     case apply_action(changeset, :insert) do
       {:ok, _} ->
-        session = MoodleNetWeb.Helpers.Account.create_session(%{login: login, password: password})
+        session =
+          CommonsPub.Web.Helpers.Account.create_session(%{login: login, password: password})
 
         if(is_nil(session)) do
           {nil, "Incorrect details. Please try again..."}

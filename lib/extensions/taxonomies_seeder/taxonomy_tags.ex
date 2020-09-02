@@ -3,15 +3,14 @@ defmodule Taxonomy.TaxonomyTags do
   # alias Ecto.Changeset
   require Logger
 
-
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Common, GraphQL,
     GraphQL.Page,
     Common.Contexts,
     Repo
   }
 
-  # alias MoodleNet.Users.User
+  # alias CommonsPub.Users.User
   alias Taxonomy.TaxonomyTag
   alias Taxonomy.TaxonomyTag.Queries
 

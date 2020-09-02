@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.SearchLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.SearchLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Component.{
+  # alias CommonsPub.Web.Component.{
   #   TabNotFoundLive
   # }
 
-  alias MoodleNetWeb.SearchLive.ResultsLive
+  alias CommonsPub.Web.SearchLive.ResultsLive
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)

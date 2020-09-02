@@ -1,14 +1,14 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceMembersPreviewLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.InstanceLive.InstanceMembersPreviewLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Helpers.{Profiles}
-  import MoodleNetWeb.Helpers.Common
+  alias CommonsPub.Web.Helpers.{Profiles}
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Component.{
+  # alias CommonsPub.Web.Component.{
   #   UserPreviewLive
   # }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     UsersResolver
   }
 
@@ -38,5 +38,5 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersPreviewLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 end

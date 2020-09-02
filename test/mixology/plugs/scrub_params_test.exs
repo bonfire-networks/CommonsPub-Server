@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Plugs.ScrubParamsTest do
-  use MoodleNetWeb.ConnCase
-  alias MoodleNetWeb.Plugs.ScrubParams
+defmodule CommonsPub.Web.Plugs.ScrubParamsTest do
+  use CommonsPub.Web.ConnCase
+  alias CommonsPub.Web.Plugs.ScrubParams
 
   test "fails if params is not received with json" do
     conn =

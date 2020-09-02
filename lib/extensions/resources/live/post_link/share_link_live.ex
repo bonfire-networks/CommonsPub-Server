@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.My.ShareLinkLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.ShareLinkLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  # alias CommonsPub.Web.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
     {
@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
     if maybe_fetch do
       maybe_fetch
     else
-      MoodleNetWeb.Component.TagAutocomplete.tag_suggest(data, socket)
+      CommonsPub.Web.Component.TagAutocomplete.tag_suggest(data, socket)
     end
   end
 
@@ -35,7 +35,8 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
       IO.inspect(fetch_url: url)
 
       fetch =
-        with {:ok, fetch} <- MoodleNetWeb.GraphQL.MiscSchema.fetch_web_metadata(%{url: url}, nil) do
+        with {:ok, fetch} <-
+               CommonsPub.Web.GraphQL.MiscSchema.fetch_web_metadata(%{url: url}, nil) do
           IO.inspect(scraped: fetch)
           fetch
         else
@@ -74,12 +75,12 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
        socket
        |> put_flash(:error, "Please enter a valid link and give it a name...")}
     else
-      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+      # CommonsPub.Web.Plugs.Auth.login(socket, session.current_user, session.token)
 
       # IO.inspect(context_id, label: "context_id CHOOSEN")
 
       with {:ok, _resource} <-
-             MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
+             CommonsPub.Web.GraphQL.ResourcesResolver.create_resource(
                %{
                  context_id: context_id,
                  resource: input_to_atoms(data),

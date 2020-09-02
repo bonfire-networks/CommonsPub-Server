@@ -4,10 +4,10 @@
 
 defmodule CommonsPub.HTML.Formatter do
   alias CommonsPub.HTML.Scrubber
-  alias MoodleNet.Config
-  # alias MoodleNet.Repo
-  alias MoodleNet.Users.User
-  alias MoodleNet.Users
+  alias CommonsPub.Config
+  # alias CommonsPub.Repo
+  alias CommonsPub.Users.User
+  alias CommonsPub.Users
 
   @safe_mention_regex ~r/^(\s*(?<mentions>([@|&amp;|\+].+?\s+){1,})+)(?<rest>.*)/s
   @link_regex ~r"((?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~%:/?#[\]@!\$&'\(\)\*\+,;=.]+)|[0-9a-z+\-\.]+:[0-9a-z$-_.+!*'(),]+"ui
@@ -44,7 +44,7 @@ defmodule CommonsPub.HTML.Formatter do
   end
 
   def tag_handler("#" <> tag = tag_text, _buffer, opts, acc) do
-    url = "#{MoodleNetWeb.base_url()}/instance/tag/#{tag}"
+    url = "#{CommonsPub.Web.base_url()}/instance/tag/#{tag}"
 
     # TODO? save hashtag as a Category
 
@@ -64,7 +64,7 @@ defmodule CommonsPub.HTML.Formatter do
   end
 
   def tag_handler("&" <> nickname, buffer, opts, acc) do
-    case MoodleNet.Communities.get(nickname) do
+    case CommonsPub.Communities.get(nickname) do
       %{id: _id} = character ->
         mention_process(opts, character, acc, Map.get(opts, :content_type))
 
@@ -78,13 +78,13 @@ defmodule CommonsPub.HTML.Formatter do
 
     # TODO, link to Collection and Taggable
 
-    if MoodleNetWeb.Helpers.Common.is_numeric(nickname) and
+    if CommonsPub.Web.Helpers.Common.is_numeric(nickname) and
          Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
       with {:ok, category} <- Taxonomy.TaxonomyTags.maybe_make_category(nil, nickname) do
         mention_process(opts, category, acc, content_type)
       end
     else
-      case MoodleNet.Collections.get(nickname) do
+      case CommonsPub.Collections.get(nickname) do
         %{id: _id} = character ->
           mention_process(opts, character, acc, content_type)
 
@@ -102,8 +102,8 @@ defmodule CommonsPub.HTML.Formatter do
   end
 
   defp mention_process(_opts, obj, acc, content_type) do
-    obj = MoodleNet.Actors.obj_load_actor(obj)
-    url = MoodleNet.Actors.obj_actor(obj).canonical_url
+    obj = CommonsPub.Actors.obj_load_actor(obj)
+    url = CommonsPub.Actors.obj_actor(obj).canonical_url
     display_name = CommonsPub.Character.Characters.display_username(obj)
 
     link = tag_link(nil, url, display_name, content_type)

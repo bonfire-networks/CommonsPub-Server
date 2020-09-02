@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Mail.Checker do
+defmodule CommonsPub.Mail.Checker do
   @moduledoc """
   Functions for checking the validity of email addresses and domains
   """
@@ -33,5 +33,5 @@ defmodule MoodleNet.Mail.Checker do
     end
   end
 
-  defp config(), do: Application.get_env(:moodle_net, __MODULE__, [])
+  defp config(), do: Application.get_env(:commons_pub, __MODULE__, [])
 end

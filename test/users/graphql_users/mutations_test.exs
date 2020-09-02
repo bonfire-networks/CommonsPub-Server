@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.Users.MutationsTest do
-  use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
+  use CommonsPub.Web.ConnCase, async: true
   import CommonsPub.Utils.Simulation
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Users}
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
+  import CommonsPub.Test.Faking
+  alias CommonsPub.{Access, Users}
 
   describe "create_user" do
     test "Works for a guest with good inputs" do

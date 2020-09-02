@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.ActivityPub.Publisher do
+defmodule CommonsPub.ActivityPub.Publisher do
   alias ActivityPub.Actor
-  alias MoodleNet.ActivityPub.Utils
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Repo
+  alias CommonsPub.ActivityPub.Utils
+  alias CommonsPub.Meta.Pointers
+  alias CommonsPub.Repo
 
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
@@ -15,7 +15,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
     context =
       if(comment.thread.context) do
-        MoodleNet.Meta.Pointers.follow!(comment.thread.context)
+        CommonsPub.Meta.Pointers.follow!(comment.thread.context)
       end
 
     context_ap_id =
@@ -72,8 +72,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def create_resource(resource) do
     with {:ok, collection} <- ActivityPub.Actor.get_cached_by_local_id(resource.collection_id),
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
-         content_url <- MoodleNet.Uploads.remote_url_from_id(resource.content_id),
-         icon_url <- MoodleNet.Uploads.remote_url_from_id(resource.icon_id),
+         content_url <- CommonsPub.Uploads.remote_url_from_id(resource.content_id),
+         icon_url <- CommonsPub.Uploads.remote_url_from_id(resource.icon_id),
          ap_id <- Utils.generate_object_ap_id(resource),
          object <- %{
            "id" => ap_id,
@@ -172,7 +172,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
          followed = Pointers.follow!(follow.context),
          {:ok, followed} <- Actor.get_or_fetch_by_username(the_actor(followed).preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
-        MoodleNet.Follows.soft_delete(follow.creator, follow)
+        CommonsPub.Follows.soft_delete(follow.creator, follow)
         {:error, "account is private"}
       else
         # FIXME: insert pointer in AP database, insert cannonical URL in MN database

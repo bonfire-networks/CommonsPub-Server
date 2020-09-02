@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.TransmogrifierTest do
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
   alias ActivityPubWeb.Transmogrifier
   alias ActivityPub.Actor
   alias ActivityPub.Object
-  alias MoodleNet.Test.Faking
+  alias CommonsPub.Test.Faking
 
   import ActivityPub.Factory
   import Tesla.Mock

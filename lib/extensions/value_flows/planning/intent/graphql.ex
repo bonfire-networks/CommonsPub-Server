@@ -8,7 +8,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Communities,
     GraphQL,
@@ -16,7 +16,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     # User
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -27,18 +27,18 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     # CommonResolver
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
+  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Planning.Intent.Queries
   alias ValueFlows.Knowledge.Action.Actions
-  # alias MoodleNetWeb.GraphQL.CommonResolver
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  # alias CommonsPub.Web.GraphQL.CommonResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
@@ -474,6 +474,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  #   # Keyword.fetch!(Application.get_env(:commons_pub, Threads), :valid_contexts)
   # end
 end

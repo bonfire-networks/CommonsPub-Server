@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Actors.Actor do
+defmodule CommonsPub.Actors.Actor do
   @doc """
   A deprecated schema for actor (use character instead)
   """
 
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Peers.Peer
-  alias MoodleNet.Users.User
+  alias CommonsPub.Actors.Actor
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Peers.Peer
+  alias CommonsPub.Users.User
 
   # # TODO: match the agreed rules
   @remote_username_regex ~r(^[a-zA-Z0-9@._-]+$)
@@ -40,7 +40,8 @@ defmodule MoodleNet.Actors.Actor do
     |> Changeset.validate_required(@required)
     |> CommonsPub.Character.validate_username()
     |> CommonsPub.Character.cast_url()
-    |> Changeset.unique_constraint(:preferred_username, # with peer
+    # with peer
+    |> Changeset.unique_constraint(:preferred_username,
       name: "mn_actor_preferred_username_peer_id_index"
     )
     # without peer (local)
@@ -54,5 +55,4 @@ defmodule MoodleNet.Actors.Actor do
   def update_changeset(%Actor{} = actor, attrs) do
     Changeset.cast(actor, attrs, @update_cast)
   end
-
 end

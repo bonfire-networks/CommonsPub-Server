@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Plugs.AuthTest do
-  use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.Plugs.AuthTest do
+  use CommonsPub.Web.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   alias Plug.Conn
 
-  alias MoodleNet.Access.{
+  alias CommonsPub.Access.{
     MalformedAuthorizationHeaderError,
     TokenExpiredError,
     TokenNotFoundError
   }
 
-  alias MoodleNetWeb.Plugs.Auth
+  alias CommonsPub.Web.Plugs.Auth
 
   defp strip_token(token), do: Map.drop(token, [:user])
 

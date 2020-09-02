@@ -7,7 +7,7 @@
       <form phx-submit="new_collection" phx-target="<%= @myself %>">
                <%= live_component(
                 @socket,
-                MoodleNetWeb.My.ContextSelect,
+                CommonsPub.Web.My.ContextSelect,
                 current_user: @current_user,
                 my_communities: @my_communities,
                 current_context: @current_context

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Resources.Queries do
+defmodule CommonsPub.Resources.Queries do
   import Ecto.Query
-  import MoodleNet.Common.Query, only: [match_admin: 0]
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Users.User
 
   # the commented out ones are supported in postgres but not yet ecto
   @join_qualifiers [

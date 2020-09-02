@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Flags.NotFlaggableError do
+defmodule CommonsPub.Flags.NotFlaggableError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.Mail.EmailTest do
-  use MoodleNet.DataCase, async: true
+defmodule CommonsPub.Mail.EmailTest do
+  use CommonsPub.DataCase, async: true
 
-  alias MoodleNet.Mail.Email
-  import MoodleNet.Test.Faking
+  alias CommonsPub.Mail.Email
+  import CommonsPub.Test.Faking
   alias CommonsPub.Utils.Simulation
 
   setup do

@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.GraphQL.UploadResolver do
-  alias MoodleNet.GraphQL.{
+defmodule CommonsPub.Web.GraphQL.UploadResolver do
+  alias CommonsPub.GraphQL.{
     FetchFields,
     # Fields,
     ResolveFields
   }
 
-  alias MoodleNet.{Uploads, Users}
-  alias MoodleNet.Uploads.Content
+  alias CommonsPub.{Uploads, Users}
+  alias CommonsPub.Uploads.Content
 
   @uploader_fields %{
-    content: MoodleNet.Uploads.ResourceUploader,
-    image: MoodleNet.Uploads.ImageUploader,
-    icon: MoodleNet.Uploads.IconUploader
+    content: CommonsPub.Uploads.ResourceUploader,
+    image: CommonsPub.Uploads.ImageUploader,
+    icon: CommonsPub.Uploads.IconUploader
   }
 
   def upload(user, %{} = params, _info) do

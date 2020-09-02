@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.AdminTest do
-  use MoodleNetWeb.ConnCase
+defmodule CommonsPub.Web.GraphQL.AdminTest do
+  use CommonsPub.Web.ConnCase
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   import ActivityPub.Factory
   alias CommonsPub.Utils.Simulation
-  import MoodleNetWeb.Test.GraphQLFields
+  import CommonsPub.Web.Test.GraphQLFields
 
   describe "invites" do
     test "sends an invite" do
@@ -37,7 +37,7 @@ defmodule MoodleNetWeb.GraphQL.AdminTest do
     test "deactivates an actor" do
       actor = actor()
       admin = fake_admin!()
-      {:ok, actor} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(actor.ap_id)
+      {:ok, actor} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(actor.ap_id)
 
       conn = user_conn(admin)
       q = deactivation_mutation()
@@ -51,7 +51,7 @@ defmodule MoodleNetWeb.GraphQL.AdminTest do
     test "not permitted when user not admin" do
       actor = actor()
       user = fake_user!()
-      {:ok, actor} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(actor.ap_id)
+      {:ok, actor} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(actor.ap_id)
 
       conn = user_conn(user)
       q = deactivation_mutation()

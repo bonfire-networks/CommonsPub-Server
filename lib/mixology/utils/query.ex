@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.Query do
+defmodule CommonsPub.Common.Query do
   import Ecto.Query
 
   def unroll(items, key \\ :context)
@@ -20,8 +20,8 @@ defmodule MoodleNet.Common.Query do
 
   defmacro match_admin() do
     quote do
-      %MoodleNet.Users.User{
-        local_user: %MoodleNet.Users.LocalUser{is_instance_admin: true}
+      %CommonsPub.Users.User{
+        local_user: %CommonsPub.Users.LocalUser{is_instance_admin: true}
       }
     end
   end

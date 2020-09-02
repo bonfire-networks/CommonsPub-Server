@@ -12,7 +12,7 @@
       <% end %>
       <%= live_component(
           @socket,
-          MoodleNetWeb.SearchLive.Form,
+          CommonsPub.Web.SearchLive.Form,
           id: :search_form,
           search: @search,
           current_user: @current_user
@@ -22,7 +22,7 @@
       <%= if @current_user do %>
         <%= live_component(
           @socket,
-          MoodleNetWeb.My.MyHeader,
+          CommonsPub.Web.My.MyHeader,
           id: :my_header,
           current_user: @current_user,
           my_communities: @my_communities,
@@ -53,7 +53,7 @@
     <%= if @current_user do %>
       <%= live_component(
           @socket,
-          MoodleNetWeb.My.MySidebar,
+          CommonsPub.Web.My.MySidebar,
           current_user: @current_user,
           my_communities: @my_communities,
           id: :my_sidebar

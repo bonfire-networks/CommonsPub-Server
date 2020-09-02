@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Plugs.HTTPSignaturePlugTest do
-  use MoodleNetWeb.ConnCase
+  use CommonsPub.Web.ConnCase
   alias ActivityPubWeb.Plugs.HTTPSignaturePlug
 
   import Plug.Conn

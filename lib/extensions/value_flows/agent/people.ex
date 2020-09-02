@@ -4,7 +4,7 @@ defmodule ValueFlows.Agent.People do
   require Logger
 
   def people(signed_in_user) do
-    {:ok, users} = MoodleNet.Users.many([:default, user: signed_in_user])
+    {:ok, users} = CommonsPub.Users.many([:default, user: signed_in_user])
 
     Enum.map(
       users,
@@ -16,7 +16,7 @@ defmodule ValueFlows.Agent.People do
   def person(id, signed_in_user) do
     IO.inspect(id)
 
-    case MoodleNet.Users.one([:default, id: id, user: signed_in_user]) do
+    case CommonsPub.Users.one([:default, id: id, user: signed_in_user]) do
       {:ok, item} -> item |> actor_to_person
       {:error, error} -> {:error, error}
     end

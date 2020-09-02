@@ -1,12 +1,12 @@
 defmodule ValueFlows.Hydration do
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     ActorsResolver,
     CommonResolver,
     UploadResolver
   }
 
-  alias MoodleNet.Users.User
-  alias MoodleNet.Communities.Community
+  alias CommonsPub.Users.User
+  alias CommonsPub.Communities.Community
 
   def hydrate() do
     agent_fields = %{

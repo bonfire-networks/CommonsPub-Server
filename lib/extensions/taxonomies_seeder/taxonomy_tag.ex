@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Taxonomy.TaxonomyTag do
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
   alias Ecto.Changeset
   alias Taxonomy.TaxonomyTag

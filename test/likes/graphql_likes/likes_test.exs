@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.LikesTest do
-  use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNet.Likes
-  # import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.ConnHelpers
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+defmodule CommonsPub.Web.GraphQL.LikesTest do
+  use CommonsPub.Web.ConnCase, async: true
+  alias CommonsPub.Likes
+  # import CommonsPub.MediaProxy.URLBuilder, only: [encode: 1]
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.ConnHelpers
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
 
   describe "like" do
     test "works for guest for a like of a user" do

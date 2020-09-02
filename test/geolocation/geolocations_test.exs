@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.GeolocationsTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
 
   import Geolocation.Test.Faking
   import Geolocation.Simulate
@@ -30,7 +30,7 @@ defmodule Geolocation.GeolocationsTest do
 
       assert {:ok, geo} = Geolocations.soft_delete(user, geo)
 
-      assert {:error, %MoodleNet.Common.NotFoundError{}} =
+      assert {:error, %CommonsPub.Common.NotFoundError{}} =
                Geolocations.one([:default, id: geo.id])
     end
   end

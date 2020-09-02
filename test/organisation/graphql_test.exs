@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.GraphQLTest do
-  use MoodleNetWeb.ConnCase, async: true
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Faking
+  use CommonsPub.Web.ConnCase, async: true
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
+  import CommonsPub.Test.Faking
   import CommonsPub.Utils.Simulation
 
   import Organisation.Simulate

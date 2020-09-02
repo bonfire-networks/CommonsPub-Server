@@ -1,6 +1,6 @@
-defmodule MoodleNetWeb.Discussion.DiscussionSubCommentLive do
-  use MoodleNetWeb, :live_component
-  import MoodleNetWeb.Helpers.Common
+defmodule CommonsPub.Web.Discussion.DiscussionSubCommentLive do
+  use CommonsPub.Web, :live_component
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Discussion.DiscussionSubCommentLive
+  # alias CommonsPub.Web.Discussion.DiscussionSubCommentLive
 end

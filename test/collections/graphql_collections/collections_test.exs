@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
-  use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNet.Collections
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNetWeb.Test.Orderings
-  import MoodleNetWeb.Test.Automaton
-  # import MoodleNet.Common.Enums
+defmodule CommonsPub.Web.GraphQL.Collections.CollectionsTest do
+  use CommonsPub.Web.ConnCase, async: true
+  alias CommonsPub.Collections
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
+  import CommonsPub.Web.Test.Orderings
+  import CommonsPub.Web.Test.Automaton
+  # import CommonsPub.Common.Enums
   import Grumble
   import Zest
 

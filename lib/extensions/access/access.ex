@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Access do
+defmodule CommonsPub.Access do
   @moduledoc """
   The access system in general is related to authentication:
   * Creation and querying of session tokens
@@ -7,10 +7,10 @@ defmodule MoodleNet.Access do
   """
 
   alias Ecto.{Changeset, UUID}
-  alias MoodleNet.{Common, Repo}
-  alias MoodleNet.Common.NotFoundError
+  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Common.NotFoundError
 
-  alias MoodleNet.Access.{
+  alias CommonsPub.Access.{
     InvalidCredentialError,
     NoAccessError,
     RegisterEmailAccess,
@@ -22,7 +22,7 @@ defmodule MoodleNet.Access do
     UserEmailNotConfirmedError
   }
 
-  alias MoodleNet.Users.{LocalUser, User}
+  alias CommonsPub.Users.{LocalUser, User}
   import Ecto.Query
 
   @type access :: RegisterEmailDomainAccess.t() | RegisterEmailAccess.t()

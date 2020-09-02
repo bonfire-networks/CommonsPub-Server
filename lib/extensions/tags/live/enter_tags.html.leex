@@ -3,7 +3,7 @@
 </div>
 <%= live_component(
     @socket,
-    MoodleNetWeb.Component.TagAutocomplete,
+    CommonsPub.Web.Component.TagAutocomplete,
     current_user: @current_user,
     id: @id <> "_tag_results",
     tag_target: @id <> "_tags"

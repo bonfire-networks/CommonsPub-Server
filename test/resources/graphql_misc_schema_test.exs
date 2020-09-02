@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.MiscTest do
-  # use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.GraphQL.MiscTest do
+  # use CommonsPub.Web.ConnCase, async: true
 
   # import Tesla.Mock
 

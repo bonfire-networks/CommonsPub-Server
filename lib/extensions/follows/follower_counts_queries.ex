@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Follows.FollowerCountsQueries do
-  alias MoodleNet.Follows.FollowerCount
+defmodule CommonsPub.Follows.FollowerCountsQueries do
+  alias CommonsPub.Follows.FollowerCount
 
   import Ecto.Query
 

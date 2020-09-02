@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Component.CommunityPreviewLive do
+defmodule CommonsPub.Web.Component.CommunityPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
-  # import MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Web.Helpers.Common
+  # import CommonsPub.Web.Helpers.Profiles
 
   # def mount(_, _session, socket) do
   #   {:ok, assign(socket, current_user: socket.assigns.current_user)}
@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.Component.CommunityPreviewLive do
     # IO.inspect(community_pre_prep: assigns.community)
 
     community =
-      MoodleNetWeb.Helpers.Profiles.prepare(assigns.community, %{icon: true, actor: true})
+      CommonsPub.Web.Helpers.Profiles.prepare(assigns.community, %{icon: true, actor: true})
 
     # IO.inspect(community_post_prep: community)
 

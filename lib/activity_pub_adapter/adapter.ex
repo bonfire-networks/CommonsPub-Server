@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.ActivityPub.Adapter do
-  alias MoodleNet.{Collections, Communities, Common, Repo, Resources, Threads, Users}
-  alias MoodleNet.ActivityPub.Utils
+defmodule CommonsPub.ActivityPub.Adapter do
+  alias CommonsPub.{Collections, Communities, Common, Repo, Resources, Threads, Users}
+  alias CommonsPub.ActivityPub.Utils
 
   alias CommonsPub.Character.Characters
 
   alias CommonsPub.Search.Indexer
 
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Threads.Comments
-  alias MoodleNet.Users.User
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Workers.APReceiverWorker
+  alias CommonsPub.Meta.Pointers
+  alias CommonsPub.Threads.Comments
+  alias CommonsPub.Users.User
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Workers.APReceiverWorker
   require Logger
 
   @behaviour ActivityPub.Adapter
@@ -52,7 +52,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   defp maybe_create_image_object(url, _actor) when is_nil(url), do: nil
 
   defp maybe_create_image_object(url, actor) do
-    case MoodleNet.Uploads.upload(MoodleNet.Uploads.ImageUploader, actor, %{url: url}, %{}) do
+    case CommonsPub.Uploads.upload(CommonsPub.Uploads.ImageUploader, actor, %{url: url}, %{}) do
       {:ok, upload} -> upload.id
       {:error, _} -> nil
     end
@@ -61,7 +61,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   defp maybe_create_icon_object(url, _actor) when is_nil(url), do: nil
 
   defp maybe_create_icon_object(url, actor) do
-    case MoodleNet.Uploads.upload(MoodleNet.Uploads.IconUploader, actor, %{url: url}, %{}) do
+    case CommonsPub.Uploads.upload(CommonsPub.Uploads.IconUploader, actor, %{url: url}, %{}) do
       {:ok, upload} -> upload.id
       {:error, _} -> nil
     end
@@ -73,9 +73,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
     ap_base = uri.scheme <> "://" <> uri.host
 
     peer =
-      case Repo.get_by(MoodleNet.Peers.Peer, ap_url_base: ap_base) do
+      case Repo.get_by(CommonsPub.Peers.Peer, ap_url_base: ap_base) do
         nil ->
-          {:ok, peer} = MoodleNet.Peers.create(%{ap_url_base: ap_base, domain: uri.host})
+          {:ok, peer} = CommonsPub.Peers.create(%{ap_url_base: ap_base, domain: uri.host})
           peer
 
         peer ->
@@ -106,12 +106,12 @@ defmodule MoodleNet.ActivityPub.Adapter do
     {:ok, created_actor, creator} =
       case actor["type"] do
         "Person" ->
-          {:ok, created_actor} = MoodleNet.Users.register(create_attrs)
+          {:ok, created_actor} = CommonsPub.Users.register(create_attrs)
           {:ok, created_actor, created_actor}
 
         "MN:Community" ->
           {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
-          {:ok, created_actor} = MoodleNet.Communities.create_remote(creator, create_attrs)
+          {:ok, created_actor} = CommonsPub.Communities.create_remote(creator, create_attrs)
           {:ok, created_actor, creator}
 
         "MN:Collection" ->
@@ -119,7 +119,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
           {:ok, community} = get_actor_by_ap_id(actor["context"])
 
           {:ok, created_actor} =
-            MoodleNet.Collections.create_remote(creator, community, create_attrs)
+            CommonsPub.Collections.create_remote(creator, community, create_attrs)
 
           {:ok, created_actor, creator}
       end
@@ -129,13 +129,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
     {:ok, updated_actor} =
       case created_actor do
-        %MoodleNet.Users.User{} ->
+        %CommonsPub.Users.User{} ->
           Users.update_remote(created_actor, %{icon_id: icon_id, image_id: image_id})
 
-        %MoodleNet.Communities.Community{} ->
+        %CommonsPub.Communities.Community{} ->
           Communities.update(%User{}, created_actor, %{icon_id: icon_id, image_id: image_id})
 
-        %MoodleNet.Collections.Collection{} ->
+        %CommonsPub.Collections.Collection{} ->
           Collections.update(%User{}, created_actor, %{icon_id: icon_id, image_id: image_id})
       end
 
@@ -165,7 +165,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
            image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
          },
-         {:ok, user} <- MoodleNet.Users.update_remote(actor, params) do
+         {:ok, user} <- CommonsPub.Users.update_remote(actor, params) do
       {:ok, user}
     else
       {:error, e} -> {:error, e}
@@ -180,7 +180,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), creator),
            image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), creator)
          },
-         {:ok, comm} <- MoodleNet.Communities.update(creator, actor, params) do
+         {:ok, comm} <- CommonsPub.Communities.update(creator, actor, params) do
       {:ok, comm}
     else
       {:error, e} -> {:error, e}
@@ -194,7 +194,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            summary: data["summary"],
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), creator)
          },
-         {:ok, coll} <- MoodleNet.Collections.update(creator, actor, params) do
+         {:ok, coll} <- CommonsPub.Collections.update(creator, actor, params) do
       {:ok, coll}
     else
       {:error, e} -> {:error, e}
@@ -206,13 +206,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
     with {:ok, actor} <- get_actor_by_id(actor_object.mn_pointer_id) do
       case actor do
-        %MoodleNet.Users.User{} ->
+        %CommonsPub.Users.User{} ->
           update_user(actor, data)
 
-        %MoodleNet.Communities.Community{} ->
+        %CommonsPub.Communities.Community{} ->
           update_community(actor, data)
 
-        %MoodleNet.Collections.Collection{} ->
+        %CommonsPub.Collections.Collection{} ->
           update_collection(actor, data)
       end
     end
@@ -270,9 +270,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"context" => context}} = _activity,
         %{data: %{"type" => "Note"}} = object
       ) do
-    with pointer_id <- MoodleNet.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
+    with pointer_id <- CommonsPub.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
          {:ok, pointer} <- Pointers.one(id: pointer_id),
-         parent = MoodleNet.Meta.Pointers.follow!(pointer),
+         parent = CommonsPub.Meta.Pointers.follow!(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, thread} <- Threads.create(actor, %{is_public: true, is_local: false}, parent),
          {:ok, comment} <-
@@ -296,8 +296,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, collection} <- get_actor_by_ap_id(context),
          {:ok, actor} <- get_actor_by_ap_id(actor),
          {:ok, content} <-
-           MoodleNet.Uploads.upload(
-             MoodleNet.Uploads.ResourceUploader,
+           CommonsPub.Uploads.upload(
+             CommonsPub.Uploads.ResourceUploader,
              actor,
              %{url: object.data["url"]},
              %{is_public: true}
@@ -320,9 +320,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
            language: object.data["language"]
          },
          {:ok, resource} <-
-           MoodleNet.Resources.create(actor, collection, attrs) do
+           CommonsPub.Resources.create(actor, collection, attrs) do
       ActivityPub.Object.update(object, %{mn_pointer_id: resource.id})
-      # Indexer.maybe_index_object(resource) # now being called in MoodleNet.Resources.create
+      # Indexer.maybe_index_object(resource) # now being called in CommonsPub.Resources.create
       :ok
     else
       {:error, e} -> {:error, e}
@@ -351,7 +351,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]),
          {:ok, _} <-
-           MoodleNet.Follows.create(follower, followed, %{
+           CommonsPub.Follows.create(follower, followed, %{
              is_public: true,
              is_muted: false,
              is_local: false,
@@ -370,8 +370,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, follow} <-
-           MoodleNet.Follows.one(deleted: false, creator: follower.id, context: followed.id),
-         {:ok, _} <- MoodleNet.Follows.soft_delete(follower, follow) do
+           CommonsPub.Follows.one(deleted: false, creator: follower.id, context: followed.id),
+         {:ok, _} <- CommonsPub.Follows.soft_delete(follower, follow) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -382,7 +382,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, blocker} <- get_actor_by_ap_id(activity.data["actor"]),
          {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]),
          {:ok, _} <-
-           MoodleNet.Blocks.create(blocker, blocked, %{
+           CommonsPub.Blocks.create(blocker, blocked, %{
              is_public: true,
              is_muted: false,
              is_blocked: true,
@@ -401,8 +401,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     with {:ok, blocker} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, block} <- MoodleNet.Blocks.find(blocker, blocked),
-         {:ok, _} <- MoodleNet.Blocks.soft_delete(blocker, block) do
+         {:ok, block} <- CommonsPub.Blocks.find(blocker, blocked),
+         {:ok, _} <- CommonsPub.Blocks.soft_delete(blocker, block) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -415,9 +415,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
          %ActivityPub.Object{} = object <-
            ActivityPub.Object.get_cached_by_ap_id(activity.data["object"]),
          {:ok, liked} <- Pointers.one(id: object.mn_pointer_id),
-         liked = MoodleNet.Meta.Pointers.follow!(liked),
+         liked = CommonsPub.Meta.Pointers.follow!(liked),
          {:ok, _} <-
-           MoodleNet.Likes.create(actor, liked, %{
+           CommonsPub.Likes.create(actor, liked, %{
              is_public: true,
              is_local: false,
              canonical_url: activity.data["id"]
@@ -438,9 +438,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
       with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
            {:ok, _} <-
              (case actor do
-                %User{} -> MoodleNet.Users.soft_delete_remote(actor)
-                %Community{} -> MoodleNet.Communities.soft_delete(%User{}, actor)
-                %Collection{} -> MoodleNet.Collections.soft_delete(%User{}, actor)
+                %User{} -> CommonsPub.Users.soft_delete_remote(actor)
+                %Community{} -> CommonsPub.Communities.soft_delete(%User{}, actor)
+                %Collection{} -> CommonsPub.Collections.soft_delete(%User{}, actor)
               end) do
         Indexer.maybe_delete_object(actor)
         :ok
@@ -485,11 +485,11 @@ defmodule MoodleNet.ActivityPub.Adapter do
       # Filter nils
       |> Enum.filter(fn object -> object end)
       |> Enum.map(fn object ->
-        MoodleNet.Meta.Pointers.one!(id: object.mn_pointer_id)
-        |> MoodleNet.Meta.Pointers.follow!()
+        CommonsPub.Meta.Pointers.one!(id: object.mn_pointer_id)
+        |> CommonsPub.Meta.Pointers.follow!()
       end)
       |> Enum.each(fn object ->
-        MoodleNet.Flags.create(actor, object, %{
+        CommonsPub.Flags.create(actor, object, %{
           message: activity.data["content"],
           is_local: false
         })
@@ -502,7 +502,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   def perform(:handle_activity, %{data: %{"type" => "Flag", "object" => [account]}} = activity) do
     with {:ok, actor} <- get_actor_by_ap_id(activity.data["actor"]),
          {:ok, account} <- get_actor_by_ap_id(account) do
-      MoodleNet.Flags.create(actor, account, %{
+      CommonsPub.Flags.create(actor, account, %{
         message: activity.data["content"],
         is_local: false
       })

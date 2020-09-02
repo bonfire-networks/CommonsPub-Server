@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.VF.Proposal do
+defmodule CommonsPub.Repo.Migrations.VF.Proposal do
   use Ecto.Migration
 
   def up do

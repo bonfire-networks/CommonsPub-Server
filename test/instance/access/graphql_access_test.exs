@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.GraphQL.AccessTest do
-  use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.GraphQL.AccessTest do
+  use CommonsPub.Web.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.GraphQLFields
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.GraphQLFields
   import Grumble
   alias CommonsPub.Utils.Simulation
-  alias MoodleNet.Access
+  alias CommonsPub.Access
 
   def email_access_fields(extra \\ []) do
     [:email, :created_at] ++ extra

@@ -1,5 +1,4 @@
-defmodule MoodleNet.Common.Time do
-
+defmodule CommonsPub.Common.Time do
   alias Timex.Duration
 
   @doc "Creates a duration from a count and unit"
@@ -17,5 +16,4 @@ defmodule MoodleNet.Common.Time do
   def duration_to(dur, :second), do: Duration.to_seconds(dur)
   def duration_to(dur, :millisecond), do: Duration.to_milliseconds(dur)
   def duration_to(dur, :microsecond), do: Duration.to_microseconds(dur)
-
 end

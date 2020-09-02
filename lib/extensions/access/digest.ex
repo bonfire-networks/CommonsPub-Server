@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.Plugs.DigestPlug do
+defmodule CommonsPub.Web.Plugs.DigestPlug do
   @moduledoc """
   Generates the digest for the body.
 

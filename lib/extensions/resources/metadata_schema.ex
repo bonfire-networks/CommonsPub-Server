@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.GraphQL.MiscSchema do
+defmodule CommonsPub.Web.GraphQL.MiscSchema do
   @moduledoc """
   GraphQL stuff without a clear module
   """
@@ -26,8 +26,8 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   end
 
   def fetch_web_metadata(%{url: url}, _info) do
-    with {:error, _} <- MoodleNet.MetadataScraper.fetch(url) do
-      {:error, MoodleNet.Common.NotFoundError.new()}
+    with {:error, _} <- CommonsPub.MetadataScraper.fetch(url) do
+      {:error, CommonsPub.Common.NotFoundError.new()}
     end
   end
 

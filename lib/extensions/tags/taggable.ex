@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Taggable do
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
   use Pointers.Mixin,
     otp_app: :my_app,
     source: "taggable"
 
   # use Pointers.Pointable,
-  #   otp_app: :moodle_net,
+  #   otp_app: :commons_pub,
   #   source: "tags",
   #   table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Taggable
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   @type t :: %__MODULE__{}
   @required ~w(id prefix facet)a

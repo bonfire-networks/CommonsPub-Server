@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Profile.GraphQL.Resolver do
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     GraphQL,
     Repo,
     Resources
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # Flow,
     FetchFields,
     FetchPage,
@@ -25,8 +25,8 @@ defmodule CommonsPub.Profile.GraphQL.Resolver do
     # Queries
   }
 
-  alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
+  alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
   alias Pointers
 
   ## resolvers
@@ -88,7 +88,7 @@ defmodule CommonsPub.Profile.GraphQL.Resolver do
     })
   end
 
-  # def profileistic_edge(%CommonsPub.Profile{profileistic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def profileistic_edge(%CommonsPub.Profile{profileistic_id: id}, _, info), do: CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   # def resource_count_edge(%CommonsPub.Profile{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
@@ -118,7 +118,7 @@ defmodule CommonsPub.Profile.GraphQL.Resolver do
   def add_profile_to(%{context_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
+           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
         Profiles.add_profile_to(me, pointer)
       end
     end)
@@ -151,7 +151,7 @@ defmodule CommonsPub.Profile.GraphQL.Resolver do
   # end
 
   # defp valid_contexts do
-  #   Keyword.fetch!(Application.get_env(:moodle_net, Profiles), :valid_contexts)
+  #   Keyword.fetch!(Application.get_env(:commons_pub, Profiles), :valid_contexts)
   # end
 
   # def creator_edge(%{profile: %{creator_id: id}}, _, info) do

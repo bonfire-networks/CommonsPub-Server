@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.Schema do
+defmodule CommonsPub.Web.GraphQL.Schema do
   @moduledoc "Root GraphQL Schema"
   use Absinthe.Schema
 
   require Logger
 
-  alias MoodleNetWeb.GraphQL.SchemaUtils
-  alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
+  alias CommonsPub.Web.GraphQL.SchemaUtils
+  alias CommonsPub.Web.GraphQL.Middleware.CollapseErrors
   alias Absinthe.Middleware.{Async, Batch}
 
   # @pipeline_modifier OverridePhase
@@ -14,30 +14,30 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   def plugins, do: [Async, Batch]
 
   def middleware(middleware, _field, _object) do
-    # [{MoodleNetWeb.GraphQL.Middleware.Debug, :start}] ++
+    # [{CommonsPub.Web.GraphQL.Middleware.Debug, :start}] ++
     middleware ++ [CollapseErrors]
   end
 
-  import_types(MoodleNetWeb.GraphQL.AccessSchema)
-  import_types(MoodleNetWeb.GraphQL.ActivitiesSchema)
-  import_types(MoodleNetWeb.GraphQL.AdminSchema)
-  import_types(MoodleNetWeb.GraphQL.BlocksSchema)
-  import_types(MoodleNetWeb.GraphQL.CollectionsSchema)
-  import_types(MoodleNetWeb.GraphQL.CommentsSchema)
-  import_types(MoodleNetWeb.GraphQL.CommonSchema)
-  import_types(MoodleNetWeb.GraphQL.CommunitiesSchema)
-  import_types(MoodleNetWeb.GraphQL.Cursor)
-  import_types(MoodleNetWeb.GraphQL.FeaturesSchema)
-  import_types(MoodleNetWeb.GraphQL.FlagsSchema)
-  import_types(MoodleNetWeb.GraphQL.FollowsSchema)
-  import_types(MoodleNetWeb.GraphQL.InstanceSchema)
-  import_types(MoodleNetWeb.GraphQL.JSON)
-  import_types(MoodleNetWeb.GraphQL.LikesSchema)
-  import_types(MoodleNetWeb.GraphQL.MiscSchema)
-  import_types(MoodleNetWeb.GraphQL.ResourcesSchema)
-  import_types(MoodleNetWeb.GraphQL.ThreadsSchema)
-  import_types(MoodleNetWeb.GraphQL.UsersSchema)
-  import_types(MoodleNetWeb.GraphQL.UploadSchema)
+  import_types(CommonsPub.Web.GraphQL.AccessSchema)
+  import_types(CommonsPub.Web.GraphQL.ActivitiesSchema)
+  import_types(CommonsPub.Web.GraphQL.AdminSchema)
+  import_types(CommonsPub.Web.GraphQL.BlocksSchema)
+  import_types(CommonsPub.Web.GraphQL.CollectionsSchema)
+  import_types(CommonsPub.Web.GraphQL.CommentsSchema)
+  import_types(CommonsPub.Web.GraphQL.CommonSchema)
+  import_types(CommonsPub.Web.GraphQL.CommunitiesSchema)
+  import_types(CommonsPub.Web.GraphQL.Cursor)
+  import_types(CommonsPub.Web.GraphQL.FeaturesSchema)
+  import_types(CommonsPub.Web.GraphQL.FlagsSchema)
+  import_types(CommonsPub.Web.GraphQL.FollowsSchema)
+  import_types(CommonsPub.Web.GraphQL.InstanceSchema)
+  import_types(CommonsPub.Web.GraphQL.JSON)
+  import_types(CommonsPub.Web.GraphQL.LikesSchema)
+  import_types(CommonsPub.Web.GraphQL.MiscSchema)
+  import_types(CommonsPub.Web.GraphQL.ResourcesSchema)
+  import_types(CommonsPub.Web.GraphQL.ThreadsSchema)
+  import_types(CommonsPub.Web.GraphQL.UsersSchema)
+  import_types(CommonsPub.Web.GraphQL.UploadSchema)
 
   # Extension Modules
   import_types(CommonsPub.Profile.GraphQL.Schema)
@@ -114,14 +114,14 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do
       arg(:url, non_null(:string))
-      resolve(&MoodleNetWeb.GraphQL.MiscSchema.fetch_web_metadata/2)
+      resolve(&CommonsPub.Web.GraphQL.MiscSchema.fetch_web_metadata/2)
     end
 
     # for debugging purposes only:
     # @desc "Fetch an AS2 object from URL"
     # field :fetch_object, type: :fetched_object do
     #   arg :url, non_null(:string)
-    #   resolve &MoodleNetWeb.GraphQL.MiscSchema.fetch_object/2
+    #   resolve &CommonsPub.Web.GraphQL.MiscSchema.fetch_object/2
     # end
   end
 
@@ -165,24 +165,54 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     ])
 
     resolve_type(fn
-      %MoodleNet.Users.User{}, _ -> :user
-      %MoodleNet.Communities.Community{}, _ -> :community
-      %MoodleNet.Collections.Collection{}, _ -> :collection
-      %MoodleNet.Resources.Resource{}, _ -> :resource
-      %MoodleNet.Threads.Thread{}, _ -> :thread
-      %MoodleNet.Threads.Comment{}, _ -> :comment
-      %MoodleNet.Follows.Follow{}, _ -> :follow
-      %MoodleNet.Likes.Like{}, _ -> :like
-      %MoodleNet.Flags.Flag{}, _ -> :flag
-      %MoodleNet.Features.Feature{}, _ -> :feature
-      %Organisation{}, _ -> :organisation
-      %Geolocation{}, _ -> :spatial_thing
-      %CommonsPub.Tag.Category{}, _ -> :category
-      %CommonsPub.Tag.Taggable{}, _ -> :taggable
+      %CommonsPub.Users.User{}, _ ->
+        :user
+
+      %CommonsPub.Communities.Community{}, _ ->
+        :community
+
+      %CommonsPub.Collections.Collection{}, _ ->
+        :collection
+
+      %CommonsPub.Resources.Resource{}, _ ->
+        :resource
+
+      %CommonsPub.Threads.Thread{}, _ ->
+        :thread
+
+      %CommonsPub.Threads.Comment{}, _ ->
+        :comment
+
+      %CommonsPub.Follows.Follow{}, _ ->
+        :follow
+
+      %CommonsPub.Likes.Like{}, _ ->
+        :like
+
+      %CommonsPub.Flags.Flag{}, _ ->
+        :flag
+
+      %CommonsPub.Features.Feature{}, _ ->
+        :feature
+
+      %Organisation{}, _ ->
+        :organisation
+
+      %Geolocation{}, _ ->
+        :spatial_thing
+
+      %CommonsPub.Tag.Category{}, _ ->
+        :category
+
+      %CommonsPub.Tag.Taggable{}, _ ->
+        :taggable
+
       # %ValueFlows.Agent.Agents{}, _ -> :agent
       # %ValueFlows.Agent.People{}, _ -> :person
       # %ValueFlows.Agent.Organizations{}, _ -> :organization
-      %ValueFlows.Planning.Intent{}, _ -> :intent
+      %ValueFlows.Planning.Intent{}, _ ->
+        :intent
+
       o, _ ->
         Logger.warn("Any context resolved to an unknown type: #{inspect(o)}")
     end)

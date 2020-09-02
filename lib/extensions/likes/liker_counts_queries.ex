@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Likes.LikerCountsQueries do
-  alias MoodleNet.Likes.LikerCount
+defmodule CommonsPub.Likes.LikerCountsQueries do
+  alias CommonsPub.Likes.LikerCount
   import Ecto.Query
 
   def query(LikerCount), do: from(l in LikerCount, as: :liker_count)

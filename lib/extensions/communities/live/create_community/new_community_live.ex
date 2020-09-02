@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.My.NewCommunityLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.NewCommunityLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  # alias CommonsPub.Web.Helpers.{Profiles, Communities}
 
   def update(assigns, socket) do
     {
@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.My.NewCommunityLive do
       community = input_to_atoms(data)
 
       {:ok, community} =
-        MoodleNetWeb.GraphQL.CommunitiesResolver.create_community(
+        CommonsPub.Web.GraphQL.CommunitiesResolver.create_community(
           %{community: community, context_id: context_id},
           %{context: %{current_user: socket.assigns.current_user}}
         )

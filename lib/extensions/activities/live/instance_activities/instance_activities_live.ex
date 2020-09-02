@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.InstanceLive.InstanceActivitiesLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     ActivitiesListLive
   }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     InstanceResolver
   }
 
@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   Handle pushed activities from PubSub
   """
   def update(%{activity: activity}, socket),
-    do: MoodleNetWeb.Helpers.Activites.pubsub_receive(activity, socket)
+    do: CommonsPub.Web.Helpers.Activites.pubsub_receive(activity, socket)
 
   @doc """
   Load initial activities
@@ -34,15 +34,15 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   """
   def fetch(socket, assigns),
     do:
-      MoodleNetWeb.Helpers.Activites.outbox_live(
-        &MoodleNet.Feeds.instance_outbox_id/0,
-        &MoodleNet.Instance.default_outbox_query_contexts/0,
+      CommonsPub.Web.Helpers.Activites.outbox_live(
+        &CommonsPub.Feeds.instance_outbox_id/0,
+        &CommonsPub.Instance.default_outbox_query_contexts/0,
         assigns,
         socket
       )
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

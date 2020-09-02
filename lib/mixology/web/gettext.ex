@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.Gettext do
+defmodule CommonsPub.Web.Gettext do
   @moduledoc """
   A module providing Internationalization with a gettext-based API.
 
   By using [Gettext](https://hexdocs.pm/gettext),
   your module gains a set of macros for translations, for example:
 
-      import MoodleNetWeb.Gettext
+      import CommonsPub.Web.Gettext
 
       # Simple translation
       gettext "Here is the string to translate"
@@ -22,5 +22,5 @@ defmodule MoodleNetWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :moodle_net
+  use Gettext, otp_app: :commons_pub
 end

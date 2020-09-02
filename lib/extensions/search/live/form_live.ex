@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.SearchLive.Form do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.SearchLive.Form do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
   def handle_event("search", params, %{assigns: _assigns} = socket) do
     IO.inspect(search: params)
     IO.inspect(socket)
 
-    if(socket.view == MoodleNetWeb.SearchLive) do
+    if(socket.view == CommonsPub.Web.SearchLive) do
       {:noreply,
        socket |> push_patch(to: "/instance/search/all/" <> params["search_field"]["query"])}
     else

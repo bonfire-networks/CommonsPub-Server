@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MemberLive.MemberDiscussionsLive do
+  use CommonsPub.Web, :live_component
 
-  # import MoodleNetWeb.Helpers.Common
+  # import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     DiscussionPreviewLive
   }
 
-  # alias MoodleNetWeb.Helpers.{Profiles}
+  # alias CommonsPub.Web.Helpers.{Profiles}
 
   # def mount(socket) do
   #   {
@@ -40,14 +40,14 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
     ]
 
     {:ok, threads} =
-      MoodleNetWeb.GraphQL.ThreadsResolver.list_creator_threads(
+      CommonsPub.Web.GraphQL.ThreadsResolver.list_creator_threads(
         page_opts,
         opts,
         filters,
         [:created]
       )
 
-    # MoodleNetWeb.GraphQL.ThreadsResolver.creator_threads_edge(
+    # CommonsPub.Web.GraphQL.ThreadsResolver.creator_threads_edge(
     #   %{creator: assigns.user.id},
     #   %{limit: 3},
     #   %{context: %{current_user: assigns.current_user},
@@ -66,5 +66,5 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 end

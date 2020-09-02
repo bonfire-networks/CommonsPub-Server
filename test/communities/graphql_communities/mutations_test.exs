@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.Communities.MutationsTest do
-  use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.GraphQL.Communities.MutationsTest do
+  use CommonsPub.Web.ConnCase, async: true
   import CommonsPub.Utils.Simulation
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Faking
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
+  import CommonsPub.Test.Faking
 
   describe "create_community" do
     test "works for a user or instance admin" do

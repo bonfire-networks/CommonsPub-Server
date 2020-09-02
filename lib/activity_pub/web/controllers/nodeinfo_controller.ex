@@ -3,19 +3,19 @@
 defmodule ActivityPubWeb.NodeinfoController do
   use ActivityPubWeb, :controller
 
-  alias MoodleNet.Application
-  alias MoodleNet.Config
+  alias CommonsPub.Application
+  alias CommonsPub.Config
 
   def schemas(conn, _params) do
     response = %{
       links: [
         %{
           rel: "http://nodeinfo.diaspora.software/ns/schema/2.0",
-          href: MoodleNetWeb.base_url() <> "/.well-known/nodeinfo/2.0"
+          href: CommonsPub.Web.base_url() <> "/.well-known/nodeinfo/2.0"
         },
         %{
           rel: "http://nodeinfo.diaspora.software/ns/schema/2.1",
-          href: MoodleNetWeb.base_url() <> "/.well-known/nodeinfo/2.1"
+          href: CommonsPub.Web.base_url() <> "/.well-known/nodeinfo/2.1"
         }
       ]
     }
@@ -24,7 +24,7 @@ defmodule ActivityPubWeb.NodeinfoController do
   end
 
   def user_count() do
-    {:ok, users} = MoodleNet.Users.many(preset: :actor, peer: :not_nil)
+    {:ok, users} = CommonsPub.Users.many(preset: :actor, peer: :not_nil)
     length(users)
   end
 
@@ -40,7 +40,7 @@ defmodule ActivityPubWeb.NodeinfoController do
         inbound: [],
         outbound: []
       },
-      openRegistrations: Config.get([MoodleNet.Users, :public_registration]),
+      openRegistrations: Config.get([CommonsPub.Users, :public_registration]),
       # currently have no good way to get total post count
       usage: %{
         users: %{

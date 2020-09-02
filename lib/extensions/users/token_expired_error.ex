@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.TokenExpiredError do
+defmodule CommonsPub.Users.TokenExpiredError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 

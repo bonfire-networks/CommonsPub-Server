@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.AdminSchema do
+defmodule CommonsPub.Web.GraphQL.AdminSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.AdminResolver
+  alias CommonsPub.Web.GraphQL.AdminResolver
 
   object :admin_queries do
     @desc "Admin is a virtual object for the administration panel"

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.Contexts do
+defmodule CommonsPub.Common.Contexts do
   @doc "Helpers for writing contexts that deal with graphql"
 
-  alias MoodleNet.GraphQL.{Page, Pages}
-  alias MoodleNet.Repo
+  alias CommonsPub.GraphQL.{Page, Pages}
+  alias CommonsPub.Repo
 
   def page(
         queries,
@@ -80,19 +80,19 @@ defmodule MoodleNet.Common.Contexts do
 
   # FIXME: make these config-driven and generic:
 
-  def context_feeds(%MoodleNet.Resources.Resource{} = resource) do
+  def context_feeds(%CommonsPub.Resources.Resource{} = resource) do
     r = Repo.preload(resource, collection: [:community])
     [r.collection.outbox_id, r.collection.community.outbox_id]
   end
 
-  def context_feeds(%MoodleNet.Collections.Collection{} = collection) do
+  def context_feeds(%CommonsPub.Collections.Collection{} = collection) do
     c = Repo.preload(collection, [:community])
     [c.outbox_id, c.community.outbox_id]
   end
 
-  def context_feeds(%MoodleNet.Communities.Community{outbox_id: id}), do: [id]
+  def context_feeds(%CommonsPub.Communities.Community{outbox_id: id}), do: [id]
 
-  def context_feeds(%MoodleNet.Users.User{inbox_id: inbox, outbox_id: outbox}),
+  def context_feeds(%CommonsPub.Users.User{inbox_id: inbox, outbox_id: outbox}),
     do: [inbox, outbox]
 
   def context_feeds(_), do: []

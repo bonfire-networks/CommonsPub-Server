@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Component.CollectionPreviewLive do
+defmodule CommonsPub.Web.Component.CollectionPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
-  # import MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Web.Helpers.Common
+  # import CommonsPub.Web.Helpers.Profiles
 
   # def mount(_, _session, socket) do
   #   {:ok, assign(socket, current_user: socket.assigns.current_user)}
@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.Component.CollectionPreviewLive do
     # IO.inspect(collection_pre_prep: assigns.collection)
 
     collection =
-      MoodleNetWeb.Helpers.Profiles.prepare(assigns.collection, %{icon: true, actor: true})
+      CommonsPub.Web.Helpers.Profiles.prepare(assigns.collection, %{icon: true, actor: true})
 
     # IO.inspect(collection_post_prep: collection)
 

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.WebFingerControllerTest do
-  use MoodleNetWeb.ConnCase
-  import MoodleNet.Test.Faking
+  use CommonsPub.Web.ConnCase
+  import CommonsPub.Test.Faking
 
   test "webfinger" do
     actor = fake_user!()

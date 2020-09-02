@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Feeds do
-  alias MoodleNet.Feeds.{Feed, FeedSubscriptions, Queries}
-  alias MoodleNet.Repo
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Feeds do
+  alias CommonsPub.Feeds.{Feed, FeedSubscriptions, Queries}
+  alias CommonsPub.Repo
+  alias CommonsPub.Users.User
 
   def instance_outbox_id(), do: "10CA11NSTANCE00TB0XFEED1D0"
   def instance_inbox_id(), do: "10CA11NSTANCE1NB0XFEED1D00"

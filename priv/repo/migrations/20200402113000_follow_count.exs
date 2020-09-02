@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.FollowCount do
+defmodule CommonsPub.Repo.Migrations.FollowCount do
   use Ecto.Migration
 
   def up do

@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Peers do
+defmodule CommonsPub.Peers do
   @moduledoc """
   Manages peers, servers with which we connect via synchronisation
   protocols, currently: ActivityPub
 
-  A `MoodleNet.Peers.Peer` is created from a `Pointers.Pointer`
-  as the `MoodleNet.Meta.Peer` participates in the Meta abstraction
+  A `CommonsPub.Peers.Peer` is created from a `Pointers.Pointer`
+  as the `CommonsPub.Meta.Peer` participates in the Meta abstraction
 
   """
-  alias MoodleNet.{Common, Repo}
-  alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Peers.{Peer, Queries}
+  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Common.NotFoundError
+  alias CommonsPub.Peers.{Peer, Queries}
 
   # Querying
 

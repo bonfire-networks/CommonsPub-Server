@@ -1,5 +1,5 @@
-defmodule Mix.Tasks.MoodleNet.TaskTest do
-  use MoodleNet.DataCase
+defmodule Mix.Tasks.CommonsPub.TaskTest do
+  use CommonsPub.DataCase
 
   alias ActivityPub.Actor
 
@@ -15,12 +15,11 @@ defmodule Mix.Tasks.MoodleNet.TaskTest do
     :ok
   end
 
-
   describe "running deactivate_actor" do
     test "user is deactivated" do
       actor = actor()
 
-      Mix.Tasks.MoodleNet.DeactivateActor.run([actor.ap_id])
+      Mix.Tasks.CommonsPub.DeactivateActor.run([actor.ap_id])
 
       assert_received {:mix_shell, :info, [message]}
       assert message =~ " deactivated"
@@ -32,7 +31,7 @@ defmodule Mix.Tasks.MoodleNet.TaskTest do
     test "user is activated" do
       actor = actor(%{data: %{"deactivated" => true}})
 
-      Mix.Tasks.MoodleNet.DeactivateActor.run(["undo", actor.ap_id])
+      Mix.Tasks.CommonsPub.DeactivateActor.run(["undo", actor.ap_id])
 
       assert_received {:mix_shell, :info, [message]}
       assert message =~ " activated"

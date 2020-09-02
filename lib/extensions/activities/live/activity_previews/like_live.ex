@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Component.LikePreviewLive do
+defmodule CommonsPub.Web.Component.LikePreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.{Common}
-  alias MoodleNetWeb.Component.ActivityLive
+  import CommonsPub.Web.Helpers.{Common}
+  alias CommonsPub.Web.Component.ActivityLive
 
   def mount(_, _session, socket) do
     {:ok, assign(socket, current_user: socket.assigns.current_user)}

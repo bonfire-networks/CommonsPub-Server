@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Test.GraphQLAssertions do
-  alias MoodleNetWeb.Test.ConnHelpers
-  alias MoodleNet.Activities.Activity
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  # alias MoodleNet.Blocks.Block
-  alias MoodleNet.Features.Feature
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.{Comment, Thread}
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Web.Test.GraphQLAssertions do
+  alias CommonsPub.Web.Test.ConnHelpers
+  alias CommonsPub.Activities.Activity
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  # alias CommonsPub.Blocks.Block
+  alias CommonsPub.Features.Feature
+  alias CommonsPub.Flags.Flag
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Likes.Like
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Threads.{Comment, Thread}
+  alias CommonsPub.Users.User
 
   alias Ecto.ULID
   import ExUnit.Assertions

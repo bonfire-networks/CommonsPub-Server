@@ -1,5 +1,5 @@
 # # SPDX-License-Identifier: AGPL-3.0-only
-# defmodule MoodleNet.Meta.Table do
+# defmodule CommonsPub.Meta.Table do
 #   @moduledoc """
 #   A Table represents a database table participating in the meta
 #   system. It allows new tables to be dynamically added to the system
@@ -9,7 +9,7 @@
 #   no changeset functions in here!
 #   """
 
-#   use MoodleNet.Common.Schema
+#   use CommonsPub.Common.Schema
 
 #   @type t :: %__MODULE__{}
 

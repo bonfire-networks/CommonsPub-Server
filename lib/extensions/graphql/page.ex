@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.Page do
+defmodule CommonsPub.GraphQL.Page do
   @enforce_keys ~w(page_info total_count edges)a
   defstruct @enforce_keys
 
-  alias MoodleNet.GraphQL.{Page, PageInfo}
+  alias CommonsPub.GraphQL.{Page, PageInfo}
 
   @type t :: %Page{
           page_info: PageInfo.t(),

@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.MemberLive.HeroProfileLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MemberLive.HeroProfileLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
   def render(assigns) do
     ~L"""

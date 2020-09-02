@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.CommonTest do
-  use MoodleNet.DataCase, async: true
-  use Oban.Testing, repo: MoodleNet.Repo
+defmodule CommonsPub.CommonTest do
+  use CommonsPub.DataCase, async: true
+  use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
 
   setup do
     {:ok, %{user: fake_user!()}}

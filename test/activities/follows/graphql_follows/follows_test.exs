@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.FollowsTest do
-  use MoodleNetWeb.ConnCase
-  alias MoodleNet.Follows
-  # import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.ConnHelpers
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+defmodule CommonsPub.Web.GraphQL.FollowsTest do
+  use CommonsPub.Web.ConnCase
+  alias CommonsPub.Follows
+  # import CommonsPub.MediaProxy.URLBuilder, only: [encode: 1]
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.ConnHelpers
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
   import Tesla.Mock
 
   setup do
@@ -116,7 +116,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       q = follow_remote_actor_mutation()
       vars = %{url: @remote_actor}
       follow2 = grumble_post_key(q, conn, :follow_remote_actor, vars)
-      {:ok, followed} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(@remote_actor)
+      {:ok, followed} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(@remote_actor)
       {:ok, follow} = Follows.one(creator: actor.id, context: followed.id)
       assert_follow(follow, follow2)
     end

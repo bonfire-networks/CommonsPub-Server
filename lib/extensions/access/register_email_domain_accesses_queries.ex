@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Access.RegisterEmailDomainAccessesQueries do
-  alias MoodleNet.Access.RegisterEmailDomainAccess
+defmodule CommonsPub.Access.RegisterEmailDomainAccessesQueries do
+  alias CommonsPub.Access.RegisterEmailDomainAccess
   import Ecto.Query
 
   def query(RegisterEmailDomainAccess), do: from(r in RegisterEmailDomainAccess, as: :reda)

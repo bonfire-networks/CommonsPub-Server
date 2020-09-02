@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Resources do
+defmodule CommonsPub.Resources do
   alias Ecto.Changeset
-  alias MoodleNet.{Activities, Common, Feeds, Flags, Likes, Repo, Threads}
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.FeedPublisher
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Resources.{Resource, Queries}
-  alias MoodleNet.Threads
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+  alias CommonsPub.{Activities, Common, Feeds, Flags, Likes, Repo, Threads}
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.FeedPublisher
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Resources.{Resource, Queries}
+  alias CommonsPub.Threads
+  alias CommonsPub.Users.User
+  alias CommonsPub.Workers.APPublishWorker
 
   @doc """
   Retrieves a single resource by arbitrary filters.
@@ -33,13 +33,15 @@ defmodule MoodleNet.Resources do
   def create(%User{} = creator, %{} = collection_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       collection_or_context =
-        MoodleNetWeb.Helpers.Common.maybe_preload(collection_or_context, :actor)
+        CommonsPub.Web.Helpers.Common.maybe_preload(collection_or_context, :actor)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
            act_attrs = %{
              verb: "created",
              is_local:
-               is_nil(MoodleNetWeb.Helpers.Common.e(collection_or_context, :actor, :peer_id, nil))
+               is_nil(
+                 CommonsPub.Web.Helpers.Common.e(collection_or_context, :actor, :peer_id, nil)
+               )
            },
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection_or_context, resource, activity),

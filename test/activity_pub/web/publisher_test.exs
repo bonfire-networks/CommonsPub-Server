@@ -4,9 +4,9 @@ defmodule ActivityPubWeb.PublisherTest do
   alias ActivityPub.Actor
   alias ActivityPubWeb.Publisher
   import ActivityPub.Factory
-  alias MoodleNet.Test.Faking
+  alias CommonsPub.Test.Faking
   import Tesla.Mock
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
 
   setup do
     mock(fn
@@ -17,7 +17,7 @@ defmodule ActivityPubWeb.PublisherTest do
   end
 
   test "it publishes an activity" do
-    note_actor = MoodleNet.Test.Faking.fake_user!()
+    note_actor = CommonsPub.Test.Faking.fake_user!()
     {:ok, note_actor} = Actor.get_by_username(note_actor.actor.preferred_username)
     recipient_actor = actor()
 

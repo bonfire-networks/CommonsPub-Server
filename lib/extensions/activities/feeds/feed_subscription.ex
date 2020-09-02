@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Feeds.FeedSubscription do
-  use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [change_synced_timestamps: 4]
+defmodule CommonsPub.Feeds.FeedSubscription do
+  use CommonsPub.Common.Schema
+  import CommonsPub.Common.Changeset, only: [change_synced_timestamps: 4]
   alias Ecto.Changeset
   alias Pointers.Pointer
-  alias MoodleNet.Feeds.Feed
+  alias CommonsPub.Feeds.Feed
 
   table_schema "mn_feed_subscription" do
     belongs_to(:subscriber, Pointer)

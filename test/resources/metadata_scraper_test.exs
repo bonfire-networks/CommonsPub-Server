@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.MetadataScraperTest do
-  use MoodleNet.DataCase, async: true
+defmodule CommonsPub.MetadataScraperTest do
+  use CommonsPub.DataCase, async: true
 
-  alias MoodleNet.MetadataScraper, as: Subject
+  alias CommonsPub.MetadataScraper, as: Subject
 
   @tag :external
   test "works" do

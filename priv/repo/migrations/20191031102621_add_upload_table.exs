@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Repo.Migrations.AddUploadTable do
+defmodule CommonsPub.Repo.Migrations.AddUploadTable do
   use Ecto.Migration
   import Pointers.Migration
 

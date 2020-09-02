@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.LikesTest do
-  use MoodleNet.DataCase, async: true
-  use Oban.Testing, repo: MoodleNet.Repo
+defmodule CommonsPub.LikesTest do
+  use CommonsPub.DataCase, async: true
+  use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import MoodleNet.Test.Faking
-  alias MoodleNet.Likes
-  alias MoodleNet.Common.{DeletionError, NotFoundError}
+  import CommonsPub.Test.Faking
+  alias CommonsPub.Likes
+  alias CommonsPub.Common.{DeletionError, NotFoundError}
   alias CommonsPub.Utils.Simulation
 
   setup do

@@ -1,15 +1,15 @@
-defmodule MoodleNetWeb.Helpers.Communities do
-  # alias MoodleNet.{
+defmodule CommonsPub.Web.Helpers.Communities do
+  # alias CommonsPub.{
   #   Repo
   # }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     UsersResolver,
     CommunitiesResolver
   }
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Web.Helpers.Common
+  alias CommonsPub.Web.Helpers.Profiles
 
   def community_load(_socket, page_params, preload) do
     username = e(page_params, "username", nil)
@@ -61,6 +61,7 @@ defmodule MoodleNetWeb.Helpers.Communities do
     ids = Enum.map(edges, & &1.context_id)
 
     communities = contexts_fetch!(ids)
+
     communities =
       if(communities) do
         Enum.map(

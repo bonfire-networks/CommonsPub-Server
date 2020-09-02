@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.ActorTest do
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
   import Tesla.Mock
 
   alias ActivityPub.Actor
-  alias MoodleNet.Test.Faking
+  alias CommonsPub.Test.Faking
   import ActivityPub.Factory
 
   setup do

@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character do
   use Pointers.Mixin,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "character"
 
-  import(MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1])
+  import(CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1])
 
   alias Ecto.Changeset
   alias CommonsPub.Character
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Users.User
+  alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Users.User
 
-  # alias MoodleNet.Uploads.Content
+  # alias CommonsPub.Uploads.Content
   # alias Pointers.Pointer
 
   @remote_username_regex ~r(^[a-zA-Z0-9@._-]+$)

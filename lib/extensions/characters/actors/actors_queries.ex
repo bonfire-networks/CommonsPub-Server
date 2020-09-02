@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Actors.Queries do
-  alias MoodleNet.Actors.Actor
+defmodule CommonsPub.Actors.Queries do
+  alias CommonsPub.Actors.Actor
   import Ecto.Query
 
   def query(Actor), do: from(a in Actor, as: :actor)

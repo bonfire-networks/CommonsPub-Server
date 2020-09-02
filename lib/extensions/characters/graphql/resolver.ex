@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character.GraphQL.Resolver do
-  alias MoodleNet.{
+  alias CommonsPub.{
     Activities,
     GraphQL,
     Repo,
     Resources
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # Flow,
     FetchFields,
     FetchPage,
@@ -25,8 +25,8 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
     # Queries
   }
 
-  alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
+  alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
   alias Pointers
 
   ## resolvers
@@ -81,7 +81,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
     })
   end
 
-  # def characteristic_edge(%CommonsPub.Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def characteristic_edge(%CommonsPub.Character{characteristic_id: id}, _, info), do: CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   # def resource_count_edge(%CommonsPub.Character{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
@@ -126,7 +126,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   end
 
   defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, CommonsPub.Character)
+    Application.fetch_env!(:commons_pub, CommonsPub.Character)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
@@ -144,7 +144,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   def characterise(%{context_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
+           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
         Characters.characterise(me, pointer)
       end
     end)
@@ -199,7 +199,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   # end
 
   # defp valid_contexts do
-  #   Keyword.fetch!(Application.get_env(:moodle_net, Characters), :valid_contexts)
+  #   Keyword.fetch!(Application.get_env(:commons_pub, Characters), :valid_contexts)
   # end
 
   # def creator_edge(%{character: %{creator_id: id}}, _, info) do

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.Organisations do
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Actors,
     # Common,
@@ -9,13 +9,13 @@ defmodule Organisation.Organisations do
     Repo
   }
 
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
   alias Organisation
   alias Organisation.Queries
-  # alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  # alias MoodleNet.Workers.APPublishWorker
+  # alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
+  # alias CommonsPub.Workers.APPublishWorker
   alias CommonsPub.Character.Characters
   alias CommonsPub.Profile.Profiles
 

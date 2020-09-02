@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.FoldActorIntoCharacter do
+defmodule CommonsPub.Repo.Migrations.FoldActorIntoCharacter do
   use Ecto.Migration
 
   def change do

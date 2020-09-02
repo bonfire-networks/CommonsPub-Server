@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.OrganisationsTest do
-  use MoodleNetWeb.ConnCase, async: true
-  import MoodleNet.Test.Faking
+  use CommonsPub.Web.ConnCase, async: true
+  import CommonsPub.Test.Faking
 
   import Organisation.Simulate
   import Organisation.Test.Faking

@@ -6,7 +6,7 @@
         <h3 class="area__title">Instance Timeline</h3>
         <%= live_component(
               @socket,
-              MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
+              CommonsPub.Web.InstanceLive.InstanceActivitiesLive,
               id: :instance_timeline,
               current_user: @current_user,
               activities: [],

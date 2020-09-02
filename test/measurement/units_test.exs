@@ -1,14 +1,14 @@
 # # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.UnitsTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
   import Measurement.Test.Faking
 
   import CommonsPub.Utils.Trendy
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.Orderings
-  import MoodleNetWeb.Test.Automaton
-  import MoodleNet.Common.{Enums, NotFoundError}
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.Orderings
+  import CommonsPub.Web.Test.Automaton
+  import CommonsPub.Common.{Enums, NotFoundError}
 
   import Grumble
   import Zest
@@ -34,13 +34,13 @@ defmodule Measurement.UnitsTest do
     end
 
     test "returns NotFound if item is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one(id: Simulation.ulid())
+      assert {:error, %CommonsPub.Common.NotFoundError{}} = Units.one(id: Simulation.ulid())
     end
 
     test "returns NotFound if item is deleted" do
       unit = fake_user!() |> fake_unit!()
       assert {:ok, unit} = Units.soft_delete(unit)
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Units.one([:default, id: unit.id])
+      assert {:error, %CommonsPub.Common.NotFoundError{}} = Units.one([:default, id: unit.id])
     end
   end
 

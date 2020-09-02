@@ -1,5 +1,5 @@
-defmodule MoodleNetWeb.My.ContextSelect do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.ContextSelect do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 end

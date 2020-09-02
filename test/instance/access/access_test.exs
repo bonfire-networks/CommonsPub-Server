@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.AccessTest do
-  use MoodleNet.DataCase, async: true
+defmodule CommonsPub.AccessTest do
+  use CommonsPub.DataCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   alias Ecto.Changeset
-  alias MoodleNet.Common.NotFoundError
+  alias CommonsPub.Common.NotFoundError
   alias CommonsPub.Utils.Simulation
-  alias MoodleNet.Access
+  alias CommonsPub.Access
 
-  alias MoodleNet.Access.{
+  alias CommonsPub.Access.{
     TokenExpiredError,
     TokenNotFoundError,
     UserEmailNotConfirmedError,
@@ -28,7 +28,7 @@ defmodule MoodleNet.AccessTest do
         :is_public
       ])
 
-  describe "MoodleNet.Access.create_register_email_domain/1" do
+  describe "CommonsPub.Access.create_register_email_domain/1" do
     test "can be found with find_register_email_domain after success" do
       Repo.transaction(fn ->
         domain = Simulation.domain()
@@ -50,7 +50,7 @@ defmodule MoodleNet.AccessTest do
     end
   end
 
-  describe "MoodleNet.Access.create_register_email/1" do
+  describe "CommonsPub.Access.create_register_email/1" do
     test "can be found with find_register_email after success" do
       Repo.transaction(fn ->
         email = Simulation.email()
@@ -70,7 +70,7 @@ defmodule MoodleNet.AccessTest do
     end
   end
 
-  describe "MoodleNet.Access.list_register_email_domains/0" do
+  describe "CommonsPub.Access.list_register_email_domains/0" do
     test "returns the correct data" do
       Repo.transaction(fn ->
         assert [] == Access.list_register_email_domains()
@@ -83,7 +83,7 @@ defmodule MoodleNet.AccessTest do
     end
   end
 
-  describe "MoodleNet.Access.list_register_emails/0" do
+  describe "CommonsPub.Access.list_register_emails/0" do
     test "returns the correct data" do
       Repo.transaction(fn ->
         assert [] == Access.list_register_emails()
@@ -96,7 +96,7 @@ defmodule MoodleNet.AccessTest do
     end
   end
 
-  describe "MoodleNet.Access.is_register_accessed?/1" do
+  describe "CommonsPub.Access.is_register_accessed?/1" do
     test "returns true when the email's domain is accessed" do
       Repo.transaction(fn ->
         domain = fake_register_email_domain_access!().domain
@@ -119,7 +119,7 @@ defmodule MoodleNet.AccessTest do
     end
   end
 
-  describe "MoodleNet.Access.hard_delete!/1" do
+  describe "CommonsPub.Access.hard_delete!/1" do
     test "raises :function_clause when given input of the wrong type" do
       Repo.transaction(fn ->
         assert :function_clause = catch_error(Access.hard_delete(Simulation.ulid()))
@@ -173,7 +173,7 @@ defmodule MoodleNet.AccessTest do
     end
   end
 
-  describe "MoodleNet.Access.fetch_token_and_user/1" do
+  describe "CommonsPub.Access.fetch_token_and_user/1" do
     test "works" do
       user = fake_user!(%{}, confirm_email: true)
       token = fake_token!(user)
@@ -192,7 +192,7 @@ defmodule MoodleNet.AccessTest do
     end
   end
 
-  describe "MoodleNet.Access.hard_delete/1" do
+  describe "CommonsPub.Access.hard_delete/1" do
     test "works with a Token" do
       user = fake_user!(%{}, confirm_email: true)
       token = fake_token!(user)
@@ -209,7 +209,7 @@ defmodule MoodleNet.AccessTest do
     # end
   end
 
-  describe "MoodleNet.OAuth.verify_user" do
+  describe "CommonsPub.OAuth.verify_user" do
     test "ok for a valid user" do
       user = fake_user!(%{}, confirm_email: true)
       assert :ok == Access.verify_user(user)

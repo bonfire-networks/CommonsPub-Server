@@ -122,16 +122,16 @@ defmodule CommonsPub.Search.Indexer do
     ""
   end
 
-  def indexing_object_format(%MoodleNet.Users.User{} = user) do
+  def indexing_object_format(%CommonsPub.Users.User{} = user) do
     follower_count =
-      case MoodleNet.Follows.FollowerCounts.one(context: user.id) do
+      case CommonsPub.Follows.FollowerCounts.one(context: user.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
 
-    icon = MoodleNet.Uploads.remote_url_from_id(user.icon_id)
-    image = MoodleNet.Uploads.remote_url_from_id(user.image_id)
-    url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(user)
+    icon = CommonsPub.Uploads.remote_url_from_id(user.icon_id)
+    image = CommonsPub.Uploads.remote_url_from_id(user.image_id)
+    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(user)
 
     %{
       "id" => user.id,
@@ -150,16 +150,16 @@ defmodule CommonsPub.Search.Indexer do
     }
   end
 
-  def indexing_object_format(%MoodleNet.Communities.Community{} = community) do
+  def indexing_object_format(%CommonsPub.Communities.Community{} = community) do
     follower_count =
-      case MoodleNet.Follows.FollowerCounts.one(context: community.id) do
+      case CommonsPub.Follows.FollowerCounts.one(context: community.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
 
-    icon = MoodleNet.Uploads.remote_url_from_id(community.icon_id)
-    image = MoodleNet.Uploads.remote_url_from_id(community.image_id)
-    url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(community)
+    icon = CommonsPub.Uploads.remote_url_from_id(community.icon_id)
+    image = CommonsPub.Uploads.remote_url_from_id(community.image_id)
+    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(community)
 
     %{
       "id" => community.id,
@@ -178,17 +178,17 @@ defmodule CommonsPub.Search.Indexer do
     }
   end
 
-  def indexing_object_format(%MoodleNet.Collections.Collection{} = collection) do
-    collection = MoodleNet.Repo.preload(collection, community: [:actor])
+  def indexing_object_format(%CommonsPub.Collections.Collection{} = collection) do
+    collection = CommonsPub.Repo.preload(collection, community: [:actor])
 
     follower_count =
-      case MoodleNet.Follows.FollowerCounts.one(context: collection.id) do
+      case CommonsPub.Follows.FollowerCounts.one(context: collection.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
 
-    icon = MoodleNet.Uploads.remote_url_from_id(collection.icon_id)
-    url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(collection)
+    icon = CommonsPub.Uploads.remote_url_from_id(collection.icon_id)
+    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(collection)
 
     %{
       "id" => collection.id,
@@ -207,23 +207,23 @@ defmodule CommonsPub.Search.Indexer do
     }
   end
 
-  def indexing_object_format(%MoodleNet.Resources.Resource{} = resource) do
+  def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
     resource =
-      MoodleNet.Repo.preload(resource,
+      CommonsPub.Repo.preload(resource,
         collection: [actor: [], community: [actor: []]],
         content: []
       )
 
     likes_count =
-      case MoodleNet.Likes.LikerCounts.one(context: resource.id) do
+      case CommonsPub.Likes.LikerCounts.one(context: resource.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
 
-    icon = MoodleNet.Uploads.remote_url_from_id(resource.icon_id)
-    resource_url = MoodleNet.Uploads.remote_url_from_id(resource.content_id)
+    icon = CommonsPub.Uploads.remote_url_from_id(resource.icon_id)
+    resource_url = CommonsPub.Uploads.remote_url_from_id(resource.content_id)
 
-    canonical_url = MoodleNet.ActivityPub.Utils.get_object_canonical_url(resource)
+    canonical_url = CommonsPub.ActivityPub.Utils.get_object_canonical_url(resource)
 
     %{
       "id" => resource.id,
@@ -254,13 +254,13 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def format_creator(%{creator: %{id: id}} = obj) when not is_nil(id) do
-    creator = MoodleNetWeb.Helpers.Common.maybe_preload(obj, :creator).creator
+    creator = CommonsPub.Web.Helpers.Common.maybe_preload(obj, :creator).creator
 
     %{
       "id" => creator.id,
       "name" => creator.name,
       "username" => CommonsPub.Character.Characters.display_username(creator),
-      "canonical_url" => MoodleNet.ActivityPub.Utils.get_actor_canonical_url(creator)
+      "canonical_url" => CommonsPub.ActivityPub.Utils.get_actor_canonical_url(creator)
     }
   end
 

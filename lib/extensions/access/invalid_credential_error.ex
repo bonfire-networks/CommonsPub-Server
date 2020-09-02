@@ -1,13 +1,13 @@
-defmodule MoodleNet.Access.InvalidCredentialError do
+defmodule CommonsPub.Access.InvalidCredentialError do
   @moduledoc "The user was not found or the password was wrong"
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
   @type t :: %__MODULE__{
-    message: binary,
-    code: binary,
-    status: integer,
-  }
+          message: binary,
+          code: binary,
+          status: integer
+        }
 
   @doc "Create a new InvalidCredentialError"
   @spec new() :: t
@@ -15,8 +15,7 @@ defmodule MoodleNet.Access.InvalidCredentialError do
     %__MODULE__{
       message: "We couldn't find an account with these details",
       code: "invalid_credential",
-      status: 404,
+      status: 404
     }
   end
-
 end

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.EmailView do
+defmodule CommonsPub.Web.EmailView do
   @moduledoc """
   Email view
   """
-  use MoodleNetWeb, :view
+  use CommonsPub.Web, :view
 
-  def app_name(), do: Application.get_env(:moodle_net, :app_name)
+  def app_name(), do: Application.get_env(:commons_pub, :app_name)
 end

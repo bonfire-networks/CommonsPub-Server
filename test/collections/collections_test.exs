@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.CollectionsTest do
-  use MoodleNet.DataCase, async: true
+defmodule CommonsPub.CollectionsTest do
+  use CommonsPub.DataCase, async: true
 
-  import MoodleNet.Test.Faking
-  alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.{Collections, Communities}
+  import CommonsPub.Test.Faking
+  alias CommonsPub.Common.NotFoundError
+  alias CommonsPub.{Collections, Communities}
   alias CommonsPub.Utils.Simulation
 
   setup do

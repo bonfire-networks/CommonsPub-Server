@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.UsersTest do
-  use MoodleNetWeb.ConnCase, async: true
-  import MoodleNetWeb.Test.Automaton
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+defmodule CommonsPub.Web.GraphQL.UsersTest do
+  use CommonsPub.Web.ConnCase, async: true
+  import CommonsPub.Web.Test.Automaton
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Utils.Trendy
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   import Grumble
   import Zest
   alias CommonsPub.Utils.Simulation
@@ -399,14 +399,14 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = fake_user!()
 
       assert {:ok, upload} =
-               MoodleNet.Uploads.upload(
-                 MoodleNet.Uploads.IconUploader,
+               CommonsPub.Uploads.upload(
+                 CommonsPub.Uploads.IconUploader,
                  user,
                  %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
                  %{}
                )
 
-      assert {:ok, user} = MoodleNet.Users.update(user, %{icon_id: upload.id})
+      assert {:ok, user} = CommonsPub.Users.update(user, %{icon_id: upload.id})
 
       conn = user_conn(user)
 
@@ -427,14 +427,14 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = fake_user!()
 
       assert {:ok, upload} =
-               MoodleNet.Uploads.upload(
-                 MoodleNet.Uploads.ImageUploader,
+               CommonsPub.Uploads.upload(
+                 CommonsPub.Uploads.ImageUploader,
                  user,
                  %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
                  %{}
                )
 
-      assert {:ok, user} = MoodleNet.Users.update(user, %{image_id: upload.id})
+      assert {:ok, user} = CommonsPub.Users.update(user, %{image_id: upload.id})
 
       conn = user_conn(user)
 

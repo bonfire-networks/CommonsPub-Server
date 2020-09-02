@@ -2,7 +2,7 @@ defmodule CommonsPub.Tag.Categories do
   # import Ecto.Query
   # alias Ecto.Changeset
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     Common,
     # GraphQL,
     Repo,
@@ -12,9 +12,9 @@ defmodule CommonsPub.Tag.Categories do
     Feeds
   }
 
-  # alias MoodleNet.Users.User
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Workers.APPublishWorker
+  # alias CommonsPub.Users.User
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Workers.APPublishWorker
 
   alias CommonsPub.Tag.Category
   alias CommonsPub.Tag.Category.Queries
@@ -235,15 +235,15 @@ defmodule CommonsPub.Tag.Categories do
 
   def indexing_object_format(obj) do
     follower_count =
-      case MoodleNet.Follows.FollowerCounts.one(context: obj.id) do
+      case CommonsPub.Follows.FollowerCounts.one(context: obj.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
 
-    # icon = MoodleNet.Uploads.remote_url_from_id(character.icon_id)
-    # image = MoodleNet.Uploads.remote_url_from_id(character.image_id)
+    # icon = CommonsPub.Uploads.remote_url_from_id(character.icon_id)
+    # image = CommonsPub.Uploads.remote_url_from_id(character.image_id)
 
-    canonical_url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(obj)
+    canonical_url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(obj)
 
     %{
       "index_type" => "Category",

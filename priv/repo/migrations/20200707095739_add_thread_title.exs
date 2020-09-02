@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AddThreadTitle do
+defmodule CommonsPub.Repo.Migrations.AddThreadTitle do
   use Ecto.Migration
 
   def change do

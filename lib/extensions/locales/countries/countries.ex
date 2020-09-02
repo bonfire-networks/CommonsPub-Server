@@ -1,7 +1,7 @@
 defmodule CommonsPub.Locales.Countries do
   # import Ecto.Query
   # alias Ecto.Changeset
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Common, GraphQL,
     Repo
   }

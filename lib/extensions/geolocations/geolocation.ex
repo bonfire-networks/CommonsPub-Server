@@ -1,18 +1,18 @@
 defmodule Geolocation do
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "geolocation",
     table_id: "AP1ACEW1THGE0010CAT10NMARK"
 
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
   alias CommonsPub.Character
   alias Pointers.Pointer
-  alias MoodleNet.Feeds.Feed
+  alias CommonsPub.Feeds.Feed
 
   @type t :: %__MODULE__{}
 

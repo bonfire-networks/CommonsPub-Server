@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Helpers.Activites do
-  import MoodleNetWeb.Helpers.Common
+defmodule CommonsPub.Web.Helpers.Activites do
+  import CommonsPub.Web.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  alias CommonsPub.Web.Helpers.{Profiles}
 
   @doc """
   Forward PubSub activities in timeline to our timeline component
@@ -49,14 +49,14 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   def outbox_live(feed_id, feed_tables, assigns, socket) do
     {:ok, box} =
-      MoodleNetWeb.GraphQL.ActivitiesResolver.fetch_outbox_edge(
+      CommonsPub.Web.GraphQL.ActivitiesResolver.fetch_outbox_edge(
         feed_id,
         feed_tables,
         %{after: assigns.after, limit: 10}
       )
 
     # subscribe to the feed for realtime updates
-    MoodleNetWeb.Helpers.Common.pubsub_subscribe(feed_id, socket)
+    CommonsPub.Web.Helpers.Common.pubsub_subscribe(feed_id, socket)
 
     # IO.inspect(box: box)
 
@@ -84,19 +84,20 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
   def inbox_live(user, assigns, socket) do
     # user inbox feed
-    inbox_id = Map.get(assigns, :feed_id) || MoodleNet.Feeds.inbox_id(user)
+    inbox_id = Map.get(assigns, :feed_id) || CommonsPub.Feeds.inbox_id(user)
 
     # feeds the user is subscribed to
-    feed_ids = MoodleNetWeb.GraphQL.UsersResolver.user_inbox_feeds(user, inbox_id)
+    feed_ids = CommonsPub.Web.GraphQL.UsersResolver.user_inbox_feeds(user, inbox_id)
 
     # IO.inspect(inbox_feed_ids: feed_ids)
-    MoodleNetWeb.Helpers.Common.pubsub_subscribe(feed_ids, socket)
+    CommonsPub.Web.Helpers.Common.pubsub_subscribe(feed_ids, socket)
 
     # what to include
-    feed_tables = Map.get(assigns, :feed_tables) || MoodleNet.Users.default_inbox_query_contexts()
+    feed_tables =
+      Map.get(assigns, :feed_tables) || CommonsPub.Users.default_inbox_query_contexts()
 
     {:ok, box} =
-      MoodleNetWeb.GraphQL.UsersResolver.fetch_feeds_edge(
+      CommonsPub.Web.GraphQL.UsersResolver.fetch_feeds_edge(
         %{after: assigns.after, limit: 10},
         feed_ids,
         feed_tables
@@ -200,11 +201,11 @@ defmodule MoodleNetWeb.Helpers.Activites do
     display_verb
   end
 
-  def display_activity_verb(%MoodleNet.Likes.Like{}) do
+  def display_activity_verb(%CommonsPub.Likes.Like{}) do
     "favourited"
   end
 
-  def display_activity_verb(%MoodleNet.Threads.Comment{}) do
+  def display_activity_verb(%CommonsPub.Threads.Comment{}) do
     "posted"
   end
 
@@ -304,7 +305,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
   end
 
   def display_object_context(%{
-        context: %MoodleNet.Threads.Thread{} = parent_context
+        context: %CommonsPub.Threads.Thread{} = parent_context
       }) do
     display_object_context(parent_context)
   end

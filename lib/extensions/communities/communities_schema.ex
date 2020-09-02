@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
+defmodule CommonsPub.Web.GraphQL.CommunitiesSchema do
   @moduledoc """
   GraphQL community fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CommonResolver,
     CommunitiesResolver,
     CollectionsResolver,

@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.Profile do
+defmodule CommonsPub.Repo.Migrations.Profile do
   use Ecto.Migration
   # import Pointers.Migration
 

@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Repo do
+defmodule CommonsPub.Repo do
   @moduledoc """
-  MoodleNet main Ecto Repo
+  CommonsPub main Ecto Repo
   """
   require Logger
 
   use Ecto.Repo,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     adapter: Ecto.Adapters.Postgres
 
   import Ecto.Query
-  alias MoodleNet.Common.NotFoundError
+  alias CommonsPub.Common.NotFoundError
 
   @doc """
   Dynamically loads the repository url from the

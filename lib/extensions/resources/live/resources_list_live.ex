@@ -1,6 +1,6 @@
-defmodule MoodleNetWeb.Component.ResourcesListLive do
-  use MoodleNetWeb, :live_component
-  alias MoodleNetWeb.Component.{ResourcePreviewLive}
+defmodule CommonsPub.Web.Component.ResourcesListLive do
+  use CommonsPub.Web, :live_component
+  alias CommonsPub.Web.Component.{ResourcePreviewLive}
 
   def render(assigns) do
     ~L"""

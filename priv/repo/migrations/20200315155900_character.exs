@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.CommonsPub.Character do
+defmodule CommonsPub.Repo.Migrations.CommonsPub.Character do
   use Ecto.Migration
 
   # cheated by moving this earlier so we can use Character in older migrations

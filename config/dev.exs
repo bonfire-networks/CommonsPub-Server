@@ -2,7 +2,7 @@ import Config
 
 # config :logger, level: :warn
 config :logger, level: :debug
-config :moodle_net, MoodleNet.Repo, log: :debug
+config :commons_pub, CommonsPub.Repo, log: :debug
 
 port = String.to_integer(System.get_env("PORT", "4000"))
 
@@ -12,7 +12,7 @@ port = String.to_integer(System.get_env("PORT", "4000"))
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
-config :moodle_net, MoodleNetWeb.Endpoint,
+config :commons_pub, CommonsPub.Web.Endpoint,
   http: [port: port],
   debug_errors: true,
   code_reloader: true,
@@ -27,7 +27,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
     ]
   ]
 
-config :moodle_net, MoodleNetWeb.Endpoint,
+config :commons_pub, CommonsPub.Web.Endpoint,
   http: [
     port: port,
     protocol_options: [
@@ -72,7 +72,7 @@ config :cors_plug,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :moodle_net, MoodleNetWeb.Endpoint,
+config :commons_pub, CommonsPub.Web.Endpoint,
   live_reload: [
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg|ico|html)$},
@@ -93,7 +93,7 @@ config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 
 # Configure your database
-config :moodle_net, MoodleNet.Repo,
+config :commons_pub, CommonsPub.Repo,
   adapter: Ecto.Adapters.Postgres,
   # types: Forkable.PostgresTypes,
   username: System.get_env("POSTGRES_USER", "postgres"),
@@ -104,23 +104,23 @@ config :moodle_net, MoodleNet.Repo,
 
 base_url = System.get_env("BASE_URL", "http://localhost:4000")
 
-config :moodle_net, :base_url, base_url
+config :commons_pub, :base_url, base_url
 
-config :moodle_net, :ap_base_path, System.get_env("AP_BASE_PATH", "/pub")
+config :commons_pub, :ap_base_path, System.get_env("AP_BASE_PATH", "/pub")
 
-config :moodle_net,
+config :commons_pub,
        :frontend_base_url,
        System.get_env("FRONTEND_BASE_URL", base_url)
 
-config :moodle_net, MoodleNet.Users,
+config :commons_pub, CommonsPub.Users,
   # enable open signups in dev
   public_registration: true
 
-config :moodle_net, MoodleNet.Mail.Checker, mx: false
+config :commons_pub, CommonsPub.Mail.Checker, mx: false
 
-config :moodle_net, MoodleNet.Mail.MailService, adapter: Bamboo.LocalAdapter
+config :commons_pub, CommonsPub.Mail.MailService, adapter: Bamboo.LocalAdapter
 
-config :moodle_net, MoodleNet.OAuth,
+config :commons_pub, CommonsPub.OAuth,
   client_name: "CommonsPub",
   client_id: "CommonsPUB",
   redirect_uri: "https://commonspub.dev.local/",
@@ -130,9 +130,9 @@ config :moodle_net, MoodleNet.OAuth,
 {:ok, cwd} = File.cwd()
 uploads_dir = "/uploads"
 
-config :moodle_net, MoodleNet.Uploads,
+config :commons_pub, CommonsPub.Uploads,
   directory: cwd <> uploads_dir,
   path: uploads_dir,
   uploads_base_url: base_url <> uploads_dir <> "/"
 
-config :moodle_net, MoodleNet.Workers.ActivityWorker, log_level: :warn
+config :commons_pub, CommonsPub.Workers.ActivityWorker, log_level: :warn

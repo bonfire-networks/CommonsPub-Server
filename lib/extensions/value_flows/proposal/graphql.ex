@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.GraphQL do
   use Absinthe.Schema.Notation
-  # alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias CommonsPub.Web.GraphQL.{CommonResolver}
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Communities,
     GraphQL,
@@ -13,7 +13,7 @@ defmodule ValueFlows.Proposal.GraphQL do
     # User
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -24,16 +24,16 @@ defmodule ValueFlows.Proposal.GraphQL do
     # CommonResolver
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
+  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   # alias ValueFlows.Proposal
   alias ValueFlows.Proposals
   # alias ValueFlows.Proposal.Queries
-  # alias MoodleNetWeb.GraphQL.CommonResolver
+  # alias CommonsPub.Web.GraphQL.CommonResolver
 
   # import_sdl path: "lib/value_flows/graphql/schemas/proposal.gql"
 
@@ -169,6 +169,6 @@ defmodule ValueFlows.Proposal.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  #   # Keyword.fetch!(Application.get_env(:commons_pub, Threads), :valid_contexts)
   # end
 end

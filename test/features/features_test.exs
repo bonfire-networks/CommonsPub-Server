@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.FeaturesTest do
-  use MoodleNet.DataCase, async: true
-  use Oban.Testing, repo: MoodleNet.Repo
+defmodule CommonsPub.FeaturesTest do
+  use CommonsPub.DataCase, async: true
+  use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import MoodleNet.Test.Faking
-  alias MoodleNet.Features
+  import CommonsPub.Test.Faking
+  alias CommonsPub.Features
 
   def fake_featurable!() do
     user = fake_user!()

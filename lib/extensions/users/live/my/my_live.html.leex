@@ -36,7 +36,7 @@
         <% @selected_tab == "communities" -> %>
         <%= live_component(
                 @socket,
-                MoodleNetWeb.My.MyCommunitiesLive,
+                CommonsPub.Web.My.MyCommunitiesLive,
                 current_user: @current_user,
                 my_communities: @my_communities,
                 my_communities_page_info: @my_communities_page_info,
@@ -49,7 +49,7 @@
         <% @selected_tab == "discussions" -> %>
         <%= live_component(
                 @socket,
-                MoodleNetWeb.My.MyDiscussionsLive,
+                CommonsPub.Web.My.MyDiscussionsLive,
                 current_user: @current_user,
                 selected_tab: @selected_tab,
                 id: :discussions,

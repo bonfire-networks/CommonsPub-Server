@@ -1,13 +1,13 @@
 # # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.MeasuresTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Trendy
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.Orderings
-  import MoodleNetWeb.Test.Automaton
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNet.Common.Enums
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.Orderings
+  import CommonsPub.Web.Test.Automaton
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Common.Enums
   import Grumble
   import Zest
   alias CommonsPub.Utils.Simulation

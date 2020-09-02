@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.CharactersTest do
-  use MoodleNet.DataCase, async: true
+  use CommonsPub.DataCase, async: true
 
-  import MoodleNet.Test.Faking
-  alias MoodleNet.Repo
+  import CommonsPub.Test.Faking
+  alias CommonsPub.Repo
 
   alias CommonsPub.Character.Characters
 
-  alias MoodleNet.Users
+  alias CommonsPub.Users
 
-  alias MoodleNet.Common.NotFoundError
+  alias CommonsPub.Common.NotFoundError
   alias CommonsPub.Utils.Simulation
 
   defp assert_character_equal(character, attrs) do

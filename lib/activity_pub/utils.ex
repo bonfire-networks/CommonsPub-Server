@@ -5,7 +5,7 @@ defmodule ActivityPub.Utils do
   alias ActivityPub.Actor
   alias ActivityPub.Object
   alias Ecto.UUID
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   import Ecto.Query
 
@@ -31,7 +31,6 @@ defmodule ActivityPub.Utils do
 
   def generate_object_id, do: generate_id("objects")
 
-
   def generate_id(type), do: ap_base_url() <> "/#{type}/#{UUID.generate()}"
 
   def actor_url(%{preferred_username: u}), do: ap_base_url() <> "/actors/" <> u
@@ -39,7 +38,7 @@ defmodule ActivityPub.Utils do
   def object_url(%{id: id}), do: ap_base_url() <> "/objects/" <> id
 
   defp ap_base_url() do
-    MoodleNetWeb.base_url() <> System.get_env("AP_BASE_PATH", "/pub")
+    CommonsPub.Web.base_url() <> System.get_env("AP_BASE_PATH", "/pub")
   end
 
   def make_json_ld_header do
@@ -368,6 +367,7 @@ defmodule ActivityPub.Utils do
   Inserts a full object if it is contained in an activity.
   """
   def insert_full_object(map, local \\ false, pointer \\ nil)
+
   def insert_full_object(%{"object" => %{"type" => type} = object_data} = map, local, pointer)
       when is_map(object_data) and type in @supported_object_types do
     with nil <- Object.normalize(object_data, false),
@@ -425,7 +425,7 @@ defmodule ActivityPub.Utils do
   Enqueues an activity for federation if it's local
   """
   def maybe_federate(%Object{local: true} = activity) do
-    if MoodleNet.Config.get!([:instance, :federating]) do
+    if CommonsPub.Config.get!([:instance, :federating]) do
       ActivityPubWeb.Federator.publish(activity)
     end
 

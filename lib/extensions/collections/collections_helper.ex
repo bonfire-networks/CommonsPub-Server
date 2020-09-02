@@ -1,17 +1,17 @@
-defmodule MoodleNetWeb.Helpers.Collections do
-  # alias MoodleNet.{
+defmodule CommonsPub.Web.Helpers.Collections do
+  # alias CommonsPub.{
   #   Repo
   # }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     UsersResolver,
     CollectionsResolver
   }
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Web.Helpers.Common
+  alias CommonsPub.Web.Helpers.Profiles
 
-  def collection_load(socket, page_params, %MoodleNet.Users.User{} = current_user) do
+  def collection_load(socket, page_params, %CommonsPub.Users.User{} = current_user) do
     collection_load(socket, page_params, %{
       actor: true,
       icon: false,
@@ -71,6 +71,7 @@ defmodule MoodleNetWeb.Helpers.Collections do
     ids = Enum.map(edges, & &1.context_id)
 
     collections = contexts_fetch!(ids)
+
     collections =
       if(collections) do
         Enum.map(

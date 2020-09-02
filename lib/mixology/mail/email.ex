@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Mail.Email do
+defmodule CommonsPub.Mail.Email do
   @moduledoc """
   Email Bamboo module
   """
-  import MoodleNetWeb.Gettext
-  alias MoodleNet.Users.User
-  use Bamboo.Phoenix, view: MoodleNetWeb.EmailView
+  import CommonsPub.Web.Gettext
+  alias CommonsPub.Users.User
+  use Bamboo.Phoenix, view: CommonsPub.Web.EmailView
 
   def welcome(user, token) do
     url = email_confirmation_url(user.id, token.id)
@@ -43,13 +43,13 @@ defmodule MoodleNet.Mail.Email do
     new_email()
     |> to(email)
     |> from("#{app_name()} <#{reply_to_email()}>")
-    |> put_layout({MoodleNetWeb.LayoutView, :email})
+    |> put_layout({CommonsPub.Web.LayoutView, :email})
   end
 
   defp email_confirmation_url(_id, token),
     do: frontend_url("confirm-email/#{token}")
 
-  defp app_name(), do: Application.get_env(:moodle_net, :app_name)
+  defp app_name(), do: Application.get_env(:commons_pub, :app_name)
 
   defp reset_password_url(token), do: frontend_url("~/password/change/#{token}")
 
@@ -58,10 +58,10 @@ defmodule MoodleNet.Mail.Email do
   # Note that the base url is expected to end without a slash (/)
   defp frontend_url(path), do: "#{frontend_base_url()}/#{path}"
 
-  defp frontend_base_url(), do: Application.fetch_env!(:moodle_net, :frontend_base_url)
+  defp frontend_base_url(), do: Application.fetch_env!(:commons_pub, :frontend_base_url)
 
   defp reply_to_email do
-    Application.fetch_env!(:moodle_net, MoodleNet.Mail.MailService)
+    Application.fetch_env!(:commons_pub, CommonsPub.Mail.MailService)
     |> Keyword.get(:reply_to, "no-reply@moodle.net")
   end
 end

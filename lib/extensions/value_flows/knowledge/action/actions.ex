@@ -8,7 +8,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
   def action(label) do
     case load_actions()[label] do
       nil ->
-        {:error, MoodleNet.Common.NotFoundError.new()}
+        {:error, CommonsPub.Common.NotFoundError.new()}
 
       action ->
         {:ok, action}

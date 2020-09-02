@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.ChangeMnContentVarcharToText do
+defmodule CommonsPub.Repo.Migrations.ChangeMnContentVarcharToText do
   use Ecto.Migration
 
   def up do

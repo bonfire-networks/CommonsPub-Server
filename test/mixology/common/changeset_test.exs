@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.ChangesetTest do
+defmodule CommonsPub.Common.ChangesetTest do
   use ExUnit.Case, async: true
 
-  import MoodleNet.Common.Changeset
+  import CommonsPub.Common.Changeset
   alias Ecto.Changeset
 
   defmodule Dummy do
-    use MoodleNet.Common.Schema
+    use CommonsPub.Common.Schema
 
     table_schema "dummy" do
       field(:url, :string)

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.BlocksTest do
-  use MoodleNet.DataCase, async: true
-  use Oban.Testing, repo: MoodleNet.Repo
+defmodule CommonsPub.BlocksTest do
+  use CommonsPub.DataCase, async: true
+  use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import MoodleNet.Test.Faking
-  alias MoodleNet.Blocks
+  import CommonsPub.Test.Faking
+  alias CommonsPub.Blocks
   alias CommonsPub.Utils.Simulation
 
   setup do

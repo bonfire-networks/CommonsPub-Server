@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.PointerTypeError do
+defmodule CommonsPub.Meta.PointerTypeError do
   @moduledoc "An error indicating that a pointer is not for the required table"
   @enforce_keys [:pointer]
   defstruct @enforce_keys

@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users do
+defmodule CommonsPub.Users do
   @moduledoc """
   A Context for dealing with Users.
   """
   require Logger
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     Access,
     Activities,
     Blocks,
@@ -24,10 +24,10 @@ defmodule MoodleNet.Users do
 
   alias CommonsPub.Character.Characters
 
-  alias MoodleNet.Feeds.FeedSubscriptions
-  alias MoodleNet.Mail.{Email, MailService}
+  alias CommonsPub.Feeds.FeedSubscriptions
+  alias CommonsPub.Mail.{Email, MailService}
 
-  alias MoodleNet.Users.{
+  alias CommonsPub.Users.{
     EmailConfirmToken,
     LocalUser,
     ResetPasswordToken,
@@ -37,7 +37,7 @@ defmodule MoodleNet.Users do
     User
   }
 
-  alias MoodleNet.Workers.APPublishWorker
+  alias CommonsPub.Workers.APPublishWorker
 
   alias Ecto.Changeset
 
@@ -82,7 +82,7 @@ defmodule MoodleNet.Users do
 
   This is controlled by options. An optional keyword list
   provided to this argument will be prepended to the application
-  config under the path`[:moodle_net, MoodleNet.Users]`. Possible options:
+  config under the path`[:commons_pub, CommonsPub.Users]`. Possible options:
 
   `:public_registration` - boolean, default false. if false, accesss will be checked
   """
@@ -122,7 +122,7 @@ defmodule MoodleNet.Users do
   end
 
   defp should_check_register_access?(opts) do
-    opts = opts ++ Application.get_env(:moodle_net, __MODULE__, [])
+    opts = opts ++ Application.get_env(:commons_pub, __MODULE__, [])
     IO.inspect(should_check_register_access: Keyword.get(opts, :public_registration, false))
 
     not Keyword.get(opts, :public_registration, false)
@@ -450,13 +450,13 @@ defmodule MoodleNet.Users do
 
   @doc false
   def default_inbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
+    Application.fetch_env!(:commons_pub, __MODULE__)
     |> Keyword.fetch!(:default_inbox_query_contexts)
   end
 
   @doc false
   def default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
+    Application.fetch_env!(:commons_pub, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 end

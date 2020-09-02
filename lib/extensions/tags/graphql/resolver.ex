@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.GraphQL.TagResolver do
   @moduledoc "GraphQL tag/category queries"
-  alias MoodleNet.{GraphQL, Repo}
+  alias CommonsPub.{GraphQL, Repo}
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # CommonResolver,
     FetchFields,
     FetchPage,
@@ -143,7 +143,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
     # |> Map.new()
 
-    MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
+    CommonsPub.Web.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
   @doc """
@@ -186,7 +186,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   def tag_prepare(%{category_id: category_id, id: mixin_id}, page_opts, info)
       when is_nil(category_id) do
-    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: mixin_id}, page_opts, info)
+    CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: mixin_id}, page_opts, info)
   end
 
   #### MUTATIONS
@@ -235,8 +235,8 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   #     when is_nil(name) and not is_nil(context_id) do
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
-  #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
-  #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
+  #   with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
+  #        context = CommonsPub.Meta.Pointers.follow!(pointer) do
   #     name = if Map.has_key?(context, :name), do: context.name
   #     {:ok, name}
   #   end
@@ -258,8 +258,8 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   #     when is_nil(summary) and not is_nil(context_id) do
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
-  #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
-  #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
+  #   with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
+  #        context = CommonsPub.Meta.Pointers.follow!(pointer) do
   #     summary = if Map.has_key?(context, :summary), do: context.summary
   #     {:ok, summary}
   #   end

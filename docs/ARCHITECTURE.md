@@ -48,17 +48,17 @@ for not asking.
 
 The server code is broadly composed of four parts.
 
-- `MoodleNet` - Core application logic, schemas etc.
-- `MoodleNetWeb` - Phoenix/Absinthe webapp + GraphQL API for `MoodleNet`.
+- `CommonsPub` - Core application logic, schemas etc.
+- `CommonsPub.Web` - Phoenix/Absinthe webapp + GraphQL API for `CommonsPub`.
 - `ActivityPub` - ActivityPub S2S models, logic and various helper modules (adapted Pleroma code)
 - `ActivityPubWeb` - ActivityPub S2S REST endpoints, activity ingestion and push federation facilities (adapted Pleroma code)
 - There are new namespaces being added for extensions such as Taxonomy, Geolocation, Measurements, ValueFlows, etc.
 
-### `MoodleNet`
+### `CommonsPub`
 
-This namespace contains the core business logic. Every `MoodleNet` object type has at least context module (e. g. `MoodleNet.Communities`), a model/schema module (`MoodleNet.Communities.Community`) and a queries module (`MoodleNet.Communities.Queries`).
+This namespace contains the core business logic. Every `CommonsPub` object type has at least context module (e. g. `CommonsPub.Communities`), a model/schema module (`CommonsPub.Communities.Community`) and a queries module (`CommonsPub.Communities.Queries`).
 
-All `MoodleNet` objects use an ULID as their primary key. We use the pointers library (`MoodleNet.Meta.Pointers`) to reference any object by its primary key without knowing what type it is beforehand. This is very useful as we allow for example following or liking many different types of objects and this approach allows us to store the context of the like/follow by only storing its primary key (see `MoodleNet.Follows.Follow`) for an example.
+All `CommonsPub` objects use an ULID as their primary key. We use the pointers library (`CommonsPub.Meta.Pointers`) to reference any object by its primary key without knowing what type it is beforehand. This is very useful as we allow for example following or liking many different types of objects and this approach allows us to store the context of the like/follow by only storing its primary key (see `CommonsPub.Follows.Follow`) for an example.
 
 All context modules have a `one/1` and `many/1` function for fetching objects. These take a keyword list as filters as arguments allowing objects to be fetched by arbitrary criteria defined in the queries modules.
 
@@ -70,11 +70,11 @@ Collections.many(community: "01E9TQP93S8XFSV2ZATX1FQ528") # Fetching collections
 Resources.many(deleted: nil) # Fetching all undeleted communities
 ```
 
-Context modules also have functions for creating, updating and deleting objects. These actions are passed to the AP layer via the `MoodleNet.Workers.APPublishWorker` module.
+Context modules also have functions for creating, updating and deleting objects. These actions are passed to the AP layer via the `CommonsPub.Workers.APPublishWorker` module.
 
 #### Contexts
 
-The `MoodleNet` namespace is occupied mostly by contexts. These are
+The `CommonsPub` namespace is occupied mostly by contexts. These are
 top level modules which comprise a grouping of:
 
 - A top level library module
@@ -84,42 +84,42 @@ top level modules which comprise a grouping of:
 
 Here are the current contexts:
 
-- `MoodleNet.Access` (for managing and querying email whitelists)
-- `MoodleNet.Activities` (for managing and querying activities, the unit of a feed)
-- `MoodleNet.Collections` (for managing and querying collections of resources)
-- `MoodleNet.Communities` (for managing and querying communities)
-- `MoodleNet.Features` (for managing and querying featured content)
-- `MoodleNet.Feeds` (for managing and querying feeds)
-- `MoodleNet.Flags` (for managing and querying flags)
-- `MoodleNet.Follows` (for managing and querying follows)
-- `MoodleNet.Instance` (for managing the local instance)
-- `MoodleNet.Mail` (for rendering and sending emails)
-- `MoodleNet.Meta` (for managing and querying references to content in many tables)
-- `MoodleNet.OAuth` (for OAuth functionality)
-- `MoodleNet.Peers` (for managing remote hosts)
-- `MoodleNet.Resources` (for managing and querying the resources in collections)
-- `MoodleNet.Threads` (for managing and querying threads and comments)
-- `MoodleNet.Users` (for managing and querying both local and remote users)
-- `MoodleNet.Uploads` (for managing uploaded content)
+- `CommonsPub.Access` (for managing and querying email whitelists)
+- `CommonsPub.Activities` (for managing and querying activities, the unit of a feed)
+- `CommonsPub.Collections` (for managing and querying collections of resources)
+- `CommonsPub.Communities` (for managing and querying communities)
+- `CommonsPub.Features` (for managing and querying featured content)
+- `CommonsPub.Feeds` (for managing and querying feeds)
+- `CommonsPub.Flags` (for managing and querying flags)
+- `CommonsPub.Follows` (for managing and querying follows)
+- `CommonsPub.Instance` (for managing the local instance)
+- `CommonsPub.Mail` (for rendering and sending emails)
+- `CommonsPub.Meta` (for managing and querying references to content in many tables)
+- `CommonsPub.OAuth` (for OAuth functionality)
+- `CommonsPub.Peers` (for managing remote hosts)
+- `CommonsPub.Resources` (for managing and querying the resources in collections)
+- `CommonsPub.Threads` (for managing and querying threads and comments)
+- `CommonsPub.Users` (for managing and querying both local and remote users)
+- `CommonsPub.Uploads` (for managing uploaded content)
 
 - `CommonsPub.Character` (a shared abstraction over users, communities, collections, and other objects that need to have feeds and act as an actor in ActivityPub land)
 
 #### Additional Libraries
 
-- `MoodleNet.Application` (OTP application)
-- `MoodleNet.ActivityPub` (ActivityPub integration)
-- `MoodleNet.Common` (stuff that gets used everywhere)
-- `MoodleNet.GraphQL` (GraphQL abstractions)
-- `MoodleNet.MediaProxy` (for fetching remote media)
-- `MoodleNet.MetadataScraper` (for scraping metadata from a URL)
-- `MoodleNet.Queries` (Helpers for making queries)
-- `MoodleNet.Queries` (Helpers for making queries)
+- `CommonsPub.Application` (OTP application)
+- `CommonsPub.ActivityPub` (ActivityPub integration)
+- `CommonsPub.Common` (stuff that gets used everywhere)
+- `CommonsPub.GraphQL` (GraphQL abstractions)
+- `CommonsPub.MediaProxy` (for fetching remote media)
+- `CommonsPub.MetadataScraper` (for scraping metadata from a URL)
+- `CommonsPub.Queries` (Helpers for making queries)
+- `CommonsPub.Queries` (Helpers for making queries)
 - `CommonsPub.ReleaseTasks` (OTP release tasks)
-- `MoodleNet.Repo` (Ecto repository)
-- `MoodleNet.Workers` (background tasks)
+- `CommonsPub.Repo` (Ecto repository)
+- `CommonsPub.Workers` (background tasks)
 - `CommonsPub.Search` (local search indexing and search API, powered by Meili)
 
-### `MoodleNetWeb`
+### `CommonsPub.Web`
 
 Structure:
 
@@ -157,7 +157,7 @@ This namespace contains the AP S2S REST API, the activity ingestion pipeline (`A
 
 ### `ActivityPub` interaction in our application logic
 
-The callback functions defined in `ActivityPub.Adapter` are implemented in `MoodleNet.ActivityPub.Adapter`. Facilities for calling the ActivityPub API are implemented in `MoodleNet.ActivityPub.Publisher`. When implementing federation for a new object type it needs to be implemented both ways: both for outgoing federation in `MoodleNet.ActivityPub.Publisher` and for incoming federation in `MoodleNet.ActivityPub.Adapter`.
+The callback functions defined in `ActivityPub.Adapter` are implemented in `CommonsPub.ActivityPub.Adapter`. Facilities for calling the ActivityPub API are implemented in `CommonsPub.ActivityPub.Publisher`. When implementing federation for a new object type it needs to be implemented both ways: both for outgoing federation in `CommonsPub.ActivityPub.Publisher` and for incoming federation in `CommonsPub.ActivityPub.Adapter`.
 
 ## Naming
 
@@ -167,7 +167,7 @@ claim our scheme is the best, but we do strive for consistency.
 
 Naming rules:
 
-- Context names all begin `MoodleNet.` and are named in plural where possible.
+- Context names all begin `CommonsPub.` and are named in plural where possible.
 - Everything within a context begins with the context name and a `.`
 - Ecto schemas should be named in the singular
 - Database tables should be named in the singular

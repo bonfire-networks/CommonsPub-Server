@@ -1,5 +1,5 @@
 # this code is taken from absinthe
-defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Parse do
+defmodule CommonsPub.Web.GraphQL.Phase.Arguments.Parse do
   @moduledoc false
 
   # Special handling for types that are lying about being scalar
@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Parse do
   alias Absinthe.Blueprint
   alias Absinthe.Blueprint.Input.{Integer, List, Null, String, Value}
   alias Absinthe.Type.Scalar
-  alias MoodleNetWeb.GraphQL.Cursor
+  alias CommonsPub.Web.GraphQL.Cursor
   use Absinthe.Phase
 
   def run(input, _options \\ []) do
@@ -18,18 +18,20 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Parse do
   defp handle_node(%{normalized: nil} = node), do: node
 
   defp handle_node(
-    %Value{
-      schema_node: %Scalar{identifier: :cursor},
-      normalized: %List{items: items},
-    } = node
-  ), do: handle_list(node, items)
+         %Value{
+           schema_node: %Scalar{identifier: :cursor},
+           normalized: %List{items: items}
+         } = node
+       ),
+       do: handle_list(node, items)
 
   defp handle_node(
-    %Value{
-      schema_node: %Scalar{identifier: :cursor},
-      normalized: %{__struct__: struct, value: value},
-    } = node
-  ) when struct in [Integer, String] do
+         %Value{
+           schema_node: %Scalar{identifier: :cursor},
+           normalized: %{__struct__: struct, value: value}
+         } = node
+       )
+       when struct in [Integer, String] do
     Map.merge(node, %{normalized: nil, data: %Cursor{data: value}})
   end
 
@@ -42,8 +44,8 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Parse do
     end
   end
 
-  defp handle_list_item(%Value{normalized: %{__struct__: struct, value:  value}}, acc)
-  when struct in [Integer, String, Null] do
+  defp handle_list_item(%Value{normalized: %{__struct__: struct, value: value}}, acc)
+       when struct in [Integer, String, Null] do
     {:cont, [value | acc]}
   end
 
@@ -56,5 +58,4 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Parse do
   defp success(node, data) do
     Map.merge(node, %{normalized: nil, data: data})
   end
-
 end

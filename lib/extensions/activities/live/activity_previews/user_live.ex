@@ -1,8 +1,8 @@
-defmodule MoodleNetWeb.Component.UserPreviewLive do
+defmodule CommonsPub.Web.Component.UserPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # alias MoodleNetWeb.Helpers.{Profiles}
+  # alias CommonsPub.Web.Helpers.{Profiles}
 
   # def update(assigns, socket) do
   #   {:ok, assign(socket, user: Profiles.prepare(assigns.user, %{icon: true, actor: true}))} # do this in parent view instead

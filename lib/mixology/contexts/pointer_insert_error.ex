@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.PointerInsertError do
+defmodule CommonsPub.Meta.PointerInsertError do
   @moduledoc "An error indicating that inserting a pointer failed"
   @enforce_keys [:changeset]
   defstruct @enforce_keys

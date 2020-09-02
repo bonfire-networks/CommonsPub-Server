@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.UploadsTest do
-  use MoodleNet.DataCase, async: true
+defmodule CommonsPub.UploadsTest do
+  use CommonsPub.DataCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   alias CommonsPub.Utils.Simulation
-  alias MoodleNet.Uploads
-  alias MoodleNet.Uploads.{FileDenied, Storage}
+  alias CommonsPub.Uploads
+  alias CommonsPub.Uploads.{FileDenied, Storage}
 
   @image_file %{path: "test/fixtures/images/150.png", filename: "150.png"}
 
@@ -14,9 +14,9 @@ defmodule MoodleNet.UploadsTest do
 
     upload_def =
       Faker.Util.pick([
-        MoodleNet.Uploads.IconUploader,
-        MoodleNet.Uploads.ImageUploader,
-        MoodleNet.Uploads.ResourceUploader
+        CommonsPub.Uploads.IconUploader,
+        CommonsPub.Uploads.ImageUploader,
+        CommonsPub.Uploads.ResourceUploader
       ])
 
     Uploads.upload(upload_def, user, %{upload: file}, %{})
@@ -33,7 +33,7 @@ defmodule MoodleNet.UploadsTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Uploads.one(id: Simulation.ulid())
+      assert {:error, %CommonsPub.Common.NotFoundError{}} = Uploads.one(id: Simulation.ulid())
     end
   end
 

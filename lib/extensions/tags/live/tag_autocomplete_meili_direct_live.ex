@@ -1,10 +1,10 @@
-defmodule MoodleNetWeb.Component.TagAutocompleteMeiliDirect do
+defmodule CommonsPub.Web.Component.TagAutocompleteMeiliDirect do
   @moduledoc """
   Alternative approach to tagging, using JS to directly use Meili's API, rather than passing through Elixir
   """
-  use MoodleNetWeb, :live_component
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
   def mount(socket) do
     {:ok,

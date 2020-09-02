@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.CollectionLive.CollectionResourcesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.CollectionLive.CollectionResourcesLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     ResourcesListLive
   }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     ResourcesResolver
   }
 
@@ -55,7 +55,7 @@ defmodule MoodleNetWeb.CollectionLive.CollectionResourcesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

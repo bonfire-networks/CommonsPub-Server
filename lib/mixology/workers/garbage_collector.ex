@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Workers.GargageCollector do
+defmodule CommonsPub.Workers.GargageCollector do
   use Oban.Worker,
     queue: "mn_garbage_collector",
     # If it fails, it fails
@@ -11,7 +11,7 @@ defmodule MoodleNet.Workers.GargageCollector do
 
   @impl Worker
   def perform(override_opts, _job) do
-    opts = Map.new(Application.fetch_env!(:moodle_net, __MODULE__))
+    opts = Map.new(Application.fetch_env!(:commons_pub, __MODULE__))
     opts = Enum.reduce(override_opts, opts, &option/2)
     _stats = %{mark: mark(opts), sweep: sweep(opts)}
     :ok

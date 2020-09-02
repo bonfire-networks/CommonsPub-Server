@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Communities.Community do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Communities.Community do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset,
+  import CommonsPub.Common.Changeset,
     only: [
       change_public: 1,
       change_disabled: 1
@@ -11,14 +11,14 @@ defmodule MoodleNet.Communities.Community do
 
   alias Ecto.Changeset
   alias CommonsPub.Character
-  alias MoodleNet.Communities
-  alias MoodleNet.Communities.{Community, CommunityFollowerCount}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Flags.Flag
+  alias CommonsPub.Communities
+  alias CommonsPub.Communities.{Community, CommunityFollowerCount}
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Flags.Flag
   # alias CommonsPub.Locales.Language
-  alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.Content
+  alias CommonsPub.Users.User
+  alias CommonsPub.Uploads.Content
 
   table_schema "mn_community" do
     has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)

@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Data do
+defmodule CommonsPub.Web.GraphQL.Phase.Arguments.Data do
   @moduledoc false
 
   # Populate all arguments in the document with their provided data values:
@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Data do
   alias Absinthe.Blueprint.Document.Field
   alias Absinthe.{Blueprint}
   use Absinthe.Phase
-  alias MoodleNetWeb.GraphQL.Cursor
+  alias CommonsPub.Web.GraphQL.Cursor
 
   def run(input, _options \\ []) do
     # By using a postwalk we can worry about leaf nodes first (scalars, enums),
@@ -48,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Data do
     %{node | value: input.data}
   end
 
-  def handle_node(%Value{data: %Cursor{data: _data}}=node) do
+  def handle_node(%Value{data: %Cursor{data: _data}} = node) do
     # IO.inspect(data: data)
     node
   end

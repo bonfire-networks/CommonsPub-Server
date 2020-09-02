@@ -13,7 +13,7 @@ Possible uses include:
 - removing media from messages
 - sending only public messages to a specific instance
 
-The MRF provides user-configurable policies. The default policy is `NoOpPolicy`, which disables the MRF functionality. MoodleNet also includes an easy to use policy called `SimplePolicy` which maps messages matching certain pre-defined criterion to actions built into the policy module.
+The MRF provides user-configurable policies. The default policy is `NoOpPolicy`, which disables the MRF functionality. CommonsPub also includes an easy to use policy called `SimplePolicy` which maps messages matching certain pre-defined criterion to actions built into the policy module.
 It is possible to use multiple, active MRF policies at the same time.
 
 ## Using `SimplePolicy`
@@ -23,7 +23,7 @@ It is possible to use multiple, active MRF policies at the same time.
 To use `SimplePolicy`, you must enable it. Do so by adding the following to your `:instance` config object, so that it looks like this:
 
 ```
-config :moodle_net, :instance,
+config :commons_pub, :instance,
   [...]
   rewrite_policy: ActivityPub.MRF.SimplePolicy
 ```
@@ -42,10 +42,10 @@ Servers should be configured as lists.
 This example will enable `SimplePolicy`, block media from `illegalporn.biz`, mark media as NSFW from `porn.biz` and `porn.business`, reject messages from `spam.com`and block reports (flags) from `whiny.whiner`:
 
 ```
-config :moodle_net, :instance,
+config :commons_pub, :instance,
   rewrite_policy: [ActivityPub.MRF.SimplePolicy]
 
-config :moodle_net, :mrf_simple,
+config :commons_pub, :mrf_simple,
   media_removal: ["illegalporn.biz"],
   media_nsfw: ["porn.biz", "porn.business"],
   reject: ["spam.com"],
@@ -99,10 +99,10 @@ defmodule Site.RewritePolicy do
 end
 ```
 
-If you save this file as `lib/site/mrf/rewrite_policy.ex`, it will be included when you next rebuild MoodleNet. You can enable it in the configuration like so:
+If you save this file as `lib/site/mrf/rewrite_policy.ex`, it will be included when you next rebuild CommonsPub. You can enable it in the configuration like so:
 
 ```
-config :moodle_net, :instance,
+config :commons_pub, :instance,
   rewrite_policy: [
     ActivityPub.MRF.SimplePolicy,
     Site.RewritePolicy

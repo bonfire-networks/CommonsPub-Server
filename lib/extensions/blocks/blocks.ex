@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Blocks do
+defmodule CommonsPub.Blocks do
   alias Ecto.Changeset
-  alias MoodleNet.{Common, Repo}
-  alias MoodleNet.Blocks.{Block, Queries}
-  alias MoodleNet.Users.User
+  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Blocks.{Block, Queries}
+  alias CommonsPub.Users.User
 
   def one(filters), do: Repo.single(Queries.query(Block, filters))
 

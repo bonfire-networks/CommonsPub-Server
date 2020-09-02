@@ -1,21 +1,21 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.PointersTest do
+defmodule CommonsPub.Meta.PointersTest do
   use ExUnit.Case, async: true
 
   import ExUnit.Assertions
-  import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Repo}
+  import CommonsPub.Test.Faking
+  alias CommonsPub.{Access, Repo}
 
-  alias MoodleNet.Meta.{
+  alias CommonsPub.Meta.{
     Pointers,
     TableNotFoundError
   }
 
-  alias MoodleNet.Peers.Peer
+  alias CommonsPub.Peers.Peer
 
   describe "forge!" do
     setup do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(CommonsPub.Repo)
       {:ok, %{}}
     end
 
@@ -52,7 +52,7 @@ defmodule MoodleNet.Meta.PointersTest do
 
   describe "follow" do
     setup do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(CommonsPub.Repo)
       {:ok, %{}}
     end
 

@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.FeaturesTest do
-  use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.GraphQL.FeaturesTest do
+  use CommonsPub.Web.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.ConnHelpers
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.ConnHelpers
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
 
   describe "feature" do
     test "works for anyone for a community feature" do

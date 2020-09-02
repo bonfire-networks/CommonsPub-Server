@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Profile.Queries do
-  # alias MoodleNet.Users
+  # alias CommonsPub.Users
   alias CommonsPub.Profile
-  # alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  # alias CommonsPub.Follows.{Follow, FollowerCount}
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Profile) do

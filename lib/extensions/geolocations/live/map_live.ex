@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Geolocation.MapLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.Geolocation.MapLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
   @postgis_srid 4326
 

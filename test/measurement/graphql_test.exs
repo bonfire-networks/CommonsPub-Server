@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.GraphQLTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   import Measurement.Test.Faking
   import CommonsPub.Utils.Trendy
 

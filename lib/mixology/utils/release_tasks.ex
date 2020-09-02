@@ -3,10 +3,10 @@
 defmodule CommonsPub.ReleaseTasks do
   require Logger
 
-  @start_apps [:moodle_net]
-  @repos Application.get_env(:moodle_net, :ecto_repos, [])
-  alias MoodleNet.{Communities, Repo, Users}
-  alias MoodleNet.Users.User
+  @start_apps [:commons_pub]
+  @repos Application.get_env(:commons_pub, :ecto_repos, [])
+  alias CommonsPub.{Communities, Repo, Users}
+  alias CommonsPub.Users.User
 
   def create_db() do
     start_apps()
@@ -59,7 +59,6 @@ defmodule CommonsPub.ReleaseTasks do
 
   def startup_migrations() do
     if is_nil(System.get_env("DISABLE_DB_AUTOMIGRATION")) do
-
       try do
         start_repos()
         create_repos()
@@ -67,7 +66,10 @@ defmodule CommonsPub.ReleaseTasks do
         stop_repos()
       rescue
         e ->
-          Logger.warn("Could not run migrations on startup: "<>Map.get(e, :message, "unknown reason"))
+          Logger.warn(
+            "Could not run migrations on startup: " <> Map.get(e, :message, "unknown reason")
+          )
+
           stop_repos()
           :ok
       end
@@ -225,21 +227,21 @@ defmodule CommonsPub.ReleaseTasks do
 
   def user_set_email_confirmed(username) do
     Repo.transact_with(fn ->
-      u = MoodleNet.Users.get(username)
+      u = CommonsPub.Users.get(username)
       Users.confirm_email(u)
     end)
   end
 
   def make_instance_admin(username) do
     Repo.transact_with(fn ->
-      u = MoodleNet.Users.get(username)
+      u = CommonsPub.Users.get(username)
       Users.make_instance_admin(u)
     end)
   end
 
   def unmake_instance_admin(username) do
     Repo.transact_with(fn ->
-      u = MoodleNet.Users.get(username)
+      u = CommonsPub.Users.get(username)
       Users.unmake_instance_admin(u)
     end)
   end

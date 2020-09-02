@@ -1,6 +1,6 @@
-defmodule MoodleNetWeb.SignupLive do
-  use MoodleNetWeb, :live_view
-  import MoodleNetWeb.Helpers.Common
+defmodule CommonsPub.Web.SignupLive do
+  use CommonsPub.Web, :live_view
+  import CommonsPub.Web.Helpers.Common
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
@@ -9,8 +9,8 @@ defmodule MoodleNetWeb.SignupLive do
      socket
      |> assign(
        email: "",
-       app_name: Application.get_env(:moodle_net, :app_name),
-       app_icon: Application.get_env(:moodle_net, :app_icon, "/images/sun_face.png")
+       app_name: Application.get_env(:commons_pub, :app_name),
+       app_icon: Application.get_env(:commons_pub, :app_icon, "/images/sun_face.png")
      )}
   end
 
@@ -45,7 +45,7 @@ defmodule MoodleNetWeb.SignupLive do
       input = Map.drop(input_to_atoms(data), ["password2"])
       IO.inspect(input)
 
-      case MoodleNetWeb.GraphQL.UsersResolver.create_user(%{user: input}, %{}) do
+      case CommonsPub.Web.GraphQL.UsersResolver.create_user(%{user: input}, %{}) do
         {:ok, _user} ->
           # IO.inspect(user)
 

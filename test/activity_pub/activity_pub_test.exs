@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubTest do
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
   import ActivityPub.Factory
   alias ActivityPub.Actor
   alias ActivityPub.Object
   alias ActivityPub.Utils
-  alias MoodleNet.Test.Faking
+  alias CommonsPub.Test.Faking
 
   doctest ActivityPub
 

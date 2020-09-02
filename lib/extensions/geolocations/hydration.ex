@@ -1,10 +1,10 @@
 defmodule Geolocation.GraphQL.Hydration do
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CommonResolver
   }
 
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Collections.Collection
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Collections.Collection
 
   alias Organisation
 

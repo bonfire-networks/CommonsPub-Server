@@ -6,14 +6,14 @@ defmodule ActivityPubWeb.RedirectController.React do
   """
 
   use ActivityPubWeb, :controller
-  alias MoodleNet.Threads.Comment
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Users.User
+  alias CommonsPub.Threads.Comment
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Users.User
 
   def object(conn, %{"uuid" => uuid}) do
-    frontend_base = MoodleNet.Config.get!(:frontend_base_url)
+    frontend_base = CommonsPub.Config.get!(:frontend_base_url)
 
     ap_id = ActivityPubWeb.ActivityPubController.ap_route_helper(uuid)
     object = ActivityPub.Object.get_cached_by_ap_id(ap_id)
@@ -28,8 +28,8 @@ defmodule ActivityPubWeb.RedirectController.React do
 
       %ActivityPub.Object{} ->
         with pointer_id when not is_nil(pointer_id) <- Map.get(object, :mn_pointer_id),
-             {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
-          mn_object = MoodleNet.Meta.Pointers.follow!(pointer)
+             {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id) do
+          mn_object = CommonsPub.Meta.Pointers.follow!(pointer)
 
           case mn_object do
             %Comment{} ->
@@ -53,7 +53,7 @@ defmodule ActivityPubWeb.RedirectController.React do
   end
 
   def actor(conn, %{"username" => username}) do
-    frontend_base = MoodleNet.Config.get!(:frontend_base_url)
+    frontend_base = CommonsPub.Config.get!(:frontend_base_url)
 
     case ActivityPub.Adapter.get_actor_by_username(username) do
       {:ok, %User{} = actor} ->

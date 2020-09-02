@@ -4,7 +4,7 @@ defmodule Taxonomy.Migrations do
   require Logger
 
   # alias Ecto.ULID
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   @extension_path "lib/extensions/taxonomies_seeder"
   @table "taxonomy_tag"

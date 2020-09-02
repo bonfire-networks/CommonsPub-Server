@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.ActivityPubControllerTest do
-  use MoodleNetWeb.ConnCase
+  use CommonsPub.Web.ConnCase
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   import ActivityPub.Factory
 
   describe "object" do
@@ -61,7 +61,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
       actor = fake_user!()
       following = fake_user!()
 
-      MoodleNet.Follows.create(actor, following, %{is_local: true})
+      CommonsPub.Follows.create(actor, following, %{is_local: true})
       {:ok, ap_actor} = ActivityPub.Actor.get_by_local_id(actor.id)
 
       resp =
@@ -80,7 +80,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
       actor = fake_user!()
       following = fake_user!()
 
-      MoodleNet.Follows.create(actor, following, %{is_local: true})
+      CommonsPub.Follows.create(actor, following, %{is_local: true})
       {:ok, ap_actor} = ActivityPub.Actor.get_by_local_id(actor.id)
 
       resp =
@@ -99,7 +99,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
       actor = fake_user!()
       follower = fake_user!()
 
-      MoodleNet.Follows.create(follower, actor, %{is_local: true})
+      CommonsPub.Follows.create(follower, actor, %{is_local: true})
       {:ok, ap_actor} = ActivityPub.Actor.get_by_local_id(actor.id)
 
       resp =
@@ -118,7 +118,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
       actor = fake_user!()
       follower = fake_user!()
 
-      MoodleNet.Follows.create(follower, actor, %{is_local: true})
+      CommonsPub.Follows.create(follower, actor, %{is_local: true})
       {:ok, ap_actor} = ActivityPub.Actor.get_by_local_id(actor.id)
 
       resp =

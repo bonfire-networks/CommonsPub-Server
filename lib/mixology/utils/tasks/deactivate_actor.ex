@@ -1,10 +1,10 @@
-defmodule Mix.Tasks.MoodleNet.DeactivateActor do
+defmodule Mix.Tasks.CommonsPub.DeactivateActor do
   use Mix.Task
   alias ActivityPub.Actor
 
   @shortdoc "Deactivate a remote actor, disabling incoming federation from it"
 
-  @usage "mix moodle_net.deactivate_actor [undo] ACTOR_URI"
+  @usage "mix commons_pub.deactivate_actor [undo] ACTOR_URI"
 
   @moduledoc """
   This mix task is useful for disabling abusive actors without rejecting their entire instance.
@@ -17,7 +17,7 @@ defmodule Mix.Tasks.MoodleNet.DeactivateActor do
 
   def start_app do
     Application.put_env(:phoenix, :serve_endpoints, false, persistent: true)
-    {:ok, _} = Application.ensure_all_started(:moodle_net)
+    {:ok, _} = Application.ensure_all_started(:commons_pub)
   end
 
   defp shell_info(message) do

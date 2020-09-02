@@ -1,6 +1,6 @@
 # Generate some fake data and put it in the DB for testing/development purposes
 
-import MoodleNet.Test.Faking
+import CommonsPub.Test.Faking
 
 admin =
   %{

@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Component.CategoryPreviewLive do
+defmodule CommonsPub.Web.Component.CategoryPreviewLive do
   use Phoenix.LiveComponent
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
   def category_link(cat) do
     "/++" <> e(cat, :id, "#no-parent")

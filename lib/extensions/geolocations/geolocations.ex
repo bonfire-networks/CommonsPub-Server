@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.Geolocations do
-  alias MoodleNet.{
+  alias CommonsPub.{
     Activities,
     Common,
     Feeds,
@@ -10,13 +10,13 @@ defmodule Geolocation.Geolocations do
 
   alias CommonsPub.Character.Characters
 
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
   alias Geolocation
   alias Geolocation.Queries
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
+  alias CommonsPub.Workers.APPublishWorker
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.FlagsResolver do
-  alias MoodleNet.{Flags, GraphQL, Repo}
-  alias MoodleNet.Flags.Flag
+defmodule CommonsPub.Web.GraphQL.FlagsResolver do
+  alias CommonsPub.{Flags, GraphQL, Repo}
+  alias CommonsPub.Flags.Flag
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -12,8 +12,8 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     ResolvePages
   }
 
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Users.User
+  alias CommonsPub.Meta.Pointers
+  alias CommonsPub.Users.User
 
   def flag(%{flag_id: id}, info) do
     with {:ok, %User{} = user} <- GraphQL.current_user_or_not_found(info) do

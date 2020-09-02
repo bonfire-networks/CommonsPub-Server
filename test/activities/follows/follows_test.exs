@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.FollowsTest do
-  use MoodleNet.DataCase, async: true
-  use Oban.Testing, repo: MoodleNet.Repo
+defmodule CommonsPub.FollowsTest do
+  use CommonsPub.DataCase, async: true
+  use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import MoodleNet.Test.Faking
-  alias MoodleNet.Follows
+  import CommonsPub.Test.Faking
+  alias CommonsPub.Follows
   alias CommonsPub.Utils.Simulation
 
   setup do

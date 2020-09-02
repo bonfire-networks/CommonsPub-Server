@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.UploadsTest do
-  use MoodleNetWeb.ConnCase, async: true
+defmodule CommonsPub.Web.GraphQL.UploadsTest do
+  use CommonsPub.Web.ConnCase, async: true
 
-  # import MoodleNet.Test.Faking
-  # import MoodleNetWeb.Test.ConnHelpers
-  # import MoodleNetWeb.Test.GraphQLAssertions
-  # import MoodleNetWeb.Test.GraphQLFields
+  # import CommonsPub.Test.Faking
+  # import CommonsPub.Web.Test.ConnHelpers
+  # import CommonsPub.Web.Test.GraphQLAssertions
+  # import CommonsPub.Web.Test.GraphQLFields
   # import Grumble
-  # alias MoodleNet.Uploads.Storage
+  # alias CommonsPub.Uploads.Storage
 
   # @image_file %{
   #   path: "test/fixtures/images/150.png",

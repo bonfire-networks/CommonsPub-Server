@@ -1,9 +1,9 @@
 defmodule CommonsPub.Tag.Autocomplete do
-  use MoodleNetWeb, :controller
+  use CommonsPub.Web, :controller
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 
-  # TODO: consolidate CommonsPub.Tag.Autocomplete and MoodleNetWeb.Component.TagAutocomplete
+  # TODO: consolidate CommonsPub.Tag.Autocomplete and CommonsPub.Web.Component.TagAutocomplete
 
   def get(conn, %{"prefix" => prefix, "search" => search, "consumer" => consumer}) do
     tags = tag_lookup(search, prefix, consumer)

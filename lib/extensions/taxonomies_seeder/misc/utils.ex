@@ -1,5 +1,5 @@
 defmodule Taxonomy.Utils do
-  use MoodleNetWeb, :controller
+  use CommonsPub.Web, :controller
 
   def get(conn, _params) do
     s = "I a,m! the bÉst? 1"

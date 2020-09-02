@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.CommunitiesTest do
-  use MoodleNet.DataCase, async: true
+defmodule CommonsPub.CommunitiesTest do
+  use CommonsPub.DataCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   alias CommonsPub.Utils.Simulation
-  alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Communities
-  alias MoodleNet.Communities.Community
+  alias CommonsPub.Common.NotFoundError
+  alias CommonsPub.Communities
+  alias CommonsPub.Communities.Community
 
   describe "Communities.many/1" do
     test "returns a list of non-deleted communities" do

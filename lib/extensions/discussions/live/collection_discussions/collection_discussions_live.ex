@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.CollectionLive.CollectionDiscussionsLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.CollectionLive.CollectionDiscussionsLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     DiscussionPreviewLive
   }
 
@@ -19,7 +19,7 @@ defmodule MoodleNetWeb.CollectionLive.CollectionDiscussionsLive do
     # IO.inspect(after: assigns.after)
 
     {:ok, threads} =
-      MoodleNetWeb.GraphQL.ThreadsResolver.threads_edge(
+      CommonsPub.Web.GraphQL.ThreadsResolver.threads_edge(
         %{id: assigns.collection.id},
         %{limit: 3},
         %{context: %{current_user: assigns.current_user}}
@@ -37,5 +37,5 @@ defmodule MoodleNetWeb.CollectionLive.CollectionDiscussionsLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
 end

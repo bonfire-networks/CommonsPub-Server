@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Access.NotLoggedInError do
+defmodule CommonsPub.Access.NotLoggedInError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 

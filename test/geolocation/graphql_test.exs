@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.GraphQLTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
 
   import Geolocation.Test.Faking
   import Geolocation.Simulate

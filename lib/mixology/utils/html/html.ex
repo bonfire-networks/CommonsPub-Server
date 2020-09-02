@@ -1,5 +1,5 @@
 defmodule CommonsPub.HTML do
-  alias MoodleNet.Config
+  alias CommonsPub.Config
 
   alias CommonsPub.HTML.Formatter
 

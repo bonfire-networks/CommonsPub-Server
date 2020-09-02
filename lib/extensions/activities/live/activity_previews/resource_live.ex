@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Component.ResourcePreviewLive do
+defmodule CommonsPub.Web.Component.ResourcePreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
-  # import MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Web.Helpers.Common
+  # import CommonsPub.Web.Helpers.Profiles
 
   # def mount(_, _session, socket) do
   #   {:ok, assign(socket, current_user: socket.assigns.current_user)}
@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.Component.ResourcePreviewLive do
   def update(assigns, socket) do
     # IO.inspect(resource_pre_prep: assigns.resource)
 
-    # resource = MoodleNetWeb.Helpers.Profiles.prepare(assigns.resource, %{icon: true, actor: true})
+    # resource = CommonsPub.Web.Helpers.Profiles.prepare(assigns.resource, %{icon: true, actor: true})
 
     resource = prepare_common(assigns.resource)
 

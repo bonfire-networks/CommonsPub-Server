@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.Storage do
+defmodule CommonsPub.Uploads.Storage do
   @type file_source :: Belt.Provider.file_source()
   @type file_info :: %{info: %Belt.FileInfo{}, media_type: binary, metadata: map}
   @type file_id :: binary
@@ -33,8 +33,8 @@ defmodule MoodleNet.Uploads.Storage do
 
   defp upload_provider do
     {:ok, provider} =
-      :moodle_net
-      |> Application.fetch_env!(MoodleNet.Uploads)
+      :commons_pub
+      |> Application.fetch_env!(CommonsPub.Uploads)
       |> Belt.Provider.Filesystem.new()
 
     provider

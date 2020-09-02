@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlugTest do
-  use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNetWeb.Plugs.EnsureAuthenticatedPlug
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Web.Plugs.EnsureAuthenticatedPlugTest do
+  use CommonsPub.Web.ConnCase, async: true
+  alias CommonsPub.Web.Plugs.EnsureAuthenticatedPlug
+  alias CommonsPub.Users.User
 
   describe "in json format" do
     test "it continues if a user is assigned" do

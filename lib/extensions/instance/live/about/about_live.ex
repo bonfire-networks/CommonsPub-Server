@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Component.AboutLive do
+defmodule CommonsPub.Web.Component.AboutLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Web.Helpers.Common
 end

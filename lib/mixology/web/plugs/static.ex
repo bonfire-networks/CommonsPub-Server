@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Plugs.Static do
+defmodule CommonsPub.Web.Plugs.Static do
   alias Plug.Static
 
   def init(opts) do
@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.Plugs.Static do
   end
 
   def call(conn, opts) do
-    config = Application.fetch_env!(:moodle_net, MoodleNet.Uploads)
+    config = Application.fetch_env!(:commons_pub, CommonsPub.Uploads)
     from = Keyword.fetch!(config, :directory)
     at = Plug.Router.Utils.split(Keyword.fetch!(config, :path))
     opts = Map.merge(opts, %{from: from, at: at})

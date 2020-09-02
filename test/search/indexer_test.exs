@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule CommonsPub.Search.IndexerTest do
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
   alias CommonsPub.Search.Indexer
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
 
   test "format community" do
     community = fake_user!() |> fake_community!()

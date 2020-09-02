@@ -1,6 +1,6 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.Migrations do
   use Ecto.Migration
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 

@@ -2,8 +2,9 @@
 defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   use Absinthe.Schema.Notation
 
-  alias MoodleNet.GraphQL
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL
+
+  alias CommonsPub.GraphQL.{
     ResolveField,
     ResolveFields,
     FetchFields

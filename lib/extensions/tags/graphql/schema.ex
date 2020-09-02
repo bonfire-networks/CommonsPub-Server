@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.GraphQL.TagSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{UsersResolver}
+  alias CommonsPub.Web.GraphQL.{UsersResolver}
   alias CommonsPub.Tag.GraphQL.{TagResolver}
 
   object :tag_queries do
@@ -97,7 +97,7 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
 
     @desc "The caretaker of this category, if any"
     field :caretaker, :any_context do
-      # resolve(&MoodleNetWeb.GraphQL.CommonResolver.context_edge/3)
+      # resolve(&CommonsPub.Web.GraphQL.CommonResolver.context_edge/3)
     end
 
     @desc "The character that represents this category in feeds and federation"
@@ -136,7 +136,7 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
 
     @desc "The taggable object, like a category or community"
     field :context, :any_context do
-      resolve(&MoodleNetWeb.GraphQL.CommonResolver.context_edge/3)
+      resolve(&CommonsPub.Web.GraphQL.CommonResolver.context_edge/3)
     end
 
     @desc "Things that were tagged with this tag"

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Feeds.Feed do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Feeds.Feed do
+  use CommonsPub.Common.Schema
   alias Ecto.Changeset
-  alias MoodleNet.Feeds
+  alias CommonsPub.Feeds
 
   table_schema "mn_feed" do
     field(:deleted_at, :utc_datetime_usec)

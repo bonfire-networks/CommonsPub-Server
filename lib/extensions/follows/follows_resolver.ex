@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.FollowsResolver do
-  alias MoodleNet.{Follows, GraphQL, Repo}
+defmodule CommonsPub.Web.GraphQL.FollowsResolver do
+  alias CommonsPub.{Follows, GraphQL, Repo}
 
-  alias MoodleNet.Follows.{
+  alias CommonsPub.Follows.{
     Follow,
     FollowCount,
     FollowCountsQueries,
@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     FollowerCountsQueries
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -18,8 +18,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     ResolvePages
   }
 
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Users.User
+  alias CommonsPub.Meta.Pointers
+  alias CommonsPub.Users.User
 
   def follow(%{follow_id: id}, info) do
     Follows.one(id: id, user: GraphQL.current_user(info))
@@ -181,7 +181,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   def follow_remote_actor(%{url: url}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, actor} <- MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(url) do
+           {:ok, actor} <- CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(url) do
         Follows.create(me, actor, %{is_local: true})
       end
     end)

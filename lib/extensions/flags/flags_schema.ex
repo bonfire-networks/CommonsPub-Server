@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.FlagsSchema do
+defmodule CommonsPub.Web.GraphQL.FlagsSchema do
   use Absinthe.Schema.Notation
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Threads.Comment
-  # alias MoodleNet.Users.User
-  alias MoodleNetWeb.GraphQL.{CommonResolver, FlagsResolver, UsersResolver}
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Threads.Comment
+  # alias CommonsPub.Users.User
+  alias CommonsPub.Web.GraphQL.{CommonResolver, FlagsResolver, UsersResolver}
 
   object :flags_queries do
     field :flag, :flag do

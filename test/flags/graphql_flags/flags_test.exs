@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.FlagsTest do
-  use MoodleNetWeb.ConnCase, async: true
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.ConnHelpers
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+defmodule CommonsPub.Web.GraphQL.FlagsTest do
+  use CommonsPub.Web.ConnCase, async: true
+  import CommonsPub.Test.Faking
+  import CommonsPub.Web.Test.ConnHelpers
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
 
   describe "flag" do
     test "is not found for people who can't see the flag" do

@@ -25,5 +25,5 @@ defmodule ActivityPubWeb.Gettext do
 
   # FIXME
   # use Gettext, otp_app: :activity_pub
-  use Gettext, otp_app: :moodle_net
+  use Gettext, otp_app: :commons_pub
 end

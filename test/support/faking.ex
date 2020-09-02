@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Test.Faking do
+defmodule CommonsPub.Test.Faking do
   import ExUnit.Assertions
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     Access,
     Activities,
     Communities,
@@ -91,8 +91,8 @@ defmodule MoodleNet.Test.Faking do
 
   def fake_content!(%User{} = user, overrides \\ %{}) do
     {:ok, content} =
-      MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.ResourceUploader,
+      CommonsPub.Uploads.upload(
+        CommonsPub.Uploads.ResourceUploader,
         user,
         content_input(overrides),
         %{}

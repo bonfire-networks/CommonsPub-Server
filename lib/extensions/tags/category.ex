@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Category do
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "category",
     table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
-  # use MoodleNet.Common.Schema
+  # use CommonsPub.Common.Schema
 
-  # import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  # import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Category
-  # alias MoodleNet.{Repo}
+  # alias CommonsPub.{Repo}
 
   @type t :: %__MODULE__{}
   @cast ~w(caretaker_id parent_category_id same_as_category_id)a

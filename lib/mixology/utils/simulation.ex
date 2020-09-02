@@ -119,7 +119,7 @@ defmodule CommonsPub.Utils.Simulation do
     base
     |> Map.put_new_lazy(:start_cursor, &uuid/0)
     |> Map.put_new_lazy(:end_cursor, &uuid/0)
-    |> Map.put(:__struct__, MoodleNet.GraphQL.PageInfo)
+    |> Map.put(:__struct__, CommonsPub.GraphQL.PageInfo)
   end
 
   def long_node_list(base \\ %{}, gen) do
@@ -127,7 +127,7 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:page_info, &page_info/0)
     |> Map.put_new_lazy(:total_count, &pos_integer/0)
     |> Map.put_new_lazy(:nodes, fn -> long_list(gen) end)
-    |> Map.put(:__struct__, MoodleNet.GraphQL.NodeList)
+    |> Map.put(:__struct__, CommonsPub.GraphQL.NodeList)
   end
 
   def long_edge_list(base \\ %{}, gen) do
@@ -135,14 +135,14 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:page_info, &page_info/0)
     |> Map.put_new_lazy(:total_count, &pos_integer/0)
     |> Map.put_new_lazy(:edges, fn -> long_list(fn -> edge(gen) end) end)
-    |> Map.put(:__struct__, MoodleNet.GraphQL.EdgeList)
+    |> Map.put(:__struct__, CommonsPub.GraphQL.EdgeList)
   end
 
   def edge(base \\ %{}, gen) do
     base
     |> Map.put_new_lazy(:cursor, &uuid/0)
     |> Map.put_new_lazy(:node, gen)
-    |> Map.put(:__struct__, MoodleNet.GraphQL.Edge)
+    |> Map.put(:__struct__, CommonsPub.GraphQL.Edge)
   end
 
   # Widely useful schemas:

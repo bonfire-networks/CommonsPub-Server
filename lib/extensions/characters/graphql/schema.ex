@@ -5,7 +5,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
   """
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CommonResolver,
     FlagsResolver,
     FollowsResolver,
@@ -18,7 +18,7 @@ defmodule CommonsPub.Character.GraphQL.Schema do
     ResourcesResolver
   }
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     Communities.Community,
     Collections.Collection,
     Resources.Resource,

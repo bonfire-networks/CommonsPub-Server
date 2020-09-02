@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.EmailConfirmToken do
+defmodule CommonsPub.Users.EmailConfirmToken do
   @moduledoc """
   An email confirmation token in the form of a UUID V4
 
   TheActors ID of the token is the token itself, since UUID V4 is generated
   via cryptographically strong means and has 122 usable bits of secret.
   """
-  use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [soft_delete_changeset: 2]
+  use CommonsPub.Common.Schema
+  import CommonsPub.Common.Changeset, only: [soft_delete_changeset: 2]
   alias Ecto.Changeset
-  alias MoodleNet.Users.{EmailConfirmToken, LocalUser}
+  alias CommonsPub.Users.{EmailConfirmToken, LocalUser}
 
   @type validity :: {pos_integer, System.time_unit()}
 

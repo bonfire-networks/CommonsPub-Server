@@ -2,8 +2,8 @@
 defmodule ValueFlows.Test.Faking do
   import ExUnit.Assertions
 
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
 
   import CommonsPub.Utils.Trendy
 
@@ -73,9 +73,7 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def assert_proposed_to(pt) do
-    assert_object(pt, :assert_proposed_to,
-      id: &assert_ulid/1,
-    )
+    assert_object(pt, :assert_proposed_to, id: &assert_ulid/1)
   end
 
   def assert_intent(%Intent{} = intent) do
@@ -278,7 +276,7 @@ defmodule ValueFlows.Test.Faking do
   def propose_to_mutation(options \\ []) do
     [
       proposed: type!(:id),
-      proposed_to: type!(:id),
+      proposed_to: type!(:id)
     ]
     |> gen_mutation(&propose_to_submutation/1, options)
   end
@@ -286,7 +284,7 @@ defmodule ValueFlows.Test.Faking do
   def propose_to_submutation(options \\ []) do
     [
       proposed: var(:proposed),
-      proposed_to: var(:proposed_to),
+      proposed_to: var(:proposed_to)
     ]
     |> gen_submutation(:propose_to, &proposed_to_response_fields/1, options)
   end

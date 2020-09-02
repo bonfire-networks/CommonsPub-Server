@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.ResourceTest do
-  use MoodleNetWeb.ConnCase, async: true
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+defmodule CommonsPub.Web.GraphQL.ResourceTest do
+  use CommonsPub.Web.ConnCase, async: true
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Utils.Trendy
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   import Zest
 
   describe "resource" do
@@ -248,14 +248,14 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
       res = fake_resource!(user, coll)
 
       assert {:ok, upload} =
-               MoodleNet.Uploads.upload(
-                 MoodleNet.Uploads.ResourceUploader,
+               CommonsPub.Uploads.upload(
+                 CommonsPub.Uploads.ResourceUploader,
                  user,
                  %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
                  %{}
                )
 
-      assert {:ok, res} = MoodleNet.Resources.update(user, res, %{icon_id: upload.id})
+      assert {:ok, res} = CommonsPub.Resources.update(user, res, %{icon_id: upload.id})
 
       conn = user_conn(user)
 
@@ -279,14 +279,14 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
       res = fake_resource!(user, coll)
 
       assert {:ok, upload} =
-               MoodleNet.Uploads.upload(
-                 MoodleNet.Uploads.ResourceUploader,
+               CommonsPub.Uploads.upload(
+                 CommonsPub.Uploads.ResourceUploader,
                  user,
                  %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
                  %{}
                )
 
-      assert {:ok, res} = MoodleNet.Resources.update(user, res, %{content_id: upload.id})
+      assert {:ok, res} = CommonsPub.Resources.update(user, res, %{content_id: upload.id})
 
       conn = user_conn(user)
 

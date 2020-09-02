@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.ErrorHelpers do
+defmodule CommonsPub.Web.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -36,9 +36,9 @@ defmodule MoodleNetWeb.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(MoodleNetWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(CommonsPub.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(MoodleNetWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(CommonsPub.Web.Gettext, "errors", msg, opts)
     end
   end
 end

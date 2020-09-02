@@ -1,12 +1,12 @@
 defmodule ValueFlows.Knowledge.Action do
   use Ecto.Schema
 
-  # import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  # import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   # import Ecto.Enum
 
   # alias Ecto.Changeset
-  # alias MoodleNet.Users.User
+  # alias CommonsPub.Users.User
   # alias ValueFlows.Knowledge.Action
 
   # defenum label_enum, work: 0, produce: 1, consume: 2, use: 3, consume: 4, transfer: 5

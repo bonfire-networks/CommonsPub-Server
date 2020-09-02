@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.ActorsResolver do
+defmodule CommonsPub.Web.GraphQL.ActorsResolver do
   @moduledoc """
   Resolver functions shared between actor types.
   """
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Actors.Actor
 
-  # alias MoodleNet.Instance
+  # alias CommonsPub.Instance
 
   # import Absinthe.Resolution.Helpers, only: [batch: 3]
 
@@ -19,6 +19,6 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   def is_local_edge(%{actor: %Actor{peer_id: id}}, _, _), do: {:ok, is_nil(id)}
 
   def display_username_edge(obj, _, _) do
-    {:ok, MoodleNet.Characters.display_username(obj)}
+    {:ok, CommonsPub.Characters.display_username(obj)}
   end
 end

@@ -2,10 +2,10 @@
 defmodule Geolocation.Queries do
   alias Geolocation
   # alias Geolocation.Geolocations
-  alias MoodleNet.Follows.{Follow, FollowerCount}
-  # alias MoodleNet.Users
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.Follows.{Follow, FollowerCount}
+  # alias CommonsPub.Users
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Geolocation) do
@@ -214,7 +214,6 @@ defmodule Geolocation.Queries do
   def filter(q, filter_name) when is_binary(filter_name) do
     filter(q, String.to_existing_atom(filter_name))
   end
-
 
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
     filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)
