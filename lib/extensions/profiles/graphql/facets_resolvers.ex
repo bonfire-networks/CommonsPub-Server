@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Profile.GraphQL.FacetsResolvers do
+defmodule CommonsPub.Profiles.GraphQL.FacetsResolvers do
   @moduledoc "These resolver functions are to be called by other modules that use profile, for fields or foreign keys that are part of the profile table rather than that module's table."
 
-  # alias CommonsPub.Profile
+  # alias CommonsPub.Profiles.Profile
   alias Pointers
 
   def creator_edge(%{profile: %{creator_id: id}}, _, info),

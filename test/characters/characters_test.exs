@@ -5,7 +5,7 @@ defmodule CommonsPub.CharactersTest do
   import CommonsPub.Test.Faking
   alias CommonsPub.Repo
 
-  alias CommonsPub.Character.Characters
+  alias CommonsPub.Characters
 
   alias CommonsPub.Users
 

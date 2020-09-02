@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.MemberLive.HeroProfileLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def render(assigns) do
     ~L"""
@@ -15,7 +15,7 @@ defmodule CommonsPub.Web.MemberLive.HeroProfileLive do
           </div>
           <div class="info__meta">
             <h1><%= @user.name %></h1>
-            <h4 class="info__username"><%= e(@user, :display_username, e(@user, :actor, :preferred_username, "")) %></h4>
+            <h4 class="info__username"><%= e(@user, :display_username, e(@user, :character, :preferred_username, "")) %></h4>
             <div class="info__details">
             <%= if @user.website do %>
               <div class="details__meta">

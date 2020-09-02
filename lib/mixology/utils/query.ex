@@ -7,11 +7,11 @@ defmodule CommonsPub.Common.Query do
   def unroll({l, r}, key), do: %{l | key => r}
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where(q, [actor: a], a.preferred_username == ^username)
+    where(q, [a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where(q, [actor: a], a.preferred_username in ^usernames)
+    where(q, [a], a.preferred_username in ^usernames)
   end
 
   def order_by_recently_updated(query) do

@@ -16,8 +16,8 @@ defmodule Organisation.Organisations do
   # alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
   # alias CommonsPub.Workers.APPublishWorker
-  alias CommonsPub.Character.Characters
-  alias CommonsPub.Profile.Profiles
+  alias CommonsPub.Characters
+  alias CommonsPub.Profiles
 
   @facet_name "Organisation"
 
@@ -104,7 +104,7 @@ defmodule Organisation.Organisations do
       with {:ok, organisation} <- insert_organisation(attrs, context),
            {:ok, attrs} <- attrs_with_organisation(attrs, organisation),
            {:ok, profile} <- Profiles.create(creator, attrs),
-           {:ok, character} <- Characters.create(creator, attrs) do
+           {:ok, character} <- Characters.create(creator, attrs, organisation) do
         {:ok, %{organisation | character: character, profile: profile}}
       end
     end)
@@ -119,7 +119,7 @@ defmodule Organisation.Organisations do
       with {:ok, organisation} <- insert_organisation(attrs),
            {:ok, attrs} <- attrs_with_organisation(attrs, organisation),
            {:ok, profile} <- Profiles.create(creator, attrs),
-           {:ok, character} <- Characters.create(creator, attrs) do
+           {:ok, character} <- Characters.create(creator, attrs, organisation) do
         {:ok, %{organisation | character: character, profile: profile}}
       end
     end)

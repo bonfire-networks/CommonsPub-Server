@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Character.Characters do
+defmodule CommonsPub.Characters do
   alias CommonsPub.GraphQL.{Fields, Page}
   alias CommonsPub.Common.Contexts
 
@@ -9,13 +9,13 @@ defmodule CommonsPub.Character.Characters do
 
   alias CommonsPub.Workers.APPublishWorker
 
-  alias CommonsPub.Character.NameReservation
+  alias CommonsPub.Characters.NameReservation
 
   alias Pointers.Pointer
   alias Pointers
 
-  alias CommonsPub.Character
-  alias CommonsPub.Character.Queries
+  alias CommonsPub.Characters.Character
+  alias CommonsPub.Characters.Queries
 
   @replacement_regex ~r/[^a-zA-Z0-9-]/
   @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
@@ -41,14 +41,15 @@ defmodule CommonsPub.Character.Characters do
   * ActivityPub integration
   * Various parts of the codebase that need to query for characters (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(CommonsPub.Character, filters))
+  def one(filters), do: Repo.single(Queries.query(CommonsPub.Characters.Character, filters))
 
   @doc """
   Retrieves a list of characters by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for characters (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(CommonsPub.Character, filters))}
+  def many(filters \\ []),
+    do: {:ok, Repo.all(Queries.query(CommonsPub.Characters.Character, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -65,7 +66,7 @@ defmodule CommonsPub.Character.Characters do
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
 
   def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
-    base_q = Queries.query(CommonsPub.Character, base_filters)
+    base_q = Queries.query(CommonsPub.Characters.Character, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
@@ -92,7 +93,7 @@ defmodule CommonsPub.Character.Characters do
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
     Contexts.pages(
       Queries,
-      CommonsPub.Character,
+      CommonsPub.Characters.Character,
       cursor_fn,
       group_fn,
       page_opts,
@@ -222,17 +223,17 @@ defmodule CommonsPub.Character.Characters do
   # end
 
   # defp insert_character_with_characteristic(creator, characteristic, character, attrs) do
-  #   cs = CommonsPub.Character.create_changeset(creator, characteristic, character, nil, attrs)
+  #   cs = CommonsPub.Characters.create_changeset(creator, characteristic, character, nil, attrs)
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | character: character, characteristic: characteristic }}
   # end
 
   # defp insert_character_with_context(creator, context, character, attrs) do
-  #   cs = CommonsPub.Character.create_changeset(creator, character, context, attrs)
+  #   cs = CommonsPub.Characters.create_changeset(creator, character, context, attrs)
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | character: character, context: context }}
   # end
 
   # defp insert_character(creator, characteristic, context, character, attrs) do
-  #   cs = CommonsPub.Character.create_changeset(creator, characteristic, character, context, attrs)
+  #   cs = CommonsPub.Characters.create_changeset(creator, characteristic, character, context, attrs)
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | character: character, context: context, characteristic: characteristic }}
   # end
 
@@ -295,7 +296,8 @@ defmodule CommonsPub.Character.Characters do
     |> Map.delete(:__meta__)
   end
 
-  def update(user, %CommonsPub.Character{} = character, %{character: attrs}) when is_map(attrs) do
+  def update(user, %CommonsPub.Characters.Character{} = character, %{character: attrs})
+      when is_map(attrs) do
     update(user, character, attrs)
   end
 
@@ -432,9 +434,9 @@ defmodule CommonsPub.Character.Characters do
     "#{prefix}#{uname}"
   end
 
-  def display_username(%{id: id} = obj, full_hostname, prefix) do
-    obj = CommonsPub.Web.Helpers.Common.maybe_preload(obj, :character)
-    display_username(obj, full_hostname, prefix)
+  def display_username(%{character: _} = obj, full_hostname, prefix) do
+    obj = CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character)
+    display_username(Map.get(obj, :character), full_hostname, prefix)
   end
 
   def display_username(obj, _, _) do
@@ -442,27 +444,15 @@ defmodule CommonsPub.Character.Characters do
     ""
   end
 
-  def obj_load_actor(%{actor: actor} = obj) do
-    Repo.preload(obj, :actor)
-  end
-
-  def obj_load_actor(%{character: %{actor: actor} = character}) do
-    Repo.preload(character, :actor)
-  end
+  # def obj_load_actor(%{actor: actor} = obj) do
+  #   Repo.preload(obj, :actor)
+  # end
 
   def obj_load_actor(%{character: character} = obj) do
-    Repo.preload(obj, character: :actor)
-  end
-
-  def obj_actor(%{actor: actor} = obj) do
-    obj_load_actor(obj).actor
-  end
-
-  def obj_actor(%{character: %{actor: actor} = character} = obj) do
-    obj_load_actor(obj).actor
+    CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character)
   end
 
   def obj_actor(%{character: character} = obj) do
-    obj_load_actor(obj).character.actor
+    obj_load_actor(obj).character
   end
 end

@@ -22,7 +22,7 @@ defmodule CommonsPub.Actors do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Repo.insert(Actor.create_changeset(attrs)) do
         if is_nil(actor.peer_id) do
-          case CommonsPub.Character.Characters.reserve_username(attrs.preferred_username) do
+          case CommonsPub.Characters.reserve_username(attrs.preferred_username) do
             {:ok, _} -> {:ok, actor}
             _ -> {:error, "Username already taken"}
           end

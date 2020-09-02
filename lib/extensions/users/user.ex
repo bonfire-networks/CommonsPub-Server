@@ -9,7 +9,7 @@ defmodule CommonsPub.Users.User do
     only: [change_synced_timestamp: 3, change_public: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
   alias CommonsPub.Feeds.Feed
   alias CommonsPub.Uploads.Content
   alias CommonsPub.Users
@@ -17,7 +17,7 @@ defmodule CommonsPub.Users.User do
 
   table_schema "mn_user" do
     # belongs_to(:actor, Actor)
-    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
+    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
 
     belongs_to(:local_user, LocalUser)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
@@ -100,5 +100,5 @@ defmodule CommonsPub.Users.User do
 
   def queries_module, do: Users.Queries
 
-  def follow_filters, do: [join: :actor, preload: :actor]
+  def follow_filters, do: [join: :character, preload: :character]
 end

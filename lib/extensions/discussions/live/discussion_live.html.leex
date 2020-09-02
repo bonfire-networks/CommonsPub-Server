@@ -69,7 +69,7 @@
           <div class="text__inreplyto">
             <i class="feather-corner-up-left"></i>
             <div class="reply">
-              <%= live_redirect to: "/@"<> e(@reply, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@reply, :creator, :name, "Somebody") %><% end %>
+              <%= live_redirect to: "/@"<> e(@reply, :creator, :character, :preferred_username, "deleted")  do %><%= e(@reply, :creator, :name, "Somebody") %><% end %>
               <p><%= @reply.content %></p>
             </div>
             <%= live_redirect to: "/!"<> @thread.id <> "/discuss"  do %><i class="feather-x-circle"></i><% end %>

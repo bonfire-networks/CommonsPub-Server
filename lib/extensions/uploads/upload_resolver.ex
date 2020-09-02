@@ -73,7 +73,7 @@ defmodule CommonsPub.Web.GraphQL.UploadResolver do
 
   def is_public(%Content{} = upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
 
-  def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id, preset: :actor)
+  def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id, preset: :character)
 
   def remote_url(%Content{} = upload, _, _info), do: Uploads.remote_url(upload)
 

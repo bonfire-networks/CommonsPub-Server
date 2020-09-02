@@ -1,12 +1,9 @@
-defmodule CommonsPub.Web.Helpers.Common do
+defmodule CommonsPub.Utils.Web.CommonHelper do
   import Phoenix.LiveView
   require Logger
 
-  alias CommonsPub.Web.Helpers.{
-    # Profiles,
-    Account,
-    Communities
-  }
+  alias CommonsPub.Users.Web.AccountHelper
+  alias CommonsPub.Communities.Web.CommunitiesHelper
 
   alias CommonsPub.Web.GraphQL.LikesResolver
 

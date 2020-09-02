@@ -3,7 +3,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   alias CommonsPub.{Collections, Communities, Common, Repo, Resources, Threads, Users}
   alias CommonsPub.ActivityPub.Utils
 
-  alias CommonsPub.Character.Characters
+  alias CommonsPub.Characters
 
   alias CommonsPub.Search.Indexer
 
@@ -22,7 +22,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
     with {:error, _e} <- Users.one([:default, username: username]),
          {:error, _e} <- Communities.one([:default, username: username]),
          {:error, _e} <- Collections.one([:default, username: username]),
-         {:error, _e} <- CommonsPub.Character.Characters.one([:default, username: username]) do
+         {:error, _e} <- CommonsPub.Characters.one([:default, username: username]) do
       {:error, "not found"}
     end
   end
@@ -148,9 +148,9 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
   def update_local_actor(actor, params) do
     with {:ok, local_actor} <-
-           CommonsPub.Character.Characters.one(username: actor.data["preferredUsername"]),
+           CommonsPub.Characters.one(username: actor.data["preferredUsername"]),
          {:ok, local_actor} <-
-           CommonsPub.Character.Characters.update(%User{}, local_actor, params),
+           CommonsPub.Characters.update(%User{}, local_actor, params),
          {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
     else
@@ -222,7 +222,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
     host = URI.parse(actor.data["id"]).host
     username = actor.data["preferredUsername"] <> "@" <> host
 
-    case CommonsPub.Character.Characters.one(username: username) do
+    case CommonsPub.Characters.one(username: username) do
       {:error, _} ->
         with {:ok, _actor} <- create_remote_actor(actor.data, username) do
           :ok

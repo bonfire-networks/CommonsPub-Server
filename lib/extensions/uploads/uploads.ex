@@ -27,7 +27,7 @@ defmodule CommonsPub.Uploads do
   @spec upload(upload_def :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Content.t()} | {:error, Changeset.t()}
   def upload(upload_def, %User{} = uploader, file, attrs) do
-    file = CommonsPub.Web.Helpers.Common.input_to_atoms(file)
+    file = CommonsPub.Utils.Web.CommonHelper.input_to_atoms(file)
 
     with {:ok, file} <- parse_file(file),
          :ok <- allow_media_type(upload_def, file),

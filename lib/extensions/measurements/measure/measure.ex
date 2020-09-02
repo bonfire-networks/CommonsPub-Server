@@ -9,7 +9,7 @@ defmodule Measurement.Measure do
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  # alias CommonsPub.Character
+  # alias CommonsPub.Characters.Character
   alias Measurement.Unit
 
   @type t :: %__MODULE__{}

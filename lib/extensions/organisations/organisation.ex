@@ -11,9 +11,9 @@ defmodule Organisation do
 
   alias Ecto.Changeset
   alias Organisation
-  # alias CommonsPub.Character
+  # alias CommonsPub.Characters.Character
   alias Pointers.Pointer
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
 
   @type t :: %__MODULE__{}
 
@@ -24,8 +24,8 @@ defmodule Organisation do
     field(:updated_at, :utc_datetime_usec, virtual: true)
 
     # mixins
-    has_one(:profile, CommonsPub.Profile, foreign_key: :id)
-    has_one(:character, CommonsPub.Character, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profiles.Profile, foreign_key: :id)
+    has_one(:character, CommonsPub.Characters.Character, foreign_key: :id)
 
     # joined via character
     # has_one(:actor, Actor, foreign_key: :id)

@@ -61,7 +61,7 @@ config :commons_pub, GarbageCollector,
     Collections,
     Communities,
     Users,
-    CommonsPub.Character.Characters
+    CommonsPub.Characters
   ],
   # We will not sweep content newer than this
   # one week
@@ -116,7 +116,7 @@ config :commons_pub, Collections,
 
 config :commons_pub, Organisation, valid_contexts: contexts_characters
 
-config :commons_pub, CommonsPub.Character,
+config :commons_pub, CommonsPub.Characters,
   valid_contexts: contexts_characters,
   default_outbox_query_contexts: contexts_all
 

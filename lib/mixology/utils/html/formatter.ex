@@ -78,7 +78,7 @@ defmodule CommonsPub.HTML.Formatter do
 
     # TODO, link to Collection and Taggable
 
-    if CommonsPub.Web.Helpers.Common.is_numeric(nickname) and
+    if CommonsPub.Utils.Web.CommonHelper.is_numeric(nickname) and
          Code.ensure_loaded?(Taxonomy.TaxonomyTags) do
       with {:ok, category} <- Taxonomy.TaxonomyTags.maybe_make_category(nil, nickname) do
         mention_process(opts, category, acc, content_type)
@@ -104,7 +104,7 @@ defmodule CommonsPub.HTML.Formatter do
   defp mention_process(_opts, obj, acc, content_type) do
     obj = CommonsPub.Actors.obj_load_actor(obj)
     url = CommonsPub.Actors.obj_actor(obj).canonical_url
-    display_name = CommonsPub.Character.Characters.display_username(obj)
+    display_name = CommonsPub.Characters.display_username(obj)
 
     link = tag_link(nil, url, display_name, content_type)
 

@@ -1,9 +1,10 @@
 defmodule CommonsPub.Web.CollectionLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias CommonsPub.Web.Helpers.{Collections, Profiles}
+  alias CommonsPub.Collections.Web.CollectionsHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   alias CommonsPub.Web.CollectionLive.{
     CollectionActivitiesLive,
@@ -31,7 +32,7 @@ defmodule CommonsPub.Web.CollectionLive do
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    collection = Collections.collection_load(socket, params, socket.assigns.current_user)
+    collection = CollectionsHelper.collection_load(socket, params, socket.assigns.current_user)
 
     {:noreply,
      assign(socket,
@@ -43,7 +44,7 @@ defmodule CommonsPub.Web.CollectionLive do
   end
 
   def handle_params(%{} = params, _url, socket) do
-    collection = Collections.collection_load(socket, params, socket.assigns.current_user)
+    collection = CollectionsHelper.collection_load(socket, params, socket.assigns.current_user)
 
     {:noreply,
      assign(socket,
@@ -93,7 +94,7 @@ defmodule CommonsPub.Web.CollectionLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
+    _uf = ProfilesHelper.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
 
     # TODO: error handling
 
@@ -125,10 +126,10 @@ defmodule CommonsPub.Web.CollectionLive do
 
       if(collection) do
         collection =
-          Profiles.prepare(collection, %{
+          ProfilesHelper.prepare(collection, %{
             icon: true,
             image: true,
-            actor: true,
+            character: true,
             is_followed_by: socket.assigns.current_user
           })
 
@@ -154,7 +155,7 @@ defmodule CommonsPub.Web.CollectionLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      CommonsPub.Web.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
         CollectionActivitiesLive,
         :collection_timeline,

@@ -52,7 +52,7 @@ defmodule CommonsPub.Web.LoginForm do
     case apply_action(changeset, :insert) do
       {:ok, _} ->
         session =
-          CommonsPub.Web.Helpers.Account.create_session(%{login: login, password: password})
+          CommonsPub.Users.Web.AccountHelper.create_session(%{login: login, password: password})
 
         if(is_nil(session)) do
           {nil, "Incorrect details. Please try again..."}

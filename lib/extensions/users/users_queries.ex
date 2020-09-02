@@ -10,7 +10,9 @@ defmodule CommonsPub.Users.Queries do
   def query(query, filters), do: filter(query(query), filters)
 
   defp join_to(q, spec, join_qualifier \\ :left)
-  defp join_to(q, :actor, jq), do: join(q, jq, [user: u], assoc(u, :actor), as: :actor)
+
+  defp join_to(q, :character, jq),
+    do: join(q, jq, [user: u], assoc(u, :character), as: :character)
 
   defp join_to(q, :local_user, jq),
     do: join(q, jq, [user: u], assoc(u, :local_user), as: :local_user)
@@ -37,7 +39,7 @@ defmodule CommonsPub.Users.Queries do
   def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))
 
   def filter(q, :default),
-    do: filter(q, deleted: false, join: :actor, join: :local_user, preload: :all)
+    do: filter(q, deleted: false, join: :character, join: :local_user, preload: :all)
 
   def filter(q, {:join, join}), do: join_to(q, join)
 
@@ -49,12 +51,12 @@ defmodule CommonsPub.Users.Queries do
     |> where([follow: f, user: u], not is_nil(u.published_at) or not is_nil(f.id))
   end
 
-  def filter(q, {:preset, :actor}) do
-    filter(q, join: :actor, preload: :actor, deleted: false)
+  def filter(q, {:preset, :character}) do
+    filter(q, join: :character, preload: :character, deleted: false)
   end
 
   def filter(q, {:preset, :local_user}) do
-    filter(q, join: :actor, join: :local_user, preload: :all, deleted: false)
+    filter(q, join: :character, join: :local_user, preload: :all, deleted: false)
   end
 
   def filter(q, {:deleted, nil}), do: where(q, [user: u], is_nil(u.deleted_at))
@@ -90,7 +92,7 @@ defmodule CommonsPub.Users.Queries do
   def filter(q, {:published, {:lte, %DateTime{} = time}}),
     do: where(q, [user: u], u.published_at <= ^time)
 
-  def filter(q, {:peer, peer}), do: Characters.Queries.filter(q, {:peer, peer})
+  def filter(q, {:peer, peer}), do: CommonsPub.Characters.Queries.filter(q, {:peer, peer})
 
   def filter(q, {:id, id}) when is_binary(id), do: where(q, [user: u], u.id == ^id)
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [user: u], u.id in ^ids)
@@ -104,7 +106,8 @@ defmodule CommonsPub.Users.Queries do
   def filter(q, {:local_user, ids}) when is_list(ids),
     do: where(q, [user: u], u.local_user_id in ^ids)
 
-  def filter(q, {:username, username}), do: Characters.Queries.filter(q, {:username, username})
+  def filter(q, {:username, username}),
+    do: CommonsPub.Characters.Queries.filter(q, {:username, username})
 
   def filter(q, {:email, email}) when is_binary(email),
     do: where(q, [local_user: l], l.email == ^email)
@@ -116,9 +119,9 @@ defmodule CommonsPub.Users.Queries do
   def filter(q, {:order, [desc: :created]}), do: order_by(q, [user: u], desc: u.id)
 
   def filter(q, {:preload, :all}),
-    do: preload(q, [actor: a, local_user: u], actor: a, local_user: u)
+    do: preload(q, [character: a, local_user: u], character: a, local_user: u)
 
-  def filter(q, {:preload, :actor}), do: preload(q, [actor: a], actor: a)
+  def filter(q, {:preload, :character}), do: preload(q, [character: a], character: a)
   def filter(q, {:preload, :local_user}), do: preload(q, [local_user: u], local_user: u)
 
   # pagination

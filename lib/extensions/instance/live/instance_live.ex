@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.InstanceLive do
   use CommonsPub.Web, :live_view
-  # alias CommonsPub.Web.Helpers.{Profiles}
-  import CommonsPub.Web.Helpers.Common
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
+  import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Web.InstanceLive.{
     InstanceActivitiesLive,
@@ -39,7 +39,7 @@ defmodule CommonsPub.Web.InstanceLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      CommonsPub.Web.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
         CommonsPub.Web.InstanceLive.InstanceActivitiesLive,
         :instance_timeline,

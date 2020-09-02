@@ -1,8 +1,8 @@
 defmodule CommonsPub.Web.SettingsLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
-  # alias CommonsPub.Web.Helpers.{Profiles}
+  import CommonsPub.Utils.Web.CommonHelper
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
   alias CommonsPub.Web.GraphQL.UsersResolver
 
   alias CommonsPub.Web.SettingsLive.{

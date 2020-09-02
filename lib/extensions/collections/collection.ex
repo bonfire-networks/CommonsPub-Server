@@ -6,7 +6,7 @@ defmodule CommonsPub.Collections.Collection do
 
   alias Ecto.Changeset
   alias CommonsPub.Collections
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
   alias CommonsPub.Communities.Community
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Feeds.Feed
@@ -17,8 +17,8 @@ defmodule CommonsPub.Collections.Collection do
   @type t :: %__MODULE__{}
 
   table_schema "mn_collection" do
-    belongs_to(:actor, Character)
-    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
+    # belongs_to(:actor, Character)
+    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
 
     belongs_to(:creator, User)
 
@@ -114,7 +114,7 @@ defmodule CommonsPub.Collections.Collection do
 
   def queries_module, do: Collections.Queries
 
-  def follow_filters, do: [join: :actor, preload: :actor]
+  def follow_filters, do: [join: :character, preload: :character]
 
   def type, do: :collection
 end

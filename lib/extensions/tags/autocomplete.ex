@@ -1,7 +1,7 @@
 defmodule CommonsPub.Tag.Autocomplete do
   use CommonsPub.Web, :controller
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   # TODO: consolidate CommonsPub.Tag.Autocomplete and CommonsPub.Web.Component.TagAutocomplete
 

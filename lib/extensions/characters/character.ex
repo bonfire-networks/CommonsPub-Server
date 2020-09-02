@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Character do
+defmodule CommonsPub.Characters.Character do
   use Pointers.Mixin,
     otp_app: :commons_pub,
     source: "character"
@@ -7,7 +7,7 @@ defmodule CommonsPub.Character do
   import(CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1])
 
   alias Ecto.Changeset
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
   alias CommonsPub.Feeds.Feed
   alias CommonsPub.Users.User
 
@@ -68,7 +68,7 @@ defmodule CommonsPub.Character do
         # %Actor{} = actor,
         attrs
       ) do
-    %CommonsPub.Character{}
+    %CommonsPub.Characters.Character{}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -98,7 +98,7 @@ defmodule CommonsPub.Character do
         # %Actor{} = actor,
         attrs
       ) do
-    %CommonsPub.Character{}
+    %CommonsPub.Characters.Character{}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -127,7 +127,7 @@ defmodule CommonsPub.Character do
   #       %{id: _} = context,
   #       attrs
   #     ) do
-  #   %CommonsPub.Character{}
+  #   %CommonsPub.Characters.Character{}
   #   |> Changeset.cast(attrs, @cast)
   #   |> Changeset.validate_required(@required)
   #   |> Changeset.change(
@@ -140,7 +140,7 @@ defmodule CommonsPub.Character do
   #   |> common_changeset()
   # end
 
-  def update_changeset(%CommonsPub.Character{} = character, attrs) do
+  def update_changeset(%CommonsPub.Characters.Character{} = character, attrs) do
     character
     |> Changeset.cast(attrs, @update_cast)
     # |> Changeset.change(

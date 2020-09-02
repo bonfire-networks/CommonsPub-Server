@@ -125,12 +125,12 @@ defmodule CommonsPub.Meta.PointersTest do
         assert pointer8.id == pointer4.id
         assert Map.drop(pointer5.pointed, [:is_disabled]) == Map.drop(peer, [:is_disabled])
 
-        assert Map.drop(pointer6.pointed, [:is_disabled, :is_public, :actor]) ==
-                 Map.drop(comm, [:is_disabled, :is_public, :actor])
+        assert Map.drop(pointer6.pointed, [:is_disabled, :is_public, :character]) ==
+                 Map.drop(comm, [:is_disabled, :is_public, :character])
 
         pointed7 =
           Map.drop(pointer7.pointed, [
-            :actor,
+            :character,
             :local_user,
             :email_confirm_tokens,
             :is_disabled,
@@ -143,7 +143,7 @@ defmodule CommonsPub.Meta.PointersTest do
 
         user2 =
           Map.drop(user, [
-            :actor,
+            :character,
             :local_user,
             :email_confirm_tokens,
             :is_disabled,

@@ -1,11 +1,11 @@
 defmodule CommonsPub.Web.Component.PreviewActionsLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Web.Component.{FlagLive}
 
-  # alias CommonsPub.Web.Helpers.{Activites}
+  # alias CommonsPub.Activities.Web.ActivitiesHelper
 
   def update(assigns, socket) do
     is_liked = is_liked(assigns.current_user, e(assigns, :object, :id, nil))

@@ -143,8 +143,8 @@ defmodule CommonsPub.Access do
       where: t.id == ^token,
       join: u in assoc(t, :user),
       join: lu in assoc(u, :local_user),
-      join: a in assoc(u, :actor),
-      preload: [user: {u, local_user: lu, actor: a}]
+      join: chr in assoc(u, :character),
+      preload: [user: {u, local_user: lu, character: chr}]
     )
   end
 

@@ -1,7 +1,7 @@
-defmodule CommonsPub.Web.Helpers.Activites do
-  import CommonsPub.Web.Helpers.Common
+defmodule CommonsPub.Activities.Web.ActivitiesHelper do
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias CommonsPub.Web.Helpers.{Profiles}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   @doc """
   Forward PubSub activities in timeline to our timeline component
@@ -56,7 +56,7 @@ defmodule CommonsPub.Web.Helpers.Activites do
       )
 
     # subscribe to the feed for realtime updates
-    CommonsPub.Web.Helpers.Common.pubsub_subscribe(feed_id, socket)
+    CommonsPub.Utils.Web.CommonHelper.pubsub_subscribe(feed_id, socket)
 
     # IO.inspect(box: box)
 
@@ -90,7 +90,7 @@ defmodule CommonsPub.Web.Helpers.Activites do
     feed_ids = CommonsPub.Web.GraphQL.UsersResolver.user_inbox_feeds(user, inbox_id)
 
     # IO.inspect(inbox_feed_ids: feed_ids)
-    CommonsPub.Web.Helpers.Common.pubsub_subscribe(feed_ids, socket)
+    CommonsPub.Utils.Web.CommonHelper.pubsub_subscribe(feed_ids, socket)
 
     # what to include
     feed_tables =
@@ -151,7 +151,7 @@ defmodule CommonsPub.Web.Helpers.Activites do
     activity = prepare_parent_context(activity)
 
     # get the OP
-    creator = Profiles.prepare(activity.creator, %{icon: true, actor: true})
+    creator = ProfilesHelper.prepare(activity.creator, %{icon: true, character: true})
 
     # IO.inspect(activity.published_at)
 

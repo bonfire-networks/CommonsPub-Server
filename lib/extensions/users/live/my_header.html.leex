@@ -1,5 +1,5 @@
 <div class="box__info">
-  <%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "")  do %>
+  <%= live_redirect to: "/@"<> e(@current_user, :character, :preferred_username, "")  do %>
     <img src="<%= e(@current_user, :icon_url, "") %>" />
     <h3><%= e(@current_user, :name, "Me") %></h3>
   <% end %>
@@ -22,7 +22,7 @@
       <span class="right__notification"><i class="feather-chevron-down"></i></span>
     </summary>
     <ul class="dropdown__list">
-      <li><%= live_redirect to: "/@"<> e(@current_user, :actor, :preferred_username, "me")  do %>Profile<% end %></li>
+      <li><%= live_redirect to: "/@"<> e(@current_user, :character, :preferred_username, "me")  do %>Profile<% end %></li>
       <%= if @current_user.local_user.is_instance_admin do %>
         <li><%= live_redirect to: "/admin/settings/access" do %>Admin<% end %></li>
       <% end %>

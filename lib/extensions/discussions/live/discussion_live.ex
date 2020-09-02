@@ -1,12 +1,9 @@
 defmodule CommonsPub.Web.DiscussionLive do
   use CommonsPub.Web, :live_view
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
   alias CommonsPub.Web.GraphQL.{ThreadsResolver, CommentsResolver}
 
-  alias CommonsPub.Web.Helpers.{
-    # Account,
-    Discussions
-  }
+  alias CommonsPub.Discussions.Web.DiscussionsHelper
 
   alias CommonsPub.Web.Discussion.DiscussionCommentLive
 
@@ -20,7 +17,7 @@ defmodule CommonsPub.Web.DiscussionLive do
         context: %{current_user: current_user}
       })
 
-    thread = Discussions.prepare_thread(thread, :with_context)
+    thread = DiscussionsHelper.prepare_thread(thread, :with_context)
     IO.inspect(thread, label: "Thread")
     # TODO: tree of replies & pagination
     {:ok, comments} =
@@ -29,18 +26,18 @@ defmodule CommonsPub.Web.DiscussionLive do
       })
 
     # comments_edges = comments.edges
-    comments_edges = Discussions.prepare_comments(comments.edges, current_user)
+    comments_edges = DiscussionsHelper.prepare_comments(comments.edges, current_user)
 
     # IO.inspect(comments_edges, label: "COMMENTS")
 
-    tree = Discussions.build_comment_tree(comments_edges)
+    tree = DiscussionsHelper.build_comment_tree(comments_edges)
 
     # IO.inspect(tree: tree)
 
     {main_comment_id, _} = Enum.fetch!(tree, 0)
 
     # subscribe to the thread for realtime updates
-    CommonsPub.Web.Helpers.Common.pubsub_subscribe(thread_id, socket)
+    CommonsPub.Utils.Web.CommonHelper.pubsub_subscribe(thread_id, socket)
 
     {:ok,
      assign(socket,
@@ -125,5 +122,5 @@ defmodule CommonsPub.Web.DiscussionLive do
   Forward PubSub activities in timeline to our timeline component
   """
   def handle_info({:pub_feed_comment, comment}, socket),
-    do: CommonsPub.Web.Helpers.Discussions.pubsub_receive(comment, socket)
+    do: CommonsPub.Discussions.Web.DiscussionsHelper.pubsub_receive(comment, socket)
 end

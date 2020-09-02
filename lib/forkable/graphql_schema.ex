@@ -40,8 +40,8 @@ defmodule CommonsPub.Web.GraphQL.Schema do
   import_types(CommonsPub.Web.GraphQL.UploadSchema)
 
   # Extension Modules
-  import_types(CommonsPub.Profile.GraphQL.Schema)
-  import_types(CommonsPub.Character.GraphQL.Schema)
+  import_types(CommonsPub.Profiles.GraphQL.Schema)
+  import_types(CommonsPub.Characters.GraphQL.Schema)
   import_types(Organisation.GraphQL.Schema)
   import_types(CommonsPub.Locales.GraphQL.Schema)
   import_types(CommonsPub.Tag.GraphQL.TagSchema)

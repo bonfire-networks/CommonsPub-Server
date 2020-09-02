@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.Helpers.Communities do
+defmodule CommonsPub.Communities.Web.CommunitiesHelper do
   # alias CommonsPub.{
   #   Repo
   # }
@@ -8,8 +8,8 @@ defmodule CommonsPub.Web.Helpers.Communities do
     CommunitiesResolver
   }
 
-  import CommonsPub.Web.Helpers.Common
-  alias CommonsPub.Web.Helpers.Profiles
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   def community_load(_socket, page_params, preload) do
     username = e(page_params, "username", nil)
@@ -21,7 +21,7 @@ defmodule CommonsPub.Web.Helpers.Communities do
         {:ok, %{}}
       end
 
-    Profiles.prepare(community, preload, 150)
+    ProfilesHelper.prepare(community, preload, 150)
   end
 
   def user_communities(for_user, current_user) do
@@ -66,7 +66,7 @@ defmodule CommonsPub.Web.Helpers.Communities do
       if(communities) do
         Enum.map(
           communities,
-          &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
+          &ProfilesHelper.prepare(&1, %{icon: true, image: true, character: true})
         )
       end
 

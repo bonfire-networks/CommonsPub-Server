@@ -19,7 +19,7 @@ defmodule CommonsPub.Tag.Categories do
   alias CommonsPub.Tag.Category
   alias CommonsPub.Tag.Category.Queries
 
-  alias CommonsPub.Character.Characters
+  alias CommonsPub.Characters
 
   @facet_name "Category"
 
@@ -101,9 +101,9 @@ defmodule CommonsPub.Tag.Categories do
            {:ok, attrs} <- attrs_mixins_with_id(attrs, category),
            {:ok, taggable} <-
              CommonsPub.Tag.Taggables.make_taggable(creator, category, attrs),
-           {:ok, profile} <- CommonsPub.Profile.Profiles.create(creator, attrs),
+           {:ok, profile} <- CommonsPub.Profiles.create(creator, attrs),
            {:ok, character} <-
-             CommonsPub.Character.Characters.create(creator, attrs_with_username(attrs)) do
+             CommonsPub.Characters.create(creator, attrs_with_username(attrs)) do
         category = %{category | taggable: taggable, character: character, profile: profile}
 
         # add to search index
@@ -191,7 +191,7 @@ defmodule CommonsPub.Tag.Categories do
     Repo.transact_with(fn ->
       # :ok <- publish(category, :updated)
       with {:ok, category} <- Repo.update(Category.update_changeset(category, attrs)),
-           {:ok, profile} <- CommonsPub.Profile.Profiles.update(user, category.profile, attrs),
+           {:ok, profile} <- CommonsPub.Profiles.update(user, category.profile, attrs),
            {:ok, character} <- Characters.update(user, category.character, attrs) do
         {:ok, %{category | character: character, profile: profile}}
       end
@@ -226,7 +226,7 @@ defmodule CommonsPub.Tag.Categories do
     :ok
   end
 
-  defp ap_publish(verb, %{actor: %{peer_id: nil}} = category) do
+  defp ap_publish(verb, %{character: %{peer_id: nil}} = category) do
     APPublishWorker.enqueue(verb, %{"context_id" => category.id})
     :ok
   end
@@ -256,7 +256,7 @@ defmodule CommonsPub.Tag.Categories do
       # "icon" => icon,
       # "image" => image,
       "name" => obj.name || obj.profile.name,
-      "username" => CommonsPub.Character.Characters.display_username(obj),
+      "username" => CommonsPub.Characters.display_username(obj),
       # "summary" => character.summary,
       "createdAt" => obj.published_at,
       # home instance of object

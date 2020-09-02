@@ -26,7 +26,7 @@ defmodule Taxonomy.TaxonomyTag do
 
     # field(:pointer_id, Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
     # belongs_to(:pointer, Pointer, references: :pointer_id, type: Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
-    # has_one(:character, CommonsPub.Character, references: :pointer_id, foreign_key: :characteristic_id)
+    # has_one(:character, CommonsPub.Characters.Character, references: :pointer_id, foreign_key: :characteristic_id)
   end
 
   def update_changeset(

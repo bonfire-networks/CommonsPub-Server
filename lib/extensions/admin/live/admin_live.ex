@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.AdminLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
   alias CommonsPub.Web.GraphQL.{UsersResolver, AccessResolver}
 
   alias CommonsPub.Web.AdminLive.{
@@ -60,7 +60,7 @@ defmodule CommonsPub.Web.AdminLive do
   end
 
   # def handle_params(%{} = params, url, socket) do
-  #   user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
+  #   user = ProfilesHelper.user_load(socket, params, %{image: true, icon: true, character: true})
 
   #   {:noreply,
   #    assign(socket,

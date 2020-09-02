@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.My.MySidebar do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     {

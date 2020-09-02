@@ -142,9 +142,9 @@ defmodule CommonsPub.ActivityPub.Utils do
     canonical_url
   end
 
-  def get_actor_canonical_url(obj) do
+  def get_actor_canonical_url(%{character: _} = obj) do
     get_actor_canonical_url(
-      Map.get(CommonsPub.Web.Helpers.Common.maybe_preload(obj, :character), :character)
+      Map.get(CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character), :character)
     )
   end
 

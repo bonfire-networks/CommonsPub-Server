@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.Helpers.Collections do
+defmodule CommonsPub.Collections.Web.CollectionsHelper do
   # alias CommonsPub.{
   #   Repo
   # }
@@ -8,13 +8,13 @@ defmodule CommonsPub.Web.Helpers.Collections do
     CollectionsResolver
   }
 
-  import CommonsPub.Web.Helpers.Common
-  alias CommonsPub.Web.Helpers.Profiles
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   def collection_load(socket, page_params, %CommonsPub.Users.User{} = current_user) do
     collection_load(socket, page_params, %{
-      actor: true,
       icon: false,
+      character: true,
       image: false,
       context: true,
       is_followed_by: current_user
@@ -31,7 +31,7 @@ defmodule CommonsPub.Web.Helpers.Collections do
         {:ok, %{}}
       end
 
-    Profiles.prepare(collection, preload, 150)
+    ProfilesHelper.prepare(collection, preload, 150)
   end
 
   def user_collections(for_user, current_user) do
@@ -76,7 +76,7 @@ defmodule CommonsPub.Web.Helpers.Collections do
       if(collections) do
         Enum.map(
           collections,
-          &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
+          &ProfilesHelper.prepare(&1, %{icon: true, image: true, character: true})
         )
       end
 

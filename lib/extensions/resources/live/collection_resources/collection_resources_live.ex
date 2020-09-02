@@ -55,7 +55,7 @@ defmodule CommonsPub.Web.CollectionLive.CollectionResourcesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

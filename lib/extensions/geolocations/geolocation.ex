@@ -10,7 +10,7 @@ defmodule Geolocation do
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
   alias Pointers.Pointer
   alias CommonsPub.Feeds.Feed
 
@@ -54,7 +54,6 @@ defmodule Geolocation do
   def create_changeset(
         %User{} = creator,
         %{id: _} = context,
-        %Character{} = actor,
         attrs
       ) do
     %__MODULE__{}
@@ -63,7 +62,6 @@ defmodule Geolocation do
     |> Changeset.change(
       creator_id: creator.id,
       context_id: context.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> common_changeset()
@@ -71,7 +69,6 @@ defmodule Geolocation do
 
   def create_changeset(
         %User{} = creator,
-        %Character{} = actor,
         attrs
       ) do
     %__MODULE__{}
@@ -79,7 +76,6 @@ defmodule Geolocation do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> common_changeset()

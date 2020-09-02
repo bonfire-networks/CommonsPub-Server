@@ -102,7 +102,7 @@ Here are the current contexts:
 - `CommonsPub.Users` (for managing and querying both local and remote users)
 - `CommonsPub.Uploads` (for managing uploaded content)
 
-- `CommonsPub.Character` (a shared abstraction over users, communities, collections, and other objects that need to have feeds and act as an actor in ActivityPub land)
+- `CommonsPub.Characters` (a shared abstraction over users, communities, collections, and other objects that need to have feeds and act as an actor in ActivityPub land)
 
 #### Additional Libraries
 

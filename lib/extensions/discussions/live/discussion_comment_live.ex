@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.Discussion.DiscussionCommentLive do
   use CommonsPub.Web, :live_component
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Web.Component.{
     CommentPreviewLive,

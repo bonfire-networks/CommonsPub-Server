@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.My.MyCommunitiesLive do
   use CommonsPub.Web, :live_component
 
-  alias CommonsPub.Web.Helpers.{Communities}
+  alias CommonsPub.Communities.Web.CommunitiesHelper
 
   alias CommonsPub.Web.Component.CommunityPreviewLive
 
@@ -30,7 +30,7 @@ defmodule CommonsPub.Web.My.MyCommunitiesLive do
 
     communities_follows =
       if(assigns.current_user) do
-        Communities.user_communities_follows(
+        CommunitiesHelper.user_communities_follows(
           assigns.current_user,
           assigns.current_user,
           10,
@@ -40,7 +40,7 @@ defmodule CommonsPub.Web.My.MyCommunitiesLive do
 
     my_communities =
       if(communities_follows) do
-        Communities.communities_from_follows(communities_follows)
+        CommunitiesHelper.communities_from_follows(communities_follows)
       end
 
     assign(socket,
@@ -52,5 +52,5 @@ defmodule CommonsPub.Web.My.MyCommunitiesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 end

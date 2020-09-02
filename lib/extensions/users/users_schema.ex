@@ -169,17 +169,17 @@ defmodule CommonsPub.Web.GraphQL.UsersSchema do
 
     @desc "A url for the user, may be to a remote instance"
     field :canonical_url, :string do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.canonical_url_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3)
     end
 
     @desc "An instance-unique identifier shared with communities and collections"
     field :preferred_username, non_null(:string) do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.preferred_username_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.preferred_username_edge/3)
     end
 
     @desc "A preferred username + the host domain"
     field :display_username, non_null(:string) do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.display_username_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3)
     end
 
     @desc "A name field"
@@ -206,7 +206,7 @@ defmodule CommonsPub.Web.GraphQL.UsersSchema do
 
     @desc "Whether the user is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.is_local_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.is_local_edge/3)
     end
 
     @desc "Whether the user has a public profile"

@@ -38,8 +38,8 @@ defmodule CommonsPub.Actors.Actor do
     %Actor{}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@required)
-    |> CommonsPub.Character.validate_username()
-    |> CommonsPub.Character.cast_url()
+    |> CommonsPub.Characters.validate_username()
+    |> CommonsPub.Characters.cast_url()
     # with peer
     |> Changeset.unique_constraint(:preferred_username,
       name: "mn_actor_preferred_username_peer_id_index"

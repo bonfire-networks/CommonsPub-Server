@@ -22,7 +22,7 @@ defmodule CommonsPub.Users do
     Threads
   }
 
-  alias CommonsPub.Character.Characters
+  alias CommonsPub.Characters
 
   alias CommonsPub.Feeds.FeedSubscriptions
   alias CommonsPub.Mail.{Email, MailService}
@@ -65,7 +65,7 @@ defmodule CommonsPub.Users do
   def register(%{peer_id: peer_id} = attrs, opts) when not is_nil(peer_id) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.insert(User.register_changeset(attrs)),
-           {:ok, character} <- CommonsPub.Character.Characters.create(user, attrs, user) do
+           {:ok, character} <- CommonsPub.Characters.create(user, attrs, user) do
         CommonsPub.Search.Indexer.maybe_index_object(user)
 
         {:ok, %{user | character: character}}
@@ -94,7 +94,7 @@ defmodule CommonsPub.Users do
       with {:ok, local_user} <- insert_local_user(attrs),
            :ok <- maybe_check_register_access(local_user.email, opts),
            {:ok, user} <- Repo.insert(User.local_register_changeset(local_user, attrs)),
-           {:ok, character} <- CommonsPub.Character.Characters.create(user, attrs, user),
+           {:ok, character} <- CommonsPub.Characters.create(user, attrs, user),
            {:ok, token} <- create_email_confirm_token(local_user) do
         user = %{
           user

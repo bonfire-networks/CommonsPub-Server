@@ -15,7 +15,7 @@ defmodule Organisation.GraphQL.Schema do
     # UploadResolver
   }
 
-  alias CommonsPub.Character.GraphQL.FacetsResolvers
+  alias CommonsPub.Characters.GraphQL.FacetsResolvers
 
   # alias Organisation.GraphQL.Resolver
 
@@ -85,7 +85,7 @@ defmodule Organisation.GraphQL.Schema do
     @desc "A preferred username + the host domain"
     field :display_username, :string do
       # FIXME
-      resolve(&CommonsPub.Character.GraphQL.Resolver.display_username_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3)
     end
 
     @desc "An avatar url"
@@ -100,7 +100,7 @@ defmodule Organisation.GraphQL.Schema do
 
     @desc "Whether the organisation is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.is_local_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.is_local_edge/3)
     end
 
     @desc "Whether the organisation is public"

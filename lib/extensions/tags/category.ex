@@ -37,9 +37,9 @@ defmodule CommonsPub.Tag.Category do
 
     # Optionally, profile and/or character mixins
     ## stores common fields like name/description
-    has_one(:profile, CommonsPub.Profile, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profiles.Profile, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, CommonsPub.Character, foreign_key: :id)
+    has_one(:character, CommonsPub.Characters.Character, foreign_key: :id)
 
     belongs_to(:creator, User)
 

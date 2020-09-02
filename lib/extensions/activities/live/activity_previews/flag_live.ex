@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.Component.FlagPreviewLive do
   use Phoenix.LiveComponent
-  import CommonsPub.Web.Helpers.{Common}
+  import CommonsPub.Utils.Web.CommonHelper
   alias CommonsPub.Web.Component.ActivityLive
 
   def render(assigns) do

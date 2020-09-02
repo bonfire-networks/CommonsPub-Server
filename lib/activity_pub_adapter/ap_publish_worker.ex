@@ -132,7 +132,7 @@ defmodule CommonsPub.Workers.APPublishWorker do
 
   defp only_local(%Resource{collection_id: collection_id} = context, commit_fn, verb) do
     with {:ok, collection} <- CommonsPub.Collections.one(id: collection_id),
-         {:ok, actor} <- CommonsPub.Character.Characters.one(id: collection.actor_id),
+         {:ok, actor} <- CommonsPub.Characters.one(id: collection.actor_id),
          true <- is_nil(actor.peer_id) do
       commit_fn.(context, verb)
     else

@@ -1,8 +1,8 @@
 defmodule CommonsPub.Web.MemberLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
-  alias CommonsPub.Web.Helpers.{Profiles}
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   alias CommonsPub.Web.MemberLive.{
     MemberDiscussionsLive,
@@ -35,10 +35,10 @@ defmodule CommonsPub.Web.MemberLive do
     socket = init_assigns(params, session, socket)
     # IO.inspect(socket.endpoint)
     user =
-      Profiles.user_load(socket, params, %{
+      ProfilesHelper.user_load(socket, params, %{
         image: true,
         icon: true,
-        actor: true,
+        character: true,
         is_followed_by: socket.assigns.current_user
       })
 
@@ -93,7 +93,7 @@ defmodule CommonsPub.Web.MemberLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.user.id)
+    _uf = ProfilesHelper.unfollow(socket.assigns.current_user, socket.assigns.user.id)
 
     # IO.inspect(uf)
 
@@ -113,7 +113,7 @@ defmodule CommonsPub.Web.MemberLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      CommonsPub.Web.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
         CommonsPub.Web.MemberLive.MemberActivitiesLive,
         :member_timeline,

@@ -190,8 +190,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   end
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: [character: [:actor]])
-    urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
+    thing = Repo.preload(thing, tags: :character)
+    urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
 

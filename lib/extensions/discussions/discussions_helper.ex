@@ -1,7 +1,7 @@
-defmodule CommonsPub.Web.Helpers.Discussions do
-  import CommonsPub.Web.Helpers.Common
+defmodule CommonsPub.Discussions.Web.DiscussionsHelper do
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias CommonsPub.Web.Helpers.{Profiles}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   # {:pub_feed_comment, comment}
 
@@ -31,7 +31,7 @@ defmodule CommonsPub.Web.Helpers.Discussions do
   def prepare_comment(%CommonsPub.Threads.Comment{} = comment, _current_user \\ nil) do
     comment = maybe_preload(comment, :creator)
 
-    creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
+    creator = ProfilesHelper.prepare(comment.creator, %{icon: true, character: true})
 
     {:ok, from_now} =
       Timex.shift(comment.published_at, minutes: -3)
@@ -56,7 +56,7 @@ defmodule CommonsPub.Web.Helpers.Discussions do
         IO.inspect(context, label: "COPNTEXT")
 
         context =
-          Profiles.prepare(
+          ProfilesHelper.prepare(
             context,
             %{
               icon: true,
@@ -88,7 +88,7 @@ defmodule CommonsPub.Web.Helpers.Discussions do
 
     thread = maybe_preload(thread, :creator)
 
-    creator = Profiles.prepare(thread.creator, %{icon: true, actor: true})
+    creator = ProfilesHelper.prepare(thread.creator, %{icon: true, character: true})
 
     {:ok, from_now} =
       Timex.shift(thread.published_at, minutes: -3)

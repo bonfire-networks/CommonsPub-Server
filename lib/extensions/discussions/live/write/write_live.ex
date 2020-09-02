@@ -1,10 +1,7 @@
 defmodule CommonsPub.Web.My.WriteLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
-
-  # alias CommonsPub.Web.Helpers.{Profiles, Account}
-  # alias CommonsPub.Web.Component.HeaderLive
+  import CommonsPub.Utils.Web.CommonHelper
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
@@ -15,7 +12,7 @@ defmodule CommonsPub.Web.My.WriteLive do
        title_placeholder: "An optional title...",
        content_placeholder: "Write a story or get a discussion started!",
        post_label: "Publish"
-       #  current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
+       #  current_user: AccountHelper.current_user_or(nil, session, %{icon: true, character: true}),
      )}
   end
 

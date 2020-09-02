@@ -18,7 +18,7 @@ defmodule CommonsPub.UsersTest do
 
   def assert_user_equal(user, attrs) do
     assert user.name == attrs.name
-    assert user.actor.preferred_username == attrs.preferred_username
+    assert user.character.preferred_username == attrs.preferred_username
     assert user.local_user.email == attrs.email
     assert user.local_user.wants_email_digest == attrs.wants_email_digest
     assert user.local_user.wants_notifications == attrs.wants_notifications
@@ -27,23 +27,26 @@ defmodule CommonsPub.UsersTest do
   describe "one/1" do
     test "by id" do
       user = fake_user!()
-      assert {:ok, fetched} = Users.one(preset: :actor, id: user.id)
+      assert {:ok, fetched} = Users.one(preset: :character, id: user.id)
       assert fetched.id == user.id
-      assert fetched.actor.preferred_username
+      assert fetched.character.preferred_username
     end
 
     test "by username" do
       user = fake_user!()
-      assert {:ok, fetched} = Users.one(preset: :actor, username: user.actor.preferred_username)
+
+      assert {:ok, fetched} =
+               Users.one(preset: :character, username: user.character.preferred_username)
+
       assert fetched.id == user.id
-      assert fetched.actor.preferred_username
+      assert fetched.character.preferred_username
     end
 
     test "by email" do
       user = fake_user!()
       assert {:ok, fetched} = Users.one(preset: :local_user, email: user.local_user.email)
       assert fetched.id == user.id
-      assert fetched.actor.preferred_username
+      assert fetched.character.preferred_username
     end
 
     test "fails for missing" do
@@ -92,7 +95,7 @@ defmodule CommonsPub.UsersTest do
         assert user = fake_user!()
 
         attrs =
-          %{preferred_username: user.actor.preferred_username}
+          %{preferred_username: user.character.preferred_username}
           |> Simulation.user()
           |> Simulation.character()
 
@@ -105,7 +108,7 @@ defmodule CommonsPub.UsersTest do
         assert user = fake_user!()
 
         attrs =
-          %{preferred_username: String.upcase(user.actor.preferred_username)}
+          %{preferred_username: String.upcase(user.character.preferred_username)}
           |> Simulation.user()
           |> Simulation.character()
 
@@ -261,18 +264,18 @@ defmodule CommonsPub.UsersTest do
 
   # describe "user flags" do
   #   test "works" do
-  #     actor = Factory.actor()
-  #     actor_id = local_id(actor)
-  #     user = Factory.actor()
+  #     character = Fcharactery.character()
+  #     character_id = local_id(character)
+  #     user = Fcharactery.character()
   #     user_id = local_id(user)
 
-  #     assert [] = Users.all_flags(actor)
+  #     assert [] = Users.all_flags(character)
 
-  #     {:ok, _activity} = Users.flag(actor, user, %{reason: "Terrible joke"})
+  #     {:ok, _activity} = Users.flag(character, user, %{reason: "Terrible joke"})
 
-  #     assert [flag] = Users.all_flags(actor)
+  #     assert [flag] = Users.all_flags(character)
   #     assert flag.flagged_object_id == user_id
-  #     assert flag.flagging_object_id == actor_id
+  #     assert flag.flagging_object_id == character_id
   #     assert flag.reason == "Terrible joke"
   #     assert flag.open == true
   #   end

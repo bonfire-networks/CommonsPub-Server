@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
   alias CommonsPub.{Collections, GraphQL, Repo, Resources}
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
   alias CommonsPub.Collections.Collection
   alias CommonsPub.GraphQL.{FetchFields, ResolveFields, ResolvePages, FetchPage}
   alias CommonsPub.Resources.Resource
@@ -11,7 +11,7 @@ defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
     Resources.one(id: id, user: GraphQL.current_user(info))
   end
 
-  def is_local_edge(%{collection: %Collection{actor: %Character{peer_id: peer_id}}}, _, _) do
+  def is_local_edge(%{collection: %Collection{character: %Character{peer_id: peer_id}}}, _, _) do
     {:ok, is_nil(peer_id)}
   end
 
@@ -26,7 +26,7 @@ defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
           ret =
             edges
             |> Map.get(id, %{})
-            |> Map.get(:actor, %{})
+            |> Map.get(:character, %{})
             |> Map.get(:peer_id)
             |> is_nil()
 

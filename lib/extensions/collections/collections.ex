@@ -14,7 +14,7 @@ defmodule CommonsPub.Collections do
     Threads
   }
 
-  alias CommonsPub.Character.Characters
+  alias CommonsPub.Characters
 
   alias CommonsPub.Collections.{Collection, Queries}
   alias CommonsPub.Communities.Community
@@ -47,7 +47,7 @@ defmodule CommonsPub.Collections do
 
       # TODO: address activity to context's outbox/followers
       community_or_context =
-        CommonsPub.Web.Helpers.Common.maybe_preload(community_or_context, :character)
+        CommonsPub.Utils.Web.CommonHelper.maybe_preload(community_or_context, :character)
 
       # with {:ok, character} <- Characters.create(creator, attrs),
       #      {:ok, coll_attrs} <- create_boxes(character, attrs),

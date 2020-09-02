@@ -150,7 +150,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   Tags associated with a Thing
   """
   def tags_edges(%{tags: _tags} = thing, page_opts, info) do
-    thing = Repo.preload(thing, tags: [:category, :profile, character: [:actor]])
+    thing = Repo.preload(thing, tags: [:category, :profile, character: [:character]])
 
     tags = Enum.map(thing.tags, &tag_prepare(&1, page_opts, info))
 

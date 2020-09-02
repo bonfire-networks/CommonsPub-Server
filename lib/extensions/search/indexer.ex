@@ -142,7 +142,7 @@ defmodule CommonsPub.Search.Indexer do
       "icon" => icon,
       "image" => image,
       "name" => user.name,
-      "username" => CommonsPub.Character.Characters.display_username(user),
+      "username" => CommonsPub.Characters.display_username(user),
       "summary" => Map.get(user, :summary),
       "index_type" => "User",
       "index_instance" => host(url),
@@ -170,7 +170,7 @@ defmodule CommonsPub.Search.Indexer do
       "icon" => icon,
       "image" => image,
       "name" => community.name,
-      "username" => CommonsPub.Character.Characters.display_username(community),
+      "username" => CommonsPub.Characters.display_username(community),
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
       "index_instance" => host(url),
@@ -179,7 +179,7 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def indexing_object_format(%CommonsPub.Collections.Collection{} = collection) do
-    collection = CommonsPub.Repo.preload(collection, community: [:actor])
+    collection = CommonsPub.Repo.preload(collection, community: [:character])
 
     follower_count =
       case CommonsPub.Follows.FollowerCounts.one(context: collection.id) do
@@ -198,7 +198,7 @@ defmodule CommonsPub.Search.Indexer do
       },
       "icon" => icon,
       "name" => collection.name,
-      "username" => CommonsPub.Character.Characters.display_username(collection),
+      "username" => CommonsPub.Characters.display_username(collection),
       "summary" => Map.get(collection, :summary),
       "index_type" => "Collection",
       "index_instance" => host(url),
@@ -210,7 +210,7 @@ defmodule CommonsPub.Search.Indexer do
   def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
     resource =
       CommonsPub.Repo.preload(resource,
-        collection: [actor: [], community: [actor: []]],
+        collection: [:character, community: :character],
         content: []
       )
 
@@ -254,12 +254,12 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def format_creator(%{creator: %{id: id}} = obj) when not is_nil(id) do
-    creator = CommonsPub.Web.Helpers.Common.maybe_preload(obj, :creator).creator
+    creator = CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :creator).creator
 
     %{
       "id" => creator.id,
       "name" => creator.name,
-      "username" => CommonsPub.Character.Characters.display_username(creator),
+      "username" => CommonsPub.Characters.display_username(creator),
       "canonical_url" => CommonsPub.ActivityPub.Utils.get_actor_canonical_url(creator)
     }
   end

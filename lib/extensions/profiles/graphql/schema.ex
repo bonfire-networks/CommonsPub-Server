@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Profile.GraphQL.Schema do
+defmodule CommonsPub.Profiles.GraphQL.Schema do
   @moduledoc """
   GraphQL profile fields, associations, queries and mutations.
   """
@@ -22,7 +22,7 @@ defmodule CommonsPub.Profile.GraphQL.Schema do
     @desc "Get a profile by id. You usually would query for a type associated with profile, rather than profiles directly."
     field :profile, :profile do
       arg(:profile_id, non_null(:string))
-      resolve(&CommonsPub.Profile.GraphQL.Resolver.profile/2)
+      resolve(&CommonsPub.Profiles.GraphQL.Resolver.profile/2)
     end
 
     @desc "Get list of profiles. You usually would query for a type associated with profile, rather than profiles directly."
@@ -31,7 +31,7 @@ defmodule CommonsPub.Profile.GraphQL.Schema do
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
       arg(:facets, list_of(non_null(:string)))
-      resolve(&CommonsPub.Profile.GraphQL.Resolver.profiles/2)
+      resolve(&CommonsPub.Profiles.GraphQL.Resolver.profiles/2)
     end
   end
 
@@ -41,20 +41,20 @@ defmodule CommonsPub.Profile.GraphQL.Schema do
     #   arg :profileistic_id, :string
     #   arg :context_id, :string
     #   arg :profile, non_null(:profile_input)
-    #   resolve &CommonsPub.Profile.GraphQL.Resolver.create_profile/2
+    #   resolve &CommonsPub.Profiles.GraphQL.Resolver.create_profile/2
     # end
 
     # @desc "Update a profile. You usually wouldn't do this directly."
     # field :update_profile, :profile do
     #   arg :profile_id, non_null(:string)
     #   arg :profile, non_null(:profile_update_input)
-    #   resolve &CommonsPub.Profile.GraphQL.Resolver.update_profile/2
+    #   resolve &CommonsPub.Profiles.GraphQL.Resolver.update_profile/2
     # end
 
     @desc "Create a profile to represent something (which already exists, pass the ID passed as context) in feeds and federation"
     field :add_profile_to, :profile do
       arg(:context_id, non_null(:string))
-      resolve(&CommonsPub.Profile.GraphQL.Resolver.add_profile_to/2)
+      resolve(&CommonsPub.Profiles.GraphQL.Resolver.add_profile_to/2)
     end
   end
 
@@ -68,22 +68,22 @@ defmodule CommonsPub.Profile.GraphQL.Schema do
     # @desc "A reference to the thing that this profile represents"
     # field :profileistic_id, :string
     # field :profileistic, :profile_tropes do
-    #   resolve &CommonsPub.Profile.GraphQL.Resolver.profileistic_edge/3
+    #   resolve &CommonsPub.Profiles.GraphQL.Resolver.profileistic_edge/3
     # end
 
     @desc "A url for the profile, may be to a remote instance"
     field :canonical_url, :string do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.canonical_url_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3)
     end
 
     @desc "An instance-unique identifier shared with users and communities"
     field :preferred_username, non_null(:string) do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.preferred_username_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.preferred_username_edge/3)
     end
 
     @desc "A preferred username + the host domain"
     field :display_username, non_null(:string) do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.display_username_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3)
     end
 
     @desc "A name field"
@@ -107,7 +107,7 @@ defmodule CommonsPub.Profile.GraphQL.Schema do
 
     @desc "Whether the profile is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve(&CommonsPub.Character.GraphQL.Resolver.is_local_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.is_local_edge/3)
     end
 
     @desc "Whether the profile is public"

@@ -19,7 +19,7 @@ defmodule CommonsPub.Web.Plugs.AuthTest do
     local = Map.delete(user.local_user, :email_confirm_tokens)
 
     user
-    |> Map.drop([:actor, :is_disabled, :is_public])
+    |> Map.drop([:character, :is_disabled, :is_public])
     |> Map.put(:local_user, local)
   end
 

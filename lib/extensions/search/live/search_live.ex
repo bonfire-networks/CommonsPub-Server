@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.SearchLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   # alias CommonsPub.Web.Component.{
   #   TabNotFoundLive
@@ -82,7 +82,7 @@ defmodule CommonsPub.Web.SearchLive do
 
   def handle_params(_params, _url, socket) do
     # community =
-    # Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
+    # CommunitiesHelper.community_load(socket, params, %{icon: true, image: true, character: true})
 
     # IO.inspect(community, label: "community")
 

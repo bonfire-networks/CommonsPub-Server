@@ -33,14 +33,19 @@ defmodule CommonsPub.Resources do
   def create(%User{} = creator, %{} = collection_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       collection_or_context =
-        CommonsPub.Web.Helpers.Common.maybe_preload(collection_or_context, :actor)
+        CommonsPub.Utils.Web.CommonHelper.maybe_preload(collection_or_context, :character)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
            act_attrs = %{
              verb: "created",
              is_local:
                is_nil(
-                 CommonsPub.Web.Helpers.Common.e(collection_or_context, :actor, :peer_id, nil)
+                 CommonsPub.Utils.Web.CommonHelper.e(
+                   collection_or_context,
+                   :character,
+                   :peer_id,
+                   nil
+                 )
                )
            },
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
@@ -94,7 +99,7 @@ defmodule CommonsPub.Resources do
   @spec soft_delete(User.t(), Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user, %Resource{} = resource) do
     Repo.transact_with(fn ->
-      resource = Repo.preload(resource, [:context, collection: [:actor]])
+      resource = Repo.preload(resource, [:context, collection: [:character]])
 
       with {:ok, deleted} <- Common.soft_delete(resource),
            :ok <- chase_delete(user, deleted.id),

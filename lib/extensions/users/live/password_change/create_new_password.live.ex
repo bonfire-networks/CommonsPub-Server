@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.CreateNewPasswordLive do
   use CommonsPub.Web, :live_view
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def mount(%{"token" => token} = params, session, socket) do
     socket = init_assigns(params, session, socket)

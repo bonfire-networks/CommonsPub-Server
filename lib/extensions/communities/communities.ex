@@ -16,7 +16,7 @@ defmodule CommonsPub.Communities do
     Threads
   }
 
-  alias CommonsPub.Character.Characters
+  alias CommonsPub.Characters
 
   alias CommonsPub.Communities.{Community, Queries}
   # alias CommonsPub.FeedPublisher
@@ -50,7 +50,7 @@ defmodule CommonsPub.Communities do
     Repo.transact_with(fn ->
       # TODO: address activity to context's outbox/followers
       community_or_context =
-        CommonsPub.Web.Helpers.Common.maybe_preload(community_or_context, :character)
+        CommonsPub.Utils.Web.CommonHelper.maybe_preload(community_or_context, :character)
 
       # with {:ok, comm_attrs} <- create_boxes(character, attrs),
       with {:ok, comm} <- insert_community(creator, community_or_context, attrs),

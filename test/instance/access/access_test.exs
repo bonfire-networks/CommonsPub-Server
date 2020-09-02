@@ -19,7 +19,7 @@ defmodule CommonsPub.AccessTest do
   defp strip(user),
     do:
       Map.drop(user, [
-        :actor,
+        :character,
         :email_confirm_tokens,
         :auth,
         :user,

@@ -1,8 +1,8 @@
 defmodule CommonsPub.Web.Component.DiscussionPreviewLive do
   use Phoenix.LiveComponent
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias CommonsPub.Web.Helpers.{Discussions}
+  alias CommonsPub.Discussions.Web.DiscussionsHelper
 
   def mount(thread, _session, socket) do
     {:ok, assign(socket, thread: thread)}
@@ -13,7 +13,7 @@ defmodule CommonsPub.Web.Component.DiscussionPreviewLive do
     if(Map.has_key?(assigns, :thread)) do
       {:ok,
        assign(socket,
-         thread: Discussions.prepare_thread(assigns.thread, assigns.current_user)
+         thread: DiscussionsHelper.prepare_thread(assigns.thread, assigns.current_user)
        )}
     else
       {:ok, assign(socket, thread: %{})}

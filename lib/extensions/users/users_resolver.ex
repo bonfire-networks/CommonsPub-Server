@@ -14,7 +14,7 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
     Users
   }
 
-  alias CommonsPub.Character.Characters
+  alias CommonsPub.Characters
 
   alias CommonsPub.GraphQL.{
     FetchFields,
@@ -51,11 +51,16 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
   def search_follows(_, _, _), do: {:ok, []}
 
   def user(%{user_id: id}, info) do
-    Users.one(join: :actor, preload: :actor, id: id, user: GraphQL.current_user(info))
+    Users.one(join: :character, preload: :character, id: id, user: GraphQL.current_user(info))
   end
 
   def user(%{username: name}, info) do
-    Users.one(join: :actor, preload: :actor, username: name, user: GraphQL.current_user(info))
+    Users.one(
+      join: :character,
+      preload: :character,
+      username: name,
+      user: GraphQL.current_user(info)
+    )
   end
 
   # def user(%{preferred_username: name}, info), do: Users.one(username: name)
@@ -348,7 +353,7 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
       queries: Users.Queries,
       query: User,
       group_fn: & &1.id,
-      filters: [id: ids, user: user, join: :actor, preload: :actor]
+      filters: [id: ids, user: user, join: :character, preload: :character]
     })
   end
 
@@ -372,7 +377,7 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(user, params, info),
-         attrs = CommonsPub.Web.Helpers.Common.input_to_atoms(Map.merge(attrs, uploads)),
+         attrs = CommonsPub.Utils.Web.CommonHelper.input_to_atoms(Map.merge(attrs, uploads)),
          {:ok, user} <- Users.update(user, attrs) do
       {:ok, Me.new(user)}
     end

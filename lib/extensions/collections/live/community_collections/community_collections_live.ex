@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.CommunityLive.CommunityCollectionsLive do
   use CommonsPub.Web, :live_component
 
-  alias CommonsPub.Web.Helpers.{Profiles}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   alias CommonsPub.Web.GraphQL.{
     CollectionsResolver
@@ -29,7 +29,7 @@ defmodule CommonsPub.Web.CommunityLive.CommunityCollectionsLive do
     collections_list =
       Enum.map(
         collections.edges,
-        &Profiles.prepare(&1, %{icon: false, image: false, actor: true})
+        &ProfilesHelper.prepare(&1, %{icon: false, image: false, character: true})
       )
 
     assign(socket,
@@ -41,5 +41,5 @@ defmodule CommonsPub.Web.CommunityLive.CommunityCollectionsLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 end

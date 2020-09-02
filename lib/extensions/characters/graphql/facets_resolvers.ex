@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Character.GraphQL.FacetsResolvers do
+defmodule CommonsPub.Characters.GraphQL.FacetsResolvers do
   @moduledoc "These resolver functions are to be called by other modules that use character, for fields or foreign keys that are part of the character table rather than that module's table."
 
   # alias CommonsPub.{
@@ -18,8 +18,8 @@ defmodule CommonsPub.Character.GraphQL.FacetsResolvers do
   #   # ResolveRootPage
   # }
 
-  # alias CommonsPub.Character
-  # alias CommonsPub.Character.{Characters, Queries}
+  # alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.{Characters, Queries}
   # alias CommonsPub.Resources.Resource
   # alias CommonsPub.Common.Enums
   alias Pointers
@@ -36,7 +36,7 @@ defmodule CommonsPub.Character.GraphQL.FacetsResolvers do
     do: CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   def outbox_edge(%{character: %{outbox_id: id}}, page_opts, info),
-    do: CommonsPub.Character.GraphQL.Resolver.outbox_edge(%{outbox_id: id}, page_opts, info)
+    do: CommonsPub.Characters.GraphQL.Resolver.outbox_edge(%{outbox_id: id}, page_opts, info)
 
   def is_public_edge(%{character: character}, _, _), do: {:ok, not is_nil(character.published_at)}
 

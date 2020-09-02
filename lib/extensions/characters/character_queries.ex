@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Character.Queries do
+defmodule CommonsPub.Characters.Queries do
   # alias CommonsPub.Users
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
   alias CommonsPub.Follows.{Follow, FollowerCount}
   alias CommonsPub.Users.User
   import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  def query(CommonsPub.Character) do
-    from(c in CommonsPub.Character,
+  def query(CommonsPub.Characters.Character) do
+    from(c in CommonsPub.Characters.Character,
       as: :character
       # join: a in assoc(c, :actor),
       # as: :actor,
@@ -19,7 +19,7 @@ defmodule CommonsPub.Character.Queries do
   end
 
   def query(:count) do
-    from(c in CommonsPub.Character, as: :character)
+    from(c in CommonsPub.Characters.Character, as: :character)
   end
 
   def query(q, filters), do: filter(query(q), filters)

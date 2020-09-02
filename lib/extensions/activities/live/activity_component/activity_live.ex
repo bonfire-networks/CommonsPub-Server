@@ -1,20 +1,21 @@
 defmodule CommonsPub.Web.Component.ActivityLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Web.Component.{PreviewLive, PreviewActionsLive, PreviewActionsAdminLive}
 
   # alias CommonsPub.Web.Component.DiscussionPreviewLive
 
-  alias CommonsPub.Web.Helpers.{Activites}
+  alias CommonsPub.Activities.Web.ActivitiesHelper
+  alias CommonsPub.Discussions.Web.DiscussionsHelper
 
   def update(assigns, socket) do
     activity_id = e(assigns, :activity, :id, random_string(6))
     preview_id = activity_id <> "-" <> e(assigns, :activity, :context, :id, random_string(6))
 
     if(Map.has_key?(assigns, :activity) and assigns.activity != %{}) do
-      activity = Activites.prepare(assigns.activity, assigns.current_user)
+      activity = ActivitiesHelper.prepare(assigns.activity, assigns.current_user)
 
       reply_link =
         "/!" <>

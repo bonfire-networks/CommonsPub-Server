@@ -61,7 +61,8 @@ defmodule Geolocation.GraphQL do
   ## fetchers
 
   def fetch_geolocation(info, id) do
-    with {:ok, geo} <- Geolocations.one(user: GraphQL.current_user(info), id: id, preload: :actor) do
+    with {:ok, geo} <-
+           Geolocations.one(user: GraphQL.current_user(info), id: id, preload: :character) do
       {:ok, Geolocations.populate_coordinates(geo)}
     end
   end

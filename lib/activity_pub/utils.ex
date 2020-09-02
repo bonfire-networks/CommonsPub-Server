@@ -34,6 +34,7 @@ defmodule ActivityPub.Utils do
   def generate_id(type), do: ap_base_url() <> "/#{type}/#{UUID.generate()}"
 
   def actor_url(%{preferred_username: u}), do: ap_base_url() <> "/actors/" <> u
+  def actor_url(), do: ap_base_url() <> "/actors/deleted"
 
   def object_url(%{id: id}), do: ap_base_url() <> "/objects/" <> id
 

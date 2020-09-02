@@ -8,7 +8,7 @@ defmodule Geolocation.Geolocations do
     Repo
   }
 
-  alias CommonsPub.Character.Characters
+  alias CommonsPub.Characters
 
   alias CommonsPub.GraphQL.{Fields, Page}
   alias CommonsPub.Common.Contexts
@@ -97,10 +97,9 @@ defmodule Geolocation.Geolocations do
     attrs = Map.put(attrs, :preferred_username, Characters.atomise_username(attrs[:name]))
 
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Characters.create(attrs),
-           {:ok, attrs} <- resolve_mappable_address(attrs),
-           {:ok, item_attrs} <- create_boxes(actor, attrs),
-           {:ok, item} <- insert_geolocation(creator, context, actor, item_attrs),
+      with {:ok, attrs} <- resolve_mappable_address(attrs),
+           {:ok, item} <- insert_geolocation(creator, context, attrs),
+           {:ok, actor} <- Characters.create(creator, attrs, item),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, context, item, activity, :created),
@@ -112,13 +111,12 @@ defmodule Geolocation.Geolocations do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    attrs = Map.put(attrs, :preferred_username, Characters.atomise_username(attrs[:name]))
+    # attrs = Map.put(attrs, :preferred_username, Characters.atomise_username(attrs[:name]))
 
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Characters.create(attrs),
-           {:ok, attrs} <- resolve_mappable_address(attrs),
-           {:ok, item_attrs} <- create_boxes(actor, attrs),
-           {:ok, item} <- insert_geolocation(creator, actor, item_attrs),
+      with {:ok, attrs} <- resolve_mappable_address(attrs),
+           {:ok, item} <- insert_geolocation(creator, attrs),
+           {:ok, actor} <- Characters.create(creator, attrs, item),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created),
@@ -128,34 +126,17 @@ defmodule Geolocation.Geolocations do
     end)
   end
 
-  defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
-  defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
-
-  defp create_local_boxes(attrs) do
-    with {:ok, inbox} <- Feeds.create(),
-         {:ok, outbox} <- Feeds.create() do
-      extra = %{inbox_id: inbox.id, outbox_id: outbox.id}
-      {:ok, Map.merge(attrs, extra)}
-    end
-  end
-
-  defp create_remote_boxes(attrs) do
-    with {:ok, outbox} <- Feeds.create() do
-      {:ok, Map.put(attrs, :outbox_id, outbox.id)}
-    end
-  end
-
-  defp insert_geolocation(creator, context, actor, attrs) do
-    cs = Geolocation.create_changeset(creator, context, actor, attrs)
+  defp insert_geolocation(creator, context, attrs) do
+    cs = Geolocation.create_changeset(creator, context, attrs)
 
     with {:ok, item} <- Repo.insert(cs) do
-      {:ok, %{item | actor: actor, context: context}}
+      {:ok, %{item | context: context}}
     end
   end
 
-  defp insert_geolocation(creator, actor, attrs) do
-    cs = Geolocation.create_changeset(creator, actor, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, %{item | actor: actor}}
+  defp insert_geolocation(creator, attrs) do
+    cs = Geolocation.create_changeset(creator, attrs)
+    with {:ok, item} <- Repo.insert(cs), do: {:ok, item}
   end
 
   defp publish(creator, context, geolocation, activity, :created) do

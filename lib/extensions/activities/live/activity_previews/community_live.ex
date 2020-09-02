@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Component.CommunityPreviewLive do
   use Phoenix.LiveComponent
-  import CommonsPub.Web.Helpers.Common
-  # import CommonsPub.Web.Helpers.Profiles
+  import CommonsPub.Utils.Web.CommonHelper
+  # import CommonsPub.Profiles.Web.ProfilesHelper
 
   # def mount(_, _session, socket) do
   #   {:ok, assign(socket, current_user: socket.assigns.current_user)}
@@ -11,7 +11,10 @@ defmodule CommonsPub.Web.Component.CommunityPreviewLive do
     # IO.inspect(community_pre_prep: assigns.community)
 
     community =
-      CommonsPub.Web.Helpers.Profiles.prepare(assigns.community, %{icon: true, actor: true})
+      CommonsPub.Profiles.Web.ProfilesHelper.prepare(assigns.community, %{
+        icon: true,
+        character: true
+      })
 
     # IO.inspect(community_post_prep: community)
 

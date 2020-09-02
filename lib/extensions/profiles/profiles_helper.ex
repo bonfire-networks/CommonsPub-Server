@@ -1,20 +1,20 @@
-defmodule CommonsPub.Web.Helpers.Profiles do
+defmodule CommonsPub.Profiles.Web.ProfilesHelper do
   # alias CommonsPub.{Repo}
   alias CommonsPub.Web.GraphQL.UsersResolver
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def fetch_users_from_context(user) do
     # IO.inspect(user.context_id, label: "ContextId")
     {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: user.context_id)
     # IO.inspect(pointer, label: "POINTER:")
-    CommonsPub.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, actor: true})
+    CommonsPub.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, character: true})
   end
 
   def fetch_users_from_creator(user) do
     # IO.inspect(user.context_id, label: "ContextId")
     {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: user.creator_id)
     # IO.inspect(pointer, label: "POINTER:")
-    CommonsPub.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, actor: true})
+    CommonsPub.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, character: true})
   end
 
   def is_followed_by(current_user, profile_id) when not is_nil(current_user) do
@@ -141,7 +141,7 @@ defmodule CommonsPub.Web.Helpers.Profiles do
   end
 
   def user_load(socket, params) do
-    user_load(socket, params, %{image: true, icon: true, actor: true}, 150)
+    user_load(socket, params, %{image: true, icon: true, character: true}, 150)
   end
 
   def user_load(socket, page_params, preload) do

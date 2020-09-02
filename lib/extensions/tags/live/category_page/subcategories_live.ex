@@ -1,9 +1,9 @@
 defmodule CommonsPub.Web.Page.Category.SubcategoriesLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  # alias CommonsPub.Web.Helpers.{Profiles}
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
 
   alias CommonsPub.Web.Component.CategoryPreviewLive
 
@@ -43,7 +43,7 @@ defmodule CommonsPub.Web.Page.Category.SubcategoriesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

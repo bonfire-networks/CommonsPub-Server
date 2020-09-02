@@ -1,8 +1,8 @@
 defmodule CommonsPub.Web.MemberLive.MemberFollowingLive do
   use CommonsPub.Web, :live_component
 
-  # import CommonsPub.Web.Helpers.Common
-  alias CommonsPub.Web.Helpers.{Profiles}
+  # import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   alias CommonsPub.Web.Component.UserPreviewLive
 
@@ -27,11 +27,11 @@ defmodule CommonsPub.Web.MemberLive.MemberFollowingLive do
     followings =
       Enum.map(
         follows.edges,
-        &Profiles.fetch_users_from_context(&1)
+        &ProfilesHelper.fetch_users_from_context(&1)
       )
 
     # IO.inspect(users, label: "USER COMMUNITY")
-    # following_users = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
+    # following_users = Enum.map(users.edges, &ProfilesHelper.prepare(&1, %{icon: true, character: true}))
     # IO.inspect(following_users, label: "USER COMMUNITY")
 
     assign(socket,
@@ -43,7 +43,7 @@ defmodule CommonsPub.Web.MemberLive.MemberFollowingLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.CommunityLive.CommunityMembersPreviewLive do
   use CommonsPub.Web, :live_component
-  alias CommonsPub.Web.Helpers.{Profiles}
-  import CommonsPub.Web.Helpers.Common
+  alias CommonsPub.Profiles.Web.ProfilesHelper
+  import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Web.Component.{
     UserPreviewLive
@@ -30,7 +30,7 @@ defmodule CommonsPub.Web.CommunityLive.CommunityMembersPreviewLive do
     followings =
       Enum.map(
         follows.edges,
-        &Profiles.fetch_users_from_creator(&1)
+        &ProfilesHelper.fetch_users_from_creator(&1)
       )
 
     # IO.inspect(followings, label: "User COMMUNITY:")
@@ -46,5 +46,5 @@ defmodule CommonsPub.Web.CommunityLive.CommunityMembersPreviewLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 end

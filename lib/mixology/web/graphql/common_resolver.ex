@@ -71,9 +71,9 @@ defmodule CommonsPub.Web.GraphQL.CommonResolver do
   # defp preload_context(%{context: %{}}=me), do: me
   # defp preload_context(me), do: Repo.preload(me, :context)
 
-  # def loaded_context(%Community{}=community), do: Repo.preload(community, :actor)
-  # def loaded_context(%Collection{}=collection), do: Repo.preload(collection, :actor)
-  # def loaded_context(%User{}=user), do: Repo.preload(user, :actor)
+  # def loaded_context(%Community{}=community), do: Repo.preload(community, :character)
+  # def loaded_context(%Collection{}=collection), do: Repo.preload(collection, :character)
+  # def loaded_context(%User{}=user), do: Repo.preload(user, :character)
   # def loaded_context(other), do: other
 
   # def tag(%{tag_id: id}, info) do

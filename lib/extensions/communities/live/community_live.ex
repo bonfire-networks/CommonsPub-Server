@@ -1,8 +1,10 @@
 defmodule CommonsPub.Web.CommunityLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
-  alias CommonsPub.Web.Helpers.{Communities, Profiles}
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Communities.Web.CommunitiesHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
+
   # alias CommonsPub.Web.GraphQL.CommunitiesResolver
   alias CommonsPub.Web.CommunityLive.{
     CommunityDiscussionsLive,
@@ -44,10 +46,10 @@ defmodule CommonsPub.Web.CommunityLive do
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     community =
-      Communities.community_load(socket, params, %{
+      CommunitiesHelper.community_load(socket, params, %{
         icon: true,
         image: true,
-        actor: true,
+        character: true,
         is_followed_by: socket.assigns.current_user
       })
 
@@ -62,10 +64,10 @@ defmodule CommonsPub.Web.CommunityLive do
 
   def handle_params(%{} = params, _url, socket) do
     community =
-      Communities.community_load(socket, params, %{
+      CommunitiesHelper.community_load(socket, params, %{
         icon: true,
         image: true,
-        actor: true,
+        character: true,
         is_followed_by: socket.assigns.current_user
       })
 
@@ -121,7 +123,7 @@ defmodule CommonsPub.Web.CommunityLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.community.id)
+    _uf = ProfilesHelper.unfollow(socket.assigns.current_user, socket.assigns.community.id)
 
     # TODO: error handling
 
@@ -157,10 +159,10 @@ defmodule CommonsPub.Web.CommunityLive do
 
       if(community) do
         community =
-          Profiles.prepare(community, %{
+          ProfilesHelper.prepare(community, %{
             icon: true,
             image: true,
-            actor: true,
+            character: true,
             is_followed_by: socket.assigns.current_user
           })
 
@@ -186,7 +188,7 @@ defmodule CommonsPub.Web.CommunityLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      CommonsPub.Web.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
         CommunityActivitiesLive,
         :community_timeline,

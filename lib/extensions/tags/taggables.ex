@@ -14,7 +14,7 @@ defmodule CommonsPub.Tag.Taggables do
   alias CommonsPub.Tag.Taggable
   alias CommonsPub.Tag.Taggable.Queries
 
-  # alias CommonsPub.Character.Characters
+  # alias CommonsPub.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -50,7 +50,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   def maybe_make_taggable(user, pointer_id, attrs) when is_binary(pointer_id) do
-    if CommonsPub.Web.Helpers.Common.is_numeric(pointer_id) do
+    if CommonsPub.Utils.Web.CommonHelper.is_numeric(pointer_id) do
       maybe_make_taggable(user, String.to_integer(pointer_id), attrs)
     else
       with {:ok, taggable} <- one(id: pointer_id) do

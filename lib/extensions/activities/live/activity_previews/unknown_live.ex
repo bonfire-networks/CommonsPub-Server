@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Component.UnknownPreviewLive do
   use Phoenix.LiveComponent
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     object = prepare_common(assigns.object)

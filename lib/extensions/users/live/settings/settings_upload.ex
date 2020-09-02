@@ -18,7 +18,7 @@ defmodule CommonsPub.Web.My.SettingsUpload do
   # }
 
   def upload(%{assigns: %{current_user: current_user}} = conn, params) do
-    attrs = CommonsPub.Web.Helpers.Common.input_to_atoms(params)
+    attrs = CommonsPub.Utils.Web.CommonHelper.input_to_atoms(params)
 
     # maybe_upload(params["profile"]["icon"], "icon")
     # maybe_upload(params["profile"]["image"], "image")

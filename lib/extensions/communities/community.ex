@@ -10,7 +10,7 @@ defmodule CommonsPub.Communities.Community do
     ]
 
   alias Ecto.Changeset
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
   alias CommonsPub.Communities
   alias CommonsPub.Communities.{Community, CommunityFollowerCount}
   alias CommonsPub.Collections.Collection
@@ -21,8 +21,8 @@ defmodule CommonsPub.Communities.Community do
   alias CommonsPub.Uploads.Content
 
   table_schema "mn_community" do
-    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
-    belongs_to(:actor, Character)
+    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
+    # belongs_to(:actor, Character)
 
     belongs_to(:creator, User)
     belongs_to(:context, Pointers.Pointer)

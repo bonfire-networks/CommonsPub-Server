@@ -1,9 +1,7 @@
 defmodule CommonsPub.Web.My.NewCollectionLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Web.Helpers.Common
-
-  # alias CommonsPub.Web.Helpers.{Profiles, Communities}
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     {

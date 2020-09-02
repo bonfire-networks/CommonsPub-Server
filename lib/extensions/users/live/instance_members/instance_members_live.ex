@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.InstanceLive.InstanceMembersLive do
   use CommonsPub.Web, :live_component
 
-  alias CommonsPub.Web.Helpers.{Profiles}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   alias CommonsPub.Web.Component.{
     UserPreviewLive
@@ -26,7 +26,7 @@ defmodule CommonsPub.Web.InstanceLive.InstanceMembersLive do
         context: %{current_user: assigns.current_user}
       })
 
-    members = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
+    members = Enum.map(users.edges, &ProfilesHelper.prepare(&1, %{icon: true, character: true}))
 
     assign(socket,
       members: members,
@@ -37,5 +37,5 @@ defmodule CommonsPub.Web.InstanceLive.InstanceMembersLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 end

@@ -3,7 +3,7 @@
     <div class="community__hero">
       <div class="suphero">
         <div class="suphero__left">
-          <%= live_patch to: "/&" <> e(@community, :actor, :preferred_username, "deleted") <> "/about" do %>
+          <%= live_patch to: "/&" <> e(@community, :character, :preferred_username, "deleted") <> "/about" do %>
             <div class="named-avatar">
               <img alt="profile pic" src="<%= e(@community, :icon_url, e(@community, :image_url, "")) %>" />
 <h3><%= @community.name %></h3>
@@ -76,7 +76,7 @@
           <div class="area__community-hero">
             <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
             <h1><%= @community.name %></h1>
-            <h4><%= e(@community, :display_username, e(@community, :actor, :preferred_username, "")) %>
+            <h4><%= e(@community, :display_username, e(@community, :character, :preferred_username, "")) %>
             </div>
             <%= live_component(
               @socket,

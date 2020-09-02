@@ -1,9 +1,9 @@
 defmodule CommonsPub.Web.My.MyLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  # alias CommonsPub.Web.Helpers.{Profiles}
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
 
   alias CommonsPub.Web.My.TimelineLive
 
@@ -37,7 +37,7 @@ defmodule CommonsPub.Web.My.MyLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      CommonsPub.Web.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
         TimelineLive,
         :my_timeline,

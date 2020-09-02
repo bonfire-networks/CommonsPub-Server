@@ -288,12 +288,12 @@ defmodule ActivityPub.Actor do
         %CommonsPub.Users.User{} -> "Person"
         %CommonsPub.Communities.Community{} -> "MN:Community"
         %CommonsPub.Collections.Collection{} -> "MN:Collection"
-        %CommonsPub.Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "Character")
+        %CommonsPub.Characters.Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "Character")
       end
 
     actor =
       case actor do
-        %CommonsPub.Character{} ->
+        %CommonsPub.Characters.Character{} ->
           with {:ok, profile} <- Profile.Profiles.one([:default, id: actor.id]) do
             # IO.inspect(fed_profile: actor)
             # IO.inspect(fed_profile: profile)

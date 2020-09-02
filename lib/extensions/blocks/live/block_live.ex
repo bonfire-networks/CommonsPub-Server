@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Component.BlockLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def handle_event("block", %{"message" => message} = _args, socket) do
     {:ok, block} =

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Follows.Queries do
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Communities.Community
   alias CommonsPub.Follows.Follow
@@ -50,12 +50,12 @@ defmodule CommonsPub.Follows.Queries do
     q
     |> filter(deleted: false, published: true, join: :community, join: :collection)
     |> join(:left, [community: c, collection: d], a in Character,
-      as: :actor,
-      on: c.actor_id == a.id or d.actor_id == a.id
+      as: :character,
+      on: c.character_id == a.id or d.character_id == a.id
     )
-    |> where([actor: a], not is_nil(a.canonical_url))
+    |> where([character: a], not is_nil(a.canonical_url))
     |> select(
-      [follow: f, community: c, collection: d, actor: a],
+      [follow: f, community: c, collection: d, character: a],
       %{
         community_id: c.id,
         collection_id: d.id,

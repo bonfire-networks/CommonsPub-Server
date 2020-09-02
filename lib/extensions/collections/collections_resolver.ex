@@ -60,8 +60,8 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
     Collections.one(
       user: GraphQL.current_user(info),
       id: id,
-      join: :actor,
-      preload: :actor
+      join: :character,
+      preload: :character
     )
   end
 
@@ -76,7 +76,7 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
       cursor_fn: Collections.cursor(:followers),
       page_opts: page_opts,
       base_filters: [deleted: false, user: GraphQL.current_user(info)],
-      data_filters: [join: :actor, preload: :actor, page: [desc: [followers: page_opts]]]
+      data_filters: [join: :character, preload: :character, page: [desc: [followers: page_opts]]]
     })
   end
 

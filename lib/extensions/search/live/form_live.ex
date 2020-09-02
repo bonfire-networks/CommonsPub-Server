@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.SearchLive.Form do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def handle_event("search", params, %{assigns: _assigns} = socket) do
     IO.inspect(search: params)

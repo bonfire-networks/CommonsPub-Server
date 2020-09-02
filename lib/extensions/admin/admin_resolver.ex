@@ -34,6 +34,6 @@ defmodule CommonsPub.Web.GraphQL.AdminResolver do
   end
 
   defp find(id) do
-    Users.one(id: id, join: :actor, join: :local_user, preload: :all)
+    Users.one(id: id, join: :character, join: :local_user, preload: :all)
   end
 end

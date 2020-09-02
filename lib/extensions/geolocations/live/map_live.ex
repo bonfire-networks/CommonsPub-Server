@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Geolocation.MapLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Web.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   @postgis_srid 4326
 

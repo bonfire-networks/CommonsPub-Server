@@ -1,8 +1,9 @@
 defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
   use CommonsPub.Web, :live_component
   alias CommonsPub.Web.GraphQL.{AccessResolver, UsersResolver}
-  alias CommonsPub.Web.Helpers.{Profiles, Common}
-  import CommonsPub.Web.Helpers.Common
+  alias CommonsPub.Profiles.Web.ProfilesHelper
+  alias CommonsPub.Utils.Web.CommonHelper
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     {:ok, users} =
@@ -23,7 +24,7 @@ defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    members = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
+    members = Enum.map(users.edges, &ProfilesHelper.prepare(&1, %{icon: true, character: true}))
 
     {
       :ok,

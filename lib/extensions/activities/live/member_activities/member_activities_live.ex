@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.MemberLive.MemberActivitiesLive do
   use CommonsPub.Web, :live_component
 
-  # import CommonsPub.Web.Helpers.Common
+  # import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Web.GraphQL.{
     UsersResolver
@@ -15,7 +15,7 @@ defmodule CommonsPub.Web.MemberLive.MemberActivitiesLive do
   Handle pushed activities from PubSub
   """
   def update(%{activity: activity}, socket),
-    do: CommonsPub.Web.Helpers.Activites.pubsub_receive(activity, socket)
+    do: CommonsPub.Activities.Web.ActivitiesHelper.pubsub_receive(activity, socket)
 
   def update(assigns, socket) do
     {
@@ -31,7 +31,7 @@ defmodule CommonsPub.Web.MemberLive.MemberActivitiesLive do
   """
   def fetch(socket, assigns),
     do:
-      CommonsPub.Web.Helpers.Activites.outbox_live(
+      CommonsPub.Activities.Web.ActivitiesHelper.outbox_live(
         {&CommonsPub.Feeds.outbox_id/1, assigns.user},
         &CommonsPub.Users.default_outbox_query_contexts/0,
         assigns,
@@ -39,7 +39,7 @@ defmodule CommonsPub.Web.MemberLive.MemberActivitiesLive do
       )
 
   def handle_event("load-more", _, socket),
-    do: CommonsPub.Web.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

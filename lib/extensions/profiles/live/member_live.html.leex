@@ -3,7 +3,7 @@
     <div class="member__hero">
       <div class="suphero">
         <div class="suphero__left">
-          <%= live_patch to: "/@" <> e(@user, :actor, :preferred_username, "deleted") <> "/about" do %>
+          <%= live_patch to: "/@" <> e(@user, :character, :preferred_username, "deleted") <> "/about" do %>
             <div class="named-avatar">
               <img alt="profile pic" src="<%= @user.icon_url %>" />
               <h3><%= @user.name %></h3>
@@ -180,7 +180,7 @@
             @socket,
             MemberNavigationLive,
             selected: @selected_tab,
-            username: e(@user, :actor, :preferred_username, ""),
+            username: e(@user, :character, :preferred_username, ""),
             current_user: @current_user
           )
         %>

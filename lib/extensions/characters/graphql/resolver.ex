@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Character.GraphQL.Resolver do
+defmodule CommonsPub.Characters.GraphQL.Resolver do
   alias CommonsPub.{
     Activities,
     GraphQL,
@@ -18,9 +18,9 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
     ResolveRootPage
   }
 
-  alias CommonsPub.Character
+  alias CommonsPub.Characters.Character
 
-  alias CommonsPub.Character.{
+  alias CommonsPub.Characters.{
     Characters
     # Queries
   }
@@ -72,8 +72,8 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
 
   def fetch_characters(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: CommonsPub.Character.Queries,
-      query: CommonsPub.Character,
+      queries: CommonsPub.Characters.Queries,
+      query: CommonsPub.Characters.Character,
       cursor_fn: Characters.cursor(:followers),
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)],
@@ -81,9 +81,9 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
     })
   end
 
-  # def characteristic_edge(%CommonsPub.Character{characteristic_id: id}, _, info), do: CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def characteristic_edge(%CommonsPub.Characters.Character{characteristic_id: id}, _, info), do: CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
-  # def resource_count_edge(%CommonsPub.Character{id: id}, _, info) do
+  # def resource_count_edge(%CommonsPub.Characters.Character{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
   # end
 
@@ -126,7 +126,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   end
 
   defp default_outbox_query_contexts() do
-    CommonsPub.Config.get!(CommonsPub.Character)
+    CommonsPub.Config.get!(CommonsPub.Characters)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
@@ -203,7 +203,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   # end
 
   # def creator_edge(%{character: %{creator_id: id}}, _, info) do
-  #   CommonsPub.Character.GraphQL.Resolver.creator_edge(%{creator_id: id}, nil, info)
+  #   CommonsPub.Characters.GraphQL.Resolver.creator_edge(%{creator_id: id}, nil, info)
   # end
 
   @doc "Returns the canonical url"
