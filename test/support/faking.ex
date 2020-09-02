@@ -54,14 +54,19 @@ defmodule MoodleNet.Test.Faking do
     activity
   end
 
-  def fake_actor!(creator, overrides \\ %{}) when is_map(overrides) do
-    {:ok, actor} = Characters.create(creator, actor(overrides))
-    actor
+  def fake_character!(overrides \\ %{}) when is_map(overrides) do
+    user = fake_user!(overrides)
+    # IO.inspect(fake_character_user: user)
+    user.character
   end
 
   def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
     with {:ok, user} <- Users.register(user(overrides), public_registration: true) do
       maybe_confirm_user_email(user, opts)
+      user
+    else
+      e ->
+        e
     end
   end
 

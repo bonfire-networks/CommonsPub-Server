@@ -7,26 +7,28 @@ defmodule CommonsPub.CharactersTest do
 
   alias CommonsPub.Character.Characters
 
+  alias MoodleNet.Users
+
   alias MoodleNet.Common.NotFoundError
   alias CommonsPub.Utils.Simulation
 
-  def assert_actor_equal(actor, attrs) do
-    assert actor.canonical_url == attrs[:canonical_url]
-    assert actor.preferred_username == attrs[:preferred_username]
-    assert actor.signing_key == attrs[:signing_key]
+  defp assert_character_equal(character, attrs) do
+    assert character.canonical_url == attrs[:canonical_url]
+    assert character.preferred_username == attrs[:preferred_username]
+    assert character.signing_key == attrs[:signing_key]
   end
 
   describe "one" do
     test "returns an item by ID" do
-      actor = fake_user!().actor
-      assert {:ok, fetched} = Characters.one(id: actor.id)
-      assert actor == fetched
+      character = fake_character!()
+      assert {:ok, fetched} = Characters.one(id: character.id)
+      assert character == fetched
     end
 
     test "returns an item by username" do
-      actor = fake_user!().actor
-      assert {:ok, fetched} = Characters.one(username: actor.preferred_username)
-      assert actor == fetched
+      character = fake_character!()
+      assert {:ok, fetched} = Characters.one(username: character.preferred_username)
+      assert character == fetched
     end
 
     test "fails if item is missing" do
@@ -40,54 +42,56 @@ defmodule CommonsPub.CharactersTest do
     end
 
     test "returns false if username is used" do
-      actor = fake_user!().actor
-      refute Characters.is_username_available?(actor.preferred_username)
+      character = fake_character!()
+      refute Characters.is_username_available?(character.preferred_username)
     end
   end
 
   describe "create" do
-    test "creates a new actor with a revision" do
+    test "creates a new character with a revision" do
       Repo.transaction(fn ->
-        attrs = Simulation.actor()
-        assert {:ok, actor} = Characters.create(attrs)
-        assert_actor_equal(actor, attrs)
+        attrs = Simulation.character()
+        character = fake_character!(attrs)
+        assert_character_equal(character, attrs)
       end)
     end
 
     # test "drops invalid characters from preferred_username" do
     #  Repo.transaction(fn ->
-    #    attrs = Simulation.actor(%{preferred_username: "actor&name"})
-    #    assert {:ok, actor} = Characters.create(attrs)
-    #    assert actor.preferred_username == "actorname"
+    #    attrs = Simulation.character(%{preferred_username: "character&name"})
+    #    assert {:ok, character} = Characters.create(attrs)
+    #    assert character.preferred_username == "actorname"
     #  end)
     # end
 
     test "doesn't drop allowed characters from preferred_username" do
       Repo.transaction(fn ->
-        attrs = Simulation.actor(%{preferred_username: "actor-name_underscore@instance.url"})
-        assert {:ok, actor} = Characters.create(attrs)
-        assert actor.preferred_username == "actor-name_underscore@instance.url"
+        attrs =
+          Simulation.character(%{preferred_username: "character-name_underscore@instance.url"})
+
+        peer = fake_peer!()
+        character = fake_character!(Map.put(attrs, :peer_id, peer.id))
+
+        assert character.preferred_username == "character-name_underscore@instance.url"
       end)
     end
 
     test "returns an error if there are missing required attributes" do
       Repo.transaction(fn ->
-        invalid_attrs = Map.delete(Simulation.actor(), :preferred_username)
-        assert {:error, changeset} = Characters.create(invalid_attrs)
+        invalid_attrs = Map.drop(Simulation.user(), [:preferred_username, :name, :email])
+        assert {:error, changeset} = fake_user!(invalid_attrs)
         assert Keyword.get(changeset.errors, :preferred_username)
       end)
     end
 
     test "returns an error if the username is duplicated" do
       Repo.transaction(fn ->
-        user = fake_user!()
-
-        actor = fake_actor!(user)
+        character = fake_character!()
 
         assert {:error, changeset} =
-                 %{preferred_username: actor.preferred_username}
-                 |> Simulation.actor()
-                 |> Characters.create()
+                 %{preferred_username: character.preferred_username}
+                 |> Simulation.user()
+                 |> fake_character!()
 
         assert Keyword.get(changeset.errors, :preferred_username)
       end)
@@ -95,19 +99,20 @@ defmodule CommonsPub.CharactersTest do
   end
 
   describe "update" do
-    test "updates an existing actor with valid attributes" do
+    test "updates an existing character with valid attributes" do
       Repo.transaction(fn ->
         user = fake_user!()
-        original_attrs = Simulation.actor()
-        assert {:ok, actor} = Characters.create(original_attrs)
+        original_attrs = Simulation.character()
+
+        character = fake_character!(original_attrs)
 
         updated_attrs =
           original_attrs
           |> Map.take(~w(preferred_username signing_key)a)
-          |> Simulation.actor()
+          |> Simulation.character()
 
-        assert {:ok, actor} = Characters.update(user, actor, updated_attrs)
-        assert_actor_equal(actor, updated_attrs)
+        assert {:ok, character} = Characters.update(user, character, updated_attrs)
+        assert_character_equal(character, updated_attrs)
       end)
     end
   end
