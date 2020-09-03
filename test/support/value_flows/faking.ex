@@ -14,13 +14,28 @@ defmodule ValueFlows.Test.Faking do
   # alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intent.Intents
-
+  alias ValueFlows.Knowledge.Action
   alias ValueFlows.{
     Proposal
     # Proposals
   }
 
   alias ValueFlows.Proposal.{ProposedTo, ProposedIntent}
+
+  def assert_action(%Action{} = action) do
+    assert_action(Map.from_struct(action))
+  end
+
+  def assert_action(action) do
+    assert_object(action, :assert_action,
+      label: &assert_binary/1,
+      input_output: assert_optional(&assert_binary/1),
+      pairs_with: assert_optional(&assert_binary/1),
+      resource_effect: &assert_binary/1,
+      onhand_effect: assert_optional(&assert_binary/1),
+      note: assert_optional(&assert_binary/1)
+    )
+  end
 
   def assert_proposal(%Proposal{} = proposal) do
     assert_proposal(Map.from_struct(proposal))
