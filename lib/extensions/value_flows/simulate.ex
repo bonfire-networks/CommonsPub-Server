@@ -11,6 +11,7 @@ defmodule ValueFlows.Simulate do
   alias ValueFlows.Proposal.Proposals
   # alias ValueFlows.Proposal.ProposedIntent
   alias ValueFlows.Knowledge.Action.Actions
+  alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
 
   ### Start fake data functions
 
@@ -91,6 +92,21 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:finished, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def process_specification(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
+    |> Map.put_new_lazy(:classified_as, fn -> some(1..5, &url/0) end)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def process_specification_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
   end
 
   def proposal(base \\ %{}) do
@@ -209,4 +225,19 @@ defmodule ValueFlows.Simulate do
     {:ok, proposed_to} = Proposals.propose_to(proposed_to, proposed)
     proposed_to
   end
+
+  def fake_process_specification!(user, context \\ nil, overrides \\ %{})
+
+  def fake_process_specification!(user, context, overrides) when is_nil(context) do
+    {:ok, spec} = ProcessSpecifications.create(user, process_specification(overrides))
+    spec
+  end
+
+  def fake_process_specification!(user, context, overrides) do
+    {:ok, spec} = ProcessSpecifications.create(user, context, process_specification(overrides))
+    spec
+  end
+
+
+
 end

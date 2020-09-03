@@ -224,11 +224,17 @@ defmodule ValueFlows.Hydration do
         update_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.update_proposal/2
         ],
+        update_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.update_process_spec/2
+        ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
         ],
         delete_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.delete_proposal/2
+        ],
+        delete_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.delete_process_spec/2
         ],
         delete_proposed_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2

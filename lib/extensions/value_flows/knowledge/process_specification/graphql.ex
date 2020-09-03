@@ -267,7 +267,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, process_spec} <- update_fn.(process_spec, changes) do
-      {:ok, %{process_spec: process_spec}}
+      {:ok, %{process_specification: process_spec}}
     end
   end
 

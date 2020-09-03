@@ -15,6 +15,8 @@ defmodule ValueFlows.Test.Faking do
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.ProcessSpecification
+
   alias ValueFlows.{
     Proposal
     # Proposals
@@ -127,6 +129,18 @@ defmodule ValueFlows.Test.Faking do
       :has_point_in_time,
       :due
     ])
+  end
+
+  def assert_process_specification(%ProcessSpecification{} = spec) do
+    assert_process_specification(Map.from_struct(spec))
+  end
+
+  def assert_process_specification(spec) do
+    assert_object(spec, :assert_process_specification,
+      name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      # classified_as: assert_optional(assert_list(&assert_url/1))
+    )
   end
 
   ## Graphql
@@ -336,4 +350,53 @@ defmodule ValueFlows.Test.Faking do
   def delete_proposed_to_submutation(_options \\ []) do
     field(:delete_proposed_to, args: [id: var(:id)])
   end
+
+  def process_specification_fields(extra \\ []) do
+    extra ++ ~w(id name note)a
+  end
+
+  def process_specification_response_fields(extra \\ []) do
+    [process_specification: process_specification_fields(extra)]
+  end
+
+  def process_specification_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &process_specification_subquery/1, options)
+  end
+
+  def process_specification_subquery(options \\ []) do
+    gen_subquery(:id, :process_specification, &process_specification_fields/1, options)
+  end
+
+  def create_process_specification_mutation(options \\ []) do
+    [process_specification: type!(:process_specification_create_params)]
+    |> gen_mutation(&create_process_specification_submutation/1, options)
+  end
+
+  def create_process_specification_submutation(options \\ []) do
+    [process_specification: var(:process_specification)]
+    |> gen_submutation(:create_process_specification, &process_specification_response_fields/1, options)
+  end
+
+  def update_process_specification_mutation(options \\ []) do
+    [process_specification: type!(:process_specification_update_params)]
+    |> gen_mutation(&update_process_specification_submutation/1, options)
+  end
+
+  def update_process_specification_submutation(options \\ []) do
+    [process_specification: var(:process_specification)]
+    |> gen_submutation(:update_process_specification, &process_specification_response_fields/1, options)
+  end
+
+  def delete_process_specification_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_process_specification_submutation/1, options)
+  end
+
+  def delete_process_specification_submutation(_options \\ []) do
+    field(:delete_process_specification, args: [id: var(:id)])
+  end
+
+
+
 end

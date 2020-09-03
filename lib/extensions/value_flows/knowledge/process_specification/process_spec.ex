@@ -44,7 +44,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note is_disabled)a
+  @cast @required ++ ~w(note classified_as is_disabled)a
 
   def create_changeset(
         %User{} = creator,
