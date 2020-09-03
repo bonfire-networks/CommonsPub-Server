@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.My.MyCommunitiesLive do
+defmodule CommonsPub.Web.MyCommunitiesLive do
   use CommonsPub.Web, :live_component
 
   alias CommonsPub.Communities.Web.CommunitiesHelper

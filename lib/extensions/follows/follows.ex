@@ -29,25 +29,30 @@ defmodule CommonsPub.Follows do
     create(follower, CommonsPub.Meta.Pointers.follow!(followed), fields, opts)
   end
 
-  def create(%User{} = follower, %struct{outbox_id: _} = followed, fields, _opts) do
-    if struct in valid_contexts() do
-      Repo.transact_with(fn ->
-        case one(deleted: false, creator: follower.id, context: followed.id) do
-          {:ok, _} ->
-            {:error, AlreadyFollowingError.new("user")}
+  def create(%User{} = follower, %{character: %{outbox_id: _} = followed}, fields, _opts) do
+    create(follower, followed, fields, _opts)
+  end
 
-          _ ->
-            with {:ok, follow} <- insert(follower, followed, fields),
-                 :ok <- subscribe(follower, followed, follow),
-                 :ok <- publish(follower, followed, follow),
-                 :ok <- ap_publish("create", follow) do
-              {:ok, %{follow | ctx: followed}}
-            end
-        end
-      end)
-    else
-      GraphQL.not_permitted()
-    end
+  def create(%User{} = follower, %_struct{outbox_id: _} = followed, fields, _opts) do
+    # if struct in valid_contexts() do
+    Repo.transact_with(fn ->
+      case one(deleted: false, creator: follower.id, context: followed.id) do
+        {:ok, _} ->
+          {:error, AlreadyFollowingError.new("user")}
+
+        _ ->
+          with {:ok, follow} <- insert(follower, followed, fields),
+               :ok <- subscribe(follower, followed, follow),
+               :ok <- publish(follower, followed, follow),
+               :ok <- ap_publish("create", follow) do
+            {:ok, %{follow | ctx: followed}}
+          end
+      end
+    end)
+
+    # else
+    #   GraphQL.not_permitted()
+    # end
   end
 
   def create(_, _, _, _) do

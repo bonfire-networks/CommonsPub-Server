@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.My.MyHeader do
+defmodule CommonsPub.Web.MyHeader do
   use CommonsPub.Web, :live_component
 
   import CommonsPub.Utils.Web.CommonHelper

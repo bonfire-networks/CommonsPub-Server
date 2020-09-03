@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.My.MySidebar do
+defmodule CommonsPub.Web.MySidebar do
   use CommonsPub.Web, :live_component
 
   # import CommonsPub.Utils.Web.CommonHelper

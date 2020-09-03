@@ -1,11 +1,11 @@
-defmodule CommonsPub.Web.My.MyLive do
+defmodule CommonsPub.Web.MyLive do
   use CommonsPub.Web, :live_view
 
   import CommonsPub.Utils.Web.CommonHelper
 
   # alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias CommonsPub.Web.My.TimelineLive
+  alias CommonsPub.Web.MyTimelineLive
 
   alias CommonsPub.Web.Component.{
     # HeaderLive,
@@ -39,7 +39,7 @@ defmodule CommonsPub.Web.My.MyLive do
     do:
       CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
-        TimelineLive,
+        MyTimelineLive,
         :my_timeline,
         socket
       )

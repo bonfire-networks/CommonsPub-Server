@@ -89,9 +89,11 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
   def inbox_live(user, assigns, socket) do
     # user inbox feed
     inbox_id = Map.get(assigns, :feed_id) || CommonsPub.Feeds.inbox_id(user)
+    # IO.inspect(inbox_live: inbox_id)
 
     # feeds the user is subscribed to
     feed_ids = CommonsPub.Web.GraphQL.UsersResolver.user_inbox_feeds(user, inbox_id)
+    # IO.inspect(feed_ids: feed_ids)
 
     # IO.inspect(inbox_feed_ids: feed_ids)
     CommonsPub.Utils.Web.CommonHelper.pubsub_subscribe(feed_ids, socket)

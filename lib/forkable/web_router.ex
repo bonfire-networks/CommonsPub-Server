@@ -197,12 +197,12 @@ defmodule CommonsPub.Web.Router do
 
     pipe_through :ensure_authenticated
 
-    live "/~", My.MyLive
+    live "/~", MyLive
     live "/~/profile", MemberLive
     live "/~/write", My.WriteLive
     live "/~/settings", SettingsLive
     live "/~/settings/:tab", SettingsLive
-    live "/~/:tab", My.MyLive
+    live "/~/:tab", MyLive
 
     live "/~/proto", My.ProtoProfileLive
   end

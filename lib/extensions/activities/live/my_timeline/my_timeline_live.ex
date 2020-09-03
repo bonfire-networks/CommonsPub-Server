@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.My.TimelineLive do
+defmodule CommonsPub.Web.MyTimelineLive do
   use CommonsPub.Web, :live_component
 
   alias CommonsPub.Web.Component.{

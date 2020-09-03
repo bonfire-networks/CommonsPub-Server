@@ -22,7 +22,7 @@
       <%= if @current_user do %>
         <%= live_component(
           @socket,
-          CommonsPub.Web.My.MyHeader,
+          CommonsPub.Web.MyHeader,
           id: :my_header,
           current_user: @current_user,
           my_communities: @my_communities,
@@ -53,7 +53,7 @@
     <%= if @current_user do %>
       <%= live_component(
           @socket,
-          CommonsPub.Web.My.MySidebar,
+          CommonsPub.Web.MySidebar,
           current_user: @current_user,
           my_communities: @my_communities,
           id: :my_sidebar
