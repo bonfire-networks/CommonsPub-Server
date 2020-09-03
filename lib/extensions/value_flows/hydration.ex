@@ -230,6 +230,9 @@ defmodule ValueFlows.Hydration do
         delete_proposed_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
         ],
+        delete_proposed_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.delete_proposed_to/2
+        ],
         create_resource_specification: [
           resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.create_resource_spec/2
         ],

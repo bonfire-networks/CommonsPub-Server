@@ -28,4 +28,16 @@ defmodule ValueFlows.Proposal.ProposedToGraphQLTest do
       assert proposed_to["proposedTo"]["id"] == agent.id
     end
   end
+
+  describe "delete_proposed_to" do
+    test "deletes an existing proposed to item" do
+      user = fake_user!()
+      proposed_to = fake_proposed_to!(fake_user!(), fake_proposal!(user))
+
+      q = delete_proposed_to_mutation()
+      conn = user_conn(user)
+
+      assert grumble_post_key(q, conn, :delete_proposed_to, %{id: proposed_to.id})
+    end
+  end
 end

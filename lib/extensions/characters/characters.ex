@@ -223,7 +223,7 @@ defmodule CommonsPub.Characters do
 
   defp insert_character(creator, attrs) do
     cs = Character.create_changeset(creator, attrs)
-    IO.inspect(cs)
+    # IO.inspect(cs)
     with {:ok, character} <- Repo.insert(cs), do: {:ok, character}
   end
 

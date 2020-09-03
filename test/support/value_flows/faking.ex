@@ -288,4 +288,13 @@ defmodule ValueFlows.Test.Faking do
     ]
     |> gen_submutation(:propose_to, &proposed_to_response_fields/1, options)
   end
+
+  def delete_proposed_to_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_proposed_to_submutation/1, options)
+  end
+
+  def delete_proposed_to_submutation(_options \\ []) do
+    field(:delete_proposed_to, args: [id: var(:id)])
+  end
 end
