@@ -220,7 +220,7 @@ defmodule Geolocation.Geolocations do
     %{geo | lat: lat, long: long, geom: Geo.JSON.encode!(geom)}
   end
 
-  def populate_coordinates(geo), do: geo
+  def populate_coordinates(geo), do: geo || %{}
 
   def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
     with {:ok, coords} <- Geocoder.call(address) do

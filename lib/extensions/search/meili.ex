@@ -5,83 +5,12 @@ defmodule CommonsPub.Search.Meili do
 
   alias ActivityPub.HTTP
 
-  @public_index "public"
-
-  def search(string, index, calculate_facets, facets) when is_binary(string) and is_map(facets) do
-    search(
-      string,
-      index,
-      calculate_facets,
-      facets
-      |> Enum.map(&facet_from_map/1)
-    )
-  end
-
-  def search(string, index, calculate_facets, facets)
-      when is_binary(string) and is_list(facets) do
-    object = %{
-      q: string,
-      facetFilters: facets
-    }
-
-    search(object, index, calculate_facets)
-  end
-
-  def search(string, index, calculate_facets, _) do
-    search(string, index, calculate_facets)
-  end
-
-  def search(string, index, calculate_facets)
-      when is_list(calculate_facets) and is_binary(string) do
-    object = %{
-      q: string,
-      facetsDistribution: calculate_facets
-    }
-
-    search(object, index)
-  end
-
-  def search(string, index, calculate_facets)
-      when is_binary(calculate_facets) and is_binary(string) do
-    search(string, index, [calculate_facets])
-  end
-
-  def search(params, index, _) do
-    search(params, index)
-  end
-
-  def search(params, index \\ nil)
-
-  def search(string, index) when is_binary(string) and is_binary(index) do
-    object = %{
-      q: string
-    }
-
-    search(object, index)
-  end
-
-  def search(object, index) when is_map(object) and is_binary(index) do
-    search_meili(object, index)
-  end
-
-  def search(params, _) do
-    search(params, @public_index)
-  end
-
   def search_meili(%{} = params, index) when is_binary(index) do
+    IO.inspect(search_params: params)
     {:ok, req} = api(:post, params, index <> "/search")
     res = Jason.decode!(req.body)
     # IO.inspect(res)
     res
-  end
-
-  def facet_from_map({key, values}) when is_list(values) do
-    values
-    |> Enum.map(&facet_from_map({key, &1}))
-  end
-
-  def facet_from_map({key, value}) when is_binary(value) do
-    "#{key}:#{value}"
   end
 
   def get(object) do
@@ -112,10 +41,6 @@ defmodule CommonsPub.Search.Meili do
     post(object, index <> "/settings")
   end
 
-  def set_attributes(attrs, index) do
-    settings(%{attributesForFaceting: attrs}, index)
-  end
-
   def api(http_method, object, index_path, fail_silently \\ false) do
     search_instance = System.get_env("SEARCH_MEILI_INSTANCE", "localhost:7700")
     api_key = System.get_env("MEILI_MASTER_KEY")
@@ -138,16 +63,26 @@ defmodule CommonsPub.Search.Meili do
       {:ok, ret}
     else
       {_, message} ->
-        if(fail_silently) do
-          # Logger.info("Meili - Couldn't #{http_method} object")
-          # Logger.info(inspect(object))
-          :ok
-        else
-          Logger.error("Meili - Couldn't #{http_method} objects:")
-          Logger.warn(inspect(object))
-          Logger.warn(inspect(message))
-          {:error, message}
-        end
+        http_error(fail_silently, http_method, message, object)
+    end
+  end
+
+  if Mix.env() == :test do
+    def http_error(fail_silently, http_method, _message, _object) do
+      Logger.info("Meili - Could not #{http_method} objects")
+    end
+  else
+    def http_error(fail_silently, http_method, message, object) do
+      if(fail_silently) do
+        Logger.info("Meili - Could not #{http_method} object")
+        # Logger.info(inspect(object))
+        :ok
+      else
+        Logger.error("Meili - Couldn't #{http_method} objects:")
+        Logger.warn(inspect(message))
+        Logger.info(inspect(object))
+        {:error, message}
+      end
     end
   end
 

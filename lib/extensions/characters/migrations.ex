@@ -2,9 +2,7 @@ defmodule CommonsPub.Character.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  alias CommonsPub.Character
-
-  defp table_name(), do: Character.__schema__(:source)
+  defp table_name(), do: CommonsPub.Character.__schema__(:source)
 
   # IO.inspect(cs: Character.__schema__(:source))
 
@@ -31,6 +29,8 @@ defmodule CommonsPub.Character.Migrations do
       add(:disabled_at, :timestamptz)
       # timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
+
+    flush()
 
     # create_if_not_exists(index(table_name(), :updated_at, index_opts))
     create_if_not_exists(index(table_name(), :actor_id, index_opts))

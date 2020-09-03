@@ -61,15 +61,15 @@
 </li>
 <li>
   <%=
-                  live_component(
-                    @socket,
-                    MoodleNetWeb.Component.BlockLive,
-                    object: @collection,
-                    current_user: @current_user,
-                    id: "block-"<>@collection.id,
-                    block_object_name: @collection.name
-                  )
-                %>
+              live_component(
+                @socket,
+                MoodleNetWeb.Component.BlockLive,
+                object: @collection,
+                current_user: @current_user,
+                id: "block-"<>@collection.id,
+                block_object_name: @collection.name
+              )
+              %>
 </li>
 </ul>
 </details>
@@ -83,11 +83,11 @@
     <div class="community__layout">
       <div class="mainContent__selected">
         <div class="layout__menu">
-          <%= live_patch link_body("Resources","feather-file"),
+          <%= live_patch "Resources",
           to: "/+" <> @collection.actor.preferred_username <> "/resources",
           class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
         %>
-          <%= live_patch "Timeline",
+          <%= live_patch "Updates",
               to: "/+" <> @collection.actor.preferred_username <>  "/timeline",
               class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
             %>
@@ -100,7 +100,7 @@
             CollectionActivitiesLive,
             collection: @collection,
             selected_tab: @selected_tab,
-            id: :timeline,
+            id: :collection_timeline,
             current_user: @current_user,
             activities: [],
             page: 1,
@@ -157,6 +157,9 @@
         <% end %>
       </div>
       <div class="collection__navigation">
+        <a class="navigation__share-link" phx-target="#post_link" phx-click="toggle_link">
+          <button >Share a link</button>
+        </a>
         <%= live_component(
                 @socket,
                 MoodleNetWeb.Component.ContextLive,

@@ -100,7 +100,6 @@ defmodule CommonsPub.Profile.Profiles do
 
   defp insert_profile(creator, attrs) do
     cs = CommonsPub.Profile.create_changeset(creator, attrs)
-    IO.inspect(cs)
     with {:ok, profile} <- Repo.insert(cs), do: {:ok, profile}
   end
 
@@ -122,13 +121,11 @@ defmodule CommonsPub.Profile.Profiles do
 
   @doc "Takes anything and creates a profile based on it"
   def add_profile_to(user, %{} = thing) do
-    # IO.inspect(thing)
     thing_name = thing.__struct__
     thing_context_module = apply(thing_name, :context_module, [])
 
     profile_attrs = profileisation(thing_name, thing, thing_context_module)
 
-    # IO.inspect(profile_attrs)
     # add_profile_to(user, pointer, %{})
 
     Repo.transact_with(fn ->
@@ -142,10 +139,7 @@ defmodule CommonsPub.Profile.Profiles do
   def profileisation(thing_name, thing, thing_context_module) do
     attrs = profileisation_default(thing_name, thing)
 
-    # IO.inspect(attrs)
-
     if(Kernel.function_exported?(thing_context_module, :profileisation, 1)) do
-      # IO.inspect(function_exists_in: thing_context_module)
       apply(thing_context_module, :profileisation, [attrs])
     else
       attrs
@@ -172,7 +166,7 @@ defmodule CommonsPub.Profile.Profiles do
     update(user, profile, attrs)
   end
 
-  def update(user, %CommonsPub.Profile{} = profile, attrs) do
+  def update(_user, %CommonsPub.Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Repo.update(CommonsPub.Profile.update_changeset(profile, attrs)) do
         {:ok, profile}

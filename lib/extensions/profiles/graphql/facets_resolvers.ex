@@ -2,7 +2,7 @@
 defmodule CommonsPub.Profile.GraphQL.FacetsResolvers do
   @moduledoc "These resolver functions are to be called by other modules that use profile, for fields or foreign keys that are part of the profile table rather than that module's table."
 
-  alias CommonsPub.Profile
+  # alias CommonsPub.Profile
   alias Pointers
 
   def creator_edge(%{profile: %{creator_id: id}}, _, info),

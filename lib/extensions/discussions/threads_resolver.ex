@@ -90,7 +90,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     )
   end
 
-  def list_creator_threads(page_opts, base_filters, data_filters, cursor_type) do
+  def list_creator_threads(page_opts, base_filters, data_filters, _cursor_type) do
     # IO.inspect(
     FetchPage.run(%FetchPage{
       queries: Threads.Queries,
@@ -120,8 +120,8 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
         with {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
              :ok <- validate_thread_context(pointer),
              context = MoodleNet.Meta.Pointers.follow!(pointer),
-             {:ok, thread} <- Threads.create(user, context, attrs) do
-          Comments.create(user, thread, attrs, context)
+             {:ok, thread} <- Threads.create(user, attrs, context) do
+          Comments.create(user, thread, attrs)
         end
       end)
     end

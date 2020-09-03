@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
     "/images/sun_face.png"
   end
 
-  defp fetch_places(socket) do
+  def fetch_places(socket) do
     with {:ok, places} <-
            Geolocation.GraphQL.geolocations(%{limit: 15}, %{
              context: %{current_user: socket.assigns.current_user}
@@ -107,15 +107,17 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
     fetch_place_things([location_within: geom], socket)
   end
 
-  defp fetch_place_things(filters, socket) do
+  def fetch_place_things(filters, socket) do
     with {:ok, things} <-
            ValueFlows.Planning.Intent.Intents.many(filters) do
+      IO.inspect(things)
+
       things =
-        Enum.map(
-          things,
+        things
+        |> Enum.map(
           &Map.merge(
-            Geolocation.Geolocations.populate_coordinates(&1.at_location),
-            &1
+            Geolocation.Geolocations.populate_coordinates(Map.get(&1, :at_location)),
+            &1 || %{}
           )
         )
 
@@ -128,7 +130,7 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
     end
   end
 
-  defp fetch_place(id, socket) do
+  def fetch_place(id, socket) do
     with {:ok, place} <-
            Geolocation.GraphQL.geolocation(%{id: id}, %{
              context: %{current_user: socket.assigns.current_user}

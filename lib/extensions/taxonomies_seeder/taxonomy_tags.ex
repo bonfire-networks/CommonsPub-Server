@@ -1,6 +1,8 @@
 defmodule Taxonomy.TaxonomyTags do
   # import Ecto.Query
-  alias Ecto.Changeset
+  # alias Ecto.Changeset
+  require Logger
+
 
   alias MoodleNet.{
     # Common, GraphQL,
@@ -9,7 +11,7 @@ defmodule Taxonomy.TaxonomyTags do
     Repo
   }
 
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Users.User
   alias Taxonomy.TaxonomyTag
   alias Taxonomy.TaxonomyTag.Queries
 
@@ -119,8 +121,8 @@ defmodule Taxonomy.TaxonomyTags do
       # finally pointerise the child(ren), in hierarchical order
       create_category(user, tag, create_tag)
     else
-      e ->
-        IO.inspect("could not create parent tag")
+      _e ->
+        Logger.error("could not create parent tag")
         # create the child anyway
         create_category(user, tag, create_tag)
     end
@@ -137,7 +139,7 @@ defmodule Taxonomy.TaxonomyTags do
       # IO.inspect(create_category: tag)
 
       with {:ok, category} <- CommonsPub.Tag.Categories.create(user, attrs),
-           {:ok, tag} <- update(user, tag, %{category: category, category_id: category.id}) do
+           {:ok, _tag} <- update(user, tag, %{category: category, category_id: category.id}) do
         {:ok, category}
       end
     end)

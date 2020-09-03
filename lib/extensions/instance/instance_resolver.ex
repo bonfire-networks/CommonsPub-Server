@@ -62,16 +62,10 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     })
   end
 
-  def outbox_edge(_, page_opts, _info) do
+  def instance_outbox_edge(_, page_opts, _info) do
     feed_id = MoodleNet.Feeds.instance_outbox_id()
-    tables = Instance.default_outbox_query_contexts()
+    tables = MoodleNet.Instance.default_outbox_query_contexts()
 
-    FetchPage.run(%FetchPage{
-      queries: Activities.Queries,
-      query: Activities.Activity,
-      page_opts: page_opts,
-      base_filters: [deleted: false, feed_timeline: feed_id, table: tables],
-      data_filters: [page: [desc: [created: page_opts]], preload: :context]
-    })
+    MoodleNetWeb.GraphQL.ActivitiesResolver.fetch_outbox_edge(feed_id, tables, page_opts)
   end
 end

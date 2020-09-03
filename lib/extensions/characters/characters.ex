@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Character.Characters do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias CommonsPub.Character
+  # alias CommonsPub.Character
   alias CommonsPub.Character.Queries
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
   alias Pointers.Pointer
   alias Pointers
@@ -114,8 +114,7 @@ defmodule CommonsPub.Character.Characters do
            #  act_attrs = %{verb: "created", is_local: true},
            #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
            #  :ok <- publish(creator, character, activity, :created),
-           # add to search index
-           #  :ok <- index(character),
+
            {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
         {:ok, character}
       end
@@ -290,41 +289,6 @@ defmodule CommonsPub.Character.Characters do
       end
     end)
   end
-
-  # defp index(character) do
-  #   follower_count =
-  #     case MoodleNet.Follows.FollowerCounts.one(context: character.id) do
-  #       {:ok, struct} -> struct.count
-  #       {:error, _} -> nil
-  #     end
-
-  #   # icon = MoodleNet.Uploads.remote_url_from_id(character.icon_id)
-  #   # image = MoodleNet.Uploads.remote_url_from_id(character.image_id)
-
-  #   canonical_url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(character)
-
-  #   object = %{
-  #     "index_type" => "CommonsPub.Character",
-  #     "facet" => character.facet,
-  #     "id" => character.id,
-  #     "canonicalUrl" => canonical_url,
-  #     "followers" => %{
-  #       "totalCount" => follower_count
-  #     },
-  #     # "icon" => icon,
-  #     # "image" => image,
-  #     # "name" => character.name,
-  #     "preferredUsername" => character.actor.preferred_username,
-  #     # "summary" => character.summary,
-  #     "createdAt" => character.published_at,
-  #     # home instance of object
-  #     "index_instance" => URI.parse(canonical_url).host
-  #   }
-
-  #   CommonsPub.Search.Indexer.index_object(object)
-
-  #   :ok
-  # end
 
   # TODO move these to a common module
 

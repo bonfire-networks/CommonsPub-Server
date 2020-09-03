@@ -1,6 +1,6 @@
 defmodule Measurement.Hydration do
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Communities.Community
+  # alias MoodleNet.Collections.Collection
   alias MoodleNetWeb.GraphQL.CommonResolver
 
   alias Organisation

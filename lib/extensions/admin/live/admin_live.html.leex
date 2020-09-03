@@ -1,0 +1,64 @@
+<div class="page__fullContent">
+  <div class="page__settings">
+    <div class="settings__hero">
+      <div class="suphero">
+        <div class="suphero__left named-avatar">
+          <h3>Instance Settings</h3>
+        </div>
+      </div>
+    </div>
+    <div class="settings__layout">
+      <div class="mainContent__selected">
+        <%= cond do %>
+          <% @selected_tab == "instance" ->  %>
+          <div class="selected__area">
+            <%= live_component(
+                  @socket,
+                  AdminInstanceLive,
+                  current_user: @current_user
+                ) %>
+          </div>
+          <% @selected_tab == "access" ->  %>
+          <div class="selected__area">
+            <%= live_component(
+                  @socket,
+                  AdminAccessLive,
+                  id: :access,
+                  selected: @selected_sub,
+                  current_user: @current_user
+                )  %>
+          </div>
+          <% @selected_tab == "flags" ->  %>
+          <div class="selected__area">
+            <%= live_component(
+                    @socket,
+                    AdminFlagsLive,
+                    current_user: @current_user,
+                    id: :flags
+
+                ) %>
+          </div>
+          <% true -> %>
+           <div class="selected__area">
+            <%= live_component(
+                  @socket,
+                  AdminAccessLive,
+                  id: :access,
+                  selected: @selected_sub,
+                  current_user: @current_user
+                )  %>
+          </div>
+        <% end %>
+      </div>
+      <div class="settings__navigation">
+        <%= live_component(
+            @socket,
+            AdminNavigationLive,
+            selected: @selected_tab,
+            current_user: @current_user
+          )
+        %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -8,7 +8,6 @@ defmodule CommonsPub.HTML.Scrubber do
 
   # def compile_scrubbers do
   #   dir = Path.join(:code.priv_dir(:moodle_net), "scrubbers")
-  #   IO.inspect(dir)
 
   #   dir
   #   |> CommonsPub.ReleaseTasks.compile_dir()

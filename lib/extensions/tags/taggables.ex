@@ -1,20 +1,20 @@
 defmodule CommonsPub.Tag.Taggables do
   # import Ecto.Query
-  alias Ecto.Changeset
+  # alias Ecto.Changeset
 
   alias MoodleNet.{
     # Common,
     # GraphQL,
-    Repo,
-    GraphQL.Page,
-    Common.Contexts
+    Repo
+    # GraphQL.Page,
+    # Common.Contexts
   }
 
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Users.User
   alias CommonsPub.Tag.Taggable
   alias CommonsPub.Tag.Taggable.Queries
 
-  alias CommonsPub.Character.Characters
+  # alias CommonsPub.Character.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -85,7 +85,7 @@ defmodule CommonsPub.Tag.Taggables do
   @doc """
   Create a taggable mixin for an existing poitable object (please use maybe_make_taggable instead)
   """
-  def make_taggable(creator, %{} = pointable_obj, attrs) when is_map(attrs) do
+  def make_taggable(_creator, %{} = pointable_obj, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       # TODO: check that the taggable doesn't already exist (same name and parent)
 
@@ -121,7 +121,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   # TODO: take the user who is performing the update
-  def update(user, %Taggable{} = taggable, attrs) do
+  def update(_user, %Taggable{} = taggable, attrs) do
     Repo.transact_with(fn ->
       # :ok <- publish(taggable, :updated)
       with {:ok, taggable} <- Repo.update(Taggable.update_changeset(taggable, attrs)) do

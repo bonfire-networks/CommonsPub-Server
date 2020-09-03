@@ -138,6 +138,10 @@ defmodule MoodleNet.ActivityPub.Utils do
     get_actor_canonical_url(actor)
   end
 
+  def get_actor_canonical_url(%{character: character}) do
+    get_actor_canonical_url(character)
+  end
+
   def get_actor_canonical_url(%{canonical_url: canonical_url}) do
     canonical_url
   end

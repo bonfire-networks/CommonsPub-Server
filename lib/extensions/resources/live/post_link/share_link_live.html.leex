@@ -1,11 +1,10 @@
-
-  <div id="post_link" class="dialog_new_link">
-<%= if @toggle_link do %>
+<div id="post_link" class="dialog_new_link">
+  <%= if @toggle_link do %>
     <div id="<%= @toggle_link %>" phx-target="<%= @myself %>" phx-click="toggle_link" class="dialog__backdrop"></div>
     <dialog open class="dialog dialog__newLink">
       <header class="dialog__header">Share a link</header>
       <section class="dialog__content">
-        <form phx-change="fetch_link" phx-submit="share_link" phx-target="<%= @myself %>">
+    <form phx-submit="share_link" phx-change="form_changes" phx-target="#link_tags_tag_results" >
          <%= live_component(
                 @socket,
                 MoodleNetWeb.My.ContextSelect,
@@ -14,20 +13,26 @@
                 current_context: @current_context
               ) %>
           <input type="text" name="content[url]" id="input_url" value="<%= e(@link_input, :url, "") %>" placeholder="Paste the URL..." required="required" />
-      <div class="link__inputs_extra">
-        <img src="<%= e(@link_input, :image, "") %>" style="width:150px; height:150px" />
-        <div class="extra__fields">
-          <input name="icon[url]" value="<%= e(@link_input, :image, "") %>" type="hidden" />
-          <input type="text" name="name" value="<%=e(@link_input, :title, "")%>" placeholder="Enter a name or title for the link..." />
-          <textarea name="summary" placeholder="Describe the link..."><%=e(@link_input, :summary, "")%></textarea>
-          <input type="text" name="author" value="<%=e(@link_input, :author, e(@link_input, :source, ""))%>" placeholder="Enter the author or source of this content..." />
-        </div>
-        </div>
-        <footer class="dialog__footer">
-          <button value="default">Share</button>
-        </footer>
-    </form>
-  </section>
+    <div class="link__inputs_extra">
+      <img src="<%= e(@link_input, :image, "") %>" style="width:150px; height:150px;" />
+      <div class="extra__fields">
+        <input name="icon[url]" value="<%= e(@link_input, :image, "") %>" type="hidden" />
+        <input type="text" name="name" value="<%=e(@link_input, :title, "")%>" placeholder="Enter a name or title for the link..." />
+        <textarea name="summary" placeholder="Describe the link..."><%=e(@link_input, :summary, "")%></textarea>
+        <input type="text" name="author" value="<%=e(@link_input, :author, e(@link_input, :source, ""))%>" placeholder="Enter the author or source of this content..." />
+        <%= live_component(
+                @socket,
+                MoodleNetWeb.Component.EnterTags,
+                current_user: @current_user,
+                id: "link_tags"
+              ) %>
+      </div>
+    </div>
+    <footer class="dialog__footer">
+      <button value="default">Share</button>
+    </footer>
+  </form>
+</section>
 </dialog>
 <% end %>
 </div>

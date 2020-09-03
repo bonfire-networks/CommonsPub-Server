@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Users do
-  @doc """
+  @moduledoc """
   A Context for dealing with Users.
   """
   require Logger
@@ -90,8 +90,9 @@ defmodule MoodleNet.Users do
          attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
          {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
          {:ok, token} <- create_email_confirm_token(local_user) do
-      user = %{user | actor: actor, local_user: %{local_user | email_confirm_tokens: [token]}}
       Logger.info("Minted confirmation token for user: #{token.id}")
+
+      user = %{user | actor: actor, local_user: %{local_user | email_confirm_tokens: [token]}}
 
       user
       |> Email.welcome(token)
@@ -267,7 +268,7 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  @spec update_remote(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
+  # @spec update_remote(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
   def update_remote(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
@@ -281,7 +282,7 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  @spec soft_delete(User.t(), User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  # @spec soft_delete(User.t(), User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   # local user
   def soft_delete(deleter, %User{local_user: %LocalUser{}} = user) do
     Repo.transact_with(fn ->
@@ -310,7 +311,7 @@ defmodule MoodleNet.Users do
   end
 
   # remote user, called by activitypub
-  @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  # @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def soft_delete_remote(%User{} = user) do
     Repo.transact_with(fn ->
       with {:ok, user2} <- Common.soft_delete(user),
@@ -380,7 +381,7 @@ defmodule MoodleNet.Users do
     with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, users, [])
   end
 
-  @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  # @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def make_instance_admin(%User{} = user) do
     cs = LocalUser.make_instance_admin_changeset(user.local_user)
 
@@ -392,7 +393,7 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  @spec unmake_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  # @spec unmake_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def unmake_instance_admin(%User{} = user) do
     cs = LocalUser.unmake_instance_admin_changeset(user.local_user)
 

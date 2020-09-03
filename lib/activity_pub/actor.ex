@@ -122,7 +122,7 @@ defmodule ActivityPub.Actor do
     end
   end
 
-  defp fetch_by_ap_id(ap_id) do
+  def fetch_by_ap_id(ap_id) do
     with {:ok, object} <- Fetcher.fetch_object_from_id(ap_id),
          actor <- format_remote_actor(object) do
       Adapter.maybe_create_remote_actor(actor)
@@ -295,8 +295,6 @@ defmodule ActivityPub.Actor do
       case actor do
         %CommonsPub.Character{} ->
           with {:ok, profile} <- CommonsPub.Profile.Profiles.one([:default, id: actor.id]) do
-            # IO.inspect(fed_profile: actor)
-            # IO.inspect(fed_profile: profile)
             Map.merge(actor, profile)
           else
             _ ->

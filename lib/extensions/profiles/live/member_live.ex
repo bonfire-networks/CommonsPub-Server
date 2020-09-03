@@ -104,4 +104,16 @@ defmodule MoodleNetWeb.MemberLive do
       |> push_patch(to: "/@" <> socket.assigns.user.username)
     }
   end
+
+  @doc """
+  Forward PubSub activities in timeline to our timeline component
+  """
+  def handle_info({:pub_feed_activity, activity}, socket),
+    do:
+      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+        activity,
+        MoodleNetWeb.MemberLive.MemberActivitiesLive,
+        :member_timeline,
+        socket
+      )
 end

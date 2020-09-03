@@ -232,19 +232,20 @@ defmodule MoodleNetWeb.Router do
   # if Mix.env() in [:dev, :test] do
   import Phoenix.LiveDashboard.Router
 
-  scope "/admin/" do
+  scope "/admin/", MoodleNetWeb do
     pipe_through :browser
     pipe_through :liveview
     pipe_through :protect_forgery
     pipe_through :ensure_admin
-
+    live "/settings/:tab", AdminLive
+    live "/settings/:tab/:sub", AdminLive
     live_dashboard "/dashboard", metrics: CommonsPub.Utils.Metrics
   end
 
   # end
 
   if Mix.env() != :dev do
-    def handle_errors(conn, %{kind: kind, reason: reason, stack: stack} = info) do
+    def handle_errors(conn, %{kind: _kind, reason: reason, stack: _stack} = _info) do
       msg =
         if Map.has_key?(reason, :message) and !is_nil(reason.message) and
              String.length(reason.message) > 0 do
@@ -254,7 +255,6 @@ defmodule MoodleNetWeb.Router do
                Map.has_key?(reason.term, :message) do
             reason.term.message
           else
-            # IO.inspect(handle_error: info)
             "An unhandled error has occured"
           end
         end

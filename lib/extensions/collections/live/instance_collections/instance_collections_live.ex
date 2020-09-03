@@ -18,14 +18,12 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
     }
   end
 
-  defp fetch(socket, assigns) do
+  def fetch(socket, assigns) do
     {:ok, collections} =
       CollectionsResolver.collections(
         %{limit: 10},
         %{context: %{current_user: assigns.current_user}}
       )
-
-    # IO.inspect(collections: collections)
 
     collections_list =
       Enum.map(
@@ -41,9 +39,8 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
     )
   end
 
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
+  def handle_event("load-more", _, socket),
+    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

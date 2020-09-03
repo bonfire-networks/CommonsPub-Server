@@ -19,38 +19,10 @@ defmodule MoodleNet.Threads do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Thread, filters))}
 
-  @spec create(User.t(), context :: any, map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, context, attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, feed} <- Feeds.create(),
-           attrs = Map.put(attrs, :outbox_id, feed.id),
-           {:ok, thread} <- insert(creator, context, attrs) do
-        # act_attrs = %{verb: "created", is_local: thread.is_local},
-        # {:ok, activity} <- Activities.create(creator, thread, act_attrs),
-        # :ok <- publish(creator, thread, context, :created),
-        # :ok <- ap_publish(creator, thread) do
-        {:ok, thread}
-      end
-    end)
-  end
+  @doc "Create a thread with a first comment. You usually want this rather than creating a thread on its own."
+  def create_with_comment(creator, attrs, context \\ nil)
 
-  @spec create(User.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, feed} <- Feeds.create(),
-           attrs = Map.put(attrs, :outbox_id, feed.id),
-           {:ok, thread} <- insert(creator, attrs) do
-        # act_attrs = %{verb: "created", is_local: thread.is_local},
-        # {:ok, activity} <- Activities.create(creator, thread, act_attrs),
-        # :ok <- publish(creator, thread, context, :created),
-        # :ok <- ap_publish(creator, thread) do
-        {:ok, thread}
-      end
-    end)
-  end
-
-  @doc "Create a thread with a comment and no context"
-  def create_with_comment(creator, attrs) do
+  def create_with_comment(creator, attrs, nil) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- create(creator, attrs) do
         Comments.create(creator, thread, attrs)
@@ -58,8 +30,40 @@ defmodule MoodleNet.Threads do
     end)
   end
 
-  defp insert(creator, context, attrs) do
-    Repo.insert(Thread.create_changeset(creator, context, attrs))
+  def create_with_comment(creator, attrs, context) do
+    Repo.transact_with(fn ->
+      with {:ok, thread} <- create(creator, context, attrs) do
+        Comments.create(creator, thread, attrs)
+      end
+    end)
+  end
+
+  @spec create(User.t(), map, context :: any) :: {:ok, Thread.t()} | {:error, Changeset.t()}
+  def create(creator, attrs, context \\ nil)
+
+  def create(%User{} = creator, attrs, context) when not is_nil(context) do
+    Repo.transact_with(fn ->
+      with {:ok, feed} <- Feeds.create(),
+           attrs = Map.put(attrs, :outbox_id, feed.id),
+           {:ok, thread} <- insert(creator, attrs, context) do
+        {:ok, thread}
+      end
+    end)
+  end
+
+  @spec create(User.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, attrs, _) do
+    Repo.transact_with(fn ->
+      with {:ok, feed} <- Feeds.create(),
+           attrs = Map.put(attrs, :outbox_id, feed.id),
+           {:ok, thread} <- insert(creator, attrs) do
+        {:ok, thread}
+      end
+    end)
+  end
+
+  defp insert(creator, attrs, context) do
+    Repo.insert(Thread.create_changeset(creator, attrs, context))
   end
 
   defp insert(creator, attrs) do
@@ -73,8 +77,6 @@ defmodule MoodleNet.Threads do
   def update(%User{}, %Thread{} = thread, attrs) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- Repo.update(Thread.update_changeset(thread, attrs)) do
-        # :ok <- publish(thread, :updated),
-        # :ok <- ap_publish(thread) do
         {:ok, thread}
       end
     end)

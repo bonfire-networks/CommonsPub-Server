@@ -80,7 +80,6 @@ defmodule CommonsPub.HTML do
     text
     |> Formatter.html_escape("text/plain")
     |> String.replace("&amp;", "&")
-    |> IO.inspect()
     |> Formatter.linkify(options)
     |> (fn {text, mentions, tags} ->
           {String.replace(text, ~r/\r?\n/, "<br>"), mentions, tags}
@@ -91,12 +90,9 @@ defmodule CommonsPub.HTML do
   Formatting text to html.
   """
   def format_input(text, "text/html", options) do
-    IO.inspect("html")
-
     text
     |> Formatter.html_escape("text/html")
     |> String.replace("&amp;", "&")
-    |> IO.inspect()
     |> Formatter.linkify(options)
   end
 
@@ -110,7 +106,6 @@ defmodule CommonsPub.HTML do
     # |> Earmark.as_html()
     # |> elem(1)
     |> String.replace("&amp;", "&")
-    |> IO.inspect()
     |> Formatter.linkify(options ++ [content_type: "text/markdown"])
   end
 

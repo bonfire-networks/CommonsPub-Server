@@ -21,16 +21,12 @@ defmodule MoodleNetWeb.GraphQL.JSON do
   defp decode(_), do: {:error, :bad_input_type}
 
   defp encode(%Geo.Point{} = geo) do
-    # IO.inspect(geo)
-
     with {:ok, geo_json} <- Geo.JSON.encode(geo) do
       geo_json
     end
   end
 
   defp encode(value) when is_struct(value) do
-    # IO.inspect(value)
-    # Map.from_struct(value)
     value
   end
 

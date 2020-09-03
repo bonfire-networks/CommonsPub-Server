@@ -8,14 +8,14 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     UsersResolver
   }
 
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.Comment
-  alias MoodleNet.Users.User
+  # alias MoodleNet.Collections.Collection
+  # alias MoodleNet.Flags.Flag
+  # alias MoodleNet.Follows.Follow
+  # alias MoodleNet.Likes.Like
+  # alias MoodleNet.Communities.Community
+  # alias MoodleNet.Resources.Resource
+  # alias MoodleNet.Threads.Comment
+  # alias MoodleNet.Users.User
 
   object :activities_queries do
     field :activity, :activity do

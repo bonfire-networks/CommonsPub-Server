@@ -2,8 +2,6 @@ defmodule CommonsPub.Profile.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  alias CommonsPub.Profile
-
   defp table_name(), do: CommonsPub.Profile.__schema__(:source)
 
   def migrate(index_opts, :up) do
@@ -21,6 +19,8 @@ defmodule CommonsPub.Profile.Migrations do
       add(:disabled_at, :timestamptz)
       # timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
+
+    flush()
 
     # create_if_not_exists(index(:profile, :updated_at))
     create_if_not_exists(index(table_name(), :creator_id, index_opts))
