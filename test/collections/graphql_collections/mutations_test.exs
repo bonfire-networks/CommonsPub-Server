@@ -14,7 +14,7 @@ defmodule CommonsPub.Web.GraphQL.Collections.MutationsTest do
       comm = fake_community!(alice)
 
       for conn <- conns do
-        ci = Simulation.collection_input()
+        ci = collection_input()
 
         vars = %{
           collection: ci,
@@ -33,7 +33,7 @@ defmodule CommonsPub.Web.GraphQL.Collections.MutationsTest do
     test "does not work for a guest" do
       bob = fake_user!()
       comm = fake_community!(bob)
-      ci = Simulation.collection_input()
+      ci = collection_input()
       q = create_collection_mutation()
       vars = %{collection: ci, community_id: comm.id}
       assert err = grumble_post_errors(q, json_conn(), vars)
@@ -49,7 +49,7 @@ defmodule CommonsPub.Web.GraphQL.Collections.MutationsTest do
       conns = [user_conn(alice), user_conn(lucy)]
 
       for conn <- conns do
-        ci = Simulation.collection_update_input()
+        ci = collection_update_input()
 
         vars = %{
           collection: ci,
@@ -69,7 +69,7 @@ defmodule CommonsPub.Web.GraphQL.Collections.MutationsTest do
       coll = fake_collection!(bob, comm)
 
       for conn <- [user_conn(eve), json_conn()] do
-        ci = Simulation.collection_update_input()
+        ci = collection_update_input()
         vars = %{collection: ci, collection_id: coll.id}
         q = update_collection_mutation()
         grumble_post_errors(q, conn, vars)

@@ -33,6 +33,8 @@ defmodule Organisation do
     # points to the parent thing of this character
     belongs_to(:context, Pointer)
 
+    belongs_to(:creator, User)
+
     # joined fields from Actor:
     field(:preferred_username, :string, virtual: true)
     field(:canonical_url, :string, virtual: true)
@@ -43,24 +45,24 @@ defmodule Organisation do
   @cast ~w(extra_info)a
 
   def create_changeset(
-        %{id: _} = context,
-        attrs
+        creator,
+        attrs,
+        %{id: _} = context
       ) do
     %Organisation{}
-    # |> Changeset.change(
-    #   id: Ecto.ULID.generate()
-    #   )
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(context_id: context.id)
+    |> Changeset.change(creator_id: creator.id)
     |> common_changeset()
   end
 
-  def create_changeset(attrs) do
+  def create_changeset(
+        creator,
+        attrs
+      ) do
     %Organisation{}
-    # |> Changeset.change(
-    #   id: Ecto.ULID.generate()
-    #   )
     |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(creator_id: creator.id)
     |> common_changeset()
   end
 

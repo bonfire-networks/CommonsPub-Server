@@ -124,6 +124,12 @@ defmodule CommonsPub.Collections.Queries do
   def filter(q, {:context, ids}) when is_list(ids),
     do: where(q, [collection: c], c.context_id in ^ids)
 
+  def filter(q, {:community, id}) when is_binary(id),
+    do: where(q, [collection: c], c.context_id == ^id or c.community_id == ^id)
+
+  def filter(q, {:community, ids}) when is_list(ids),
+    do: where(q, [collection: c], c.context_id in ^ids or c.community_id in ^ids)
+
   def filter(q, {:creator, id}) when is_binary(id) do
     where(q, [collection: c], c.creator_id == ^id)
   end

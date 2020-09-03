@@ -13,14 +13,14 @@ defmodule CommonsPub.Web.GraphQL.Communities.MutationsTest do
       q = create_community_mutation()
 
       for conn <- [user_conn(alice), user_conn(lucy)] do
-        ci = Simulation.community_input()
+        ci = community_input()
         comm = grumble_post_key(q, conn, :create_community, %{community: ci})
         assert_community_created(ci, comm)
       end
     end
 
     test "does not work for a guest" do
-      ci = Simulation.community_input()
+      ci = community_input()
       q = create_community_mutation()
       assert err = grumble_post_errors(q, json_conn(), %{community: ci})
     end
@@ -35,7 +35,7 @@ defmodule CommonsPub.Web.GraphQL.Communities.MutationsTest do
       q = update_community_mutation()
 
       for conn <- conns do
-        ci = Simulation.community_update_input()
+        ci = community_update_input()
         vars = %{community: ci, community_id: comm.id}
         comm = grumble_post_key(q, conn, :update_community, vars)
         assert_community_updated(ci, comm)
@@ -47,7 +47,7 @@ defmodule CommonsPub.Web.GraphQL.Communities.MutationsTest do
       comm = fake_community!(alice)
 
       for conn <- [user_conn(bob), json_conn()] do
-        ci = Simulation.community_update_input()
+        ci = community_update_input()
         vars = %{community: ci, community_id: comm.id}
         q = update_community_mutation()
         grumble_post_errors(q, conn, vars)

@@ -101,7 +101,7 @@ defmodule Organisation.Organisations do
       attrs = Map.put(attrs, :facet, @facet_name)
 
       #  {:ok, character} <- Characters.thing_link(organisation, character)
-      with {:ok, organisation} <- insert_organisation(attrs, context),
+      with {:ok, organisation} <- insert_organisation(creator, attrs, context),
            {:ok, attrs} <- attrs_with_organisation(attrs, organisation),
            {:ok, profile} <- Profiles.create(creator, attrs),
            {:ok, character} <- Characters.create(creator, attrs, organisation) do
@@ -116,7 +116,7 @@ defmodule Organisation.Organisations do
       attrs = Map.put(attrs, :facet, @facet_name)
 
       # {:ok, character} <- Characters.thing_link(organisation, character)
-      with {:ok, organisation} <- insert_organisation(attrs),
+      with {:ok, organisation} <- insert_organisation(creator, attrs),
            {:ok, attrs} <- attrs_with_organisation(attrs, organisation),
            {:ok, profile} <- Profiles.create(creator, attrs),
            {:ok, character} <- Characters.create(creator, attrs, organisation) do
@@ -131,15 +131,15 @@ defmodule Organisation.Organisations do
     {:ok, attrs}
   end
 
-  defp insert_organisation(attrs, context) do
-    cs = Organisation.create_changeset(attrs, context)
-    with {:ok, organisation} <- Repo.insert(cs), do: {:ok, IO.inspect(organisation)}
+  defp insert_organisation(creator, attrs, context) do
+    cs = Organisation.create_changeset(creator, attrs, context)
+    with {:ok, organisation} <- Repo.insert(cs), do: {:ok, organisation}
   end
 
-  defp insert_organisation(attrs) do
+  defp insert_organisation(creator, attrs) do
     IO.inspect(attrs)
-    cs = Organisation.create_changeset(attrs)
-    with {:ok, organisation} <- Repo.insert(cs), do: {:ok, IO.inspect(organisation)}
+    cs = Organisation.create_changeset(creator, attrs)
+    with {:ok, organisation} <- Repo.insert(cs), do: {:ok, organisation}
   end
 
   # TODO: take the user who is performing the update
@@ -149,8 +149,9 @@ defmodule Organisation.Organisations do
     Repo.transact_with(fn ->
       with {:ok, organisation} <- Repo.update(Organisation.update_changeset(organisation, attrs)),
            # update linked character too
+           {:ok, profile} <- Profiles.update(user, organisation.profile, attrs),
            {:ok, character} <- Characters.update(user, organisation.character, attrs) do
-        {:ok, %{organisation | character: character}}
+        {:ok, %{organisation | character: character, profile: profile}}
       end
     end)
   end

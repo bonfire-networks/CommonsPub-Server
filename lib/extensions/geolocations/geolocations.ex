@@ -100,8 +100,7 @@ defmodule Geolocation.Geolocations do
            {:ok, character} <- Characters.create(creator, attrs, item),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, context, item, activity, :created),
-           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) do
+           :ok <- publish(creator, context, item, activity, :created) do
         {:ok, populate_result(item, character)}
       end
     end)
@@ -115,8 +114,7 @@ defmodule Geolocation.Geolocations do
            {:ok, character} <- Characters.create(creator, attrs, item),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, item, activity, :created),
-           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) do
+           :ok <- publish(creator, item, activity, :created) do
         {:ok, populate_result(item, character)}
       end
     end)
