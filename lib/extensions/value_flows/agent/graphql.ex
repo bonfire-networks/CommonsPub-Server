@@ -2,10 +2,10 @@
 defmodule ValueFlows.Agent.GraphQL do
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias MoodleNetWeb.GraphQL.{CommonResolver}
 
-  alias CommonsPub.Utils.Simulation
-  alias ValueFlows.Simulate
+  # alias CommonsPub.Utils.Simulation
+  # alias ValueFlows.Simulate
 
   require Logger
 

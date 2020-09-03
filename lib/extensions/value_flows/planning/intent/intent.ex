@@ -1,15 +1,3 @@
-# relations TODO:
-# SpatialThing
-# Action
-# AgentRelationship
-# AgentRelationshipRole
-# ResourceSpecification
-# Proposal
-# ProposedIntent
-# ProposedTo(maybe?)
-# Process
-# ProcessSpecification
-
 defmodule ValueFlows.Planning.Intent do
   use Pointers.Pointable,
     otp_app: :moodle_net,
@@ -20,8 +8,8 @@ defmodule ValueFlows.Planning.Intent do
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
+  # alias MoodleNet.Actors.Actor
+  # alias MoodleNet.Communities.Community
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Planning.Intent
   alias Measurement.Measure

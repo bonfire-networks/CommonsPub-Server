@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Feeds.FeedActivities
@@ -8,7 +8,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias MoodleNet.Meta.Pointers
 
   alias Geolocation.Geolocations
-  alias Measurement.Measure
+  # alias Measurement.Measure
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
   alias ValueFlows.Knowledge.Action
@@ -176,7 +176,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     do_update(intent, attrs, &Intent.update_changeset(&1, attrs))
   end
 
-  def update(%Intent{} = intent, %{id: id} = context, attrs) do
+  def update(%Intent{} = intent, %{id: _id} = context, attrs) do
     do_update(intent, attrs, &Intent.update_changeset(&1, context, attrs))
   end
 
@@ -221,8 +221,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
     image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
 
-    Repo.preload(obj, :creator)
-
     %{
       "index_type" => "Intent",
       "id" => obj.id,
@@ -232,22 +230,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
-      "creator" => format_creator(obj.creator)
+      "creator" => CommonsPub.Search.Indexer.format_creator(obj)
       # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
     }
-  end
-
-  def format_creator(%{id: id} = creator) when not is_nil(id) do
-    %{
-      "id" => creator.id,
-      "name" => creator.name,
-      "username" => MoodleNet.Actors.display_username(creator),
-      "canonical_url" => creator.actor.canonical_url
-    }
-  end
-
-  def format_creator(_) do
-    %{}
   end
 
   defp index(obj) do

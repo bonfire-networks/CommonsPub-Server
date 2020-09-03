@@ -34,6 +34,38 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       assert {:ok, proposal} = Proposals.create(user, proposal())
       assert_proposal(proposal)
     end
+
+    test "can create a proposal with a scope" do
+      user = fake_user!()
+      parent = fake_user!()
+
+      assert {:ok, proposal} = Proposals.create(user, parent, proposal())
+      assert_proposal(proposal)
+      assert proposal.context_id == parent.id
+    end
+  end
+
+  describe "update" do
+    test "can update an existing proposal" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+
+      assert {:ok, updated} = Proposals.update(proposal, proposal())
+      assert_proposal(updated)
+      assert updated.updated_at != proposal.updated_at
+    end
+
+    test "can update an existing proposal with a new context" do
+      user = fake_user!()
+      context = fake_community!(user)
+      proposal = fake_proposal!(user, context)
+
+      new_context = fake_community!(user)
+      assert {:ok, updated} = Proposals.update(proposal, new_context, proposal())
+      assert_proposal(updated)
+      assert updated.updated_at != proposal.updated_at
+      assert updated.context_id == new_context.id
+    end
   end
 
   describe "one_proposed_intent" do
@@ -107,6 +139,56 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposed_intent = fake_proposed_intent!(proposal, intent)
       assert {:ok, proposed_intent} = Proposals.delete_proposed_intent(proposed_intent)
       assert proposed_intent.deleted_at
+    end
+  end
+
+  describe "one_proposed_to" do
+    test "fetches an existing item" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      agent = fake_user!()
+      proposed_to = fake_proposed_to!(agent, proposal)
+
+      assert {:ok, fetched} = Proposals.one_proposed_to([id: proposed_to.id])
+      assert_proposed_to(fetched)
+      assert fetched.id == proposed_to.id
+
+      assert {:ok, fetched} = Proposals.one_proposed_to([proposed_to_id: agent.id])
+      assert_proposed_to(fetched)
+      assert fetched.proposed_to_id == agent.id
+
+      assert {:ok, fetched} = Proposals.one_proposed_to([proposed_id: proposal.id])
+      assert_proposed_to(fetched)
+      assert fetched.proposed_id == proposal.id
+    end
+
+    test "ignores deleted items when using :deleted filter" do
+      user = fake_user!()
+      proposed_to = fake_proposed_to!(fake_user!(), fake_proposal!(user))
+      assert {:ok, proposed_to} = Proposals.delete_proposed_to(proposed_to)
+      assert {:error, %MoodleNet.Common.NotFoundError{}} =
+        Proposals.one_proposed_to([:deleted, id: proposed_to.id])
+    end
+  end
+
+  describe "propose_to" do
+    test "creates a new proposed to thing" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      agent = fake_user!()
+      assert {:ok, proposed_to} = Proposals.propose_to(agent, proposal)
+      assert_proposed_to(proposed_to)
+    end
+  end
+
+  describe "delete_proposed_to" do
+    test "deletes an existing proposed to" do
+      user = fake_user!()
+      proposed_to = fake_proposed_to!(fake_user!(), fake_proposal!(user))
+
+      refute proposed_to.deleted_at
+      assert {:ok, proposed_to} = Proposals.delete_proposed_to(proposed_to)
+      assert proposed_to.deleted_at
     end
   end
 end

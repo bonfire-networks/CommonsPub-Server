@@ -4,7 +4,7 @@ defmodule MoodleNetWeb.MemberLive.MemberAdsLive do
   # import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Component.{
-    DiscussionPreviewLive,
+    # DiscussionPreviewLive,
     AdsPreviewLive
   }
 

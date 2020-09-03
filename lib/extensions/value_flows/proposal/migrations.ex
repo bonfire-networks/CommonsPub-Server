@@ -1,11 +1,14 @@
 defmodule ValueFlows.Proposal.Migrations do
   use Ecto.Migration
-  alias MoodleNet.Repo
-  alias Ecto.ULID
+  # alias MoodleNet.Repo
+  # alias Ecto.ULID
   import Pointers.Migration
 
   defp proposal_table(), do: ValueFlows.Proposal.__schema__(:source)
-  defp proposed_intent_table(), do: ValueFlows.Proposal.ProposedIntent.__schema__(:source)
+  defp proposed_intent_table(),
+    do: ValueFlows.Proposal.ProposedIntent.__schema__(:source)
+  defp proposed_to_table(),
+    do: ValueFlows.Proposal.ProposedTo.__schema__(:source)
 
   def up do
     create_pointable_table(ValueFlows.Proposal) do
@@ -35,12 +38,19 @@ defmodule ValueFlows.Proposal.Migrations do
       # Note: null allowed
       add(:reciprocal, :boolean, null: true)
       add(:deleted_at, :timestamptz)
-      add(:publishes_id, references("vf_intent", on_delete: :delete_all))
-      add(:published_in_id, references(proposal_table(), on_delete: :delete_all))
+      add(:publishes_id, references("vf_intent", on_delete: :delete_all), null: false)
+      add(:published_in_id, references(proposal_table(), on_delete: :delete_all), null: false)
+    end
+
+    create table(proposed_to_table()) do
+      add(:deleted_at, :timestamptz)
+      add(:proposed_to_id, weak_pointer(), null: false)
+      add(:proposed_id, weak_pointer(), null: false)
     end
   end
 
   def down do
+    drop_table(proposed_to_table())
     drop_table(proposed_intent_table())
     drop_pointable_table(ValueFlows.Proposal)
   end

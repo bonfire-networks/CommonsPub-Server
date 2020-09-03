@@ -3,6 +3,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   import MoodleNet.Test.Faking
   import CommonsPub.Utils.Simulation
+  import CommonsPub.Utils.Trendy, only: [some: 2]
 
   import Geolocation.Simulate
   import Geolocation.Test.Faking
@@ -34,6 +35,21 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       q = intent_query()
       conn = user_conn(user)
       assert [%{"status" => 404}] = grumble_post_errors(q, conn, %{id: intent.id})
+    end
+  end
+
+  describe "intent.publishedIn" do
+    test "lists proposed intents for an intent" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      intent = fake_intent!(user)
+
+      some(5, fn -> fake_proposed_intent!(proposal, intent) end)
+
+      q = intent_query(fields: [publishedIn: [:id]])
+      conn = user_conn(user)
+      assert intent = grumble_post_key(q, conn, :intent, %{id: intent.id})
+      assert Enum.count(intent["publishedIn"]) == 5
     end
   end
 

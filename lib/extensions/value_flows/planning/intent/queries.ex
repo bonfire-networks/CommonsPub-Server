@@ -181,6 +181,14 @@ defmodule ValueFlows.Planning.Intent.Queries do
     where(q, [intent: c], c.receiver_id in ^ids)
   end
 
+  def filter(q, {:action_id, ids}) when is_list(ids) do
+    where(q, [intent: c], c.action_id in ^ids)
+  end
+
+  def filter(q, {:action_id, id}) when is_binary(id) do
+    where(q, [intent: c], c.action_id == ^id)
+  end
+
   def filter(q, {:at_location_id, at_location_id}) do
     q
     |> join_to(:geolocation)
@@ -248,6 +256,22 @@ defmodule ValueFlows.Planning.Intent.Queries do
     select(q, [intent: c], {field(c, ^key), count(c.id)})
   end
 
+  def filter(q, {:preload, :provider}) do
+    preload(q, [pointer: p], provider: p)
+  end
+
+  def filter(q, {:preload, :receiver}) do
+    preload(q, [pointer: p], receiver: p)
+  end
+
+  def filter(q, {:preload, :at_location}) do
+    q
+    |> join_to(:geolocation)
+    |> preload(:at_location)
+
+    # preload(q, [geolocation: g], at_location: g)
+  end
+
   # pagination
 
   def filter(q, {:limit, limit}) do
@@ -291,20 +315,4 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
-  def filter(q, {:preload, :provider}) do
-    preload(q, [pointer: p], provider: p)
-  end
-
-  def filter(q, {:preload, :receiver}) do
-    preload(q, [pointer: p], receiver: p)
-  end
-
-  def filter(q, {:preload, :at_location}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:at_location)
-
-    # preload(q, [geolocation: g], at_location: g)
-  end
 end
