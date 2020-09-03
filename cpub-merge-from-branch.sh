@@ -22,7 +22,7 @@ echo "Merging, without commiting yet"
 git merge --no-ff --no-commit ${FROM_BRANCH}
 
 echo "Restoring files which we don't want overwritten (add any core files that should be different in each flavour to the below line in the script)"
-for file in cpub-merge-from-branch.sh README.md config/docker.env config/docker.dev.env /lib/forkable/graphql_schema.ex lib/extensions/value_flows test/value_flows test/support/value_flows priv/repo/migrations/*_vf*
+for file in README.md 
 do
     git reset HEAD ${file}
     git checkout -- ${file}
