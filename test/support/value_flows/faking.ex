@@ -131,6 +131,30 @@ defmodule ValueFlows.Test.Faking do
 
   ## Graphql
 
+  def action_fields(extra \\ []) do
+    extra ++
+      ~w(label input_output pairs_with resource_effect onhand_effect note)a
+  end
+
+  def action_subquery(options \\ []) do
+    gen_subquery(:id, :action, &action_fields/1, options)
+  end
+
+  def actions_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ action_fields(fields)
+    field(:actions, [{:fields, fields} | options])
+  end
+
+  def action_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &action_subquery/1, options)
+  end
+
+  def actions_query(options \\ []) do
+    gen_query(&actions_subquery/1, options)
+  end
+
   def intent_fields(extra \\ []) do
     extra ++
       ~w(id name note has_beginning has_end has_point_in_time due finished)a ++

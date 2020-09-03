@@ -40,6 +40,7 @@ defmodule ValueFlows.Simulate do
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
 
   def action, do: Faker.Util.pick(Actions.actions_list())
+  def actions, do: Actions.actions_list()
 
   def action_id, do: action().id
 
