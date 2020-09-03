@@ -163,7 +163,8 @@ defmodule CommonsPub.Meta.PointersTest do
             :thread
           ])
 
-        comment2 = Map.drop(comment, [:is_hidden, :is_public, :thread])
+        pointed8 = Map.drop(comment, [:is_hidden, :is_public, :thread, :creator])
+        comment2 = Map.drop(comment, [:is_hidden, :is_public, :thread, :creator])
 
         assert pointed8 == comment2
       end)

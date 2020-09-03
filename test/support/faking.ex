@@ -67,7 +67,6 @@ defmodule CommonsPub.Test.Faking do
   def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
     with {:ok, user} <- fake_user(overrides, opts) do
       maybe_confirm_user_email(user, opts)
-      user
     end
   end
 
@@ -76,6 +75,8 @@ defmodule CommonsPub.Test.Faking do
   end
 
   defp maybe_confirm_user_email(user, opts) do
+    # IO.inspect(opts)
+
     if Keyword.get(opts, :confirm_email) do
       {:ok, user} = Users.confirm_email(user)
       user
