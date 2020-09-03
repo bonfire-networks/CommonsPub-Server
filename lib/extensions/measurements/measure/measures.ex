@@ -105,7 +105,7 @@ defmodule Measurement.Measure.Measures do
 
   # defp publish(creator, measure, activity, :created) do # TODO
   #   feeds = [
-  #     community.outbox_id, creator.outbox_id,
+  #     community.outbox_id, CommonsPub.Feeds.outbox_id(creator),
   #     measure.outbox_id, Feeds.instance_outbox_id(),
   #   ]
   #   with :ok <- FeedActivities.publish(activity, feeds) do

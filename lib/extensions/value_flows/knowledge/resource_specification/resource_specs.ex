@@ -120,7 +120,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   defp publish(creator, resource_spec, activity, :created) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -132,7 +132,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   defp publish(creator, context, resource_spec, activity, :created) do
     feeds = [
       context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 

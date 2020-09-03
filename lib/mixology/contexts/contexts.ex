@@ -79,21 +79,38 @@ defmodule CommonsPub.Common.Contexts do
   end
 
   # FIXME: make these config-driven and generic:
+  # TODO: make them support no context or any context
 
-  def context_feeds(%CommonsPub.Resources.Resource{} = resource) do
-    r = Repo.preload(resource, collection: [:community])
-    [r.collection.outbox_id, r.collection.community.outbox_id]
-  end
-
-  def context_feeds(%CommonsPub.Collections.Collection{} = collection) do
-    c = Repo.preload(collection, [:community])
-    [c.outbox_id, c.community.outbox_id]
-  end
-
-  def context_feeds(%CommonsPub.Communities.Community{outbox_id: id}), do: [id]
-
-  def context_feeds(%CommonsPub.Users.User{inbox_id: inbox, outbox_id: outbox}),
+  def context_feeds(%{context: %{character: %{inbox_id: inbox, outbox_id: outbox}}}),
     do: [inbox, outbox]
+
+  def context_feeds(%CommonsPub.Resources.Resource{} = r) do
+    r = Repo.preload(r, collection: [:character, community: :character])
+
+    [
+      CommonsPub.Feeds.outbox_id(r.collection),
+      CommonsPub.Feeds.outbox_id(Map.get(r.collection, :community))
+    ]
+  end
+
+  def context_feeds(%CommonsPub.Collections.Collection{} = c) do
+    c = Repo.preload(c, [:character, community: :character])
+    [CommonsPub.Feeds.outbox_id(c), CommonsPub.Feeds.outbox_id(Map.get(c, :community))]
+  end
+
+  def context_feeds(%CommonsPub.Communities.Community{} = c) do
+    c = Repo.preload(c, :character)
+    [CommonsPub.Feeds.outbox_id(c)]
+  end
+
+  def context_feeds(%CommonsPub.Users.User{} = u) do
+    u = Repo.preload(u, :character)
+    [CommonsPub.Feeds.outbox_id(u), CommonsPub.Feeds.inbox_id(u)]
+  end
+
+  def context_feeds(%{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
+
+  def context_feeds(%{character: %{inbox_id: inbox, outbox_id: outbox}}), do: [inbox, outbox]
 
   def context_feeds(_), do: []
 end

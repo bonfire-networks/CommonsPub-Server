@@ -202,7 +202,7 @@ defmodule CommonsPub.Communities do
   defp publish(creator, community_or_context, community, activity) do
     feeds = [
       community_or_context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       community.outbox_id,
       Feeds.instance_outbox_id()
     ]
@@ -211,7 +211,7 @@ defmodule CommonsPub.Communities do
   end
 
   defp publish(creator, community, activity) do
-    feeds = [community.outbox_id, creator.outbox_id, Feeds.instance_outbox_id()]
+    feeds = [community.outbox_id, CommonsPub.Feeds.outbox_id(creator), Feeds.instance_outbox_id()]
     FeedActivities.publish(activity, feeds)
   end
 

@@ -19,7 +19,7 @@ defmodule CommonsPub.Likes do
     attrs = %{verb: verb, is_local: like.is_local}
 
     with {:ok, activity} <- Activities.create(creator, like, attrs) do
-      FeedActivities.publish(activity, [creator.outbox_id, context_outbox_id])
+      FeedActivities.publish(activity, [CommonsPub.Feeds.outbox_id(creator), context_outbox_id])
     end
   end
 
@@ -27,7 +27,7 @@ defmodule CommonsPub.Likes do
     attrs = %{verb: verb, is_local: like.is_local}
 
     with {:ok, activity} <- Activities.create(creator, like, attrs) do
-      FeedActivities.publish(activity, [creator.outbox_id])
+      FeedActivities.publish(activity, [CommonsPub.Feeds.outbox_id(creator)])
     end
   end
 

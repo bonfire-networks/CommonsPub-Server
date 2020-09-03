@@ -204,7 +204,7 @@ defmodule CommonsPub.Collections do
   defp publish(creator, %{character: %{outbox_id: context_outbox}}, collection, activity) do
     feeds = [
       context_outbox,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       collection.outbox_id,
       Feeds.instance_outbox_id()
     ]
@@ -215,7 +215,7 @@ defmodule CommonsPub.Collections do
   defp publish(creator, %{outbox_id: community_or_context_outbox}, collection, activity) do
     feeds = [
       community_or_context_outbox,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       collection.outbox_id,
       Feeds.instance_outbox_id()
     ]
@@ -229,7 +229,7 @@ defmodule CommonsPub.Collections do
 
   defp publish(creator, collection, activity) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       collection.outbox_id,
       Feeds.instance_outbox_id()
     ]

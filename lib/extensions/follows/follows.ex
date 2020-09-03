@@ -63,7 +63,7 @@ defmodule CommonsPub.Follows do
     attrs = %{verb: "created", is_local: follow.is_local}
 
     with {:ok, activity} <- Activities.create(creator, follow, attrs) do
-      FeedActivities.publish(activity, [creator.outbox_id, followed.outbox_id])
+      FeedActivities.publish(activity, [CommonsPub.Feeds.outbox_id(creator), followed.outbox_id])
     end
   end
 

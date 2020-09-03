@@ -127,7 +127,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   defp publish(creator, intent, activity, :created) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -139,7 +139,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   defp publish(creator, context, intent, activity, :created) do
     feeds = [
       context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 

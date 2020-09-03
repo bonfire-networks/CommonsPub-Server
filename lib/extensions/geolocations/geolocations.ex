@@ -138,7 +138,7 @@ defmodule Geolocation.Geolocations do
   defp publish(creator, context, geolocation, activity, :created) do
     feeds = [
       context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       geolocation.outbox_id,
       Feeds.instance_outbox_id()
     ]
@@ -150,7 +150,7 @@ defmodule Geolocation.Geolocations do
 
   defp publish(creator, geolocation, activity, :created) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       geolocation.outbox_id,
       Feeds.instance_outbox_id()
     ]
