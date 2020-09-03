@@ -123,7 +123,7 @@ defmodule CommonsPub.Access do
   @spec fetch_token_and_user(token :: binary) ::
           {:ok, %Token{}} | {:error, TokenNotFoundError.t()}
   def fetch_token_and_user(token) when is_binary(token) do
-    IO.inspect(fetch_token_and_user: token)
+    # IO.inspect(fetch_token_and_user: token)
 
     case UUID.cast(token) do
       {:ok, token} -> Repo.single(fetch_token_and_user_query(token))
