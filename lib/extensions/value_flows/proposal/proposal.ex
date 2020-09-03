@@ -34,7 +34,7 @@ defmodule ValueFlows.Proposal do
     belongs_to(:eligible_location, Geolocation)
 
     many_to_many(:publishes, Intent, join_through: ProposedIntent)
-    # many_to_many(:proposed_to, Agent, join_through: ProposedTo)
+    many_to_many(:proposed_to, Pointers.Pointer, join_through: ProposedTo)
 
     timestamps(inserted_at: false)
   end
