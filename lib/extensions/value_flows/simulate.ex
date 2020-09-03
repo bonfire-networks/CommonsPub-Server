@@ -8,7 +8,7 @@ defmodule ValueFlows.Simulate do
   import Measurement.Simulate
 
   alias ValueFlows.Planning.Intent.Intents
-  alias ValueFlows.Proposals
+  alias ValueFlows.Proposal.Proposals
   # alias ValueFlows.Proposal.ProposedIntent
   alias ValueFlows.Knowledge.Action.Actions
 

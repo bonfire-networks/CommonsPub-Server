@@ -11,7 +11,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
-  alias ValueFlows.Proposals
+  alias ValueFlows.Proposal.Proposals
 
   describe "one" do
     test "fetches an existing proposal by ID" do

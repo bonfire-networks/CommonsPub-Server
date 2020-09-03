@@ -54,7 +54,7 @@ defmodule CommonsPub.Communities do
 
       # with {:ok, comm_attrs} <- create_boxes(character, attrs),
       with {:ok, comm} <- insert_community(creator, community_or_context, attrs),
-           {:ok, character} <- Characters.create(attrs),
+           {:ok, character} <- Characters.create(creator, attrs, comm),
            #  {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
            act_attrs = %{verb: "created", is_local: is_nil(character.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),

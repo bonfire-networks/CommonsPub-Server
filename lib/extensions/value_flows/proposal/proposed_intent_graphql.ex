@@ -8,7 +8,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     ResolveField
   }
 
-  alias ValueFlows.Proposals
+  alias ValueFlows.Proposal.Proposals
   # alias ValueFlows.Proposal.ProposedIntent
 
   def proposed_intent(%{id: id}, info) do

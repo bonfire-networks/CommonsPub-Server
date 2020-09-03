@@ -2,7 +2,7 @@
 defmodule ValueFlows.Proposal.Queries do
   # alias CommonsPub.Communities
   alias ValueFlows.Proposal
-  # alias ValueFlows.Proposals
+  # alias ValueFlows.Proposal.Proposals
   alias CommonsPub.Follows.Follow
   alias CommonsPub.Users.User
   import CommonsPub.Common.Query, only: [match_admin: 0]

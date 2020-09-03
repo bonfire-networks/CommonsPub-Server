@@ -31,7 +31,7 @@ defmodule ValueFlows.Proposal.GraphQL do
   # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   # alias ValueFlows.Proposal
-  alias ValueFlows.Proposals
+  alias ValueFlows.Proposal.Proposals
   # alias ValueFlows.Proposal.Queries
   # alias CommonsPub.Web.GraphQL.CommonResolver
 

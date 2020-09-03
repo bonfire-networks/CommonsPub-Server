@@ -140,7 +140,7 @@ config :commons_pub, Resources, valid_contexts: contexts_all
 
 config :commons_pub, Units, valid_contexts: contexts_all
 
-config :commons_pub, ValueFlows.Proposals, valid_agent_contexts: contexts_agents
+config :commons_pub, ValueFlows.Proposal.Proposals, valid_agent_contexts: contexts_agents
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 

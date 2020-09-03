@@ -3,7 +3,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
 
   alias CommonsPub.GraphQL
   alias CommonsPub.Meta.Pointers
-  alias ValueFlows.Proposals
+  alias ValueFlows.Proposal.Proposals
 
   def propose_to(%{proposed_to: agent_id, proposed: proposed_id}, info) do
     with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
