@@ -126,7 +126,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
            }
          },
          {:ok, activity} <- ActivityPub.create(params) do
-      Ecto.Changeset.change(community.actor, %{canonical_url: community_object["id"]})
+      Ecto.Changeset.change(community.character, %{canonical_url: community_object["id"]})
       |> Repo.update()
 
       {:ok, activity}
@@ -151,7 +151,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
            }
          },
          {:ok, activity} <- ActivityPub.create(params) do
-      Ecto.Changeset.change(collection.actor, %{canonical_url: collection_object["id"]})
+      Ecto.Changeset.change(collection.character, %{canonical_url: collection_object["id"]})
       |> Repo.update()
 
       {:ok, activity}
@@ -188,22 +188,18 @@ defmodule CommonsPub.ActivityPub.Publisher do
     obj.actor
   end
 
-  def the_actor(%{character: %{actor: _} = character}) do
-    character = Repo.preload(character, :actor)
-    character.actor
-  end
-
   def the_actor(%{character: character}) do
-    character = Repo.preload(character, :actor)
-    character.actor
+    character = Repo.preload(character, :character)
+    character.character
   end
 
   def unfollow(follow) do
-    follow = Repo.preload(follow, creator: :actor, context: [])
+    follow = Repo.preload(follow, creator: :character, context: [])
 
-    with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
+    with {:ok, follower} <-
+           Actor.get_cached_by_username(follow.creator.character.preferred_username),
          followed = Pointers.follow!(follow.context),
-         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
+         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.character.preferred_username) do
       ActivityPub.unfollow(follower, followed)
     else
       e -> {:error, e}
@@ -211,11 +207,12 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   def block(block) do
-    block = Repo.preload(block, creator: :actor, context: [])
+    block = Repo.preload(block, creator: :character, context: [])
 
-    with {:ok, blocker} <- Actor.get_cached_by_username(block.creator.actor.preferred_username),
+    with {:ok, blocker} <-
+           Actor.get_cached_by_username(block.creator.character.preferred_username),
          blocked = Pointers.follow!(block.context),
-         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
+         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.character.preferred_username) do
       # FIXME: insert pointer in AP database, insert cannonical URL in MN database
       ActivityPub.block(blocker, blocked)
     else
@@ -224,11 +221,12 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   def unblock(block) do
-    block = Repo.preload(block, creator: :actor, context: [])
+    block = Repo.preload(block, creator: :character, context: [])
 
-    with {:ok, blocker} <- Actor.get_cached_by_username(block.creator.actor.preferred_username),
+    with {:ok, blocker} <-
+           Actor.get_cached_by_username(block.creator.character.preferred_username),
          blocked = Pointers.follow!(block.context),
-         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
+         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.character.preferred_username) do
       ActivityPub.unblock(blocker, blocked)
     else
       e -> {:error, e}
@@ -236,7 +234,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   def like(like) do
-    like = Repo.preload(like, creator: :actor, context: [])
+    like = Repo.preload(like, creator: :character, context: [])
 
     with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id) do
       liked = Pointers.follow!(like.context)
@@ -248,7 +246,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   def unlike(like) do
-    like = Repo.preload(like, creator: :actor, context: [])
+    like = Repo.preload(like, creator: :character, context: [])
 
     with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id) do
       liked = Pointers.follow!(like.context)
@@ -260,19 +258,19 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   def flag(flag) do
-    flag = Repo.preload(flag, creator: :actor, context: [])
+    flag = Repo.preload(flag, creator: :character, context: [])
 
-    with {:ok, flagger} <- Actor.get_cached_by_username(flag.creator.actor.preferred_username) do
+    with {:ok, flagger} <- Actor.get_cached_by_username(flag.creator.character.preferred_username) do
       flagged = Pointers.follow!(flag.context)
 
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
         case flagged do
           %{actor_id: id} when not is_nil(id) ->
-            flagged = Repo.preload(flagged, :actor)
+            flagged = Repo.preload(flagged, :character)
 
             {:ok, account} =
-              ActivityPub.Actor.get_or_fetch_by_username(flagged.actor.preferred_username)
+              ActivityPub.Actor.get_or_fetch_by_username(flagged.character.preferred_username)
 
             %{
               statuses: nil,
@@ -280,10 +278,12 @@ defmodule CommonsPub.ActivityPub.Publisher do
             }
 
           %{creator_id: id} when not is_nil(id) ->
-            flagged = Repo.preload(flagged, creator: :actor)
+            flagged = Repo.preload(flagged, creator: :character)
 
             {:ok, account} =
-              ActivityPub.Actor.get_or_fetch_by_username(flagged.creator.actor.preferred_username)
+              ActivityPub.Actor.get_or_fetch_by_username(
+                flagged.creator.character.preferred_username
+              )
 
             %{
               statuses: [ActivityPub.Object.get_cached_by_pointer_id(flagged.id)],

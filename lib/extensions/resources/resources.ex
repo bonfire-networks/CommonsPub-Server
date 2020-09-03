@@ -60,7 +60,10 @@ defmodule CommonsPub.Resources do
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, resource} <- insert_resource(creator, attrs),
-           act_attrs = %{verb: "created", is_local: is_nil(Map.get(creator.actor, :peer_id, nil))},
+           act_attrs = %{
+             verb: "created",
+             is_local: is_nil(Map.get(creator.character, :peer_id, nil))
+           },
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, resource, activity),
            :ok <- ap_publish("create", resource) do

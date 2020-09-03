@@ -66,9 +66,8 @@ defmodule CommonsPub.ReleaseTasks do
         stop_repos()
       rescue
         e ->
-          Logger.warn(
-            "Could not run migrations on startup: " <> Map.get(e, :message, "unknown reason")
-          )
+          Logger.warn("Could not run migrations on startup: ")
+          IO.inspect(e)
 
           stop_repos()
           :ok

@@ -317,7 +317,9 @@ defmodule ActivityPub.Actor do
       end
 
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-    id = CommonsPub.Web.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
+
+    id =
+      CommonsPub.Web.base_url() <> ap_base_path <> "/actors/#{actor.character.preferred_username}"
 
     data = %{
       "type" => type,
@@ -326,7 +328,7 @@ defmodule ActivityPub.Actor do
       "outbox" => "#{id}/outbox",
       "followers" => "#{id}/followers",
       "following" => "#{id}/following",
-      "preferredUsername" => actor.actor.preferred_username,
+      "preferredUsername" => actor.character.preferred_username,
       "name" => actor.name,
       "summary" => Map.get(actor, :summary),
       "icon" => maybe_create_image_object(icon_url),
@@ -353,11 +355,11 @@ defmodule ActivityPub.Actor do
     %__MODULE__{
       id: actor.id,
       data: data,
-      keys: actor.actor.signing_key,
+      keys: actor.character.signing_key,
       local: true,
       ap_id: id,
       mn_pointer_id: actor.id,
-      username: actor.actor.preferred_username,
+      username: actor.character.preferred_username,
       deactivated: false
     }
   end

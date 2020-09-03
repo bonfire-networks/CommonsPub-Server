@@ -49,11 +49,11 @@ defmodule ActivityPub.ActivityPubControllerTest do
       resp =
         build_conn()
         |> put_req_header("accept", "application/json")
-        |> get("pub/actors/#{actor.actor.preferred_username}")
+        |> get("pub/actors/#{actor.character.preferred_username}")
         |> json_response(200)
 
       assert resp["@context"]
-      assert resp["preferredUsername"] == actor.actor.preferred_username
+      assert resp["preferredUsername"] == actor.character.preferred_username
       assert resp["url"] == resp["id"]
     end
 

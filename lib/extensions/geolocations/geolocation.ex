@@ -34,8 +34,11 @@ defmodule Geolocation do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    belongs_to(:actor, Character)
+    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
+    # belongs_to(:actor, Character)
+
     belongs_to(:creator, User)
+
     belongs_to(:context, Pointer)
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)

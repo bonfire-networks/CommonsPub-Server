@@ -55,18 +55,19 @@ defmodule CommonsPub.Test.Faking do
   end
 
   def fake_character!(overrides \\ %{}) when is_map(overrides) do
-    user = fake_user!(overrides)
-    # IO.inspect(fake_character_user: user)
-    user.character
+    with {:ok, user} <- fake_user(overrides) do
+      user.character
+    end
+  end
+
+  def fake_user(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
+    Users.register(user(overrides), public_registration: true)
   end
 
   def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    with {:ok, user} <- Users.register(user(overrides), public_registration: true) do
+    with {:ok, user} <- fake_user(overrides, opts) do
       maybe_confirm_user_email(user, opts)
       user
-    else
-      e ->
-        e
     end
   end
 

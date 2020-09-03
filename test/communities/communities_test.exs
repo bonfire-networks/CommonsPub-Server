@@ -28,7 +28,7 @@ defmodule CommonsPub.CommunitiesTest do
       assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
 
       for comm <- fetched do
-        assert comm.actor
+        assert comm.character
         assert comm.follower_count
         refute comm.deleted_at
       end
@@ -40,7 +40,7 @@ defmodule CommonsPub.CommunitiesTest do
       user = fake_user!()
       community = fake_community!(user)
       assert {:ok, community = %Community{}} = Communities.one(id: community.id)
-      assert community.actor
+      assert community.character
       assert community.creator
     end
 
@@ -71,7 +71,7 @@ defmodule CommonsPub.CommunitiesTest do
       assert community.name == attrs.name
       assert community.creator_id == user.id
 
-      assert community.actor.preferred_username ==
+      assert community.character.preferred_username ==
                String.replace(String.replace(attrs.preferred_username, ".", "-"), "_", "-")
 
       assert community.is_public == attrs.is_public

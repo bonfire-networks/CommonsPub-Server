@@ -18,7 +18,7 @@ defmodule Geolocation.GeolocationsTest do
       assert_geolocation(fetched)
       assert {:ok, fetched} = Geolocations.one(user: user)
       assert_geolocation(fetched)
-      assert {:ok, fetched} = Geolocations.one(username: geo.actor.preferred_username)
+      assert {:ok, fetched} = Geolocations.one(username: geo.character.preferred_username)
       assert_geolocation(fetched)
       assert {:ok, fetched} = Geolocations.one(context_id: comm.id)
       assert_geolocation(fetched)

@@ -80,11 +80,11 @@ defmodule CommonsPub.Characters.Character do
     |> cast_url()
     # with peer
     |> Changeset.unique_constraint(:preferred_username,
-      name: "mn_actor_preferred_username_peer_id_index"
+      name: "character_preferred_username_peer_id_index"
     )
     # without peer (local)
     |> Changeset.unique_constraint(:preferred_username,
-      name: "mn_actor_peer_id_null_index"
+      name: "character_peer_id_null_index"
     )
     |> common_changeset()
   end
@@ -111,11 +111,11 @@ defmodule CommonsPub.Characters.Character do
     |> cast_url()
     # with peer
     |> Changeset.unique_constraint(:preferred_username,
-      name: "mn_actor_preferred_username_peer_id_index"
+      name: "character_preferred_username_peer_id_index"
     )
     # without peer (local)
     |> Changeset.unique_constraint(:preferred_username,
-      name: "mn_actor_peer_id_null_index"
+      name: "character_peer_id_null_index"
     )
     |> common_changeset()
   end

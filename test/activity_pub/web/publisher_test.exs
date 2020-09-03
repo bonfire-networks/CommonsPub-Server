@@ -18,7 +18,7 @@ defmodule ActivityPubWeb.PublisherTest do
 
   test "it publishes an activity" do
     note_actor = CommonsPub.Test.Faking.fake_user!()
-    {:ok, note_actor} = Actor.get_by_username(note_actor.actor.preferred_username)
+    {:ok, note_actor} = Actor.get_by_username(note_actor.character.preferred_username)
     recipient_actor = actor()
 
     note =

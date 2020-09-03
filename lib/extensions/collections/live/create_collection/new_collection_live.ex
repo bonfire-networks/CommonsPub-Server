@@ -33,12 +33,12 @@ defmodule CommonsPub.Web.My.NewCollectionLive do
       # TODO: handle errors
       IO.inspect(collection, label: "collection created")
 
-      if(!is_nil(collection) and collection.actor.preferred_username) do
+      if(!is_nil(collection) and collection.character.preferred_username) do
         {:noreply,
          socket
          |> put_flash(:info, "collection created !")
          # change redirect
-         |> push_redirect(to: "/+" <> collection.actor.preferred_username)}
+         |> push_redirect(to: "/+" <> collection.character.preferred_username)}
       else
         {:noreply,
          socket

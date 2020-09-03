@@ -37,11 +37,12 @@ defmodule CommonsPub.Workers.APPublishWorker do
   @impl Worker
   def perform(%{"context_id" => context_id, "op" => "delete"}, _job) do
     object =
-      with {:error, _e} <- CommonsPub.Users.one(join: :actor, preload: :actor, id: context_id),
+      with {:error, _e} <-
+             CommonsPub.Users.one(join: :character, preload: :character, id: context_id),
            {:error, _e} <-
-             CommonsPub.Communities.one(join: :actor, preload: :actor, id: context_id),
+             CommonsPub.Communities.one(join: :character, preload: :character, id: context_id),
            {:error, _e} <-
-             CommonsPub.Collections.one(join: :actor, preload: :actor, id: context_id) do
+             CommonsPub.Collections.one(join: :character, preload: :character, id: context_id) do
         {:error, "not found"}
       end
 
@@ -132,8 +133,8 @@ defmodule CommonsPub.Workers.APPublishWorker do
 
   defp only_local(%Resource{collection_id: collection_id} = context, commit_fn, verb) do
     with {:ok, collection} <- CommonsPub.Collections.one(id: collection_id),
-         {:ok, actor} <- CommonsPub.Characters.one(id: collection.actor_id),
-         true <- is_nil(actor.peer_id) do
+         {:ok, character} <- CommonsPub.Characters.one(id: collection.id),
+         true <- is_nil(character.peer_id) do
       commit_fn.(context, verb)
     else
       _ ->
@@ -145,7 +146,7 @@ defmodule CommonsPub.Workers.APPublishWorker do
     commit_fn.(context, verb)
   end
 
-  defp only_local(%{actor: %{peer_id: nil}} = context, commit_fn, verb) do
+  defp only_local(%{character: %{peer_id: nil}} = context, commit_fn, verb) do
     commit_fn.(context, verb)
   end
 

@@ -110,7 +110,7 @@ defmodule CommonsPub.Tag.Categories do
         index(category)
 
         # post as an activity
-        act_attrs = %{verb: "created", is_local: is_nil(character.actor.peer_id)}
+        act_attrs = %{verb: "created", is_local: is_nil(character.character.peer_id)}
         {:ok, activity} = Activities.create(creator, category, act_attrs)
         Repo.preload(category, :caretaker)
         :ok = publish(creator, category.caretaker, character, activity)

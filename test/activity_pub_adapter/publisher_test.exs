@@ -16,7 +16,10 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
       assert activity.object.mn_pointer_id == comment.id
       assert activity.local == true
       assert activity.object.local == true
-      {:ok, actor} = ActivityPub.Actor.get_by_username(commented_actor.actor.preferred_username)
+
+      {:ok, actor} =
+        ActivityPub.Actor.get_by_username(commented_actor.character.preferred_username)
+
       assert activity.data["context"] == actor.ap_id
     end
 
@@ -92,7 +95,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
       assert activity.data["object"]["type"] == "Group"
       assert activity.data["object"]["id"]
       {:ok, community} = CommonsPub.Communities.one([:default, id: community.id])
-      assert community.actor.canonical_url == activity.data["object"]["id"]
+      assert community.character.canonical_url == activity.data["object"]["id"]
     end
 
     test "it federate a create activity for a collection" do
@@ -104,7 +107,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
       assert activity.data["object"]["type"] == "Group"
       assert activity.data["object"]["id"]
       {:ok, collection} = CommonsPub.Collections.one([:default, id: collection.id])
-      assert collection.actor.canonical_url == activity.data["object"]["id"]
+      assert collection.character.canonical_url == activity.data["object"]["id"]
     end
   end
 

@@ -224,14 +224,14 @@ defmodule ValueFlows.Planning.Intent.Intents do
     %{
       "index_type" => "Intent",
       "id" => obj.id,
-      # "canonicalUrl" => obj.actor.canonical_url,
+      # "canonicalUrl" => obj.canonical_url,
       # "icon" => icon,
       "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
-      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+      # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
     }
   end
 

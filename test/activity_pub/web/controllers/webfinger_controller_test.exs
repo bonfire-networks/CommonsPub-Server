@@ -10,10 +10,12 @@ defmodule ActivityPubWeb.WebFingerControllerTest do
     response =
       build_conn()
       |> put_req_header("accept", "application/jrd+json")
-      |> get("/.well-known/webfinger?resource=acct:#{actor.actor.preferred_username}@localhost")
+      |> get(
+        "/.well-known/webfinger?resource=acct:#{actor.character.preferred_username}@localhost"
+      )
 
     assert json_response(response, 200)["subject"] ==
-             "acct:#{actor.actor.preferred_username}@localhost"
+             "acct:#{actor.character.preferred_username}@localhost"
   end
 
   test "it returns 404 when user isn't found (JSON)" do

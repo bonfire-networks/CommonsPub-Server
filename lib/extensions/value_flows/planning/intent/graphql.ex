@@ -349,7 +349,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
     thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
+    urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
 

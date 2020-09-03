@@ -266,11 +266,15 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     Enum.each(ids, &pubsub_subscribe(&1, socket))
   end
 
-  def pubsub_subscribe(id, socket) do
+  def pubsub_subscribe(id, socket) when not is_nil(id) do
     IO.inspect(pubsubscribed: id)
 
     if Phoenix.LiveView.connected?(socket),
       do: Phoenix.PubSub.subscribe(CommonsPub.PubSub, id)
+  end
+
+  def pubsub_subscribe(_, _) do
+    false
   end
 
   def paginate_next(fetch_function, %{assigns: assigns} = socket) do

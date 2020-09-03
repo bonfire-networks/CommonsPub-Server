@@ -10,7 +10,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       user = fake_user!()
       {:ok, actor} = ActivityPub.Actor.get_by_local_id(user.id)
       assert actor.data["type"] == "Person"
-      assert actor.username == user.actor.preferred_username
+      assert actor.username == user.character.preferred_username
     end
 
     test "communities" do
@@ -18,7 +18,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       community = fake_community!(user)
       {:ok, actor} = ActivityPub.Actor.get_by_local_id(community.id)
       assert actor.data["type"] == "MN:Community"
-      assert actor.username == community.actor.preferred_username
+      assert actor.username == community.character.preferred_username
       assert actor.data["attributedTo"]
     end
 
@@ -28,7 +28,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       collection = fake_collection!(user, community)
       {:ok, actor} = ActivityPub.Actor.get_by_local_id(collection.id)
       assert actor.data["type"] == "MN:Collection"
-      assert actor.username == collection.actor.preferred_username
+      assert actor.username == collection.character.preferred_username
       assert actor.data["attributedTo"]
       assert actor.data["context"]
     end
@@ -37,17 +37,17 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
   describe "fetching local actors by username" do
     test "users" do
       user = fake_user!()
-      {:ok, actor} = ActivityPub.Actor.get_by_username(user.actor.preferred_username)
+      {:ok, actor} = ActivityPub.Actor.get_by_username(user.character.preferred_username)
       assert actor.data["type"] == "Person"
-      assert actor.username == user.actor.preferred_username
+      assert actor.username == user.character.preferred_username
     end
 
     test "communities" do
       user = fake_user!()
       community = fake_community!(user)
-      {:ok, actor} = ActivityPub.Actor.get_by_username(community.actor.preferred_username)
+      {:ok, actor} = ActivityPub.Actor.get_by_username(community.character.preferred_username)
       assert actor.data["type"] == "MN:Community"
-      assert actor.username == community.actor.preferred_username
+      assert actor.username == community.character.preferred_username
       assert actor.data["attributedTo"]
     end
 
@@ -55,9 +55,9 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       user = fake_user!()
       community = fake_community!(user)
       collection = fake_collection!(user, community)
-      {:ok, actor} = ActivityPub.Actor.get_by_username(collection.actor.preferred_username)
+      {:ok, actor} = ActivityPub.Actor.get_by_username(collection.character.preferred_username)
       assert actor.data["type"] == "MN:Collection"
-      assert actor.username == collection.actor.preferred_username
+      assert actor.username == collection.character.preferred_username
       assert actor.data["attributedTo"]
       assert actor.data["context"]
     end
@@ -77,7 +77,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       username = actor.data["preferredUsername"] <> "@" <> host
 
       assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
-      assert created_actor.actor.preferred_username == username
+      assert created_actor.character.preferred_username == username
       created_actor = CommonsPub.Repo.preload(created_actor, icon: [:content_mirror])
 
       assert created_actor.icon.content_mirror.url ==
@@ -91,7 +91,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       data = Map.put(actor.data, "name", "")
 
       assert {:ok, created_actor} = Adapter.create_remote_actor(data, username)
-      assert created_actor.actor.preferred_username == username
+      assert created_actor.character.preferred_username == username
     end
 
     test "pointer insertion into AP table works" do

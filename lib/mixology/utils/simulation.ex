@@ -98,9 +98,12 @@ defmodule CommonsPub.Utils.Simulation do
   def email_user(), do: Zest.Faking.unused(&Faker.Internet.user_name/0, :email_user)
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: Zest.Faking.unused(&url/0, :ap_url_base)
+
+  @doc "Generates a random username"
+  def username(), do: CommonsPub.Characters.sanitise_username(Faker.Internet.user_name())
+
   @doc "Picks a unique preferred_username"
-  def preferred_username(),
-    do: Zest.Faking.unused(&Faker.Internet.user_name/0, :preferred_username)
+  def preferred_username(), do: Zest.Faking.unused(&username/0, :preferred_username)
 
   @doc "Picks a random canonical url and makes it unique"
   def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()

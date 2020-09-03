@@ -51,7 +51,7 @@ defmodule ActivityPub.SignatureTest do
   describe "sign/2" do
     test "works" do
       actor = Faking.fake_user!()
-      {:ok, ap_actor} = ActivityPub.Actor.get_by_username(actor.actor.preferred_username)
+      {:ok, ap_actor} = ActivityPub.Actor.get_by_username(actor.character.preferred_username)
 
       _signature =
         Signature.sign(ap_actor, %{

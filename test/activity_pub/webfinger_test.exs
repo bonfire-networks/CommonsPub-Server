@@ -19,14 +19,16 @@ defmodule ActivityPub.WebFingerTest do
       actor = Faking.fake_user!()
 
       {:ok, result} =
-        WebFinger.webfinger("#{actor.actor.preferred_username}@#{CommonsPub.Web.Endpoint.host()}")
+        WebFinger.webfinger(
+          "#{actor.character.preferred_username}@#{CommonsPub.Web.Endpoint.host()}"
+        )
 
       assert is_map(result)
     end
 
     test "works for ap_ids" do
       actor = Faking.fake_user!()
-      {:ok, ap_actor} = Actor.get_by_username(actor.actor.preferred_username)
+      {:ok, ap_actor} = Actor.get_by_username(actor.character.preferred_username)
 
       {:ok, result} = WebFinger.webfinger(ap_actor.data["id"])
       assert is_map(result)

@@ -7,7 +7,7 @@ defmodule CommonsPub.CharactersTest do
 
   alias CommonsPub.Characters
 
-  alias CommonsPub.Users
+  # alias CommonsPub.Users
 
   alias CommonsPub.Common.NotFoundError
   alias CommonsPub.Utils.Simulation
@@ -78,9 +78,9 @@ defmodule CommonsPub.CharactersTest do
 
     test "returns an error if there are missing required attributes" do
       Repo.transaction(fn ->
-        invalid_attrs = Map.drop(Simulation.user(), [:preferred_username, :name, :email])
+        invalid_attrs = Map.merge(Simulation.user(), %{name: nil})
         assert {:error, changeset} = fake_user!(invalid_attrs)
-        assert Keyword.get(changeset.errors, :preferred_username)
+        assert Keyword.get(changeset.errors, :name)
       end)
     end
 
@@ -88,12 +88,12 @@ defmodule CommonsPub.CharactersTest do
       Repo.transaction(fn ->
         character = fake_character!()
 
-        assert {:error, changeset} =
+        assert {:error, errors} =
                  %{preferred_username: character.preferred_username}
                  |> Simulation.user()
                  |> fake_character!()
 
-        assert Keyword.get(changeset.errors, :preferred_username)
+        assert errors == "Username already taken"
       end)
     end
   end

@@ -68,7 +68,7 @@ defmodule CommonsPub.Search.Meili do
   end
 
   if Mix.env() == :test do
-    def http_error(fail_silently, http_method, _message, _object) do
+    def http_error(_fail_silently, http_method, _message, _object) do
       Logger.info("Meili - Could not #{http_method} objects")
     end
   else

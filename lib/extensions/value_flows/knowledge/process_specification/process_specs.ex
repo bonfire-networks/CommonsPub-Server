@@ -203,14 +203,14 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     %{
       "index_type" => "ProcessSpecification",
       "id" => obj.id,
-      # "canonicalUrl" => obj.actor.canonical_url,
+      # "canonicalUrl" => obj.character.canonical_url,
       # "icon" => icon,
       # "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
-      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+      # "index_instance" => URI.parse(obj.character.canonical_url).host, # home instance of object
     }
   end
 

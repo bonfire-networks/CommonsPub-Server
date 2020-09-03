@@ -94,34 +94,30 @@ defmodule Geolocation.Geolocations do
   @spec create(User.t(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
-    attrs = Map.put(attrs, :preferred_username, Characters.atomise_username(attrs[:name]))
-
     Repo.transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, context, attrs),
-           {:ok, _character} <- Characters.create(creator, attrs, item),
+           {:ok, character} <- Characters.create(creator, attrs, item),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, context, item, activity, :created),
            {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) do
-        {:ok, populate_coordinates(item)}
+        {:ok, populate_result(item, character)}
       end
     end)
   end
 
   @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    # attrs = Map.put(attrs, :preferred_username, Characters.atomise_username(attrs[:name]))
-
     Repo.transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, attrs),
-           {:ok, _character} <- Characters.create(creator, attrs, item),
+           {:ok, character} <- Characters.create(creator, attrs, item),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created),
            {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) do
-        {:ok, populate_coordinates(item)}
+        {:ok, populate_result(item, character)}
       end
     end)
   end
@@ -194,6 +190,10 @@ defmodule Geolocation.Geolocations do
         {:ok, geo}
       end
     end)
+  end
+
+  def populate_result(geo, character) do
+    populate_coordinates(%{geo | character: character})
   end
 
   def populate_coordinates(%Geolocation{geom: geom} = geo) when not is_nil(geom) do

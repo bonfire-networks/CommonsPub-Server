@@ -257,7 +257,7 @@ defmodule ValueFlows.Proposals do
       "note" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
-      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+      # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
     }
   end
 

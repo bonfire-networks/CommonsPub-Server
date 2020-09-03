@@ -95,12 +95,12 @@ defmodule CommonsPub.Web.My.MyHeader do
       # TODO: handle errors
       IO.inspect(community, label: "community created")
 
-      if(!is_nil(community) and community.actor.preferred_username) do
+      if(!is_nil(community) and community.character.preferred_username) do
         {:noreply,
          socket
          |> put_flash(:info, "Community created !")
          # change redirect
-         |> push_redirect(to: "/&" <> community.actor.preferred_username)}
+         |> push_redirect(to: "/&" <> community.character.preferred_username)}
       else
         {:noreply,
          socket

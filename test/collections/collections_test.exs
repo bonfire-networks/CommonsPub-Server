@@ -18,7 +18,7 @@ defmodule CommonsPub.CollectionsTest do
     test "returns a collection by ID", context do
       assert {:ok, coll} = Collections.one(id: context.collection.id)
       assert coll.id == context.collection.id
-      assert coll.actor
+      assert coll.character
       assert coll.creator
     end
 
@@ -52,7 +52,7 @@ defmodule CommonsPub.CollectionsTest do
       assert collection.name == attrs.name
       assert collection.community_id == context.community.id
       assert collection.creator_id == context.user.id
-      assert collection.actor
+      assert collection.character
     end
 
     test "fails if given invalid attributes", context do

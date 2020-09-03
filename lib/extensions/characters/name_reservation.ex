@@ -11,5 +11,8 @@ defmodule CommonsPub.Characters.NameReservation do
 
   def changeset(name) when is_binary(name) do
     Changeset.change(%NameReservation{}, id: name)
+    |> Changeset.unique_constraint(:name,
+      name: "actor_name_reservation_pkey"
+    )
   end
 end

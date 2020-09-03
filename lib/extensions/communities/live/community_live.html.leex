@@ -186,11 +186,11 @@
       <div class="community__navigation">
         <h3 class="block__title">Menu</h3>
         <%= live_patch link_body("Discussions","feather-message-square"),
-          to: "/&" <> @community.actor.preferred_username <>  "/discussions",
+          to: "/&" <> @community.character.preferred_username <>  "/discussions",
           class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
         %>
         <%= live_patch link_body("Collections","feather-folder"),
-          to: "/&" <> @community.actor.preferred_username <>  "/collections",
+          to: "/&" <> @community.character.preferred_username <>  "/collections",
           class: if @selected_tab == "collections", do: "navigation__item active", else: "navigation__item"
         %>
       </div>

@@ -18,7 +18,7 @@ defmodule CommonsPub.Web.GraphQL.UsersTest do
       for conn <- [json_conn(), user_conn(alice)] do
         vars = %{username: Simulation.preferred_username()}
         assert true == grumble_post_key(q, conn, :username_available, vars)
-        vars = %{username: alice.actor.preferred_username}
+        vars = %{username: alice.character.preferred_username}
         assert false == grumble_post_key(q, conn, :username_available, vars)
       end
     end

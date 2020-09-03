@@ -35,7 +35,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
       alice = fake_user!()
 
       reg =
-        Simulation.registration_input(%{"preferredUsername" => alice.actor.preferred_username})
+        Simulation.registration_input(%{"preferredUsername" => alice.character.preferred_username})
 
       assert {:ok, _} = Access.create_register_email(reg["email"])
       q = create_user_mutation()
