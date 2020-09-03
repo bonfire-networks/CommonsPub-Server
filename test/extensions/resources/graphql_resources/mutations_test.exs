@@ -18,7 +18,7 @@ defmodule CommonsPub.Web.GraphQL.Resources.MutationsTest do
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
         vars = %{
           collection_id: coll.id,
-          resource: Simulation.resource_input(),
+          resource: resource_input(),
           content: content_input(),
           icon: %{url: "https://via.placeholder.com/150.png"}
         }
@@ -36,7 +36,7 @@ defmodule CommonsPub.Web.GraphQL.Resources.MutationsTest do
       coll = fake_collection!(alice, comm)
       q = create_resource_mutation()
       conn = json_conn()
-      ri = Simulation.resource_input()
+      ri = resource_input()
       ci = content_input()
       vars = %{collection_id: coll.id, resource: ri, content: ci}
       assert_not_logged_in(grumble_post_errors(q, conn, vars), ["createResource"])
@@ -54,7 +54,7 @@ defmodule CommonsPub.Web.GraphQL.Resources.MutationsTest do
       q = update_resource_mutation()
 
       each([user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)], fn conn ->
-        ri = Simulation.resource_input()
+        ri = resource_input()
         vars = %{resource_id: resource.id, resource: ri, content: content_input()}
         assert_resource(grumble_post_key(q, conn, :update_resource, vars))
       end)
@@ -67,7 +67,7 @@ defmodule CommonsPub.Web.GraphQL.Resources.MutationsTest do
       resource = fake_resource!(alice, coll)
       conn = json_conn()
       q = update_resource_mutation()
-      ri = Simulation.resource_input()
+      ri = resource_input()
       vars = %{resource_id: resource.id, resource: ri}
       assert_not_logged_in(grumble_post_errors(q, conn, vars), ["updateResource"])
     end

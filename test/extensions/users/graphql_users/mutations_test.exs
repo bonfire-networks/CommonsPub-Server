@@ -9,7 +9,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
 
   describe "create_user" do
     test "Works for a guest with good inputs" do
-      reg = Simulation.registration_input()
+      reg = registration_input()
       assert {:ok, _} = Access.create_register_email(reg["email"])
       q = create_user_mutation()
 
@@ -25,7 +25,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
 
     test "Does not work for a logged in user" do
       alice = fake_user!()
-      reg = Simulation.registration_input()
+      reg = registration_input()
       assert {:ok, _} = Access.create_register_email(reg["email"])
       q = create_user_mutation()
       assert_not_permitted(grumble_post_errors(q, user_conn(alice), %{user: reg}), ["createUser"])
@@ -34,8 +34,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
     test "Does not work for a taken preferred username" do
       alice = fake_user!()
 
-      reg =
-        Simulation.registration_input(%{"preferredUsername" => alice.character.preferred_username})
+      reg = registration_input(%{"preferredUsername" => alice.character.preferred_username})
 
       assert {:ok, _} = Access.create_register_email(reg["email"])
       q = create_user_mutation()
@@ -44,7 +43,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
 
     test "Does not work for a taken email" do
       alice = fake_user!()
-      reg = Simulation.registration_input(%{"email" => alice.local_user.email})
+      reg = registration_input(%{"email" => alice.local_user.email})
       assert {:ok, _} = Access.create_register_email(reg["email"])
       q = create_user_mutation()
       grumble_post_errors(q, json_conn(), %{user: reg})
@@ -55,7 +54,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
     test "Works for a logged in user" do
       alice = fake_user!()
       conn = user_conn(alice)
-      profile = Simulation.profile_update_input()
+      profile = profile_update_input()
       q = update_profile_mutation()
       vars = %{profile: profile}
       me = grumble_post_key(q, conn, :update_profile, vars)
@@ -64,7 +63,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
 
     test "Does not work for a guest" do
       q = update_profile_mutation()
-      vars = %{profile: Simulation.profile_update_input()}
+      vars = %{profile: profile_update_input()}
       assert_not_logged_in(grumble_post_errors(q, json_conn(), vars), ["updateProfile"])
     end
   end
@@ -111,7 +110,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
 
     test "Does not work for an invalid email" do
       q = reset_password_request_mutation()
-      vars = %{email: Simulation.email()}
+      vars = %{email: email()}
       assert_not_found(grumble_post_errors(q, json_conn(), vars), ["resetPasswordRequest"])
     end
   end
@@ -168,7 +167,7 @@ defmodule CommonsPub.Web.GraphQL.Users.MutationsTest do
 
     test "Fails with an invalid token" do
       q = confirm_email_mutation()
-      vars = %{token: Simulation.uuid()}
+      vars = %{token: uuid()}
       assert_not_found(grumble_post_errors(q, json_conn(), vars), ["confirmEmail"])
     end
   end

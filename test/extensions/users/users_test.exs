@@ -99,7 +99,8 @@ defmodule CommonsPub.UsersTest do
           |> Simulation.user()
           |> Simulation.character()
 
-        assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
+        assert {:error, "Username already taken"} =
+                 Users.register(attrs, public_registration: true)
       end)
     end
 
