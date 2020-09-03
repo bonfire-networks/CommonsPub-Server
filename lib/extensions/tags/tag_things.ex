@@ -58,7 +58,7 @@ defmodule CommonsPub.Tag.TagThings do
     end
   end
 
-  defp thing_tags_save(%{} = thing, tags) when is_list(tags) do
+  defp thing_tags_save(%{} = thing, tags) when is_list(tags) and length(tags) > 0 do
     Repo.transact_with(fn ->
       # IO.inspect(tags_save: tags)
       # IO.inspect(thing_save: thing)
@@ -66,6 +66,10 @@ defmodule CommonsPub.Tag.TagThings do
       IO.inspect(thing_tags_save: cs)
       with {:ok, thing} <- Repo.update(cs, on_conflict: :nothing), do: {:ok, thing}
     end)
+  end
+
+  defp thing_tags_save(thing, tags) do
+    {:ok, thing}
   end
 
   @doc """

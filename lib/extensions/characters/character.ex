@@ -100,7 +100,6 @@ defmodule CommonsPub.Characters.Character do
       ) do
     %CommonsPub.Characters.Character{}
     |> Changeset.cast(attrs, @create_cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
       # characteristic_id: characteristic_pointer_id(attrs),
@@ -109,6 +108,7 @@ defmodule CommonsPub.Characters.Character do
     )
     |> validate_username()
     |> cast_url()
+    |> Changeset.validate_required(@required)
     # with peer
     |> Changeset.unique_constraint(:preferred_username,
       name: "character_preferred_username_peer_id_index"

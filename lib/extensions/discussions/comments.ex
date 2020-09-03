@@ -111,17 +111,18 @@ defmodule CommonsPub.Threads.Comments do
     end)
   end
 
-  def clean_and_prepare_tags(attrs) do
-    {content, mentions, hashtags} =
-      CommonsPub.HTML.parse_input_and_tags(attrs.content, "text/markdown")
+  def clean_and_prepare_tags(%{content: content} = attrs) when is_binary(content) do
+    {content, mentions, hashtags} = CommonsPub.HTML.parse_input_and_tags(content, "text/markdown")
 
-    IO.inspect(tagging: {content, mentions, hashtags})
+    # IO.inspect(tagging: {content, mentions, hashtags})
 
     attrs
     |> Map.put(:content, content)
     |> Map.put(:mentions, mentions)
     |> Map.put(:hashtags, hashtags)
   end
+
+  def clean_and_prepare_tags(attrs), do: attrs
 
   def save_attached_tags(creator, comment, attrs) do
     with {:ok, _taggable} <-
