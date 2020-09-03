@@ -8,7 +8,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  # alias CommonsPub.Characters.Actor
+  #
   # alias CommonsPub.Communities.Community
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification

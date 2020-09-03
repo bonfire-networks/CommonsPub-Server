@@ -227,12 +227,6 @@ defmodule CommonsPub.Characters do
     with {:ok, character} <- Repo.insert(cs), do: {:ok, character}
   end
 
-  # defp insert_character(creator, actor, attrs) do
-  #   cs = Character.create_changeset(creator, actor, attrs)
-  #   IO.inspect(cs)
-  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{character | character: character}}
-  # end
-
   # defp insert_character_with_characteristic(creator, characteristic, character, attrs) do
   #   cs = CommonsPub.Characters.create_changeset(creator, characteristic, character, nil, attrs)
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | character: character, characteristic: characteristic }}
