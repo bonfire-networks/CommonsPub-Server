@@ -16,7 +16,10 @@ defmodule CommonsPub.Uploads.Storage do
 
   @spec remote_url(file_id()) :: {:ok, binary} | {:error, term}
   def remote_url(file_id) do
+    IO.inspect(file_id: file_id)
+
     with {:ok, url} <- upload_provider() |> Belt.get_url(file_id) do
+      IO.inspect(url: url)
       {:ok, URI.encode(url)}
     end
   end

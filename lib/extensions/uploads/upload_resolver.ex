@@ -39,7 +39,7 @@ defmodule CommonsPub.Web.GraphQL.UploadResolver do
           # FIXME: delete other successful files on failure
           {:halt, {:error, reason}}
 
-        %{} ->
+        _ ->
           {:cont, acc}
       end
     else

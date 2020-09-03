@@ -57,4 +57,4 @@ config :commons_pub, Oban, queues: false
 config :commons_pub, CommonsPub.Uploads,
   directory: File.cwd!() <> "/test_uploads",
   path: "/uploads",
-  uploads_base_url: "http://localhost:4001/uploads/"
+  base_url: "http://localhost:4001/uploads/"

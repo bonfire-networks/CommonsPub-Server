@@ -44,7 +44,7 @@ upload_url = System.get_env("UPLOAD_URL", base_url <> upload_path <> "/")
 config :commons_pub, CommonsPub.Uploads,
   directory: upload_dir,
   path: upload_path,
-  uploads_base_url: upload_url,
+  base_url: upload_url,
   max_file_size: System.get_env("UPLOAD_LIMIT", "20000000")
 
 mail_blackhole = fn var ->

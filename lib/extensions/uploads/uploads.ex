@@ -277,7 +277,7 @@ defmodule CommonsPub.Uploads do
   end
 
   def base_url() do
-    CommonsPub.Config.get(__MODULE__) |> Keyword.fetch!(:uploads_base_url)
+    CommonsPub.Config.get(__MODULE__) |> Keyword.fetch!(:base_url)
   end
 
   def prepend_url(url) do

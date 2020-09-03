@@ -133,6 +133,6 @@ uploads_dir = "/uploads"
 config :commons_pub, CommonsPub.Uploads,
   directory: cwd <> uploads_dir,
   path: uploads_dir,
-  uploads_base_url: base_url <> uploads_dir <> "/"
+  base_url: base_url <> uploads_dir <> "/"
 
 config :commons_pub, CommonsPub.Workers.ActivityWorker, log_level: :warn
