@@ -87,8 +87,8 @@ defmodule CommonsPub.Users do
   `:public_registration` - boolean, default false. if false, accesss will be checked
   """
   def register(attrs, opts) do
-    IO.inspect(register: attrs)
-    IO.inspect(register: opts)
+    # IO.inspect(register: attrs)
+    # IO.inspect(register: opts)
 
     Repo.transact_with(fn ->
       with {:ok, local_user} <- insert_local_user(attrs),
@@ -123,7 +123,7 @@ defmodule CommonsPub.Users do
 
   defp should_check_register_access?(opts) do
     opts = opts ++ CommonsPub.Config.get(__MODULE__, [])
-    IO.inspect(should_check_register_access: Keyword.get(opts, :public_registration, false))
+    # IO.inspect(should_check_register_access: Keyword.get(opts, :public_registration, false))
 
     not Keyword.get(opts, :public_registration, false)
   end
