@@ -39,14 +39,14 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     Proposals.one_proposed_intent([:default, id: id])
   end
 
-  def fetch_proposed_intents(_info, _ids) do
+  # def fetch_proposed_intents(_info, _ids) do
     # FetchFields.run(%FetchFields{
     #   queries: Proposal.ProposedIntentQueries,
     #   query: ProposedIntent,
     #   group_fn: & &1.id,
     #   filters: [:deleted, published_in_id: ids]
     # })
-  end
+  # end
 
   def propose_intent(%{published_in: published_in_id, publishes: publishes_id} = params, info) do
     with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),

@@ -20,6 +20,10 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
     Proposals.one_proposed_to([:default, id: id])
   end
 
+  def published_to_edge(%{id: proposal_id}, _, _info) do
+    Proposals.many_proposed_to([:default, proposed_id: proposal_id])
+  end
+
   def propose_to(%{proposed_to: agent_id, proposed: proposed_id}, info) do
     with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, pointer} <- Pointers.one(id: agent_id),
