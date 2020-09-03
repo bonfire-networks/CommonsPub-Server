@@ -2,7 +2,6 @@ defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
   use CommonsPub.Web, :live_component
   alias CommonsPub.Web.GraphQL.{AccessResolver, UsersResolver}
   alias CommonsPub.Profiles.Web.ProfilesHelper
-  alias CommonsPub.Utils.Web.CommonHelper
   import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
@@ -42,7 +41,7 @@ defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
   def handle_event("invite", params, socket) do
     params = input_to_atoms(params)
 
-    invite =
+    _invite =
       CommonsPub.Web.GraphQL.AdminResolver.send_invite(params, %{
         context: %{current_user: socket.assigns.current_user}
       })
@@ -53,7 +52,7 @@ defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
   end
 
   def handle_event("deactivate-user", %{"id" => id}, socket) do
-    delete =
+    _delete =
       CommonsPub.Web.GraphQL.AdminResolver.deactivate_user(%{id: id}, %{
         context: %{current_user: socket.assigns.current_user}
       })
@@ -64,7 +63,7 @@ defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
   end
 
   def handle_event("delete-invite", %{"id" => id}, socket) do
-    invite =
+    _invite =
       CommonsPub.Web.GraphQL.AccessResolver.delete_register_email_access(%{id: id}, %{
         context: %{current_user: socket.assigns.current_user}
       })
@@ -77,7 +76,7 @@ defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
   def handle_event("add-domain", params, socket) do
     params = input_to_atoms(params)
 
-    add =
+    _add =
       CommonsPub.Web.GraphQL.AccessResolver.create_register_email_domain_access(params, %{
         context: %{current_user: socket.assigns.current_user}
       })
@@ -88,7 +87,7 @@ defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
   end
 
   def handle_event("remove-domain", %{"id" => id}, socket) do
-    invite =
+    _invite =
       CommonsPub.Web.GraphQL.AccessResolver.delete_register_email_domain_access(%{id: id}, %{
         context: %{current_user: socket.assigns.current_user}
       })

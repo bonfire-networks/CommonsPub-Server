@@ -10,7 +10,7 @@ defmodule ValueFlows.Proposal do
   import CommonsPub.Common.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  # alias CommonsPub.Actors.Actor
+  # alias CommonsPub.Characters.Actor
   # alias CommonsPub.Communities.Community
   alias ValueFlows.Proposal
   alias ValueFlows.Planning.Intent

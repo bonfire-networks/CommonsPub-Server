@@ -3,10 +3,6 @@ defmodule CommonsPub.Web.CommunityLive.CommunityMembersPreviewLive do
   alias CommonsPub.Profiles.Web.ProfilesHelper
   import CommonsPub.Utils.Web.CommonHelper
 
-  alias CommonsPub.Web.Component.{
-    UserPreviewLive
-  }
-
   def update(assigns, socket) do
     # IO.inspect(assigns, label: "ASSIGNS:")
     {

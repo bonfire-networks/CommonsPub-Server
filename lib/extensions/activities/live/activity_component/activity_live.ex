@@ -8,7 +8,7 @@ defmodule CommonsPub.Web.Component.ActivityLive do
   # alias CommonsPub.Web.Component.DiscussionPreviewLive
 
   alias CommonsPub.Activities.Web.ActivitiesHelper
-  alias CommonsPub.Discussions.Web.DiscussionsHelper
+  # alias CommonsPub.Discussions.Web.DiscussionsHelper
 
   def update(assigns, socket) do
     activity_id = e(assigns, :activity, :id, random_string(6))

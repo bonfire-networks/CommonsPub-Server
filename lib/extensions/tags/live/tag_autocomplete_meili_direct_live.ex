@@ -4,7 +4,7 @@ defmodule CommonsPub.Web.Component.TagAutocompleteMeiliDirect do
   """
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Utils.Web.CommonHelper
+  # import CommonsPub.Utils.Web.CommonHelper
 
   def mount(socket) do
     {:ok,

@@ -191,10 +191,6 @@ defmodule Organisation.Queries do
     preload(q, [character: c], character: c)
   end
 
-  def filter(q, {:preload, :character}) do
-    preload(q, [character: a], character: a)
-  end
-
   # def filter(q, {:preload, :context}) do
   #   preload q, [character: c, context: cx], c.context: cx
   # end

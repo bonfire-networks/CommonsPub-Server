@@ -8,7 +8,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  # alias CommonsPub.Actors.Actor
+  # alias CommonsPub.Characters.Actor
   # alias CommonsPub.Communities.Community
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
@@ -53,7 +53,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
     belongs_to(:context, Pointers.Pointer)
 
-    belongs_to(:at_location, SpatialThing)
+    belongs_to(:at_location, Geolocation)
 
     belongs_to(:triggered_by, EconomicEvent)
 

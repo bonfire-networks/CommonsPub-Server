@@ -2,7 +2,7 @@ defmodule CommonsPub.Characters.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  defp table_name(), do: CommonsPub.Characters.__schema__(:source)
+  defp table_name(), do: CommonsPub.Characters.Character.__schema__(:source)
 
   # IO.inspect(cs: Character.__schema__(:source))
 

@@ -5,13 +5,13 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   alias CommonsPub.Common.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
-  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Meta.Pointers
 
   # alias Measurement.Measure
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
-  alias ValueFlows.Knowledge.Action
-  alias ValueFlows.Knowledge.Action.Actions
+  # alias ValueFlows.Knowledge.Action
+  # alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]

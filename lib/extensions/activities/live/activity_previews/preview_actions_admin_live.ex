@@ -3,8 +3,7 @@ defmodule CommonsPub.Web.Component.PreviewActionsAdminLive do
 
   import CommonsPub.Utils.Web.CommonHelper
 
-  alias CommonsPub.Web.Component.{FlagLive}
-
+  # alias CommonsPub.Web.Component.{FlagLive}
   # alias CommonsPub.Activities.Web.ActivitiesHelper
 
   def update(assigns, socket) do

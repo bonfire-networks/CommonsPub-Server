@@ -1,6 +1,6 @@
 defmodule Measurement.Simulate do
   import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.Trendy
+  # import CommonsPub.Utils.Trendy
 
   alias Measurement.Unit.Units
   alias Measurement.Measure.Measures

@@ -28,7 +28,9 @@ defmodule CommonsPub.Discussions.Web.DiscussionsHelper do
     )
   end
 
-  def prepare_comment(%CommonsPub.Threads.Comment{} = comment, _current_user \\ nil) do
+  def prepare_comment(comment, _current_user \\ nil)
+
+  def prepare_comment(%CommonsPub.Threads.Comment{} = comment, _current_user) do
     comment = maybe_preload(comment, :creator)
 
     creator = ProfilesHelper.prepare(comment.creator, %{icon: true, character: true})

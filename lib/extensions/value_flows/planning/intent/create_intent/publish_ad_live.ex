@@ -19,6 +19,11 @@ defmodule CommonsPub.Web.My.PublishAdLive do
     publish_ad(data, socket)
   end
 
+  # need to alias some form posting events here to workaround having two events but one target on a form
+  def handle_event("tag_suggest", data, socket) do
+    CommonsPub.Web.Component.TagAutocomplete.tag_suggest(data, socket)
+  end
+
   def publish_ad(data, socket) do
     intent = input_to_atoms(data)
     IO.inspect(intent, label: "intent to create")
@@ -33,10 +38,5 @@ defmodule CommonsPub.Web.My.PublishAdLive do
     {:noreply,
      socket
      |> put_flash(:info, "intent created !")}
-  end
-
-  # need to alias some form posting events here to workaround having two events but one target on a form
-  def handle_event("tag_suggest", data, socket) do
-    CommonsPub.Web.Component.TagAutocomplete.tag_suggest(data, socket)
   end
 end

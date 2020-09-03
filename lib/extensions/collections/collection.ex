@@ -6,7 +6,7 @@ defmodule CommonsPub.Collections.Collection do
 
   alias Ecto.Changeset
   alias CommonsPub.Collections
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
   alias CommonsPub.Communities.Community
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Feeds.Feed

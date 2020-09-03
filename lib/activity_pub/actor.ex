@@ -294,7 +294,7 @@ defmodule ActivityPub.Actor do
     actor =
       case actor do
         %CommonsPub.Characters.Character{} ->
-          with {:ok, profile} <- Profile.Profiles.one([:default, id: actor.id]) do
+          with {:ok, profile} <- CommonsPub.Profiles.one([:default, id: actor.id]) do
             # IO.inspect(fed_profile: actor)
             # IO.inspect(fed_profile: profile)
             Map.merge(actor, profile)

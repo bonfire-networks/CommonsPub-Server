@@ -102,8 +102,8 @@ defmodule CommonsPub.HTML.Formatter do
   end
 
   defp mention_process(_opts, obj, acc, content_type) do
-    obj = CommonsPub.Actors.obj_load_actor(obj)
-    url = CommonsPub.Actors.obj_actor(obj).canonical_url
+    obj = CommonsPub.Characters.obj_load_actor(obj)
+    url = CommonsPub.Characters.obj_actor(obj).canonical_url
     display_name = CommonsPub.Characters.display_username(obj)
 
     link = tag_link(nil, url, display_name, content_type)

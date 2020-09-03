@@ -29,14 +29,14 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   # alias CommonsPub.Resources.Resource
   # alias CommonsPub.Common.Enums
-  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Meta.Pointers
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.EconomicResource.Queries
-  alias ValueFlows.Knowledge.Action.Actions
+  # alias ValueFlows.Knowledge.Action.Actions
   # alias CommonsPub.Web.GraphQL.CommonResolver
   alias CommonsPub.Web.GraphQL.UploadResolver
 
@@ -48,7 +48,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   ## resolvers
 
-  def simulate(%{id: id}, _) do
+  def simulate(%{id: _id}, _) do
     {:ok, ValueFlows.Simulate.economic_resource()}
   end
 

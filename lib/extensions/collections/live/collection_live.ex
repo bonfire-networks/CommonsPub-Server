@@ -55,7 +55,7 @@ defmodule CommonsPub.Web.CollectionLive do
   end
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
-    {:ok, flag} =
+    {:ok, _flag} =
       CommonsPub.Web.GraphQL.FlagsResolver.create_flag(
         %{context_id: socket.assigns.collection.id, message: message},
         %{

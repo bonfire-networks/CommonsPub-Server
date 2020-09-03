@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Test.Faking do
-  import ExUnit.Assertions
+  # import ExUnit.Assertions
 
   import CommonsPub.Web.Test.GraphQLAssertions
   import CommonsPub.Web.Test.GraphQLFields
 
-  import CommonsPub.Utils.Trendy
+  # import CommonsPub.Utils.Trendy
 
-  import ValueFlows.Simulate
-  import Measurement.Test.Faking
+  # import ValueFlows.Simulate
+  # import Measurement.Test.Faking
   import Grumble
 
-  alias CommonsPub.Utils.Simulation
+  # alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intent.Intents
 
@@ -226,7 +226,7 @@ defmodule ValueFlows.Test.Faking do
     |> gen_mutation(&delete_proposal_submutation/1, options)
   end
 
-  def delete_proposal_submutation(options \\ []) do
+  def delete_proposal_submutation(_options \\ []) do
     field(:delete_proposal, args: [id: var(:id)])
   end
 

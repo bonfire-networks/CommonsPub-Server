@@ -62,7 +62,7 @@ defmodule CommonsPub.Users do
   @doc """
   Registers a remote user
   """
-  def register(%{peer_id: peer_id} = attrs, opts) when not is_nil(peer_id) do
+  def register(%{peer_id: peer_id} = attrs, _opts) when not is_nil(peer_id) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.insert(User.register_changeset(attrs)),
            {:ok, character} <- CommonsPub.Characters.create(user, attrs, user) do

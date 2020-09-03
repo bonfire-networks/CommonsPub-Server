@@ -7,7 +7,7 @@ defmodule CommonsPub.Characters.Character do
   import(CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1])
 
   alias Ecto.Changeset
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
   alias CommonsPub.Feeds.Feed
   alias CommonsPub.Users.User
 

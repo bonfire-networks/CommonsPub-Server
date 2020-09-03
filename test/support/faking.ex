@@ -20,7 +20,7 @@ defmodule CommonsPub.Test.Faking do
     Users.User
   }
 
-  alias CommonsPub.Characters
+  # alias CommonsPub.Characters
 
   import CommonsPub.Utils.Trendy
   import CommonsPub.Utils.Simulation

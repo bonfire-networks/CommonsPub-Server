@@ -52,7 +52,7 @@ defmodule CommonsPub.Web.My.ShareLinkLive do
     end
   end
 
-  def handle_event("fetch_link", _, socket) do
+  def handle_event("fetch_link", _, _socket) do
     nil
   end
 

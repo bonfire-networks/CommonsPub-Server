@@ -245,5 +245,5 @@ defmodule ValueFlows.Proposal.Queries do
   #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
   # end
 
-  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+  # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 end

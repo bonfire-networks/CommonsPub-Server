@@ -5,9 +5,9 @@ defmodule CommonsPub.Web.InstanceLive.InstanceActivitiesLive do
     ActivitiesListLive
   }
 
-  alias CommonsPub.Web.GraphQL.{
-    InstanceResolver
-  }
+  # alias CommonsPub.Web.GraphQL.{
+  #   InstanceResolver
+  # }
 
   @doc """
   Handle pushed activities from PubSub

@@ -9,7 +9,7 @@ defmodule CommonsPub.Mixfile do
   def project do
     [
       app: :commons_pub,
-      version: "0.10.0-dev",
+      version: "0.11.1-dev",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],

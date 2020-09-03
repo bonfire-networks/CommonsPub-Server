@@ -7,8 +7,8 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Observation.EconomicResource
-  alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.Process
+  # alias ValueFlows.Observation.EconomicEvent
+  # alias ValueFlows.Observation.Process
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 

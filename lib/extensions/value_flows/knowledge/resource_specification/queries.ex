@@ -2,11 +2,10 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   alias ValueFlows.Knowledge.ResourceSpecification
   # alias ValueFlows.Knowledge.ResourceSpecifications
-  alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
   import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
-  import Geo.PostGIS
+  # import Geo.PostGIS
 
   def query(ResourceSpecification) do
     from(c in ResourceSpecification, as: :resource_spec)
@@ -191,5 +190,5 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
   # end
 
-  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+  # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 end

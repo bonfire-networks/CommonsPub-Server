@@ -13,7 +13,7 @@ defmodule Organisation do
   alias Organisation
   # alias CommonsPub.Characters.Character
   alias Pointers.Pointer
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
 
   @type t :: %__MODULE__{}
 

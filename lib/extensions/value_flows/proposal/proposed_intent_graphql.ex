@@ -5,13 +5,11 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   alias CommonsPub.GraphQL
 
   alias CommonsPub.GraphQL.{
-    ResolveField,
-    ResolveFields,
-    FetchFields
+    ResolveField
   }
 
   alias ValueFlows.Proposals
-  alias ValueFlows.Proposal.ProposedIntent
+  # alias ValueFlows.Proposal.ProposedIntent
 
   def proposed_intent(%{id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -22,7 +20,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
-  def publishes_edge(%{id: proposal_id}, _, info) do
+  def publishes_edge(%{id: proposal_id}, _, _info) do
     # ResolveFields.run(%ResolveFields{
     #   module: __MODULE__,
     #   fetcher: :fetch_proposed_intents,
@@ -33,15 +31,15 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     Proposals.many_proposed_intents([:default, published_in_id: proposal_id])
   end
 
-  def published_in_edge(%{id: intent_id}, _, info) do
+  def published_in_edge(%{id: intent_id}, _, _info) do
     Proposals.many_proposed_intents([:default, publishes_id: intent_id])
   end
 
-  def fetch_proposed_intent(info, id) do
+  def fetch_proposed_intent(_info, id) do
     Proposals.one_proposed_intent([:default, id: id])
   end
 
-  def fetch_proposed_intents(_info, ids) do
+  def fetch_proposed_intents(_info, _ids) do
     # FetchFields.run(%FetchFields{
     #   queries: Proposal.ProposedIntentQueries,
     #   query: ProposedIntent,

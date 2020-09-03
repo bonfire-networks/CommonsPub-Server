@@ -94,7 +94,7 @@ defmodule CommonsPub.Web.DiscussionLive do
           #   socket.assigns.main_comment.id
         end
 
-      {:ok, comment} =
+      {:ok, _comment} =
         CommonsPub.Web.GraphQL.CommentsResolver.create_reply(
           %{
             thread_id: socket.assigns.thread.id,

@@ -3,10 +3,6 @@ defmodule CommonsPub.Web.MemberLive.MemberActivitiesLive do
 
   # import CommonsPub.Utils.Web.CommonHelper
 
-  alias CommonsPub.Web.GraphQL.{
-    UsersResolver
-  }
-
   alias CommonsPub.Web.Component.{
     ActivitiesListLive
   }

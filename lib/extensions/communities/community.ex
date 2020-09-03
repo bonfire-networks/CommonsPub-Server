@@ -10,7 +10,7 @@ defmodule CommonsPub.Communities.Community do
     ]
 
   alias Ecto.Changeset
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
   alias CommonsPub.Communities
   alias CommonsPub.Communities.{Community, CommunityFollowerCount}
   alias CommonsPub.Collections.Collection

@@ -31,9 +31,9 @@
         )
     %>
   <%= cond do %>
-    <%=  Map.get(@activity, :context_type) == "like" -> %>
+    <% Map.get(@activity, :context_type) == "like" -> %>
     <div></div>
-    <%=  Map.get(@activity, :context_type) == "flag" -> %>
+    <% Map.get(@activity, :context_type) == "flag" -> %>
     <%=
       live_component(
           @socket,
@@ -45,7 +45,7 @@
           id: "actions-"<>@preview_id
         )
       %>
-    <%= true -> %>
+    <% true -> %>
     <%=
       live_component(
           @socket,

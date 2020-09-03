@@ -99,7 +99,7 @@ defmodule Geolocation.Geolocations do
     Repo.transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, context, attrs),
-           {:ok, actor} <- Characters.create(creator, attrs, item),
+           {:ok, _character} <- Characters.create(creator, attrs, item),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, context, item, activity, :created),
@@ -116,7 +116,7 @@ defmodule Geolocation.Geolocations do
     Repo.transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, attrs),
-           {:ok, actor} <- Characters.create(creator, attrs, item),
+           {:ok, _character} <- Characters.create(creator, attrs, item),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created),

@@ -206,16 +206,16 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
       ) do
     # Logger.info(session_load: session)
 
-    current_user = Account.current_user(session["auth_token"])
+    current_user = AccountHelper.current_user(session["auth_token"])
 
     communities_follows =
       if(current_user) do
-        Communities.user_communities_follows(current_user, current_user)
+        CommunitiesHelper.user_communities_follows(current_user, current_user)
       end
 
     my_communities =
       if(communities_follows) do
-        Communities.user_communities(current_user, current_user)
+        CommunitiesHelper.user_communities(current_user, current_user)
       end
 
     socket

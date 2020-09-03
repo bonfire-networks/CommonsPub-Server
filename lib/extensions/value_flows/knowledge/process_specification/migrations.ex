@@ -4,7 +4,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Migrations do
   # alias Ecto.ULID
   import Pointers.Migration
 
-  alias ValueFlows.Knowledge.ProcessSpecification
+  # alias ValueFlows.Knowledge.ProcessSpecification
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 

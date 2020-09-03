@@ -99,7 +99,7 @@ defmodule CommonsPub.Profiles do
   end
 
   defp insert_profile(creator, attrs) do
-    cs = CommonsPub.Profiles.create_changeset(creator, attrs)
+    cs = CommonsPub.Profiles.Profile.create_changeset(creator, attrs)
     with {:ok, profile} <- Repo.insert(cs), do: {:ok, profile}
   end
 
@@ -169,7 +169,8 @@ defmodule CommonsPub.Profiles do
 
   def update(_user, %CommonsPub.Profiles.Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, profile} <- Repo.update(CommonsPub.Profiles.update_changeset(profile, attrs)) do
+      with {:ok, profile} <-
+             Repo.update(CommonsPub.Profiles.Profile.update_changeset(profile, attrs)) do
         {:ok, profile}
       end
     end)

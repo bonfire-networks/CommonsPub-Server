@@ -5,9 +5,9 @@ defmodule ValueFlows.Observation.Process.Processes do
   alias CommonsPub.Common.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
-  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Meta.Pointers
 
-  alias Geolocation.Geolocations
+  # alias Geolocation.Geolocations
   # alias Measurement.Measure
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Queries
@@ -85,14 +85,6 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   ## mutations
 
-  # @spec create(User.t(), context, attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %{id: _id} = context, attrs)
-      when is_map(attrs) do
-    do_create(creator, attrs, fn ->
-      Process.create_changeset(creator, context, attrs)
-    end)
-  end
-
   # @spec create(User.t(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
     do_create(creator, attrs, fn ->
@@ -166,10 +158,6 @@ defmodule ValueFlows.Observation.Process.Processes do
   # @spec update(%Process{}, attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
   def update(%Process{} = process, attrs) do
     do_update(process, attrs, &Process.update_changeset(&1, attrs))
-  end
-
-  def update(%Process{} = process, %{id: _id} = context, attrs) do
-    do_update(process, attrs, &Process.update_changeset(&1, context, attrs))
   end
 
   def do_update(process, attrs, changeset_fn) do

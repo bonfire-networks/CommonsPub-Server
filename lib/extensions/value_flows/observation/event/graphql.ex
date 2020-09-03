@@ -29,14 +29,14 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   # alias CommonsPub.Resources.Resource
   # alias CommonsPub.Common.Enums
-  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Meta.Pointers
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
   alias ValueFlows.Observation.EconomicEvent.Queries
-  alias ValueFlows.Knowledge.Action.Actions
+  # alias ValueFlows.Knowledge.Action.Actions
   # alias CommonsPub.Web.GraphQL.CommonResolver
   alias CommonsPub.Web.GraphQL.UploadResolver
 
@@ -48,7 +48,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   ## resolvers
 
-  def simulate(%{id: id}, _) do
+  def simulate(%{id: _id}, _) do
     {:ok, ValueFlows.Simulate.economic_event()}
   end
 

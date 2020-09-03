@@ -18,14 +18,8 @@ defmodule Mix.Tasks.CommonsPub.GenerateDocsets do
 
     DocsetApi.Builder.build("CommonsPub", "docs/exdoc", path)
 
-    configured_deps = Enum.map(CommonsPub.Mixfile.deps_list(), &dep_process(&1, path))
+    _configured_deps = Enum.map(CommonsPub.Mixfile.deps_list(), &dep_process(&1, path))
     # IO.inspect(configured_deps, limit: :infinity)
-  end
-
-  defp dep_process(dep, path) do
-    lib = elem(dep, 0)
-
-    DocsetApi.Builder.build(Atom.to_string(lib), path)
   end
 
   def run(_args),
@@ -37,4 +31,10 @@ defmodule Mix.Tasks.CommonsPub.GenerateDocsets do
 
         #{@usage}
       """)
+
+  defp dep_process(dep, path) do
+    lib = elem(dep, 0)
+
+    DocsetApi.Builder.build(Atom.to_string(lib), path)
+  end
 end

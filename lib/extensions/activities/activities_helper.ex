@@ -121,7 +121,7 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
     prepare_activity(activity, current_user)
   end
 
-  defp prepare_parent_context(%{context: %{thread_id: thread_id} = context} = activity)
+  defp prepare_parent_context(%{context: %{thread_id: thread_id} = _context} = activity)
        when not is_nil(thread_id) do
     activity = maybe_preload(activity, context: [:thread])
 
@@ -319,7 +319,7 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
     }</a>"
   end
 
-  def display_object_context(activity) do
+  def display_object_context(_activity) do
     # IO.inspect(display_object_context: activity)
 
     ""

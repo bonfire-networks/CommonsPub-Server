@@ -18,12 +18,8 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
     ResolveRootPage
   }
 
+  alias CommonsPub.Characters
   alias CommonsPub.Characters.Character
-
-  alias CommonsPub.Characters.{
-    Characters
-    # Queries
-  }
 
   alias CommonsPub.Resources.Resource
   # alias CommonsPub.Common.Enums

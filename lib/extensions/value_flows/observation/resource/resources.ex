@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
+  alias __MODULE__
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
   alias CommonsPub.Common.Contexts
@@ -9,9 +10,12 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   alias Geolocation.Geolocations
   # alias Measurement.Measure
+  alias Measurement.Unit.Units
+  alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
+  alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.Queries
-  alias ValueFlows.Knowledge.Action
+  # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
@@ -220,7 +224,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp change_current_location(changeset, _attrs), do: changeset
 
   defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
-    with {:ok, item} <- ResourceSpecification.one([:default, id: id]) do
+    with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
       EconomicResource.change_conforms_to_resource_spec(changeset, item)
     end
   end

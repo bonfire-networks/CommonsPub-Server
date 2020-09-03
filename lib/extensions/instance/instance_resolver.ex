@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Web.GraphQL.InstanceResolver do
   alias CommonsPub.{
-    Activities,
+    # Activities,
     Features,
     # GraphQL,
     Instance,

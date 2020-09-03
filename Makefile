@@ -84,6 +84,9 @@ dev-build: init dev-pull ## Build the dev image
 dev-rebuild: init ## Rebuild the dev image (without cache)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build --no-cache
 
+dev-recompile: init ## Recompile the dev codebase (without cache)
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix compile --force
+
 licenses: init
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix licenses
 	mv -f DEPENDENCIES.md docs/

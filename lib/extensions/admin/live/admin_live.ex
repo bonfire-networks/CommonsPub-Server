@@ -2,18 +2,13 @@ defmodule CommonsPub.Web.AdminLive do
   use CommonsPub.Web, :live_view
 
   import CommonsPub.Utils.Web.CommonHelper
-  alias CommonsPub.Web.GraphQL.{UsersResolver, AccessResolver}
 
   alias CommonsPub.Web.AdminLive.{
     AdminNavigationLive,
     AdminInstanceLive,
     AdminAccessLive,
-    AdminFlagsLive,
-    AdminInvitesLive
-  }
-
-  alias CommonsPub.Web.Component.{
-    TabNotFoundLive
+    AdminFlagsLive
+    # AdminInvitesLive
   }
 
   def mount(params, session, socket) do
@@ -32,7 +27,7 @@ defmodule CommonsPub.Web.AdminLive do
      )}
   end
 
-  def handle_params(%{"sub" => sub, "tab" => tab} = params, _url, socket) do
+  def handle_params(%{"sub" => sub, "tab" => _tab} = _params, _url, socket) do
     IO.inspect(sub, label: "sub")
 
     {:noreply,
@@ -52,7 +47,7 @@ defmodule CommonsPub.Web.AdminLive do
      )}
   end
 
-  def handle_params(%{} = params, _url, socket) do
+  def handle_params(%{} = _params, _url, socket) do
     {:noreply,
      assign(socket,
        current_user: socket.assigns.current_user

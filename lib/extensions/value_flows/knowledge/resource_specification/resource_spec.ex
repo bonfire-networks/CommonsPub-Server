@@ -8,9 +8,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  # alias CommonsPub.Actors.Actor
+  # alias CommonsPub.Characters.Actor
   # alias CommonsPub.Communities.Community
-  alias ValueFlows.Knowledge.Action
+  # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
   alias Measurement.Unit
 

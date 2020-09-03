@@ -2,9 +2,6 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   use Absinthe.Schema.Notation
 
-  # default to 100 km radius
-  @radius_default_distance 100_000
-
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
@@ -36,7 +33,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
-  alias ValueFlows.Knowledge.Action.Actions
+  # alias ValueFlows.Knowledge.Action.Actions
   # alias CommonsPub.Web.GraphQL.CommonResolver
   alias CommonsPub.Web.GraphQL.UploadResolver
 
@@ -48,7 +45,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
   ## resolvers
 
-  def simulate(%{id: id}, _) do
+  def simulate(%{id: _id}, _) do
     {:ok, ValueFlows.Simulate.process_spec()}
   end
 

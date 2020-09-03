@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Characters.Queries do
   # alias CommonsPub.Users
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
   alias CommonsPub.Follows.{Follow, FollowerCount}
   alias CommonsPub.Users.User
   import CommonsPub.Common.Query, only: [match_admin: 0]

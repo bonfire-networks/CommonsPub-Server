@@ -3,7 +3,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   alias CommonsPub.{Collections, Communities, Common, Repo, Resources, Threads, Users}
   alias CommonsPub.ActivityPub.Utils
 
-  alias CommonsPub.Characters
+  # alias CommonsPub.Characters
 
   alias CommonsPub.Search.Indexer
 

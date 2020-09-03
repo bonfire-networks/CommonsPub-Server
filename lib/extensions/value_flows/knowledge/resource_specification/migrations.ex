@@ -4,9 +4,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Migrations do
   # alias Ecto.ULID
   import Pointers.Migration
 
-  alias ValueFlows.Knowledge.ResourceSpecification
-  alias ValueFlows.Observation.EconomicResource
-  alias ValueFlows.Observation.EconomicEvent
+  # alias ValueFlows.Knowledge.ResourceSpecification
+  # alias ValueFlows.Observation.EconomicResource
+  # alias ValueFlows.Observation.EconomicEvent
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 

@@ -18,14 +18,6 @@ defmodule CommonsPub.Characters.GraphQL.Schema do
     ResourcesResolver
   }
 
-  alias CommonsPub.{
-    Communities.Community,
-    Collections.Collection,
-    Resources.Resource,
-    Threads.Thread,
-    Threads.Comment
-  }
-
   # alias CommonsPub.Characters.GraphQL.Resolver
 
   object :character_queries do

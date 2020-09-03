@@ -16,7 +16,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
     end
   end
 
-  def delete_proposed_to(params, info) do
+  def delete_proposed_to(_params, _info) do
   end
 
   def validate_context(pointer) do

@@ -3,11 +3,11 @@ defmodule CommonsPub.Characters do
   alias CommonsPub.GraphQL.{Fields, Page}
   alias CommonsPub.Common.Contexts
 
-  alias CommonsPub.{Activities, Characters, Common, Feeds, Follows, Repo}
-  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.{Common, Feeds, Follows, Repo}
+  # alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
 
-  alias CommonsPub.Workers.APPublishWorker
+  # alias CommonsPub.Workers.APPublishWorker
 
   alias CommonsPub.Characters.NameReservation
 
@@ -17,8 +17,8 @@ defmodule CommonsPub.Characters do
   alias CommonsPub.Characters.Character
   alias CommonsPub.Characters.Queries
 
-  @replacement_regex ~r/[^a-zA-Z0-9-]/
-  @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
+  # @replacement_regex ~r/[^a-zA-Z0-9-]/
+  # @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
 
   @doc "true if the provided preferred_username is available to register"
   @spec is_username_available?(username :: binary) :: boolean()
@@ -174,10 +174,9 @@ defmodule CommonsPub.Characters do
     nil
   end
 
-  @doc """
-  creates a new character from the given attrs with an automatically generated username
-  """
-
+  # @doc """
+  # creates a new character from the given attrs with an automatically generated username
+  # """
   # @spec auto_create(attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
   # def auto_create(attrs) when is_map(attrs) do
   #   attrs
@@ -384,12 +383,12 @@ defmodule CommonsPub.Characters do
     display_username(obj, full_hostname, "@")
   end
 
-  def display_username(%{"preferred_username" => uname}, full_hostname, prefix)
+  def display_username(%{"preferred_username" => uname}, _full_hostname, prefix)
       when not is_nil(uname) do
     "#{prefix}#{uname}"
   end
 
-  def display_username(%{preferred_username: uname}, full_hostname, prefix)
+  def display_username(%{preferred_username: uname}, _full_hostname, prefix)
       when not is_nil(uname) do
     "#{prefix}#{uname}"
   end
@@ -427,7 +426,7 @@ defmodule CommonsPub.Characters do
 
   def display_username(
         %{character: %{preferred_username: uname}},
-        full_hostname,
+        _full_hostname,
         prefix
       )
       when not is_nil(uname) do
@@ -448,11 +447,11 @@ defmodule CommonsPub.Characters do
   #   Repo.preload(obj, :actor)
   # end
 
-  def obj_load_actor(%{character: character} = obj) do
+  def obj_load_actor(%{character: _character} = obj) do
     CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character)
   end
 
-  def obj_actor(%{character: character} = obj) do
+  def obj_actor(%{character: _character} = obj) do
     obj_load_actor(obj).character
   end
 end

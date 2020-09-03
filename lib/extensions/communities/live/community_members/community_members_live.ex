@@ -29,7 +29,7 @@ defmodule CommonsPub.Web.CommunityLive.CommunityMembersLive do
     followings =
       Enum.map(
         follows.edges,
-        &Profiles.fetch_users_from_creator(&1)
+        &ProfilesHelper.fetch_users_from_creator(&1)
       )
 
     # IO.inspect(followings, label: "User COMMUNITY:")

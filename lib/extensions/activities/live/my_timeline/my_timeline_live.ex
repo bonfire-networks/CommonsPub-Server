@@ -5,10 +5,6 @@ defmodule CommonsPub.Web.My.TimelineLive do
     ActivitiesListLive
   }
 
-  alias CommonsPub.Web.GraphQL.{
-    UsersResolver
-  }
-
   # def mount(socket) do
   #   {
   #     :ok,

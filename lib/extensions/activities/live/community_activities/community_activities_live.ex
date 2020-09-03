@@ -5,9 +5,9 @@ defmodule CommonsPub.Web.CommunityLive.CommunityActivitiesLive do
     ActivitiesListLive
   }
 
-  alias CommonsPub.Web.GraphQL.{
-    CommunitiesResolver
-  }
+  # alias CommonsPub.Web.GraphQL.{
+  #   CommunitiesResolver
+  # }
 
   # def mount(socket) do
   #   {

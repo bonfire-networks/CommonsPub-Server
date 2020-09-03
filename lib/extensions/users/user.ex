@@ -9,7 +9,7 @@ defmodule CommonsPub.Users.User do
     only: [change_synced_timestamp: 3, change_public: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
   alias CommonsPub.Feeds.Feed
   alias CommonsPub.Uploads.Content
   alias CommonsPub.Users

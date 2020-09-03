@@ -213,7 +213,7 @@ defmodule CommonsPub.Threads.Comments do
     FeedActivities.publish(activity, feeds)
   end
 
-  defp publish(creator, thread, _comment, activity, context_id) do
+  defp publish(creator, thread, _comment, activity, _context_id) do
     feeds =
       CommonsPub.Common.Contexts.context_feeds(thread.context.pointed) ++
         [

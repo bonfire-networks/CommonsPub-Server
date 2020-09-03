@@ -5,10 +5,6 @@ defmodule CommonsPub.Web.CollectionLive.CollectionActivitiesLive do
     ActivitiesListLive
   }
 
-  alias CommonsPub.Web.GraphQL.{
-    CollectionsResolver
-  }
-
   # def mount(socket) do
   #   {
   #     :ok,

@@ -288,7 +288,7 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
 
   def user_inbox_feeds(user, inbox_id) do
     with {:ok, subs} <- Users.feed_subscriptions(user) do
-      ids = [inbox_id | Enum.map(subs, & &1.feed_id)]
+      [inbox_id | Enum.map(subs, & &1.feed_id)]
     else
       _e ->
         [inbox_id]

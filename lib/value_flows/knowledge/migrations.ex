@@ -1,7 +1,5 @@
 defmodule ValueFlows.Knowledge.Migrations do
   use Ecto.Migration
-  alias CommonsPub.Repo
-  alias Ecto.ULID
 
   def change_action do
     create table(:vf_action) do

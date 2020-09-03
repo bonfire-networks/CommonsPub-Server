@@ -4,8 +4,8 @@ defmodule CommonsPub.Web.InstanceLive do
   import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Web.InstanceLive.{
-    InstanceActivitiesLive,
-    InstanceMembersLive,
+    # InstanceActivitiesLive,
+    # InstanceMembersLive,
     InstanceMembersPreviewLive,
     InstanceCommunitiesLive,
     InstanceCollectionsLive,

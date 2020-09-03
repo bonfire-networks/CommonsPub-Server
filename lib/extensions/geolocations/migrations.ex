@@ -20,7 +20,7 @@ defmodule Geolocation.Migrations do
 
       add(
         :actor_id,
-        references(CommonsPub.Characters.__schema__(:source), on_delete: :delete_all)
+        references(CommonsPub.Characters.Character.__schema__(:source), on_delete: :delete_all)
       )
 
       # add :community_id, references("mn_community", on_delete: :delete_all) # replaced with context

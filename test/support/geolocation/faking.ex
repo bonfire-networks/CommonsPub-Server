@@ -2,8 +2,8 @@
 defmodule Geolocation.Test.Faking do
   @moduledoc false
 
-  import CommonsPub.Utils.Simulation
-  import Geolocation.Simulate
+  # import CommonsPub.Utils.Simulation
+  # import Geolocation.Simulate
 
   import Grumble
   import CommonsPub.Web.Test.GraphQLFields
