@@ -7,27 +7,27 @@ defmodule CommonsPub.Feeds do
   def instance_outbox_id(), do: "10CA11NSTANCE00TB0XFEED1D0"
   def instance_inbox_id(), do: "10CA11NSTANCE1NB0XFEED1D00"
 
-  def outbox_id(%{outbox_id: id}) do
+  def outbox_id(%{outbox_id: id}) when not is_nil(id) do
     id
   end
 
-  def outbox_id(%{character: %{outbox_id: id}}) do
+  def outbox_id(%{character: %{outbox_id: id}}) when not is_nil(id) do
     id
   end
 
-  def outbox_id(%{character_id: character_id} = obj) when not is_nil(character_id) do
+  def outbox_id(%{character: _} = obj) do
     outbox_id(Repo.preload(obj, :character))
   end
 
-  def inbox_id(%{inbox_id: id}) do
+  def inbox_id(%{inbox_id: id}) when not is_nil(id) do
     id
   end
 
-  def inbox_id(%{character: %{inbox_id: id}}) do
+  def inbox_id(%{character: %{inbox_id: id}}) when not is_nil(id) do
     id
   end
 
-  def inbox_id(%{character_id: character_id} = obj) when not is_nil(character_id) do
+  def inbox_id(%{character: _} = obj) do
     inbox_id(Repo.preload(obj, :character))
   end
 
