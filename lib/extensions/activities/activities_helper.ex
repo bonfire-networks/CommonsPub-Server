@@ -47,7 +47,7 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
     outbox_live(feed_id, feed_tables, assigns, socket)
   end
 
-  def outbox_live(feed_id, feed_tables, assigns, socket) do
+  def outbox_live(feed_id, feed_tables, assigns, socket) when is_binary(feed_id) do
     {:ok, box} =
       CommonsPub.Web.GraphQL.ActivitiesResolver.fetch_outbox_edge(
         feed_id,
@@ -63,6 +63,10 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
     activities_live_output(box, feed_id, feed_tables, assigns, socket)
   end
 
+  def outbox_live(_feed_id_missing, feed_tables, assigns, socket) do
+    activities_live_output(nil, nil, feed_tables, assigns, socket)
+  end
+
   def activities_live_output(box, feed_id, feed_tables, assigns, socket) do
     activities =
       if is_map(box) and length(box.edges) do
@@ -75,9 +79,9 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
       activities: activities,
       feed_id: feed_id,
       feed_tables: feed_tables,
-      has_next_page: box.page_info.has_next_page,
-      after: box.page_info.end_cursor,
-      before: box.page_info.start_cursor,
+      has_next_page: e(box, :page_info, :has_next_page, nil),
+      after: e(box, :page_info, :end_cursor, nil),
+      before: e(box, :page_info, :start_cursor, nil),
       current_user: assigns.current_user
     )
   end
