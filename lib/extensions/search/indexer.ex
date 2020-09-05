@@ -14,6 +14,10 @@ defmodule CommonsPub.Search.Indexer do
     end
   end
 
+  def maybe_indexable_object(nil) do
+    nil
+  end
+
   def maybe_indexable_object(%{} = object) do
     indexable_object = indexing_object_format(object)
 
@@ -33,12 +37,15 @@ defmodule CommonsPub.Search.Indexer do
           indexable_object = apply(thing_context_module, :indexing_object_format, [object])
           indexable_object
         else
-          Logger.info(
+          Logger.warn(
             "Could not index #{thing_name} object (no context module with indexing_object_format/1)"
           )
+
+          nil
         end
       else
-        Logger.info("Could not index #{thing_name} object (no known context module)")
+        Logger.warn("Could not index #{thing_name} object (no known context module)")
+        nil
       end
     end
   end
@@ -102,7 +109,7 @@ defmodule CommonsPub.Search.Indexer do
     CommonsPub.Search.Meili.post(
       facets,
       index_name <> "/settings/attributes-for-faceting",
-      true
+      false
     )
   end
 
@@ -191,7 +198,7 @@ defmodule CommonsPub.Search.Indexer do
       "index_type" => "Community",
       "index_instance" => host(url),
       "published_at" => community.published_at,
-      "context" => indexing_object_format(context)
+      "context" => maybe_indexable_object(context)
     }
   end
 
@@ -221,48 +228,7 @@ defmodule CommonsPub.Search.Indexer do
       "index_type" => "Collection",
       "index_instance" => host(url),
       "published_at" => collection.published_at,
-      "context" => indexing_object_format(context)
-    }
-  end
-
-  def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
-    resource = CommonHelper.maybe_preload(resource, :context)
-    context = CommonHelper.maybe_preload(resource.context, :character)
-
-    resource = CommonHelper.maybe_preload(resource, :content)
-
-    likes_count =
-      case CommonsPub.Likes.LikerCounts.one(context: resource.id) do
-        {:ok, struct} -> struct.count
-        {:error, _} -> nil
-      end
-
-    icon = CommonsPub.Uploads.remote_url_from_id(resource.icon_id)
-    resource_url = CommonsPub.Uploads.remote_url_from_id(resource.content_id)
-
-    canonical_url = CommonsPub.ActivityPub.Utils.get_object_canonical_url(resource)
-
-    %{
-      "id" => resource.id,
-      "name" => resource.name,
-      "canonical_url" => canonical_url,
-      "created_at" => resource.published_at,
-      "icon" => icon,
-      "licence" => Map.get(resource, :license),
-      "likes" => %{
-        "total_count" => likes_count
-      },
-      "summary" => Map.get(resource, :summary),
-      "updated_at" => resource.updated_at,
-      "index_type" => "Resource",
-      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url),
-      "url" => resource_url,
-      "author" => Map.get(resource, :author),
-      "media_type" => resource.content.media_type,
-      "subject" => Map.get(resource, :subject),
-      "level" => Map.get(resource, :level),
-      "language" => Map.get(resource, :language),
-      "context" => indexing_object_format(context)
+      "context" => maybe_indexable_object(context)
     }
   end
 

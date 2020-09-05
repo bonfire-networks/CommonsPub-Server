@@ -21,6 +21,14 @@ defmodule CommonsPub.Tag.Taggables do
 
   def one(filters), do: Repo.single(Queries.query(Taggable, filters))
 
+  def get(id) do
+    if CommonsPub.Common.is_ulid(id) do
+      one(id: id)
+    else
+      one(username: id)
+    end
+  end
+
   # def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Taggable, filters))}
 
   def prefix("Community") do
@@ -53,7 +61,7 @@ defmodule CommonsPub.Tag.Taggables do
     if CommonsPub.Utils.Web.CommonHelper.is_numeric(pointer_id) do
       maybe_make_taggable(user, String.to_integer(pointer_id), attrs)
     else
-      with {:ok, taggable} <- one(id: pointer_id) do
+      with {:ok, taggable} <- get(pointer_id) do
         {:ok, taggable}
       else
         _e ->

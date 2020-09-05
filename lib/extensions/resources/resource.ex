@@ -35,6 +35,24 @@ defmodule CommonsPub.Resources.Resource do
     field(:language, :string)
     field(:type, :string)
 
+    # @desc "The file type"
+    field(:mime_type, :string)
+
+    # @desc "The type of content that may be embeded"
+    field(:embed_type, :string)
+
+    # @desc "The HTML code of content that may be embeded"
+    field(:embed_code, :string)
+
+    # @desc "Can you use this without needing an account somewhere?"
+    field(:public_access, :boolean)
+
+    # @desc "Can you use it without paying?"
+    field(:free_access, :boolean)
+
+    # @desc "How can you access it? see https://www.w3.org/wiki/WebSchemas/Accessibility"
+    field(:accessibility_feature, {:array, :string})
+
     field(:extra_info, :map)
 
     field(:is_public, :boolean, virtual: true)
@@ -43,12 +61,19 @@ defmodule CommonsPub.Resources.Resource do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
+    many_to_many(:tags, CommonsPub.Tag.Taggable,
+      join_through: "tags_things",
+      unique: true,
+      join_keys: [pointer_id: :id, tag_id: :id],
+      on_replace: :delete
+    )
+
     timestamps()
   end
 
   @required ~w(name content_id creator_id)a
   @cast @required ++
-          ~w(canonical_url is_public is_disabled license summary icon_id author subject level language type)a
+          ~w(canonical_url is_public is_disabled license summary icon_id extra_info author subject level language type mime_type embed_type embed_code public_access free_access accessibility_feature)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
   def create_changeset(creator, %Collection{} = collection, attrs) do

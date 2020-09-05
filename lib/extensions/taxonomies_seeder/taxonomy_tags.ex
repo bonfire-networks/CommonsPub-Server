@@ -175,6 +175,15 @@ defmodule Taxonomy.TaxonomyTags do
     end)
   end
 
+  def update(_user, tag_id, attrs) when is_binary(tag_id) do
+    Repo.transact_with(fn ->
+      with {:ok, tag} <- one(id: tag_id),
+           {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs)) do
+        {:ok, tag}
+      end
+    end)
+  end
+
   # TODO move this common module
   @doc "conditionally update a map"
   def maybe_put(map, _key, nil), do: map

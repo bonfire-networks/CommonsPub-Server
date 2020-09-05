@@ -10,6 +10,8 @@ defmodule CommonsPub.Resources do
   alias CommonsPub.Users.User
   alias CommonsPub.Workers.APPublishWorker
 
+  alias CommonsPub.Utils.Web.CommonHelper
+
   @doc """
   Retrieves a single resource by arbitrary filters.
   Used by:
@@ -36,6 +38,7 @@ defmodule CommonsPub.Resources do
         CommonsPub.Utils.Web.CommonHelper.maybe_preload(collection_or_context, :character)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
            act_attrs = %{
              verb: "created",
              is_local:
@@ -64,6 +67,7 @@ defmodule CommonsPub.Resources do
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, resource} <- insert_resource(creator, attrs),
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
            act_attrs = %{
              verb: "created",
              is_local: is_nil(Map.get(creator.character, :peer_id, nil))
@@ -76,6 +80,27 @@ defmodule CommonsPub.Resources do
         {:ok, %Resource{resource | creator: creator}}
       end
     end)
+  end
+
+  def clean_and_prepare_tags(%{summary: content} = attrs) when is_binary(content) do
+    {content, mentions, hashtags} = CommonsPub.HTML.parse_input_and_tags(content, "text/markdown")
+
+    # IO.inspect(tagging: {content, mentions, hashtags})
+
+    attrs
+    |> Map.put(:summary, content)
+    |> Map.put(:mentions, mentions)
+    |> Map.put(:hashtags, hashtags)
+  end
+
+  def clean_and_prepare_tags(attrs), do: attrs
+
+  def save_attached_tags(creator, obj, attrs) do
+    with {:ok, _taggable} <-
+           CommonsPub.Tag.TagThings.thing_attach_tags(creator, obj, attrs.mentions) do
+      # {:ok, CommonsPub.Repo.preload(comment, :tags)}
+      {:ok, nil}
+    end
   end
 
   defp insert_activity(creator, resource, attrs) do
@@ -166,4 +191,48 @@ defmodule CommonsPub.Resources do
   end
 
   defp ap_publish(_, _), do: :ok
+
+  def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
+    resource = CommonHelper.maybe_preload(resource, :context)
+    context = CommonHelper.maybe_preload(resource.context, :character)
+
+    resource = CommonHelper.maybe_preload(resource, :content)
+
+    likes_count =
+      case CommonsPub.Likes.LikerCounts.one(context: resource.id) do
+        {:ok, struct} -> struct.count
+        {:error, _} -> nil
+      end
+
+    icon = CommonsPub.Uploads.remote_url_from_id(resource.icon_id)
+    resource_url = CommonsPub.Uploads.remote_url_from_id(resource.content_id)
+
+    canonical_url = CommonsPub.ActivityPub.Utils.get_object_canonical_url(resource)
+
+    IO.inspect(%{
+      "id" => resource.id,
+      "name" => resource.name,
+      "canonical_url" => canonical_url,
+      "created_at" => resource.published_at,
+      "icon" => icon,
+      "licence" => Map.get(resource, :license),
+      "likes" => %{
+        "total_count" => likes_count
+      },
+      "summary" => Map.get(resource, :summary),
+      "updated_at" => resource.updated_at,
+      "index_type" => "Resource",
+      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url),
+      "url" => resource_url,
+      "author" => Map.get(resource, :author),
+      "media_type" => resource.content.media_type,
+      "subject" => Map.get(resource, :subject),
+      "level" => Map.get(resource, :level),
+      "language" => Map.get(resource, :language),
+      "public_access" => Map.get(resource, :public_access),
+      "free_access" => Map.get(resource, :free_access),
+      "accessibility_feature" => Map.get(resource, :accessibility_feature),
+      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context)
+    })
+  end
 end

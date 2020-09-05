@@ -10,7 +10,7 @@ defmodule CommonsPub.Web.Component.TagAutocomplete do
   @tags_seperator " "
   @prefixes ["@", "&", "+"]
   @taxonomy_prefix "+"
-  @taxonomy_index "taxonomy_tags"
+  @taxonomy_index "public"
   @search_index "public"
 
   def mount(socket) do
@@ -160,7 +160,8 @@ defmodule CommonsPub.Web.Component.TagAutocomplete do
   end
 
   def search_prefix(tag_search, "+") do
-    search_from_index(tag_search, @taxonomy_index, %{"index_type" => ["category", "collection"]})
+    # search_from_index(tag_search, @taxonomy_index, %{"index_type" => ["Category", "Collection"]})
+    search_from_index(tag_search, @taxonomy_index, %{"index_type" => "Category"})
   end
 
   def search_prefix(tag_search, "@") do
@@ -190,15 +191,15 @@ defmodule CommonsPub.Web.Component.TagAutocomplete do
 
   def tag_hit_prepare(hit, tag_search) do
     # FIXME: do this by filtering Meili instead?
-    if !is_nil(hit["preferredUsername"]) or !is_nil(hit["id"]) do
+    if !is_nil(hit["username"]) or !is_nil(hit["id"]) do
       hit
       |> Map.merge(%{display: tag_suggestion_display(hit, tag_search)})
-      |> Map.merge(%{tag_as: e(hit, "preferredUsername", e(hit, "id", ""))})
+      |> Map.merge(%{tag_as: e(hit, "username", e(hit, "id", ""))})
     end
   end
 
   def tag_suggestion_display(hit, tag_search) do
-    name = e(hit, "name_crumbs", e(hit, "name", e(hit, "preferredUsername", nil)))
+    name = e(hit, "name_crumbs", e(hit, "name", e(hit, "username", nil)))
 
     if !is_nil(name) and name =~ tag_search do
       split = String.split(name, tag_search, parts: 2, trim: false)

@@ -1,6 +1,8 @@
 defmodule CommonsPub.Utils.Text do
   @truncate_ending "..."
 
+  def blank?(str_or_nil), do: "" == str_or_nil |> to_string() |> String.trim()
+
   def truncate(text, max_length \\ 250), do: truncate(text, max_length, @truncate_ending)
 
   def truncate(text, max_length, omission) do

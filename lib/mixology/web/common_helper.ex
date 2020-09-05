@@ -343,6 +343,10 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     )
   end
 
+  defp context_follow(thing) do
+    thing
+  end
+
   defp add_context_type(%{context_type: _} = thing) do
     thing
   end
@@ -495,6 +499,13 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     false
   end
 
+  def object_url(%{
+        username: username
+      })
+      when not is_nil(username) do
+    "/" <> username
+  end
+
   def object_url(%CommonsPub.Communities.Community{
         character: %{preferred_username: preferred_username}
       })
@@ -524,6 +535,13 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   end
 
   def object_url(%CommonsPub.Tag.Category{
+        id: id
+      })
+      when not is_nil(id) do
+    "/++" <> id
+  end
+
+  def object_url(%CommonsPub.Tag.Taggable{
         id: id
       })
       when not is_nil(id) do
@@ -574,9 +592,14 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     "/+++" <> Map.get(activity, :id) <> "#unsupported_by_activity_url/" <> to_string(module_name)
   end
 
+  def object_url(%{id: id} = activity) do
+    IO.inspect(unsupported_by_activity_url: activity)
+    "/+++" <> id <> "#unsupported_by_activity_url"
+  end
+
   def object_url(activity) do
     IO.inspect(unsupported_by_activity_url: activity)
-    "/+++" <> Map.get(activity, :id) <> "#unsupported_by_activity_url"
+    "/#unsupported_by_activity_url"
   end
 
   def e_actor_field(obj, field, fallback) do

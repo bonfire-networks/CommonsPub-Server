@@ -9,6 +9,46 @@ defmodule CommonsPub.Tag.TagThings do
   alias CommonsPub.Tag.Taggable
 
   @doc """
+  tag IDs from a `tags` field
+  """
+  def try_tag_thing(user, thing, %{tags: tag_ids}) when is_binary(tag_ids) do
+    tag_ids = CommonsPub.Web.Component.TagAutocomplete.tags_split(tag_ids)
+    things_add_tags(user, thing, tag_ids)
+  end
+
+  def try_tag_thing(user, thing, %{tags: tag_ids})
+      when is_list(tag_ids) and length(tag_ids) > 0 do
+    things_add_tags(user, thing, tag_ids)
+  end
+
+  def try_tag_thing(user, thing, %{tags: tag_ids})
+      when is_list(tag_ids) and length(tag_ids) > 0 do
+    things_add_tags(user, thing, tag_ids)
+  end
+
+  @doc """
+  otherwise maybe we have tagnames inline in the note?
+  """
+  def try_tag_thing(_user, thing, %{note: text}) when bit_size(text) > 1 do
+    # CommonsPub.Web.Component.TagAutocomplete.try_prefixes(text)
+    # TODO
+    {:ok, thing}
+  end
+
+  def try_tag_thing(_user, thing, _) do
+    {:ok, thing}
+  end
+
+  @doc """
+  tag existing thing with one or multiple Taggables, Pointers, or anything that can be made taggable
+  """
+  def things_add_tags(user, thing, taggables) do
+    with {:ok, _taggable} <- thing_attach_tags(user, thing, taggables) do
+      {:ok, CommonsPub.Utils.Web.CommonHelper.maybe_preload(thing, :tags)}
+    end
+  end
+
+  @doc """
   Add tag(s) to a pointable thing. Will replace any existing tags.
   """
   def thing_attach_tags(user, thing, taggables) when is_list(taggables) do
@@ -46,6 +86,18 @@ defmodule CommonsPub.Tag.TagThings do
     tag_preprocess(user, taggable)
   end
 
+  defp tag_preprocess(user, "@" <> taggable) do
+    tag_preprocess(user, taggable)
+  end
+
+  defp tag_preprocess(user, "+" <> taggable) do
+    tag_preprocess(user, taggable)
+  end
+
+  defp tag_preprocess(user, "&" <> taggable) do
+    tag_preprocess(user, taggable)
+  end
+
   defp tag_preprocess(user, taggable) do
     IO.inspect(tag_preprocess: taggable)
 
@@ -59,9 +111,12 @@ defmodule CommonsPub.Tag.TagThings do
   end
 
   defp thing_tags_save(%{} = thing, tags) when is_list(tags) and length(tags) > 0 do
+    # remove nils
+    tags = Enum.filter(tags, & &1)
+
     Repo.transact_with(fn ->
-      # IO.inspect(tags_save: tags)
-      # IO.inspect(thing_save: thing)
+      IO.inspect(tags_save: tags)
+      IO.inspect(thing_save: thing)
       cs = Taggable.thing_tags_changeset(thing, tags)
       IO.inspect(thing_tags_save: cs)
       with {:ok, thing} <- Repo.update(cs, on_conflict: :nothing), do: {:ok, thing}

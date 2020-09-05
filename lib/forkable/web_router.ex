@@ -170,6 +170,7 @@ defmodule CommonsPub.Web.Router do
     live "/instance/map", Geolocation.MapLive
     live "/@@:id", Geolocation.MapLive
 
+    live "/instance/categories", InstanceLive.InstanceCategoriesPageLive
     live "/instance/:tab", InstanceLive
 
     live "/@:username", MemberLive

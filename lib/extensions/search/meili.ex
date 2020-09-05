@@ -7,10 +7,17 @@ defmodule CommonsPub.Search.Meili do
 
   def search_meili(%{} = params, index) when is_binary(index) do
     IO.inspect(search_params: params)
-    {:ok, req} = api(:post, params, index <> "/search")
-    res = Jason.decode!(req.body)
-    # IO.inspect(res)
-    res
+
+    with {:ok, req} <- api(:post, params, index <> "/search") do
+      res = Jason.decode!(req.body)
+      # IO.inspect(res)
+      res
+    else
+      e ->
+        Logger.error("Could not search Meili")
+        Logger.debug(inspect(e))
+        nil
+    end
   end
 
   def get(object) do

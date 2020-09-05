@@ -77,11 +77,33 @@ defmodule CommonsPub.Web.My.ShareLinkLive do
 
       # IO.inspect(context_id, label: "context_id CHOOSEN")
 
+      resource = input_to_atoms(data)
+
+      resource =
+        resource
+        |> Map.put(
+          :public_access,
+          CommonsPub.Utils.Text.blank?(Map.get(resource, :public_access))
+        )
+        |> Map.put(
+          :free_access,
+          CommonsPub.Utils.Text.blank?(Map.get(resource, :free_access))
+        )
+        |> Map.put(
+          :accessibility_feature,
+         ( if !CommonsPub.Utils.Text.blank?(Map.get(resource, :accessibility_feature)),
+          do: ["captions", "transcript"],
+          else: nil
+         )
+        )
+
+      IO.inspect(resource_input: resource)
+
       with {:ok, _resource} <-
              CommonsPub.Web.GraphQL.ResourcesResolver.create_resource(
                %{
                  context_id: context_id,
-                 resource: input_to_atoms(data),
+                 resource: resource,
                  content: input_to_atoms(content),
                  icon: input_to_atoms(icon)
                },

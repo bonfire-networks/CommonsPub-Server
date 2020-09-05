@@ -31,7 +31,7 @@ defmodule CommonsPub.Web.Component.CommentPreviewLive do
     ~L"""
     <div class="comment__preview">
       <div class="markdown-body">
-        <%= markdown(@comment.content) %>
+        <%= markdown(e(@comment, :content, "")) %>
       </div>
     </div>
     """

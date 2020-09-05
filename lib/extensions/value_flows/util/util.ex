@@ -18,49 +18,14 @@ defmodule ValueFlows.Util do
   @doc """
   lookup tag from URL(s), to support vf-graphql mode
   """
-  def try_tag_thing(_user, thing, %{resourceClassifiedAs: urls})
+
+  def try_tag_thing(_user, thing, %{resource_classified_as: urls})
       when is_list(urls) and length(urls) > 0 do
     # todo: lookup tag by URL
     {:ok, thing}
   end
 
-  @doc """
-  tag IDs from a `tags` field
-  """
-  def try_tag_thing(user, thing, %{tags: tag_ids}) when is_binary(tag_ids) do
-    tag_ids = CommonsPub.Web.Component.TagAutocomplete.tags_split(tag_ids)
-    things_add_tags(user, thing, tag_ids)
-  end
-
-  def try_tag_thing(user, thing, %{tags: tag_ids})
-      when is_list(tag_ids) and length(tag_ids) > 0 do
-    things_add_tags(user, thing, tag_ids)
-  end
-
-  def try_tag_thing(user, thing, %{tags: tag_ids})
-      when is_list(tag_ids) and length(tag_ids) > 0 do
-    things_add_tags(user, thing, tag_ids)
-  end
-
-  @doc """
-  otherwise maybe we have tagnames inline in the note?
-  """
-  def try_tag_thing(_user, thing, %{note: text}) when bit_size(text) > 1 do
-    # CommonsPub.Web.Component.TagAutocomplete.try_prefixes(text)
-    # TODO
-    {:ok, thing}
-  end
-
-  def try_tag_thing(_user, thing, _) do
-    {:ok, thing}
-  end
-
-  @doc """
-  tag existing thing with one or multiple Taggables, Pointers, or anything that can be made taggable
-  """
-  def things_add_tags(user, thing, taggables) do
-    with {:ok, _taggable} <- CommonsPub.Tag.TagThings.thing_attach_tags(user, thing, taggables) do
-      {:ok, CommonsPub.Repo.preload(thing, :tags)}
-    end
+  def try_tag_thing(user, thing, tags) do
+    CommonsPub.Tag.TagThings.try_tag_thing(user, thing, tags)
   end
 end

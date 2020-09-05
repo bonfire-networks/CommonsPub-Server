@@ -29,9 +29,6 @@ defmodule CommonsPub.Tag.Categories do
   def one(filters), do: Repo.single(Queries.query(Category, filters))
 
   def get(id) do
-    # IO.inspect(id)
-    # IO.inspect(CommonsPub.Common.is_ulid(id))
-
     if CommonsPub.Common.is_ulid(id) do
       one([:default, id: id])
     else
