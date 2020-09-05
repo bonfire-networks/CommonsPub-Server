@@ -47,26 +47,26 @@ defmodule CommonsPub.HTML.Scrubber do
 
   def scrub_html(content), do: content
 
-  def scrub_html_and_truncate(content, max_length \\ 200)
+  # def scrub_html_and_truncate(content, max_length \\ 200)
 
-  def scrub_html_and_truncate(%{data: %{"content" => content}} = object, max_length) do
-    content
-    # if html content comes from DB already encoded, decode first and scrub after
-    |> HtmlEntities.decode()
-    |> String.replace(~r/<br\s?\/?>/, " ")
-    |> get_cached_stripped_html_for_object(object, "metadata")
-    # |> Emoji.Formatter.demojify()
-    |> HtmlEntities.decode()
-    |> CommonsPub.HTML.truncate(max_length)
-  end
+  # def scrub_html_and_truncate(%{data: %{"content" => content}} = object, max_length) do
+  #   content
+  #   # if html content comes from DB already encoded, decode first and scrub after
+  #   |> HtmlEntities.decode()
+  #   |> String.replace(~r/<br\s?\/?>/, " ")
+  #   |> get_cached_stripped_html_for_object(object, "metadata")
+  #   # |> Emoji.Formatter.demojify()
+  #   |> HtmlEntities.decode()
+  #   |> CommonsPub.HTML.truncate(max_length)
+  # end
 
-  def scrub_html_and_truncate(content, max_length) when is_binary(content) do
-    content
-    |> scrub_html
-    # |> Emoji.Formatter.demojify()
-    |> HtmlEntities.decode()
-    |> CommonsPub.HTML.truncate(max_length)
-  end
+  # def scrub_html_and_truncate(content, max_length) when is_binary(content) do
+  #   content
+  #   |> scrub_html
+  #   # |> Emoji.Formatter.demojify()
+  #   |> HtmlEntities.decode()
+  #   |> CommonsPub.HTML.truncate(max_length)
+  # end
 
   def filter_tags(html, nil) do
     filter_tags(html, get_scrubbers())

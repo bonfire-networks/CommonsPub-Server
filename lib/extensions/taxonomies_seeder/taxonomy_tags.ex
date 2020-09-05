@@ -113,7 +113,7 @@ defmodule Taxonomy.TaxonomyTags do
         |> Map.merge(%{parent_category: parent_category})
         |> Map.merge(%{parent_category_id: parent_category.id})
         |> Map.merge(%{
-          preferred_username: slug(tag.name, 150) <> "-" <> slug(parent_tag.name, 100)
+          preferred_username: shorten(tag.name, 150) <> "-" <> shorten(parent_tag.name, 100)
         })
 
       # finally pointerise the child(ren), in hierarchical order
@@ -153,14 +153,14 @@ defmodule Taxonomy.TaxonomyTags do
     |> Map.delete(:__meta__)
     # use Thing name as facet/trope
     |> Map.put(:facet, "Category")
-    |> Map.put(:name, slug(thing.name))
+    |> Map.put(:name, shorten(thing.name))
     |> Map.put(:prefix, "+")
     # avoid reusing IDs
     |> Map.delete(:id)
   end
 
-  def slug(input, length \\ 244) do
-    Regex.run(~r/\A(.{0,#{length}})(?: |\Z)/, input) |> List.last()
+  def shorten(input, length \\ 244) do
+    CommonsPub.Utils.Text.truncate(input, length)
   end
 
   def update(_user, %TaxonomyTag{} = tag, attrs) do

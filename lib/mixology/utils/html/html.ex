@@ -80,7 +80,7 @@ defmodule CommonsPub.HTML do
     text
     |> Formatter.html_escape("text/plain")
     |> String.replace("&amp;", "&")
-    |> IO.inspect()
+    # |> IO.inspect()
     |> Formatter.linkify(options)
     |> (fn {text, mentions, tags} ->
           {String.replace(text, ~r/\r?\n/, "<br>"), mentions, tags}
@@ -96,7 +96,7 @@ defmodule CommonsPub.HTML do
     text
     |> Formatter.html_escape("text/html")
     |> String.replace("&amp;", "&")
-    |> IO.inspect()
+    # |> IO.inspect()
     |> Formatter.linkify(options)
   end
 
@@ -110,7 +110,7 @@ defmodule CommonsPub.HTML do
     # |> Earmark.as_html()
     # |> elem(1)
     |> String.replace("&amp;", "&")
-    |> IO.inspect()
+    # |> IO.inspect()
     |> Formatter.linkify(options ++ [content_type: "text/markdown"])
   end
 
@@ -120,16 +120,4 @@ defmodule CommonsPub.HTML do
   # end
 
   # defp maybe_add_nsfw_tag(data, _), do: data
-
-  def truncate(text, max_length \\ 200, omission \\ "...") do
-    # Remove trailing whitespace
-    text = Regex.replace(~r/([^ \t\r\n])([ \t]+$)/u, text, "\\g{1}")
-
-    if String.length(text) < max_length do
-      text
-    else
-      length_with_omission = max_length - String.length(omission)
-      String.slice(text, 0, length_with_omission) <> omission
-    end
-  end
 end
