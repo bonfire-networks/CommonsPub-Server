@@ -1,20 +1,30 @@
-defmodule MoodleNetWeb.Helpers.Collections do
-  # alias MoodleNet.{
+defmodule CommonsPub.Collections.Web.CollectionsHelper do
+  # alias CommonsPub.{
   #   Repo
   # }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     UsersResolver,
     CollectionsResolver
   }
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  def collection_load(socket, page_params, %MoodleNet.Users.User{} = current_user) do
+  def collection_load(socket, page_params, nil) do
     collection_load(socket, page_params, %{
-      actor: true,
       icon: false,
+      character: true,
+      image: false,
+      context: true,
+      is_followed_by: nil
+    })
+  end
+
+  def collection_load(socket, page_params, %CommonsPub.Users.User{} = current_user) do
+    collection_load(socket, page_params, %{
+      icon: false,
+      character: true,
       image: false,
       context: true,
       is_followed_by: current_user
@@ -22,8 +32,6 @@ defmodule MoodleNetWeb.Helpers.Collections do
   end
 
   def collection_load(_socket, page_params, %{} = preload) do
-    # IO.inspect(socket)
-
     username = e(page_params, "username", nil)
 
     {:ok, collection} =
@@ -33,7 +41,7 @@ defmodule MoodleNetWeb.Helpers.Collections do
         {:ok, %{}}
       end
 
-    Profiles.prepare(collection, preload, 150)
+    ProfilesHelper.prepare(collection, preload, 150)
   end
 
   def user_collections(for_user, current_user) do
@@ -64,28 +72,21 @@ defmodule MoodleNetWeb.Helpers.Collections do
         %{context: %{current_user: current_user}}
       )
 
-    # IO.inspect(my_follows: follows)
-
     follows
   end
 
   def collections_from_follows(%{edges: edges}) when length(edges) > 0 do
     # FIXME: collections should be joined to edges rather than queried seperately
 
-    # IO.inspect(collections_from_follows: edges)
     ids = Enum.map(edges, & &1.context_id)
 
-    # IO.inspect(ids: ids)
-
     collections = contexts_fetch!(ids)
-
-    # IO.inspect(collections: collections)
 
     collections =
       if(collections) do
         Enum.map(
           collections,
-          &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
+          &ProfilesHelper.prepare(&1, %{icon: true, image: true, character: true})
         )
       end
 

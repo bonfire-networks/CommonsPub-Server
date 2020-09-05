@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.NotInTransactionError do
+defmodule CommonsPub.Common.NotInTransactionError do
   @enforce_keys [:cause]
   defstruct @enforce_keys
 

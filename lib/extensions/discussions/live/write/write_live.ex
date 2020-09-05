@@ -1,10 +1,7 @@
-defmodule MoodleNetWeb.My.WriteLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.My.WriteLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
-
-  # alias MoodleNetWeb.Helpers.{Profiles, Account}
-  # alias MoodleNetWeb.Component.HeaderLive
+  import CommonsPub.Utils.Web.CommonHelper
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
@@ -15,7 +12,7 @@ defmodule MoodleNetWeb.My.WriteLive do
        title_placeholder: "An optional title...",
        content_placeholder: "Write a story or get a discussion started!",
        post_label: "Publish"
-       #  current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
+       #  current_user: AccountHelper.current_user_or(nil, session, %{icon: true, character: true}),
      )}
   end
 
@@ -27,12 +24,12 @@ defmodule MoodleNetWeb.My.WriteLive do
        socket
        |> put_flash(:error, "Please write something...")}
     else
-      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+      # CommonsPub.Web.Plugs.Auth.login(socket, session.current_user, session.token)
 
       comment = input_to_atoms(data)
 
       {:ok, thread} =
-        MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+        CommonsPub.Web.GraphQL.ThreadsResolver.create_thread(
           %{context_id: context_id, comment: comment},
           %{context: %{current_user: socket.assigns.current_user}}
         )

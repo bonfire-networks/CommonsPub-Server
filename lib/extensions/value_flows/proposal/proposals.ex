@@ -1,17 +1,24 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Proposals do
-  alias MoodleNet.{Activities, Common, Feeds, Repo}
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
+defmodule ValueFlows.Proposal.Proposals do
+  alias CommonsPub.{Activities, Common, Feeds, Repo}
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
 
   alias Geolocation.Geolocations
   # alias Measurement.Measure
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
 
-  alias ValueFlows.Proposal.{ProposedIntentQueries, ProposedIntent, Queries}
+  alias ValueFlows.Proposal.{
+    ProposedTo,
+    ProposedToQueries,
+    ProposedIntentQueries,
+    ProposedIntent,
+    Queries
+  }
+
   alias ValueFlows.Planning.Intent
 
   def cursor(), do: &[&1.id]
@@ -26,9 +33,13 @@ defmodule ValueFlows.Proposals do
   """
   def one(filters), do: Repo.single(Queries.query(Proposal, filters))
 
-  @spec one_proposed_intent(filters :: any) :: {:ok, ProposedIntent.t()} | {:error, term}
+  @spec one_proposed_intent(filters :: [any]) :: {:ok, ProposedIntent.t()} | {:error, term}
   def one_proposed_intent(filters),
     do: Repo.single(ProposedIntentQueries.query(ProposedIntent, filters))
+
+  @spec one_proposed_to(filters :: [any]) :: {:ok, ProposedTo.t()} | {:error, term}
+  def one_proposed_to(filters),
+    do: Repo.single(ProposedToQueries.query(ProposedTo, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
@@ -37,9 +48,13 @@ defmodule ValueFlows.Proposals do
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Proposal, filters))}
 
-  @spec many_proposed_intents(filters :: any) :: {:ok, [ProposedIntent.t()]} | {:error, term}
+  @spec many_proposed_intents(filters :: [any]) :: {:ok, [ProposedIntent.t()]} | {:error, term}
   def many_proposed_intents(filters \\ []),
     do: {:ok, Repo.all(ProposedIntentQueries.query(ProposedIntent, filters))}
+
+  @spec many_proposed_to(filters :: [any]) :: {:ok, [ProposedTo]} | {:error, term}
+  def many_proposed_to(filters \\ []),
+    do: {:ok, Repo.all(ProposedToQueries.query(ProposedTo, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -128,7 +143,7 @@ defmodule ValueFlows.Proposals do
 
   defp publish(creator, proposal, activity, :created) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -140,7 +155,7 @@ defmodule ValueFlows.Proposals do
   defp publish(creator, context, proposal, activity, :created) do
     feeds = [
       context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -161,7 +176,7 @@ defmodule ValueFlows.Proposals do
 
   # FIXME
   defp ap_publish(verb, context_id, user_id) do
-    MoodleNet.Workers.APPublishWorker.enqueue(verb, %{
+    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id
     })
@@ -220,9 +235,18 @@ defmodule ValueFlows.Proposals do
     Common.soft_delete(proposed_intent)
   end
 
+  # if you like it then you should put a ring on it
+  @spec propose_to(any, Proposal.t()) :: {:ok, ProposedTo.t()} | {:error, term}
+  def propose_to(proposed_to, %Proposal{} = proposed) do
+    Repo.insert(ProposedTo.changeset(proposed_to, proposed))
+  end
+
+  @spec delete_proposed_to(ProposedTo.t()) :: {:ok, ProposedTo.t()} | {:error, term}
+  def delete_proposed_to(proposed_to), do: Common.soft_delete(proposed_to)
+
   def indexing_object_format(obj) do
-    # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
-    # image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
+    # image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
 
     %{
       "index_type" => "Proposal",
@@ -233,7 +257,7 @@ defmodule ValueFlows.Proposals do
       "note" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
-      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+      # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
     }
   end
 

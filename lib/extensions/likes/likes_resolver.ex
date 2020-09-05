@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.LikesResolver do
-  alias MoodleNet.{GraphQL, Likes, Repo}
+defmodule CommonsPub.Web.GraphQL.LikesResolver do
+  alias CommonsPub.{GraphQL, Likes, Repo}
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     ResolvePages
   }
 
-  alias MoodleNet.Likes.{
+  alias CommonsPub.Likes.{
     Like,
     LikeCount,
     LikeCountsQueries,
@@ -18,8 +18,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     LikerCountsQueries
   }
 
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Users.User
+  alias CommonsPub.Meta.Pointers
+  alias CommonsPub.Users.User
 
   def like(%{like_id: id}, %{context: %{current_user: user}}) do
     Likes.one(user: user, id: id)

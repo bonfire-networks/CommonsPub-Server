@@ -1,10 +1,10 @@
-defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MemberLive.MemberFollowingLive do
+  use CommonsPub.Web, :live_component
 
-  # import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Profiles}
+  # import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.Component.UserPreviewLive
+  alias CommonsPub.Web.Component.UserPreviewLive
 
   def update(assigns, socket) do
     {
@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
   def fetch(socket, assigns) do
     # IO.inspect(assigns.user)
     {:ok, follows} =
-      MoodleNetWeb.GraphQL.UsersResolver.user_follows_edge(
+      CommonsPub.Web.GraphQL.UsersResolver.user_follows_edge(
         %{id: assigns.user.id},
         %{limit: 10},
         %{context: %{current_user: assigns.current_user}}
@@ -27,11 +27,11 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
     followings =
       Enum.map(
         follows.edges,
-        &Profiles.fetch_users_from_context(&1)
+        &ProfilesHelper.fetch_users_from_context(&1)
       )
 
     # IO.inspect(users, label: "USER COMMUNITY")
-    # following_users = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
+    # following_users = Enum.map(users.edges, &ProfilesHelper.prepare(&1, %{icon: true, character: true}))
     # IO.inspect(following_users, label: "USER COMMUNITY")
 
     assign(socket,
@@ -43,7 +43,7 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

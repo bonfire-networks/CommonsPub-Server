@@ -3,7 +3,7 @@ defmodule CommonsPub.Tag.Category.Queries do
   import Ecto.Query
 
   alias CommonsPub.Tag.Category
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Common.Query, only: [match_admin: 0]
 
   def query(Category) do
     from(t in Category,
@@ -69,6 +69,14 @@ defmodule CommonsPub.Tag.Category.Queries do
 
   def filter(q, {:id, ids}) when is_list(ids) do
     where(q, [category: f], f.id in ^ids)
+  end
+
+  def filter(q, {:username, username}) when is_binary(username) do
+    where(q, [character: a], a.preferred_username == ^username)
+  end
+
+  def filter(q, {:username, usernames}) when is_list(usernames) do
+    where(q, [character: a], a.preferred_username in ^usernames)
   end
 
   def filter(q, {:name, name}) when is_binary(name) do

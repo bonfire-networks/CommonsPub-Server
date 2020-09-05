@@ -1,21 +1,21 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
+defmodule CommonsPub.Web.GraphQL.ActivitiesSchema do
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     ActivitiesResolver,
     CommonResolver,
     UsersResolver
   }
 
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Flags.Flag
-  # alias MoodleNet.Follows.Follow
-  # alias MoodleNet.Likes.Like
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Threads.Comment
-  # alias MoodleNet.Users.User
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Flags.Flag
+  # alias CommonsPub.Follows.Follow
+  # alias CommonsPub.Likes.Like
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Threads.Comment
+  # alias CommonsPub.Users.User
 
   object :activities_queries do
     field :activity, :activity do

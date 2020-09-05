@@ -1,5 +1,5 @@
-defmodule MoodleNetWeb.SettingsLive.SettingsNavigationLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.SettingsLive.SettingsNavigationLive do
+  use CommonsPub.Web, :live_component
 
   def render(assigns) do
     ~L"""
@@ -7,10 +7,7 @@ defmodule MoodleNetWeb.SettingsLive.SettingsNavigationLive do
       to: "/~/settings/general",
       class: if @selected == "general", do: "navigation__item active", else: "navigation__item"
     %>
-    <%= live_patch link_body("Preferences", "feather-sliders"),
-      to: "/~/settings/preferences",
-      class: if @selected == "preferences", do: "navigation__item active", else: "navigation__item"
-    %>
+
     """
   end
 

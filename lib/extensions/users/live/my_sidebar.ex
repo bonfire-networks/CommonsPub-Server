@@ -1,8 +1,7 @@
-defmodule MoodleNetWeb.My.MySidebar do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MySidebar do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
-
+  # import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     {
@@ -11,6 +10,4 @@ defmodule MoodleNetWeb.My.MySidebar do
       |> assign(assigns)
     }
   end
-
-
 end

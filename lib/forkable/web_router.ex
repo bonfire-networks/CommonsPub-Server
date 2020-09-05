@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Router do
+defmodule CommonsPub.Web.Router do
   @moduledoc """
-  MoodleNet Router
+  CommonsPub Router
   """
   import Phoenix.LiveView.Router
 
-  use MoodleNetWeb, :router
+  use CommonsPub.Web, :router
   use Plug.ErrorHandler
   use Sentry.Plug
 
@@ -14,11 +14,11 @@ defmodule MoodleNetWeb.Router do
   end
 
   pipeline :ensure_authenticated do
-    plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
+    plug(CommonsPub.Web.Plugs.EnsureAuthenticatedPlug)
   end
 
   pipeline :ensure_admin do
-    plug(MoodleNetWeb.Plugs.EnsureAdminPlug)
+    plug(CommonsPub.Web.Plugs.EnsureAdminPlug)
   end
 
   @doc """
@@ -26,11 +26,11 @@ defmodule MoodleNetWeb.Router do
   """
   pipeline :browser do
     plug :accepts, ["html", "json", "css", "js"]
-    plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
+    plug :put_root_layout, {CommonsPub.Web.LayoutView, :root}
     plug :put_secure_browser_headers
     plug :fetch_session
-    plug MoodleNetWeb.Plugs.Auth
-    plug MoodleNetWeb.Plugs.SetLocale
+    plug CommonsPub.Web.Plugs.Auth
+    plug CommonsPub.Web.Plugs.SetLocale
   end
 
   @doc """
@@ -47,15 +47,15 @@ defmodule MoodleNetWeb.Router do
   pipeline :graphql do
     plug :accepts, ["json"]
     plug :fetch_session
-    plug MoodleNetWeb.Plugs.Auth
-    plug MoodleNetWeb.Plugs.SetLocale
-    plug MoodleNetWeb.Plugs.GraphQLContext
+    plug CommonsPub.Web.Plugs.Auth
+    plug CommonsPub.Web.Plugs.SetLocale
+    plug CommonsPub.Web.Plugs.GraphQLContext
   end
 
   scope "/api" do
-    get "/", MoodleNetWeb.PageController, :api
+    get "/", CommonsPub.Web.PageController, :api
 
-    get "/schema", MoodleNetWeb.GraphQL.DevTools, :schema
+    get "/schema", CommonsPub.Web.GraphQL.DevTools, :schema
 
     scope "/explore" do
       pipe_through :browser
@@ -63,24 +63,24 @@ defmodule MoodleNetWeb.Router do
       pipe_through :graphql
 
       get "/simple", Absinthe.Plug.GraphiQL,
-        schema: MoodleNetWeb.GraphQL.Schema,
+        schema: CommonsPub.Web.GraphQL.Schema,
         interface: :simple,
         json_codec: Jason,
-        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {CommonsPub.Web.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
 
       get "/playground", Absinthe.Plug.GraphiQL,
-        schema: MoodleNetWeb.GraphQL.Schema,
+        schema: CommonsPub.Web.GraphQL.Schema,
         interface: :playground,
         json_codec: Jason,
-        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {CommonsPub.Web.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
 
       forward "/", Absinthe.Plug.GraphiQL,
-        schema: MoodleNetWeb.GraphQL.Schema,
+        schema: CommonsPub.Web.GraphQL.Schema,
         interface: :advanced,
         json_codec: Jason,
-        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {CommonsPub.Web.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
     end
 
@@ -88,10 +88,10 @@ defmodule MoodleNetWeb.Router do
       pipe_through :graphql
 
       forward "/", Absinthe.Plug,
-        schema: MoodleNetWeb.GraphQL.Schema,
+        schema: CommonsPub.Web.GraphQL.Schema,
         interface: :playground,
         json_codec: Jason,
-        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
+        pipeline: {CommonsPub.Web.GraphQL.Pipeline, :default_pipeline}
     end
   end
 
@@ -140,22 +140,22 @@ defmodule MoodleNetWeb.Router do
 
   scope "/" do
     pipe_through :browser
-    get "/", MoodleNetWeb.PageController, :index
-    get "/confirm-email/:token", MoodleNetWeb.PageController, :confirm_email
-    get "/logout", MoodleNetWeb.PageController, :logout
+    get "/", CommonsPub.Web.PageController, :index
+    get "/confirm-email/:token", CommonsPub.Web.PageController, :confirm_email
+    get "/logout", CommonsPub.Web.PageController, :logout
     get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
   end
 
   pipeline :liveview do
     plug :fetch_live_flash
-    plug MoodleNetWeb.Live.Plug
+    plug CommonsPub.Web.Live.Plug
   end
 
   pipeline :protect_forgery do
     plug :protect_from_forgery
   end
 
-  scope "/", MoodleNetWeb do
+  scope "/", CommonsPub.Web do
     pipe_through :browser
     pipe_through :protect_forgery
     pipe_through :liveview
@@ -168,7 +168,7 @@ defmodule MoodleNetWeb.Router do
     live "/instance/search/:tab/:search", SearchLive
 
     live "/instance/map", Geolocation.MapLive
-    live "/@.:id", Geolocation.MapLive
+    live "/@@:id", Geolocation.MapLive
 
     live "/instance/:tab", InstanceLive
 
@@ -178,7 +178,7 @@ defmodule MoodleNetWeb.Router do
     live "/&:username", CommunityLive
     live "/&:username/:tab", CommunityLive
 
-    live "/+:id/unknown", Page.Unknown
+    live "/+++:id", Page.Unknown
     live "/++:id", Page.Category
 
     live "/+:username", CollectionLive
@@ -197,12 +197,12 @@ defmodule MoodleNetWeb.Router do
 
     pipe_through :ensure_authenticated
 
-    live "/~", My.MyLive
+    live "/~", MyLive
     live "/~/profile", MemberLive
     live "/~/write", My.WriteLive
     live "/~/settings", SettingsLive
     live "/~/settings/:tab", SettingsLive
-    live "/~/:tab", My.MyLive
+    live "/~/:tab", MyLive
 
     live "/~/proto", My.ProtoProfileLive
   end
@@ -213,7 +213,7 @@ defmodule MoodleNetWeb.Router do
 
     # temporarily don't use CSRF for uploads until LV has a better approach
 
-    post "/~/settings", MoodleNetWeb.My.SettingsUpload, :upload
+    post "/~/settings", CommonsPub.Web.My.SettingsUpload, :upload
 
     pipe_through :protect_forgery
 
@@ -232,7 +232,7 @@ defmodule MoodleNetWeb.Router do
   # if Mix.env() in [:dev, :test] do
   import Phoenix.LiveDashboard.Router
 
-  scope "/admin/", MoodleNetWeb do
+  scope "/admin/", CommonsPub.Web do
     pipe_through :browser
     pipe_through :liveview
     pipe_through :protect_forgery
@@ -255,7 +255,6 @@ defmodule MoodleNetWeb.Router do
                Map.has_key?(reason.term, :message) do
             reason.term.message
           else
-            # IO.inspect(handle_error: info)
             "An unhandled error has occured"
           end
         end

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Batching.EdgesPage do
+defmodule CommonsPub.Batching.EdgesPage do
   @enforce_keys ~w(page_info total_count edges)a
   defstruct @enforce_keys
 
-  use MoodleNet.Common.Metadata
-  alias MoodleNet.Batching.{Edge, EdgesPage, PageInfo}
+  use CommonsPub.Common.Metadata
+  alias CommonsPub.Batching.{Edge, EdgesPage, PageInfo}
 
   @type t :: %EdgesPage{
           page_info: PageInfo.t(),

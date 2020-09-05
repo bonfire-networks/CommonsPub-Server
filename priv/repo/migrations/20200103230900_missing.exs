@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Repo.Migrations.Missing do
+defmodule CommonsPub.Repo.Migrations.Missing do
   use Ecto.Migration
 
   def up do

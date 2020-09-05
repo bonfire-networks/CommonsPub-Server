@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.SetNotNullForObjects do
+defmodule CommonsPub.Repo.Migrations.SetNotNullForObjects do
   use Ecto.Migration
 
   # modify/3 function will require index recreation, so using execute/1 instead

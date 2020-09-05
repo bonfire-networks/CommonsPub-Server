@@ -1,8 +1,8 @@
-defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
+defmodule CommonsPub.Web.Component.DiscussionPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias MoodleNetWeb.Helpers.{Discussions}
+  alias CommonsPub.Discussions.Web.DiscussionsHelper
 
   def mount(thread, _session, socket) do
     {:ok, assign(socket, thread: thread)}
@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     if(Map.has_key?(assigns, :thread)) do
       {:ok,
        assign(socket,
-         thread: Discussions.prepare_thread(assigns.thread, assigns.current_user)
+         thread: DiscussionsHelper.prepare_thread(assigns.thread, assigns.current_user)
        )}
     else
       {:ok, assign(socket, thread: %{})}
@@ -22,6 +22,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
 
   def render(assigns) do
     IO.inspect(assigns, label: "Assign:")
+
     ~L"""
     <div class="discussion__preview">
       <%= live_redirect to: "/!"<> @thread.id <>"/discuss" do %>

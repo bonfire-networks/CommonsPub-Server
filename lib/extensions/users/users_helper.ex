@@ -1,17 +1,17 @@
-defmodule MoodleNetWeb.Helpers.Account do
+defmodule CommonsPub.Users.Web.AccountHelper do
   require Logger
 
-  alias MoodleNet.Access
-  alias MoodleNet.Users
-  alias MoodleNet.Users.{Me}
-  alias MoodleNetWeb.Helpers.{Profiles}
+  alias CommonsPub.Access
+  alias CommonsPub.Users
+  alias CommonsPub.Users.{Me}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   def current_user(auth_token) do
-    case MoodleNet.Access.fetch_token_and_user(auth_token) do
+    case CommonsPub.Access.fetch_token_and_user(auth_token) do
       {:ok, session_token} ->
         Logger.info("session_loaded")
 
-        Profiles.prepare(session_token.user, %{icon: true, image: true, actor: true})
+        ProfilesHelper.prepare(session_token.user, %{icon: true, image: true, character: true})
 
       {_, error} ->
         Logger.info(session_fetch_error: error)

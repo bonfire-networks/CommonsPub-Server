@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Component.ContextLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.Component.ContextLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     object = maybe_preload(assigns.object, :context)

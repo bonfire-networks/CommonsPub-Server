@@ -5,7 +5,7 @@ defmodule ActivityPub.Instances.Instance do
 
   alias ActivityPub.Instances
   alias ActivityPub.Instances.Instance
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   use Ecto.Schema
 

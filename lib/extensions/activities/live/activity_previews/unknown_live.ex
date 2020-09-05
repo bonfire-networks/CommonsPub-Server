@@ -1,11 +1,12 @@
-defmodule MoodleNetWeb.Component.UnknownPreviewLive do
+defmodule CommonsPub.Web.Component.UnknownPreviewLive do
   use Phoenix.LiveComponent
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     object = prepare_common(assigns.object)
-    IO.inspect(unknown_preview: object)
+    IO.inspect(unknown_preview: Map.get(object, :__struct__))
+    # IO.inspect(object)
 
     {:ok,
      assign(socket,

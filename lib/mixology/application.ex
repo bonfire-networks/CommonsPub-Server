@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Application do
+defmodule CommonsPub.Application do
   @moduledoc """
-  MoodleNet Application
+  CommonsPub Application
   """
   use Application
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
   # alias CommonsPub.Locales.{CountryService, LanguageService}
-  alias MoodleNet.Meta.TableService
-  alias MoodleNetWeb.Endpoint
+  alias CommonsPub.Meta.TableService
+  alias CommonsPub.Web.Endpoint
   import Supervisor.Spec, only: [supervisor: 2, worker: 2]
 
   @name Mix.Project.config()[:name]
@@ -30,7 +30,7 @@ defmodule MoodleNet.Application do
       :telemetry.attach(
         "oban-logger",
         [:oban, :failure],
-        &MoodleNet.Workers.ObanLogger.handle_event/4,
+        &CommonsPub.Workers.ObanLogger.handle_event/4,
         nil
       )
 
@@ -44,7 +44,7 @@ defmodule MoodleNet.Application do
       worker(TableService, []),
       {Phoenix.PubSub, [name: CommonsPub.PubSub, adapter: Phoenix.PubSub.PG2]},
       supervisor(Endpoint, []),
-      {Oban, Application.get_env(:moodle_net, Oban)},
+      {Oban, CommonsPub.Config.get(Oban)},
       %{
         id: :cachex_actor,
         start:
@@ -73,7 +73,7 @@ defmodule MoodleNet.Application do
       }
     ]
 
-    opts = [strategy: :one_for_one, name: MoodleNet.Supervisor]
+    opts = [strategy: :one_for_one, name: CommonsPub.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

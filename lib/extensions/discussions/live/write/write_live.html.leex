@@ -13,7 +13,7 @@
       </div>
       <%= live_component(
             @socket,
-            MoodleNetWeb.My.ContextSelect,
+            CommonsPub.Web.My.ContextSelect,
             current_user: @current_user,
             current_context: @current_context,
             my_communities: @my_communities
@@ -24,7 +24,7 @@
       <input type="text" class="write__title" id="name" name="name" placeholder="<%= @title_placeholder %>" />
       <%= live_component(
           @socket,
-          MoodleNetWeb.EditorLive,
+          CommonsPub.Web.EditorLive,
           current_user: @current_user,
           content_placeholder: @content_placeholder,
           id: "write_editor"

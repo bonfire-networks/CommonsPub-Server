@@ -1,7 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common do
-  alias MoodleNet.Repo
-  alias MoodleNet.Common.{Changeset, DeletionError}
+defmodule CommonsPub.Common do
+  alias CommonsPub.Repo
+  alias CommonsPub.Common.{Changeset, DeletionError}
+
+  def is_ulid(str) when is_binary(str) do
+    with :error <- Ecto.ULID.dump(str) do
+      false
+    else
+      _ -> true
+    end
+  end
+
+  def is_ulid(_), do: false
 
   ### pagination
 
@@ -42,17 +52,12 @@ defmodule MoodleNet.Common do
   ## Deletion
 
   def trigger_soft_delete(id, user) do
-    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
-      context = MoodleNet.Meta.Pointers.follow!(pointer)
+    with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
+      context = CommonsPub.Meta.Pointers.follow!(pointer)
 
       context_module =
         if Kernel.function_exported?(context.__struct__, :context_module, 0),
           do: apply(context.__struct__, :context_module, [])
-
-      IO.inspect(context)
-      IO.inspect(context_module)
-      IO.inspect(Kernel.function_exported?(context_module, :soft_delete, 2))
-      IO.inspect(Kernel.function_exported?(context_module, :soft_delete, 1))
 
       if !is_nil(context) and !is_nil(context.id) and !is_nil(context_module) and
            allow_delete?(user, context) do

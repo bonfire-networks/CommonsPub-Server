@@ -2,7 +2,7 @@ defmodule CommonsPub.Tag.Taggables do
   # import Ecto.Query
   # alias Ecto.Changeset
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Common,
     # GraphQL,
     Repo
@@ -10,11 +10,11 @@ defmodule CommonsPub.Tag.Taggables do
     # Common.Contexts
   }
 
-  # alias MoodleNet.Users.User
+  # alias CommonsPub.Users.User
   alias CommonsPub.Tag.Taggable
   alias CommonsPub.Tag.Taggable.Queries
 
-  # alias CommonsPub.Character.Characters
+  # alias CommonsPub.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -50,14 +50,14 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   def maybe_make_taggable(user, pointer_id, attrs) when is_binary(pointer_id) do
-    if MoodleNetWeb.Helpers.Common.is_numeric(pointer_id) do
+    if CommonsPub.Utils.Web.CommonHelper.is_numeric(pointer_id) do
       maybe_make_taggable(user, String.to_integer(pointer_id), attrs)
     else
       with {:ok, taggable} <- one(id: pointer_id) do
         {:ok, taggable}
       else
         _e ->
-          with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
+          with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id) do
             maybe_make_taggable(user, pointer, attrs)
           end
       end
@@ -65,7 +65,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   def maybe_make_taggable(user, %Pointers.Pointer{} = pointer, attrs) do
-    with context = MoodleNet.Meta.Pointers.follow!(pointer) do
+    with context = CommonsPub.Meta.Pointers.follow!(pointer) do
       maybe_make_taggable(user, context, attrs)
     end
   end
@@ -115,7 +115,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   defp insert_taggable(attrs) do
-    IO.inspect(insert_taggable: attrs)
+    # IO.inspect(insert_taggable: attrs)
     cs = Taggable.create_changeset(attrs)
     with {:ok, taggable} <- Repo.insert(cs), do: {:ok, taggable}
   end

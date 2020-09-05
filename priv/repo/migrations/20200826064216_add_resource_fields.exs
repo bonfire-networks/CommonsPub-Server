@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AddResourceFields do
+defmodule CommonsPub.Repo.Migrations.AddResourceFields do
   use Ecto.Migration
 
   def change do

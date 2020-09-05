@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Feeds.FeedSubscriptions do
-  alias MoodleNet.Repo
-  alias MoodleNet.Feeds.{FeedSubscription, FeedSubscriptionsQueries}
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Feeds.FeedSubscriptions do
+  alias CommonsPub.Repo
+  alias CommonsPub.Feeds.{FeedSubscription, FeedSubscriptionsQueries}
+  alias CommonsPub.Users.User
 
   def one(filters) do
     Repo.single(FeedSubscriptionsQueries.query(FeedSubscription, filters))

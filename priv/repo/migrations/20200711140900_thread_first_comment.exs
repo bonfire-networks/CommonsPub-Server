@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Repo.Migrations.ThreadFirstComment do
+defmodule CommonsPub.Repo.Migrations.ThreadFirstComment do
   use Ecto.Migration
 
   def up do

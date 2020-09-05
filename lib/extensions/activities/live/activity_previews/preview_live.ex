@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.Component.PreviewLive do
+defmodule CommonsPub.Web.Component.PreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
+  # import CommonsPub.Utils.Web.CommonHelper
 
-  alias MoodleNetWeb.Component.StoryPreviewLive
-  alias MoodleNetWeb.Component.CommentPreviewLive
-  alias MoodleNetWeb.Component.LikePreviewLive
-  alias MoodleNetWeb.Component.CommunityPreviewLive
-  alias MoodleNetWeb.Component.CollectionPreviewLive
-  alias MoodleNetWeb.Component.UnknownPreviewLive
+  alias CommonsPub.Web.Component.StoryPreviewLive
+  alias CommonsPub.Web.Component.CommentPreviewLive
+  alias CommonsPub.Web.Component.LikePreviewLive
+  alias CommonsPub.Web.Component.CommunityPreviewLive
+  alias CommonsPub.Web.Component.CollectionPreviewLive
+  alias CommonsPub.Web.Component.UnknownPreviewLive
 
   def render(assigns) do
     ~L"""
@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
             @object_type == "user" ->
               live_component(
                 @socket,
-                MoodleNetWeb.Component.UserPreviewLive,
+                CommonsPub.Web.Component.UserPreviewLive,
                 user: @object,
                 current_user: @current_user,
                 id: @preview_id
@@ -64,7 +64,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
             @object_type == "resource" ->
                 live_component(
                   @socket,
-                  MoodleNetWeb.Component.ResourcePreviewLive,
+                  CommonsPub.Web.Component.ResourcePreviewLive,
                   resource: @object,
                   current_user: @current_user,
                   id: @preview_id
@@ -72,7 +72,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
             @object_type == "flag" ->
               live_component(
                 @socket,
-                MoodleNetWeb.Component.FlagPreviewLive,
+                CommonsPub.Web.Component.FlagPreviewLive,
                 flag: @object,
                 current_user: @current_user,
                 id: @preview_id
@@ -80,7 +80,7 @@ defmodule MoodleNetWeb.Component.PreviewLive do
             @object_type == "category" ->
               live_component(
                 @socket,
-                MoodleNetWeb.Component.CategoryPreviewLive,
+                CommonsPub.Web.Component.CategoryPreviewLive,
                 object: @object,
                 current_user: @current_user,
                 id: @preview_id

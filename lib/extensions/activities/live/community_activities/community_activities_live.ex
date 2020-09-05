@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.CommunityLive.CommunityActivitiesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.CommunityLive.CommunityActivitiesLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     ActivitiesListLive
   }
 
-  alias MoodleNetWeb.GraphQL.{
-    CommunitiesResolver
-  }
+  # alias CommonsPub.Web.GraphQL.{
+  #   CommunitiesResolver
+  # }
 
   # def mount(socket) do
   #   {
@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityActivitiesLive do
   Handle pushed activities from PubSub
   """
   def update(%{activity: activity}, socket),
-    do: MoodleNetWeb.Helpers.Activites.pubsub_receive(activity, socket)
+    do: CommonsPub.Activities.Web.ActivitiesHelper.pubsub_receive(activity, socket)
 
   def update(assigns, socket) do
     # IO.inspect(assigns, label: "ASSIGNS:")
@@ -45,15 +45,15 @@ defmodule MoodleNetWeb.CommunityLive.CommunityActivitiesLive do
   """
   def fetch(socket, assigns),
     do:
-      MoodleNetWeb.Helpers.Activites.outbox_live(
-        {&MoodleNet.Feeds.outbox_id/1, assigns.community},
-        &MoodleNet.Communities.default_outbox_query_contexts/0,
+      CommonsPub.Activities.Web.ActivitiesHelper.outbox_live(
+        {&CommonsPub.Feeds.outbox_id/1, assigns.community},
+        &CommonsPub.Communities.default_outbox_query_contexts/0,
         assigns,
         socket
       )
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

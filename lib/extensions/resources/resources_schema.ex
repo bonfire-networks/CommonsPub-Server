@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
+defmodule CommonsPub.Web.GraphQL.ResourcesSchema do
   @moduledoc """
   GraphQL resource fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CommonResolver,
     FlagsResolver,
     LikesResolver,

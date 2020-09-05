@@ -1,11 +1,13 @@
 defmodule ValueFlows.Observation.EconomicEvent.Migrations do
   use Ecto.Migration
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 
+  alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicResource
+  alias ValueFlows.Observation.Process
 
   # defp event_table(), do: EconomicEvent.__schema__(:source)
 
@@ -29,7 +31,7 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
-      add(:resource_conforms_to, weak_pointer(ResourceSpecification), null: true)
+      add(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
 
       add(:resource_quantity_id, references("measurement_measure", on_delete: :nilify_all))
       add(:effort_quantity_id, references("measurement_measure", on_delete: :nilify_all))

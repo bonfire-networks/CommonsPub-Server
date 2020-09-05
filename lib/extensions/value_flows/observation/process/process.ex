@@ -1,18 +1,20 @@
 defmodule ValueFlows.Observation.Process do
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "vf_process",
     table_id: "WAYF0R1NPVTST0BEC0ME0VTPVT"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
-  # alias MoodleNet.Actors.Actor
-  # alias MoodleNet.Communities.Community
-  alias ValueFlows.Knowledge.Action
+  alias CommonsPub.Users.User
+  #
+  # alias CommonsPub.Communities.Community
   alias ValueFlows.Observation.Process
-  alias Measurement.Measure
+  # alias Measurement.Measure
+
+  # alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.ProcessSpecification
 
   @type t :: %__MODULE__{}
 
@@ -28,11 +30,12 @@ defmodule ValueFlows.Observation.Process do
 
     field(:classified_as, {:array, :string}, virtual: true)
 
+    belongs_to(:based_on, ProcessSpecification)
+
     belongs_to(:context, Pointers.Pointer)
 
     # TODO
     # workingAgents: [Agent!]
-    # basedOn: ProcessSpecification
     # nextProcesses: [Process!]
     # previousProcesses: [Process!]
     # intendedInputs(action: ID): [Process!]
@@ -42,9 +45,9 @@ defmodule ValueFlows.Observation.Process do
     # unplannedEconomicEvents(action: ID): [EconomicEvent!]
     # trace: [EconomicEvent!]
     # track: [EconomicEvent!]
-    # plannedWithin: Plan
     # committedInputs(action: ID): [Commitment!]
     # committedOutputs(action: ID): [Commitment!]
+    # plannedWithin: Plan
     # nestedIn: Scenario
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
@@ -72,22 +75,6 @@ defmodule ValueFlows.Observation.Process do
 
   def create_changeset(
         %User{} = creator,
-        %{id: _} = context,
-        attrs
-      ) do
-    %Process{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: creator.id,
-      context_id: context.id,
-      is_public: true
-    )
-    |> common_changeset()
-  end
-
-  def create_changeset(
-        %User{} = creator,
         attrs
       ) do
     %Process{}
@@ -97,17 +84,6 @@ defmodule ValueFlows.Observation.Process do
       creator_id: creator.id,
       is_public: true
     )
-    |> common_changeset()
-  end
-
-  def update_changeset(
-        %Process{} = process,
-        %{id: _} = context,
-        attrs
-      ) do
-    process
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
 

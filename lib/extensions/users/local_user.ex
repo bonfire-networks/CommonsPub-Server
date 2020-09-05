@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.LocalUser do
+defmodule CommonsPub.Users.LocalUser do
   @moduledoc """
   User model
   """
-  use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [change_public: 1]
+  use CommonsPub.Common.Schema
+  import CommonsPub.Common.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
-  alias MoodleNet.Users.{LocalUser, User, EmailConfirmToken}
+  alias CommonsPub.Users.{LocalUser, User, EmailConfirmToken}
 
   table_schema "mn_local_user" do
     field(:email, :string)

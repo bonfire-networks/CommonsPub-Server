@@ -98,9 +98,12 @@ defmodule CommonsPub.Utils.Simulation do
   def email_user(), do: Zest.Faking.unused(&Faker.Internet.user_name/0, :email_user)
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: Zest.Faking.unused(&url/0, :ap_url_base)
+
+  @doc "Generates a random username"
+  def username(), do: CommonsPub.Characters.sanitise_username(Faker.Internet.user_name())
+
   @doc "Picks a unique preferred_username"
-  def preferred_username(),
-    do: Zest.Faking.unused(&Faker.Internet.user_name/0, :preferred_username)
+  def preferred_username(), do: Zest.Faking.unused(&username/0, :preferred_username)
 
   @doc "Picks a random canonical url and makes it unique"
   def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()
@@ -115,11 +118,13 @@ defmodule CommonsPub.Utils.Simulation do
   def long_list(gen), do: Faker.Util.list(long_count(), gen)
   def one_of(gens), do: Faker.Util.pick(gens).()
 
+  def maybe_one_of(list), do: Faker.Util.pick(list ++ [nil])
+
   def page_info(base \\ %{}) do
     base
     |> Map.put_new_lazy(:start_cursor, &uuid/0)
     |> Map.put_new_lazy(:end_cursor, &uuid/0)
-    |> Map.put(:__struct__, MoodleNet.GraphQL.PageInfo)
+    |> Map.put(:__struct__, CommonsPub.GraphQL.PageInfo)
   end
 
   def long_node_list(base \\ %{}, gen) do
@@ -127,7 +132,7 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:page_info, &page_info/0)
     |> Map.put_new_lazy(:total_count, &pos_integer/0)
     |> Map.put_new_lazy(:nodes, fn -> long_list(gen) end)
-    |> Map.put(:__struct__, MoodleNet.GraphQL.NodeList)
+    |> Map.put(:__struct__, CommonsPub.GraphQL.NodeList)
   end
 
   def long_edge_list(base \\ %{}, gen) do
@@ -135,19 +140,19 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:page_info, &page_info/0)
     |> Map.put_new_lazy(:total_count, &pos_integer/0)
     |> Map.put_new_lazy(:edges, fn -> long_list(fn -> edge(gen) end) end)
-    |> Map.put(:__struct__, MoodleNet.GraphQL.EdgeList)
+    |> Map.put(:__struct__, CommonsPub.GraphQL.EdgeList)
   end
 
   def edge(base \\ %{}, gen) do
     base
     |> Map.put_new_lazy(:cursor, &uuid/0)
     |> Map.put_new_lazy(:node, gen)
-    |> Map.put(:__struct__, MoodleNet.GraphQL.Edge)
+    |> Map.put(:__struct__, CommonsPub.GraphQL.Edge)
   end
 
   # Widely useful schemas:
 
-  def actor(base \\ %{}) do
+  def character(base \\ %{}) do
     base
     |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
@@ -232,7 +237,7 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:location, &location/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
-    |> Map.merge(actor(base))
+    |> Map.merge(character(base))
     |> Map.merge(local_user(base))
   end
 
@@ -270,7 +275,7 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &bool/0)
-    |> Map.merge(actor(base))
+    |> Map.merge(character(base))
   end
 
   def community_input(base \\ %{}) do
@@ -296,7 +301,7 @@ defmodule CommonsPub.Utils.Simulation do
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &bool/0)
-    |> Map.merge(actor(base))
+    |> Map.merge(character(base))
   end
 
   def collection_input(base \\ %{}) do
@@ -344,6 +349,7 @@ defmodule CommonsPub.Utils.Simulation do
   def thread(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_locked, &falsehood/0)

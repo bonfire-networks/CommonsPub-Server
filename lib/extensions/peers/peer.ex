@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Peers.Peer do
+defmodule CommonsPub.Peers.Peer do
   @moduledoc """
   A Peer is a remote server we interact with via one or more protocols, currently:
 
@@ -7,14 +7,14 @@ defmodule MoodleNet.Peers.Peer do
 
   Peers participate in the meta system and must be created from a Pointer
   """
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset,
+  import CommonsPub.Common.Changeset,
     only: [validate_http_url: 2, change_synced_timestamp: 3]
 
   alias Ecto.Changeset
-  alias MoodleNet.Peers
-  alias MoodleNet.Peers.Peer
+  alias CommonsPub.Peers
+  alias CommonsPub.Peers.Peer
 
   table_schema "mn_peer" do
     field(:ap_url_base, :string)

@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AddCategoriesAndTagsResourceFields do
+defmodule CommonsPub.Repo.Migrations.AddCategoriesAndTagsResourceFields do
   use Ecto.Migration
 
   def change do

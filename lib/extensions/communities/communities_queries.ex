@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Communities.Queries do
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+defmodule CommonsPub.Communities.Queries do
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Follows.{Follow, FollowerCount}
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
 
   import Ecto.Query
 
@@ -12,7 +12,9 @@ defmodule MoodleNet.Communities.Queries do
   def query(query, filters), do: filter(query(query), filters)
 
   defp join_to(q, spec, join_qualifier \\ :left)
-  defp join_to(q, :actor, jq), do: join(q, jq, [community: c], assoc(c, :actor), as: :actor)
+
+  defp join_to(q, :character, jq),
+    do: join(q, jq, [community: c], assoc(c, :character), as: :character)
 
   defp join_to(q, {:follow, follower_id}, jq) do
     join(q, jq, [community: c], f in Follow,
@@ -33,7 +35,7 @@ defmodule MoodleNet.Communities.Queries do
 
   def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))
 
-  def filter(q, :default), do: filter(q, deleted: false, join: :actor, preload: :actor)
+  def filter(q, :default), do: filter(q, deleted: false, join: :character, preload: :character)
 
   def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
   def filter(q, {:join, join}), do: join_to(q, join)
@@ -100,11 +102,11 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where(q, [community: c, actor: a], a.preferred_username == ^username)
+    where(q, [community: c, character: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where(q, [actor: a], a.preferred_username in ^usernames)
+    where(q, [character: a], a.preferred_username in ^usernames)
   end
 
   def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
@@ -127,7 +129,7 @@ defmodule MoodleNet.Communities.Queries do
 
   def filter(q, {:limit, limit}), do: limit(q, ^limit)
 
-  def filter(q, {:preload, :actor}), do: preload(q, [actor: a], actor: a)
+  def filter(q, {:preload, :character}), do: preload(q, [character: a], character: a)
 
   def filter(q, {:order, [asc: :created]}), do: order_by(q, [community: c], asc: c.id)
   def filter(q, {:order, [desc: :created]}), do: order_by(q, [community: c], desc: c.id)
@@ -149,8 +151,8 @@ defmodule MoodleNet.Communities.Queries do
     |> filter(join: :follower_count, order: [desc: :followers])
     |> page(page_opts, desc: :followers)
     |> select(
-      [community: c, actor: a, follower_count: fc],
-      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+      [community: c, character: a, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0), character: a}
     )
   end
 

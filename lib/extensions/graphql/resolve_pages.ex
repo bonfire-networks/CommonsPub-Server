@@ -1,11 +1,11 @@
-defmodule MoodleNet.GraphQL.ResolvePages do
+defmodule CommonsPub.GraphQL.ResolvePages do
   @moduledoc """
   Encapsulates the flow of resolving a page in the presence of a
   single parent. We also currently use this as a stopgap while we
   finish implementing some things, trading speed for correctness.
   """
 
-  alias MoodleNet.GraphQL.Fields
+  alias CommonsPub.GraphQL.Fields
 
   @enforce_keys [:module, :fetcher, :context, :page_opts, :info]
   defstruct [
@@ -21,8 +21,8 @@ defmodule MoodleNet.GraphQL.ResolvePages do
     getter_fn: &Fields.getter/1
   ]
 
-  alias MoodleNet.GraphQL
-  alias MoodleNet.GraphQL.ResolvePages
+  alias CommonsPub.GraphQL
+  alias CommonsPub.GraphQL.ResolvePages
   import Absinthe.Resolution.Helpers, only: [async: 1, batch: 3]
 
   def run(%ResolvePages{info: info} = rp) do

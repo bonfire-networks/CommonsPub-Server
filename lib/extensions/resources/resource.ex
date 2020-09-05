@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Resources.Resource do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Resources.Resource do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset,
+  import CommonsPub.Common.Changeset,
     only: [change_public: 1, change_disabled: 1, cast_object: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Resources
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Uploads.Content
-  alias MoodleNet.Users.User
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Resources
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Uploads.Content
+  alias CommonsPub.Users.User
 
   table_schema "mn_resource" do
     belongs_to(:creator, User)

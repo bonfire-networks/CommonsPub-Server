@@ -7,8 +7,7 @@ defmodule CommonsPub.HTML.Scrubber do
   #  @on_load :compile_scrubbers
 
   # def compile_scrubbers do
-  #   dir = Path.join(:code.priv_dir(:moodle_net), "scrubbers")
-  #   IO.inspect(dir)
+  #   dir = Path.join(:code.priv_dir(:commons_pub), "scrubbers")
 
   #   dir
   #   |> CommonsPub.ReleaseTasks.compile_dir()
@@ -30,7 +29,7 @@ defmodule CommonsPub.HTML.Scrubber do
   defp get_scrubbers(_), do: [@default_scrubber]
 
   def get_scrubbers do
-    MoodleNet.Config.get([:markup, :scrub_policy], [
+    CommonsPub.Config.get([:markup, :scrub_policy], [
       @default_scrubber
       # CommonsPub.HTML.Transform.MediaProxy
     ])

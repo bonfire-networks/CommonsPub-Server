@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Follows do
-  alias MoodleNet.{Activities, Common, GraphQL, Repo}
-  alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
+defmodule CommonsPub.Follows do
+  alias CommonsPub.{Activities, Common, GraphQL, Repo}
+  alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
 
-  alias MoodleNet.Follows.{
+  alias CommonsPub.Follows.{
     AlreadyFollowingError,
     Follow,
     Queries
   }
 
-  alias MoodleNet.Users.{LocalUser, User}
-  alias MoodleNet.Workers.APPublishWorker
+  alias CommonsPub.Users.{LocalUser, User}
+  alias CommonsPub.Workers.APPublishWorker
   alias Ecto.Changeset
 
   def one(filters), do: Repo.single(Queries.query(Follow, filters))
@@ -26,28 +26,33 @@ defmodule MoodleNet.Follows do
   def create(follower, followed, fields, opts \\ [])
 
   def create(%User{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
-    create(follower, MoodleNet.Meta.Pointers.follow!(followed), fields, opts)
+    create(follower, CommonsPub.Meta.Pointers.follow!(followed), fields, opts)
   end
 
-  def create(%User{} = follower, %struct{outbox_id: _} = followed, fields, _opts) do
-    if struct in valid_contexts() do
-      Repo.transact_with(fn ->
-        case one(deleted: false, creator: follower.id, context: followed.id) do
-          {:ok, _} ->
-            {:error, AlreadyFollowingError.new("user")}
+  def create(%User{} = follower, %{character: %{outbox_id: _} = followed}, fields, _opts) do
+    create(follower, followed, fields, _opts)
+  end
 
-          _ ->
-            with {:ok, follow} <- insert(follower, followed, fields),
-                 :ok <- subscribe(follower, followed, follow),
-                 :ok <- publish(follower, followed, follow),
-                 :ok <- ap_publish("create", follow) do
-              {:ok, %{follow | ctx: followed}}
-            end
-        end
-      end)
-    else
-      GraphQL.not_permitted()
-    end
+  def create(%User{} = follower, %_struct{outbox_id: _} = followed, fields, _opts) do
+    # if struct in valid_contexts() do
+    Repo.transact_with(fn ->
+      case one(deleted: false, creator: follower.id, context: followed.id) do
+        {:ok, _} ->
+          {:error, AlreadyFollowingError.new("user")}
+
+        _ ->
+          with {:ok, follow} <- insert(follower, followed, fields),
+               :ok <- subscribe(follower, followed, follow),
+               :ok <- publish(follower, followed, follow),
+               :ok <- ap_publish("create", follow) do
+            {:ok, %{follow | ctx: followed}}
+          end
+      end
+    end)
+
+    # else
+    #   GraphQL.not_permitted()
+    # end
   end
 
   def create(_, _, _, _) do
@@ -63,7 +68,7 @@ defmodule MoodleNet.Follows do
     attrs = %{verb: "created", is_local: follow.is_local}
 
     with {:ok, activity} <- Activities.create(creator, follow, attrs) do
-      FeedActivities.publish(activity, [creator.outbox_id, followed.outbox_id])
+      FeedActivities.publish(activity, [CommonsPub.Feeds.outbox_id(creator), followed.outbox_id])
     end
   end
 
@@ -120,8 +125,8 @@ defmodule MoodleNet.Follows do
   end
 
   defp chase_delete(user, follows, contexts) do
-    with {:ok, pointers} <- MoodleNet.Meta.Pointers.many(id: contexts),
-         contexts = MoodleNet.Meta.Pointers.follow!(pointers),
+    with {:ok, pointers} <- CommonsPub.Meta.Pointers.many(id: contexts),
+         contexts = CommonsPub.Meta.Pointers.follow!(pointers),
          feeds = get_outbox_ids(contexts, []),
          :ok <- Activities.soft_delete_by(user, context: follows),
          :ok <- FeedSubscriptions.soft_delete_by(user, feed: feeds) do
@@ -151,7 +156,7 @@ defmodule MoodleNet.Follows do
   defp subscribe(_, _, _), do: :ok
 
   # defp unsubscribe(%{creator_id: creator_id, is_local: true, muted_at: nil}=follow) do
-  #   context = MoodleNet.Meta.Pointers.follow!(Repo.preload(follow, :context).context)
+  #   context = CommonsPub.Meta.Pointers.follow!(Repo.preload(follow, :context).context)
   #   case FeedSubscriptions.one(deleted: false, subscriber: creator_id, feed: context.outbox_id) do
   #     {:ok, sub} -> Common.soft_delete(sub)
   #     _ -> {:ok, []} # shouldn't be here
@@ -161,7 +166,7 @@ defmodule MoodleNet.Follows do
   # defp unsubscribe(_), do: {:ok, []}
 
   def valid_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
+    CommonsPub.Config.get!(__MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
 end

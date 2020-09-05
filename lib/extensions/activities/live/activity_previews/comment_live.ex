@@ -1,10 +1,10 @@
-defmodule MoodleNetWeb.Component.CommentPreviewLive do
+defmodule CommonsPub.Web.Component.CommentPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.{Common}
-  # alias MoodleNetWeb.Helpers.Discussions
+  import CommonsPub.Utils.Web.CommonHelper
+  # alias CommonsPub.Discussions.Web.DiscussionsHelper
 
   # def update(%{comment: _} = assigns, socket) do
-  #   c = Discussions.prepare_comment(assigns.comment, assigns.current_user)
+  #   c = DiscussionsHelper.prepare_comment(assigns.comment, assigns.current_user)
   #   IO.inspect(update_comment: c)
 
   #   {

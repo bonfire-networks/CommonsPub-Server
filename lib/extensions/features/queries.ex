@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Features.Queries do
-  alias MoodleNet.Features.Feature
-  alias MoodleNet.Meta.TableService
+defmodule CommonsPub.Features.Queries do
+  alias CommonsPub.Features.Feature
+  alias CommonsPub.Meta.TableService
 
   import Ecto.Query
 

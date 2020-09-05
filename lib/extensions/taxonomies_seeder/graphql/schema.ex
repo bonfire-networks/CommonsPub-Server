@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Taxonomy.GraphQL.TaxonomySchema do
   use Absinthe.Schema.Notation
-  # alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias CommonsPub.Web.GraphQL.{CommonResolver}
   alias Taxonomy.GraphQL.{TaxonomyResolver}
 
   object :taxonomy_queries do

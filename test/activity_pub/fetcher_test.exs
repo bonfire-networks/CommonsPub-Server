@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.FetcherTest do
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
   import Tesla.Mock
 
   alias ActivityPub.Fetcher

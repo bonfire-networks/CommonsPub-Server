@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Mix.Tasks.MoodleNet.AllowEmail do
+defmodule Mix.Tasks.CommonsPub.AllowEmail do
   use Mix.Task
 
-  @usage "mix moodle_net.allow_email EMAIL"
+  @usage "mix commons_pub.allow_email EMAIL"
 
   @shortdoc "Allow an address to allow login locally."
   @moduledoc """
@@ -17,10 +17,10 @@ defmodule Mix.Tasks.MoodleNet.AllowEmail do
   def run([email | _]) when is_binary(email) do
     Mix.Task.run("app.start")
 
-    if MoodleNet.Access.is_register_accessed?(email) do
+    if CommonsPub.Access.is_register_accessed?(email) do
       Mix.shell().info("#{email} already allowed to sign up.")
     else
-      {:ok, _} = MoodleNet.Access.create_register_email(email)
+      {:ok, _} = CommonsPub.Access.create_register_email(email)
       Mix.shell().info("#{email} added to the allow list.")
     end
   end

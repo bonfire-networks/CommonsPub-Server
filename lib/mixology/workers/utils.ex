@@ -1,15 +1,15 @@
-defmodule MoodleNet.Workers.Utils do
+defmodule CommonsPub.Workers.Utils do
   require Logger
 
   defp get_log_level(key)
 
   defp get_log_level(key) when is_atom(key) do
-    Application.get_env(:moodle_net, key, [])
+    CommonsPub.Config.get(key, [])
     |> Keyword.get(:log_level, :warn)
   end
 
   @doc "set up the logger for this worker, defaults to log level warn"
-  def configure_logger(key \\ MoodleNet.Workers, overrides \\ []) do
+  def configure_logger(key \\ CommonsPub.Workers, overrides \\ []) do
     overrides
     |> Keyword.put_new_lazy(:log_level, fn -> get_log_level(key) end)
     |> Logger.configure()

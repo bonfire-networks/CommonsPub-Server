@@ -5,7 +5,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Communities,
     GraphQL,
@@ -13,7 +13,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     # User
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -24,18 +24,18 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     # CommonResolver
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
+  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
-  alias ValueFlows.Knowledge.Action.Actions
-  # alias MoodleNetWeb.GraphQL.CommonResolver
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  # alias ValueFlows.Knowledge.Action.Actions
+  # alias CommonsPub.Web.GraphQL.CommonResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
@@ -45,7 +45,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   ## resolvers
 
-  def simulate(%{id: id}, _) do
+  def simulate(%{id: _id}, _) do
     {:ok, ValueFlows.Simulate.resource_specification()}
   end
 
@@ -53,19 +53,19 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     {:ok, CommonsPub.Utils.Trendy.some(1..5, &ValueFlows.Simulate.resource_specification/0)}
   end
 
-  def respec(%{id: id}, info) do
+  def resource_spec(%{id: id}, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
-      fetcher: :fetch_respec,
+      fetcher: :fetch_resource_spec,
       context: id,
       info: info
     })
   end
 
-  def respecs(page_opts, info) do
+  def resource_specs(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
-      fetcher: :fetch_respecs,
+      fetcher: :fetch_resource_specs,
       page_opts: page_opts,
       info: info,
       # popularity
@@ -73,31 +73,31 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     })
   end
 
-  def all_respecs(_, _) do
+  def all_resource_specs(_, _) do
     ResourceSpecifications.many()
   end
 
-  def respecs_filtered(page_opts, _) do
-    IO.inspect(respecs_filtered: page_opts)
-    respecs_filter(page_opts, [])
+  def resource_specs_filtered(page_opts, _) do
+    IO.inspect(resource_specs_filtered: page_opts)
+    resource_specs_filter(page_opts, [])
   end
 
-  # def respecs_filtered(page_opts, _) do
+  # def resource_specs_filtered(page_opts, _) do
   #   IO.inspect(unhandled_filtering: page_opts)
-  #   all_respecs(page_opts, nil)
+  #   all_resource_specs(page_opts, nil)
   # end
 
   # TODO: support several filters combined, plus pagination on filtered queries
 
-  defp respecs_filter(%{agent: id} = page_opts, filters_acc) do
-    respecs_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
+  defp resource_specs_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
+    resource_specs_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
   end
 
-  defp respecs_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
-    respecs_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
+  defp resource_specs_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
+    resource_specs_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
   end
 
-  defp respecs_filter(
+  defp resource_specs_filter(
          _,
          filters_acc
        ) do
@@ -107,27 +107,27 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     ResourceSpecifications.many(filters_acc)
   end
 
-  defp respecs_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp resource_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    IO.inspect(respecs_filter_next: param_remove)
-    IO.inspect(respecs_filter_add: filter_add)
+    IO.inspect(resource_specs_filter_next: param_remove)
+    IO.inspect(resource_specs_filter_add: filter_add)
 
-    respecs_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
+    resource_specs_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
 
-  defp respecs_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp resource_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when not is_list(filter_add) do
-    respecs_filter_next(param_remove, [filter_add], page_opts, filters_acc)
+    resource_specs_filter_next(param_remove, [filter_add], page_opts, filters_acc)
   end
 
-  defp respecs_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp resource_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when not is_list(param_remove) do
-    respecs_filter_next([param_remove], filter_add, page_opts, filters_acc)
+    resource_specs_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
   ## fetchers
 
-  def fetch_respec(info, id) do
+  def fetch_resource_spec(info, id) do
     ResourceSpecifications.one([
       :default,
       user: GraphQL.current_user(info),
@@ -136,18 +136,18 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     ])
   end
 
-  def creator_respecs_edge(%{creator: creator}, %{} = page_opts, info) do
+  def creator_resource_specs_edge(%{creator: creator}, %{} = page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
-      fetcher: :fetch_creator_respecs_edge,
+      fetcher: :fetch_creator_resource_specs_edge,
       context: creator,
       page_opts: page_opts,
       info: info
     })
   end
 
-  def fetch_creator_respecs_edge(page_opts, info, ids) do
-    list_respecs(
+  def fetch_creator_resource_specs_edge(page_opts, info, ids) do
+    list_resource_specs(
       page_opts,
       [
         :default,
@@ -159,7 +159,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     )
   end
 
-  def list_respecs(page_opts, base_filters, _data_filters, _cursor_type) do
+  def list_resource_specs(page_opts, base_filters, _data_filters, _cursor_type) do
     FetchPage.run(%FetchPage{
       queries: Queries,
       query: ResourceSpecification,
@@ -170,16 +170,16 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     })
   end
 
-  def fetch_respecs(page_opts, info) do
+  def fetch_resource_specs(page_opts, info) do
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Knowledge.ResourceSpecification.Queries,
       query: ValueFlows.Knowledge.ResourceSpecification,
-      # preload: [:primary_accountable, :receiver, :tags],
+      # preload: [:tags],
       # cursor_fn: ResourceSpecifications.cursor(:followers),
       page_opts: page_opts,
       base_filters: [
         :default,
-        # preload: [:primary_accountable, :receiver, :tags],
+        # preload: [:tags],
         user: GraphQL.current_user(info)
       ]
       # data_filters: [page: [desc: [followers: page_opts]]],
@@ -187,101 +187,102 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: [character: [:actor]])
-    urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
+    thing = Repo.preload(thing, tags: :character)
+    urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
 
-  def create_respec(%{respec: %{in_scope_of: context_ids} = respec_attrs}, info)
+  def create_resource_spec(
+        %{resource_specification: %{in_scope_of: context_ids} = resource_spec_attrs},
+        info
+      )
       when is_list(context_ids) do
     # FIXME: support multiple contexts?
     context_id = List.first(context_ids)
 
-    create_respec(
-      %{respec: Map.merge(respec_attrs, %{in_scope_of: context_id})},
+    create_resource_spec(
+      %{resource_specification: Map.merge(resource_spec_attrs, %{in_scope_of: context_id})},
       info
     )
   end
 
-  def create_respec(
-        %{respec: %{in_scope_of: context_id, state: state_id} = respec_attrs},
+  def create_resource_spec(
+        %{resource_specification: %{in_scope_of: context_id} = resource_spec_attrs},
         info
       )
       when not is_nil(context_id) do
-    # FIXME, need to do something like validate_thread_context to validate the primary_accountable/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, state} <- Actions.action(state_id),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
-           {:ok, uploads} <- UploadResolver.upload(user, respec_attrs, info),
-           respec_attrs = Map.merge(respec_attrs, uploads),
-           respec_attrs = Map.merge(respec_attrs, %{is_public: true}),
-           {:ok, respec} <- ResourceSpecifications.create(user, state, context, respec_attrs) do
-        {:ok, %{respec: %{respec | state: state}}}
+           {:ok, uploads} <- UploadResolver.upload(user, resource_spec_attrs, info),
+           resource_spec_attrs = Map.merge(resource_spec_attrs, uploads),
+           resource_spec_attrs = Map.merge(resource_spec_attrs, %{is_public: true}),
+           {:ok, resource_spec} <-
+             ResourceSpecifications.create(user, context, resource_spec_attrs) do
+        {:ok, %{resource_specification: resource_spec}}
       end
     end)
   end
 
   # FIXME: duplication!
-  def create_respec(%{respec: %{state: state_id} = respec_attrs}, info) do
+  def create_resource_spec(%{resource_specification: resource_spec_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, state} <- Actions.action(state_id),
-           {:ok, uploads} <- UploadResolver.upload(user, respec_attrs, info),
-           respec_attrs = Map.merge(respec_attrs, uploads),
-           respec_attrs = Map.merge(respec_attrs, %{is_public: true}),
-           {:ok, respec} <- ResourceSpecifications.create(user, state, respec_attrs) do
-        {:ok, %{respec: %{respec | state: state}}}
+           {:ok, uploads} <- UploadResolver.upload(user, resource_spec_attrs, info),
+           resource_spec_attrs = Map.merge(resource_spec_attrs, uploads),
+           resource_spec_attrs = Map.merge(resource_spec_attrs, %{is_public: true}),
+           {:ok, resource_spec} <- ResourceSpecifications.create(user, resource_spec_attrs) do
+        {:ok, %{resource_specification: resource_spec}}
       end
     end)
   end
 
-  def update_respec(%{respec: %{in_scope_of: context_ids} = changes}, info) do
+  def update_resource_spec(%{resource_specification: %{in_scope_of: context_ids} = changes}, info) do
     context_id = List.first(context_ids)
 
     Repo.transact_with(fn ->
-      do_update(changes, info, fn respec, changes ->
+      do_update(changes, info, fn resource_spec, changes ->
         with {:ok, pointer} <- Pointers.one(id: context_id) do
           context = Pointers.follow!(pointer)
-          ResourceSpecifications.update(respec, context, changes)
+          ResourceSpecifications.update(resource_spec, context, changes)
         end
       end)
     end)
   end
 
-  def update_respec(%{respec: changes}, info) do
+  def update_resource_spec(%{resource_specification: changes}, info) do
     Repo.transact_with(fn ->
-      do_update(changes, info, fn respec, changes ->
-        ResourceSpecifications.update(respec, changes)
+      do_update(changes, info, fn resource_spec, changes ->
+        ResourceSpecifications.update(resource_spec, changes)
       end)
     end)
   end
 
   defp do_update(%{id: id} = changes, info, update_fn) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, respec} <- respec(%{id: id}, info),
-         :ok <- ensure_update_permission(user, respec),
+         {:ok, resource_spec} <- resource_spec(%{id: id}, info),
+         :ok <- ensure_update_permission(user, resource_spec),
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
-         {:ok, respec} <- update_fn.(respec, changes) do
-      {:ok, %{respec: respec}}
+         {:ok, resource_spec} <- update_fn.(resource_spec, changes) do
+      {:ok, %{resource_spec: resource_spec}}
     end
   end
 
-  def delete_respec(%{id: id}, info) do
+  def delete_resource_spec(%{id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, respec} <- respec(%{id: id}, info),
-           :ok <- ensure_update_permission(user, respec),
-           {:ok, _} <- ResourceSpecifications.soft_delete(respec) do
+           {:ok, resource_spec} <- resource_spec(%{id: id}, info),
+           :ok <- ensure_update_permission(user, resource_spec),
+           {:ok, _} <- ResourceSpecifications.soft_delete(resource_spec) do
         {:ok, true}
       end
     end)
   end
 
-  def ensure_update_permission(user, respec) do
-    if user.local_user.is_instance_admin or respec.creator_id == user.id do
+  def ensure_update_permission(user, resource_spec) do
+    if user.local_user.is_instance_admin or resource_spec.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")
@@ -298,6 +299,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
   # end
 end

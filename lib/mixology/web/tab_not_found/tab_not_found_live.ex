@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Component.TabNotFoundLive do
+defmodule CommonsPub.Web.Component.TabNotFoundLive do
   use Phoenix.LiveComponent
 
   def render(assigns) do

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.Queries do
-  # alias MoodleNet.Users
+  # alias CommonsPub.Users
   alias Organisation
-  alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.Follows.{Follow, FollowerCount}
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Organisation) do
@@ -14,13 +14,13 @@ defmodule Organisation.Queries do
       as: :profile,
       join: c in assoc(o, :character),
       as: :character,
-      join: a in assoc(c, :actor),
-      as: :actor,
+      # join: a in assoc(c, :character),
+      # as: :character,
       select_merge: %{name: p.name},
       select_merge: %{summary: p.summary},
       # select_merge: %{updated_at: p.updated_at},
-      select_merge: %{preferred_username: a.preferred_username},
-      select_merge: %{canonical_url: a.canonical_url}
+      select_merge: %{preferred_username: c.preferred_username},
+      select_merge: %{canonical_url: c.canonical_url}
     )
   end
 
@@ -153,11 +153,11 @@ defmodule Organisation.Queries do
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where(q, [character: c, actor: a], a.preferred_username == ^username)
+    where(q, [character: c, character: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where(q, [character: c, actor: a], a.preferred_username in ^usernames)
+    where(q, [character: c, character: a], a.preferred_username in ^usernames)
   end
 
   ## by ordering
@@ -191,16 +191,12 @@ defmodule Organisation.Queries do
     preload(q, [character: c], character: c)
   end
 
-  def filter(q, {:preload, :actor}) do
-    preload(q, [actor: a], actor: a)
-  end
-
   # def filter(q, {:preload, :context}) do
   #   preload q, [character: c, context: cx], c.context: cx
   # end
 
   def filter(q, {:preload, :default}) do
-    preload(q, [profile: p, character: c, actor: a], profile: p, character: c, actor: a)
+    preload(q, [profile: p, character: c, character: a], profile: p, character: c, character: a)
   end
 
   # pagination
@@ -232,8 +228,8 @@ defmodule Organisation.Queries do
   #   |> filter(join: :follower_count, order: [desc: :followers])
   #   |> page(page_opts, [desc: :followers])
   #   |> select(
-  #     [organisation: c, actor: a, follower_count: fc],
-  #     %{c | follower_count: coalesce(fc.count, 0), actor: a}
+  #     [organisation: c, character: a, follower_count: fc],
+  #     %{c | follower_count: coalesce(fc.count, 0), character: a}
   #   )
   # end
 

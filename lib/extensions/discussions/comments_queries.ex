@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Threads.CommentsQueries do
-  alias MoodleNet.Threads.Comment
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+defmodule CommonsPub.Threads.CommentsQueries do
+  alias CommonsPub.Threads.Comment
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
 
   import Ecto.Query
 

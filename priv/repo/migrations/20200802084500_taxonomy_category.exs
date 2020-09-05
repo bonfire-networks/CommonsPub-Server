@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.TaxonomyCategory do
+defmodule CommonsPub.Repo.Migrations.TaxonomyCategory do
   use Ecto.Migration
 
   def up do

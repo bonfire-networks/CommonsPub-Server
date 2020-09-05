@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Activities do
-  alias MoodleNet.{
+defmodule CommonsPub.Activities do
+  alias CommonsPub.{
     # Activities,
     Common,
     Repo
   }
 
-  alias MoodleNet.Activities.{Activity, Queries}
-  alias MoodleNet.Users.User
+  alias CommonsPub.Activities.{Activity, Queries}
+  alias CommonsPub.Users.User
 
   def one(filters \\ []), do: Repo.single(Queries.query(Activity, filters))
 

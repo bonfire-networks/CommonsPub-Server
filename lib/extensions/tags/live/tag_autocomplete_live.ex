@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.Component.TagAutocomplete do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.Component.TagAutocomplete do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  # TODO: consolidate CommonsPub.Tag.Autocomplete and MoodleNetWeb.Component.TagAutocomplete
+  # TODO: consolidate CommonsPub.Tag.Autocomplete and CommonsPub.Web.Component.TagAutocomplete
 
   # TODO: put in config
   @tag_terminator " "
@@ -25,16 +25,16 @@ defmodule MoodleNetWeb.Component.TagAutocomplete do
 
   # need to alias some form posting events here to workaround having two events but one target on a form
   def handle_event("publish_ad", data, socket) do
-    MoodleNetWeb.My.PublishAdLive.publish_ad(data, socket)
+    CommonsPub.Web.My.PublishAdLive.publish_ad(data, socket)
   end
 
   # need to alias some form posting events here to workaround having two events but one target on a form
   def handle_event("form_changes" = event, data, socket) do
-    MoodleNetWeb.My.ShareLinkLive.handle_event(event, data, socket)
+    CommonsPub.Web.My.ShareLinkLive.handle_event(event, data, socket)
   end
 
   def handle_event("share_link" = event, data, socket) do
-    MoodleNetWeb.My.ShareLinkLive.handle_event(event, data, socket)
+    CommonsPub.Web.My.ShareLinkLive.handle_event(event, data, socket)
   end
 
   def handle_event("tag_suggest", data, socket) do

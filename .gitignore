@@ -47,9 +47,6 @@ config/secret.exs
 # Editor config
 /.vscode
 
-
-
-
 # Generated test files
 /test_uploads/
 
@@ -66,3 +63,6 @@ priv/repo/structure.sql
 #Custom configs
 config/dev
 config/prod
+
+#Extensions development
+/extensions

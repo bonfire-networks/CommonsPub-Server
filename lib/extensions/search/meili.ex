@@ -67,23 +67,30 @@ defmodule CommonsPub.Search.Meili do
     end
   end
 
+  def http_error(true, _http_method, _message, _object) do
+    nil
+  end
+
   if Mix.env() == :test do
-    def http_error(fail_silently, http_method, _message, _object) do
+    def http_error(_, http_method, _message, _object) do
       Logger.info("Meili - Could not #{http_method} objects")
+      Logger.debug(inspect(message))
     end
-  else
-    def http_error(fail_silently, http_method, message, object) do
-      if(fail_silently) do
-        Logger.info("Meili - Could not #{http_method} object")
-        # Logger.info(inspect(object))
-        :ok
-      else
-        Logger.error("Meili - Couldn't #{http_method} objects:")
-        Logger.warn(inspect(message))
-        Logger.info(inspect(object))
-        {:error, message}
-      end
+  end
+
+  if Mix.env() == :dev do
+    def http_error(_, http_method, message, object) do
+      Logger.error("Meili - Could not #{http_method} objects:")
+      Logger.debug(inspect(message))
+      Logger.debug(inspect(object))
+      {:error, message}
     end
+  end
+
+  def http_error(_, http_method, message, object) do
+    Logger.warn("Meili - Could not #{http_method} object:")
+    Logger.debug(inspect(message))
+    :ok
   end
 
   def http_request(http_method, url, headers, nil) do

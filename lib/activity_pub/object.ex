@@ -5,7 +5,7 @@ defmodule ActivityPub.Object do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
   alias Ecto.ULID
   alias ActivityPub.Fetcher
   alias ActivityPub.Object

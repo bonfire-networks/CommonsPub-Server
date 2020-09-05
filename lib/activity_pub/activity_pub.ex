@@ -14,7 +14,7 @@ defmodule ActivityPub do
   alias ActivityPub.Utils
   alias ActivityPub.Object
   alias ActivityPub.MRF
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   def maybe_forward_activity(
         %{data: %{"type" => "Create", "to" => to, "object" => object}} = activity

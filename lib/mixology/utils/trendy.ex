@@ -7,7 +7,7 @@ defmodule CommonsPub.Utils.Trendy do
   """
 
   import Zest
-  alias MoodleNet.Common.Enums
+  alias CommonsPub.Common.Enums
 
   @compile {:inline, repeat_for_count: 4, noccat: 2, flat_pam: 3, flat_pam_product: 4}
   @compile {:inline, flat_pam_product2: 4, piz: 4}

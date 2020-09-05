@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
-  alias MoodleNet.{Common, Repo}
-  alias MoodleNet.Access.{RegisterEmailDomainAccess, RegisterEmailDomainAccessesQueries}
+defmodule CommonsPub.Access.RegisterEmailDomainAccesses do
+  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Access.{RegisterEmailDomainAccess, RegisterEmailDomainAccessesQueries}
 
   def one(filters) do
     RegisterEmailDomainAccessesQueries.query(RegisterEmailDomainAccess, filters)

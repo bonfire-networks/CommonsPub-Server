@@ -1,17 +1,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Threads.Comments do
+defmodule CommonsPub.Threads.Comments do
   import Ecto.Query
-  alias MoodleNet.{Activities, Common, Feeds, Flags, Repo}
-  alias MoodleNet.Access.NotPermittedError
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.FeedPublisher
-  alias MoodleNet.Feeds.FeedActivities
+  alias CommonsPub.{Activities, Common, Feeds, Flags, Repo}
+  alias CommonsPub.Access.NotPermittedError
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.FeedPublisher
+  alias CommonsPub.Feeds.FeedActivities
   alias Pointers.Pointer
-  # alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.{Comment, CommentsQueries, Thread}
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+  # alias CommonsPub.Resources.Resource
+  alias CommonsPub.Threads.{Comment, CommentsQueries, Thread}
+  alias CommonsPub.Users.User
+  alias CommonsPub.Workers.APPublishWorker
+  alias CommonsPub.Utils.Web.CommonHelper
 
   def one(filters), do: Repo.single(CommentsQueries.query(Comment, filters))
 
@@ -111,11 +112,10 @@ defmodule MoodleNet.Threads.Comments do
     end)
   end
 
-  def clean_and_prepare_tags(attrs) do
-    {content, mentions, hashtags} =
-      CommonsPub.HTML.parse_input_and_tags(attrs.content, "text/markdown")
+  def clean_and_prepare_tags(%{content: content} = attrs) when is_binary(content) do
+    {content, mentions, hashtags} = CommonsPub.HTML.parse_input_and_tags(content, "text/markdown")
 
-    IO.inspect(tagging: {content, mentions, hashtags})
+    # IO.inspect(tagging: {content, mentions, hashtags})
 
     attrs
     |> Map.put(:content, content)
@@ -123,10 +123,12 @@ defmodule MoodleNet.Threads.Comments do
     |> Map.put(:hashtags, hashtags)
   end
 
+  def clean_and_prepare_tags(attrs), do: attrs
+
   def save_attached_tags(creator, comment, attrs) do
     with {:ok, _taggable} <-
            CommonsPub.Tag.TagThings.thing_attach_tags(creator, comment, attrs.mentions) do
-      # {:ok, MoodleNet.Repo.preload(comment, :tags)}
+      # {:ok, CommonsPub.Repo.preload(comment, :tags)}
       {:ok, nil}
     end
   end
@@ -156,7 +158,7 @@ defmodule MoodleNet.Threads.Comments do
 
   def follow_ctx(thread, pointer) do
     # FIXME, causes protocol Enumerable not implemented for %Pointers.Pointer
-    context = MoodleNet.Meta.Pointers.follow!(pointer)
+    context = CommonsPub.Meta.Pointers.follow!(pointer)
     %{thread | context: %{thread.context | pointed: context}}
   end
 
@@ -205,7 +207,7 @@ defmodule MoodleNet.Threads.Comments do
 
   defp publish(creator, thread, _comment, activity, nil) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       thread.outbox_id,
       Feeds.instance_outbox_id()
     ]
@@ -213,11 +215,11 @@ defmodule MoodleNet.Threads.Comments do
     FeedActivities.publish(activity, feeds)
   end
 
-  defp publish(creator, thread, _comment, activity, context_id) do
+  defp publish(creator, thread, _comment, activity, _context_id) do
     feeds =
-      MoodleNet.Common.Contexts.context_feeds(thread.context.pointed) ++
+      CommonsPub.Common.Contexts.context_feeds(thread.context.pointed) ++
         [
-          creator.outbox_id,
+          CommonsPub.Feeds.outbox_id(creator),
           thread.outbox_id,
           Feeds.instance_outbox_id()
         ]
@@ -226,7 +228,6 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   def pubsub_broadcast(thread_id, comment) do
-    IO.inspect(pubbed: thread_id)
     Phoenix.PubSub.broadcast(CommonsPub.PubSub, thread_id, {:pub_feed_comment, comment})
     :ok
   end
@@ -244,16 +245,19 @@ defmodule MoodleNet.Threads.Comments do
   defp ap_publish(_, _), do: :ok
 
   def indexing_object_format(comment) do
+    thread = CommonHelper.maybe_preload(comment.thread, :context)
+    context = CommonHelper.maybe_preload(thread.context, :character)
+
     # follower_count =
-    #   case MoodleNet.Follows.FollowerCounts.one(context: comment.id) do
+    #   case CommonsPub.Follows.FollowerCounts.one(context: comment.id) do
     #     {:ok, struct} -> struct.count
     #     {:error, _} -> nil
     #   end
 
-    # icon = MoodleNet.Uploads.remote_url_from_id(comment.icon_id)
-    # image = MoodleNet.Uploads.remote_url_from_id(comment.image_id)
+    # icon = CommonsPub.Uploads.remote_url_from_id(comment.icon_id)
+    # image = CommonsPub.Uploads.remote_url_from_id(comment.image_id)
 
-    canonical_url = MoodleNet.ActivityPub.Utils.get_object_canonical_url(comment)
+    canonical_url = CommonsPub.ActivityPub.Utils.get_object_canonical_url(comment)
 
     %{
       "index_type" => "Comment",
@@ -261,7 +265,7 @@ defmodule MoodleNet.Threads.Comments do
       "reply_to_id" => comment.reply_to_id,
       "thread" => %{
         "id" => comment.thread_id,
-        "name" => comment.thread.name
+        "name" => thread.name
       },
       "creator" => CommonsPub.Search.Indexer.format_creator(comment),
       "canonical_url" => canonical_url,
@@ -274,7 +278,8 @@ defmodule MoodleNet.Threads.Comments do
       "content" => comment.content,
       "published_at" => comment.published_at,
       # home instance of object:
-      "index_instance" => URI.parse(canonical_url).host
+      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url),
+      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context)
     }
   end
 

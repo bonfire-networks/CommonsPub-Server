@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Component.FlagPreviewLive do
+defmodule CommonsPub.Web.Component.FlagPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.{Common}
-  alias MoodleNetWeb.Component.ActivityLive
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Web.Component.ActivityLive
 
   def render(assigns) do
     ~L"""

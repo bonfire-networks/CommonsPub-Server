@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Geolocation.MapLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.Geolocation.MapLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   @postgis_srid 4326
 
@@ -84,7 +84,7 @@ defmodule MoodleNetWeb.Geolocation.MapLive do
   end
 
   defp show_place_things(id, socket) when is_binary(id) do
-    fetch_place_things([at_location: id], socket)
+    fetch_place_things([at_location_id: id], socket)
   end
 
   defp show_place_things(

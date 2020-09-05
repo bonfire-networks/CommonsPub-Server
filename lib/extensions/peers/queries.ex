@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Peers.Queries do
-  alias MoodleNet.Peers.Peer
+defmodule CommonsPub.Peers.Queries do
+  alias CommonsPub.Peers.Peer
   import Ecto.Query
 
   def query(Peer), do: from(p in Peer, as: :peer)

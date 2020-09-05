@@ -25,7 +25,7 @@
 
 
   # we can use Caddy to spawn our BEAM app
-  # on startup /opt/app/bin/moodle_net start &
+  # on startup /opt/app/bin/commons_pub start &
 
 
   proxy /proxy-elixir/ 127.0.0.1:{$PORT} {

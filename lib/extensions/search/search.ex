@@ -3,8 +3,6 @@
 defmodule CommonsPub.Search do
   require Logger
 
-  alias ActivityPub.HTTP
-
   @public_index "public"
 
   def search(string, index, calculate_facets, facets) when is_binary(string) and is_map(facets) do

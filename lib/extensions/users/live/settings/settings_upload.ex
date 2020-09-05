@@ -1,5 +1,5 @@
-defmodule MoodleNetWeb.My.SettingsUpload do
-  use MoodleNetWeb, :controller
+defmodule CommonsPub.Web.My.SettingsUpload do
+  use CommonsPub.Web, :controller
 
   # params we receive:
   # %{
@@ -18,13 +18,13 @@ defmodule MoodleNetWeb.My.SettingsUpload do
   # }
 
   def upload(%{assigns: %{current_user: current_user}} = conn, params) do
-    attrs = MoodleNetWeb.Helpers.Common.input_to_atoms(params)
+    attrs = CommonsPub.Utils.Web.CommonHelper.input_to_atoms(params)
 
     # maybe_upload(params["profile"]["icon"], "icon")
     # maybe_upload(params["profile"]["image"], "image")
 
     {:ok, _edit_profile} =
-      MoodleNetWeb.GraphQL.UsersResolver.update_profile(attrs, %{
+      CommonsPub.Web.GraphQL.UsersResolver.update_profile(attrs, %{
         context: %{current_user: current_user}
       })
 

@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AddTaggable do
+defmodule CommonsPub.Repo.Migrations.AddTaggable do
   use Ecto.Migration
 
   def up do

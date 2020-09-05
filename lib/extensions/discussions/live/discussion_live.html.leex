@@ -25,7 +25,7 @@
                   <%=
                     live_component(
                       @socket,
-                      MoodleNetWeb.Component.FlagLive,
+                      CommonsPub.Web.Component.FlagLive,
                       object: @thread,
                       current_user: @current_user,
                       id: "flag-"<>@thread.id,
@@ -58,7 +58,7 @@
         <div class="discussion__aside">
           <%= live_component(
                 @socket,
-                MoodleNetWeb.Component.ContextLive,
+                CommonsPub.Web.Component.ContextLive,
                 object: @thread,
                 current_user: @current_user
               )%>
@@ -69,7 +69,7 @@
           <div class="text__inreplyto">
             <i class="feather-corner-up-left"></i>
             <div class="reply">
-              <%= live_redirect to: "/@"<> e(@reply, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@reply, :creator, :name, "Somebody") %><% end %>
+              <%= live_redirect to: "/@"<> e(@reply, :creator, :character, :preferred_username, "deleted")  do %><%= e(@reply, :creator, :name, "Somebody") %><% end %>
               <p><%= @reply.content %></p>
             </div>
             <%= live_redirect to: "/!"<> @thread.id <> "/discuss"  do %><i class="feather-x-circle"></i><% end %>
@@ -83,7 +83,7 @@
             <div class="reply__box">
               <%= live_component(
                 @socket,
-                MoodleNetWeb.EditorLive,
+                CommonsPub.Web.EditorLive,
                 current_user: @current_user,
                 content_placeholder: "Write a thoughtful comment...",
                 id: "comment_editor"

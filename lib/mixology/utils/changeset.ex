@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.Changeset do
+defmodule CommonsPub.Common.Changeset do
   @moduledoc "Helper functions for changesets"
 
   alias Ecto.Changeset
   alias Ecto.ULID
 
   # alias CommonsPub.Locales
-  alias MoodleNet.Mail.Checker
+  alias CommonsPub.Mail.Checker
 
   @doc "Generates the primary ID for an object, and sets the canonical URL based on that"
   def cast_object(changeset) do

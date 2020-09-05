@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Plugs.GraphQLContext do
+defmodule CommonsPub.Web.Plugs.GraphQLContext do
   @moduledoc """
   GraphQL Plug to add current user to the context
   """

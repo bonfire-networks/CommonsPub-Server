@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.AccessSchema do
+defmodule CommonsPub.Web.GraphQL.AccessSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{AccessResolver, CommonResolver}
+  alias CommonsPub.Web.GraphQL.{AccessResolver, CommonResolver}
 
   object :access_queries do
     field :register_email_accesses, non_null(:register_email_accesses_page) do

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.ContentUpload do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Uploads.ContentUpload do
+  use CommonsPub.Common.Schema
 
   alias Ecto.Changeset
 

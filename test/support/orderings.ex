@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Test.Orderings do
+defmodule CommonsPub.Web.Test.Orderings do
   defp id(%{id: id}), do: id
 
   defp follower_count(%{} = item), do: follower_count_2(Map.get(item, :follower_count))

@@ -1,9 +1,15 @@
-defmodule MoodleNetWeb.Component.ResourcesListLive do
-  use MoodleNetWeb, :live_component
-  alias MoodleNetWeb.Component.{ResourcePreviewLive}
+defmodule CommonsPub.Web.Component.ResourcesListLive do
+  use CommonsPub.Web, :live_component
+  alias CommonsPub.Web.Component.{ResourcePreviewLive}
 
   def render(assigns) do
     ~L"""
+    <div class="community__discussion__actions">
+    <%# <input placeholder="Search collections..."/> %>
+      <a href="#" phx-target="#post_link" phx-click="toggle_link">
+        <button >Share a link</button>
+      </a>
+    </div>
     <div
     phx-update="append"
     data-page="<%= @page %>"

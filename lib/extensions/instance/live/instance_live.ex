@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.InstanceLive do
-  use MoodleNetWeb, :live_view
-  # alias MoodleNetWeb.Helpers.{Profiles}
-  import MoodleNetWeb.Helpers.Common
+defmodule CommonsPub.Web.InstanceLive do
+  use CommonsPub.Web, :live_view
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias MoodleNetWeb.InstanceLive.{
-    InstanceActivitiesLive,
-    InstanceMembersLive,
+  alias CommonsPub.Web.InstanceLive.{
+    # InstanceActivitiesLive,
+    # InstanceMembersLive,
     InstanceMembersPreviewLive,
     InstanceCommunitiesLive,
     InstanceCollectionsLive,
@@ -13,15 +13,14 @@ defmodule MoodleNetWeb.InstanceLive do
   }
 
   def mount(params, session, socket) do
-    IO.inspect(instance_session: session)
     socket = init_assigns(params, session, socket)
 
     {:ok,
      socket
      |> assign(
        page_title: "Home",
-       hostname: MoodleNet.Instance.hostname(),
-       description: MoodleNet.Instance.description(),
+       hostname: CommonsPub.Instance.hostname(),
+       description: CommonsPub.Instance.description(),
        activities: [],
        selected_tab: "about"
      )}
@@ -40,9 +39,9 @@ defmodule MoodleNetWeb.InstanceLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
-        MoodleNetWeb.InstanceLive.InstanceActivitiesLive,
+        CommonsPub.Web.InstanceLive.InstanceActivitiesLive,
         :instance_timeline,
         socket
       )

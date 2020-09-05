@@ -1,17 +1,17 @@
-defmodule MoodleNetWeb.ResetPasswordLive do
-  use MoodleNetWeb, :live_view
-  import MoodleNetWeb.Helpers.Common
+defmodule CommonsPub.Web.ResetPasswordLive do
+  use CommonsPub.Web, :live_view
+  import CommonsPub.Utils.Web.CommonHelper
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
 
     {:ok,
      socket
-     |> assign(app_name: Application.get_env(:moodle_net, :app_name))}
+     |> assign(app_name: CommonsPub.Config.get(:app_name))}
   end
 
   def handle_event("reset", %{"email" => mail} = _data, socket) do
-    reset = MoodleNetWeb.GraphQL.UsersResolver.reset_password_request(%{email: mail}, %{})
+    reset = CommonsPub.Web.GraphQL.UsersResolver.reset_password_request(%{email: mail}, %{})
     IO.inspect(reset, label: "reset")
 
     {:noreply,

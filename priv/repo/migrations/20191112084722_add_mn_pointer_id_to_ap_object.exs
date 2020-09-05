@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AddMnPointerIdToApObject do
+defmodule CommonsPub.Repo.Migrations.AddMnPointerIdToApObject do
   use Ecto.Migration
   import Pointers.Migration
 

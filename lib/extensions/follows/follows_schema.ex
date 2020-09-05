@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.FollowsSchema do
+defmodule CommonsPub.Web.GraphQL.FollowsSchema do
   use Absinthe.Schema.Notation
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Threads.Thread
-  # alias MoodleNet.Users.User
-  alias MoodleNetWeb.GraphQL.{CommonResolver, FollowsResolver, UsersResolver}
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Threads.Thread
+  # alias CommonsPub.Users.User
+  alias CommonsPub.Web.GraphQL.{CommonResolver, FollowsResolver, UsersResolver}
 
   object :follows_queries do
     @desc "Retrieves a follow by id"

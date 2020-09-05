@@ -76,7 +76,7 @@ RUN apk add --update --no-cache \
 WORKDIR /opt/app
 
 # install app 
-COPY --from=builder /opt/app/_build/prod/rel/moodle_net /opt/app
+COPY --from=builder /opt/app/_build/prod/rel/commons_pub /opt/app
 
 # start
-CMD ["./bin/moodle_net", "start"]
+CMD ["./bin/commons_pub", "start"]

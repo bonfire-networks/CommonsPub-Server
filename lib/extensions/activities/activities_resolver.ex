@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
-  alias MoodleNet.Activities
-  alias MoodleNet.Activities.Activity
-  alias MoodleNet.GraphQL.{Fields, ResolveFields}
-  alias MoodleNet.Meta.Pointers
+defmodule CommonsPub.Web.GraphQL.ActivitiesResolver do
+  alias CommonsPub.Activities
+  alias CommonsPub.Activities.Activity
+  alias CommonsPub.GraphQL.{Fields, ResolveFields}
+  alias CommonsPub.Meta.Pointers
 
-  alias MoodleNet.GraphQL.{FetchPage}
+  alias CommonsPub.GraphQL.{FetchPage}
 
   def activity(%{activity_id: id}, %{context: %{current_user: user}}) do
     Activities.one(id: id, user: user)

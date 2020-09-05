@@ -1,19 +1,20 @@
 defmodule Taxonomy.TaxonomyTags do
   # import Ecto.Query
   # alias Ecto.Changeset
+  require Logger
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Common, GraphQL,
     GraphQL.Page,
     Common.Contexts,
     Repo
   }
 
-  # alias MoodleNet.Users.User
+  # alias CommonsPub.Users.User
   alias Taxonomy.TaxonomyTag
   alias Taxonomy.TaxonomyTag.Queries
 
-  # alias CommonsPub.Character.Characters
+  # alias CommonsPub.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -120,9 +121,10 @@ defmodule Taxonomy.TaxonomyTags do
       create_category(user, tag, create_tag)
     else
       _e ->
-        IO.inspect("could not create parent tag")
-        # create the child anyway
-        create_category(user, tag, create_tag)
+        Logger.error("could not create parent tag")
+        raise "stopping here to debug"
+        # create the child anyway?
+        # create_category(user, tag, create_tag)
     end
   end
 
@@ -165,7 +167,7 @@ defmodule Taxonomy.TaxonomyTags do
 
   def update(_user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
-      #  {:ok, character} <- CommonsPub.Character.update(user, tag.character, attrs)
+      #  {:ok, character} <- CommonsPub.Characters.update(user, tag.character, attrs)
       # :ok <- publish(tag, :updated)
       with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs)) do
         {:ok, tag}

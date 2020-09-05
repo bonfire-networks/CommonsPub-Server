@@ -2,18 +2,17 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   alias ValueFlows.Knowledge.ResourceSpecification
   # alias ValueFlows.Knowledge.ResourceSpecifications
-  alias MoodleNet.Follows.{Follow}
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
-  import Geo.PostGIS
+  # import Geo.PostGIS
 
   def query(ResourceSpecification) do
-    from(c in ResourceSpecification, as: :respec)
+    from(c in ResourceSpecification, as: :resource_spec)
   end
 
   def query(:count) do
-    from(c in ResourceSpecification, as: :respec)
+    from(c in ResourceSpecification, as: :resource_spec)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -32,37 +31,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   end
 
   def join_to(q, :context, jq) do
-    join(q, jq, [respec: c], c2 in assoc(c, :context), as: :context)
-  end
-
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [respec: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
-  end
-
-  def join_to(q, :geolocation, jq) do
-    join(q, jq, [respec: c], g in assoc(c, :current_location), as: :geolocation)
+    join(q, jq, [resource_spec: c], c2 in assoc(c, :context), as: :context)
   end
 
   def join_to(q, :tags, jq) do
-    join(q, jq, [respec: c], t in assoc(c, :tags), as: :tags)
+    join(q, jq, [resource_spec: c], t in assoc(c, :tags), as: :tags)
   end
-
-  # def join_to(q, :primary_accountable, jq) do
-  #   join q, jq, [follow: f], c in assoc(f, :primary_accountable), as: :pointer
-  # end
-
-  # def join_to(q, :receiver, jq) do
-  #   join q, jq, [follow: f], c in assoc(f, :receiver), as: :pointer
-  # end
-
-  # def join_to(q, :follower_count, jq) do
-  #   join q, jq, [respec: c],
-  #     f in FollowerCount, on: c.id == f.context_id,
-  #     as: :follower_count
-  # end
 
   ### filter/2
 
@@ -76,15 +50,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   def filter(q, :default) do
     filter(q, [:deleted])
-    # filter q, [:deleted, {:preload, :primary_accountable}, {:preload, :receiver}]
-  end
-
-  def filter(q, :offer) do
-    where(q, [respec: c], is_nil(c.receiver_id))
-  end
-
-  def filter(q, :need) do
-    where(q, [respec: c], is_nil(c.primary_accountable_id))
   end
 
   ## by join
@@ -103,120 +68,49 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   def filter(q, {:user, %User{id: id}}) do
     q
     |> join_to(follow: id)
-    |> where([respec: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([resource_spec: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
     |> filter(~w(disabled)a)
   end
 
   ## by status
 
   def filter(q, :deleted) do
-    where(q, [respec: c], is_nil(c.deleted_at))
+    where(q, [resource_spec: c], is_nil(c.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where(q, [respec: c], is_nil(c.disabled_at))
+    where(q, [resource_spec: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do
-    where(q, [respec: c], not is_nil(c.published_at))
+    where(q, [resource_spec: c], not is_nil(c.published_at))
   end
 
   ## by field values
 
-  def filter(q, {:cursor, [count, id]})
-      when is_integer(count) and is_binary(id) do
-    where(
-      q,
-      [respec: c, follower_count: fc],
-      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
-    )
-  end
-
-  def filter(q, {:cursor, [count, id]})
-      when is_integer(count) and is_binary(id) do
-    where(
-      q,
-      [respec: c, follower_count: fc],
-      (fc.count == ^count and c.id <= ^id) or fc.count < ^count
-    )
-  end
-
   def filter(q, {:id, id}) when is_binary(id) do
-    where(q, [respec: c], c.id == ^id)
+    where(q, [resource_spec: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where(q, [respec: c], c.id in ^ids)
+    where(q, [resource_spec: c], c.id in ^ids)
   end
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where(q, [respec: c], c.context_id == ^id)
+    where(q, [resource_spec: c], c.context_id == ^id)
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where(q, [respec: c], c.context_id in ^ids)
-  end
-
-  def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [respec: c], c.primary_accountable_id == ^id or c.receiver_id == ^id)
-  end
-
-  def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [respec: c], c.primary_accountable_id in ^ids or c.receiver_id in ^ids)
-  end
-
-  def filter(q, {:primary_accountable_id, id}) when is_binary(id) do
-    where(q, [respec: c], c.primary_accountable_id == ^id)
-  end
-
-  def filter(q, {:primary_accountable_id, ids}) when is_list(ids) do
-    where(q, [respec: c], c.primary_accountable_id in ^ids)
-  end
-
-  def filter(q, {:receiver_id, id}) when is_binary(id) do
-    where(q, [respec: c], c.receiver_id == ^id)
-  end
-
-  def filter(q, {:receiver_id, ids}) when is_list(ids) do
-    where(q, [respec: c], c.receiver_id in ^ids)
-  end
-
-  def filter(q, {:state_id, ids}) when is_list(ids) do
-    where(q, [respec: c], c.state_id in ^ids)
-  end
-
-  def filter(q, {:state_id, id}) when is_binary(id) do
-    where(q, [respec: c], c.state_id == ^id)
-  end
-
-  def filter(q, {:current_location_id, current_location_id}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:current_location)
-    |> where([respec: c], c.current_location_id == ^current_location_id)
-  end
-
-  def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:current_location)
-    |> where([respec: c, geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
-  end
-
-  def filter(q, {:location_within, geom_point}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:current_location)
-    |> where([respec: c, geolocation: g], st_within(g.geom, ^geom_point))
+    where(q, [resource_spec: c], c.context_id in ^ids)
   end
 
   def filter(q, {:tag_ids, ids}) when is_list(ids) do
     q
     |> preload(:tags)
     |> join_to(:tags)
-    |> group_by([respec: c], c.id)
+    |> group_by([resource_spec: c], c.id)
     |> having(
-      [respec: c, tags: t],
+      [resource_spec: c, tags: t],
       fragment("? <@ array_agg(?)", type(^ids, {:array, Ecto.ULID}), t.id)
     )
   end
@@ -236,7 +130,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   end
 
   def filter(q, {:order, [desc: :id]}) do
-    order_by(q, [respec: c, id: id],
+    order_by(q, [resource_spec: c, id: id],
       desc: coalesce(id.count, 0),
       desc: c.id
     )
@@ -249,11 +143,11 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   end
 
   def filter(q, {:group, key}) when is_atom(key) do
-    group_by(q, [respec: c], field(c, ^key))
+    group_by(q, [resource_spec: c], field(c, ^key))
   end
 
   def filter(q, {:count, key}) when is_atom(key) do
-    select(q, [respec: c], {field(c, ^key), count(c.id)})
+    select(q, [resource_spec: c], {field(c, ^key), count(c.id)})
   end
 
   def filter(q, {:preload, :primary_accountable}) do
@@ -262,14 +156,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   def filter(q, {:preload, :receiver}) do
     preload(q, [pointer: p], receiver: p)
-  end
-
-  def filter(q, {:preload, :current_location}) do
-    q
-    |> join_to(:geolocation)
-    |> preload(:current_location)
-
-    # preload(q, [geolocation: g], current_location: g)
   end
 
   # pagination
@@ -282,29 +168,19 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     limit = limit + 2
 
     q
-    |> where([respec: c], c.id >= ^a)
+    |> where([resource_spec: c], c.id >= ^a)
     |> limit(^limit)
   end
 
   def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
     q
-    |> where([respec: c], c.id <= ^b)
+    |> where([resource_spec: c], c.id <= ^b)
     |> filter(limit: limit + 2)
   end
 
   def filter(q, {:paginate_id, %{limit: limit}}) do
     filter(q, limit: limit + 1)
   end
-
-  # def filter(q, {:page, [desc: [followers: page_opts]]}) do
-  #   q
-  #   |> filter(join: :follower_count, order: [desc: :followers])
-  #   |> page(page_opts, [desc: :followers])
-  #   |> select(
-  #     [respec: c,  follower_count: fc],
-  #     %{c | follower_count: coalesce(fc.count, 0)}
-  #   )
-  # end
 
   # defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
   #   filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
@@ -314,5 +190,5 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
   # end
 
-  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+  # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 end

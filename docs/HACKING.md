@@ -118,11 +118,11 @@ The code is somewhat documented inline. You can generate HTML docs (using `Exdoc
 
 The backend code currently has very few translatable strings, basically error messages transactional emails:
 
-- Email subject lines in `MoodleNet.Email` (eg: [moodle_net/email.ex#L8](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net/email.ex#L8))
-- Email templates in [moodle_net_web/email/](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net_web/email/templates/)
-- Errors passed through Gettext in `MoodleNetWeb.ErrorHelpers` and `MoodleNetWeb.GraphQL.Errors`
+- Email subject lines in `CommonsPub.Email`
+- Email templates
+- Errors passed through Gettext in `CommonsPub.Web.ErrorHelpers` and `CommonsPub.Web.GraphQL.Errors`
 
-The locale is set using the `MoodleNetWeb.Plugs.SetLocale` plug which checks the header or a param.
+The locale is set using the `CommonsPub.Web.Plugs.SetLocale` plug which checks the header or a param.
 
 If you've added any localisable fields, you should run `mix gettext.extract` to extract them into `/priv/gettext/en/LC_MESSAGES/`. Upload those files to the translation system (eg. Transifex).
 
@@ -161,18 +161,18 @@ too long to execute on your machine. You can configure the timeout to
 be larger in the `dev` environment:
 
 1. Open `config/dev.exs` in your editor.
-2. Find the database configuration (search for `MoodleNet.Repo`).
+2. Find the database configuration (search for `CommonsPub.Repo`).
 3. Add `timeout: 60_000` to the list of options.
 
 The finished result should look like this (did you remember to add a
 comma at the end of the `pool_size` line?):
 
 ```
-config :moodle_net, MoodleNet.Repo,
+config :commons_pub, CommonsPub.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
-  database: "moodle_net_dev",
+  database: "commons_pub_dev",
   hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool_size: 10,
   timeout: 60_000

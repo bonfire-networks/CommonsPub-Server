@@ -3,7 +3,7 @@ defmodule CommonsPub.HTML.Scrubber.LinksOnly do
   An HTML scrubbing policy which limits to links only.
   """
 
-  @valid_schemes MoodleNet.Config.get([:uri_schemes, :valid_schemes], ["http", "https"])
+  @valid_schemes CommonsPub.Config.get([:uri_schemes, :valid_schemes], ["http", "https"])
 
   require HtmlSanitizeEx.Scrubber.Meta
   alias HtmlSanitizeEx.Scrubber.Meta

@@ -1,10 +1,10 @@
-defmodule MoodleNetWeb.MemberLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.MemberLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Profiles}
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.MemberLive.{
+  alias CommonsPub.Web.MemberLive.{
     MemberDiscussionsLive,
     HeroProfileLive,
     MemberNavigationLive,
@@ -15,13 +15,13 @@ defmodule MoodleNetWeb.MemberLive do
     MemberLikesLive
   }
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     # HeaderLive,
     AboutLive
     # TabNotFoundLive
   }
 
-  # alias MoodleNet.{
+  # alias CommonsPub.{
   #   Repo
   # }
 
@@ -35,10 +35,10 @@ defmodule MoodleNetWeb.MemberLive do
     socket = init_assigns(params, session, socket)
     # IO.inspect(socket.endpoint)
     user =
-      Profiles.user_load(socket, params, %{
+      ProfilesHelper.user_load(socket, params, %{
         image: true,
         icon: true,
-        actor: true,
+        character: true,
         is_followed_by: socket.assigns.current_user
       })
 
@@ -74,9 +74,12 @@ defmodule MoodleNetWeb.MemberLive do
 
   def handle_event("follow", _data, socket) do
     _f =
-      MoodleNetWeb.GraphQL.FollowsResolver.create_follow(%{context_id: socket.assigns.user.id}, %{
-        context: %{current_user: socket.assigns.current_user}
-      })
+      CommonsPub.Web.GraphQL.FollowsResolver.create_follow(
+        %{context_id: socket.assigns.user.id},
+        %{
+          context: %{current_user: socket.assigns.current_user}
+        }
+      )
 
     #  IO.inspect(f)
 
@@ -90,7 +93,7 @@ defmodule MoodleNetWeb.MemberLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.user.id)
+    _uf = ProfilesHelper.unfollow(socket.assigns.current_user, socket.assigns.user.id)
 
     # IO.inspect(uf)
 
@@ -110,9 +113,9 @@ defmodule MoodleNetWeb.MemberLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
-        MoodleNetWeb.MemberLive.MemberActivitiesLive,
+        CommonsPub.Web.MemberLive.MemberActivitiesLive,
         :member_timeline,
         socket
       )

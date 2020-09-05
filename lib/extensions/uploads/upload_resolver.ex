@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.GraphQL.UploadResolver do
-  alias MoodleNet.GraphQL.{
+defmodule CommonsPub.Web.GraphQL.UploadResolver do
+  alias CommonsPub.GraphQL.{
     FetchFields,
     # Fields,
     ResolveFields
   }
 
-  alias MoodleNet.{Uploads, Users}
-  alias MoodleNet.Uploads.Content
+  alias CommonsPub.{Uploads, Users}
+  alias CommonsPub.Uploads.Content
 
   @uploader_fields %{
-    content: MoodleNet.Uploads.ResourceUploader,
-    image: MoodleNet.Uploads.ImageUploader,
-    icon: MoodleNet.Uploads.IconUploader
+    content: CommonsPub.Uploads.ResourceUploader,
+    image: CommonsPub.Uploads.ImageUploader,
+    icon: CommonsPub.Uploads.IconUploader
   }
 
   def upload(user, %{} = params, _info) do
@@ -26,13 +26,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     end
   end
 
-  # defp do_upload(user, {:resource, fields}, acc) do
-  #   IO.inspect(do_upload_1: fields)
-  #   upload(user, MoodleNetWeb.Helpers.Common.input_to_atoms(fields), nil)
-  # end
-
   defp do_upload(user, {field_name, content_input}, acc) do
-    # IO.inspect(do_upload: {field_name, content_input})
     uploader = @uploader_fields[field_name]
 
     if uploader do
@@ -45,7 +39,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
           # FIXME: delete other successful files on failure
           {:halt, {:error, reason}}
 
-        %{} ->
+        _ ->
           {:cont, acc}
       end
     else
@@ -79,7 +73,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   def is_public(%Content{} = upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
 
-  def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id, preset: :actor)
+  def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id, preset: :character)
 
   def remote_url(%Content{} = upload, _, _info), do: Uploads.remote_url(upload)
 

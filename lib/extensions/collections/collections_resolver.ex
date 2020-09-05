@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
-  alias MoodleNet.{
+defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
+  alias CommonsPub.{
     Activities,
     Collections,
     Communities,
@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     # Resources
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     FetchFields,
     FetchPage,
     ResolveField,
@@ -19,9 +19,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     ResolveRootPage
   }
 
-  alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Resources.Resource
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Resources.Resource
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   ## resolvers
 
@@ -60,8 +60,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Collections.one(
       user: GraphQL.current_user(info),
       id: id,
-      join: :actor,
-      preload: :actor
+      join: :character,
+      preload: :character
     )
   end
 
@@ -76,7 +76,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       cursor_fn: Collections.cursor(:followers),
       page_opts: page_opts,
       base_filters: [deleted: false, user: GraphQL.current_user(info)],
-      data_filters: [join: :actor, preload: :actor, page: [desc: [followers: page_opts]]]
+      data_filters: [join: :character, preload: :character, page: [desc: [followers: page_opts]]]
     })
   end
 
@@ -201,9 +201,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   def create_collection(%{collection: attrs, context_id: context_id} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
+           {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id),
            #  :ok <- validate_context(pointer),
-           context = MoodleNet.Meta.Pointers.follow!(pointer),
+           context = CommonsPub.Meta.Pointers.follow!(pointer),
            {:ok, uploads} <- UploadResolver.upload(user, params, info) do
         attrs =
           attrs

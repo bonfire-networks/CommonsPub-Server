@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.Page.Category.SubcategoriesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.Page.Category.SubcategoriesLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  # alias MoodleNetWeb.Helpers.{Profiles}
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.Component.CategoryPreviewLive
+  alias CommonsPub.Web.Component.CategoryPreviewLive
 
   def update(assigns, socket) do
     {
@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.Page.Category.SubcategoriesLive do
   end
 
   def fetch(socket, assigns) do
-    IO.inspect(assigns)
+    # IO.inspect(assigns)
 
     {:ok, categories} =
       CommonsPub.Tag.GraphQL.TagResolver.category_children(
@@ -43,12 +43,19 @@ defmodule MoodleNetWeb.Page.Category.SubcategoriesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""
       <div
       id="subcategories">
+
+      <div class="community__discussion__actions">
+    <%# <input placeholder="Search collections..."/> %>
+    <a phx-target="#new_category" phx-click="toggle_category"><button>Define a category</button></a>
+
+    </div>
+
         <div
         phx-update="append"
         data-page="<%= @page %>"

@@ -1,16 +1,14 @@
-defmodule CommonsPub.Character.Migrations do
+defmodule CommonsPub.Characters.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  alias CommonsPub.Character
-
-  defp table_name(), do: Character.__schema__(:source)
+  defp table_name(), do: CommonsPub.Characters.Character.__schema__(:source)
 
   # IO.inspect(cs: Character.__schema__(:source))
 
   def migrate(index_opts, :up) do
     # a character is a group actor that is home to resources
-    create_mixin_table(Character) do
+    create_mixin_table(CommonsPub.Characters.Character) do
       # add table_name()istic_id, :uuid # points to the Thing that this character represents
       # points to the Actor who plays this character in the fediverse
       add(:actor_id, references("mn_actor", on_delete: :delete_all))
@@ -31,6 +29,8 @@ defmodule CommonsPub.Character.Migrations do
       add(:disabled_at, :timestamptz)
       # timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
+
+    flush()
 
     # create_if_not_exists(index(table_name(), :updated_at, index_opts))
     create_if_not_exists(index(table_name(), :actor_id, index_opts))
@@ -58,5 +58,46 @@ defmodule CommonsPub.Character.Migrations do
     drop_if_exists(index(table_name(), :community_id, index_opts))
     drop_if_exists(index(table_name(), :primary_language_id, index_opts))
     drop_mixin_table(table_name())
+  end
+
+  def name_reservation_change() do
+    create table("actor_name_reservation", primary_key: false) do
+      add(:id, :bytea, primary_key: true, null: false)
+      timestamps(type: :utc_datetime_usec, inserted_at: :created_at, updated_at: false)
+    end
+  end
+
+  def merge_with_actor() do
+    rename(table("mn_actor"), to: table("mn_actor_archived"))
+    flush()
+
+    # rename(table("character"), to: table("mn_actor"))
+    # flush()
+
+    CommonsPub.Repo.delete_all(table_name())
+
+    alter table(table_name()) do
+      add(:peer_id, references("mn_peer", on_delete: :delete_all))
+      add(:preferred_username, :citext, null: false)
+      add(:canonical_url, :text)
+      add(:signing_key, :text)
+    end
+
+    create(
+      unique_index(
+        table_name(),
+        [:preferred_username, :peer_id],
+        name: :character_preferred_username_peer_id_index
+      )
+    )
+
+    create(
+      unique_index(
+        table_name(),
+        [:preferred_username],
+        where: "peer_id is null",
+        name: :character_peer_id_null_index
+      )
+    )
   end
 end

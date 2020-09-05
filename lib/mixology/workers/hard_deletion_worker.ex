@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Workers.HardDeletionWorker do
+defmodule CommonsPub.Workers.HardDeletionWorker do
   use Oban.Worker, queue: "mn_hard_deletion", max_attempts: 1
 
   # import Ecto.Query
-  # alias MoodleNet.{
+  # alias CommonsPub.{
   #   Actors,
   #   Collections,
   #   Communities,
@@ -12,8 +12,8 @@ defmodule MoodleNet.Workers.HardDeletionWorker do
   #   Resources,
   #   Threads,
   # }
-  # alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
-  # alias MoodleNet.Threads.Comments
+  # alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
+  # alias CommonsPub.Threads.Comments
 
   @impl Worker
   def perform(_, _job) do
@@ -26,7 +26,7 @@ defmodule MoodleNet.Workers.HardDeletionWorker do
     # Collections.hard_delete() # Community, Actor
     # Communities.hard_delete() # Actor
     # Users.hard_delete() # Actors
-    # Actors.hard_delete()
+    # Characters.hard_delete()
     :ok
   end
 end

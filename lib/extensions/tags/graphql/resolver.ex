@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.GraphQL.TagResolver do
   @moduledoc "GraphQL tag/category queries"
-  alias MoodleNet.{GraphQL, Repo}
+  alias CommonsPub.{GraphQL, Repo}
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # CommonResolver,
     FetchFields,
     FetchPage,
@@ -109,7 +109,6 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   @doc "List child categories"
   def category_children(%{id: id}, %{} = page_opts, info) do
-    # IO.inspect(info)
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
       fetcher: :fetch_categories_children,
@@ -144,17 +143,14 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
     # |> Map.new()
 
-    # IO.inspect(pointers)
-    MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
+    CommonsPub.Web.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
   @doc """
   Tags associated with a Thing
   """
   def tags_edges(%{tags: _tags} = thing, page_opts, info) do
-    thing = Repo.preload(thing, tags: [:category, :profile, character: [:actor]])
-
-    # IO.inspect(categories_edges_thing: thing)
+    thing = Repo.preload(thing, tags: [:category, :profile, character: [:character]])
 
     tags = Enum.map(thing.tags, &tag_prepare(&1, page_opts, info))
 
@@ -190,7 +186,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   def tag_prepare(%{category_id: category_id, id: mixin_id}, page_opts, info)
       when is_nil(category_id) do
-    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: mixin_id}, page_opts, info)
+    CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: mixin_id}, page_opts, info)
   end
 
   #### MUTATIONS
@@ -237,13 +233,11 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   # def name(%{name: name, context_id: context_id}, _, _info)
   #     when is_nil(name) and not is_nil(context_id) do
-  #   # IO.inspect(context_id)
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
-  #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
-  #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
+  #   with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
+  #        context = CommonsPub.Meta.Pointers.follow!(pointer) do
   #     name = if Map.has_key?(context, :name), do: context.name
-  #     # IO.inspect(name)
   #     {:ok, name}
   #   end
   # end
@@ -262,13 +256,11 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   # def summary(%{summary: summary, context_id: context_id}, _, _info)
   #     when is_nil(summary) and not is_nil(context_id) do
-  #   # IO.inspect(context_id)
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
-  #   with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
-  #        context = MoodleNet.Meta.Pointers.follow!(pointer) do
+  #   with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
+  #        context = CommonsPub.Meta.Pointers.follow!(pointer) do
   #     summary = if Map.has_key?(context, :summary), do: context.summary
-  #     # IO.inspect(summary)
   #     {:ok, summary}
   #   end
   # end

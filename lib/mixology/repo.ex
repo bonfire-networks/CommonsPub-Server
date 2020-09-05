@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Repo do
+defmodule CommonsPub.Repo do
   @moduledoc """
-  MoodleNet main Ecto Repo
+  CommonsPub main Ecto Repo
   """
+  require Logger
 
   use Ecto.Repo,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     adapter: Ecto.Adapters.Postgres
 
   import Ecto.Query
-  alias MoodleNet.Common.NotFoundError
+  alias CommonsPub.Common.NotFoundError
 
   @doc """
   Dynamically loads the repository url from the
@@ -71,12 +72,17 @@ defmodule MoodleNet.Repo do
   end
 
   defp rollback_error(reason) do
-    IO.inspect(transact_with_error: reason)
+    Logger.debug(transact_with_error: reason)
     rollback(reason)
   end
 
   defp rollback_unexpected(ret) do
-    IO.inspect(transact_with_unexpected_case: ret)
+    Logger.error(
+      "Repo transaction expected one of `:ok` `{:ok, value}` `{:error, reason}` but got: #{
+        inspect(ret)
+      }"
+    )
+
     rollback("transact_with_unexpected_case")
   end
 

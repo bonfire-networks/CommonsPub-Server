@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.Plugs.SetLocale do
+defmodule CommonsPub.Web.Plugs.SetLocale do
   @moduledoc """
   Sets the back-end locale by checking the `accept-language` header or a param
   """
 
-  @locales Gettext.known_locales(MoodleNetWeb.Gettext)
+  @locales Gettext.known_locales(CommonsPub.Web.Gettext)
 
   # @pinned ["en-gb", "en"]
 
