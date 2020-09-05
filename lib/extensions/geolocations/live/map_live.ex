@@ -84,7 +84,7 @@ defmodule CommonsPub.Web.Geolocation.MapLive do
   end
 
   defp show_place_things(id, socket) when is_binary(id) do
-    fetch_place_things([at_location: id], socket)
+    fetch_place_things([at_location_id: id], socket)
   end
 
   defp show_place_things(

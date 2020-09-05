@@ -508,6 +508,20 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     "/@" <> preferred_username
   end
 
+  def object_url(%CommonsPub.Collections.Collection{
+        character: %{preferred_username: preferred_username}
+      })
+      when not is_nil(preferred_username) do
+    "/+" <> preferred_username
+  end
+
+  def object_url(%CommonsPub.Resources.Resource{
+        id: id
+      })
+      when not is_nil(id) do
+    "/+++" <> id
+  end
+
   def object_url(%CommonsPub.Tag.Category{
         id: id
       })
@@ -515,11 +529,25 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     "/++" <> id
   end
 
+  def object_url(%Geolocation{
+        id: id
+      })
+      when not is_nil(id) do
+    "/@@" <> id
+  end
+
+  def object_url(%ValueFlows.Planning.Intent{
+        id: id
+      })
+      when not is_nil(id) do
+    "/+++" <> id
+  end
+
   def object_url(%{
         character: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
-    "/+" <> preferred_username
+    "/+++" <> preferred_username
   end
 
   def object_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
@@ -540,14 +568,14 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     canonical_url
   end
 
-  def object_url(%{__struct__: module_name} = _activity) do
+  def object_url(%{__struct__: module_name} = activity) do
     IO.inspect(unsupported_by_activity_url: module_name)
-    "#unsupported_by_activity_url/" <> to_string(module_name)
+    "/+++" <> Map.get(activity, :id) <> "#unsupported_by_activity_url/" <> to_string(module_name)
   end
 
   def object_url(activity) do
     IO.inspect(unsupported_by_activity_url: activity)
-    "#unsupported_by_activity_url"
+    "/+++" <> Map.get(activity, :id) <> "#unsupported_by_activity_url"
   end
 
   def e_actor_field(obj, field, fallback) do

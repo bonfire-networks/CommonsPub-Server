@@ -54,7 +54,7 @@ defmodule CommonsPub.CommunitiesTest do
     # Everything is public currently
     @tag :skip
     test "fails if the community is private" do
-      community = fake_user!() |> fake_community!(%{is_public: false})
+      community = fake_user!() |> fake_community!(nil, %{is_public: false})
       assert {:error, %NotFoundError{}} = Communities.one(id: community.id)
     end
 
@@ -105,7 +105,7 @@ defmodule CommonsPub.CommunitiesTest do
 
     test "works" do
       assert user = fake_user!()
-      assert community = fake_community!(user, %{is_public: true})
+      assert community = fake_community!(user, nil, %{is_public: true})
       assert {:ok, updated_community} = Communities.update(user, community, %{is_public: false})
       assert updated_community.id == community.id
       refute updated_community.is_public

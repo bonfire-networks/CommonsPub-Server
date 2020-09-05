@@ -31,7 +31,7 @@ defmodule CommonsPub.Web.GraphQL.FollowsTest do
 
     test "works for guest for a public follow of a community" do
       alice = fake_user!()
-      bob = fake_community!(alice, %{is_local: true})
+      bob = fake_community!(alice, nil, %{is_local: true})
       {:ok, follow} = Follows.one(creator: alice.id, context: bob.id)
       q = follow_query()
       conn = json_conn()
@@ -41,7 +41,7 @@ defmodule CommonsPub.Web.GraphQL.FollowsTest do
 
     test "works for guest for a public follow of a collection" do
       alice = fake_user!()
-      bob = fake_community!(alice, %{is_local: true})
+      bob = fake_community!(alice, nil, %{is_local: true})
       _celia = fake_collection!(alice, bob, %{is_local: true})
       {:ok, follow} = Follows.one(creator: alice.id, context: bob.id)
       q = follow_query()

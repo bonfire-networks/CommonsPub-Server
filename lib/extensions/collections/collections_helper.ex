@@ -11,6 +11,16 @@ defmodule CommonsPub.Collections.Web.CollectionsHelper do
   import CommonsPub.Utils.Web.CommonHelper
   alias CommonsPub.Profiles.Web.ProfilesHelper
 
+  def collection_load(socket, page_params, nil) do
+    collection_load(socket, page_params, %{
+      icon: false,
+      character: true,
+      image: false,
+      context: true,
+      is_followed_by: nil
+    })
+  end
+
   def collection_load(socket, page_params, %CommonsPub.Users.User{} = current_user) do
     collection_load(socket, page_params, %{
       icon: false,

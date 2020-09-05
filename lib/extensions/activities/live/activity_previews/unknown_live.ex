@@ -5,7 +5,8 @@ defmodule CommonsPub.Web.Component.UnknownPreviewLive do
 
   def update(assigns, socket) do
     object = prepare_common(assigns.object)
-    IO.inspect(unknown_preview: object)
+    IO.inspect(unknown_preview: Map.get(object, :__struct__))
+    # IO.inspect(object)
 
     {:ok,
      assign(socket,

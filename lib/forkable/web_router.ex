@@ -168,7 +168,7 @@ defmodule CommonsPub.Web.Router do
     live "/instance/search/:tab/:search", SearchLive
 
     live "/instance/map", Geolocation.MapLive
-    live "/@.:id", Geolocation.MapLive
+    live "/@@:id", Geolocation.MapLive
 
     live "/instance/:tab", InstanceLive
 
@@ -178,7 +178,7 @@ defmodule CommonsPub.Web.Router do
     live "/&:username", CommunityLive
     live "/&:username/:tab", CommunityLive
 
-    live "/+:id/unknown", Page.Unknown
+    live "/+++:id", Page.Unknown
     live "/++:id", Page.Category
 
     live "/+:username", CollectionLive

@@ -4,7 +4,7 @@ defmodule CommonsPub.Web.Component.CategoryPreviewLive do
   import CommonsPub.Utils.Web.CommonHelper
 
   def category_link(cat) do
-    "/++" <> e(cat, :id, "#no-parent")
+    "/+" <> e(cat, :id, "#no-parent")
   end
 
   def update(assigns, socket) do

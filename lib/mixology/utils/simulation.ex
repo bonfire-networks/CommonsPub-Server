@@ -118,6 +118,8 @@ defmodule CommonsPub.Utils.Simulation do
   def long_list(gen), do: Faker.Util.list(long_count(), gen)
   def one_of(gens), do: Faker.Util.pick(gens).()
 
+  def maybe_one_of(list), do: Faker.Util.pick(list ++ [nil])
+
   def page_info(base \\ %{}) do
     base
     |> Map.put_new_lazy(:start_cursor, &uuid/0)
@@ -347,6 +349,7 @@ defmodule CommonsPub.Utils.Simulation do
   def thread(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_locked, &falsehood/0)

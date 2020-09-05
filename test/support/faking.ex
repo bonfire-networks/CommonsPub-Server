@@ -104,38 +104,38 @@ defmodule CommonsPub.Test.Faking do
     content
   end
 
-  def fake_community!(user, overrides \\ %{})
+  def fake_community!(user, context \\ nil, overrides \\ %{})
 
-  def fake_community!(%User{} = user, %{} = overrides) do
-    {:ok, community} = Communities.create(user, community(overrides))
+  def fake_community!(%User{} = user, context, %{} = overrides) do
+    {:ok, community} = Communities.create(user, context, community(overrides))
     assert community.creator_id == user.id
     community
   end
 
-  def fake_collection!(user, community, overrides \\ %{})
+  def fake_collection!(user, context \\ nil, overrides \\ %{})
 
-  def fake_collection!(user, community, overrides)
-      when is_map(overrides) and is_nil(community) do
+  def fake_collection!(user, context, overrides)
+      when is_map(overrides) and is_nil(context) do
     {:ok, collection} = Collections.create(user, collection(overrides))
     assert collection.creator_id == user.id
     collection
   end
 
-  def fake_collection!(user, community, overrides) when is_map(overrides) do
-    {:ok, collection} = Collections.create(user, community, collection(overrides))
+  def fake_collection!(user, context, overrides) when is_map(overrides) do
+    {:ok, collection} = Collections.create(user, context, collection(overrides))
     assert collection.creator_id == user.id
     collection
   end
 
-  def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
+  def fake_resource!(user, context \\ nil, overrides \\ %{}) when is_map(overrides) do
     attrs =
       overrides
       |> resource()
       |> Map.put(:content_id, fake_content!(user, overrides).id)
 
-    {:ok, resource} = Resources.create(user, collection, attrs)
+    {:ok, resource} = Resources.create(user, context, attrs)
     assert resource.creator_id == user.id
-    assert resource.collection_id == collection.id
+    assert resource.context_id == context.id
     resource
   end
 

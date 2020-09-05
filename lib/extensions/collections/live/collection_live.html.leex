@@ -29,7 +29,7 @@
 
             </li>
             <li>
-              <%= if @collection.creator_id==@current_user.id do %>
+              <%= if @collection.creator_id==e(@current_user, :id, nil) do %>
                 <details class="dialog__container member">
                   <summary class="button-link">Edit</summary>
                   <dialog open class="dialog dialog__create">

@@ -45,8 +45,11 @@ defmodule CommonsPub.Communities do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Community, filters))}
 
   ### Mutations
+  def create(%User{} = creator, nil, %{} = attrs) do
+    create(creator, attrs)
+  end
 
-  def create(%User{} = creator, %{} = community_or_context, %{} = attrs) do
+  def create(%User{} = creator, %{id: _} = community_or_context, %{} = attrs) do
     Repo.transact_with(fn ->
       # TODO: address activity to context's outbox/followers
       community_or_context =

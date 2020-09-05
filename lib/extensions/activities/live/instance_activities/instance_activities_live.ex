@@ -19,7 +19,7 @@ defmodule CommonsPub.Web.InstanceLive.InstanceActivitiesLive do
   Load initial activities
   """
   def update(assigns, socket) do
-    IO.inspect(update_assigns: assigns)
+    # IO.inspect(update_assigns: assigns)
 
     {
       :ok,

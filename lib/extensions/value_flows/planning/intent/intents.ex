@@ -88,6 +88,14 @@ defmodule ValueFlows.Planning.Intent.Intents do
   ## mutations
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+
+  def create(%User{} = creator, %Action{} = action, nil, attrs)
+      when is_map(attrs) do
+    do_create(creator, attrs, fn ->
+      Intent.create_changeset(creator, action, attrs)
+    end)
+  end
+
   def create(%User{} = creator, %Action{} = action, %{id: _id} = context, attrs)
       when is_map(attrs) do
     do_create(creator, attrs, fn ->
