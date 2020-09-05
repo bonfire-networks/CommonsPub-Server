@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Communities.Community do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Communities.Community do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset,
+  import CommonsPub.Common.Changeset,
     only: [
       change_public: 1,
       change_disabled: 1
@@ -10,18 +10,20 @@ defmodule MoodleNet.Communities.Community do
     ]
 
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities
-  alias MoodleNet.Communities.{Community, CommunityFollowerCount}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Flags.Flag
+  # alias CommonsPub.Characters.Character
+  alias CommonsPub.Communities
+  alias CommonsPub.Communities.{Community, CommunityFollowerCount}
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Flags.Flag
   # alias CommonsPub.Locales.Language
-  alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.Content
+  alias CommonsPub.Users.User
+  alias CommonsPub.Uploads.Content
 
   table_schema "mn_community" do
-    belongs_to(:actor, Actor)
+    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
+    # belongs_to(:actor, Character)
+
     belongs_to(:creator, User)
     belongs_to(:context, Pointers.Pointer)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
@@ -51,13 +53,16 @@ defmodule MoodleNet.Communities.Community do
   @create_cast @create_required ++
                  ~w(is_disabled is_public summary icon_id image_id inbox_id outbox_id)a
 
-  def create_changeset(%User{} = creator, %{} = context, %Actor{} = actor, fields) do
+  def create_changeset(
+        %User{} = creator,
+        %{} = context,
+        fields
+      ) do
     %Community{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.change(
       # communities are currently all public
       is_public: true,
-      actor_id: actor.id,
       context_id: context.id,
       creator_id: creator.id
     )
@@ -65,13 +70,15 @@ defmodule MoodleNet.Communities.Community do
     |> common_changeset()
   end
 
-  def create_changeset(%User{} = creator, %Actor{} = actor, fields) do
+  def create_changeset(
+        %User{} = creator,
+        fields
+      ) do
     %Community{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.change(
       # communities are currently all public
       is_public: true,
-      actor_id: actor.id,
       creator_id: creator.id
     )
     |> Changeset.validate_required(@create_required)

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Mixfile do
+defmodule CommonsPub.Mixfile do
   use Mix.Project
 
   @library_dev_mode false
@@ -8,8 +8,8 @@ defmodule MoodleNet.Mixfile do
   # General configuration of the project
   def project do
     [
-      app: :moodle_net,
-      version: "0.10.0-dev",
+      app: :commons_pub,
+      version: "0.11.1-dev",
       elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
@@ -47,7 +47,7 @@ defmodule MoodleNet.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {MoodleNet.Application, []},
+      mod: {CommonsPub.Application, []},
       extra_applications: [
         :logger,
         :runtime_tools,
@@ -64,7 +64,7 @@ defmodule MoodleNet.Mixfile do
 
   defp releases do
     [
-      moodle_net: [
+      commons_pub: [
         include_executables_for: [:unix]
       ]
     ]
@@ -230,7 +230,7 @@ defmodule MoodleNet.Mixfile do
   end
 
   def deps() do
-    configured_deps = Enum.map(deps_list(), &dep_process/1)
+    _configured_deps = Enum.map(deps_list(), &dep_process/1)
     # IO.inspect(configured_deps, limit: :infinity)
   end
 
@@ -299,7 +299,7 @@ defmodule MoodleNet.Mixfile do
         devpath
       else
         # try to copy git repo from ./deps to devpath
-        with {:ok, copied} <- File.cp_r(mixpath, devpath) do
+        with {:ok, _copied} <- File.cp_r(mixpath, devpath) do
           devpath
         else
           e ->

@@ -3,13 +3,13 @@ defmodule Geolocation.GraphQL do
   use Absinthe.Schema.Notation
   require Logger
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     GraphQL,
     Repo
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # ResolvePage,
     ResolvePages,
     ResolveField,
@@ -20,8 +20,8 @@ defmodule Geolocation.GraphQL do
     # CommonResolver
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
 
   alias Geolocation
   alias Geolocation.Geolocations
@@ -61,7 +61,8 @@ defmodule Geolocation.GraphQL do
   ## fetchers
 
   def fetch_geolocation(info, id) do
-    with {:ok, geo} <- Geolocations.one(user: GraphQL.current_user(info), id: id, preload: :actor) do
+    with {:ok, geo} <-
+           Geolocations.one(user: GraphQL.current_user(info), id: id, preload: :character) do
       {:ok, Geolocations.populate_coordinates(geo)}
     end
   end
@@ -109,7 +110,7 @@ defmodule Geolocation.GraphQL do
   # end
 
   # defp default_outbox_query_contexts() do
-  #   Application.fetch_env!(:moodle_net, Geolocations)
+  #   CommonsPub.Config.get!(Geolocations)
   #   |> Keyword.fetch!(:default_outbox_query_contexts)
   # end
 
@@ -118,8 +119,8 @@ defmodule Geolocation.GraphQL do
   def create_geolocation(%{spatial_thing: attrs, in_scope_of: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
-           context = MoodleNet.Meta.Pointers.follow!(pointer),
+           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
+           context = CommonsPub.Meta.Pointers.follow!(pointer),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, g} <- Geolocations.create(user, context, attrs) do
         {:ok, %{spatial_thing: g}}

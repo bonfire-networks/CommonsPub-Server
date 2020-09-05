@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.GraphQL.UploadSchema do
+defmodule CommonsPub.Web.GraphQL.UploadSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   import_types(Absinthe.Plug.Types)
 

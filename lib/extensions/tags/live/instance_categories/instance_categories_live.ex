@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceCategoriesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.InstanceLive.InstanceCategoriesLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  # alias MoodleNetWeb.Helpers.{Profiles}
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.Component.CategoryPreviewLive
+  alias CommonsPub.Web.Component.CategoryPreviewLive
 
   def update(assigns, socket) do
     {
@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCategoriesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

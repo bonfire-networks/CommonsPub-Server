@@ -1,17 +1,21 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
-  alias MoodleNet.{Activities, Common, Feeds, Repo}
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  alias MoodleNet.Meta.Pointers
+  alias __MODULE__
+  alias CommonsPub.{Activities, Common, Feeds, Repo}
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
+  alias CommonsPub.Meta.Pointers
 
   alias Geolocation.Geolocations
   # alias Measurement.Measure
+  alias Measurement.Unit.Units
+  alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
+  alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.Queries
-  alias ValueFlows.Knowledge.Action
+  # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
@@ -220,7 +224,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp change_current_location(changeset, _attrs), do: changeset
 
   defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
-    with {:ok, item} <- ResourceSpecification.one([:default, id: id]) do
+    with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
       EconomicResource.change_conforms_to_resource_spec(changeset, item)
     end
   end
@@ -266,7 +270,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp publish(creator, resource, activity, :created) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -278,7 +282,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp publish(creator, context, resource, activity, :created) do
     feeds = [
       context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -299,7 +303,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   # FIXME
   defp ap_publish(verb, context_id, user_id) do
-    MoodleNet.Workers.APPublishWorker.enqueue(verb, %{
+    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id
     })
@@ -310,20 +314,20 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp ap_publish(_, _, _), do: :ok
 
   def indexing_object_format(obj) do
-    # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
-    image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
+    image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
 
     %{
       "index_type" => "EconomicResource",
       "id" => obj.id,
-      # "canonicalUrl" => obj.actor.canonical_url,
+      # "canonicalUrl" => obj.canonical_url,
       # "icon" => icon,
       "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
-      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+      # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
     }
   end
 

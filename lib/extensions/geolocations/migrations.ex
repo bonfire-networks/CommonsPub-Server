@@ -1,6 +1,6 @@
 defmodule Geolocation.Migrations do
   use Ecto.Migration
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 
@@ -18,7 +18,10 @@ defmodule Geolocation.Migrations do
       add(:geom, :geometry)
       add(:alt, :float)
 
-      add(:actor_id, references("mn_actor", on_delete: :delete_all))
+      add(
+        :actor_id,
+        references(CommonsPub.Characters.Character.__schema__(:source), on_delete: :delete_all)
+      )
 
       # add :community_id, references("mn_community", on_delete: :delete_all) # replaced with context
       add(:context_id, weak_pointer(), null: true)

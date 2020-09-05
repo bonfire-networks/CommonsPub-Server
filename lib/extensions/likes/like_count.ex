@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Likes.LikeCount do
-  use MoodleNet.Common.Schema
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Likes.LikeCount do
+  use CommonsPub.Common.Schema
+  alias CommonsPub.Users.User
 
   view_schema "mn_like_count" do
     belongs_to(:creator, User, primary_key: true)

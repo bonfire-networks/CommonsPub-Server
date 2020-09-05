@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.Workers.WorkerHelper do
-  alias MoodleNet.Config
+  alias CommonsPub.Config
   alias ActivityPub.Workers.WorkerHelper
 
   def worker_args(queue) do
@@ -28,7 +28,7 @@ defmodule ActivityPub.Workers.WorkerHelper do
 
         unquote(caller_module)
         |> apply(:new, [params, worker_args])
-        |> MoodleNet.Repo.insert()
+        |> CommonsPub.Repo.insert()
       end
     end
   end

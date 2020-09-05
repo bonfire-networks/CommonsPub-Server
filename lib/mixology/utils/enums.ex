@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.Enums do
+defmodule CommonsPub.Common.Enums do
   @moduledoc "Missing functions from Enum"
 
   @compile {:inline, group: 3}

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Batching.NodesPage do
+defmodule CommonsPub.Batching.NodesPage do
   @enforce_keys ~w(nodes total_count page_info)a
   defstruct @enforce_keys
 
-  use MoodleNet.Common.Metadata
-  alias MoodleNet.Batching.{NodesPage, PageInfo}
+  use CommonsPub.Common.Metadata
+  alias CommonsPub.Batching.{NodesPage, PageInfo}
 
   @type t :: %NodesPage{nodes: [map], total_count: integer}
 

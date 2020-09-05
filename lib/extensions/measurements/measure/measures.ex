@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Measure.Measures do
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities, Actors, Common, Feeds, Follows,
     Repo
   }
 
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
   alias Measurement.{Measure, Unit}
   alias Measurement.Measure.Queries
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -105,7 +105,7 @@ defmodule Measurement.Measure.Measures do
 
   # defp publish(creator, measure, activity, :created) do # TODO
   #   feeds = [
-  #     community.outbox_id, creator.outbox_id,
+  #     community.outbox_id, CommonsPub.Feeds.outbox_id(creator),
   #     measure.outbox_id, Feeds.instance_outbox_id(),
   #   ]
   #   with :ok <- FeedActivities.publish(activity, feeds) do
@@ -120,7 +120,7 @@ defmodule Measurement.Measure.Measures do
   # end
 
   # defp ap_publish(context_id, user_id) do
-  #   MoodleNet.FeedPublisher.publish(%{
+  #   CommonsPub.FeedPublisher.publish(%{
   #     "context_id" => context_id,
   #     "user_id" => user_id,
   #   })

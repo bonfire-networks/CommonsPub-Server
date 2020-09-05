@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.Gravatar do
+defmodule CommonsPub.Users.Gravatar do
   @moduledoc """
   Gravatar utils
   """

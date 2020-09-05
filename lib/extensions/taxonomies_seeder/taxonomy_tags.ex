@@ -3,19 +3,18 @@ defmodule Taxonomy.TaxonomyTags do
   # alias Ecto.Changeset
   require Logger
 
-
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Common, GraphQL,
     GraphQL.Page,
     Common.Contexts,
     Repo
   }
 
-  # alias MoodleNet.Users.User
+  # alias CommonsPub.Users.User
   alias Taxonomy.TaxonomyTag
   alias Taxonomy.TaxonomyTag.Queries
 
-  # alias CommonsPub.Character.Characters
+  # alias CommonsPub.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -115,7 +114,7 @@ defmodule Taxonomy.TaxonomyTags do
         |> Map.merge(%{parent_category: parent_category})
         |> Map.merge(%{parent_category_id: parent_category.id})
         |> Map.merge(%{
-          preferred_username: slug(tag.name, 150) <> "-" <> slug(parent_tag.name, 100)
+          preferred_username: shorten(tag.name, 150) <> "-" <> shorten(parent_tag.name, 100)
         })
 
       # finally pointerise the child(ren), in hierarchical order
@@ -123,8 +122,9 @@ defmodule Taxonomy.TaxonomyTags do
     else
       _e ->
         Logger.error("could not create parent tag")
-        # create the child anyway
-        create_category(user, tag, create_tag)
+        raise "stopping here to debug"
+        # create the child anyway?
+        # create_category(user, tag, create_tag)
     end
   end
 
@@ -155,21 +155,30 @@ defmodule Taxonomy.TaxonomyTags do
     |> Map.delete(:__meta__)
     # use Thing name as facet/trope
     |> Map.put(:facet, "Category")
-    |> Map.put(:name, slug(thing.name))
+    |> Map.put(:name, shorten(thing.name))
     |> Map.put(:prefix, "+")
     # avoid reusing IDs
     |> Map.delete(:id)
   end
 
-  def slug(input, length \\ 244) do
-    Regex.run(~r/\A(.{0,#{length}})(?: |\Z)/, input) |> List.last()
+  def shorten(input, length \\ 244) do
+    CommonsPub.Utils.Text.truncate(input, length)
   end
 
   def update(_user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
-      #  {:ok, character} <- CommonsPub.Character.update(user, tag.character, attrs)
+      #  {:ok, character} <- CommonsPub.Characters.update(user, tag.character, attrs)
       # :ok <- publish(tag, :updated)
       with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs)) do
+        {:ok, tag}
+      end
+    end)
+  end
+
+  def update(_user, tag_id, attrs) when is_binary(tag_id) do
+    Repo.transact_with(fn ->
+      with {:ok, tag} <- one(id: tag_id),
+           {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs)) do
         {:ok, tag}
       end
     end)

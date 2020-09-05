@@ -1,10 +1,12 @@
-defmodule MoodleNetWeb.Component.CategoryPreviewLive do
+defmodule CommonsPub.Web.Component.CategoryPreviewLive do
   use Phoenix.LiveComponent
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  def category_link(cat) do
-    "/++" <> e(cat, :id, "#no-parent")
+  def category_link(category) do
+    id = e(category, :character, :preferred_username, nil) || e(category, :id, "#no-parent")
+
+    "/++" <> id
   end
 
   def update(assigns, socket) do
@@ -16,6 +18,11 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
         :character,
         parent_category: [:profile, :character, parent_category: [:profile, :character]]
       ])
+
+    object =
+      if !Map.get(object, :parent_category) and Map.get(object, :context),
+        do: Map.put(object, :parent_category, Map.get(object, :context)),
+        else: object
 
     # IO.inspect(category_preview: object)
 
@@ -31,7 +38,7 @@ defmodule MoodleNetWeb.Component.CategoryPreviewLive do
     <div class="story__preview">
       <div class="preview__info">
       <%= if !is_nil(e(@object, :parent_category, :parent_category, :id, nil)) and @object.parent_category.parent_category.id != @top_level_category do %>
-      <%= live_redirect to:  category_link(e(@object, :parent_category, :parent_category, nil)) do %>
+        <%= live_redirect to:  category_link(e(@object, :parent_category, :parent_category, nil)) do %>
         <%= e(@object, :parent_category, :parent_category, :profile, :name, "") %>
       <% end %>
         »

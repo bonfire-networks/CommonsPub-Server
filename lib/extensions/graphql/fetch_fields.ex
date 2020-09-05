@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.FetchFields do
+defmodule CommonsPub.GraphQL.FetchFields do
   @enforce_keys [:queries, :query, :group_fn]
   defstruct [
     :queries,
@@ -9,8 +9,8 @@ defmodule MoodleNet.GraphQL.FetchFields do
     filters: []
   ]
 
-  alias MoodleNet.Repo
-  alias MoodleNet.GraphQL.{Fields, FetchFields}
+  alias CommonsPub.Repo
+  alias CommonsPub.GraphQL.{Fields, FetchFields}
 
   @type t :: %FetchFields{
           queries: atom,
@@ -20,15 +20,13 @@ defmodule MoodleNet.GraphQL.FetchFields do
           filters: list
         }
 
-  def run(
-    %FetchFields{
-      queries: queries,
-      query: query,
-      group_fn: group_fn,
-      map_fn: map_fn,
-      filters: filters,
-    }
-  ) do
+  def run(%FetchFields{
+        queries: queries,
+        query: query,
+        group_fn: group_fn,
+        map_fn: map_fn,
+        filters: filters
+      }) do
     apply(queries, :query, [query, filters])
     |> Repo.all()
     |> Fields.new(group_fn, map_fn)

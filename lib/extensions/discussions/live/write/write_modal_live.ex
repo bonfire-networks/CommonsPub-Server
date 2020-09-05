@@ -1,9 +1,7 @@
-defmodule MoodleNetWeb.My.WriteModalLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.WriteModalLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
-
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  import CommonsPub.Utils.Web.CommonHelper
 
   # def update(assigns, socket) do
   #   {
@@ -47,13 +45,13 @@ defmodule MoodleNetWeb.My.WriteModalLive do
        socket
        |> put_flash(:error, "Please write something...")}
     else
-      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+      # CommonsPub.Web.Plugs.Auth.login(socket, session.current_user, session.token)
       comment = input_to_atoms(data)
 
       IO.inspect(context_id, label: "context_id CHOOSEN")
 
       with {:ok, thread} <-
-             MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+             CommonsPub.Web.GraphQL.ThreadsResolver.create_thread(
                %{context_id: context_id, comment: comment},
                %{context: %{current_user: socket.assigns.current_user}}
              ) do

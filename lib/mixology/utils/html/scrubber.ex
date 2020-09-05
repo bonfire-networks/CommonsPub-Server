@@ -7,7 +7,7 @@ defmodule CommonsPub.HTML.Scrubber do
   #  @on_load :compile_scrubbers
 
   # def compile_scrubbers do
-  #   dir = Path.join(:code.priv_dir(:moodle_net), "scrubbers")
+  #   dir = Path.join(:code.priv_dir(:commons_pub), "scrubbers")
 
   #   dir
   #   |> CommonsPub.ReleaseTasks.compile_dir()
@@ -29,7 +29,7 @@ defmodule CommonsPub.HTML.Scrubber do
   defp get_scrubbers(_), do: [@default_scrubber]
 
   def get_scrubbers do
-    MoodleNet.Config.get([:markup, :scrub_policy], [
+    CommonsPub.Config.get([:markup, :scrub_policy], [
       @default_scrubber
       # CommonsPub.HTML.Transform.MediaProxy
     ])
@@ -46,26 +46,26 @@ defmodule CommonsPub.HTML.Scrubber do
 
   def scrub_html(content), do: content
 
-  def scrub_html_and_truncate(content, max_length \\ 200)
+  # def scrub_html_and_truncate(content, max_length \\ 200)
 
-  def scrub_html_and_truncate(%{data: %{"content" => content}} = object, max_length) do
-    content
-    # if html content comes from DB already encoded, decode first and scrub after
-    |> HtmlEntities.decode()
-    |> String.replace(~r/<br\s?\/?>/, " ")
-    |> get_cached_stripped_html_for_object(object, "metadata")
-    # |> Emoji.Formatter.demojify()
-    |> HtmlEntities.decode()
-    |> CommonsPub.HTML.truncate(max_length)
-  end
+  # def scrub_html_and_truncate(%{data: %{"content" => content}} = object, max_length) do
+  #   content
+  #   # if html content comes from DB already encoded, decode first and scrub after
+  #   |> HtmlEntities.decode()
+  #   |> String.replace(~r/<br\s?\/?>/, " ")
+  #   |> get_cached_stripped_html_for_object(object, "metadata")
+  #   # |> Emoji.Formatter.demojify()
+  #   |> HtmlEntities.decode()
+  #   |> CommonsPub.HTML.truncate(max_length)
+  # end
 
-  def scrub_html_and_truncate(content, max_length) when is_binary(content) do
-    content
-    |> scrub_html
-    # |> Emoji.Formatter.demojify()
-    |> HtmlEntities.decode()
-    |> CommonsPub.HTML.truncate(max_length)
-  end
+  # def scrub_html_and_truncate(content, max_length) when is_binary(content) do
+  #   content
+  #   |> scrub_html
+  #   # |> Emoji.Formatter.demojify()
+  #   |> HtmlEntities.decode()
+  #   |> CommonsPub.HTML.truncate(max_length)
+  # end
 
   def filter_tags(html, nil) do
     filter_tags(html, get_scrubbers())

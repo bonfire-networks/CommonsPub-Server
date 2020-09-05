@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.Organisations do
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Actors,
     # Common,
@@ -9,15 +9,15 @@ defmodule Organisation.Organisations do
     Repo
   }
 
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
   alias Organisation
   alias Organisation.Queries
-  # alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  # alias MoodleNet.Workers.APPublishWorker
-  alias CommonsPub.Character.Characters
-  alias CommonsPub.Profile.Profiles
+  # alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
+  # alias CommonsPub.Workers.APPublishWorker
+  alias CommonsPub.Characters
+  alias CommonsPub.Profiles
 
   @facet_name "Organisation"
 
@@ -101,10 +101,10 @@ defmodule Organisation.Organisations do
       attrs = Map.put(attrs, :facet, @facet_name)
 
       #  {:ok, character} <- Characters.thing_link(organisation, character)
-      with {:ok, organisation} <- insert_organisation(attrs, context),
+      with {:ok, organisation} <- insert_organisation(creator, attrs, context),
            {:ok, attrs} <- attrs_with_organisation(attrs, organisation),
            {:ok, profile} <- Profiles.create(creator, attrs),
-           {:ok, character} <- Characters.create(creator, attrs) do
+           {:ok, character} <- Characters.create(creator, attrs, organisation) do
         {:ok, %{organisation | character: character, profile: profile}}
       end
     end)
@@ -116,10 +116,10 @@ defmodule Organisation.Organisations do
       attrs = Map.put(attrs, :facet, @facet_name)
 
       # {:ok, character} <- Characters.thing_link(organisation, character)
-      with {:ok, organisation} <- insert_organisation(attrs),
+      with {:ok, organisation} <- insert_organisation(creator, attrs),
            {:ok, attrs} <- attrs_with_organisation(attrs, organisation),
            {:ok, profile} <- Profiles.create(creator, attrs),
-           {:ok, character} <- Characters.create(creator, attrs) do
+           {:ok, character} <- Characters.create(creator, attrs, organisation) do
         {:ok, %{organisation | character: character, profile: profile}}
       end
     end)
@@ -131,15 +131,15 @@ defmodule Organisation.Organisations do
     {:ok, attrs}
   end
 
-  defp insert_organisation(attrs, context) do
-    cs = Organisation.create_changeset(attrs, context)
-    with {:ok, organisation} <- Repo.insert(cs), do: {:ok, IO.inspect(organisation)}
+  defp insert_organisation(creator, attrs, context) do
+    cs = Organisation.create_changeset(creator, attrs, context)
+    with {:ok, organisation} <- Repo.insert(cs), do: {:ok, organisation}
   end
 
-  defp insert_organisation(attrs) do
+  defp insert_organisation(creator, attrs) do
     IO.inspect(attrs)
-    cs = Organisation.create_changeset(attrs)
-    with {:ok, organisation} <- Repo.insert(cs), do: {:ok, IO.inspect(organisation)}
+    cs = Organisation.create_changeset(creator, attrs)
+    with {:ok, organisation} <- Repo.insert(cs), do: {:ok, organisation}
   end
 
   # TODO: take the user who is performing the update
@@ -149,8 +149,9 @@ defmodule Organisation.Organisations do
     Repo.transact_with(fn ->
       with {:ok, organisation} <- Repo.update(Organisation.update_changeset(organisation, attrs)),
            # update linked character too
+           {:ok, profile} <- Profiles.update(user, organisation.profile, attrs),
            {:ok, character} <- Characters.update(user, organisation.character, attrs) do
-        {:ok, %{organisation | character: character}}
+        {:ok, %{organisation | character: character, profile: profile}}
       end
     end)
   end

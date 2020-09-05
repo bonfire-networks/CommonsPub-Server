@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.AdminResolver do
+defmodule CommonsPub.Web.GraphQL.AdminResolver do
   alias ActivityPub.Actor
-  alias MoodleNet.Mail.{Email, MailService}
-  alias MoodleNet.{Access, GraphQL, Users}
+  alias CommonsPub.Mail.{Email, MailService}
+  alias CommonsPub.{Access, GraphQL, Users}
 
   def admin(_, _info), do: {:ok, %{}}
 
@@ -34,6 +34,6 @@ defmodule MoodleNetWeb.GraphQL.AdminResolver do
   end
 
   defp find(id) do
-    Users.one(id: id, join: :actor, join: :local_user, preload: :all)
+    Users.one(id: id, join: :character, join: :local_user, preload: :all)
   end
 end

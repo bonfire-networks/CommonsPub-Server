@@ -1,9 +1,7 @@
-defmodule MoodleNetWeb.My.PublishAdLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.PublishAdLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
-
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     {
@@ -21,6 +19,11 @@ defmodule MoodleNetWeb.My.PublishAdLive do
     publish_ad(data, socket)
   end
 
+  # need to alias some form posting events here to workaround having two events but one target on a form
+  def handle_event("tag_suggest", data, socket) do
+    CommonsPub.Web.Component.TagAutocomplete.tag_suggest(data, socket)
+  end
+
   def publish_ad(data, socket) do
     intent = input_to_atoms(data)
     IO.inspect(intent, label: "intent to create")
@@ -35,10 +38,5 @@ defmodule MoodleNetWeb.My.PublishAdLive do
     {:noreply,
      socket
      |> put_flash(:info, "intent created !")}
-  end
-
-  # need to alias some form posting events here to workaround having two events but one target on a form
-  def handle_event("tag_suggest", data, socket) do
-    MoodleNetWeb.Component.TagAutocomplete.tag_suggest(data, socket)
   end
 end

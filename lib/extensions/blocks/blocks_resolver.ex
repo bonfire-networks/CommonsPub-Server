@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.BlocksResolver do
-  alias MoodleNet.{Blocks, GraphQL, Repo}
-  alias MoodleNet.Blocks.Block
+defmodule CommonsPub.Web.GraphQL.BlocksResolver do
+  alias CommonsPub.{Blocks, GraphQL, Repo}
+  alias CommonsPub.Blocks.Block
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -12,8 +12,8 @@ defmodule MoodleNetWeb.GraphQL.BlocksResolver do
     ResolvePages
   }
 
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Users.User
+  alias CommonsPub.Meta.Pointers
+  alias CommonsPub.Users.User
 
   def block(%{block_id: id}, info) do
     with {:ok, %User{} = user} <- GraphQL.current_user_or_not_found(info) do

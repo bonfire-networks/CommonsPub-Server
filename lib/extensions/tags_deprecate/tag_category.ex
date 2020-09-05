@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.TagCategory do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Common.TagCategory do
+  use CommonsPub.Common.Schema
 
   table_schema "mn_tag_category" do
     field(:canonical_url, :string)

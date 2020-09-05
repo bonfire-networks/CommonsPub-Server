@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.DataCase do
+defmodule CommonsPub.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -15,12 +15,12 @@ defmodule MoodleNet.DataCase do
   """
 
   use ExUnit.CaseTemplate
-  alias MoodleNet.Common.DeletionError
+  alias CommonsPub.Common.DeletionError
 
   using do
     quote do
-      alias MoodleNet.Repo
-      import MoodleNet.DataCase
+      alias CommonsPub.Repo
+      import CommonsPub.DataCase
       use Bamboo.Test
     end
   end
@@ -28,10 +28,10 @@ defmodule MoodleNet.DataCase do
   setup tags do
     Cachex.clear(:ap_actor_cache)
     Cachex.clear(:ap_object_cache)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CommonsPub.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CommonsPub.Repo, {:shared, self()})
     end
 
     :ok

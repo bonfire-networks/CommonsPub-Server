@@ -6,7 +6,9 @@ defmodule CommonsPub.Tag.Taggable.Queries do
 
   def query(Taggable) do
     from(t in Taggable,
-      as: :tag
+      as: :tag,
+      left_join: c in assoc(t, :character),
+      as: :character
     )
   end
 
@@ -58,6 +60,14 @@ defmodule CommonsPub.Tag.Taggable.Queries do
 
   def filter(q, {:id, id}) when is_binary(id), do: where(q, [tag: c], c.id == ^id)
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [tag: c], c.id in ^ids)
+
+  def filter(q, {:username, username}) when is_binary(username) do
+    where(q, [character: a], a.preferred_username == ^username)
+  end
+
+  def filter(q, {:username, usernames}) when is_list(usernames) do
+    where(q, [character: a], a.preferred_username in ^usernames)
+  end
 
   def filter(q, {:user, _user}), do: q
 

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.TableNotFoundError do
+defmodule CommonsPub.Meta.TableNotFoundError do
   @enforce_keys [:table]
   defstruct @enforce_keys
 

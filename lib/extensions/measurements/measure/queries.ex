@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Measure.Queries do
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
   alias Measurement.{Measure, Unit}
 
   def query(Measure) do

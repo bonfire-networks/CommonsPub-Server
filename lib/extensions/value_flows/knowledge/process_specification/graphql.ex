@@ -2,13 +2,10 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   use Absinthe.Schema.Notation
 
-  # default to 100 km radius
-  @radius_default_distance 100_000
-
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Communities,
     GraphQL,
@@ -16,7 +13,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     # User
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -27,18 +24,18 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     # CommonResolver
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
+  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
-  alias ValueFlows.Knowledge.Action.Actions
-  # alias MoodleNetWeb.GraphQL.CommonResolver
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  # alias ValueFlows.Knowledge.Action.Actions
+  # alias CommonsPub.Web.GraphQL.CommonResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
@@ -48,7 +45,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
   ## resolvers
 
-  def simulate(%{id: id}, _) do
+  def simulate(%{id: _id}, _) do
     {:ok, ValueFlows.Simulate.process_spec()}
   end
 
@@ -190,8 +187,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   end
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: [character: [:actor]])
-    urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
+    thing = Repo.preload(thing, tags: :character)
+    urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
 
@@ -270,7 +267,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, process_spec} <- update_fn.(process_spec, changes) do
-      {:ok, %{process_spec: process_spec}}
+      {:ok, %{process_specification: process_spec}}
     end
   end
 
@@ -303,6 +300,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
   # end
 end

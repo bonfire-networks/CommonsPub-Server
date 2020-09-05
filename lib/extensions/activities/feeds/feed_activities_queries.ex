@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Feeds.FeedActivitiesQueries do
-  use MoodleNet.Common.Metadata
-  alias MoodleNet.Activities
-  alias MoodleNet.Feeds.FeedActivity
-  alias MoodleNet.Meta.TableService
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+defmodule CommonsPub.Feeds.FeedActivitiesQueries do
+  use CommonsPub.Common.Metadata
+  alias CommonsPub.Activities
+  alias CommonsPub.Feeds.FeedActivity
+  alias CommonsPub.Meta.TableService
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(FeedActivity), do: from(f in FeedActivity, as: :feed_activity)

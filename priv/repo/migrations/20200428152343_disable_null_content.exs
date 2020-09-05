@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.DisableNullContent do
+defmodule CommonsPub.Repo.Migrations.DisableNullContent do
   use Ecto.Migration
 
   def up do

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Feeds.Queries do
-  alias MoodleNet.Feeds.Feed
+defmodule CommonsPub.Feeds.Queries do
+  alias CommonsPub.Feeds.Feed
   import Ecto.Query
 
   def query(Feed), do: from(f in Feed, as: :feed)

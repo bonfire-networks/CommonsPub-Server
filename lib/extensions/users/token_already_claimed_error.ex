@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.TokenAlreadyClaimedError do
+defmodule CommonsPub.Users.TokenAlreadyClaimedError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 

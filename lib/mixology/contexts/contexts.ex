@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.Contexts do
+defmodule CommonsPub.Common.Contexts do
   @doc "Helpers for writing contexts that deal with graphql"
 
-  alias MoodleNet.GraphQL.{Page, Pages}
-  alias MoodleNet.Repo
+  alias CommonsPub.GraphQL.{Page, Pages}
+  alias CommonsPub.Repo
 
   def page(
         queries,
@@ -79,21 +79,44 @@ defmodule MoodleNet.Common.Contexts do
   end
 
   # FIXME: make these config-driven and generic:
+  # TODO: make them support no context or any context
 
-  def context_feeds(%MoodleNet.Resources.Resource{} = resource) do
-    r = Repo.preload(resource, collection: [:community])
-    [r.collection.outbox_id, r.collection.community.outbox_id]
+  def context_feeds(obj) do
+    # remove nils
+    Enum.filter(context_feeds_list(obj), & &1)
   end
 
-  def context_feeds(%MoodleNet.Collections.Collection{} = collection) do
-    c = Repo.preload(collection, [:community])
-    [c.outbox_id, c.community.outbox_id]
-  end
-
-  def context_feeds(%MoodleNet.Communities.Community{outbox_id: id}), do: [id]
-
-  def context_feeds(%MoodleNet.Users.User{inbox_id: inbox, outbox_id: outbox}),
+  defp context_feeds_list(%{context: %{character: %{inbox_id: inbox, outbox_id: outbox}}}),
     do: [inbox, outbox]
 
-  def context_feeds(_), do: []
+  defp context_feeds_list(%CommonsPub.Resources.Resource{} = r) do
+    r = Repo.preload(r, collection: [:character, community: :character])
+
+    [
+      CommonsPub.Feeds.outbox_id(r.collection),
+      CommonsPub.Feeds.outbox_id(Map.get(r.collection, :community))
+    ]
+  end
+
+  defp context_feeds_list(%CommonsPub.Collections.Collection{} = c) do
+    c = Repo.preload(c, [:character, community: :character])
+    [CommonsPub.Feeds.outbox_id(c), CommonsPub.Feeds.outbox_id(Map.get(c, :community))]
+  end
+
+  defp context_feeds_list(%CommonsPub.Communities.Community{} = c) do
+    c = Repo.preload(c, :character)
+    [CommonsPub.Feeds.outbox_id(c)]
+  end
+
+  defp context_feeds_list(%CommonsPub.Users.User{} = u) do
+    u = Repo.preload(u, :character)
+    [CommonsPub.Feeds.outbox_id(u), CommonsPub.Feeds.inbox_id(u)]
+  end
+
+  defp context_feeds_list(%{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
+
+  defp context_feeds_list(%{character: %{inbox_id: inbox, outbox_id: outbox}}),
+    do: [inbox, outbox]
+
+  defp context_feeds_list(_), do: []
 end

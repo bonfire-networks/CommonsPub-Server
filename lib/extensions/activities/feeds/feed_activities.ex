@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Feeds.FeedActivities do
+defmodule CommonsPub.Feeds.FeedActivities do
   @moduledoc """
   Handles publishing of activities to feeds/timelines, both in DB and over LiveView/PubSub
   """
-  alias MoodleNet.{Repo, Feeds}
-  alias MoodleNet.Feeds.{FeedActivity, FeedActivitiesQueries}
+  alias CommonsPub.{Repo, Feeds}
+  alias CommonsPub.Feeds.{FeedActivity, FeedActivitiesQueries}
   alias Ecto.ULID
 
   @doc """
@@ -54,7 +54,7 @@ defmodule MoodleNet.Feeds.FeedActivities do
   end
 
   def default_query_contexts() do
-    Application.fetch_env!(:moodle_net, Feeds)
+    CommonsPub.Config.get!(Feeds)
     |> Map.fetch!(:default_query_contexts)
   end
 end

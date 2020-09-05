@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.FeaturesResolver do
+defmodule CommonsPub.Web.GraphQL.FeaturesResolver do
   @moduledoc """
   Performs the GraphQL Community queries.
   """
-  alias MoodleNet.{Features, GraphQL}
-  alias MoodleNet.GraphQL.{FetchFields, ResolveFields, ResolveRootPage, FetchPage}
-  alias MoodleNet.Meta.Pointers
+  alias CommonsPub.{Features, GraphQL}
+  alias CommonsPub.GraphQL.{FetchFields, ResolveFields, ResolveRootPage, FetchPage}
+  alias CommonsPub.Meta.Pointers
 
   def feature(%{feature_id: id}, _info), do: Features.one(id: id)
 

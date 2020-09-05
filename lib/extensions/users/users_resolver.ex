@@ -1,21 +1,22 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.UsersResolver do
+defmodule CommonsPub.Web.GraphQL.UsersResolver do
   @moduledoc """
   Performs the GraphQL User queries.
   """
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     Access,
     Activities,
-    Actors,
     Follows,
     GraphQL,
     Repo,
     Users
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.Characters
+
+  alias CommonsPub.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -25,14 +26,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     ResolveRootPage
   }
 
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Threads.{Comment, CommentsQueries}
-  alias MoodleNet.Users.{Me, User}
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Threads.{Comment, CommentsQueries}
+  alias CommonsPub.Users.{Me, User}
 
   def username_available(%{username: username}, _info) do
-    {:ok, Actors.is_username_available?(username)}
+    {:ok, Characters.is_username_available?(username)}
   end
 
   def me(_, info) do
@@ -50,11 +51,16 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def search_follows(_, _, _), do: {:ok, []}
 
   def user(%{user_id: id}, info) do
-    Users.one(join: :actor, preload: :actor, id: id, user: GraphQL.current_user(info))
+    Users.one(join: :character, preload: :character, id: id, user: GraphQL.current_user(info))
   end
 
   def user(%{username: name}, info) do
-    Users.one(join: :actor, preload: :actor, username: name, user: GraphQL.current_user(info))
+    Users.one(
+      join: :character,
+      preload: :character,
+      username: name,
+      user: GraphQL.current_user(info)
+    )
   end
 
   # def user(%{preferred_username: name}, info), do: Users.one(username: name)
@@ -282,7 +288,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def user_inbox_feeds(user, inbox_id) do
     with {:ok, subs} <- Users.feed_subscriptions(user) do
-      ids = [inbox_id | Enum.map(subs, & &1.feed_id)]
+      [inbox_id | Enum.map(subs, & &1.feed_id)]
     else
       _e ->
         [inbox_id]
@@ -347,7 +353,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       queries: Users.Queries,
       query: User,
       group_fn: & &1.id,
-      filters: [id: ids, user: user, join: :actor, preload: :actor]
+      filters: [id: ids, user: user, join: :character, preload: :character]
     })
   end
 
@@ -371,7 +377,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(user, params, info),
-         attrs = MoodleNetWeb.Helpers.Common.input_to_atoms(Map.merge(attrs, uploads)),
+         attrs = CommonsPub.Utils.Web.CommonHelper.input_to_atoms(Map.merge(attrs, uploads)),
          {:ok, user} <- Users.update(user, attrs) do
       {:ok, Me.new(user)}
     end

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL do
+defmodule CommonsPub.GraphQL do
   alias Absinthe.Resolution
-  alias MoodleNet.GraphQL.Page
-  alias MoodleNet.Common.Enums
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.GraphQL.Page
+  alias CommonsPub.Common.Enums
+  import CommonsPub.Common.Query, only: [match_admin: 0]
 
   def reverse_path(info) do
     Enum.reverse(Resolution.path(info))
@@ -138,13 +138,13 @@ defmodule MoodleNet.GraphQL do
 
   def empty_page(), do: Page.new([], 0, & &1, %{})
 
-  alias MoodleNet.Access.{
+  alias CommonsPub.Access.{
     InvalidCredentialError,
     NotLoggedInError,
     NotPermittedError
   }
 
-  alias MoodleNet.Common.NotFoundError
+  alias CommonsPub.Common.NotFoundError
 
   def invalid_credential(), do: {:error, InvalidCredentialError.new()}
 

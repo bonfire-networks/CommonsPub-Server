@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
-  alias MoodleNet.{Collections, GraphQL, Repo, Resources}
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.GraphQL.{FetchFields, ResolveFields, ResolvePages, FetchPage}
-  alias MoodleNet.Resources.Resource
-  alias MoodleNetWeb.GraphQL.UploadResolver
+defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
+  alias CommonsPub.{Collections, GraphQL, Repo, Resources}
+  alias CommonsPub.Characters.Character
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.GraphQL.{FetchFields, ResolveFields, ResolvePages, FetchPage}
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   def resource(%{resource_id: id}, info) do
     Resources.one(id: id, user: GraphQL.current_user(info))
   end
 
-  def is_local_edge(%{collection: %Collection{actor: %Actor{peer_id: peer_id}}}, _, _) do
+  def is_local_edge(%{collection: %Collection{character: %Character{peer_id: peer_id}}}, _, _) do
     {:ok, is_nil(peer_id)}
   end
 
@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
           ret =
             edges
             |> Map.get(id, %{})
-            |> Map.get(:actor, %{})
+            |> Map.get(:character, %{})
             |> Map.get(:peer_id)
             |> is_nil()
 
@@ -196,9 +196,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   def create_resource(%{resource: res_attrs, context_id: context_id} = input_attrs, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
+        with {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id),
              :ok <- validate_context(pointer),
-             context = MoodleNet.Meta.Pointers.follow!(pointer),
+             context = CommonsPub.Meta.Pointers.follow!(pointer),
              {:ok, uploads} <- UploadResolver.upload(user, input_attrs, info),
              res_attrs = Map.merge(res_attrs, uploads),
              {:ok, resource} <- Resources.create(user, context, res_attrs) do
@@ -268,7 +268,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
 
   defp validate_context(pointer) do
-    if MoodleNet.Meta.Pointers.table!(pointer).schema in valid_contexts() do
+    if CommonsPub.Meta.Pointers.table!(pointer).schema in valid_contexts() do
       :ok
     else
       GraphQL.not_permitted()
@@ -276,6 +276,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   defp valid_contexts() do
-    Keyword.fetch!(Application.get_env(:moodle_net, Resources), :valid_contexts)
+    Keyword.fetch!(CommonsPub.Config.get(Resources), :valid_contexts)
   end
 end

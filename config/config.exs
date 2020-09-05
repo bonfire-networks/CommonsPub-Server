@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 import Config
 
-alias MoodleNet.{
-  Actors,
+alias CommonsPub.{
   Blocks,
   Collections,
   Communities,
@@ -18,16 +17,16 @@ alias MoodleNet.{
   Uploads
 }
 
-alias MoodleNet.Blocks.Block
-alias MoodleNet.Collections.Collection
-alias MoodleNet.Communities.Community
-alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
-alias MoodleNet.Flags.Flag
-alias MoodleNet.Likes.Like
-alias MoodleNet.Resources.Resource
-alias MoodleNet.Threads.{Comment, Thread}
-alias MoodleNet.Users.User
-alias MoodleNet.Workers.GarbageCollector
+alias CommonsPub.Blocks.Block
+alias CommonsPub.Collections.Collection
+alias CommonsPub.Communities.Community
+alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
+alias CommonsPub.Flags.Flag
+alias CommonsPub.Likes.Like
+alias CommonsPub.Resources.Resource
+alias CommonsPub.Threads.{Comment, Thread}
+alias CommonsPub.Users.User
+alias CommonsPub.Workers.GarbageCollector
 
 alias Measurement.Unit.Units
 alias CommonsPub.Tag.Taggable
@@ -35,20 +34,20 @@ alias CommonsPub.Tag.Taggable
 hostname = System.get_env("HOSTNAME", "localhost")
 
 # LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
-config :moodle_net, MoodleNetWeb.Endpoint,
+config :commons_pub, CommonsPub.Web.Endpoint,
   live_view: [
     signing_salt: "SECRET_SALT"
   ]
 
 # stuff you might need to change to be viable
 
-config :moodle_net, :app_name, System.get_env("APP_NAME", "CommonsPub")
+config :commons_pub, :app_name, System.get_env("APP_NAME", "CommonsPub")
 
-config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
+config :commons_pub, CommonsPub.Web.Gettext, default_locale: "en", locales: ~w(en es)
 
 # stuff you might want to change for your use case
 
-config :moodle_net, GarbageCollector,
+config :commons_pub, GarbageCollector,
   # Contexts which require a mark phase, in execution order
   mark: [Uploads],
   # Contexts which need to perform maintainance, in execution order
@@ -62,7 +61,7 @@ config :moodle_net, GarbageCollector,
     Collections,
     Communities,
     Users,
-    Actors
+    CommonsPub.Characters
   ],
   # We will not sweep content newer than this
   # one week
@@ -70,7 +69,7 @@ config :moodle_net, GarbageCollector,
 
 contexts_agents = [
   User,
-  Organisation,
+  Organisation
 ]
 
 contexts_characters = [
@@ -94,59 +93,58 @@ contexts_all =
 
 desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
 
-config :moodle_net, Instance,
+config :commons_pub, Instance,
   hostname: hostname,
   description: desc,
   # what to show or exclude in Instance Timeline
   default_outbox_query_contexts: List.delete(contexts_all, Like)
 
-config :moodle_net, Users,
+config :commons_pub, Users,
   public_registration: false,
   default_outbox_query_contexts: contexts_all,
   default_inbox_query_contexts: contexts_all
 
-config :moodle_net, Communities,
+config :commons_pub, Communities,
   valid_contexts: contexts_characters,
   default_outbox_query_contexts: contexts_all,
   default_inbox_query_contexts: contexts_all
 
-config :moodle_net, Collections,
+config :commons_pub, Collections,
   valid_contexts: contexts_characters,
   default_outbox_query_contexts: contexts_all,
   default_inbox_query_contexts: contexts_all
 
-config :moodle_net, Organisation, valid_contexts: contexts_characters
+config :commons_pub, Organisation, valid_contexts: contexts_characters
 
-config :moodle_net, CommonsPub.Character,
+config :commons_pub, CommonsPub.Characters,
   valid_contexts: contexts_characters,
   default_outbox_query_contexts: contexts_all
 
-config :moodle_net, Feeds,
+config :commons_pub, Feeds,
   valid_contexts: contexts_characters,
   default_query_contexts: contexts_all
 
-config :moodle_net, Blocks, valid_contexts: contexts_characters
+config :commons_pub, Blocks, valid_contexts: contexts_characters
 
-config :moodle_net, Follows, valid_contexts: contexts_characters
+config :commons_pub, Follows, valid_contexts: contexts_characters
 
-config :moodle_net, Features, valid_contexts: contexts_all
+config :commons_pub, Features, valid_contexts: contexts_all
 
-config :moodle_net, Flags, valid_contexts: contexts_all
+config :commons_pub, Flags, valid_contexts: contexts_all
 
-config :moodle_net, Likes, valid_contexts: contexts_all
+config :commons_pub, Likes, valid_contexts: contexts_all
 
-config :moodle_net, Threads, valid_contexts: contexts_all
+config :commons_pub, Threads, valid_contexts: contexts_all
 
-config :moodle_net, Resources, valid_contexts: contexts_all
+config :commons_pub, Resources, valid_contexts: contexts_all
 
-config :moodle_net, Units, valid_contexts: contexts_all
+config :commons_pub, Units, valid_contexts: contexts_all
 
-config :moodle_net, ValueFlows.Proposals,
-  valid_agent_contexts: contexts_agents
+config :commons_pub, ValueFlows.Proposal.Proposals, valid_agent_contexts: contexts_agents
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
-config :moodle_net, Uploads.ResourceUploader,
+config :commons_pub, Uploads.ResourceUploader,
   # App formats
   # Docs
   # Images
@@ -168,21 +166,21 @@ config :moodle_net, Uploads.ResourceUploader,
       ~w(audio/mp3 audio/m4a audio/wav audio/flac audio/ogg) ++
       ~w(video/avi video/webm video/mp4)
 
-config :moodle_net, Uploads.IconUploader, allowed_media_types: image_media_types
+config :commons_pub, Uploads.IconUploader, allowed_media_types: image_media_types
 
-config :moodle_net, Uploads.ImageUploader, allowed_media_types: image_media_types
+config :commons_pub, Uploads.ImageUploader, allowed_media_types: image_media_types
 
-config :moodle_net, Uploads,
+config :commons_pub, Uploads,
   # default to 20mb
   max_file_size: "20000000"
 
 # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
 # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
 # domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
-# config :moodle_net, MoodleNet.Mail.MailService,
+# config :commons_pub, CommonsPub.Mail.MailService,
 #   adapter: Bamboo.MailgunAdapter
 
-config :moodle_net, :mrf_simple,
+config :commons_pub, :mrf_simple,
   media_removal: [],
   media_nsfw: [],
   report_removal: [],
@@ -190,8 +188,8 @@ config :moodle_net, :mrf_simple,
   avatar_removal: [],
   banner_removal: []
 
-config :moodle_net, Oban,
-  repo: MoodleNet.Repo,
+config :commons_pub, Oban,
+  repo: CommonsPub.Repo,
   # prune: {:maxlen, 100_000},
   poll_interval: 5_000,
   queues: [
@@ -201,23 +199,23 @@ config :moodle_net, Oban,
     mn_ap_publish: 30
   ]
 
-config :moodle_net, :workers,
+config :commons_pub, :workers,
   retries: [
     federator_incoming: 5,
     federator_outgoing: 5
   ]
 
-config :moodle_net, MoodleNet.MediaProxy,
-  impl: MoodleNet.DirectHTTPMediaProxy,
+config :commons_pub, CommonsPub.MediaProxy,
+  impl: CommonsPub.DirectHTTPMediaProxy,
   path: "/media/"
 
 ### Standin data for values you'll have to provide in the ENV in prod
 
-config :moodle_net, MoodleNetWeb.Endpoint,
+config :commons_pub, CommonsPub.Web.Endpoint,
   url: [host: "localhost"],
   protocol: "https",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
-  render_errors: [view: MoodleNetWeb.ErrorView, accepts: ["json", "activity+json"]],
+  render_errors: [view: CommonsPub.Web.ErrorView, accepts: ["json", "activity+json"]],
   pubsub_server: CommonsPub.PubSub,
   secure_cookie_flag: true
 
@@ -228,7 +226,7 @@ version =
     _ -> "CommonsPub #{Mix.Project.config()[:version]} dev"
   end
 
-config :moodle_net, :instance,
+config :commons_pub, :instance,
   version: version,
   name: "CommonsPub",
   email: "root@localhost",
@@ -241,9 +239,9 @@ config :moodle_net, :instance,
 
 ### Stuff you probably won't want to change
 
-config :moodle_net, ecto_repos: [MoodleNet.Repo]
+config :commons_pub, ecto_repos: [CommonsPub.Repo]
 
-config :moodle_net, MoodleNet.Repo,
+config :commons_pub, CommonsPub.Repo,
   types: Forkable.PostgresTypes,
   migration_primary_key: [name: :id, type: :binary_id]
 
@@ -262,7 +260,7 @@ config :argon2_elixir,
   argon2_type: 2
 
 # Configures http settings, upstream proxy etc.
-config :moodle_net, :http,
+config :commons_pub, :http,
   proxy_url: nil,
   send_user_agent: true,
   adapter: [
@@ -283,7 +281,7 @@ config :tesla, adapter: Tesla.Adapter.Gun
 
 config :http_signatures, adapter: ActivityPub.Signature
 
-config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
+config :commons_pub, ActivityPub.Adapter, adapter: CommonsPub.ActivityPub.Adapter
 
 config :floki, :html_parser, Floki.HTMLParser.Html5ever
 
@@ -291,7 +289,7 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!()
 
-config :moodle_net, :env, Mix.env()
+config :commons_pub, :env, Mix.env()
 
 config :pointers, Pointers.Pointer,
   source: "pointers_pointer",
@@ -308,7 +306,7 @@ config :pointers, Pointers.Pointer,
 
 config :pointers, Pointers.Table, source: "pointers_table"
 
-config :moodle_net, :ux,
+config :commons_pub, :ux,
   # prosemirror or ck5 as content editor:
   # editor: "prosemirror"
   editor: "ck5"

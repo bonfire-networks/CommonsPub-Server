@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.InstanceSchema do
+defmodule CommonsPub.Web.GraphQL.InstanceSchema do
   @moduledoc """
   GraphQL activity fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.InstanceResolver
+  alias CommonsPub.Web.GraphQL.InstanceResolver
 
   object :instance_queries do
     @desc "A logical object for the local instance"
@@ -41,7 +41,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
       arg(:limit, :integer)
       arg(:before, list_of(non_null(:cursor)))
       arg(:after, list_of(non_null(:cursor)))
-      resolve(&MoodleNetWeb.GraphQL.InstanceResolver.instance_outbox_edge/3)
+      resolve(&CommonsPub.Web.GraphQL.InstanceResolver.instance_outbox_edge/3)
     end
   end
 end

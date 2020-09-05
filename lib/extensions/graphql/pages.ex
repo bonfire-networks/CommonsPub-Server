@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.Pages do
+defmodule CommonsPub.GraphQL.Pages do
   @enforce_keys ~w(data counts cursor_fn page_opts)a
   defstruct @enforce_keys
 
-  alias MoodleNet.GraphQL.{Page, Pages}
+  alias CommonsPub.GraphQL.{Page, Pages}
 
   @type data :: %{term => term}
   @type counts :: %{term => non_neg_integer}

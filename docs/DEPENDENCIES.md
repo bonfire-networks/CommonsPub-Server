@@ -1,7 +1,7 @@
 
 | Package                | License                            | Version     | Link                                                                |
 |------------------------|------------------------------------|-------------|---------------------------------------------------------------------|
-| absinthe               | MIT                                | 1.5.2       | https://hex.pm/packages/absinthe                                    |
+| absinthe               | MIT                                | 1.5.3       | https://hex.pm/packages/absinthe                                    |
 | absinthe_error_payload | BSD-3; Unrecognized license        | 1.1.3       | https://hex.pm/packages/absinthe_error_payload                      |
 | absinthe_plug          | MIT                                | 1.5.0       | https://hex.pm/packages/absinthe_plug                               |
 | argon2_elixir          | Apache 2.0                         | 2.3.0       | https://hex.pm/packages/argon2_elixir                               |

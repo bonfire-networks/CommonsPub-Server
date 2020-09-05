@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Component.StoryPreviewLive do
+defmodule CommonsPub.Web.Component.StoryPreviewLive do
   use Phoenix.LiveComponent
 
   def render(assigns) do

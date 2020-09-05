@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.Component.BlockLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.Component.BlockLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def handle_event("block", %{"message" => message} = _args, socket) do
     {:ok, block} =
-      MoodleNetWeb.GraphQL.BlocksResolver.create_block(
+      CommonsPub.Web.GraphQL.BlocksResolver.create_block(
         %{
           context_id: e(socket.assigns.object, :id, nil),
           message: message

@@ -17,7 +17,7 @@ defmodule ActivityPub.MRF do
   def filter(%{} = object), do: get_policies() |> filter(object)
 
   def get_policies do
-    MoodleNet.Config.get([:instance, :rewrite_policy], []) |> get_policies()
+    CommonsPub.Config.get([:instance, :rewrite_policy], []) |> get_policies()
   end
 
   defp get_policies(policy) when is_atom(policy), do: [policy]

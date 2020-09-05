@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.Revision do
-  alias MoodleNet.Repo
+defmodule CommonsPub.Common.Revision do
+  alias CommonsPub.Repo
   import Ecto.Query, only: [from: 2]
 
   def insert(module, parent, attrs) do

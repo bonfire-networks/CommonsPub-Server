@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.TableService do
+defmodule CommonsPub.Meta.TableService do
   @moduledoc """
   An ets-based cache that allows lookup up Table objects by:
 
@@ -20,11 +20,11 @@ defmodule MoodleNet.Meta.TableService do
 
   require Logger
 
-  alias MoodleNet.Meta.{Introspection, TableNotFoundError}
+  alias CommonsPub.Meta.{Introspection, TableNotFoundError}
 
   alias Pointers.Table
 
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   use GenServer
 

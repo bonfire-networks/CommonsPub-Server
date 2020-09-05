@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.UserExtraInfo do
+defmodule CommonsPub.Repo.Migrations.UserExtraInfo do
   use Ecto.Migration
 
   def change do

@@ -1,19 +1,20 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
-  alias MoodleNet.{Activities, Common, Feeds, Repo}
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  alias MoodleNet.Meta.Pointers
+  alias CommonsPub.{Activities, Common, Feeds, Repo}
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
+  alias CommonsPub.Meta.Pointers
 
   alias Geolocation.Geolocations
   # alias Measurement.Measure
+  # alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.Action.Actions
+  alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.EconomicEvent.Queries
-  alias ValueFlows.Knowledge.Action
-  alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -135,10 +136,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     do_update(event, attrs, &EconomicEvent.update_changeset(&1, attrs))
   end
 
-  def update(%EconomicEvent{} = event, %{id: _id} = context, attrs) do
-    do_update(event, attrs, &EconomicEvent.update_changeset(&1, context, attrs))
-  end
-
   def do_update(event, attrs, changeset_fn) do
     Repo.transact_with(fn ->
       event =
@@ -175,8 +172,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     cs
     |> EconomicEvent.change_measures(attrs)
     |> change_context(attrs)
+    |> change_provider(attrs)
+    |> change_receiver(attrs)
     |> change_action(attrs)
-    |> change_current_location(attrs)
+    |> change_at_location(attrs)
     |> change_conforms_to_resource_spec(attrs)
     |> change_resource_inventoried_as(attrs)
     |> change_to_resource_inventoried_as(attrs)
@@ -202,22 +201,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_context(changeset, _attrs), do: changeset
 
-  defp change_action(changeset, %{state: state_id}) do
-    with {:ok, state} <- Actions.action(state_id) do
-      EconomicEvent.change_action(changeset, state)
-    end
-  end
-
-  defp change_action(changeset, _attrs), do: changeset
-
-  defp change_current_location(changeset, %{current_location: id}) do
-    with {:ok, location} <- Geolocations.one([:default, id: id]) do
-      EconomicEvent.change_current_location(changeset, location)
-    end
-  end
-
-  defp change_current_location(changeset, _attrs), do: changeset
-
   defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
     with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
       EconomicEvent.change_conforms_to_resource_spec(changeset, item)
@@ -225,8 +208,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp change_conforms_to_resource_spec(changeset, _attrs), do: changeset
-
-  defp change_current_location(changeset, _attrs), do: changeset
 
   defp change_resource_inventoried_as(changeset, %{resource_inventoried_as: id})
        when is_binary(id) do
@@ -306,7 +287,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp publish(creator, event, activity, :created) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -318,7 +299,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp publish(creator, context, event, activity, :created) do
     feeds = [
       context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -339,7 +320,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   # FIXME
   defp ap_publish(verb, context_id, user_id) do
-    MoodleNet.Workers.APPublishWorker.enqueue(verb, %{
+    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id
     })
@@ -350,20 +331,20 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp ap_publish(_, _, _), do: :ok
 
   def indexing_object_format(obj) do
-    # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
-    image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
+    image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
 
     %{
       "index_type" => "EconomicEvent",
       "id" => obj.id,
-      # "canonicalUrl" => obj.actor.canonical_url,
+      # "canonicalUrl" => obj.character.canonical_url,
       # "icon" => icon,
       "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
-      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+      # "index_instance" => URI.parse(obj.character.canonical_url).host, # home instance of object
     }
   end
 

@@ -5,7 +5,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Communities,
     GraphQL,
@@ -13,7 +13,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     # User
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -24,18 +24,18 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     # CommonResolver
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
+  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
-  alias ValueFlows.Knowledge.Action.Actions
-  # alias MoodleNetWeb.GraphQL.CommonResolver
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  # alias ValueFlows.Knowledge.Action.Actions
+  # alias CommonsPub.Web.GraphQL.CommonResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
@@ -45,7 +45,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   ## resolvers
 
-  def simulate(%{id: id}, _) do
+  def simulate(%{id: _id}, _) do
     {:ok, ValueFlows.Simulate.resource_specification()}
   end
 
@@ -187,8 +187,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: [character: [:actor]])
-    urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
+    thing = Repo.preload(thing, tags: :character)
+    urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
 
@@ -299,6 +299,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
   # end
 end

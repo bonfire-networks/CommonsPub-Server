@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Threads.Queries do
-  alias MoodleNet.Threads.{FirstComment, LastComment, Comment, Thread}
-  alias MoodleNet.Follows.FollowerCount
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Threads.Queries do
+  alias CommonsPub.Threads.{FirstComment, LastComment, Comment, Thread}
+  alias CommonsPub.Follows.FollowerCount
+  alias CommonsPub.Users.User
   import Ecto.Query
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Common.Query, only: [match_admin: 0]
 
   def query(Thread), do: from(t in Thread, as: :thread)
 

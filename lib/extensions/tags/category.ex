@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Category do
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "category",
     table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
-  # use MoodleNet.Common.Schema
+  # use CommonsPub.Common.Schema
 
-  # import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  # import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Category
-  # alias MoodleNet.{Repo}
+  # alias CommonsPub.{Repo}
 
   @type t :: %__MODULE__{}
   @cast ~w(caretaker_id parent_category_id same_as_category_id)a
@@ -37,9 +37,9 @@ defmodule CommonsPub.Tag.Category do
 
     # Optionally, profile and/or character mixins
     ## stores common fields like name/description
-    has_one(:profile, CommonsPub.Profile, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profiles.Profile, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, CommonsPub.Character, foreign_key: :id)
+    has_one(:character, CommonsPub.Characters.Character, foreign_key: :id)
 
     belongs_to(:creator, User)
 
@@ -82,8 +82,8 @@ defmodule CommonsPub.Tag.Category do
     |> common_changeset()
   end
 
-  defp parent_category(%{parent_category: parent_category}) when is_binary(parent_category) do
-    parent_category
+  defp parent_category(%{parent_category: id}) when is_binary(id) do
+    id
   end
 
   defp parent_category(%{parent_category: %{id: id}}) when is_binary(id) do

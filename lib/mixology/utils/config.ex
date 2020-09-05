@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.Config do
+defmodule CommonsPub.Config do
   defmodule Error do
     defexception [:message]
   end
@@ -10,7 +10,7 @@ defmodule MoodleNet.Config do
   def get([key], default), do: get(key, default)
 
   def get([parent_key | keys], default) do
-    case :moodle_net
+    case :commons_pub
          |> Application.get_env(parent_key)
          |> get_in(keys) do
       nil -> default
@@ -19,7 +19,7 @@ defmodule MoodleNet.Config do
   end
 
   def get(key, default) do
-    Application.get_env(:moodle_net, key, default)
+    Application.get_env(:commons_pub, key, default)
   end
 
   def get!(key) do
@@ -36,28 +36,28 @@ defmodule MoodleNet.Config do
 
   def put([parent_key | keys], value) do
     parent =
-      Application.get_env(:moodle_net, parent_key, [])
+      CommonsPub.Config.get(parent_key, [])
       |> put_in(keys, value)
 
-    Application.put_env(:moodle_net, parent_key, parent)
+    Application.put_env(:commons_pub, parent_key, parent)
   end
 
   def put(key, value) do
-    Application.put_env(:moodle_net, key, value)
+    Application.put_env(:commons_pub, key, value)
   end
 
   def delete([key]), do: delete(key)
 
   def delete([parent_key | keys]) do
     {_, parent} =
-      Application.get_env(:moodle_net, parent_key)
+      CommonsPub.Config.get(parent_key)
       |> get_and_update_in(keys, fn _ -> :pop end)
 
-    Application.put_env(:moodle_net, parent_key, parent)
+    Application.put_env(:commons_pub, parent_key, parent)
   end
 
   def delete(key) do
-    Application.delete_env(:moodle_net, key)
+    Application.delete_env(:commons_pub, key)
   end
 
   def loaded_module(mod) do

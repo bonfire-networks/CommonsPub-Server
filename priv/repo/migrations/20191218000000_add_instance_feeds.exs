@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AddInstanceFeeds do
+defmodule CommonsPub.Repo.Migrations.AddInstanceFeeds do
   use Ecto.Migration
 
   @instance_outbox_id "10CA11NSTANCE00TB0XFEED1D0"

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.FetchPage do
+defmodule CommonsPub.GraphQL.FetchPage do
   @enforce_keys [:queries, :query, :page_opts]
   defstruct [
     :queries,
@@ -14,8 +14,8 @@ defmodule MoodleNet.GraphQL.FetchPage do
     map_count_fn: nil
   ]
 
-  alias MoodleNet.Repo
-  alias MoodleNet.GraphQL.{Page, FetchPage}
+  alias CommonsPub.Repo
+  alias CommonsPub.GraphQL.{Page, FetchPage}
 
   @doc false
   def default_cursor(x), do: [x.id]

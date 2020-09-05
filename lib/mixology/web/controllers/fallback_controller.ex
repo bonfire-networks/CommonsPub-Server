@@ -1,31 +1,31 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.FallbackController do
+defmodule CommonsPub.Web.FallbackController do
   @moduledoc """
   Translates controller action results into valid `Plug.Conn` responses.
 
   See `Phoenix.Controller.action_fallback/1` for more details.
   """
-  use MoodleNetWeb, :controller
+  use CommonsPub.Web, :controller
 
   def call(conn, {:error, :forbidden}) do
     conn
     |> put_status(:forbidden)
-    |> put_view(MoodleNetWeb.ErrorView)
+    |> put_view(CommonsPub.Web.ErrorView)
     |> render("403.json")
   end
 
   def call(conn, {:error, {:unauthorized, msg}}) do
     conn
     |> put_status(:unauthorized)
-    |> put_view(MoodleNetWeb.ErrorView)
+    |> put_view(CommonsPub.Web.ErrorView)
     |> render("401.json", %{message: msg})
   end
 
   def call(conn, {:error, :unauthorized}) do
     conn
     |> put_status(:unauthorized)
-    |> put_view(MoodleNetWeb.ErrorView)
+    |> put_view(CommonsPub.Web.ErrorView)
     |> render("401.json")
   end
 
@@ -37,14 +37,14 @@ defmodule MoodleNetWeb.FallbackController do
       }) do
     conn
     |> put_status(:conflict)
-    |> put_view(MoodleNetWeb.ChangesetView)
+    |> put_view(CommonsPub.Web.ChangesetView)
     |> render("conflict.json", changeset: changeset)
   end
 
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     conn
     |> put_status(:unprocessable_entity)
-    |> put_view(MoodleNetWeb.ChangesetView)
+    |> put_view(CommonsPub.Web.ChangesetView)
     |> render("error.json", changeset: changeset)
   end
 
@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.FallbackController do
   def call(conn, {:error, :not_found}) do
     conn
     |> put_status(:not_found)
-    |> put_view(MoodleNetWeb.ErrorView)
+    |> put_view(CommonsPub.Web.ErrorView)
     |> render("404.json")
   end
 
@@ -71,7 +71,7 @@ defmodule MoodleNetWeb.FallbackController do
   def call(conn, {:error, {:missing_param, key}}) do
     conn
     |> put_status(:unprocessable_entity)
-    |> put_view(MoodleNetWeb.ErrorView)
+    |> put_view(CommonsPub.Web.ErrorView)
     |> render("missing_param.json", %{key: key})
   end
 

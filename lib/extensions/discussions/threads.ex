@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Threads do
-  alias MoodleNet.{Common, Feeds, Follows, Repo}
-  # alias MoodleNet.FeedPublisher
-  alias MoodleNet.Threads.{Comments, Thread, Queries}
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Threads do
+  alias CommonsPub.{Common, Feeds, Follows, Repo}
+  # alias CommonsPub.FeedPublisher
+  alias CommonsPub.Threads.{Comments, Thread, Queries}
+  alias CommonsPub.Users.User
 
   def cursor(:created), do: &[&1.id]
 

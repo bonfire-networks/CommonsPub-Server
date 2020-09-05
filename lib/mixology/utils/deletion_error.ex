@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.DeletionError do
+defmodule CommonsPub.Common.DeletionError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
   alias Ecto.Changeset
-  alias MoodleNet.Common.DeletionError
+  alias CommonsPub.Common.DeletionError
 
   @type t :: %__MODULE__{
           message: binary,

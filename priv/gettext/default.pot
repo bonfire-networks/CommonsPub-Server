@@ -11,69 +11,69 @@ msgid ""
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/invite.html.eex:9
-#: lib/moodle_net_web/email/templates/welcome.html.eex:9
+#: lib/commons_pub_web/email/templates/invite.html.eex:9
+#: lib/commons_pub_web/email/templates/welcome.html.eex:9
 msgid "Alternatively, copy and paste this link into your browser:"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net/mail/email.ex:22
+#: lib/commons_pub/mail/email.ex:22
 msgid "Did you forget your %{app_name} password?"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/invite.text.eex:1
+#: lib/commons_pub_web/email/templates/invite.text.eex:1
 msgid "Hello"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/invite.html.eex:1
+#: lib/commons_pub_web/email/templates/invite.html.eex:1
 msgid "Hello! You've been invited to join %{app_name}"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/welcome.html.eex:1
-#: lib/moodle_net_web/email/templates/welcome.text.eex:1
+#: lib/commons_pub_web/email/templates/welcome.html.eex:1
+#: lib/commons_pub_web/email/templates/welcome.text.eex:1
 msgid "Hi %{name}"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/invite.html.eex:6
+#: lib/commons_pub_web/email/templates/invite.html.eex:6
 msgid "Signup link"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/welcome.html.eex:3
-#: lib/moodle_net_web/email/templates/welcome.text.eex:3
+#: lib/commons_pub_web/email/templates/welcome.html.eex:3
+#: lib/commons_pub_web/email/templates/welcome.text.eex:3
 msgid "To complete your sign up, please verify your email:"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/invite.html.eex:3
+#: lib/commons_pub_web/email/templates/invite.html.eex:3
 msgid "To sign up, please click the invite link:"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/welcome.html.eex:6
+#: lib/commons_pub_web/email/templates/welcome.html.eex:6
 msgid "Verify email"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net/mail/email.ex:15
+#: lib/commons_pub/mail/email.ex:15
 msgid "Welcome to %{app_name}"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net/mail/email.ex:35
+#: lib/commons_pub/mail/email.ex:35
 msgid "You have been invited to join %{app_name}!"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/invite.text.eex:3
+#: lib/commons_pub_web/email/templates/invite.text.eex:3
 msgid "You've been invited to join %{app_name}, to sign up, please follow the invite link:"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net/mail/email.ex:28
+#: lib/commons_pub/mail/email.ex:28
 msgid "Your %{app_name} password has been reset"
 msgstr ""

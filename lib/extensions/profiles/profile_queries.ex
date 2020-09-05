@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Profile.Queries do
-  # alias MoodleNet.Users
-  alias CommonsPub.Profile
-  # alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+defmodule CommonsPub.Profiles.Queries do
+  # alias CommonsPub.Users
+  alias CommonsPub.Profiles.Profile
+  # alias CommonsPub.Follows.{Follow, FollowerCount}
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Profile) do
-    from(c in CommonsPub.Profile, as: :profile)
+    from(c in CommonsPub.Profiles.Profile, as: :profile)
   end
 
   def query(:count) do
-    from(c in CommonsPub.Profile, as: :profile)
+    from(c in CommonsPub.Profiles.Profile, as: :profile)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -93,11 +93,11 @@ defmodule CommonsPub.Profile.Queries do
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where(q, [actor: a], a.preferred_username == ^username)
+    where(q, [character: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where(q, [actor: a], a.preferred_username in ^usernames)
+    where(q, [character: a], a.preferred_username in ^usernames)
   end
 
   ## by ordering
@@ -156,8 +156,8 @@ defmodule CommonsPub.Profile.Queries do
     |> filter(join: :follower_count, order: [desc: :followers])
     |> page(page_opts, desc: :followers)
     |> select(
-      [profile: c, actor: a, follower_count: fc],
-      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+      [profile: c, character: a, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0), character: a}
     )
   end
 

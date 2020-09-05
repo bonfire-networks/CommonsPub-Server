@@ -1,14 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Resources do
+defmodule CommonsPub.Resources do
   alias Ecto.Changeset
-  alias MoodleNet.{Activities, Common, Feeds, Flags, Likes, Repo, Threads}
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.FeedPublisher
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Resources.{Resource, Queries}
-  alias MoodleNet.Threads
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+  alias CommonsPub.{Activities, Common, Feeds, Flags, Likes, Repo, Threads}
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.FeedPublisher
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Resources.{Resource, Queries}
+  alias CommonsPub.Threads
+  alias CommonsPub.Users.User
+  alias CommonsPub.Workers.APPublishWorker
+
+  alias CommonsPub.Utils.Web.CommonHelper
 
   @doc """
   Retrieves a single resource by arbitrary filters.
@@ -33,13 +35,21 @@ defmodule MoodleNet.Resources do
   def create(%User{} = creator, %{} = collection_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       collection_or_context =
-        MoodleNetWeb.Helpers.Common.maybe_preload(collection_or_context, :actor)
+        CommonsPub.Utils.Web.CommonHelper.maybe_preload(collection_or_context, :character)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
            act_attrs = %{
              verb: "created",
              is_local:
-               is_nil(MoodleNetWeb.Helpers.Common.e(collection_or_context, :actor, :peer_id, nil))
+               is_nil(
+                 CommonsPub.Utils.Web.CommonHelper.e(
+                   collection_or_context,
+                   :character,
+                   :peer_id,
+                   nil
+                 )
+               )
            },
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection_or_context, resource, activity),
@@ -50,10 +60,18 @@ defmodule MoodleNet.Resources do
     end)
   end
 
+  def create(%User{} = creator, _, attrs) when is_map(attrs) do
+    create(creator, attrs)
+  end
+
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, resource} <- insert_resource(creator, attrs),
-           act_attrs = %{verb: "created", is_local: is_nil(Map.get(creator.actor, :peer_id, nil))},
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
+           act_attrs = %{
+             verb: "created",
+             is_local: is_nil(Map.get(creator.character, :peer_id, nil))
+           },
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, resource, activity),
            :ok <- ap_publish("create", resource) do
@@ -62,6 +80,27 @@ defmodule MoodleNet.Resources do
         {:ok, %Resource{resource | creator: creator}}
       end
     end)
+  end
+
+  def clean_and_prepare_tags(%{summary: content} = attrs) when is_binary(content) do
+    {content, mentions, hashtags} = CommonsPub.HTML.parse_input_and_tags(content, "text/markdown")
+
+    # IO.inspect(tagging: {content, mentions, hashtags})
+
+    attrs
+    |> Map.put(:summary, content)
+    |> Map.put(:mentions, mentions)
+    |> Map.put(:hashtags, hashtags)
+  end
+
+  def clean_and_prepare_tags(attrs), do: attrs
+
+  def save_attached_tags(creator, obj, attrs) do
+    with {:ok, _taggable} <-
+           CommonsPub.Tag.TagThings.thing_attach_tags(creator, obj, attrs.mentions) do
+      # {:ok, CommonsPub.Repo.preload(comment, :tags)}
+      {:ok, nil}
+    end
   end
 
   defp insert_activity(creator, resource, attrs) do
@@ -92,7 +131,7 @@ defmodule MoodleNet.Resources do
   @spec soft_delete(User.t(), Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user, %Resource{} = resource) do
     Repo.transact_with(fn ->
-      resource = Repo.preload(resource, [:context, collection: [:actor]])
+      resource = Repo.preload(resource, [:context, collection: [:character]])
 
       with {:ok, deleted} <- Common.soft_delete(resource),
            :ok <- chase_delete(user, deleted.id),
@@ -152,4 +191,48 @@ defmodule MoodleNet.Resources do
   end
 
   defp ap_publish(_, _), do: :ok
+
+  def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
+    resource = CommonHelper.maybe_preload(resource, :context)
+    context = CommonHelper.maybe_preload(resource.context, :character)
+
+    resource = CommonHelper.maybe_preload(resource, :content)
+
+    likes_count =
+      case CommonsPub.Likes.LikerCounts.one(context: resource.id) do
+        {:ok, struct} -> struct.count
+        {:error, _} -> nil
+      end
+
+    icon = CommonsPub.Uploads.remote_url_from_id(resource.icon_id)
+    resource_url = CommonsPub.Uploads.remote_url_from_id(resource.content_id)
+
+    canonical_url = CommonsPub.ActivityPub.Utils.get_object_canonical_url(resource)
+
+    IO.inspect(%{
+      "id" => resource.id,
+      "name" => resource.name,
+      "canonical_url" => canonical_url,
+      "created_at" => resource.published_at,
+      "icon" => icon,
+      "licence" => Map.get(resource, :license),
+      "likes" => %{
+        "total_count" => likes_count
+      },
+      "summary" => Map.get(resource, :summary),
+      "updated_at" => resource.updated_at,
+      "index_type" => "Resource",
+      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url),
+      "url" => resource_url,
+      "author" => Map.get(resource, :author),
+      "media_type" => resource.content.media_type,
+      "subject" => Map.get(resource, :subject),
+      "level" => Map.get(resource, :level),
+      "language" => Map.get(resource, :language),
+      "public_access" => Map.get(resource, :public_access),
+      "free_access" => Map.get(resource, :free_access),
+      "accessibility_feature" => Map.get(resource, :accessibility_feature),
+      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context)
+    })
+  end
 end

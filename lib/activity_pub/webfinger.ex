@@ -15,7 +15,7 @@ defmodule ActivityPub.WebFinger do
   Serves a webfinger response for the requested username.
   """
   def webfinger(resource) do
-    host = MoodleNetWeb.Endpoint.host()
+    host = CommonsPub.Web.Endpoint.host()
     regex = ~r/(acct:)?(?<username>[a-z0-9A-Z_\.-]+)@#{host}/
 
     with %{"username" => username} <- Regex.named_captures(regex, resource),
@@ -48,7 +48,7 @@ defmodule ActivityPub.WebFinger do
   """
   def represent_user(actor) do
     %{
-      "subject" => "acct:#{actor.data["preferredUsername"]}@#{MoodleNetWeb.Endpoint.host()}",
+      "subject" => "acct:#{actor.data["preferredUsername"]}@#{CommonsPub.Web.Endpoint.host()}",
       "aliases" => [actor.data["id"]],
       "links" => gather_links(actor)
     }

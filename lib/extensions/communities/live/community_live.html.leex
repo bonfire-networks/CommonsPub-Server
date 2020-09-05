@@ -3,7 +3,7 @@
     <div class="community__hero">
       <div class="suphero">
         <div class="suphero__left">
-          <%= live_patch to: "/&" <> e(@community, :actor, :preferred_username, "deleted") <> "/about" do %>
+          <%= live_patch to: "/&" <> e(@community, :character, :preferred_username, "deleted") <> "/about" do %>
             <div class="named-avatar">
               <img alt="profile pic" src="<%= e(@community, :icon_url, e(@community, :image_url, "")) %>" />
 <h3><%= @community.name %></h3>
@@ -42,7 +42,7 @@
         <%=
                 live_component(
                   @socket,
-                  MoodleNetWeb.Component.FlagLive,
+                  CommonsPub.Web.Component.FlagLive,
                   object: @community,
                   current_user: @current_user,
                   id: "flag-"<>@community.id,
@@ -54,7 +54,7 @@
         <%=
                   live_component(
                     @socket,
-                    MoodleNetWeb.Component.BlockLive,
+                    CommonsPub.Web.Component.BlockLive,
                     object: @community,
                     current_user: @current_user,
                     id: "block-"<>@community.id,
@@ -76,7 +76,7 @@
           <div class="area__community-hero">
             <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
             <h1><%= @community.name %></h1>
-            <h4><%= e(@community, :display_username, e(@community, :actor, :preferred_username, "")) %>
+            <h4><%= e(@community, :display_username, e(@community, :character, :preferred_username, "")) %>
             </div>
             <%= live_component(
               @socket,
@@ -179,18 +179,18 @@
     <div>
       <%= live_component(
         @socket,
-        MoodleNetWeb.Component.ContextLive,
+        CommonsPub.Web.Component.ContextLive,
         object: @community,
         current_user: @current_user
       )%>
       <div class="community__navigation">
         <h3 class="block__title">Menu</h3>
         <%= live_patch link_body("Discussions","feather-message-square"),
-          to: "/&" <> @community.actor.preferred_username <>  "/discussions",
+          to: "/&" <> @community.character.preferred_username <>  "/discussions",
           class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
         %>
         <%= live_patch link_body("Collections","feather-folder"),
-          to: "/&" <> @community.actor.preferred_username <>  "/collections",
+          to: "/&" <> @community.character.preferred_username <>  "/collections",
           class: if @selected_tab == "collections", do: "navigation__item active", else: "navigation__item"
         %>
       </div>

@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Flags.Flag do
+defmodule CommonsPub.Flags.Flag do
   @moduledoc """
   A flag is a report that something is breaking the rules
 
   Flags participate in the meta system and must be created from a pointer
   """
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
+  import CommonsPub.Common.Changeset, only: [change_synced_timestamp: 3]
 
-  alias MoodleNet.Flags
-  alias MoodleNet.Communities.Community
+  alias CommonsPub.Flags
+  alias CommonsPub.Communities.Community
   alias Pointers.Pointer
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
   alias Ecto.Changeset
 
   table_schema "mn_flag" do

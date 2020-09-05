@@ -1,17 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Profile do
+defmodule CommonsPub.Profiles.Profile do
   use Pointers.Mixin,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "profile"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  # alias CommonsPub.Profile
-  # alias MoodleNet.Actors.Actor
-  # alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.Content
+  # alias CommonsPub.Profiles.Profile
+  # alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Users.User
+  alias CommonsPub.Uploads.Content
 
   # alias Pointers.Pointer
 
@@ -45,7 +44,7 @@ defmodule CommonsPub.Profile do
         nil,
         attrs
       ) do
-    %CommonsPub.Profile{}
+    %CommonsPub.Profiles.Profile{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(is_public: true)
@@ -56,7 +55,7 @@ defmodule CommonsPub.Profile do
         %User{} = creator,
         attrs
       ) do
-    %CommonsPub.Profile{}
+    %CommonsPub.Profiles.Profile{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -66,7 +65,7 @@ defmodule CommonsPub.Profile do
     |> common_changeset()
   end
 
-  def update_changeset(%CommonsPub.Profile{} = profile, attrs) do
+  def update_changeset(%CommonsPub.Profiles.Profile{} = profile, attrs) do
     profile
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()

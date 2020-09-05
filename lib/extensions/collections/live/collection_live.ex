@@ -1,11 +1,12 @@
-defmodule MoodleNetWeb.CollectionLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.CollectionLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias MoodleNetWeb.Helpers.{Collections, Profiles}
+  alias CommonsPub.Collections.Web.CollectionsHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.CollectionLive.{
+  alias CommonsPub.Web.CollectionLive.{
     CollectionActivitiesLive,
     CollectionFollowersLive,
     CollectionResourcesLive,
@@ -31,7 +32,7 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    collection = Collections.collection_load(socket, params, socket.assigns.current_user)
+    collection = CollectionsHelper.collection_load(socket, params, socket.assigns.current_user)
 
     {:noreply,
      assign(socket,
@@ -43,7 +44,7 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_params(%{} = params, _url, socket) do
-    collection = Collections.collection_load(socket, params, socket.assigns.current_user)
+    collection = CollectionsHelper.collection_load(socket, params, socket.assigns.current_user)
 
     {:noreply,
      assign(socket,
@@ -54,8 +55,8 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
-    {:ok, flag} =
-      MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
+    {:ok, _flag} =
+      CommonsPub.Web.GraphQL.FlagsResolver.create_flag(
         %{context_id: socket.assigns.collection.id, message: message},
         %{
           context: %{current_user: socket.assigns.current_user}
@@ -74,7 +75,7 @@ defmodule MoodleNetWeb.CollectionLive do
 
   def handle_event("follow", _data, socket) do
     _f =
-      MoodleNetWeb.GraphQL.FollowsResolver.create_follow(
+      CommonsPub.Web.GraphQL.FollowsResolver.create_follow(
         %{context_id: socket.assigns.collection.id},
         %{
           context: %{current_user: socket.assigns.current_user}
@@ -93,7 +94,7 @@ defmodule MoodleNetWeb.CollectionLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
+    _uf = ProfilesHelper.unfollow(socket.assigns.current_user, socket.assigns.collection.id)
 
     # TODO: error handling
 
@@ -114,7 +115,7 @@ defmodule MoodleNetWeb.CollectionLive do
       changes = input_to_atoms(data)
 
       {:ok, collection} =
-        MoodleNetWeb.GraphQL.CollectionsResolver.update_collection(
+        CommonsPub.Web.GraphQL.CollectionsResolver.update_collection(
           %{collection: changes, collection_id: socket.assigns.collection.id},
           %{
             context: %{current_user: socket.assigns.current_user}
@@ -125,10 +126,10 @@ defmodule MoodleNetWeb.CollectionLive do
 
       if(collection) do
         collection =
-          Profiles.prepare(collection, %{
+          ProfilesHelper.prepare(collection, %{
             icon: true,
             image: true,
-            actor: true,
+            character: true,
             is_followed_by: socket.assigns.current_user
           })
 
@@ -154,7 +155,7 @@ defmodule MoodleNetWeb.CollectionLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
         CollectionActivitiesLive,
         :collection_timeline,

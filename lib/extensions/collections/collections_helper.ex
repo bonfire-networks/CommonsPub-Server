@@ -1,20 +1,30 @@
-defmodule MoodleNetWeb.Helpers.Collections do
-  # alias MoodleNet.{
+defmodule CommonsPub.Collections.Web.CollectionsHelper do
+  # alias CommonsPub.{
   #   Repo
   # }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     UsersResolver,
     CollectionsResolver
   }
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  def collection_load(socket, page_params, %MoodleNet.Users.User{} = current_user) do
+  def collection_load(socket, page_params, nil) do
     collection_load(socket, page_params, %{
-      actor: true,
       icon: false,
+      character: true,
+      image: false,
+      context: true,
+      is_followed_by: nil
+    })
+  end
+
+  def collection_load(socket, page_params, %CommonsPub.Users.User{} = current_user) do
+    collection_load(socket, page_params, %{
+      icon: false,
+      character: true,
       image: false,
       context: true,
       is_followed_by: current_user
@@ -31,7 +41,7 @@ defmodule MoodleNetWeb.Helpers.Collections do
         {:ok, %{}}
       end
 
-    Profiles.prepare(collection, preload, 150)
+    ProfilesHelper.prepare(collection, preload, 150)
   end
 
   def user_collections(for_user, current_user) do
@@ -71,11 +81,12 @@ defmodule MoodleNetWeb.Helpers.Collections do
     ids = Enum.map(edges, & &1.context_id)
 
     collections = contexts_fetch!(ids)
+
     collections =
       if(collections) do
         Enum.map(
           collections,
-          &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
+          &ProfilesHelper.prepare(&1, %{icon: true, image: true, character: true})
         )
       end
 

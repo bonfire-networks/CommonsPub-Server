@@ -5,14 +5,14 @@
 defmodule ActivityPub.InstancesTest do
   alias ActivityPub.Instances
 
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
 
   setup_all do
     config_path = [:instance, :federation_reachability_timeout_days]
-    initial_setting = MoodleNet.Config.get(config_path)
+    initial_setting = CommonsPub.Config.get(config_path)
 
-    MoodleNet.Config.put(config_path, 1)
-    on_exit(fn -> MoodleNet.Config.put(config_path, initial_setting) end)
+    CommonsPub.Config.put(config_path, 1)
+    on_exit(fn -> CommonsPub.Config.put(config_path, initial_setting) end)
 
     :ok
   end

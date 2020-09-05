@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Threads.Comment do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Threads.Comment do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset,
+  import CommonsPub.Common.Changeset,
     only: [change_public: 1, change_synced_timestamp: 3, cast_object: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Threads
-  alias MoodleNet.Threads.{Comment, Thread}
-  alias MoodleNet.Users.User
+  alias CommonsPub.Threads
+  alias CommonsPub.Threads.{Comment, Thread}
+  alias CommonsPub.Users.User
 
   table_schema "mn_comment" do
     belongs_to(:creator, User)

@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Access.RegisterEmailAccess do
+defmodule CommonsPub.Access.RegisterEmailAccess do
   @moduledoc """
   A simple standalone schema listing email addresses which are
-  permitted to register a MoodleNet account while public signup is
+  permitted to register a CommonsPub account while public signup is
   disabled.
   """
-  use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [validate_email: 2]
+  use CommonsPub.Common.Schema
+  import CommonsPub.Common.Changeset, only: [validate_email: 2]
   alias Ecto.Changeset
 
   @type t :: %__MODULE__{}

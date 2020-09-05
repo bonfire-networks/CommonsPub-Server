@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Follows.FollowerCounts do
-  alias MoodleNet.Repo
-  alias MoodleNet.Follows.{FollowerCount, FollowerCountsQueries}
-  alias MoodleNet.GraphQL.Fields
+defmodule CommonsPub.Follows.FollowerCounts do
+  alias CommonsPub.Repo
+  alias CommonsPub.Follows.{FollowerCount, FollowerCountsQueries}
+  alias CommonsPub.GraphQL.Fields
 
   def one(filters), do: Repo.single(FollowerCountsQueries.query(FollowerCount, filters))
 

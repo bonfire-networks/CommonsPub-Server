@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
+defmodule CommonsPub.Web.GraphQL.CommunitiesResolver do
   @moduledoc """
   Performs the GraphQL Community queries.
   """
-  alias MoodleNet.{Activities, Communities, GraphQL, Repo}
-  alias MoodleNet.Communities.Community
+  alias CommonsPub.{Activities, Communities, GraphQL, Repo}
+  alias CommonsPub.Communities.Community
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # FetchFields,
     Page,
     FetchPage,
@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     ResolveRootPage
   }
 
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   def community(%{community_id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -130,9 +130,9 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
 
   def create_community(%{community: attrs, context_id: context_id} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id),
+         {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id),
          #  :ok <- validate_context(pointer),
-         context = MoodleNet.Meta.Pointers.follow!(pointer),
+         context = CommonsPub.Meta.Pointers.follow!(pointer),
          {:ok, uploads} <- UploadResolver.upload(user, params, info) do
       Communities.create(user, context, Map.merge(attrs, uploads))
     end

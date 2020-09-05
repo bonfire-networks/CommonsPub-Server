@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.InstanceLive.InstanceCommunitiesLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CommunitiesResolver
   }
 
-  alias MoodleNetWeb.Component.CommunityPreviewLive
+  alias CommonsPub.Web.Component.CommunityPreviewLive
 
   def update(assigns, socket) do
     {
@@ -30,7 +30,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
     communities_list =
       Enum.map(
         communities.edges,
-        &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
+        &ProfilesHelper.prepare(&1, %{icon: true, image: true, character: true})
       )
 
     assign(socket,
@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

@@ -3,7 +3,7 @@
     <div class="community__hero">
       <div class="suphero">
         <div class="suphero__left">
-          <%= live_patch to: "/+" <> e(@collection, :actor, :preferred_username, "deleted") <> "/resources" do %>
+          <%= live_patch to: "/+" <> e(@collection, :character, :preferred_username, "deleted") <> "/resources" do %>
             <div class="named-avatar">
               <svg width="40" height="40" viewBox="0 0 40 40" focusable="false" class="mc-icon mc-icon-template-content mc-icon-template-content--folder-small brws-file-name-cell-icon" role="img"><g fill="none" fill-rule="evenodd"><path d="M18.422 11h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 32 5 31.331 5 30.507V9.493C5 8.663 5.671 8 6.5 8h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#71B9F4"></path><path d="M18.422 10h15.07c.84 0 1.508.669 1.508 1.493v18.014c0 .818-.675 1.493-1.508 1.493H6.508C5.668 31 5 30.331 5 29.507V8.493C5 7.663 5.671 7 6.5 7h7.805c.564 0 1.229.387 1.502.865l1.015 1.777s.4.358 1.6.358z" fill="#92CEFF"></path></g></svg>
               <h3><%= @collection.name %></h3>
@@ -23,13 +23,13 @@
             <ul class="dropdown__list">
             <li class="list__page-link">
                <%= live_patch link_body("Discussions","feather-message-square"),
-                  to: "/+" <> @collection.actor.preferred_username <>  "/discussions",
+                  to: "/+" <> @collection.character.preferred_username <>  "/discussions",
                   class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
                 %>
 
             </li>
             <li>
-              <%= if @collection.creator_id==@current_user.id do %>
+              <%= if @collection.creator_id==e(@current_user, :id, nil) do %>
                 <details class="dialog__container member">
                   <summary class="button-link">Edit</summary>
                   <dialog open class="dialog dialog__create">
@@ -51,7 +51,7 @@
   <%=
                 live_component(
                   @socket,
-                  MoodleNetWeb.Component.FlagLive,
+                  CommonsPub.Web.Component.FlagLive,
                   object: @collection,
                   current_user: @current_user,
                   id: "flag-"<>@collection.id,
@@ -63,7 +63,7 @@
   <%=
               live_component(
                 @socket,
-                MoodleNetWeb.Component.BlockLive,
+                CommonsPub.Web.Component.BlockLive,
                 object: @collection,
                 current_user: @current_user,
                 id: "block-"<>@collection.id,
@@ -84,11 +84,11 @@
       <div class="mainContent__selected">
         <div class="layout__menu">
           <%= live_patch "Resources",
-          to: "/+" <> @collection.actor.preferred_username <> "/resources",
+          to: "/+" <> @collection.character.preferred_username <> "/resources",
           class: if @selected_tab == "resources", do: "navigation__item active", else: "navigation__item"
         %>
           <%= live_patch "Updates",
-              to: "/+" <> @collection.actor.preferred_username <>  "/timeline",
+              to: "/+" <> @collection.character.preferred_username <>  "/timeline",
               class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
             %>
         </div>
@@ -162,7 +162,7 @@
         </a>
         <%= live_component(
                 @socket,
-                MoodleNetWeb.Component.ContextLive,
+                CommonsPub.Web.Component.ContextLive,
                 object: @collection,
                 current_user: @current_user
               )%>

@@ -1,19 +1,19 @@
 defmodule ValueFlows.Observation.Process do
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "vf_process",
     table_id: "WAYF0R1NPVTST0BEC0ME0VTPVT"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
-  # alias MoodleNet.Actors.Actor
-  # alias MoodleNet.Communities.Community
+  alias CommonsPub.Users.User
+  #
+  # alias CommonsPub.Communities.Community
   alias ValueFlows.Observation.Process
-  alias Measurement.Measure
+  # alias Measurement.Measure
 
-  alias ValueFlows.Knowledge.Action
+  # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
 
   @type t :: %__MODULE__{}

@@ -2,13 +2,10 @@
 defmodule ValueFlows.Observation.Process.GraphQL do
   use Absinthe.Schema.Notation
 
-  # default to 100 km radius
-  @radius_default_distance 100_000
-
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Communities,
     GraphQL,
@@ -16,7 +13,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     # User
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -27,17 +24,17 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     # CommonResolver
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
+  # alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Processes
   alias ValueFlows.Observation.Process.Queries
-  # alias MoodleNetWeb.GraphQL.CommonResolver
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  # alias CommonsPub.Web.GraphQL.CommonResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
@@ -47,7 +44,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
 
   ## resolvers
 
-  def simulate(%{id: id}, _) do
+  def simulate(%{id: _id}, _) do
     {:ok, ValueFlows.Simulate.process()}
   end
 
@@ -193,39 +190,9 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   end
 
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: [character: [:actor]])
-    urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
+    thing = Repo.preload(thing, tags: :character)
+    urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
-  end
-
-  def create_process(%{process: %{in_scope_of: context_ids} = process_attrs}, info)
-      when is_list(context_ids) do
-    # FIXME: support multiple contexts?
-    context_id = List.first(context_ids)
-
-    create_process(
-      %{process: Map.merge(process_attrs, %{in_scope_of: context_id})},
-      info
-    )
-  end
-
-  def create_process(
-        %{process: %{in_scope_of: context_id} = process_attrs},
-        info
-      )
-      when not is_nil(context_id) do
-    # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: context_id),
-           context = Pointers.follow!(pointer),
-           {:ok, uploads} <- UploadResolver.upload(user, process_attrs, info),
-           process_attrs = Map.merge(process_attrs, uploads),
-           process_attrs = Map.merge(process_attrs, %{is_public: true}),
-           {:ok, process} <- Processes.create(user, context, process_attrs) do
-        {:ok, %{process: process}}
-      end
-    end)
   end
 
   # FIXME: duplication!
@@ -238,19 +205,6 @@ defmodule ValueFlows.Observation.Process.GraphQL do
            {:ok, process} <- Processes.create(user, process_attrs) do
         {:ok, %{process: process}}
       end
-    end)
-  end
-
-  def update_process(%{process: %{in_scope_of: context_ids} = changes}, info) do
-    context_id = List.first(context_ids)
-
-    Repo.transact_with(fn ->
-      do_update(changes, info, fn process, changes ->
-        with {:ok, pointer} <- Pointers.one(id: context_id) do
-          context = Pointers.follow!(pointer)
-          Processes.update(process, context, changes)
-        end
-      end)
     end)
   end
 
@@ -302,6 +256,6 @@ defmodule ValueFlows.Observation.Process.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
   # end
 end

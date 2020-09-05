@@ -2,15 +2,14 @@
 defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   use Absinthe.Schema.Notation
 
-  alias MoodleNet.GraphQL
-  alias MoodleNet.GraphQL.{
-    ResolveField,
-    ResolveFields,
-    FetchFields
+  alias CommonsPub.GraphQL
+
+  alias CommonsPub.GraphQL.{
+    ResolveField
   }
 
-  alias ValueFlows.Proposals
-  alias ValueFlows.Proposal.ProposedIntent
+  alias ValueFlows.Proposal.Proposals
+  # alias ValueFlows.Proposal.ProposedIntent
 
   def proposed_intent(%{id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -21,7 +20,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
-  def publishes_edge(%{id: proposal_id}, _, info) do
+  def publishes_edge(%{id: proposal_id}, _, _info) do
     # ResolveFields.run(%ResolveFields{
     #   module: __MODULE__,
     #   fetcher: :fetch_proposed_intents,
@@ -32,22 +31,22 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     Proposals.many_proposed_intents([:default, published_in_id: proposal_id])
   end
 
-  def published_in_edge(%{id: intent_id}, _, info) do
+  def published_in_edge(%{id: intent_id}, _, _info) do
     Proposals.many_proposed_intents([:default, publishes_id: intent_id])
   end
 
-  def fetch_proposed_intent(info, id) do
+  def fetch_proposed_intent(_info, id) do
     Proposals.one_proposed_intent([:default, id: id])
   end
 
-  def fetch_proposed_intents(_info, ids) do
+  # def fetch_proposed_intents(_info, _ids) do
     # FetchFields.run(%FetchFields{
     #   queries: Proposal.ProposedIntentQueries,
     #   query: ProposedIntent,
     #   group_fn: & &1.id,
     #   filters: [:deleted, published_in_id: ids]
     # })
-  end
+  # end
 
   def propose_intent(%{published_in: published_in_id, publishes: publishes_id} = params, info) do
     with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),

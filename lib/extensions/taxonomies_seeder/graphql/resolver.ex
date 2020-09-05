@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Taxonomy.GraphQL.TaxonomyResolver do
   @moduledoc "GraphQL tag and Country queries"
-  alias MoodleNet.{GraphQL, Repo}
+  alias CommonsPub.{GraphQL, Repo}
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # CommonResolver,
     FetchFields,
     FetchPage,

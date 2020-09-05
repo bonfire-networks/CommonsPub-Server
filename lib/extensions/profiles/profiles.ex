@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Profile.Profiles do
-  alias MoodleNet.{Common, Repo}
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
+defmodule CommonsPub.Profiles do
+  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
 
-  alias CommonsPub.Profile
-  alias CommonsPub.Profile.Queries
+  alias CommonsPub.Profiles.Profile
+  alias CommonsPub.Profiles.Queries
 
   alias Pointers
   alias Pointers.Pointer
@@ -71,7 +71,7 @@ defmodule CommonsPub.Profile.Profiles do
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
     Contexts.pages(
       Queries,
-      CommonsPub.Profile,
+      CommonsPub.Profiles.Profile,
       cursor_fn,
       group_fn,
       page_opts,
@@ -99,13 +99,13 @@ defmodule CommonsPub.Profile.Profiles do
   end
 
   defp insert_profile(creator, attrs) do
-    cs = CommonsPub.Profile.create_changeset(creator, attrs)
+    cs = CommonsPub.Profiles.Profile.create_changeset(creator, attrs)
     with {:ok, profile} <- Repo.insert(cs), do: {:ok, profile}
   end
 
   @doc "Takes a Pointer to something and creates a profile based on it"
   def add_profile_to(user, %Pointer{} = pointer) do
-    thing = MoodleNet.Meta.Pointers.follow!(pointer)
+    thing = CommonsPub.Meta.Pointers.follow!(pointer)
 
     if(is_nil(thing.profile_id)) do
       add_profile_to(user, thing)
@@ -115,7 +115,7 @@ defmodule CommonsPub.Profile.Profiles do
   end
 
   def add_profile_to(user, pointer_id) when is_binary(pointer_id) do
-    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: pointer_id)
+    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: pointer_id)
     add_profile_to(user, pointer)
   end
 
@@ -162,19 +162,21 @@ defmodule CommonsPub.Profile.Profiles do
 
   # TODO: take the user who is performing the update
 
-  def update(user, %CommonsPub.Profile{} = profile, %{profile: attrs}) when is_map(attrs) do
+  def update(user, %CommonsPub.Profiles.Profile{} = profile, %{profile: attrs})
+      when is_map(attrs) do
     update(user, profile, attrs)
   end
 
-  def update(_user, %CommonsPub.Profile{} = profile, attrs) do
+  def update(_user, %CommonsPub.Profiles.Profile{} = profile, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, profile} <- Repo.update(CommonsPub.Profile.update_changeset(profile, attrs)) do
+      with {:ok, profile} <-
+             Repo.update(CommonsPub.Profiles.Profile.update_changeset(profile, attrs)) do
         {:ok, profile}
       end
     end)
   end
 
-  def soft_delete(%CommonsPub.Profile{} = profile) do
+  def soft_delete(%CommonsPub.Profiles.Profile{} = profile) do
     Repo.transact_with(fn ->
       with {:ok, profile} <- Common.soft_delete(profile) do
         {:ok, profile}

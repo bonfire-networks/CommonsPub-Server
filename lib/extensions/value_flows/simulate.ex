@@ -8,9 +8,10 @@ defmodule ValueFlows.Simulate do
   import Measurement.Simulate
 
   alias ValueFlows.Planning.Intent.Intents
-  alias ValueFlows.Proposals
+  alias ValueFlows.Proposal.Proposals
   # alias ValueFlows.Proposal.ProposedIntent
   alias ValueFlows.Knowledge.Action.Actions
+  alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
 
   ### Start fake data functions
 
@@ -40,6 +41,7 @@ defmodule ValueFlows.Simulate do
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
 
   def action, do: Faker.Util.pick(Actions.actions_list())
+  def actions, do: Actions.actions_list()
 
   def action_id, do: action().id
 
@@ -90,6 +92,21 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:finished, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def process_specification(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
+    |> Map.put_new_lazy(:classified_as, fn -> some(1..5, &url/0) end)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def process_specification_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
   end
 
   def proposal(base \\ %{}) do
@@ -164,14 +181,14 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("effort_quantity", fn -> measure_input(unit) end)
   end
 
-  def fake_intent!(user, unit \\ nil, overrides \\ %{})
+  def fake_intent!(user, unit \\ nil, context \\ nil, overrides \\ %{})
 
-  def fake_intent!(user, unit, overrides) when is_nil(unit) do
-    {:ok, intent} = Intents.create(user, action(), intent(overrides))
+  def fake_intent!(user, unit, context, overrides) when is_nil(unit) do
+    {:ok, intent} = Intents.create(user, action(), context, intent(overrides))
     intent
   end
 
-  def fake_intent!(user, unit, overrides) do
+  def fake_intent!(user, unit, context, overrides) do
     measure_attrs = %{unit_id: unit.id}
 
     measures = %{
@@ -181,7 +198,7 @@ defmodule ValueFlows.Simulate do
     }
 
     overrides = Map.merge(overrides, measures)
-    {:ok, intent} = Intents.create(user, action(), intent(overrides))
+    {:ok, intent} = Intents.create(user, action(), context, intent(overrides))
     intent
   end
 
@@ -207,5 +224,17 @@ defmodule ValueFlows.Simulate do
   def fake_proposed_to!(proposed_to, proposed) do
     {:ok, proposed_to} = Proposals.propose_to(proposed_to, proposed)
     proposed_to
+  end
+
+  def fake_process_specification!(user, context \\ nil, overrides \\ %{})
+
+  def fake_process_specification!(user, context, overrides) when is_nil(context) do
+    {:ok, spec} = ProcessSpecifications.create(user, process_specification(overrides))
+    spec
+  end
+
+  def fake_process_specification!(user, context, overrides) do
+    {:ok, spec} = ProcessSpecifications.create(user, context, process_specification(overrides))
+    spec
   end
 end

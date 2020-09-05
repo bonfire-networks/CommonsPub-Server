@@ -1,6 +1,6 @@
 defmodule ValueFlows.Planning.Intent.Migrations do
   use Ecto.Migration
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 

@@ -5,8 +5,7 @@ defmodule Organisation.GraphQL.Schema do
   """
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
-    ActorsResolver,
+  alias CommonsPub.Web.GraphQL.{
     # CommonResolver,
     # FlagsResolver,
     # FollowsResolver,
@@ -16,7 +15,7 @@ defmodule Organisation.GraphQL.Schema do
     # UploadResolver
   }
 
-  alias CommonsPub.Character.GraphQL.FacetsResolvers
+  alias CommonsPub.Characters.GraphQL.FacetsResolvers
 
   # alias Organisation.GraphQL.Resolver
 
@@ -86,7 +85,7 @@ defmodule Organisation.GraphQL.Schema do
     @desc "A preferred username + the host domain"
     field :display_username, :string do
       # FIXME
-      resolve(&ActorsResolver.display_username_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3)
     end
 
     @desc "An avatar url"
@@ -101,7 +100,7 @@ defmodule Organisation.GraphQL.Schema do
 
     @desc "Whether the organisation is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve(&ActorsResolver.is_local_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.is_local_edge/3)
     end
 
     @desc "Whether the organisation is public"

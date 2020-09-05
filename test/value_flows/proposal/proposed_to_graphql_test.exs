@@ -1,8 +1,8 @@
 defmodule ValueFlows.Proposal.ProposedToGraphQLTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Simulation
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -13,19 +13,31 @@ defmodule ValueFlows.Proposal.ProposedToGraphQLTest do
       proposal = fake_proposal!(user)
       agent = fake_user!()
 
-      q = propose_to_mutation(
-        fields: [proposed: [:id], proposed_to: [:id]]
-      )
+      q = propose_to_mutation(fields: [proposed: [:id], proposed_to: [:id]])
 
       conn = user_conn(user)
+
       vars = %{
         "proposed" => proposal.id,
         "proposedTo" => agent.id
       }
+
       assert proposed_to = grumble_post_key(q, conn, :propose_to, vars)["proposedTo"]
       assert_proposed_to(proposed_to)
       assert proposed_to["proposed"]["id"] == proposal.id
       assert proposed_to["proposedTo"]["id"] == agent.id
+    end
+  end
+
+  describe "delete_proposed_to" do
+    test "deletes an existing proposed to item" do
+      user = fake_user!()
+      proposed_to = fake_proposed_to!(fake_user!(), fake_proposal!(user))
+
+      q = delete_proposed_to_mutation()
+      conn = user_conn(user)
+
+      assert grumble_post_key(q, conn, :delete_proposed_to, %{id: proposed_to.id})
     end
   end
 end

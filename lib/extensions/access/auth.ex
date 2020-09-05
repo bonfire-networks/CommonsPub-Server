@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Plugs.Auth do
+defmodule CommonsPub.Web.Plugs.Auth do
   @moduledoc """
   This plug makes sure the user is authenticated.
 
@@ -26,15 +26,15 @@ defmodule MoodleNetWeb.Plugs.Auth do
       * `auth_token`, a Token
   """
   alias Plug.Conn
-  alias MoodleNet.Access
+  alias CommonsPub.Access
 
-  alias MoodleNet.Access.{
+  alias CommonsPub.Access.{
     MalformedAuthorizationHeaderError,
     Token,
     TokenNotFoundError
   }
 
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
 
   def init(opts), do: opts
 
@@ -130,7 +130,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
     end
   end
 
-  defp put_current_user(conn, %MoodleNet.Users.Me{} = user, token) do
+  defp put_current_user(conn, %CommonsPub.Users.Me{} = user, token) do
     put_current_user(conn, user.user, token)
   end
 
@@ -148,7 +148,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
   end
 
   def confirm_email(conn, token) do
-    with {:ok, res} <- MoodleNetWeb.GraphQL.UsersResolver.confirm_email(%{token: token}, %{}) do
+    with {:ok, res} <- CommonsPub.Web.GraphQL.UsersResolver.confirm_email(%{token: token}, %{}) do
       # IO.inspect(res)
       login(conn, res.token, %{})
     end

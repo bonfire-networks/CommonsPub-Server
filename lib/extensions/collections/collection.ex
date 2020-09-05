@@ -1,27 +1,32 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Collections.Collection do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Collections.Collection do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Collections
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.Content
+  alias CommonsPub.Collections
+  # alias CommonsPub.Characters.Character
+  alias CommonsPub.Communities.Community
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Users.User
+  alias CommonsPub.Uploads.Content
 
   @type t :: %__MODULE__{}
 
   table_schema "mn_collection" do
-    belongs_to(:actor, Actor)
+    # belongs_to(:actor, Character)
+    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
+
     belongs_to(:creator, User)
+
     # TODO: replace by context
     belongs_to(:community, Community)
+
     belongs_to(:context, Pointers.Pointer)
+
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     # belongs_to(:primary_language, Language)
@@ -46,7 +51,6 @@ defmodule MoodleNet.Collections.Collection do
   def create_changeset(
         %User{} = creator,
         %Community{} = community,
-        %Actor{} = actor,
         attrs
       ) do
     %Collection{}
@@ -56,7 +60,6 @@ defmodule MoodleNet.Collections.Collection do
       # commmunity parent is deprecated in favour of context
       community_id: community.id,
       context_id: community.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> Changeset.validate_required(@required)
@@ -66,7 +69,6 @@ defmodule MoodleNet.Collections.Collection do
   def create_changeset(
         %User{} = creator,
         context,
-        %Actor{} = actor,
         attrs
       ) do
     %Collection{}
@@ -74,7 +76,6 @@ defmodule MoodleNet.Collections.Collection do
     |> Changeset.change(
       creator_id: creator.id,
       context_id: context.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> Changeset.validate_required(@required)
@@ -83,14 +84,12 @@ defmodule MoodleNet.Collections.Collection do
 
   def create_changeset(
         %User{} = creator,
-        %Actor{} = actor,
         attrs
       ) do
     %Collection{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       creator_id: creator.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> Changeset.validate_required(@required)
@@ -115,7 +114,7 @@ defmodule MoodleNet.Collections.Collection do
 
   def queries_module, do: Collections.Queries
 
-  def follow_filters, do: [join: :actor, preload: :actor]
+  def follow_filters, do: [join: :character, preload: :character]
 
   def type, do: :collection
 end

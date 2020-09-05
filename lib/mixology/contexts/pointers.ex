@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.Pointers do
-  alias MoodleNet.Meta.{PointersQueries, TableService}
-  alias MoodleNet.Repo
+defmodule CommonsPub.Meta.Pointers do
+  alias CommonsPub.Meta.{PointersQueries, TableService}
+  alias CommonsPub.Repo
   alias Pointers.{Pointer}
 
   def one(filters), do: Repo.single(PointersQueries.query(Pointer, filters))

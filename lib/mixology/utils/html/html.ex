@@ -1,5 +1,5 @@
 defmodule CommonsPub.HTML do
-  alias MoodleNet.Config
+  alias CommonsPub.Config
 
   alias CommonsPub.HTML.Formatter
 
@@ -115,16 +115,4 @@ defmodule CommonsPub.HTML do
   # end
 
   # defp maybe_add_nsfw_tag(data, _), do: data
-
-  def truncate(text, max_length \\ 200, omission \\ "...") do
-    # Remove trailing whitespace
-    text = Regex.replace(~r/([^ \t\r\n])([ \t]+$)/u, text, "\\g{1}")
-
-    if String.length(text) < max_length do
-      text
-    else
-      length_with_omission = max_length - String.length(omission)
-      String.slice(text, 0, length_with_omission) <> omission
-    end
-  end
 end

@@ -1,19 +1,21 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Test.Faking do
-  import ExUnit.Assertions
+  # import ExUnit.Assertions
 
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
 
-  import CommonsPub.Utils.Trendy
+  # import CommonsPub.Utils.Trendy
 
-  import ValueFlows.Simulate
-  import Measurement.Test.Faking
+  # import ValueFlows.Simulate
+  # import Measurement.Test.Faking
   import Grumble
 
-  alias CommonsPub.Utils.Simulation
+  # alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intent.Intents
+  alias ValueFlows.Knowledge.Action
+  alias ValueFlows.Knowledge.ProcessSpecification
 
   alias ValueFlows.{
     Proposal
@@ -21,6 +23,21 @@ defmodule ValueFlows.Test.Faking do
   }
 
   alias ValueFlows.Proposal.{ProposedTo, ProposedIntent}
+
+  def assert_action(%Action{} = action) do
+    assert_action(Map.from_struct(action))
+  end
+
+  def assert_action(action) do
+    assert_object(action, :assert_action,
+      label: &assert_binary/1,
+      input_output: assert_optional(&assert_binary/1),
+      pairs_with: assert_optional(&assert_binary/1),
+      resource_effect: &assert_binary/1,
+      onhand_effect: assert_optional(&assert_binary/1),
+      note: assert_optional(&assert_binary/1)
+    )
+  end
 
   def assert_proposal(%Proposal{} = proposal) do
     assert_proposal(Map.from_struct(proposal))
@@ -73,9 +90,7 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def assert_proposed_to(pt) do
-    assert_object(pt, :assert_proposed_to,
-      id: &assert_ulid/1,
-    )
+    assert_object(pt, :assert_proposed_to, id: &assert_ulid/1)
   end
 
   def assert_intent(%Intent{} = intent) do
@@ -116,7 +131,43 @@ defmodule ValueFlows.Test.Faking do
     ])
   end
 
+  def assert_process_specification(%ProcessSpecification{} = spec) do
+    assert_process_specification(Map.from_struct(spec))
+  end
+
+  def assert_process_specification(spec) do
+    assert_object(spec, :assert_process_specification,
+      name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      # classified_as: assert_optional(assert_list(&assert_url/1))
+    )
+  end
+
   ## Graphql
+
+  def action_fields(extra \\ []) do
+    extra ++
+      ~w(label input_output pairs_with resource_effect onhand_effect note)a
+  end
+
+  def action_subquery(options \\ []) do
+    gen_subquery(:id, :action, &action_fields/1, options)
+  end
+
+  def actions_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ action_fields(fields)
+    field(:actions, [{:fields, fields} | options])
+  end
+
+  def action_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &action_subquery/1, options)
+  end
+
+  def actions_query(options \\ []) do
+    gen_query(&actions_subquery/1, options)
+  end
 
   def intent_fields(extra \\ []) do
     extra ++
@@ -228,7 +279,7 @@ defmodule ValueFlows.Test.Faking do
     |> gen_mutation(&delete_proposal_submutation/1, options)
   end
 
-  def delete_proposal_submutation(options \\ []) do
+  def delete_proposal_submutation(_options \\ []) do
     field(:delete_proposal, args: [id: var(:id)])
   end
 
@@ -278,7 +329,7 @@ defmodule ValueFlows.Test.Faking do
   def propose_to_mutation(options \\ []) do
     [
       proposed: type!(:id),
-      proposed_to: type!(:id),
+      proposed_to: type!(:id)
     ]
     |> gen_mutation(&propose_to_submutation/1, options)
   end
@@ -286,8 +337,66 @@ defmodule ValueFlows.Test.Faking do
   def propose_to_submutation(options \\ []) do
     [
       proposed: var(:proposed),
-      proposed_to: var(:proposed_to),
+      proposed_to: var(:proposed_to)
     ]
     |> gen_submutation(:propose_to, &proposed_to_response_fields/1, options)
   end
+
+  def delete_proposed_to_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_proposed_to_submutation/1, options)
+  end
+
+  def delete_proposed_to_submutation(_options \\ []) do
+    field(:delete_proposed_to, args: [id: var(:id)])
+  end
+
+  def process_specification_fields(extra \\ []) do
+    extra ++ ~w(id name note)a
+  end
+
+  def process_specification_response_fields(extra \\ []) do
+    [process_specification: process_specification_fields(extra)]
+  end
+
+  def process_specification_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &process_specification_subquery/1, options)
+  end
+
+  def process_specification_subquery(options \\ []) do
+    gen_subquery(:id, :process_specification, &process_specification_fields/1, options)
+  end
+
+  def create_process_specification_mutation(options \\ []) do
+    [process_specification: type!(:process_specification_create_params)]
+    |> gen_mutation(&create_process_specification_submutation/1, options)
+  end
+
+  def create_process_specification_submutation(options \\ []) do
+    [process_specification: var(:process_specification)]
+    |> gen_submutation(:create_process_specification, &process_specification_response_fields/1, options)
+  end
+
+  def update_process_specification_mutation(options \\ []) do
+    [process_specification: type!(:process_specification_update_params)]
+    |> gen_mutation(&update_process_specification_submutation/1, options)
+  end
+
+  def update_process_specification_submutation(options \\ []) do
+    [process_specification: var(:process_specification)]
+    |> gen_submutation(:update_process_specification, &process_specification_response_fields/1, options)
+  end
+
+  def delete_process_specification_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_process_specification_submutation/1, options)
+  end
+
+  def delete_process_specification_submutation(_options \\ []) do
+    field(:delete_process_specification, args: [id: var(:id)])
+  end
+
+
+
 end

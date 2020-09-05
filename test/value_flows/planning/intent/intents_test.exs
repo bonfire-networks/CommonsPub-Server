@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.IntentsTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
 
   import Measurement.Simulate
   import Measurement.Test.Faking
@@ -51,15 +51,18 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
 
     test "can create an intent with provider and receiver" do
       user = fake_user!()
+
       attrs = %{
         provider: fake_user!().id
       }
+
       assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
       assert intent.provider_id == attrs.provider
 
       attrs = %{
         receiver: fake_user!().id
       }
+
       assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
       assert intent.receiver_id == attrs.receiver
 
@@ -67,6 +70,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
         receiver: fake_user!().id,
         provider: fake_user!().id
       }
+
       assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
       assert intent.receiver_id == attrs.receiver
       assert intent.provider_id == attrs.provider
@@ -115,8 +119,8 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       unit = fake_unit!(user)
       intent = fake_intent!(user, unit)
 
-      assert {:error, %MoodleNet.Common.NotFoundError{}} =
-        Intents.update(intent, intent(%{action: "sleeping"}))
+      assert {:error, %CommonsPub.Common.NotFoundError{}} =
+               Intents.update(intent, intent(%{action: "sleeping"}))
     end
   end
 end

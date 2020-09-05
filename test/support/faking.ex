@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Test.Faking do
+defmodule CommonsPub.Test.Faking do
   import ExUnit.Assertions
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     Access,
     Activities,
-    Actors,
     Communities,
     Collections,
     Flags,
@@ -20,6 +19,8 @@ defmodule MoodleNet.Test.Faking do
     Threads.Comments,
     Users.User
   }
+
+  # alias CommonsPub.Characters
 
   import CommonsPub.Utils.Trendy
   import CommonsPub.Utils.Simulation
@@ -53,13 +54,18 @@ defmodule MoodleNet.Test.Faking do
     activity
   end
 
-  def fake_actor!(overrides \\ %{}) when is_map(overrides) do
-    {:ok, actor} = Actors.create(actor(overrides))
-    actor
+  def fake_character!(overrides \\ %{}) when is_map(overrides) do
+    with {:ok, user} <- fake_user(overrides) do
+      user.character
+    end
+  end
+
+  def fake_user(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
+    Users.register(user(overrides), public_registration: true)
   end
 
   def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    with {:ok, user} <- Users.register(user(overrides), public_registration: true) do
+    with {:ok, user} <- fake_user(overrides, opts) do
       maybe_confirm_user_email(user, opts)
     end
   end
@@ -69,6 +75,8 @@ defmodule MoodleNet.Test.Faking do
   end
 
   defp maybe_confirm_user_email(user, opts) do
+    # IO.inspect(opts)
+
     if Keyword.get(opts, :confirm_email) do
       {:ok, user} = Users.confirm_email(user)
       user
@@ -85,8 +93,8 @@ defmodule MoodleNet.Test.Faking do
 
   def fake_content!(%User{} = user, overrides \\ %{}) do
     {:ok, content} =
-      MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.ResourceUploader,
+      CommonsPub.Uploads.upload(
+        CommonsPub.Uploads.ResourceUploader,
         user,
         content_input(overrides),
         %{}
@@ -96,38 +104,38 @@ defmodule MoodleNet.Test.Faking do
     content
   end
 
-  def fake_community!(user, overrides \\ %{})
+  def fake_community!(user, context \\ nil, overrides \\ %{})
 
-  def fake_community!(%User{} = user, %{} = overrides) do
-    {:ok, community} = Communities.create(user, community(overrides))
+  def fake_community!(%User{} = user, context, %{} = overrides) do
+    {:ok, community} = Communities.create(user, context, community(overrides))
     assert community.creator_id == user.id
     community
   end
 
-  def fake_collection!(user, community, overrides \\ %{})
+  def fake_collection!(user, context \\ nil, overrides \\ %{})
 
-  def fake_collection!(user, community, overrides)
-      when is_map(overrides) and is_nil(community) do
+  def fake_collection!(user, context, overrides)
+      when is_map(overrides) and is_nil(context) do
     {:ok, collection} = Collections.create(user, collection(overrides))
     assert collection.creator_id == user.id
     collection
   end
 
-  def fake_collection!(user, community, overrides) when is_map(overrides) do
-    {:ok, collection} = Collections.create(user, community, collection(overrides))
+  def fake_collection!(user, context, overrides) when is_map(overrides) do
+    {:ok, collection} = Collections.create(user, context, collection(overrides))
     assert collection.creator_id == user.id
     collection
   end
 
-  def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
+  def fake_resource!(user, context \\ nil, overrides \\ %{}) when is_map(overrides) do
     attrs =
       overrides
       |> resource()
       |> Map.put(:content_id, fake_content!(user, overrides).id)
 
-    {:ok, resource} = Resources.create(user, collection, attrs)
+    {:ok, resource} = Resources.create(user, context, attrs)
     assert resource.creator_id == user.id
-    assert resource.collection_id == collection.id
+    # assert resource.context_id == context.id
     resource
   end
 

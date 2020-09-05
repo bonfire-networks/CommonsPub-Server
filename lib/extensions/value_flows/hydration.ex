@@ -1,20 +1,19 @@
 defmodule ValueFlows.Hydration do
-  alias MoodleNetWeb.GraphQL.{
-    ActorsResolver,
+  alias CommonsPub.Web.GraphQL.{
     CommonResolver,
     UploadResolver
   }
 
-  alias MoodleNet.Users.User
-  alias MoodleNet.Communities.Community
+  alias CommonsPub.Users.User
+  alias CommonsPub.Communities.Community
 
   def hydrate() do
     agent_fields = %{
       canonical_url: [
-        resolve: &ActorsResolver.canonical_url_edge/3
+        resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
       ],
       display_username: [
-        resolve: &ActorsResolver.display_username_edge/3
+        resolve: &CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3
       ],
       image: [
         resolve: &UploadResolver.image_content_edge/3
@@ -50,7 +49,10 @@ defmodule ValueFlows.Hydration do
         ],
         publishes: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.publishes_edge/3
-        ]
+        ],
+        published_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.published_to_edge/3
+        ],
       },
       intent: %{
         provider: [
@@ -133,7 +135,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.all_resource_specs/2
         ],
         process_specification: [
-          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.process_specification/2
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.process_spec/2
         ],
         process_specifications: [
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.all_process_specs/2
@@ -222,14 +224,23 @@ defmodule ValueFlows.Hydration do
         update_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.update_proposal/2
         ],
+        update_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.update_process_spec/2
+        ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
         ],
         delete_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.delete_proposal/2
         ],
+        delete_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.delete_process_spec/2
+        ],
         delete_proposed_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        ],
+        delete_proposed_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.delete_proposed_to/2
         ],
         create_resource_specification: [
           resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.create_resource_spec/2

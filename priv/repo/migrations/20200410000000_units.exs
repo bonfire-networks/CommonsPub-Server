@@ -1,8 +1,7 @@
-defmodule MoodleNet.Repo.Migrations.Units do
-    use Ecto.Migration
+defmodule CommonsPub.Repo.Migrations.Units do
+  use Ecto.Migration
 
-    def change do
-        Measurement.Migrations.change()
-    end
-
+  def change do
+    Measurement.Migrations.change()
+  end
 end

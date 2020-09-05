@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommonResolver do
+defmodule CommonsPub.Web.GraphQL.CommonResolver do
   alias Ecto.ULID
-  alias MoodleNet.GraphQL
+  alias CommonsPub.GraphQL
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     Fields,
     # Pages,
     # FetchFields,
@@ -12,15 +12,15 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     ResolvePages
   }
 
-  # alias MoodleNet.Likes.Like
-  # alias MoodleNet.Follows.Follow
-  # alias MoodleNet.Flags.Flag
-  # alias MoodleNet.Threads.Comment
-  alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Common
+  # alias CommonsPub.Likes.Like
+  # alias CommonsPub.Follows.Follow
+  # alias CommonsPub.Flags.Flag
+  # alias CommonsPub.Threads.Comment
+  alias CommonsPub.Meta.Pointers
+  alias CommonsPub.Common
 
-  def resolve_context_type(%MoodleNet.Communities.Community{}, _), do: :community
-  def resolve_context_type(%MoodleNet.Collections.Collection{}, _), do: :collection
+  def resolve_context_type(%CommonsPub.Communities.Community{}, _), do: :community
+  def resolve_context_type(%CommonsPub.Collections.Collection{}, _), do: :collection
   def resolve_context_type(%Organisation{}, _), do: :organisation
   def resolve_context_type(%{}, _), do: :community
 
@@ -67,13 +67,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     {:ok, contexts}
   end
 
-  # defp preload_context(%{context: %NotLoaded{}}=me), do: Repo.preload(me, :context)
-  # defp preload_context(%{context: %{}}=me), do: me
-  # defp preload_context(me), do: Repo.preload(me, :context)
-
-  # def loaded_context(%Community{}=community), do: Repo.preload(community, :actor)
-  # def loaded_context(%Collection{}=collection), do: Repo.preload(collection, :actor)
-  # def loaded_context(%User{}=user), do: Repo.preload(user, :actor)
+  # def loaded_context(%Community{}=community), do: Repo.preload(community, :character)
+  # def loaded_context(%Collection{}=collection), do: Repo.preload(collection, :character)
+  # def loaded_context(%User{}=user), do: Repo.preload(user, :character)
   # def loaded_context(other), do: other
 
   # def tag(%{tag_id: id}, info) do

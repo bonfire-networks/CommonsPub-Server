@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Blocks.Queries do
-  alias MoodleNet.Blocks.Block
+defmodule CommonsPub.Blocks.Queries do
+  alias CommonsPub.Blocks.Block
   import Ecto.Query
 
   def query(Block), do: from(b in Block, as: :block)

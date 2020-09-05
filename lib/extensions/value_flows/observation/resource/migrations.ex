@@ -1,14 +1,14 @@
 defmodule ValueFlows.Observation.EconomicResource.Migrations do
   use Ecto.Migration
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Observation.EconomicResource
-  alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.Process
+  # alias ValueFlows.Observation.EconomicEvent
+  # alias ValueFlows.Observation.Process
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 

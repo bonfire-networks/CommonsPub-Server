@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.LikesSchema do
+defmodule CommonsPub.Web.GraphQL.LikesSchema do
   use Absinthe.Schema.Notation
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Threads.Comment
-  # alias MoodleNet.Users.User
-  alias MoodleNetWeb.GraphQL.{CommonResolver, LikesResolver, UsersResolver}
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Threads.Comment
+  # alias CommonsPub.Users.User
+  alias CommonsPub.Web.GraphQL.{CommonResolver, LikesResolver, UsersResolver}
 
   object :likes_queries do
     @desc "Fetch a like by ID"

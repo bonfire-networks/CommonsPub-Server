@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Follows.Follow do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Follows.Follow do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_muted: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_muted: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Follows
+  alias CommonsPub.Follows
   alias Pointers.Pointer
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
 
   @type t :: %__MODULE__{}
 

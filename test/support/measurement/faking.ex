@@ -5,8 +5,8 @@ defmodule Measurement.Test.Faking do
   import Measurement.Simulate
 
   # import ExUnit.Assertions
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
+  import CommonsPub.Web.Test.GraphQLAssertions
+  import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Utils.Trendy
 
   import Grumble

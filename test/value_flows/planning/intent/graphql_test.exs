@@ -1,7 +1,7 @@
 defmodule ValueFlows.Planning.Intent.GraphQLTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
   import CommonsPub.Utils.Simulation
   import CommonsPub.Utils.Trendy, only: [some: 2]
 
@@ -170,7 +170,11 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = create_intent_mutation(fields: [receiver: [:id], provider: [:id]])
       conn = user_conn(user)
-      vars = %{intent: intent_input(unit, %{"receiver" => receiver.id, "provider" => provider.id})}
+
+      vars = %{
+        intent: intent_input(unit, %{"receiver" => receiver.id, "provider" => provider.id})
+      }
+
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(intent)
       assert intent["receiver"]["id"] == receiver.id
@@ -183,7 +187,12 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = create_intent_mutation(fields: [image: [:url]])
       conn = user_conn(user)
-      vars = %{intent: intent_input(unit, %{"image" => %{"url" => "https://via.placeholder.com/150.png"}})}
+
+      vars = %{
+        intent:
+          intent_input(unit, %{"image" => %{"url" => "https://via.placeholder.com/150.png"}})
+      }
+
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(intent)
       assert intent["image"]["url"] == "https://via.placeholder.com/150.png"
@@ -268,6 +277,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       intent = fake_intent!(user, unit)
       q = update_intent_mutation(fields: [image: [:url]])
       conn = user_conn(user)
+
       vars = %{
         intent:
           intent_input(unit, %{
@@ -275,6 +285,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
             "image" => %{"url" => "https://via.placeholder.com/250.png"}
           })
       }
+
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert resp["image"]["url"] == "https://via.placeholder.com/250.png"
     end
@@ -308,10 +319,15 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = update_intent_mutation(fields: [action: [:id]])
       conn = user_conn(user)
-      vars = %{intent: intent_input(unit, %{
-        "action" => "reading",
-        "id" => intent.id
-      })}
+
+      vars = %{
+        intent:
+          intent_input(unit, %{
+            "action" => "reading",
+            "id" => intent.id
+          })
+      }
+
       assert [%{"status" => 404}] = grumble_post_errors(q, conn, vars)
     end
   end

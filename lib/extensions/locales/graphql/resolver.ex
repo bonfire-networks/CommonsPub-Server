@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Locales.GraphQL.Resolver do
   @moduledoc "GraphQL Language and Country queries"
-  # alias MoodleNet.{GraphQL}
-  alias MoodleNet.GraphQL.{
+  # alias CommonsPub.{GraphQL}
+  alias CommonsPub.GraphQL.{
     # CommonResolver,
     # Flow,
     # FetchFields,

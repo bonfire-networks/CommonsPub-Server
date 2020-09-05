@@ -7,7 +7,7 @@
     <form phx-submit="share_link" phx-change="form_changes" phx-target="#link_tags_tag_results" >
          <%= live_component(
                 @socket,
-                MoodleNetWeb.My.ContextSelect,
+                CommonsPub.Web.My.ContextSelect,
                 current_user: @current_user,
                 my_communities: @my_communities,
                 current_context: @current_context
@@ -19,15 +19,27 @@
         <input name="icon[url]" value="<%= e(@link_input, :image, "") %>" type="hidden" />
         <input type="text" name="name" value="<%=e(@link_input, :title, "")%>" placeholder="Enter a name or title for the link..." />
         <textarea name="summary" placeholder="Describe the link..."><%=e(@link_input, :summary, "")%></textarea>
-        <input type="text" name="author" value="<%=e(@link_input, :author, e(@link_input, :source, ""))%>" placeholder="Enter the author or source of this content..." />
-        <%= live_component(
+      </div>
+    </div>
+    <input type="text" name="author" value="<%=e(@link_input, :author, e(@link_input, :source, ""))%>" placeholder="Enter the author or source of this content..." />
+    <%= live_component(
                 @socket,
-                MoodleNetWeb.Component.EnterTags,
+                CommonsPub.Web.Component.EnterTags,
                 current_user: @current_user,
                 id: "link_tags"
               ) %>
-      </div>
-    </div>
+    <label class="toggle-check">
+      <input name="public_access" type="checkbox" />
+      <span><em>Requires signing up</em><s>Openly available</s></span>
+    </label>
+    <label class="toggle-check">
+      <input name="free_access" type="checkbox" />
+      <span><em>Paywalled</em><s>Free access</s></span>
+    </label>
+    <label class="toggle-check">
+      <input name="accessibility_feature" type="checkbox" />
+      <span><em>Captions / transcript available</em><s>Not accessible</s></span>
+    </label>
     <footer class="dialog__footer">
       <button value="default">Share</button>
     </footer>

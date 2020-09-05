@@ -1,7 +1,7 @@
-defmodule MoodleNetWeb.Helpers.Discussions do
-  import MoodleNetWeb.Helpers.Common
+defmodule CommonsPub.Discussions.Web.DiscussionsHelper do
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   # {:pub_feed_comment, comment}
 
@@ -28,10 +28,12 @@ defmodule MoodleNetWeb.Helpers.Discussions do
     )
   end
 
-  def prepare_comment(%MoodleNet.Threads.Comment{} = comment, _current_user \\ nil) do
+  def prepare_comment(comment, _current_user \\ nil)
+
+  def prepare_comment(%CommonsPub.Threads.Comment{} = comment, _current_user) do
     comment = maybe_preload(comment, :creator)
 
-    creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
+    creator = ProfilesHelper.prepare(comment.creator, %{icon: true, character: true})
 
     {:ok, from_now} =
       Timex.shift(comment.published_at, minutes: -3)
@@ -51,12 +53,12 @@ defmodule MoodleNetWeb.Helpers.Discussions do
   def prepare_thread(thread, _with_context) do
     thread =
       if(!is_nil(thread.context_id)) do
-        {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
-        context = MoodleNet.Meta.Pointers.follow!(pointer)
+        {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: thread.context_id)
+        context = CommonsPub.Meta.Pointers.follow!(pointer)
         IO.inspect(context, label: "COPNTEXT")
 
         context =
-          Profiles.prepare(
+          ProfilesHelper.prepare(
             context,
             %{
               icon: true,
@@ -77,8 +79,8 @@ defmodule MoodleNetWeb.Helpers.Discussions do
   def prepare_thread(thread) do
     thread =
       if(!is_nil(thread.context_id)) do
-        {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
-        context = MoodleNet.Meta.Pointers.follow!(pointer)
+        {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: thread.context_id)
+        context = CommonsPub.Meta.Pointers.follow!(pointer)
 
         thread
         |> Map.merge(%{context: context})
@@ -88,7 +90,7 @@ defmodule MoodleNetWeb.Helpers.Discussions do
 
     thread = maybe_preload(thread, :creator)
 
-    creator = Profiles.prepare(thread.creator, %{icon: true, actor: true})
+    creator = ProfilesHelper.prepare(thread.creator, %{icon: true, character: true})
 
     {:ok, from_now} =
       Timex.shift(thread.published_at, minutes: -3)

@@ -1,9 +1,9 @@
 defmodule ValueFlows.Proposal.GraphQLTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Utils.Simulation
-  import MoodleNet.Test.Faking
+  import CommonsPub.Test.Faking
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -38,6 +38,19 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   end
 
   describe "proposal.publishedTo" do
+    test "fetches all proposed to items for a proposal" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+
+      some(5, fn ->
+        fake_proposed_to!(fake_user!(), proposal)
+      end)
+
+      q = proposal_query(fields: [published_to: [:id]])
+      conn = user_conn(user)
+      assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
+      assert Enum.count(proposal["publishedTo"]) == 5
+    end
   end
 
   describe "proposals" do
@@ -89,6 +102,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       vars = %{
         proposal: update_proposal_input(%{"id" => proposal.id, "inScopeOf" => [new_scope.id]})
       }
+
       assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
       assert_proposal(proposal)
     end

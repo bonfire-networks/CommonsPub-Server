@@ -1,14 +1,12 @@
-defmodule CommonsPub.Profile.Migrations do
+defmodule CommonsPub.Profiles.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  alias CommonsPub.Profile
-
-  defp table_name(), do: CommonsPub.Profile.__schema__(:source)
+  defp table_name(), do: CommonsPub.Profiles.Profile.__schema__(:source)
 
   def migrate(index_opts, :up) do
     # a profile is a group actor that is home to resources
-    create_mixin_table(Profile) do
+    create_mixin_table(CommonsPub.Profiles.Profile) do
       add(:name, :string)
       add(:summary, :text)
       add(:extra_info, :map)
@@ -33,6 +31,6 @@ defmodule CommonsPub.Profile.Migrations do
     # drop_if_exists(index(:profile, :updated_at))
     drop_if_exists(index(table_name(), :creator_id, index_opts))
     drop_if_exists(index(table_name(), :primary_language_id, index_opts))
-    drop_mixin_table(CommonsPub.Profile)
+    drop_mixin_table(CommonsPub.Profiles.Profile)
   end
 end

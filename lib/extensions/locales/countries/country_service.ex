@@ -18,7 +18,7 @@ defmodule CommonsPub.Locales.Country.Service do
 
   alias CommonsPub.Locales.{Country}
 
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
   import Ecto.Query, only: [select: 3]
 
   use GenServer

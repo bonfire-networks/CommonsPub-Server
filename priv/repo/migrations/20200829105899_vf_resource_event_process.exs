@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.VF.ResourceEventProcess do
+defmodule CommonsPub.Repo.Migrations.VF.ResourceEventProcess do
   use Ecto.Migration
 
   def up do

@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
-  alias MoodleNet.{Activities, Common, Feeds, Repo}
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  alias MoodleNet.Meta.Pointers
+  alias CommonsPub.{Activities, Common, Feeds, Repo}
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
+  # alias CommonsPub.Meta.Pointers
 
   # alias Measurement.Measure
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
-  alias ValueFlows.Knowledge.Action
-  alias ValueFlows.Knowledge.Action.Actions
+  # alias ValueFlows.Knowledge.Action
+  # alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -120,7 +120,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   defp publish(creator, process_spec, activity, :created) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -132,7 +132,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   defp publish(creator, context, process_spec, activity, :created) do
     feeds = [
       context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -153,7 +153,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   # FIXME
   defp ap_publish(verb, context_id, user_id) do
-    MoodleNet.Workers.APPublishWorker.enqueue(verb, %{
+    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id
     })
@@ -197,20 +197,20 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   end
 
   def indexing_object_format(obj) do
-    # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
-    # image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
+    # image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
 
     %{
       "index_type" => "ProcessSpecification",
       "id" => obj.id,
-      # "canonicalUrl" => obj.actor.canonical_url,
+      # "canonicalUrl" => obj.character.canonical_url,
       # "icon" => icon,
       # "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
-      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+      # "index_instance" => URI.parse(obj.character.canonical_url).host, # home instance of object
     }
   end
 

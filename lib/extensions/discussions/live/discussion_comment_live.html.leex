@@ -2,13 +2,13 @@
 <%= if @comment.id == @reply_to, do: r("<span id=reply></span>") %>
 
   <div class="activity__info">
-    <%= live_redirect to: "/@"<> e(@comment, :creator, :actor, :preferred_username, "deleted")  do %>
+    <%= live_redirect to: "/@"<> e(@comment, :creator, :character, :preferred_username, "deleted")  do %>
       <img src="<%= e(@comment, :creator, :icon_url, "") %>" alt="icon" />
 <% end %>
 <div class="all__info">
   <div class="info__meta">
     <div class="meta__action">
-      <%= live_redirect to: "/@"<> e(@comment, :creator, :actor, :preferred_username, "deleted")  do %><%= e(@comment, :creator, :name, "Somebody") %><% end %>
+      <%= live_redirect to: "/@"<> e(@comment, :creator, :character, :preferred_username, "deleted")  do %><%= e(@comment, :creator, :name, "Somebody") %><% end %>
     </div>
     <div class="meta__secondary">
       · <%= e(@comment, :published_at, "one day") %>

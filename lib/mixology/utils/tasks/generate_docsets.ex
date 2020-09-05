@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Mix.Tasks.MoodleNet.GenerateDocsets do
+defmodule Mix.Tasks.CommonsPub.GenerateDocsets do
   use Mix.Task
 
-  @usage "mix moodle_net.generate_docsets PATH"
+  @usage "mix commons_pub.generate_docsets PATH"
 
   @shortdoc "Generate Dash-compatible docsets for the app and dependencies."
   @moduledoc """
@@ -18,16 +18,8 @@ defmodule Mix.Tasks.MoodleNet.GenerateDocsets do
 
     DocsetApi.Builder.build("CommonsPub", "docs/exdoc", path)
 
-    configured_deps = Enum.map(MoodleNet.Mixfile.deps_list(), &dep_process(&1, path))
-      # IO.inspect(configured_deps, limit: :infinity)
-
-  end
-
-  defp dep_process(dep, path) do
-    lib = elem(dep, 0)
-
-    DocsetApi.Builder.build(Atom.to_string(lib), path)
-
+    _configured_deps = Enum.map(CommonsPub.Mixfile.deps_list(), &dep_process(&1, path))
+    # IO.inspect(configured_deps, limit: :infinity)
   end
 
   def run(_args),
@@ -39,4 +31,10 @@ defmodule Mix.Tasks.MoodleNet.GenerateDocsets do
 
         #{@usage}
       """)
+
+  defp dep_process(dep, path) do
+    lib = elem(dep, 0)
+
+    DocsetApi.Builder.build(Atom.to_string(lib), path)
+  end
 end

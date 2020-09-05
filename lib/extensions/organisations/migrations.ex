@@ -5,9 +5,9 @@ defmodule Organisation.Migrations do
   def up() do
     # a organisation is a group actor that is home to resources
     create_pointable_table(Organisation) do
-      add(:character_id, references("character", on_delete: :delete_all))
       # points to the parent Thing of this character
       add(:context_id, weak_pointer(), null: true)
+      add(:creator_id, references("mn_user", on_delete: :nilify_all))
       add(:extra_info, :map)
     end
   end

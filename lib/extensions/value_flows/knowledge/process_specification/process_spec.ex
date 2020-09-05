@@ -1,18 +1,18 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification do
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "vf_process_spec",
     table_id: "ASPEC1F1CAT10NF0RPR0CESSES"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
-  # alias MoodleNet.Actors.Actor
-  # alias MoodleNet.Communities.Community
-  alias ValueFlows.Knowledge.Action
+  alias CommonsPub.Users.User
+  #
+  # alias CommonsPub.Communities.Community
+  # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
-  alias Measurement.Measure
+  # alias Measurement.Measure
 
   @type t :: %__MODULE__{}
 
@@ -44,7 +44,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note is_disabled)a
+  @cast @required ++ ~w(note classified_as is_disabled)a
 
   def create_changeset(
         %User{} = creator,

@@ -1,9 +1,7 @@
-defmodule MoodleNetWeb.My.ShareLinkLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.ShareLinkLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
-
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     {
@@ -25,7 +23,7 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
     if maybe_fetch do
       maybe_fetch
     else
-      MoodleNetWeb.Component.TagAutocomplete.tag_suggest(data, socket)
+      CommonsPub.Web.Component.TagAutocomplete.tag_suggest(data, socket)
     end
   end
 
@@ -35,7 +33,8 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
       IO.inspect(fetch_url: url)
 
       fetch =
-        with {:ok, fetch} <- MoodleNetWeb.GraphQL.MiscSchema.fetch_web_metadata(%{url: url}, nil) do
+        with {:ok, fetch} <-
+               CommonsPub.Web.GraphQL.MiscSchema.fetch_web_metadata(%{url: url}, nil) do
           IO.inspect(scraped: fetch)
           fetch
         else
@@ -53,7 +52,7 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
     end
   end
 
-  def handle_event("fetch_link", _, socket) do
+  def handle_event("fetch_link", _, _socket) do
     nil
   end
 
@@ -74,15 +73,37 @@ defmodule MoodleNetWeb.My.ShareLinkLive do
        socket
        |> put_flash(:error, "Please enter a valid link and give it a name...")}
     else
-      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+      # CommonsPub.Web.Plugs.Auth.login(socket, session.current_user, session.token)
 
       # IO.inspect(context_id, label: "context_id CHOOSEN")
 
+      resource = input_to_atoms(data)
+
+      resource =
+        resource
+        |> Map.put(
+          :public_access,
+          CommonsPub.Utils.Text.blank?(Map.get(resource, :public_access))
+        )
+        |> Map.put(
+          :free_access,
+          CommonsPub.Utils.Text.blank?(Map.get(resource, :free_access))
+        )
+        |> Map.put(
+          :accessibility_feature,
+         ( if !CommonsPub.Utils.Text.blank?(Map.get(resource, :accessibility_feature)),
+          do: ["captions", "transcript"],
+          else: nil
+         )
+        )
+
+      IO.inspect(resource_input: resource)
+
       with {:ok, _resource} <-
-             MoodleNetWeb.GraphQL.ResourcesResolver.create_resource(
+             CommonsPub.Web.GraphQL.ResourcesResolver.create_resource(
                %{
                  context_id: context_id,
-                 resource: input_to_atoms(data),
+                 resource: resource,
                  content: input_to_atoms(content),
                  icon: input_to_atoms(icon)
                },
