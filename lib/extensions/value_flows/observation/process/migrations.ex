@@ -1,10 +1,11 @@
 defmodule ValueFlows.Observation.Process.Migrations do
   use Ecto.Migration
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 
-  alias ValueFlows.Observation.Process
+  # alias ValueFlows.Observation.Process
+  alias ValueFlows.Knowledge.ProcessSpecification
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 
@@ -22,6 +23,8 @@ defmodule ValueFlows.Observation.Process.Migrations do
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
+      add(:based_on_id, weak_pointer(ProcessSpecification), null: true)
+
       # optional context as in_scope_of
       add(:context_id, weak_pointer(), null: true)
 
@@ -36,6 +39,6 @@ defmodule ValueFlows.Observation.Process.Migrations do
   end
 
   def down do
-    drop_pointable_table(ValueFlows.Knowledge.ResourceSpecification)
+    drop_pointable_table(ValueFlows.Observation.Process)
   end
 end

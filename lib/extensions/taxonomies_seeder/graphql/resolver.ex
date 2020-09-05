@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Taxonomy.GraphQL.TaxonomyResolver do
   @moduledoc "GraphQL tag and Country queries"
-  alias MoodleNet.{GraphQL, Repo}
+  alias CommonsPub.{GraphQL, Repo}
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # CommonResolver,
     FetchFields,
     FetchPage,
@@ -102,7 +102,6 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
 
   @doc "List all child tags"
   def tag_children(%{id: id}, %{} = page_opts, info) do
-    # IO.inspect(info)
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
       fetcher: :fetch_tags_children,
@@ -127,7 +126,6 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
 
   # @doc "List child tags that already have a character"
   # def character_tags_edge(%{id: id}, %{} = page_opts, info) do
-  #   # IO.inspect(info)
   #   ResolvePages.run(%ResolvePages{
   #     module: __MODULE__,
   #     fetcher: :fetch_character_tags_edge,

@@ -1,25 +1,25 @@
-defmodule MoodleNetWeb.Helpers.Profiles do
-  # alias MoodleNet.{Repo}
-  alias MoodleNetWeb.GraphQL.UsersResolver
-  import MoodleNetWeb.Helpers.Common
+defmodule CommonsPub.Profiles.Web.ProfilesHelper do
+  # alias CommonsPub.{Repo}
+  alias CommonsPub.Web.GraphQL.UsersResolver
+  import CommonsPub.Utils.Web.CommonHelper
 
   def fetch_users_from_context(user) do
     # IO.inspect(user.context_id, label: "ContextId")
-    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.context_id)
+    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: user.context_id)
     # IO.inspect(pointer, label: "POINTER:")
-    MoodleNet.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, actor: true})
+    CommonsPub.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, character: true})
   end
 
   def fetch_users_from_creator(user) do
     # IO.inspect(user.context_id, label: "ContextId")
-    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.creator_id)
+    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: user.creator_id)
     # IO.inspect(pointer, label: "POINTER:")
-    MoodleNet.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, actor: true})
+    CommonsPub.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, character: true})
   end
 
   def is_followed_by(current_user, profile_id) when not is_nil(current_user) do
     is_followed_by(
-      MoodleNetWeb.GraphQL.FollowsResolver.fetch_my_follow_edge(current_user, nil, profile_id)
+      CommonsPub.Web.GraphQL.FollowsResolver.fetch_my_follow_edge(current_user, nil, profile_id)
     )
   end
 
@@ -37,9 +37,9 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
   def unfollow(current_user, followed_id) do
     {:ok, follow} =
-      MoodleNet.Follows.one(deleted: false, creator: current_user.id, context: followed_id)
+      CommonsPub.Follows.one(deleted: false, creator: current_user.id, context: followed_id)
 
-    MoodleNet.Follows.soft_delete(current_user, follow)
+    CommonsPub.Follows.soft_delete(current_user, follow)
   end
 
   def prepare(%{username: _username} = profile) do
@@ -91,9 +91,10 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   def prepare_username(profile) do
     profile
     |> Map.merge(%{
-      username: map_get(profile, :username, nil) || MoodleNet.Actors.display_username(profile)
+      username:
+        map_get(profile, :username, nil) || CommonsPub.Characters.display_username(profile)
     })
-    |> Map.merge(%{display_username: MoodleNet.Actors.display_username(profile, true)})
+    |> Map.merge(%{display_username: CommonsPub.Characters.display_username(profile, true)})
   end
 
   def prepare_website(profile) do
@@ -140,7 +141,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   end
 
   def user_load(socket, params) do
-    user_load(socket, params, %{image: true, icon: true, actor: true}, 150)
+    user_load(socket, params, %{image: true, icon: true, character: true}, 150)
   end
 
   def user_load(socket, page_params, preload) do

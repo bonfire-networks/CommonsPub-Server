@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.ResetPasswordToken do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Users.ResetPasswordToken do
+  use CommonsPub.Common.Schema
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.LocalUser
+  alias CommonsPub.Users.LocalUser
 
   @type t :: %__MODULE__{}
 
@@ -26,7 +26,7 @@ defmodule MoodleNet.Users.ResetPasswordToken do
   end
 
   def claim_changeset(%__MODULE__{} = token),
-    do: MoodleNet.Common.Changeset.claim_changeset(token, :reset_at)
+    do: CommonsPub.Common.Changeset.claim_changeset(token, :reset_at)
 
   defp expires_at({count, unit}) when is_integer(count) and count > 0,
     do: DateTime.add(DateTime.utc_now(), count, unit)

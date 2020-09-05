@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AppUniqueApIdIndex do
+defmodule CommonsPub.Repo.Migrations.AppUniqueApIdIndex do
   use Ecto.Migration
 
   def change do

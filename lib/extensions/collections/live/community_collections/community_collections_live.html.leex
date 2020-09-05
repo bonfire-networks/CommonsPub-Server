@@ -1,17 +1,17 @@
 <div id="community-collections">
+  <div class="community__discussion__actions">
+    <%# <input placeholder="Search collections..."/> %>
+    <a href="#" phx-target="#new_collection" phx-click="toggle_collection">
+      <button >Create a collection</button>
+    </a>
+  </div>
   <div
   phx-update="append"
   data-page="<%= @page %>"
   class="selected__area">
-    <div class="community__discussion__actions">
-    <%# <input placeholder="Search collections..."/> %>
-      <a href="#" phx-target="#new_collection" phx-click="toggle_collection">
-        <button >Create a collection</button>
-      </a>
-  </div>
     <%= for collection <- @collections do %>
-    <div id="<%= collection.id %>" class="preview__wrapper">
-      <%= live_component(
+      <div id="<%= collection.id %>" class="preview__wrapper">
+        <%= live_component(
         @socket,
         CollectionPreviewLive,
         id: "collection-#{collection.id}",
@@ -21,14 +21,14 @@
       </div>
     <% end %>
   </div>
-        <%= if @has_next_page do %>
-        <div class="pagination">
-          <button
+  <%= if @has_next_page do %>
+    <div class="pagination">
+      <button
             class="button--outline"
             phx-click="load-more"
             phx-target="<%= @pagination_target %>">
-            load more
-          </button>
-        </div>
-        <% end %>
-      </div>
+        load more
+      </button>
+    </div>
+  <% end %>
+</div>

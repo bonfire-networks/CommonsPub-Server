@@ -52,15 +52,15 @@
           <div class="user__preview">
             <div class="preview__image" style="background-image: url(<%= user.icon_url %>>)"></div>
             <div class="preview__info">
-              <%= live_redirect to: "/@"<> e(user, :actor, :preferred_username, "me")  do %>
+              <%= live_redirect to: "/@"<> e(user, :character, :preferred_username, "me")  do %>
                 <h3><%= user.name %></h3>
               <% end %>
               <h4><%= user.username %></h4>
             </div>
             <div class="preview__actions">
-            <%= if user.local_user.is_instance_admin do %>
-              <span class="actions_flag">admin</span>
-            <% end %>
+              <%= if user.local_user.is_instance_admin do %>
+                <span class="actions_flag">admin</span>
+              <% end %>
               <i phx-target="<%= @myself %>" phx-click="deactivate-user" phx-value-id="<%= user.id %>" class="feather-trash-2"></i>
             </div>
           </div>
@@ -92,7 +92,7 @@
           <div class="user__preview">
             <div class="preview__image" style="background-image: url(<%= user.icon_url %>>)"></div>
             <div class="preview__info">
-              <%= live_redirect to: "/@"<> e(user, :actor, :preferred_username, "me")  do %>
+              <%= live_redirect to: "/@"<> e(user, :character, :preferred_username, "me")  do %>
                 <h3><%= user.name %></h3>
               <% end %>
               <h4><%= user.username %></h4>

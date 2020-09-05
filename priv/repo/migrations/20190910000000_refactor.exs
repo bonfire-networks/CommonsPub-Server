@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Repo.Migrations.BigRefactor do
+defmodule CommonsPub.Repo.Migrations.BigRefactor do
   use Ecto.Migration
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
   alias Ecto.ULID
   import Pointers.Migration
 

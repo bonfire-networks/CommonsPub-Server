@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.PageController do
-  use MoodleNetWeb, :controller
+defmodule CommonsPub.Web.PageController do
+  use CommonsPub.Web, :controller
 
   def index(conn, _params) do
     url =
       if System.get_env("LIVEVIEW_ENABLED", "true") == "true" do
         "/instance"
       else
-        Application.fetch_env!(:moodle_net, :frontend_base_url)
+        CommonsPub.Config.get!(:frontend_base_url)
       end
 
     conn
@@ -23,13 +23,13 @@ defmodule MoodleNetWeb.PageController do
 
   def logout(conn, _params) do
     conn
-    |> MoodleNetWeb.Plugs.Auth.logout()
+    |> CommonsPub.Web.Plugs.Auth.logout()
     |> redirect(external: "/")
   end
 
   def confirm_email(conn, params) do
     conn
-    |> MoodleNetWeb.Plugs.Auth.confirm_email(params["token"])
+    |> CommonsPub.Web.Plugs.Auth.confirm_email(params["token"])
     |> redirect(external: "/")
   end
 end

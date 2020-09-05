@@ -1,11 +1,14 @@
 defmodule ValueFlows.Observation.EconomicResource.Migrations do
   use Ecto.Migration
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 
+  alias ValueFlows.Knowledge.ResourceSpecification
+  alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Observation.EconomicResource
-  alias ValueFlows.Observation.EconomicEvent
+  # alias ValueFlows.Observation.EconomicEvent
+  # alias ValueFlows.Observation.Process
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 
@@ -17,7 +20,7 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
 
       add(:image_id, references(:mn_content))
 
-      add(:conforms_to, weak_pointer(ResourceSpecification), null: true)
+      add(:conforms_to_id, weak_pointer(ResourceSpecification), null: true)
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
@@ -33,6 +36,8 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
       add(:accounting_quantity_id, references("measurement_measure", on_delete: :nilify_all))
       add(:onhand_quantity_id, references("measurement_measure", on_delete: :nilify_all))
       add(:unit_of_effort_id, references("measurement_unit", on_delete: :nilify_all))
+
+      add(:stage_id, weak_pointer(ProcessSpecification), null: true)
 
       # optional context as in_scope_of
       add(:context_id, weak_pointer(), null: true)

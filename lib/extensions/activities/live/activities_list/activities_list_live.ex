@@ -1,6 +1,6 @@
-defmodule MoodleNetWeb.Component.ActivitiesListLive do
-  use MoodleNetWeb, :live_component
-  alias MoodleNetWeb.Component.{ActivityLive}
+defmodule CommonsPub.Web.Component.ActivitiesListLive do
+  use CommonsPub.Web, :live_component
+  alias CommonsPub.Web.Component.{ActivityLive}
 
   # def update(assigns, socket) do
   #   {

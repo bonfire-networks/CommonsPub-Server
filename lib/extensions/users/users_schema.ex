@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.UsersSchema do
+defmodule CommonsPub.Web.GraphQL.UsersSchema do
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
-    ActorsResolver,
+  alias CommonsPub.Web.GraphQL.{
     CommonResolver,
     FlagsResolver,
     FollowsResolver,
@@ -170,17 +169,17 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
     @desc "A url for the user, may be to a remote instance"
     field :canonical_url, :string do
-      resolve(&ActorsResolver.canonical_url_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3)
     end
 
     @desc "An instance-unique identifier shared with communities and collections"
     field :preferred_username, non_null(:string) do
-      resolve(&ActorsResolver.preferred_username_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.preferred_username_edge/3)
     end
 
     @desc "A preferred username + the host domain"
     field :display_username, non_null(:string) do
-      resolve(&ActorsResolver.display_username_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3)
     end
 
     @desc "A name field"
@@ -207,7 +206,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
     @desc "Whether the user is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve(&ActorsResolver.is_local_edge/3)
+      resolve(&CommonsPub.Characters.GraphQL.Resolver.is_local_edge/3)
     end
 
     @desc "Whether the user has a public profile"
@@ -247,7 +246,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve(&FlagsResolver.my_flag_edge/3)
     end
 
-    # @desc "The language the user wishes to use moodlenet in"
+    # @desc "The language the user wishes to use the app in"
     # field :primary_language, :language do
     #   resolve &LocalisationResolver.primary_language/3
     # end

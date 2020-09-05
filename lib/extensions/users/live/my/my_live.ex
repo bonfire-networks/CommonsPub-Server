@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.My.MyLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.MyLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  # alias MoodleNetWeb.Helpers.{Profiles}
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.My.TimelineLive
+  alias CommonsPub.Web.MyTimelineLive
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     # HeaderLive,
     TabNotFoundLive
   }
@@ -37,9 +37,9 @@ defmodule MoodleNetWeb.My.MyLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
-        TimelineLive,
+        MyTimelineLive,
         :my_timeline,
         socket
       )

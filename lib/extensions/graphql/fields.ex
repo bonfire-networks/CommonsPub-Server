@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.Fields do
+defmodule CommonsPub.GraphQL.Fields do
   @enforce_keys ~w(data)a
   defstruct @enforce_keys
 
-  alias MoodleNet.Common.Enums
-  alias MoodleNet.GraphQL.Fields
+  alias CommonsPub.Common.Enums
+  alias CommonsPub.GraphQL.Fields
 
   @type t :: %Fields{data: map}
 

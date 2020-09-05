@@ -1,0 +1,10 @@
+<p><%= gettext("Hi %{name}", name: @user.name) <> "," %></p>
+
+<p><%= gettext("To complete your sign up, please verify your email:") %></p>
+
+<br>
+<a href="<%= @url %>"><%= gettext("Verify email") %></a>
+<br>
+
+<p><%= gettext("Alternatively, copy and paste this link into your browser:") <> " #{@url}" %></p>
+

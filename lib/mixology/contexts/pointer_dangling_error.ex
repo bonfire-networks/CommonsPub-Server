@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.PointerDanglingError do
+defmodule CommonsPub.Meta.PointerDanglingError do
   @moduledoc "An error indicating that looking up a pointer failed"
   @enforce_keys [:pointer]
   defstruct @enforce_keys

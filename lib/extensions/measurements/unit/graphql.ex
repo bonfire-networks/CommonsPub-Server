@@ -3,13 +3,13 @@ defmodule Measurement.Unit.GraphQL do
   use Absinthe.Schema.Notation
   require Logger
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     GraphQL,
     Repo
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # CommonResolver,
     ResolveField,
     # ResolveFields,
@@ -20,9 +20,9 @@ defmodule Measurement.Unit.GraphQL do
     # FetchPages
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
+  alias CommonsPub.Meta.Pointers
 
   # alias ValueFlows.Simulate
   alias Measurement.Unit
@@ -87,9 +87,9 @@ defmodule Measurement.Unit.GraphQL do
   def create_unit(%{unit: %{in_scope_of: context_id} = attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
            :ok <- validate_unit_context(pointer),
-           context = MoodleNet.Meta.Pointers.follow!(pointer),
+           context = CommonsPub.Meta.Pointers.follow!(pointer),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, unit} <- Units.create(user, context, attrs) do
         {:ok, %{unit: unit}}
@@ -184,6 +184,6 @@ defmodule Measurement.Unit.GraphQL do
   end
 
   defp valid_contexts do
-    Keyword.fetch!(Application.fetch_env!(:moodle_net, Units), :valid_contexts)
+    Keyword.fetch!(CommonsPub.Config.get!(Units), :valid_contexts)
   end
 end

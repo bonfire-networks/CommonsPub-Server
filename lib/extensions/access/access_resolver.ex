@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.AccessResolver do
-  alias MoodleNet.{Access, GraphQL}
-  alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Web.GraphQL.AccessResolver do
+  alias CommonsPub.{Access, GraphQL}
+  alias CommonsPub.GraphQL.{ResolveRootPage, FetchPage}
+  alias CommonsPub.Users.User
 
   def register_email_accesses(page_opts, info) do
     with {:ok, %User{}} <- GraphQL.admin_or_empty_page(info) do

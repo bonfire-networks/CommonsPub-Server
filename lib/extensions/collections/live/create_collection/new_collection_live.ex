@@ -1,9 +1,7 @@
-defmodule MoodleNetWeb.My.NewCollectionLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.NewCollectionLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
-
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     {
@@ -27,7 +25,7 @@ defmodule MoodleNetWeb.My.NewCollectionLive do
       IO.inspect(data, label: "collection to create")
 
       {:ok, collection} =
-        MoodleNetWeb.GraphQL.CollectionsResolver.create_collection(
+        CommonsPub.Web.GraphQL.CollectionsResolver.create_collection(
           %{collection: collection, context_id: context_id},
           %{context: %{current_user: socket.assigns.current_user}}
         )
@@ -35,12 +33,12 @@ defmodule MoodleNetWeb.My.NewCollectionLive do
       # TODO: handle errors
       IO.inspect(collection, label: "collection created")
 
-      if(!is_nil(collection) and collection.actor.preferred_username) do
+      if(!is_nil(collection) and collection.character.preferred_username) do
         {:noreply,
          socket
          |> put_flash(:info, "collection created !")
          # change redirect
-         |> push_redirect(to: "/+" <> collection.actor.preferred_username)}
+         |> push_redirect(to: "/+" <> collection.character.preferred_username)}
       else
         {:noreply,
          socket

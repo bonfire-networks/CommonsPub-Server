@@ -28,7 +28,7 @@ defmodule ValueFlows.Util do
   tag IDs from a `tags` field
   """
   def try_tag_thing(user, thing, %{tags: tag_ids}) when is_binary(tag_ids) do
-    tag_ids = MoodleNetWeb.Component.TagAutocomplete.tags_split(tag_ids)
+    tag_ids = CommonsPub.Web.Component.TagAutocomplete.tags_split(tag_ids)
     things_add_tags(user, thing, tag_ids)
   end
 
@@ -46,7 +46,7 @@ defmodule ValueFlows.Util do
   otherwise maybe we have tagnames inline in the note?
   """
   def try_tag_thing(_user, thing, %{note: text}) when bit_size(text) > 1 do
-    # MoodleNetWeb.Component.TagAutocomplete.try_prefixes(text)
+    # CommonsPub.Web.Component.TagAutocomplete.try_prefixes(text)
     # TODO
     {:ok, thing}
   end
@@ -60,7 +60,7 @@ defmodule ValueFlows.Util do
   """
   def things_add_tags(user, thing, taggables) do
     with {:ok, _taggable} <- CommonsPub.Tag.TagThings.thing_attach_tags(user, thing, taggables) do
-      {:ok, MoodleNet.Repo.preload(thing, :tags)}
+      {:ok, CommonsPub.Repo.preload(thing, :tags)}
     end
   end
 end

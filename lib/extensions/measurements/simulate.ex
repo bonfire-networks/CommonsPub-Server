@@ -1,6 +1,6 @@
 defmodule Measurement.Simulate do
   import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.Trendy
+  # import CommonsPub.Utils.Trendy
 
   alias Measurement.Unit.Units
   alias Measurement.Measure.Measures
@@ -20,7 +20,7 @@ defmodule Measurement.Simulate do
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &falsehood/0)
-    |> Map.merge(actor(base))
+    |> Map.merge(character(base))
   end
 
   def unit_input(base \\ %{}) do

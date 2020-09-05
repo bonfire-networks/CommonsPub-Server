@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Features do
-  alias MoodleNet.{Activities, Common, Features, GraphQL, Repo}
-  alias MoodleNet.Features.{Feature, Queries}
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Features do
+  alias CommonsPub.{Activities, Common, Features, GraphQL, Repo}
+  alias CommonsPub.Features.{Feature, Queries}
+  alias CommonsPub.Users.User
 
   def one(filters), do: Repo.single(Queries.query(Feature, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Feature, filters))}
 
   def create(%User{} = creator, %Pointers.Pointer{} = context, attrs) do
-    target_table = MoodleNet.Meta.Pointers.table!(context)
+    target_table = CommonsPub.Meta.Pointers.table!(context)
 
     if target_table.schema in get_valid_contexts() do
       Repo.insert(Feature.create_changeset(creator, context, attrs))
@@ -58,7 +58,7 @@ defmodule MoodleNet.Features do
   end
 
   defp get_valid_contexts() do
-    Application.fetch_env!(:moodle_net, Features)
+    CommonsPub.Config.get!(Features)
     |> Keyword.fetch!(:valid_contexts)
   end
 

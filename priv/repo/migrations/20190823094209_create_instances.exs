@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.CreateInstances do
+defmodule CommonsPub.Repo.Migrations.CreateInstances do
   use Ecto.Migration
 
   def change do

@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Character.GraphQL.Resolver do
-  alias MoodleNet.{
+defmodule CommonsPub.Characters.GraphQL.Resolver do
+  alias CommonsPub.{
     Activities,
     GraphQL,
     Repo,
     Resources
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # Flow,
     FetchFields,
     FetchPage,
@@ -18,21 +18,17 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
     ResolveRootPage
   }
 
-  # alias CommonsPub.Character
+  alias CommonsPub.Characters
+  alias CommonsPub.Characters.Character
 
-  alias CommonsPub.Character.{
-    Characters
-    # Queries
-  }
-
-  alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
+  alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
   alias Pointers
 
   ## resolvers
 
   def character(%{character: character}, _, _info) do
-    {:ok, Repo.preload(character, :actor)}
+    {:ok, Repo.preload(character, :character)}
   end
 
   def character(%{character_id: id}, _, info) do
@@ -66,14 +62,14 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
     Characters.one(
       user: GraphQL.current_user(info),
       id: id,
-      preload: :actor
+      preload: :character
     )
   end
 
   def fetch_characters(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: CommonsPub.Character.Queries,
-      query: CommonsPub.Character,
+      queries: CommonsPub.Characters.Queries,
+      query: CommonsPub.Characters.Character,
       cursor_fn: Characters.cursor(:followers),
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)],
@@ -81,9 +77,9 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
     })
   end
 
-  # def characteristic_edge(%CommonsPub.Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def characteristic_edge(%CommonsPub.Characters.Character{characteristic_id: id}, _, info), do: CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
-  # def resource_count_edge(%CommonsPub.Character{id: id}, _, info) do
+  # def resource_count_edge(%CommonsPub.Characters.Character{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
   # end
 
@@ -126,7 +122,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   end
 
   defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, CommonsPub.Character)
+    CommonsPub.Config.get!(CommonsPub.Characters)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
@@ -144,7 +140,7 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   def characterise(%{context_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
+           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
         Characters.characterise(me, pointer)
       end
     end)
@@ -171,13 +167,13 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   # def delete(%{character_id: id}, info) do
   #   # Repo.transact_with(fn ->
   #   #   with {:ok, user} <- GraphQL.current_user(info),
-  #   #        {:ok, actor} <- Users.fetch_actor(user),
+  #   #        {:ok, character} <- Users.fetch_actor(user),
   #   #        {:ok, character} <- Characters.fetch(id) do
   #   #     character = Repo.preload(character, :community)
   #   # 	permitted =
   #   # 	  user.is_instance_admin or
-  #   #       character.creator_id == actor.id or
-  #   #       character.community.creator_id == actor.id
+  #   #       character.creator_id == character.id or
+  #   #       character.community.creator_id == character.id
   #   # 	if permitted do
   #   # 	  with {:ok, _} <- Characters.soft_delete(character), do: {:ok, true}
   #   # 	else
@@ -199,10 +195,23 @@ defmodule CommonsPub.Character.GraphQL.Resolver do
   # end
 
   # defp valid_contexts do
-  #   Keyword.fetch!(Application.get_env(:moodle_net, Characters), :valid_contexts)
+  #   Keyword.fetch!(CommonsPub.Config.get(Characters), :valid_contexts)
   # end
 
   # def creator_edge(%{character: %{creator_id: id}}, _, info) do
-  #   ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
+  #   CommonsPub.Characters.GraphQL.Resolver.creator_edge(%{creator_id: id}, nil, info)
   # end
+
+  @doc "Returns the canonical url"
+  def canonical_url_edge(%{character: %Character{canonical_url: u}}, _, _), do: {:ok, u}
+
+  @doc "Returns the preferred_username "
+  def preferred_username_edge(%{character: %Character{preferred_username: u}}, _, _), do: {:ok, u}
+
+  @doc "Is this character local to this instance?"
+  def is_local_edge(%{character: %Character{peer_id: id}}, _, _), do: {:ok, is_nil(id)}
+
+  def display_username_edge(obj, _, _) do
+    {:ok, Characters.display_username(obj)}
+  end
 end

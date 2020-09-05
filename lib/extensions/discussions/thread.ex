@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Threads.Thread do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Threads.Thread do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
+  import CommonsPub.Common.Changeset, only: [change_synced_timestamp: 3]
 
   alias Ecto.Changeset
-  alias MoodleNet.Follows.FollowerCount
-  alias MoodleNet.Feeds.Feed
+  alias CommonsPub.Follows.FollowerCount
+  alias CommonsPub.Feeds.Feed
   # alias Pointers.Pointer
-  alias MoodleNet.Threads
-  alias MoodleNet.Threads.{LastComment, Comment, Thread}
-  alias MoodleNet.Users.User
+  alias CommonsPub.Threads
+  alias CommonsPub.Threads.{LastComment, Comment, Thread}
+  alias CommonsPub.Users.User
 
   table_schema "mn_thread" do
     field(:name, :string)

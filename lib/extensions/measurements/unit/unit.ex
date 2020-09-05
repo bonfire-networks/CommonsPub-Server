@@ -1,15 +1,15 @@
 defmodule Measurement.Unit do
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "measurement_unit",
     table_id: "VN1TF0RMEASVRES0RQVANT1T1E"
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  # alias MoodleNet.Actors.Actor
+  # alias CommonsPub.Characters.Character
   alias Pointers.Pointer
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
 
   # alias Measurement.Unit
 

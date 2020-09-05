@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.ContentMirrorQueries do
-  alias MoodleNet.Uploads.ContentMirror
+defmodule CommonsPub.Uploads.ContentMirrorQueries do
+  alias CommonsPub.Uploads.ContentMirror
   import Ecto.Query
 
   def query(ContentMirror), do: from(m in ContentMirror, as: :mirror)

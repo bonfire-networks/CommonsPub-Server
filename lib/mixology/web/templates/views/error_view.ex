@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.ErrorView do
-  use MoodleNetWeb, :view
+defmodule CommonsPub.Web.ErrorView do
+  use CommonsPub.Web, :view
 
   def render("400.json", _assigns) do
     %{error_message: "Bad request", error_code: "bad_request"}
@@ -37,12 +37,12 @@ defmodule MoodleNetWeb.ErrorView do
 
   def render("500.html", _) do
     "Something was wrong"
-    # render(MoodleNetWeb.ErrorView, "internal_server_error.html")
+    # render(CommonsPub.Web.ErrorView, "internal_server_error.html")
   end
 
   def render("404.html", assigns) do
-    assigns = Map.merge(assigns, %{layout: {MoodleNetWeb.LayoutView, "app.html"}})
-    render(MoodleNetWeb.ErrorView, "not_found.html", assigns)
+    assigns = Map.merge(assigns, %{layout: {CommonsPub.Web.LayoutView, "app.html"}})
+    render(CommonsPub.Web.ErrorView, "not_found.html", assigns)
   end
 
   @doc """

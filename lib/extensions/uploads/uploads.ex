@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads do
+defmodule CommonsPub.Uploads do
   alias Ecto.Changeset
-  alias MoodleNet.Repo
-  alias MoodleNet.Users.User
+  alias CommonsPub.Repo
+  alias CommonsPub.Users.User
 
-  alias MoodleNet.Uploads.{
+  alias CommonsPub.Uploads.{
     Content,
     ContentUpload,
     ContentUploadQueries,
@@ -27,7 +27,7 @@ defmodule MoodleNet.Uploads do
   @spec upload(upload_def :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Content.t()} | {:error, Changeset.t()}
   def upload(upload_def, %User{} = uploader, file, attrs) do
-    file = MoodleNetWeb.Helpers.Common.input_to_atoms(file)
+    file = CommonsPub.Utils.Web.CommonHelper.input_to_atoms(file)
 
     with {:ok, file} <- parse_file(file),
          :ok <- allow_media_type(upload_def, file),
@@ -127,7 +127,7 @@ defmodule MoodleNet.Uploads do
   """
   @spec soft_delete(Content.t()) :: {:ok, Content.t()} | {:error, Changeset.t()}
   def soft_delete(%Content{} = content) do
-    MoodleNet.Common.soft_delete(content)
+    CommonsPub.Common.soft_delete(content)
   end
 
   # def soft_delete_by(filters) do
@@ -210,7 +210,7 @@ defmodule MoodleNet.Uploads do
   if Mix.env() == :test do
     # FIXME: seriously don't do this, send help
     defp parse_file(%{url: url} = file) when is_binary(url) do
-      {:ok, file_info} = MoodleNet.MockFileParser.from_uri(url)
+      {:ok, file_info} = CommonsPub.MockFileParser.from_uri(url)
       {:ok, Map.merge(file, file_info)}
     end
   else
@@ -263,13 +263,13 @@ defmodule MoodleNet.Uploads do
   end
 
   def allowed_media_types(upload_def) do
-    Application.get_env(:moodle_net, upload_def)
+    CommonsPub.Config.get(upload_def)
     |> Keyword.fetch!(:allowed_media_types)
   end
 
   def max_file_size() do
     {size, ""} =
-      Application.get_env(:moodle_net, __MODULE__)
+      CommonsPub.Config.get(__MODULE__)
       |> Keyword.fetch!(:max_file_size)
       |> Integer.parse()
 
@@ -277,7 +277,7 @@ defmodule MoodleNet.Uploads do
   end
 
   def base_url() do
-    Application.get_env(:moodle_net, __MODULE__) |> Keyword.fetch!(:uploads_base_url)
+    CommonsPub.Config.get(__MODULE__) |> Keyword.fetch!(:base_url)
   end
 
   def prepend_url(url) do

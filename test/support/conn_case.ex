@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.ConnCase do
+defmodule CommonsPub.Web.ConnCase do
   @moduledoc """
   This case template is for graphql tests. It is a slimmed down
   version of ConnCase.
@@ -12,21 +12,21 @@ defmodule MoodleNetWeb.ConnCase do
     quote do
       import Plug.Conn
       import Phoenix.ConnTest
-      import MoodleNetWeb.ConnCase
-      import MoodleNetWeb.Test.ConnHelpers
-      import MoodleNetWeb.Router.Helpers
+      import CommonsPub.Web.ConnCase
+      import CommonsPub.Web.Test.ConnHelpers
+      import CommonsPub.Web.Router.Helpers
       # The default endpoint for testing
-      @endpoint MoodleNetWeb.Endpoint
+      @endpoint CommonsPub.Web.Endpoint
     end
   end
 
   setup tags do
     Cachex.clear(:ap_actor_cache)
     Cachex.clear(:ap_object_cache)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CommonsPub.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CommonsPub.Repo, {:shared, self()})
     end
 
     {:ok, %{}}

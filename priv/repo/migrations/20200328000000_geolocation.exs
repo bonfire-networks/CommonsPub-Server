@@ -1,8 +1,7 @@
-defmodule MoodleNet.Repo.Migrations.Geolocation do
-    use Ecto.Migration
+defmodule CommonsPub.Repo.Migrations.Geolocation do
+  use Ecto.Migration
 
-    def change do
-        Geolocation.Migrations.change()
-    end
-
+  def change do
+    Geolocation.Migrations.change()
+  end
 end

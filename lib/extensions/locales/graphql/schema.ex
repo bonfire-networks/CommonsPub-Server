@@ -3,7 +3,7 @@ defmodule CommonsPub.Locales.GraphQL.Schema do
   @moduledoc "GraphQL languages and countries"
 
   use Absinthe.Schema.Notation
-  # alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias CommonsPub.Web.GraphQL.{CommonResolver}
   alias CommonsPub.Locales.GraphQL.{Resolver}
 
   object :locales_queries do

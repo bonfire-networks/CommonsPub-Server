@@ -1,5 +1,5 @@
 # this code is taken from absinthe
-defmodule MoodleNetWeb.GraphQL.Phase.Debug do
+defmodule CommonsPub.Web.GraphQL.Phase.Debug do
   @moduledoc false
 
   # Special handling for types that are lying about being scalar
@@ -14,11 +14,10 @@ defmodule MoodleNetWeb.GraphQL.Phase.Debug do
     {:ok, result}
   end
 
-  defp handle_node(%Value{schema_node: %Scalar{identifier: :cursor}}=node) do
+  defp handle_node(%Value{schema_node: %Scalar{identifier: :cursor}} = node) do
     IO.inspect(debug: node)
     node
   end
 
   defp handle_node(node), do: node
-
 end

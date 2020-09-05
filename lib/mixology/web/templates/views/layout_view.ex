@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.LayoutView do
-  use MoodleNetWeb, :view
+defmodule CommonsPub.Web.LayoutView do
+  use CommonsPub.Web, :view
 
-  import MoodleNetWeb.Helpers.Common
+  # import CommonsPub.Utils.Web.CommonHelper
 
-  def app_name(), do: Application.get_env(:moodle_net, :app_name)
+  def app_name(), do: CommonsPub.Config.get(:app_name)
 end

@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Test.ConnHelpers do
+defmodule CommonsPub.Web.Test.ConnHelpers do
   require Phoenix.ConnTest
   alias Phoenix.{ConnTest, Controller}
   alias Plug.{Conn, Session}
-  alias MoodleNet.Access.Token
-  alias MoodleNet.Users.User
+  alias CommonsPub.Access.Token
+  alias CommonsPub.Users.User
   import ExUnit.Assertions
 
-  @endpoint MoodleNetWeb.Endpoint
+  @endpoint CommonsPub.Web.Endpoint
 
   def conn(), do: ConnTest.build_conn()
 
@@ -51,7 +51,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
 
   def plugged(conn) do
     conn
-    |> Conn.put_private(:phoenix_endpoint, MoodleNetWeb.Endpoint)
+    |> Conn.put_private(:phoenix_endpoint, CommonsPub.Web.Endpoint)
     |> Map.put(:secret_key_base, @secret)
     |> Session.call(@signing_opts)
     |> Controller.accepts(["html", "json"])

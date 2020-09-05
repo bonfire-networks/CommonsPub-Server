@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Instance do
+defmodule CommonsPub.Instance do
   @moduledoc "A proxy for everything happening on this instance"
 
   def hostname(config \\ config()) do
@@ -10,12 +10,12 @@ defmodule MoodleNet.Instance do
     Keyword.fetch!(config, :description)
   end
 
-  def base_url(), do: Application.fetch_env!(:moodle_net, :base_url)
+  def base_url(), do: CommonsPub.Config.get!(:base_url)
 
   @doc false
   def default_outbox_query_contexts(config \\ config()) do
     Keyword.fetch!(config, :default_outbox_query_contexts)
   end
 
-  defp config(), do: Application.fetch_env!(:moodle_net, __MODULE__)
+  defp config(), do: CommonsPub.Config.get!(__MODULE__)
 end

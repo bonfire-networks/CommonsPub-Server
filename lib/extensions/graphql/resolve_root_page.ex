@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.ResolveRootPage do
+defmodule CommonsPub.GraphQL.ResolveRootPage do
   @moduledoc """
   Encapsulates the flow of resolving a page in the absence of parents.
   """
@@ -14,9 +14,9 @@ defmodule MoodleNet.GraphQL.ResolveRootPage do
     paging_opts: %{default_limit: 5, max_limit: 15}
   ]
 
-  alias MoodleNet.GraphQL
-  alias MoodleNet.GraphQL.ResolveRootPage
-  alias MoodleNet.GraphQL
+  alias CommonsPub.GraphQL
+  alias CommonsPub.GraphQL.ResolveRootPage
+  alias CommonsPub.GraphQL
 
   def run(%ResolveRootPage{
         module: module,

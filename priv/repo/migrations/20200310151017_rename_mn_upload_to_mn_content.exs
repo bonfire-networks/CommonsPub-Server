@@ -1,7 +1,7 @@
-defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
+defmodule CommonsPub.Repo.Migrations.RenameMnUploadToMnContent do
   use Ecto.Migration
   import Ecto.Query
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
 
   @moduledoc """
   Inverts the relationship between the context used by an upload and the upload itself.

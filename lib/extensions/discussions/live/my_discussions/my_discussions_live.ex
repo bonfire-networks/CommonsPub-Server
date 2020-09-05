@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.My.MyDiscussionsLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MyDiscussionsLive do
+  use CommonsPub.Web, :live_component
 
-  # import MoodleNetWeb.Helpers.Common
+  # import CommonsPub.Utils.Web.CommonHelper
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     DiscussionPreviewLive
   }
 
-  # alias MoodleNetWeb.Helpers.{Profiles}
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
 
   # def mount(socket) do
   #   {
@@ -38,7 +38,7 @@ defmodule MoodleNetWeb.My.MyDiscussionsLive do
     ]
 
     {:ok, threads} =
-      MoodleNetWeb.GraphQL.ThreadsResolver.list_creator_threads(
+      CommonsPub.Web.GraphQL.ThreadsResolver.list_creator_threads(
         page_opts,
         opts,
         filters,
@@ -57,5 +57,5 @@ defmodule MoodleNetWeb.My.MyDiscussionsLive do
   end
 
   # TODO: pagination
-  # def handle_event("load-more", _, socket), do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+  # def handle_event("load-more", _, socket), do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 end

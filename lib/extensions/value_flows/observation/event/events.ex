@@ -1,18 +1,20 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
-  alias MoodleNet.{Activities, Common, Feeds, Repo}
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Users.User
-  alias MoodleNet.Meta.Pointers
+  alias CommonsPub.{Activities, Common, Feeds, Repo}
+  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Feeds.FeedActivities
+  alias CommonsPub.Users.User
+  alias CommonsPub.Meta.Pointers
 
   alias Geolocation.Geolocations
   # alias Measurement.Measure
-  alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.EconomicEvent.Queries
-  alias ValueFlows.Knowledge.Action
+  # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.Action.Actions
+  alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
+  alias ValueFlows.Observation.EconomicEvent
+  alias ValueFlows.Observation.EconomicResource.EconomicResources
+  alias ValueFlows.Observation.EconomicEvent.Queries
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -87,33 +89,36 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   ## mutations
 
-  # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = action, %{id: _id} = context, attrs)
-      when is_map(attrs) do
-    do_create(creator, attrs, fn ->
-      EconomicEvent.create_changeset(creator, action, context, attrs)
-    end)
+  # @spec create(User.t(), event_attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, event_attrs, params \\ []) when is_map(event_attrs) do
+    do_create(
+      creator,
+      fn -> EconomicEvent.create_changeset(creator, event_attrs) end,
+      event_attrs,
+      params
+    )
   end
 
-  # @spec create(User.t(), attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Action{} = action, attrs) when is_map(attrs) do
-    do_create(creator, attrs, fn ->
-      EconomicEvent.create_changeset(creator, action, attrs)
-    end)
+  def do_create(creator, changeset_fn, event_attrs, %{
+        new_inventoried_resource: new_inventoried_resource
+      }) do
+    new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
+
+    with {:ok, resource} <-
+           ValueFlows.Observation.EconomicResource.EconomicResources.create(
+             creator,
+             new_inventoried_resource
+           ) do
+      event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource})
+      do_create(creator, changeset_fn, event_attrs, nil)
+    end
   end
 
-  def do_create(creator, attrs, changeset_fn) do
-    attrs = parse_measurement_attrs(attrs)
-
+  def do_create(creator, changeset_fn, event_attrs, _) do
     Repo.transact_with(fn ->
-      cs =
-        changeset_fn.()
-        |> EconomicEvent.change_measures(attrs)
-
-      with {:ok, cs} <- change_at_location(cs, attrs),
-           {:ok, cs} <- change_agent(cs, attrs),
+      with cs <- prepare_changeset(event_attrs, changeset_fn),
            {:ok, item} <- Repo.insert(cs),
-           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
+           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, event_attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
@@ -125,9 +130,164 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     end)
   end
 
+  # TODO: take the user who is performing the update
+  # @spec update(%EconomicEvent{}, attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
+  def update(%EconomicEvent{} = event, attrs) do
+    do_update(event, attrs, &EconomicEvent.update_changeset(&1, attrs))
+  end
+
+  def do_update(event, attrs, changeset_fn) do
+    Repo.transact_with(fn ->
+      event =
+        Repo.preload(event, [
+          :available_quantity,
+          :resource_quantity,
+          :effort_quantity,
+          :at_location
+        ])
+
+      with cs <- prepare_changeset(attrs, changeset_fn, event),
+           {:ok, event} <- Repo.update(cs),
+           {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
+           :ok <- publish(event, :updated) do
+        {:ok, event}
+      end
+    end)
+  end
+
+  defp prepare_changeset(attrs, changeset_fn, event) do
+    event
+    |> changeset_fn.()
+    |> changeset_relations(attrs)
+  end
+
+  defp prepare_changeset(attrs, changeset_fn) do
+    changeset_fn.()
+    |> changeset_relations(attrs)
+  end
+
+  defp changeset_relations(cs, attrs) do
+    attrs = parse_measurement_attrs(attrs)
+
+    cs
+    |> EconomicEvent.change_measures(attrs)
+    |> change_context(attrs)
+    |> change_provider(attrs)
+    |> change_receiver(attrs)
+    |> change_action(attrs)
+    |> change_at_location(attrs)
+    |> change_conforms_to_resource_spec(attrs)
+    |> change_resource_inventoried_as(attrs)
+    |> change_to_resource_inventoried_as(attrs)
+  end
+
+  defp change_context(changeset, %{in_scope_of: context_ids} = resource_attrs)
+       when is_list(context_ids) do
+    # FIXME: support multiple contexts?
+    context_id = List.first(context_ids)
+
+    change_context(
+      changeset,
+      Map.merge(resource_attrs, %{in_scope_of: context_id})
+    )
+  end
+
+  defp change_context(changeset, %{in_scope_of: id}) do
+    with {:ok, pointer} <- Pointers.one(id: id) do
+      context = Pointers.follow!(pointer)
+      EconomicEvent.change_context(changeset, context)
+    end
+  end
+
+  defp change_context(changeset, _attrs), do: changeset
+
+  defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
+    with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
+      EconomicEvent.change_conforms_to_resource_spec(changeset, item)
+    end
+  end
+
+  defp change_conforms_to_resource_spec(changeset, _attrs), do: changeset
+
+  defp change_resource_inventoried_as(changeset, %{resource_inventoried_as: id})
+       when is_binary(id) do
+    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
+      EconomicEvent.change_resource_inventoried_as(changeset, item)
+    end
+  end
+
+  defp change_resource_inventoried_as(changeset, %{resource_inventoried_as: %{} = resource}) do
+    EconomicEvent.change_resource_inventoried_as(changeset, resource)
+  end
+
+  defp change_resource_inventoried_as(changeset, _attrs), do: changeset
+
+  defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: id}) do
+    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
+      EconomicEvent.change_to_resource_inventoried_as(changeset, item)
+    end
+  end
+
+  defp change_to_resource_inventoried_as(changeset, _attrs), do: changeset
+
+  defp change_provider(changeset, %{provider: provider_id}) do
+    with {:ok, pointer} <- Pointers.one(id: provider_id) do
+      provider = Pointers.follow!(pointer)
+      EconomicEvent.change_provider(changeset, provider)
+    end
+  end
+
+  defp change_provider(changeset, _attrs), do: changeset
+
+  defp change_receiver(changeset, %{receiver: receiver_id}) do
+    with {:ok, pointer} <- Pointers.one(id: receiver_id) do
+      receiver = Pointers.follow!(pointer)
+      EconomicEvent.change_receiver(changeset, receiver)
+    end
+  end
+
+  defp change_receiver(changeset, _attrs), do: changeset
+
+  defp change_action(changeset, %{action: action_id}) do
+    with {:ok, action} <- Actions.action(action_id) do
+      EconomicEvent.change_action(changeset, action)
+    end
+  end
+
+  defp change_action(changeset, _attrs), do: changeset
+
+  defp change_at_location(changeset, %{at_location: id}) do
+    with {:ok, location} <- Geolocations.one([:default, id: id]) do
+      EconomicEvent.change_at_location(changeset, location)
+    end
+  end
+
+  defp change_at_location(changeset, _attrs), do: changeset
+
+  defp parse_measurement_attrs(attrs) do
+    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
+      if is_map(v) and Map.has_key?(v, :has_unit) do
+        v = ValueFlows.Util.map_key_replace(v, :has_unit, :unit_id)
+        # I have no idea why the numerical value isn't auto converted
+        Map.put(acc, k, v)
+      else
+        Map.put(acc, k, v)
+      end
+    end)
+  end
+
+  def soft_delete(%EconomicEvent{} = event) do
+    Repo.transact_with(fn ->
+      with {:ok, event} <- Common.soft_delete(event),
+           :ok <- publish(event, :deleted) do
+        {:ok, event}
+      end
+    end)
+  end
+
   defp publish(creator, event, activity, :created) do
     feeds = [
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -139,7 +299,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp publish(creator, context, event, activity, :created) do
     feeds = [
       context.outbox_id,
-      creator.outbox_id,
+      CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
 
@@ -160,7 +320,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   # FIXME
   defp ap_publish(verb, context_id, user_id) do
-    MoodleNet.Workers.APPublishWorker.enqueue(verb, %{
+    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id
     })
@@ -170,68 +330,21 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp ap_publish(_, _, _), do: :ok
 
-  # TODO: take the user who is performing the update
-  # @spec update(%EconomicEvent{}, attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
-  def update(%EconomicEvent{} = event, attrs) do
-    do_update(event, attrs, &EconomicEvent.update_changeset(&1, attrs))
-  end
-
-  def update(%EconomicEvent{} = event, %{id: _id} = context, attrs) do
-    do_update(event, attrs, &EconomicEvent.update_changeset(&1, context, attrs))
-  end
-
-  def do_update(event, attrs, changeset_fn) do
-    attrs = parse_measurement_attrs(attrs)
-
-    Repo.transact_with(fn ->
-      event =
-        Repo.preload(event, [
-          :available_quantity,
-          :resource_quantity,
-          :effort_quantity,
-          :at_location
-        ])
-
-      cs =
-        event
-        |> changeset_fn.()
-        |> EconomicEvent.change_measures(attrs)
-
-      with {:ok, cs} <- change_at_location(cs, attrs),
-           {:ok, cs} <- change_agent(cs, attrs),
-           {:ok, cs} <- change_action(cs, attrs),
-           {:ok, event} <- Repo.update(cs),
-           {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
-           :ok <- publish(event, :updated) do
-        {:ok, event}
-      end
-    end)
-  end
-
-  def soft_delete(%EconomicEvent{} = event) do
-    Repo.transact_with(fn ->
-      with {:ok, event} <- Common.soft_delete(event),
-           :ok <- publish(event, :deleted) do
-        {:ok, event}
-      end
-    end)
-  end
-
   def indexing_object_format(obj) do
-    # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
-    image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
+    image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
 
     %{
       "index_type" => "EconomicEvent",
       "id" => obj.id,
-      # "canonicalUrl" => obj.actor.canonical_url,
+      # "canonicalUrl" => obj.character.canonical_url,
       # "icon" => icon,
       "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
-      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+      # "index_instance" => URI.parse(obj.character.canonical_url).host, # home instance of object
     }
   end
 
@@ -241,57 +354,5 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     CommonsPub.Search.Indexer.index_object(object)
 
     :ok
-  end
-
-  defp change_agent(changeset, attrs) do
-    with {:ok, changeset} <- change_provider(changeset, attrs) do
-      change_receiver(changeset, attrs)
-    end
-  end
-
-  defp change_provider(changeset, %{provider: provider_id}) do
-    with {:ok, pointer} <- Pointers.one(id: provider_id) do
-      provider = Pointers.follow!(pointer)
-      {:ok, EconomicEvent.change_provider(changeset, provider)}
-    end
-  end
-
-  defp change_provider(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_receiver(changeset, %{receiver: receiver_id}) do
-    with {:ok, pointer} <- Pointers.one(id: receiver_id) do
-      receiver = Pointers.follow!(pointer)
-      {:ok, EconomicEvent.change_receiver(changeset, receiver)}
-    end
-  end
-
-  defp change_receiver(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_action(changeset, %{action: action_id}) do
-    with {:ok, action} <- Actions.action(action_id) do
-      {:ok, EconomicEvent.change_action(changeset, action)}
-    end
-  end
-
-  defp change_action(changeset, _attrs), do: {:ok, changeset}
-
-  defp change_at_location(changeset, %{at_location: id}) do
-    with {:ok, location} <- Geolocations.one([:default, id: id]) do
-      {:ok, EconomicEvent.change_at_location(changeset, location)}
-    end
-  end
-
-  defp change_at_location(changeset, _attrs), do: {:ok, changeset}
-
-  defp parse_measurement_attrs(attrs) do
-    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
-      if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = ValueFlows.Util.map_key_replace(v, :has_unit, :unit_id)
-        # I have no idea why the numerical value isn't auto converted
-        Map.put(acc, k, v)
-      else
-        Map.put(acc, k, v)
-      end
-    end)
   end
 end

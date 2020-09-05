@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.MemberLive.MemberCommunitiesLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MemberLive.MemberCommunitiesLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Helpers.{Communities}
+  alias CommonsPub.Communities.Web.CommunitiesHelper
 
-  alias MoodleNetWeb.Component.CommunityPreviewLive
+  alias CommonsPub.Web.Component.CommunityPreviewLive
 
   def mount(socket) do
     {
@@ -36,7 +36,7 @@ defmodule MoodleNetWeb.MemberLive.MemberCommunitiesLive do
       if(assigns.current_user == assigns.user and assigns.my_communities) do
         assigns.my_communities
       else
-        Communities.user_communities(assigns.user, assigns.current_user)
+        CommunitiesHelper.user_communities(assigns.user, assigns.current_user)
       end
 
     # IO.inspect(communities: communities)
@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.MemberLive.MemberCommunitiesLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

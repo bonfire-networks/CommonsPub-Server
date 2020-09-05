@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommentsResolver do
-  alias MoodleNet.{GraphQL, Repo, Threads}
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Flags.Flag
-  alias MoodleNet.GraphQL.{FetchFields, FetchPage, ResolveFields, ResolvePages}
-  # alias MoodleNet.Meta.Pointers
-  # alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.{Comment, Comments, Thread}
+defmodule CommonsPub.Web.GraphQL.CommentsResolver do
+  alias CommonsPub.{GraphQL, Repo, Threads}
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Flags.Flag
+  alias CommonsPub.GraphQL.{FetchFields, FetchPage, ResolveFields, ResolvePages}
+  # alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Resources.Resource
+  alias CommonsPub.Threads.{Comment, Comments, Thread}
 
   def comment(%{comment_id: id}, %{context: %{current_user: user}}) do
     Comments.one(id: id, user: user)

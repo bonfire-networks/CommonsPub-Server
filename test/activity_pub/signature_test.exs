@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.SignatureTest do
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
 
   import ExUnit.CaptureLog
   import Tesla.Mock
 
   alias ActivityPub.Signature
-  alias MoodleNet.Test.Faking
+  alias CommonsPub.Test.Faking
 
   setup do
     mock(fn env -> apply(HttpRequestMock, :request, [env]) end)
@@ -51,7 +51,7 @@ defmodule ActivityPub.SignatureTest do
   describe "sign/2" do
     test "works" do
       actor = Faking.fake_user!()
-      {:ok, ap_actor} = ActivityPub.Actor.get_by_username(actor.actor.preferred_username)
+      {:ok, ap_actor} = ActivityPub.Actor.get_by_username(actor.character.preferred_username)
 
       _signature =
         Signature.sign(ap_actor, %{

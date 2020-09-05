@@ -1,7 +1,7 @@
 defmodule CommonsPub.Tag.TagThings do
   # import Ecto.Query
   # alias Ecto.Changeset
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Common, GraphQL,
     Repo
   }
@@ -13,7 +13,6 @@ defmodule CommonsPub.Tag.TagThings do
   """
   def thing_attach_tags(user, thing, taggables) when is_list(taggables) do
     thing = thing_to_pointer(thing)
-    # IO.inspect(pre_tags: taggables)
     tags = Enum.map(taggables, &tag_preprocess(user, &1))
     # {:ok, thing |> Map.merge(%{tags: things_add_tags})}
     thing_tags_save(thing, tags)
@@ -51,7 +50,6 @@ defmodule CommonsPub.Tag.TagThings do
     IO.inspect(tag_preprocess: taggable)
 
     with {:ok, tag} <- CommonsPub.Tag.Taggables.maybe_make_taggable(user, taggable) do
-      IO.inspect(taggable)
       # with an object that we have just made taggable
       tag_preprocess(user, tag)
     else
@@ -60,7 +58,7 @@ defmodule CommonsPub.Tag.TagThings do
     end
   end
 
-  defp thing_tags_save(%{} = thing, tags) when is_list(tags) do
+  defp thing_tags_save(%{} = thing, tags) when is_list(tags) and length(tags) > 0 do
     Repo.transact_with(fn ->
       # IO.inspect(tags_save: tags)
       # IO.inspect(thing_save: thing)
@@ -70,12 +68,16 @@ defmodule CommonsPub.Tag.TagThings do
     end)
   end
 
+  defp thing_tags_save(thing, tags) do
+    {:ok, thing}
+  end
+
   @doc """
   Load thing as Pointer
   """
   defp thing_to_pointer(pointer_id) when is_binary(pointer_id) do
-    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
-      # thing = MoodleNet.Meta.Pointers.follow!(pointer)
+    with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id) do
+      # thing = CommonsPub.Meta.Pointers.follow!(pointer)
       pointer
     end
   end
@@ -90,7 +92,7 @@ defmodule CommonsPub.Tag.TagThings do
 
   # def tag_things(user, tag, pointer_ids) when is_list(pointer_ids) do
   #   # requires a list of Pointer IDs
-  #   with {:ok, pointers} <- MoodleNet.Meta.Pointers.many(ids: pointer_ids) do
+  #   with {:ok, pointers} <- CommonsPub.Meta.Pointers.many(ids: pointer_ids) do
   #     tag_pointers(user, tag, pointers)
   #   end
   # end

@@ -1,18 +1,18 @@
 defmodule Geolocation do
   use Pointers.Pointable,
-    otp_app: :moodle_net,
+    otp_app: :commons_pub,
     source: "geolocation",
     table_id: "AP1ACEW1THGE0010CAT10NMARK"
 
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
-  alias MoodleNet.Actors.Actor
+  alias CommonsPub.Users.User
+  alias CommonsPub.Characters.Character
   alias Pointers.Pointer
-  alias MoodleNet.Feeds.Feed
+  alias CommonsPub.Feeds.Feed
 
   @type t :: %__MODULE__{}
 
@@ -34,8 +34,11 @@ defmodule Geolocation do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    belongs_to(:actor, Actor)
+    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
+    # belongs_to(:actor, Character)
+
     belongs_to(:creator, User)
+
     belongs_to(:context, Pointer)
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
@@ -54,7 +57,6 @@ defmodule Geolocation do
   def create_changeset(
         %User{} = creator,
         %{id: _} = context,
-        %Actor{} = actor,
         attrs
       ) do
     %__MODULE__{}
@@ -63,7 +65,6 @@ defmodule Geolocation do
     |> Changeset.change(
       creator_id: creator.id,
       context_id: context.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> common_changeset()
@@ -71,7 +72,6 @@ defmodule Geolocation do
 
   def create_changeset(
         %User{} = creator,
-        %Actor{} = actor,
         attrs
       ) do
     %__MODULE__{}
@@ -79,7 +79,6 @@ defmodule Geolocation do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      actor_id: actor.id,
       is_public: true
     )
     |> common_changeset()

@@ -2,13 +2,10 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   use Absinthe.Schema.Notation
 
-  # default to 100 km radius
-  @radius_default_distance 100_000
-
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     # Communities,
     GraphQL,
@@ -16,7 +13,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     # User
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -27,18 +24,18 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     # CommonResolver
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
+  alias CommonsPub.Meta.Pointers
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
-  alias ValueFlows.Knowledge.Action.Actions
-  # alias MoodleNetWeb.GraphQL.CommonResolver
-  alias MoodleNetWeb.GraphQL.UploadResolver
+  # alias ValueFlows.Knowledge.Action.Actions
+  # alias CommonsPub.Web.GraphQL.CommonResolver
+  alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
@@ -48,27 +45,27 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
   ## resolvers
 
-  def simulate(%{id: id}, _) do
-    {:ok, ValueFlows.Simulate.prospec()}
+  def simulate(%{id: _id}, _) do
+    {:ok, ValueFlows.Simulate.process_spec()}
   end
 
   def simulate(_, _) do
-    {:ok, CommonsPub.Utils.Trendy.some(1..5, &ValueFlows.Simulate.prospec/0)}
+    {:ok, CommonsPub.Utils.Trendy.some(1..5, &ValueFlows.Simulate.process_spec/0)}
   end
 
-  def prospec(%{id: id}, info) do
+  def process_spec(%{id: id}, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
-      fetcher: :fetch_prospec,
+      fetcher: :fetch_process_spec,
       context: id,
       info: info
     })
   end
 
-  def prospecs(page_opts, info) do
+  def process_specs(page_opts, info) do
     ResolveRootPage.run(%ResolveRootPage{
       module: __MODULE__,
-      fetcher: :fetch_prospecs,
+      fetcher: :fetch_process_specs,
       page_opts: page_opts,
       info: info,
       # popularity
@@ -76,133 +73,31 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     })
   end
 
-  def all_prospecs(_, _) do
+  def all_process_specs(_, _) do
     ProcessSpecifications.many()
   end
 
-  def prospecs_filtered(page_opts, _) do
-    IO.inspect(prospecs_filtered: page_opts)
-    prospecs_filter(page_opts, [])
+  def process_specs_filtered(page_opts, _) do
+    IO.inspect(process_specs_filtered: page_opts)
+    process_specs_filter(page_opts, [])
   end
 
-  # def prospecs_filtered(page_opts, _) do
+  # def process_specs_filtered(page_opts, _) do
   #   IO.inspect(unhandled_filtering: page_opts)
-  #   all_prospecs(page_opts, nil)
+  #   all_process_specs(page_opts, nil)
   # end
 
   # TODO: support several filters combined, plus pagination on filtered queries
 
-  defp prospecs_filter(%{agent: id} = page_opts, filters_acc) do
-    prospecs_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
+  defp process_specs_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
+    process_specs_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
   end
 
-  defp prospecs_filter(%{provider: id} = page_opts, filters_acc) do
-    prospecs_filter_next(:provider, [provider_id: id], page_opts, filters_acc)
+  defp process_specs_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
+    process_specs_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
   end
 
-  defp prospecs_filter(%{receiver: id} = page_opts, filters_acc) do
-    prospecs_filter_next(:receiver, [receiver_id: id], page_opts, filters_acc)
-  end
-
-  defp prospecs_filter(%{action: id} = page_opts, filters_acc) do
-    prospecs_filter_next(:action, [action_id: id], page_opts, filters_acc)
-  end
-
-  defp prospecs_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
-    prospecs_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
-  end
-
-  defp prospecs_filter(%{tag_ids: tag_ids} = page_opts, filters_acc) do
-    prospecs_filter_next(:tag_ids, [tag_ids: tag_ids], page_opts, filters_acc)
-  end
-
-  defp prospecs_filter(%{at_location: at_location_id} = page_opts, filters_acc) do
-    prospecs_filter_next(:at_location, [at_location_id: at_location_id], page_opts, filters_acc)
-  end
-
-  defp prospecs_filter(
-         %{
-           geolocation: %{
-             near_point: %{lat: lat, long: long},
-             distance: %{meters: distance_meters}
-           }
-         } = page_opts,
-         filters_acc
-       ) do
-    IO.inspect(geo_with_point: page_opts)
-
-    prospecs_filter_next(
-      :geolocation,
-      {
-        :near_point,
-        %Geo.Point{coordinates: {lat, long}, srid: 4326},
-        :distance_meters,
-        distance_meters
-      },
-      page_opts,
-      filters_acc
-    )
-  end
-
-  defp prospecs_filter(
-         %{
-           geolocation: %{near_address: address} = geolocation
-         } = page_opts,
-         filters_acc
-       ) do
-    IO.inspect(geo_with_address: page_opts)
-
-    with {:ok, coords} <- Geocoder.call(address) do
-      # IO.inspect(coords)
-
-      prospecs_filter(
-        Map.merge(
-          page_opts,
-          %{
-            geolocation:
-              Map.merge(geolocation, %{
-                near_point: %{lat: coords.lat, long: coords.lon},
-                distance: Map.get(geolocation, :distance, %{meters: @radius_default_distance})
-              })
-          }
-        ),
-        filters_acc
-      )
-    else
-      _ ->
-        prospecs_filter_next(
-          :geolocation,
-          [],
-          page_opts,
-          filters_acc
-        )
-    end
-  end
-
-  defp prospecs_filter(
-         %{
-           geolocation: geolocation
-         } = page_opts,
-         filters_acc
-       ) do
-    IO.inspect(geo_without_distance: page_opts)
-
-    prospecs_filter(
-      Map.merge(
-        page_opts,
-        %{
-          geolocation:
-            Map.merge(geolocation, %{
-              # default to 100 km radius
-              distance: %{meters: @radius_default_distance}
-            })
-        }
-      ),
-      filters_acc
-    )
-  end
-
-  defp prospecs_filter(
+  defp process_specs_filter(
          _,
          filters_acc
        ) do
@@ -212,49 +107,27 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     ProcessSpecifications.many(filters_acc)
   end
 
-  defp prospecs_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp process_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    IO.inspect(prospecs_filter_next: param_remove)
-    IO.inspect(prospecs_filter_add: filter_add)
+    IO.inspect(process_specs_filter_next: param_remove)
+    IO.inspect(process_specs_filter_add: filter_add)
 
-    prospecs_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
+    process_specs_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
 
-  defp prospecs_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp process_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when not is_list(filter_add) do
-    prospecs_filter_next(param_remove, [filter_add], page_opts, filters_acc)
+    process_specs_filter_next(param_remove, [filter_add], page_opts, filters_acc)
   end
 
-  defp prospecs_filter_next(param_remove, filter_add, page_opts, filters_acc)
+  defp process_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when not is_list(param_remove) do
-    prospecs_filter_next([param_remove], filter_add, page_opts, filters_acc)
-  end
-
-  def offers(page_opts, info) do
-    ResolveRootPage.run(%ResolveRootPage{
-      module: __MODULE__,
-      fetcher: :fetch_offers,
-      page_opts: page_opts,
-      info: info,
-      # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
-    })
-  end
-
-  def needs(page_opts, info) do
-    ResolveRootPage.run(%ResolveRootPage{
-      module: __MODULE__,
-      fetcher: :fetch_needs,
-      page_opts: page_opts,
-      info: info,
-      # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
-    })
+    process_specs_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
   ## fetchers
 
-  def fetch_prospec(info, id) do
+  def fetch_process_spec(info, id) do
     ProcessSpecifications.one([
       :default,
       user: GraphQL.current_user(info),
@@ -263,18 +136,18 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     ])
   end
 
-  def creator_prospecs_edge(%{creator: creator}, %{} = page_opts, info) do
+  def creator_process_specs_edge(%{creator: creator}, %{} = page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
-      fetcher: :fetch_creator_prospecs_edge,
+      fetcher: :fetch_creator_process_specs_edge,
       context: creator,
       page_opts: page_opts,
       info: info
     })
   end
 
-  def fetch_creator_prospecs_edge(page_opts, info, ids) do
-    list_prospecs(
+  def fetch_creator_process_specs_edge(page_opts, info, ids) do
+    list_process_specs(
       page_opts,
       [
         :default,
@@ -286,7 +159,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     )
   end
 
-  def list_prospecs(page_opts, base_filters, _data_filters, _cursor_type) do
+  def list_process_specs(page_opts, base_filters, _data_filters, _cursor_type) do
     FetchPage.run(%FetchPage{
       queries: Queries,
       query: ProcessSpecification,
@@ -297,7 +170,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     })
   end
 
-  def fetch_prospecs(page_opts, info) do
+  def fetch_process_specs(page_opts, info) do
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Knowledge.ProcessSpecification.Queries,
       query: ValueFlows.Knowledge.ProcessSpecification,
@@ -313,162 +186,104 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     })
   end
 
-  def fetch_offers(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Knowledge.ProcessSpecification.Queries,
-      query: ValueFlows.Knowledge.ProcessSpecification,
-      page_opts: page_opts,
-      base_filters: [
-        [:default, :offer],
-        user: GraphQL.current_user(info)
-      ]
-    })
-  end
-
-  def fetch_needs(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Knowledge.ProcessSpecification.Queries,
-      query: ValueFlows.Knowledge.ProcessSpecification,
-      page_opts: page_opts,
-      base_filters: [
-        [:default, :need],
-        user: GraphQL.current_user(info)
-      ]
-    })
-  end
-
-  def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
-
-  def fetch_provider_edge(_, _, _) do
-    {:ok, nil}
-  end
-
-  def fetch_receiver_edge(%{receiver_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
-
-  def fetch_receiver_edge(_, _, _) do
-    {:ok, nil}
-  end
-
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: [character: [:actor]])
-    urls = Enum.map(thing.tags, & &1.character.actor.canonical_url)
+    thing = Repo.preload(thing, tags: :character)
+    urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
 
-  def create_offer(%{prospec: prospec_attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      create_prospec(
-        %{prospec: Map.put(prospec_attrs, :provider, user.id)},
+  def create_process_spec(
+        %{process_specification: %{in_scope_of: context_ids} = process_spec_attrs},
         info
       )
-    end
-  end
-
-  def create_need(%{prospec: prospec_attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      create_prospec(
-        %{prospec: Map.put(prospec_attrs, :receiver, user.id)},
-        info
-      )
-    end
-  end
-
-  def create_prospec(%{prospec: %{in_scope_of: context_ids} = prospec_attrs}, info)
       when is_list(context_ids) do
     # FIXME: support multiple contexts?
     context_id = List.first(context_ids)
 
-    create_prospec(
-      %{prospec: Map.merge(prospec_attrs, %{in_scope_of: context_id})},
+    create_process_spec(
+      %{process_specification: Map.merge(process_spec_attrs, %{in_scope_of: context_id})},
       info
     )
   end
 
-  def create_prospec(
-        %{prospec: %{in_scope_of: context_id, action: action_id} = prospec_attrs},
+  def create_process_spec(
+        %{process_specification: %{in_scope_of: context_id} = process_spec_attrs},
         info
       )
       when not is_nil(context_id) do
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, action} <- Actions.action(action_id),
            {:ok, pointer} <- Pointers.one(id: context_id),
            context = Pointers.follow!(pointer),
-           {:ok, uploads} <- UploadResolver.upload(user, prospec_attrs, info),
-           prospec_attrs = Map.merge(prospec_attrs, uploads),
-           prospec_attrs = Map.merge(prospec_attrs, %{is_public: true}),
-           {:ok, prospec} <- ProcessSpecifications.create(user, action, context, prospec_attrs) do
-        {:ok, %{prospec: %{prospec | action: action}}}
+           {:ok, uploads} <- UploadResolver.upload(user, process_spec_attrs, info),
+           process_spec_attrs = Map.merge(process_spec_attrs, uploads),
+           process_spec_attrs = Map.merge(process_spec_attrs, %{is_public: true}),
+           {:ok, process_spec} <-
+             ProcessSpecifications.create(user, context, process_spec_attrs) do
+        {:ok, %{process_specification: process_spec}}
       end
     end)
   end
 
   # FIXME: duplication!
-  def create_prospec(%{prospec: %{action: action_id} = prospec_attrs}, info) do
+  def create_process_spec(%{process_specification: process_spec_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, action} <- Actions.action(action_id),
-           {:ok, uploads} <- UploadResolver.upload(user, prospec_attrs, info),
-           prospec_attrs = Map.merge(prospec_attrs, uploads),
-           prospec_attrs = Map.merge(prospec_attrs, %{is_public: true}),
-           {:ok, prospec} <- ProcessSpecifications.create(user, action, prospec_attrs) do
-        {:ok, %{prospec: %{prospec | action: action}}}
+           {:ok, uploads} <- UploadResolver.upload(user, process_spec_attrs, info),
+           process_spec_attrs = Map.merge(process_spec_attrs, uploads),
+           process_spec_attrs = Map.merge(process_spec_attrs, %{is_public: true}),
+           {:ok, process_spec} <- ProcessSpecifications.create(user, process_spec_attrs) do
+        {:ok, %{process_specification: process_spec}}
       end
     end)
   end
 
-  def update_prospec(%{prospec: %{in_scope_of: context_ids} = changes}, info) do
+  def update_process_spec(%{process_specification: %{in_scope_of: context_ids} = changes}, info) do
     context_id = List.first(context_ids)
 
     Repo.transact_with(fn ->
-      do_update(changes, info, fn prospec, changes ->
+      do_update(changes, info, fn process_spec, changes ->
         with {:ok, pointer} <- Pointers.one(id: context_id) do
           context = Pointers.follow!(pointer)
-          ProcessSpecifications.update(prospec, context, changes)
+          ProcessSpecifications.update(process_spec, context, changes)
         end
       end)
     end)
   end
 
-  def update_prospec(%{prospec: changes}, info) do
+  def update_process_spec(%{process_specification: changes}, info) do
     Repo.transact_with(fn ->
-      do_update(changes, info, fn prospec, changes ->
-        ProcessSpecifications.update(prospec, changes)
+      do_update(changes, info, fn process_spec, changes ->
+        ProcessSpecifications.update(process_spec, changes)
       end)
     end)
   end
 
   defp do_update(%{id: id} = changes, info, update_fn) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, prospec} <- prospec(%{id: id}, info),
-         :ok <- ensure_update_permission(user, prospec),
+         {:ok, process_spec} <- process_spec(%{id: id}, info),
+         :ok <- ensure_update_permission(user, process_spec),
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
-         {:ok, prospec} <- update_fn.(prospec, changes) do
-      {:ok, %{prospec: prospec}}
+         {:ok, process_spec} <- update_fn.(process_spec, changes) do
+      {:ok, %{process_specification: process_spec}}
     end
   end
 
-  def delete_prospec(%{id: id}, info) do
+  def delete_process_spec(%{id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, prospec} <- prospec(%{id: id}, info),
-           :ok <- ensure_update_permission(user, prospec),
-           {:ok, _} <- ProcessSpecifications.soft_delete(prospec) do
+           {:ok, process_spec} <- process_spec(%{id: id}, info),
+           :ok <- ensure_update_permission(user, process_spec),
+           {:ok, _} <- ProcessSpecifications.soft_delete(process_spec) do
         {:ok, true}
       end
     end)
   end
 
-  def ensure_update_permission(user, prospec) do
-    if user.local_user.is_instance_admin or prospec.creator_id == user.id do
+  def ensure_update_permission(user, process_spec) do
+    if user.local_user.is_instance_admin or process_spec.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")
@@ -485,6 +300,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
   # defp valid_contexts() do
   #   [User, Community, Organisation]
-  #   # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  #   # Keyword.fetch!(CommonsPub.Config.get(Threads), :valid_contexts)
   # end
 end

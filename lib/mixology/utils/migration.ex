@@ -1,8 +1,8 @@
 # # SPDX-License-Identifier: AGPL-3.0-only
-# defmodule MoodleNet.Meta.Migration do
+# defmodule CommonsPub.Meta.Migration do
 #   import Ecto.Migration
 #   import Ecto.Query, only: [from: 2]
-#   alias MoodleNet.Meta.Table
+#   alias CommonsPub.Meta.Table
 
 #   @moduledoc """
 #   Helpers for doing migrations to Meta related tables.
@@ -57,7 +57,7 @@
 #   @spec remove_meta_table(atom()) :: integer()
 #   def remove_meta_table(table) do
 #     {rows_deleted, _} =
-#       from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> repo().delete_all
+#       from(x in CommonsPub.Meta.Table, where: x.table == ^table) |> repo().delete_all
 
 #     rows_deleted
 #   end

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.AuthPayload do
+defmodule CommonsPub.Users.AuthPayload do
   @enforce_keys [:token, :me]
   defstruct @enforce_keys
 

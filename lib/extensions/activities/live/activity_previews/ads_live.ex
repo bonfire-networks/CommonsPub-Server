@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.Component.AdsPreviewLive do
+defmodule CommonsPub.Web.Component.AdsPreviewLive do
   use Phoenix.LiveComponent
-  import MoodleNetWeb.Helpers.Common
-  # import MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Utils.Web.CommonHelper
+  # import CommonsPub.Profiles.Web.ProfilesHelper
   # def mount(_, _session, socket) do
   #   {:ok, assign(socket, current_user: socket.assigns.current_user)}
   # end
 
   def update(assigns, socket) do
-    ads = MoodleNetWeb.Helpers.Profiles.prepare(assigns.ads, %{image: true})
+    ads = CommonsPub.Profiles.Web.ProfilesHelper.prepare(assigns.ads, %{image: true})
 
     {:ok,
      socket
@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.Component.AdsPreviewLive do
   def render(assigns) do
     ~L"""
     <%=
-      live_redirect to: "/!"<> e(@ads, :actor, :preferred_username, "deleted") do %>
+      live_redirect to: "/!"<> e(@ads, :character, :preferred_username, "deleted") do %>
       <div class="ads__preview">
         <div class="preview__image" style="background-image: url(e(@ads, :image, ""))"></div>
         <div class="preview__info">

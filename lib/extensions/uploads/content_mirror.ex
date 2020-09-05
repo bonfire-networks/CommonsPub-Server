@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.ContentMirror do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Uploads.ContentMirror do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [validate_http_url: 2]
+  import CommonsPub.Common.Changeset, only: [validate_http_url: 2]
   alias Ecto.Changeset
 
   @type t :: %__MODULE__{}

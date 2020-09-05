@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.VF.Intent do
+defmodule CommonsPub.Repo.Migrations.VF.Intent do
   use Ecto.Migration
 
   def up do

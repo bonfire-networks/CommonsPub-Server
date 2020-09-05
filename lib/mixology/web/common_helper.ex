@@ -1,14 +1,11 @@
-defmodule MoodleNetWeb.Helpers.Common do
+defmodule CommonsPub.Utils.Web.CommonHelper do
   import Phoenix.LiveView
   require Logger
 
-  alias MoodleNetWeb.Helpers.{
-    # Profiles,
-    Account,
-    Communities
-  }
+  alias CommonsPub.Users.Web.AccountHelper
+  alias CommonsPub.Communities.Web.CommunitiesHelper
 
-  alias MoodleNetWeb.GraphQL.LikesResolver
+  alias CommonsPub.Web.GraphQL.LikesResolver
 
   def strlen(x) when is_nil(x), do: 0
   def strlen(%{} = obj) when obj == %{}, do: 0
@@ -30,8 +27,6 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   @doc "Returns a value from a map, or a fallback if not present"
   def e(map, key, fallback) do
-    # IO.inspect(e: map)
-
     if(is_map(map)) do
       # attempt using key as atom or string
       map_get(map, key, fallback)
@@ -68,13 +63,12 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def map_get(%Ecto.Association.NotLoaded{} = map, key, fallback) when is_atom(key) do
-    IO.inspect("ERROR: cannot get key `#{key}` from an unloaded map:")
-    IO.inspect(map)
+    Logger.error("Cannot get key `#{key}` from an unloaded map: #{inspect(map)}")
     fallback
   end
 
   def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) do
-    IO.inspect("WARNING: cannot get from an unloaded key, trying to preload...")
+    Logger.warn("Cannot get from an unloaded key, trying to preload...")
     map_get(map, maybe_preload(map, key), fallback)
   end
 
@@ -167,28 +161,16 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   defp maybe_do_preload(obj, preloads) when is_struct(obj) do
-    # IO.inspect(maybe_preload_obj: obj)
-    # IO.inspect(maybe_preload_preloads: preloads)
-    MoodleNet.Repo.preload(obj, preloads)
+    CommonsPub.Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
-      IO.inspect(arg_error_preload: preloads)
-      # IO.inspect(from_maybe_preload: obj)
       obj
 
     MatchError ->
-      IO.inspect(match_error_preload: preloads)
-      # IO.inspect(from_maybe_preload: obj)
       obj
-
-      # Protocol.UndefinedError ->
-      #   IO.inspect(protocol_undefined_error_preload: preloads)
-      #   IO.inspect(from_maybe_preload: obj)
-      #   obj
   end
 
   defp maybe_do_preload(obj, _) do
-    # IO.inspect(cannot_preload_non_struct: preloads)
     obj
   end
 
@@ -211,7 +193,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:csrf_token, fn -> csrf_token end)
     |> assign(:static_changed, static_changed?(socket))
     |> assign(:search, "")
-    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
+    |> assign(:app_name, CommonsPub.Config.get(:app_name))
   end
 
   def init_assigns(
@@ -224,18 +206,16 @@ defmodule MoodleNetWeb.Helpers.Common do
       ) do
     # Logger.info(session_load: session)
 
-    current_user = Account.current_user(session["auth_token"])
-
-    # IO.inspect(session_loaded_user: current_user)
+    current_user = AccountHelper.current_user(session["auth_token"])
 
     communities_follows =
       if(current_user) do
-        Communities.user_communities_follows(current_user, current_user)
+        CommunitiesHelper.user_communities_follows(current_user, current_user)
       end
 
     my_communities =
       if(communities_follows) do
-        Communities.user_communities(current_user, current_user)
+        CommunitiesHelper.user_communities(current_user, current_user)
       end
 
     socket
@@ -246,6 +226,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:toggle_post, false)
     |> assign(:toggle_community, false)
     |> assign(:toggle_collection, false)
+    |> assign(:toggle_category, false)
     |> assign(:toggle_link, false)
     |> assign(:toggle_ad, false)
     |> assign(:current_context, nil)
@@ -253,7 +234,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:my_communities, my_communities)
     |> assign(:my_communities_page_info, communities_follows.page_info)
     |> assign(:search, "")
-    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
+    |> assign(:app_name, CommonsPub.Config.get(:app_name))
   end
 
   def init_assigns(
@@ -268,7 +249,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:static_changed, static_changed?(socket))
     |> assign(:current_user, nil)
     |> assign(:search, "")
-    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
+    |> assign(:app_name, CommonsPub.Config.get(:app_name))
   end
 
   def init_assigns(_params, _session, %Phoenix.LiveView.Socket{} = socket) do
@@ -276,7 +257,7 @@ defmodule MoodleNetWeb.Helpers.Common do
     |> assign(:current_user, nil)
     |> assign(:search, "")
     |> assign(:static_changed, static_changed?(socket))
-    |> assign(:app_name, Application.get_env(:moodle_net, :app_name))
+    |> assign(:app_name, CommonsPub.Config.get(:app_name))
   end
 
   @doc """
@@ -286,11 +267,15 @@ defmodule MoodleNetWeb.Helpers.Common do
     Enum.each(ids, &pubsub_subscribe(&1, socket))
   end
 
-  def pubsub_subscribe(id, socket) do
+  def pubsub_subscribe(id, socket) when not is_nil(id) do
     IO.inspect(pubsubscribed: id)
 
     if Phoenix.LiveView.connected?(socket),
       do: Phoenix.PubSub.subscribe(CommonsPub.PubSub, id)
+  end
+
+  def pubsub_subscribe(_, _) do
+    false
   end
 
   def paginate_next(fetch_function, %{assigns: assigns} = socket) do
@@ -299,14 +284,14 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def contexts_fetch!(ids) do
     with {:ok, ptrs} <-
-           MoodleNet.Meta.Pointers.many(id: List.flatten(ids)) do
-      MoodleNet.Meta.Pointers.follow!(ptrs)
+           CommonsPub.Meta.Pointers.many(id: List.flatten(ids)) do
+      CommonsPub.Meta.Pointers.follow!(ptrs)
     end
   end
 
   def context_fetch(id) do
-    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
-      MoodleNet.Meta.Pointers.follow!(pointer)
+    with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
+      CommonsPub.Meta.Pointers.follow!(pointer)
     end
   end
 
@@ -332,7 +317,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   defp context_follow(%{context: %Pointers.Pointer{} = pointer} = thing) do
-    context = MoodleNet.Meta.Pointers.follow!(pointer)
+    context = CommonsPub.Meta.Pointers.follow!(pointer)
 
     add_context_type(
       thing
@@ -350,7 +335,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   defp context_follow(%{context_id: context_id} = thing) do
-    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: context_id)
+    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id)
 
     context_follow(
       thing
@@ -434,7 +419,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
       if(!is_nil(img)) do
         # use uploaded image
-        MoodleNet.Uploads.prepend_url(img)
+        CommonsPub.Uploads.prepend_url(img)
       else
         # otherwise try external image
         # img = maybe_preload(Map.get(parent, field_name), :content_mirror)
@@ -453,7 +438,7 @@ defmodule MoodleNetWeb.Helpers.Common do
   end
 
   def image_gravatar(seed, style, size) do
-    MoodleNet.Users.Gravatar.url(to_string(seed), style, size)
+    CommonsPub.Users.Gravatar.url(to_string(seed), style, size)
   end
 
   def content_url(parent) do
@@ -466,7 +451,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
     if(!is_nil(url)) do
       # use uploaded file
-      MoodleNet.Uploads.prepend_url(url)
+      CommonsPub.Uploads.prepend_url(url)
     else
       # otherwise try external link
       # img = Repo.preload(Map.get(parent, field_name), :content_mirror)
@@ -510,18 +495,32 @@ defmodule MoodleNetWeb.Helpers.Common do
     false
   end
 
-  def object_url(%MoodleNet.Communities.Community{
-        actor: %{preferred_username: preferred_username}
+  def object_url(%CommonsPub.Communities.Community{
+        character: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/&" <> preferred_username
   end
 
-  def object_url(%MoodleNet.Users.User{
-        actor: %{preferred_username: preferred_username}
+  def object_url(%CommonsPub.Users.User{
+        character: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
     "/@" <> preferred_username
+  end
+
+  def object_url(%CommonsPub.Collections.Collection{
+        character: %{preferred_username: preferred_username}
+      })
+      when not is_nil(preferred_username) do
+    "/+" <> preferred_username
+  end
+
+  def object_url(%CommonsPub.Resources.Resource{
+        id: id
+      })
+      when not is_nil(id) do
+    "/+++" <> id
   end
 
   def object_url(%CommonsPub.Tag.Category{
@@ -531,11 +530,25 @@ defmodule MoodleNetWeb.Helpers.Common do
     "/++" <> id
   end
 
+  def object_url(%Geolocation{
+        id: id
+      })
+      when not is_nil(id) do
+    "/@@" <> id
+  end
+
+  def object_url(%ValueFlows.Planning.Intent{
+        id: id
+      })
+      when not is_nil(id) do
+    "/+++" <> id
+  end
+
   def object_url(%{
-        actor: %{preferred_username: preferred_username}
+        character: %{preferred_username: preferred_username}
       })
       when not is_nil(preferred_username) do
-    "/+" <> preferred_username
+    "/+++" <> preferred_username
   end
 
   def object_url(%{thread_id: thread_id, id: comment_id, reply_to_id: is_reply})
@@ -551,19 +564,19 @@ defmodule MoodleNetWeb.Helpers.Common do
     canonical_url
   end
 
-  def object_url(%{actor: %{canonical_url: canonical_url}})
+  def object_url(%{character: %{canonical_url: canonical_url}})
       when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def object_url(%{__struct__: module_name} = _activity) do
+  def object_url(%{__struct__: module_name} = activity) do
     IO.inspect(unsupported_by_activity_url: module_name)
-    "#unsupported_by_activity_url/" <> to_string(module_name)
+    "/+++" <> Map.get(activity, :id) <> "#unsupported_by_activity_url/" <> to_string(module_name)
   end
 
   def object_url(activity) do
     IO.inspect(unsupported_by_activity_url: activity)
-    "#unsupported_by_activity_url"
+    "/+++" <> Map.get(activity, :id) <> "#unsupported_by_activity_url"
   end
 
   def e_actor_field(obj, field, fallback) do
@@ -572,20 +585,9 @@ defmodule MoodleNetWeb.Helpers.Common do
       field,
       e(
         obj,
-        :actor,
+        :character,
         field,
-        e(
-          obj,
-          :character,
-          field,
-          e(
-            obj,
-            :character,
-            :actor,
-            field,
-            fallback
-          )
-        )
+        fallback
       )
     )
   end

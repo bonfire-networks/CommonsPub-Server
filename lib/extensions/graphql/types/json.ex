@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.JSON do
+defmodule CommonsPub.Web.GraphQL.JSON do
   @moduledoc """
   The Json scalar type allows arbitrary JSON values to be passed in and out.
   Requires `{ :jason, "~> 1.1" }` package: https://github.com/michalmuskala/jason
@@ -21,16 +21,12 @@ defmodule MoodleNetWeb.GraphQL.JSON do
   defp decode(_), do: {:error, :bad_input_type}
 
   defp encode(%Geo.Point{} = geo) do
-    # IO.inspect(geo)
-
     with {:ok, geo_json} <- Geo.JSON.encode(geo) do
       geo_json
     end
   end
 
   defp encode(value) when is_struct(value) do
-    # IO.inspect(value)
-    # Map.from_struct(value)
     value
   end
 

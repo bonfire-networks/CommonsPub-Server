@@ -1,12 +1,8 @@
-defmodule MoodleNetWeb.My.TimelineLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MyTimelineLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     ActivitiesListLive
-  }
-
-  alias MoodleNetWeb.GraphQL.{
-    UsersResolver
   }
 
   # def mount(socket) do
@@ -24,7 +20,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
   Handle pushed activities from PubSub
   """
   def update(%{activity: activity}, socket),
-    do: MoodleNetWeb.Helpers.Activites.pubsub_receive(activity, socket)
+    do: CommonsPub.Activities.Web.ActivitiesHelper.pubsub_receive(activity, socket)
 
   def update(assigns, socket) do
     {
@@ -40,14 +36,14 @@ defmodule MoodleNetWeb.My.TimelineLive do
   """
   def fetch(socket, assigns),
     do:
-      MoodleNetWeb.Helpers.Activites.inbox_live(
+      CommonsPub.Activities.Web.ActivitiesHelper.inbox_live(
         assigns.current_user,
         assigns,
         socket
       )
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Test.GraphQLAssertions do
-  alias MoodleNetWeb.Test.ConnHelpers
-  alias MoodleNet.Activities.Activity
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  # alias MoodleNet.Blocks.Block
-  alias MoodleNet.Features.Feature
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.{Comment, Thread}
-  alias MoodleNet.Users.User
+defmodule CommonsPub.Web.Test.GraphQLAssertions do
+  alias CommonsPub.Web.Test.ConnHelpers
+  alias CommonsPub.Activities.Activity
+  alias CommonsPub.Collections.Collection
+  alias CommonsPub.Communities.Community
+  # alias CommonsPub.Blocks.Block
+  alias CommonsPub.Features.Feature
+  alias CommonsPub.Flags.Flag
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Likes.Like
+  alias CommonsPub.Resources.Resource
+  alias CommonsPub.Threads.{Comment, Thread}
+  alias CommonsPub.Users.User
 
   alias Ecto.ULID
   import ExUnit.Assertions
@@ -411,7 +411,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   end
 
   def assert_users_eq(%User{} = user, %{} = user2) do
-    assert_maps_eq(user.actor, user2, :assert_user, [:canonical_url, :preferred_username])
+    assert_maps_eq(user.character, user2, :assert_user, [:canonical_url, :preferred_username])
     assert_maps_eq(user, user2, :assert_user, [:id, :name, :summary, :location, :website])
     assert_created_at(user, user2)
     assert_updated_at(user, user2)
@@ -490,11 +490,12 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   end
 
   def assert_communities_eq(%Community{} = comm, %{} = comm2) do
-    assert_maps_eq(comm.actor, comm2, :assert_community, [:canonical_url, :preferred_username])
+    assert_maps_eq(comm.character, comm2, :assert_community, [:canonical_url, :preferred_username])
+
     assert_maps_eq(comm, comm2, :assert_community, [:id, :name, :summary])
     assert comm2.is_public == not is_nil(comm.published_at)
     assert comm2.is_disabled == not is_nil(comm.disabled_at)
-    assert comm2.is_local == is_nil(comm.actor.peer_id)
+    assert comm2.is_local == is_nil(comm.character.peer_id)
     comm2
   end
 
@@ -567,7 +568,11 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   end
 
   def assert_collections_eq(%Collection{} = coll, %{} = coll2) do
-    assert_maps_eq(coll.actor, coll2, :assert_collection, [:canonical_url, :preferred_username])
+    assert_maps_eq(coll.character, coll2, :assert_collection, [
+      :canonical_url,
+      :preferred_username
+    ])
+
     assert_maps_eq(coll, coll2, :assert_collection, [:id, :name, :summary])
     # follower_count
     [:liker_count, :resource_count]

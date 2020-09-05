@@ -14,9 +14,11 @@ defmodule CommonsPub.Locales.Country.Service do
   supervision hierarchy neatly.
   """
 
+  require Logger
+
   alias CommonsPub.Locales.{Country}
 
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
   import Ecto.Query, only: [select: 3]
 
   use GenServer
@@ -85,8 +87,7 @@ defmodule CommonsPub.Locales.Country.Service do
       {:ok, []}
     rescue
       e ->
-        IO.inspect("INFO: TableService could not init because:")
-        IO.inspect(e)
+        Logger.info("TableService could not init because: #{inspect(e)}")
         {:ok, []}
     end
   end

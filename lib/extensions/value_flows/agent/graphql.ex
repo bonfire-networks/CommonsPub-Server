@@ -2,7 +2,7 @@
 defmodule ValueFlows.Agent.GraphQL do
   use Absinthe.Schema.Notation
 
-  # alias MoodleNetWeb.GraphQL.{CommonResolver}
+  # alias CommonsPub.Web.GraphQL.{CommonResolver}
 
   # alias CommonsPub.Utils.Simulation
   # alias ValueFlows.Simulate
@@ -24,7 +24,7 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # with pagination
   def people(page_opts, info) do
-    {:ok, users_pages} = MoodleNetWeb.GraphQL.UsersResolver.users(page_opts, info)
+    {:ok, users_pages} = CommonsPub.Web.GraphQL.UsersResolver.users(page_opts, info)
 
     people =
       Enum.map(
@@ -44,11 +44,11 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # TODO: pagination
   def all_people(%{}, info) do
-    {:ok, ValueFlows.Agent.People.people(MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.People.people(CommonsPub.GraphQL.current_user(info))}
   end
 
   def person(%{id: id}, info) do
-    {:ok, ValueFlows.Agent.People.person(id, MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.People.person(id, CommonsPub.GraphQL.current_user(info))}
   end
 
   # with pagination
@@ -73,22 +73,22 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # without pagination
   def all_organizations(%{}, info) do
-    {:ok, ValueFlows.Agent.Organizations.organizations(MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.Organizations.organizations(CommonsPub.GraphQL.current_user(info))}
   end
 
   def organization(%{id: id}, info) do
     {:ok,
      ValueFlows.Agent.Organizations.organization(
        id,
-       MoodleNet.GraphQL.current_user(info)
+       CommonsPub.GraphQL.current_user(info)
      )}
   end
 
   def all_agents(%{}, info) do
-    {:ok, ValueFlows.Agent.Agents.agents(MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.Agents.agents(CommonsPub.GraphQL.current_user(info))}
   end
 
   def agent(%{id: id}, info) do
-    {:ok, ValueFlows.Agent.Agents.agent(id, MoodleNet.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.Agents.agent(id, CommonsPub.GraphQL.current_user(info))}
   end
 end

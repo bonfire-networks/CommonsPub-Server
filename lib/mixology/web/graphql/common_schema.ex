@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommonSchema do
+defmodule CommonsPub.Web.GraphQL.CommonSchema do
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.CommonResolver
+  alias CommonsPub.Web.GraphQL.CommonResolver
 
   object :common_queries do
   end

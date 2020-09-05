@@ -1,19 +1,17 @@
-defmodule MoodleNetWeb.Helpers.Communities do
-  # alias MoodleNet.{
+defmodule CommonsPub.Communities.Web.CommunitiesHelper do
+  # alias CommonsPub.{
   #   Repo
   # }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     UsersResolver,
     CommunitiesResolver
   }
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.Profiles
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
   def community_load(_socket, page_params, preload) do
-    # IO.inspect(socket)
-
     username = e(page_params, "username", nil)
 
     {:ok, community} =
@@ -23,7 +21,7 @@ defmodule MoodleNetWeb.Helpers.Communities do
         {:ok, %{}}
       end
 
-    Profiles.prepare(community, preload, 150)
+    ProfilesHelper.prepare(community, preload, 150)
   end
 
   def user_communities(for_user, current_user) do
@@ -54,28 +52,21 @@ defmodule MoodleNetWeb.Helpers.Communities do
         %{context: %{current_user: current_user}}
       )
 
-    # IO.inspect(my_follows: follows)
-
     follows
   end
 
   def communities_from_follows(%{edges: edges}) when length(edges) > 0 do
     # FIXME: communities should be joined to edges rather than queried seperately
 
-    # IO.inspect(communities_from_follows: edges)
     ids = Enum.map(edges, & &1.context_id)
 
-    # IO.inspect(ids: ids)
-
     communities = contexts_fetch!(ids)
-
-    # IO.inspect(communities: communities)
 
     communities =
       if(communities) do
         Enum.map(
           communities,
-          &Profiles.prepare(&1, %{icon: true, image: true, actor: true})
+          &ProfilesHelper.prepare(&1, %{icon: true, image: true, character: true})
         )
       end
 

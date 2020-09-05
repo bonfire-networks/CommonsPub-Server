@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Taggable do
-  use MoodleNet.Common.Schema
+  use CommonsPub.Common.Schema
 
   use Pointers.Mixin,
     otp_app: :my_app,
     source: "taggable"
 
   # use Pointers.Pointable,
-  #   otp_app: :moodle_net,
+  #   otp_app: :commons_pub,
   #   source: "tags",
   #   table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Taggable
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   @type t :: %__MODULE__{}
   @required ~w(id prefix facet)a
@@ -31,9 +31,9 @@ defmodule CommonsPub.Tag.Taggable do
     # Optionally, a profile and character (if not using context)
     has_one(:category, CommonsPub.Tag.Category, references: :id, foreign_key: :id)
     ## stores common fields like name/description
-    has_one(:profile, CommonsPub.Profile, references: :id, foreign_key: :id)
+    has_one(:profile, CommonsPub.Profiles.Profile, references: :id, foreign_key: :id)
     ## allows it to be follow-able and federate activities
-    has_one(:character, CommonsPub.Character, references: :id, foreign_key: :id)
+    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
 
     many_to_many(:things, Pointers.Pointer,
       join_through: "tags_things",

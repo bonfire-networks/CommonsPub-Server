@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.Middleware.CollapseErrors do
+defmodule CommonsPub.Web.GraphQL.Middleware.CollapseErrors do
   @behaviour Absinthe.Middleware
 
   alias AbsintheErrorPayload.ChangesetParser

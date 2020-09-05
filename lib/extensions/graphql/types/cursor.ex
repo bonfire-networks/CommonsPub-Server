@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.Cursor do
+defmodule CommonsPub.Web.GraphQL.Cursor do
   defstruct data: nil, normalized: nil, raw: nil, errors: [], flags: %{}
 
   use Absinthe.Schema.Notation

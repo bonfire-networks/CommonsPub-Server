@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.TableService do
+defmodule CommonsPub.Meta.TableService do
   @moduledoc """
   An ets-based cache that allows lookup up Table objects by:
 
@@ -18,11 +18,13 @@ defmodule MoodleNet.Meta.TableService do
   supervision hierarchy neatly...
   """
 
-  alias MoodleNet.Meta.{Introspection, TableNotFoundError}
+  require Logger
+
+  alias CommonsPub.Meta.{Introspection, TableNotFoundError}
 
   alias Pointers.Table
 
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   use GenServer
 
@@ -127,8 +129,7 @@ defmodule MoodleNet.Meta.TableService do
       {:ok, []}
     rescue
       e ->
-        IO.inspect("INFO: TableService could not init because:")
-        IO.inspect(e)
+        Logger.info("TableService could not init because: #{inspect(e)}")
         {:ok, []}
     end
   end

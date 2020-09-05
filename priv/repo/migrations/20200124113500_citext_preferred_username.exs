@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Repo.Migrations.CiTextPreferredUsername do
+defmodule CommonsPub.Repo.Migrations.CiTextPreferredUsername do
   use Ecto.Migration
 
   def up do

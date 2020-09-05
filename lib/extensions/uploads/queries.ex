@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.Queries do
+defmodule CommonsPub.Uploads.Queries do
   import Ecto.Query
 
-  alias MoodleNet.Uploads.Content
+  alias CommonsPub.Uploads.Content
 
   def query(Content) do
     from(c in Content,

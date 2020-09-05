@@ -2,9 +2,9 @@
 defmodule ValueFlows.Planning.Intent.Queries do
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intents
-  alias MoodleNet.Follows.{Follow}
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.Follows.{Follow}
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
 
@@ -314,5 +314,5 @@ defmodule ValueFlows.Planning.Intent.Queries do
   #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
   # end
 
-  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+  # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 end

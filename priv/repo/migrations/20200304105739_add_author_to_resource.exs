@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AddAuthorToResource do
+defmodule CommonsPub.Repo.Migrations.AddAuthorToResource do
   use Ecto.Migration
 
   def change do

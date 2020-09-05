@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.MockFileParser do
+defmodule CommonsPub.MockFileParser do
   def from_uri(uri) do
     {:ok, %{media_type: ext_media_type(Path.extname(uri))}}
   end

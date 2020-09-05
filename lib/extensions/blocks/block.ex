@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Blocks.Block do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Blocks.Block do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset,
+  import CommonsPub.Common.Changeset,
     only: [change_public: 1, change_synced_timestamp: 3, change_muted: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Blocks
-  alias MoodleNet.Blocks.Block
+  alias CommonsPub.Blocks
+  alias CommonsPub.Blocks.Block
   alias Pointers.Pointer
-  alias MoodleNet.Users.User
+  alias CommonsPub.Users.User
 
   @type t :: %Block{}
 

@@ -1,25 +1,25 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Character.Queries do
-  # alias MoodleNet.Users
-  # alias CommonsPub.Character
-  alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+defmodule CommonsPub.Characters.Queries do
+  # alias CommonsPub.Users
+  # alias CommonsPub.Characters.Character
+  alias CommonsPub.Follows.{Follow, FollowerCount}
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  def query(CommonsPub.Character) do
-    from(c in CommonsPub.Character,
-      as: :character,
-      join: a in assoc(c, :actor),
-      as: :actor,
-      select_merge: %{preferred_username: a.preferred_username},
-      select_merge: %{canonical_url: a.canonical_url},
-      select_merge: %{signing_key: a.signing_key}
+  def query(CommonsPub.Characters.Character) do
+    from(c in CommonsPub.Characters.Character,
+      as: :character
+      # join: a in assoc(c, :actor),
+      # as: :actor,
+      # select_merge: %{preferred_username: a.preferred_username},
+      # select_merge: %{canonical_url: a.canonical_url},
+      # select_merge: %{signing_key: a.signing_key}
     )
   end
 
   def query(:count) do
-    from(c in CommonsPub.Character, as: :character)
+    from(c in CommonsPub.Characters.Character, as: :character)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -73,7 +73,7 @@ defmodule CommonsPub.Character.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter(q, [:deleted, preload: :actor])
+    filter(q, [:deleted])
   end
 
   ## by join
@@ -146,11 +146,11 @@ defmodule CommonsPub.Character.Queries do
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where(q, [actor: a], a.preferred_username == ^username)
+    where(q, [character: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where(q, [actor: a], a.preferred_username in ^usernames)
+    where(q, [character: a], a.preferred_username in ^usernames)
   end
 
   ## by ordering
@@ -180,9 +180,9 @@ defmodule CommonsPub.Character.Queries do
     select(q, [character: c], {field(c, ^key), count(c.id)})
   end
 
-  def filter(q, {:preload, :actor}) do
-    preload(q, [actor: a], actor: a)
-  end
+  # def filter(q, {:preload, :actor}) do
+  #   preload(q, [actor: a], actor: a)
+  # end
 
   def filter(q, {:preload, :context}) do
     preload(q, [context: c], context: c)
@@ -217,10 +217,15 @@ defmodule CommonsPub.Character.Queries do
     |> filter(join: :follower_count, order: [desc: :followers])
     |> page(page_opts, desc: :followers)
     |> select(
-      [character: c, actor: a, follower_count: fc],
-      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+      [character: c, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0)}
     )
   end
+
+  def filter(q, {:peer, nil}), do: where(q, [character: a], is_nil(a.peer_id))
+  def filter(q, {:peer, :not_nil}), do: where(q, [character: a], not is_nil(a.peer_id))
+  def filter(q, {:peer, id}) when is_binary(id), do: where(q, [character: a], a.peer_id == ^id)
+  def filter(q, {:peer, ids}) when is_list(ids), do: where(q, [character: a], a.peer_id in ^ids)
 
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
     filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)

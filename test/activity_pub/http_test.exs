@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.HTTPTest do
-  use MoodleNet.DataCase
+  use CommonsPub.DataCase
   import Tesla.Mock
 
   setup do

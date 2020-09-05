@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.Page.Category do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.Page.Category do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
-  alias MoodleNetWeb.Page.Category.SubcategoriesLive
-  alias MoodleNetWeb.CommunityLive.CommunityCollectionsLive
-  alias MoodleNetWeb.CollectionLive.CollectionResourcesLive
+  alias CommonsPub.Web.Page.Category.SubcategoriesLive
+  alias CommonsPub.Web.CommunityLive.CommunityCollectionsLive
+  alias CommonsPub.Web.CollectionLive.CollectionResourcesLive
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
@@ -31,10 +31,7 @@ defmodule MoodleNetWeb.Page.Category do
 
     {:ok, category} =
       if !is_nil(id) and id != "" do
-        CommonsPub.Tag.GraphQL.TagResolver.category(
-          %{category_id: id},
-          %{context: %{current_user: socket.assigns.current_user}}
-        )
+        CommonsPub.Tag.Categories.get(id)
       else
         {:ok, %{}}
       end

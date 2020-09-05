@@ -94,10 +94,10 @@ $ docker-compose up -d
 #### Docker commands
 
 - `docker-compose up` launches the service, by default at the port 4000.
-- `docker-compose run --rm backend bin/moodle_net` returns all the possible commands
+- `docker-compose run --rm backend bin/commons_pub` returns all the possible commands
 - `docker-compose run --rm backend /bin/sh` runs a simple shell inside of the container, useful to explore the image
-- `docker-compose run --rm backend bin/moodle_net start_iex` starts a new `iex` console
-- `docker-compose run backend bin/moodle_net remote` runs an `iex` console when the service is already running.
+- `docker-compose run --rm backend bin/commons_pub start_iex` starts a new `iex` console
+- `docker-compose run backend bin/commons_pub remote` runs an `iex` console when the service is already running.
 
 There are some useful release tasks under `CommonsPub.ReleaseTasks.` that can be run in an `iex` console:
 
@@ -142,11 +142,11 @@ $ export MIX_ENV=prod
 $ mix deps.get
 $ mix release
 # TODO: load required env variables
-$ _build/prod/rel/moodle_net/bin/moodle_net eval 'CommonsPub.ReleaseTasks.create_db()'
+$ _build/prod/rel/commons_pub/bin/commons_pub eval 'CommonsPub.ReleaseTasks.create_db()'
 # DB created
-$ _build/prod/rel/moodle_net/bin/moodle_net eval 'CommonsPub.ReleaseTasks.migrate_db()'
+$ _build/prod/rel/commons_pub/bin/commons_pub eval 'CommonsPub.ReleaseTasks.migrate_db()'
 # DB migrated
-$ _build/prod/rel/moodle_net/bin/moodle_net start
+$ _build/prod/rel/commons_pub/bin/commons_pub start
 # App started in foreground
 ```
 
@@ -158,19 +158,19 @@ See the section on [Runtime Configuration](#runtime-configuration) for informati
 - Make sure you have erlang and elixir installed (check `Dockerfile` for what version we're currently using)
 - Run `mix deps.get` to install elixir dependencies.
 - From here on out, you may want to consider what your `MIX_ENV` is set to. For production, ensure that you either export `MIX_ENV=prod` or use it for each command. Continuing, we are assuming `MIX_ENV=prod`.
-- Run `mix release` to create an elixir release. This will create an executable in your `_build/prod/rel/moodle_net` directory. We will be using the `bin/moodle_net` executable from here on.
+- Run `mix release` to create an elixir release. This will create an executable in your `_build/prod/rel/commons_pub` directory. We will be using the `bin/commons_pub` executable from here on.
 
 #### B-2. Running the release
 
 - Export all required environment variables. See [Runtime Configuration](#runtime-configuration) section.
 
-- Create a database, if one is not created already with `bin/moodle_net eval 'CommonsPub.ReleaseTasks.create_db()'`.
-- You will likely also want to run the migrations. This is done similarly with `bin/moodle_net eval 'CommonsPub.ReleaseTasks.migrate_db()'`.
+- Create a database, if one is not created already with `bin/commons_pub eval 'CommonsPub.ReleaseTasks.create_db()'`.
+- You will likely also want to run the migrations. This is done similarly with `bin/commons_pub eval 'CommonsPub.ReleaseTasks.migrate_db()'`.
 - If you’re using RDS or some other locked down DB, you may need to run `CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;` on your database with elevated privileges.
 
-* You can check if your instance is configured correctly by running it with `moodle_net start`
+* You can check if your instance is configured correctly by running it with `commons_pub start`
 
-* To run the instance as a daemon, use `bin/moodle_net daemon`.
+* To run the instance as a daemon, use `bin/commons_pub daemon`.
 
 #### B-3. Adding HTTPS
 

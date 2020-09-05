@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.Endpoint do
+defmodule CommonsPub.Web.Endpoint do
   @moduledoc """
-  MoodleNet Phoenix Endpoint
+  CommonsPub Phoenix Endpoint
   """
-  use Phoenix.Endpoint, otp_app: :moodle_net
+  use Phoenix.Endpoint, otp_app: :commons_pub
 
   @session_options [
     store: :cookie,
@@ -34,19 +34,19 @@ defmodule MoodleNetWeb.Endpoint do
 
   plug Plug.Session, @session_options
 
-  plug(MoodleNetWeb.Plugs.Static)
+  plug(CommonsPub.Web.Plugs.Static)
 
   # Serve at "/" the static files from "priv/static" directory.
   # Liveview customization
   plug Plug.Static,
     at: "/",
-    from: :moodle_net,
+    from: :commons_pub,
     gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   {max_file_size, _} =
-    :moodle_net
-    |> Application.fetch_env!(MoodleNet.Uploads)
+    :commons_pub
+    |> Application.fetch_env!(CommonsPub.Uploads)
     |> Keyword.fetch!(:max_file_size)
     |> Integer.parse()
 
@@ -54,14 +54,14 @@ defmodule MoodleNetWeb.Endpoint do
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Jason,
-    body_reader: {MoodleNetWeb.Plugs.DigestPlug, :read_body, []},
+    body_reader: {CommonsPub.Web.Plugs.DigestPlug, :read_body, []},
     length: max_file_size
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)
 
   plug(CORSPlug)
-  plug(MoodleNetWeb.Router)
+  plug(CommonsPub.Web.Router)
 
   @doc """
   Dynamically loads configuration from the system environment on startup.

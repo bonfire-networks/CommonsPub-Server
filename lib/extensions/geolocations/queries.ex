@@ -2,14 +2,14 @@
 defmodule Geolocation.Queries do
   alias Geolocation
   # alias Geolocation.Geolocations
-  alias MoodleNet.Follows.{Follow, FollowerCount}
-  # alias MoodleNet.Users
-  alias MoodleNet.Users.User
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias CommonsPub.Follows.{Follow, FollowerCount}
+  # alias CommonsPub.Users
+  alias CommonsPub.Users.User
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Geolocation) do
-    from(c in Geolocation, as: :geolocation, join: a in assoc(c, :actor), as: :actor)
+    from(c in Geolocation, as: :geolocation, join: a in assoc(c, :character), as: :character)
   end
 
   def query(:count) do
@@ -67,7 +67,7 @@ defmodule Geolocation.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter(q, [:deleted, preload: :actor])
+    filter(q, [:deleted, preload: :character])
   end
 
   ## by join
@@ -139,11 +139,11 @@ defmodule Geolocation.Queries do
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where(q, [actor: a], a.preferred_username == ^username)
+    where(q, [character: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where(q, [actor: a], a.preferred_username in ^usernames)
+    where(q, [character: a], a.preferred_username in ^usernames)
   end
 
   ## by ordering
@@ -173,8 +173,8 @@ defmodule Geolocation.Queries do
     select(q, [geolocation: c], {field(c, ^key), count(c.id)})
   end
 
-  def filter(q, {:preload, :actor}) do
-    preload(q, [actor: a], actor: a)
+  def filter(q, {:preload, :character}) do
+    preload(q, [character: a], character: a)
   end
 
   # pagination
@@ -206,15 +206,14 @@ defmodule Geolocation.Queries do
     |> filter(join: :follower_count, order: [desc: :followers])
     |> page(page_opts, desc: :followers)
     |> select(
-      [geolocation: c, actor: a, follower_count: fc],
-      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+      [geolocation: c, character: a, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0), character: a}
     )
   end
 
   def filter(q, filter_name) when is_binary(filter_name) do
     filter(q, String.to_existing_atom(filter_name))
   end
-
 
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
     filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)

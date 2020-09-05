@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.Tagging do
-  # use MoodleNet.Common.Schema
+defmodule CommonsPub.Common.Tagging do
+  # use CommonsPub.Common.Schema
 
-  # import MoodleNet.Common.Changeset, only: [change_public: 1]
+  # import CommonsPub.Common.Changeset, only: [change_public: 1]
   # alias Ecto.Changeset
-  # alias MoodleNet.Users.User
+  # alias CommonsPub.Users.User
   # alias Pointers.Pointer
 
   # @type t :: %__MODULE__{}

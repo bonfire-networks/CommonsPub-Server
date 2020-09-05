@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
+defmodule CommonsPub.Web.GraphQL.ThreadsSchema do
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CommentsResolver,
     CommonResolver,
     FollowsResolver,
     ThreadsResolver
   }
 
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Flags.Flag
-  # alias MoodleNet.Resources.Resource
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Flags.Flag
+  # alias CommonsPub.Resources.Resource
 
   object :threads_queries do
     @desc "Get a thread"

@@ -1,14 +1,14 @@
-defmodule MoodleNetWeb.MemberLive.MemberAdsLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.MemberLive.MemberAdsLive do
+  use CommonsPub.Web, :live_component
 
-  # import MoodleNetWeb.Helpers.Common
+  # import CommonsPub.Utils.Web.CommonHelper
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     # DiscussionPreviewLive,
     AdsPreviewLive
   }
 
-  # alias MoodleNetWeb.Helpers.{Profiles}
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
 
   # def mount(socket) do
   #   {
@@ -50,7 +50,6 @@ defmodule MoodleNetWeb.MemberLive.MemberAdsLive do
     )
   end
 
-  def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
-  end
+  def handle_event("load-more", _, socket),
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 end

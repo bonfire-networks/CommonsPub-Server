@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.InstanceLive.InstanceMembersLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     UserPreviewLive
   }
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     UsersResolver
   }
 
@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
         context: %{current_user: assigns.current_user}
       })
 
-    members = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
+    members = Enum.map(users.edges, &ProfilesHelper.prepare(&1, %{icon: true, character: true}))
 
     assign(socket,
       members: members,
@@ -37,5 +37,5 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 end

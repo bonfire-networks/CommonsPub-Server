@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.Live.Plug do
+defmodule CommonsPub.Web.Live.Plug do
   @moduledoc """
   LiveView Plug
   """

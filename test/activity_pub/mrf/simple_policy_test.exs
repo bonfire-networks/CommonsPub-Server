@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicyTest do
-  use MoodleNet.DataCase
-  alias MoodleNet.Config
+  use CommonsPub.DataCase
+  alias CommonsPub.Config
   alias ActivityPub.MRF.SimplePolicy
 
   setup do
@@ -28,7 +28,7 @@ defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicyTest do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
 
     %{
-      "actor" => MoodleNetWeb.base_url() <> ap_base_path <> "/actors/alice",
+      "actor" => CommonsPub.Web.base_url() <> ap_base_path <> "/actors/alice",
       "to" => [],
       "cc" => []
     }

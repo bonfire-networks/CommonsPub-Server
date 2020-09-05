@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Batching.Edges do
+defmodule CommonsPub.Batching.Edges do
   @enforce_keys ~w(data)a
   defstruct @enforce_keys
 
-  alias MoodleNet.Batching.Edges
+  alias CommonsPub.Batching.Edges
 
   @type t :: %Edges{data: %{term => [term]}}
 

@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Activities.Activity do
-  use MoodleNet.Common.Schema
+defmodule CommonsPub.Activities.Activity do
+  use CommonsPub.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1]
-  alias MoodleNet.Activities
-  alias MoodleNet.Activities.Activity
-  alias MoodleNet.Feeds.FeedActivity
-  alias MoodleNet.Users.User
+  import CommonsPub.Common.Changeset, only: [change_public: 1]
+  alias CommonsPub.Activities
+  alias CommonsPub.Activities.Activity
+  alias CommonsPub.Feeds.FeedActivity
+  alias CommonsPub.Users.User
   alias Pointers.Pointer
   alias Ecto.Changeset
 

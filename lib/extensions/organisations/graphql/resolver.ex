@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.GraphQL.Resolver do
-  alias MoodleNet.{
+  alias CommonsPub.{
     # Activities,
     GraphQL,
     Repo
     # Resources
   }
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     # CommonResolver,
     # FetchFields,
     FetchPage,
@@ -25,8 +25,8 @@ defmodule Organisation.GraphQL.Resolver do
     # Queries
   }
 
-  # alias MoodleNet.Resources.Resource
-  # alias MoodleNet.Common.Enums
+  # alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Common.Enums
   alias Pointers
 
   ## resolvers
@@ -100,9 +100,9 @@ defmodule Organisation.GraphQL.Resolver do
   def create_organisation(%{organisation: attrs, context_id: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
            :ok <- validate_organisation_context(pointer) do
-        context = MoodleNet.Meta.Pointers.follow!(pointer)
+        context = CommonsPub.Meta.Pointers.follow!(pointer)
         Organisations.create(user, context, attrs)
       end
     end)
@@ -165,6 +165,6 @@ defmodule Organisation.GraphQL.Resolver do
   end
 
   defp valid_contexts do
-    Keyword.fetch!(Application.get_env(:moodle_net, Organisation), :valid_contexts)
+    Keyword.fetch!(CommonsPub.Config.get(Organisation), :valid_contexts)
   end
 end

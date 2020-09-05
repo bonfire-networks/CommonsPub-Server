@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Access do
+defmodule CommonsPub.Access do
   @moduledoc """
   The access system in general is related to authentication:
   * Creation and querying of session tokens
@@ -7,10 +7,10 @@ defmodule MoodleNet.Access do
   """
 
   alias Ecto.{Changeset, UUID}
-  alias MoodleNet.{Common, Repo}
-  alias MoodleNet.Common.NotFoundError
+  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Common.NotFoundError
 
-  alias MoodleNet.Access.{
+  alias CommonsPub.Access.{
     InvalidCredentialError,
     NoAccessError,
     RegisterEmailAccess,
@@ -22,7 +22,7 @@ defmodule MoodleNet.Access do
     UserEmailNotConfirmedError
   }
 
-  alias MoodleNet.Users.{LocalUser, User}
+  alias CommonsPub.Users.{LocalUser, User}
   import Ecto.Query
 
   @type access :: RegisterEmailDomainAccess.t() | RegisterEmailAccess.t()
@@ -123,7 +123,7 @@ defmodule MoodleNet.Access do
   @spec fetch_token_and_user(token :: binary) ::
           {:ok, %Token{}} | {:error, TokenNotFoundError.t()}
   def fetch_token_and_user(token) when is_binary(token) do
-    IO.inspect(fetch_token_and_user: token)
+    # IO.inspect(fetch_token_and_user: token)
 
     case UUID.cast(token) do
       {:ok, token} -> Repo.single(fetch_token_and_user_query(token))
@@ -143,8 +143,8 @@ defmodule MoodleNet.Access do
       where: t.id == ^token,
       join: u in assoc(t, :user),
       join: lu in assoc(u, :local_user),
-      join: a in assoc(u, :actor),
-      preload: [user: {u, local_user: lu, actor: a}]
+      join: chr in assoc(u, :character),
+      preload: [user: {u, local_user: lu, character: chr}]
     )
   end
 

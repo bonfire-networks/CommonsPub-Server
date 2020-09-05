@@ -4,7 +4,7 @@ defmodule CommonsPub.HTML.Scrubber.SimpleText do
   paragraphs, breaks and links are allowed through the filter.
   """
 
-  @valid_schemes MoodleNet.Config.get([:uri_schemes, :valid_schemes], ["http", "https"])
+  @valid_schemes CommonsPub.Config.get([:uri_schemes, :valid_schemes], ["http", "https"])
 
   require HtmlSanitizeEx.Scrubber.Meta
   alias HtmlSanitizeEx.Scrubber.Meta
@@ -40,7 +40,7 @@ defmodule CommonsPub.HTML.Scrubber.SimpleText do
   Meta.allow_tag_with_these_attributes(:span, [])
 
   # allow inline images for custom emoji
-  if MoodleNet.Config.get([:markup, :allow_inline_images]) do
+  if CommonsPub.Config.get([:markup, :allow_inline_images]) do
     # restrict img tags to http/https only, because of MediaProxy.
     Meta.allow_tag_with_uri_attributes(:img, ["src"], ["http", "https"])
 

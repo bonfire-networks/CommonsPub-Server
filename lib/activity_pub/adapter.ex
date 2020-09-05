@@ -7,7 +7,7 @@ defmodule ActivityPub.Adapter do
 
   alias ActivityPub.Actor
   alias ActivityPub.Object
-  alias MoodleNet.Config
+  alias CommonsPub.Config
 
   @adapter Config.get!(ActivityPub.Adapter)[:adapter]
 

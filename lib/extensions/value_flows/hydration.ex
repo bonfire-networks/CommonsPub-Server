@@ -1,20 +1,19 @@
 defmodule ValueFlows.Hydration do
-  alias MoodleNetWeb.GraphQL.{
-    ActorsResolver,
+  alias CommonsPub.Web.GraphQL.{
     CommonResolver,
     UploadResolver
   }
 
-  alias MoodleNet.Users.User
-  alias MoodleNet.Communities.Community
+  alias CommonsPub.Users.User
+  alias CommonsPub.Communities.Community
 
   def hydrate() do
     agent_fields = %{
       canonical_url: [
-        resolve: &ActorsResolver.canonical_url_edge/3
+        resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
       ],
       display_username: [
-        resolve: &ActorsResolver.display_username_edge/3
+        resolve: &CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3
       ],
       image: [
         resolve: &UploadResolver.image_content_edge/3
@@ -49,8 +48,11 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
         publishes: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposed_intents/3
-        ]
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.publishes_edge/3
+        ],
+        published_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.published_to_edge/3
+        ],
       },
       intent: %{
         provider: [
@@ -76,6 +78,15 @@ defmodule ValueFlows.Hydration do
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+        ],
+        published_in: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3
+        ]
+      },
+      economic_event: %{
+        resource_inventoried_as: [
+          resolve:
+            &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
         ]
       },
 
@@ -118,24 +129,30 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
         ],
         resource_specification: [
-          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.simulate/2
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.resource_spec/2
         ],
         resource_specifications: [
-          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.simulate/2
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.all_resource_specs/2
+        ],
+        process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.process_spec/2
+        ],
+        process_specifications: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.all_process_specs/2
         ],
 
         # Observation
         economic_event: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.event/2
         ],
         economic_events: [
-          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.all_events/2
         ],
         economic_resource: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resource/2
         ],
         economic_resources: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.all_resources/2
         ],
         process: [
           resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2
@@ -189,8 +206,8 @@ defmodule ValueFlows.Hydration do
         propose_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.propose_intent/2
         ],
-        delete_proposed_intent: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        propose_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.propose_to/2
         ],
         create_offer: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_offer/2
@@ -204,8 +221,35 @@ defmodule ValueFlows.Hydration do
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],
+        update_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.update_proposal/2
+        ],
+        update_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.update_process_spec/2
+        ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
+        ],
+        delete_proposal: [
+          resolve: &ValueFlows.Proposal.GraphQL.delete_proposal/2
+        ],
+        delete_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.delete_process_spec/2
+        ],
+        delete_proposed_intent: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2
+        ],
+        delete_proposed_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.delete_proposed_to/2
+        ],
+        create_resource_specification: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.create_resource_spec/2
+        ],
+        create_process_specification: [
+          resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.create_process_spec/2
+        ],
+        create_economic_event: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.create_event/2
         ]
       }
     }

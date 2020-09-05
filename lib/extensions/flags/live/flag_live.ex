@@ -1,11 +1,11 @@
-defmodule MoodleNetWeb.Component.FlagLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.Component.FlagLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  import CommonsPub.Utils.Web.CommonHelper
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
     {:ok, flag} =
-      MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
+      CommonsPub.Web.GraphQL.FlagsResolver.create_flag(
         %{
           context_id: e(socket.assigns.object, :id, nil),
           message: message

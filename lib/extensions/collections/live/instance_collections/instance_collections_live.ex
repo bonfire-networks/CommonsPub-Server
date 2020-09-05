@@ -1,13 +1,13 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.InstanceLive.InstanceCollectionsLive do
+  use CommonsPub.Web, :live_component
 
-  alias MoodleNetWeb.Helpers.{Profiles}
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CollectionsResolver
   }
 
-  alias MoodleNetWeb.Component.CollectionPreviewLive
+  alias CommonsPub.Web.Component.CollectionPreviewLive
 
   def update(assigns, socket) do
     {
@@ -25,12 +25,10 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    # IO.inspect(collections: collections)
-
     collections_list =
       Enum.map(
         collections.edges,
-        &Profiles.prepare(&1, %{icon: false, image: false, actor: true})
+        &ProfilesHelper.prepare(&1, %{icon: false, image: false, character: true})
       )
 
     assign(socket,
@@ -42,7 +40,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCollectionsLive do
   end
 
   def handle_event("load-more", _, socket),
-    do: MoodleNetWeb.Helpers.Common.paginate_next(&fetch/2, socket)
+    do: CommonsPub.Utils.Web.CommonHelper.paginate_next(&fetch/2, socket)
 
   def render(assigns) do
     ~L"""

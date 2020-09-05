@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.ChannelCase do
+defmodule CommonsPub.Web.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -23,15 +23,15 @@ defmodule MoodleNetWeb.ChannelCase do
       use Phoenix.ChannelTest
 
       # The default endpoint for testing
-      @endpoint MoodleNetWeb.Endpoint
+      @endpoint CommonsPub.Web.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(CommonsPub.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(CommonsPub.Repo, {:shared, self()})
     end
 
     :ok

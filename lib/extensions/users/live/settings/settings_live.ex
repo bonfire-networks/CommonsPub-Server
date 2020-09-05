@@ -1,20 +1,13 @@
-defmodule MoodleNetWeb.SettingsLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.SettingsLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
-  # alias MoodleNetWeb.Helpers.{Profiles}
-  alias MoodleNetWeb.GraphQL.UsersResolver
+  import CommonsPub.Utils.Web.CommonHelper
+  # alias CommonsPub.Profiles.Web.ProfilesHelper
+  alias CommonsPub.Web.GraphQL.UsersResolver
 
-  alias MoodleNetWeb.SettingsLive.{
+  alias CommonsPub.Web.SettingsLive.{
     SettingsNavigationLive,
-    SettingsGeneralLive,
-    SettingsInstanceLive,
-    SettingsFlagsLive,
-    SettingsInvitesLive
-  }
-
-  alias MoodleNetWeb.Component.{
-    TabNotFoundLive
+    SettingsGeneralLive
   }
 
   def mount(params, session, socket) do
@@ -72,5 +65,4 @@ defmodule MoodleNetWeb.SettingsLive do
          |> push_redirect(to: "/~/profile")}
     end
   end
-
 end

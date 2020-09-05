@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Flags do
-  alias MoodleNet.{Activities, Common, Repo}
-  alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
-  alias MoodleNet.Users.User
-  alias MoodleNet.Workers.APPublishWorker
+defmodule CommonsPub.Flags do
+  alias CommonsPub.{Activities, Common, Repo}
+  alias CommonsPub.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
+  alias CommonsPub.Users.User
+  alias CommonsPub.Workers.APPublishWorker
 
   def one(filters), do: Repo.single(Queries.query(Flag, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Flag, filters))}
 
   defp valid_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
+    CommonsPub.Config.get!(__MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
 
@@ -21,8 +21,8 @@ defmodule MoodleNet.Flags do
         %{is_local: is_local} = fields
       )
       when is_boolean(is_local) do
-    flagged = MoodleNet.Meta.Pointers.maybe_forge!(flagged)
-    %Pointers.Table{schema: table} = MoodleNet.Meta.Pointers.table!(flagged)
+    flagged = CommonsPub.Meta.Pointers.maybe_forge!(flagged)
+    %Pointers.Table{schema: table} = CommonsPub.Meta.Pointers.table!(flagged)
 
     if table in valid_contexts() do
       Repo.transact_with(fn ->

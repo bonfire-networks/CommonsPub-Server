@@ -1,9 +1,7 @@
-defmodule MoodleNetWeb.My.NewCommunityLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.My.NewCommunityLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
-
-  # alias MoodleNetWeb.Helpers.{Profiles, Communities}
+  import CommonsPub.Utils.Web.CommonHelper
 
   def update(assigns, socket) do
     {
@@ -26,7 +24,7 @@ defmodule MoodleNetWeb.My.NewCommunityLive do
       community = input_to_atoms(data)
 
       {:ok, community} =
-        MoodleNetWeb.GraphQL.CommunitiesResolver.create_community(
+        CommonsPub.Web.GraphQL.CommunitiesResolver.create_community(
           %{community: community, context_id: context_id},
           %{context: %{current_user: socket.assigns.current_user}}
         )
@@ -34,12 +32,12 @@ defmodule MoodleNetWeb.My.NewCommunityLive do
       # TODO: handle errors
       IO.inspect(community, label: "community created")
 
-      if(!is_nil(community) and community.actor.preferred_username) do
+      if(!is_nil(community) and community.character.preferred_username) do
         {:noreply,
          socket
          |> put_flash(:info, "Community created !")
          # change redirect
-         |> push_redirect(to: "/&" <> community.actor.preferred_username)}
+         |> push_redirect(to: "/&" <> community.character.preferred_username)}
       else
         {:noreply,
          socket

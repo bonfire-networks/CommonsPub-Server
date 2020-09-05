@@ -1,4 +1,4 @@
-defmodule MoodleNet.Repo.Migrations.AddContextToMN do
+defmodule CommonsPub.Repo.Migrations.AddContextToMN do
   use Ecto.Migration
   import Pointers.Migration
 

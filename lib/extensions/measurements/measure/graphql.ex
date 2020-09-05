@@ -2,9 +2,9 @@
 defmodule Measurement.Measure.GraphQL do
   use Absinthe.Schema.Notation
 
-  alias MoodleNet.{GraphQL, Repo}
+  alias CommonsPub.{GraphQL, Repo}
 
-  alias MoodleNet.GraphQL.{
+  alias CommonsPub.GraphQL.{
     ResolveField,
     ResolveFields,
     # ResolvePage,

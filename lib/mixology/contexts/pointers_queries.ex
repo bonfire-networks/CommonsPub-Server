@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Meta.PointersQueries do
-  alias MoodleNet.Meta.TableService
+defmodule CommonsPub.Meta.PointersQueries do
+  alias CommonsPub.Meta.TableService
   import Ecto.Query
   alias Pointers.{Pointer}
 

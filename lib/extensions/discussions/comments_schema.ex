@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.CommentsSchema do
+defmodule CommonsPub.Web.GraphQL.CommentsSchema do
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.{
+  alias CommonsPub.Web.GraphQL.{
     CommentsResolver,
     CommonResolver,
     FlagsResolver,

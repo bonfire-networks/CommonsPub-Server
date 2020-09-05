@@ -1,10 +1,10 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.Migrations do
   use Ecto.Migration
-  # alias MoodleNet.Repo
+  # alias CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 
-  alias ValueFlows.Knowledge.ProcessSpecification
+  # alias ValueFlows.Knowledge.ProcessSpecification
 
   # defp resource_table(), do: EconomicResource.__schema__(:source)
 
@@ -14,11 +14,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Migrations do
       add(:note, :text)
 
       add(:image_id, references(:mn_content))
-
-      add(:has_beginning, :timestamptz)
-      add(:has_end, :timestamptz)
-
-      add(:finished, :boolean, default: false)
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 

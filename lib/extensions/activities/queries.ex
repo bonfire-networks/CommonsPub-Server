@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Activities.Queries do
-  alias MoodleNet.Activities.Activity
-  alias MoodleNet.Meta.TableService
-  import MoodleNet.Common.Query, only: [match_admin: 0]
+defmodule CommonsPub.Activities.Queries do
+  alias CommonsPub.Activities.Activity
+  alias CommonsPub.Meta.TableService
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Activity), do: from(a in Activity, as: :activity)

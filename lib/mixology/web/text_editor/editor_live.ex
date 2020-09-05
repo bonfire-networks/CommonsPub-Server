@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.EditorLive do
-  use MoodleNetWeb, :live_component
+defmodule CommonsPub.Web.EditorLive do
+  use CommonsPub.Web, :live_component
 
-  import MoodleNetWeb.Helpers.Common
+  # import CommonsPub.Utils.Web.CommonHelper
 
   def mount(socket) do
-    {:ok, assign(socket, :editor, Application.get_env(:moodle_net, :ux)[:editor])}
+    {:ok, assign(socket, :editor, CommonsPub.Config.get(:ux)[:editor])}
   end
 end

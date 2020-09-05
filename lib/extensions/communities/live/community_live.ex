@@ -1,26 +1,28 @@
-defmodule MoodleNetWeb.CommunityLive do
-  use MoodleNetWeb, :live_view
+defmodule CommonsPub.Web.CommunityLive do
+  use CommonsPub.Web, :live_view
 
-  import MoodleNetWeb.Helpers.Common
-  alias MoodleNetWeb.Helpers.{Communities, Profiles}
-  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  import CommonsPub.Utils.Web.CommonHelper
+  alias CommonsPub.Communities.Web.CommunitiesHelper
+  alias CommonsPub.Profiles.Web.ProfilesHelper
 
-  alias MoodleNetWeb.CommunityLive.{
+  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
+  alias CommonsPub.Web.CommunityLive.{
     CommunityDiscussionsLive,
     CommunityMembersLive,
+    CommunityMembersPreviewLive,
     # CommunityNavigationLive,
     CommunityCollectionsLive,
     # CommunityWriteLive,
     CommunityActivitiesLive
   }
 
-  alias MoodleNetWeb.Component.{
+  alias CommonsPub.Web.Component.{
     # HeaderLive,
     AboutLive,
     TabNotFoundLive
   }
 
-  # alias MoodleNet.{
+  # alias CommonsPub.{
   #   Repo
   # }
 
@@ -44,10 +46,10 @@ defmodule MoodleNetWeb.CommunityLive do
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     community =
-      Communities.community_load(socket, params, %{
+      CommunitiesHelper.community_load(socket, params, %{
         icon: true,
         image: true,
-        actor: true,
+        character: true,
         is_followed_by: socket.assigns.current_user
       })
 
@@ -62,10 +64,10 @@ defmodule MoodleNetWeb.CommunityLive do
 
   def handle_params(%{} = params, _url, socket) do
     community =
-      Communities.community_load(socket, params, %{
+      CommunitiesHelper.community_load(socket, params, %{
         icon: true,
         image: true,
-        actor: true,
+        character: true,
         is_followed_by: socket.assigns.current_user
       })
 
@@ -81,7 +83,7 @@ defmodule MoodleNetWeb.CommunityLive do
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
     {:ok, flag} =
-      MoodleNetWeb.GraphQL.FlagsResolver.create_flag(
+      CommonsPub.Web.GraphQL.FlagsResolver.create_flag(
         %{context_id: socket.assigns.community.id, message: message},
         %{
           context: %{current_user: socket.assigns.current_user}
@@ -90,7 +92,6 @@ defmodule MoodleNetWeb.CommunityLive do
 
     IO.inspect(flag, label: "FLAG")
 
-    # IO.inspect(f)
     # TODO: error handling
 
     {
@@ -103,14 +104,13 @@ defmodule MoodleNetWeb.CommunityLive do
 
   def handle_event("follow", _data, socket) do
     _f =
-      MoodleNetWeb.GraphQL.FollowsResolver.create_follow(
+      CommonsPub.Web.GraphQL.FollowsResolver.create_follow(
         %{context_id: socket.assigns.community.id},
         %{
           context: %{current_user: socket.assigns.current_user}
         }
       )
 
-    # IO.inspect(f)
     # TODO: error handling
 
     {
@@ -123,9 +123,8 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_event("unfollow", _data, socket) do
-    _uf = Profiles.unfollow(socket.assigns.current_user, socket.assigns.community.id)
+    _uf = ProfilesHelper.unfollow(socket.assigns.current_user, socket.assigns.community.id)
 
-    # IO.inspect(uf)
     # TODO: error handling
 
     {
@@ -148,7 +147,7 @@ defmodule MoodleNetWeb.CommunityLive do
       changes = input_to_atoms(data)
 
       {:ok, community} =
-        MoodleNetWeb.GraphQL.CommunitiesResolver.update_community(
+        CommonsPub.Web.GraphQL.CommunitiesResolver.update_community(
           %{community: changes, community_id: socket.assigns.community.id},
           %{
             context: %{current_user: socket.assigns.current_user}
@@ -160,10 +159,10 @@ defmodule MoodleNetWeb.CommunityLive do
 
       if(community) do
         community =
-          Profiles.prepare(community, %{
+          ProfilesHelper.prepare(community, %{
             icon: true,
             image: true,
-            actor: true,
+            character: true,
             is_followed_by: socket.assigns.current_user
           })
 
@@ -189,7 +188,7 @@ defmodule MoodleNetWeb.CommunityLive do
   """
   def handle_info({:pub_feed_activity, activity}, socket),
     do:
-      MoodleNetWeb.Helpers.Activites.pubsub_activity_forward(
+      CommonsPub.Activities.Web.ActivitiesHelper.pubsub_activity_forward(
         activity,
         CommunityActivitiesLive,
         :community_timeline,

@@ -16,7 +16,7 @@ defmodule CommonsPub.Locales.Language.Service do
 
   alias CommonsPub.Locales.{Language}
 
-  alias MoodleNet.Repo
+  alias CommonsPub.Repo
 
   # import Ecto.Query, only: [select: 3]
 
