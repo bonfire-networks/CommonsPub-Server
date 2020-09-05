@@ -49,6 +49,14 @@ end
 for _ <- 1..2, do: fake_resource!(random_user.(), maybe_random_community.())
 for _ <- 1..2, do: fake_resource!(random_user.(), maybe_random_collection.())
 
+# define some tags/categories
+if(Code.ensure_loaded?(CommonsPub.Tag.Simulate)) do
+  for _ <- 1..2 do
+    category = CommonsPub.Tag.Simulate.fake_category!(random_user.())
+    _subcategory = CommonsPub.Tag.Simulate.fake_category!(random_user.(), category)
+  end
+end
+
 # define some geolocations
 if(Code.ensure_loaded?(Geolocation.Simulate)) do
   for _ <- 1..2,

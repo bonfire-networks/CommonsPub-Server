@@ -226,6 +226,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     |> assign(:toggle_post, false)
     |> assign(:toggle_community, false)
     |> assign(:toggle_collection, false)
+    |> assign(:toggle_category, false)
     |> assign(:toggle_link, false)
     |> assign(:toggle_ad, false)
     |> assign(:current_context, nil)

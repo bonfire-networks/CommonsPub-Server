@@ -122,8 +122,9 @@ defmodule Taxonomy.TaxonomyTags do
     else
       _e ->
         Logger.error("could not create parent tag")
-        # create the child anyway
-        create_category(user, tag, create_tag)
+        raise "stopping here to debug"
+        # create the child anyway?
+        # create_category(user, tag, create_tag)
     end
   end
 

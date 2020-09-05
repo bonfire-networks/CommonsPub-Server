@@ -188,9 +188,9 @@ defmodule CommonsPub.ActivityPub.Publisher do
     obj.actor
   end
 
-  def the_actor(%{character: character}) do
-    character = Repo.preload(character, :character)
-    character.character
+  def the_actor(%{character: character} = obj) do
+    obj = Repo.preload(obj, :character)
+    obj.character
   end
 
   def unfollow(follow) do

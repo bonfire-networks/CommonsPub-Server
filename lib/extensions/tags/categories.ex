@@ -27,7 +27,17 @@ defmodule CommonsPub.Tag.Categories do
   def test_cursor(), do: &[&1["id"]]
 
   def one(filters), do: Repo.single(Queries.query(Category, filters))
-  def get(id), do: one([:default, id: id])
+
+  def get(id) do
+    # IO.inspect(id)
+    # IO.inspect(CommonsPub.Common.is_ulid(id))
+
+    if CommonsPub.Common.is_ulid(id) do
+      one([:default, id: id])
+    else
+      one([:default, username: id])
+    end
+  end
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Category, filters))}
   def list(), do: many([:default])
@@ -97,20 +107,21 @@ defmodule CommonsPub.Tag.Categories do
     Repo.transact_with(fn ->
       # TODO: check that the category doesn't already exist (same name and parent)
 
-      with {:ok, category} <- insert_category(creator, attrs),
-           {:ok, attrs} <- attrs_mixins_with_id(attrs, category),
+      with attrs <- attrs_prepare(attrs),
+           {:ok, category} <- insert_category(creator, attrs),
+           attrs <- attrs_mixins_with_id(attrs, category),
            {:ok, taggable} <-
              CommonsPub.Tag.Taggables.make_taggable(creator, category, attrs),
            {:ok, profile} <- CommonsPub.Profiles.create(creator, attrs),
            {:ok, character} <-
-             CommonsPub.Characters.create(creator, attrs_with_username(attrs)) do
+             CommonsPub.Characters.create(creator, attrs) do
         category = %{category | taggable: taggable, character: character, profile: profile}
 
         # add to search index
         index(category)
 
         # post as an activity
-        act_attrs = %{verb: "created", is_local: is_nil(character.character.peer_id)}
+        act_attrs = %{verb: "created", is_local: is_nil(character.peer_id)}
         {:ok, activity} = Activities.create(creator, category, act_attrs)
         Repo.preload(category, :caretaker)
         :ok = publish(creator, category.caretaker, character, activity)
@@ -139,31 +150,106 @@ defmodule CommonsPub.Tag.Categories do
     )
   end
 
-  defp attrs_mixins_with_id(attrs, category) do
-    attrs = Map.put(attrs, :id, category.id)
-    # IO.inspect(attrs)
-    {:ok, attrs}
+  defp attrs_prepare(attrs) do
+    attrs
+    |> attrs_with_parent_category()
+    |> attrs_with_username()
+  end
+
+  def attrs_with_parent_category(%{parent_category: %{id: id} = parent_category} = attrs)
+      when not is_nil(id) do
+    put_attrs_with_parent_category(attrs, parent_category)
+  end
+
+  def attrs_with_parent_category(%{parent_category: id} = attrs)
+      when is_binary(id) and id != "" do
+    with {:ok, parent_category} <- get(id) do
+      put_attrs_with_parent_category(attrs, parent_category)
+    else
+      _ ->
+        put_attrs_with_parent_category(attrs, nil)
+    end
+  end
+
+  def attrs_with_parent_category(%{parent_category_id: id} = attrs) when not is_nil(id) do
+    attrs_with_parent_category(Map.put(attrs, :parent_category, id))
+  end
+
+  def attrs_with_parent_category(attrs) do
+    put_attrs_with_parent_category(attrs, nil)
+  end
+
+  def put_attrs_with_parent_category(attrs, nil) do
+    attrs
+    |> Map.put(:parent_category, nil)
+    |> Map.put(:parent_category_id, nil)
+  end
+
+  def put_attrs_with_parent_category(attrs, parent_category) do
+    attrs
+    |> Map.put(:parent_category, parent_category)
+    |> Map.put(:parent_category_id, parent_category.id)
   end
 
   # todo: improve
   def attrs_with_username(%{preferred_username: preferred_username, name: name} = attrs)
-      when is_nil(preferred_username) or preferred_username == "" do
-    Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
+      when not is_nil(preferred_username) and preferred_username != "" do
+    put_generated_username(attrs, preferred_username)
   end
 
   def attrs_with_username(
         %{preferred_username: preferred_username, profile: %{name: name}} = attrs
       )
-      when is_nil(preferred_username) or preferred_username == "" do
-    Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
+      when not is_nil(preferred_username) and preferred_username != "" do
+    put_generated_username(attrs, preferred_username)
+  end
+
+  def attrs_with_username(
+        %{character: %{preferred_username: preferred_username}, profile: %{name: name}} = attrs
+      )
+      when not is_nil(preferred_username) and preferred_username != "" do
+    put_generated_username(attrs, preferred_username)
   end
 
   def attrs_with_username(%{name: name} = attrs) do
-    Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
+    put_generated_username(attrs, name)
   end
 
   def attrs_with_username(%{profile: %{name: name}} = attrs) do
-    Map.put(attrs, :preferred_username, name <> "-" <> attrs.facet)
+    put_generated_username(attrs, name)
+  end
+
+  def put_generated_username(
+        %{parent_category: %{character: %{preferred_username: parent_name}}} = attrs,
+        name
+      )
+      when not is_nil(name) and not is_nil(parent_name) do
+    Map.put(attrs, :preferred_username, name <> "-" <> parent_name)
+  end
+
+  def put_generated_username(
+        %{parent_category: %{profile: %{name: parent_name}}} = attrs,
+        name
+      )
+      when not is_nil(name) and not is_nil(parent_name) do
+    Map.put(attrs, :preferred_username, name <> "-" <> parent_name)
+  end
+
+  def put_generated_username(
+        %{parent_category: %{name: parent_name}} = attrs,
+        name
+      )
+      when not is_nil(name) and not is_nil(parent_name) do
+    Map.put(attrs, :preferred_username, name <> "-" <> parent_name)
+  end
+
+  def put_generated_username(attrs, name) do
+    # <> "-" <> attrs.facet
+    Map.put(attrs, :preferred_username, name)
+  end
+
+  defp attrs_mixins_with_id(attrs, category) do
+    Map.put(attrs, :id, category.id)
   end
 
   defp insert_category(user, attrs) do
@@ -233,7 +319,7 @@ defmodule CommonsPub.Tag.Categories do
 
   defp ap_publish(_, _), do: :ok
 
-  def indexing_object_format(obj) do
+  def indexing_object_format(%{id: _} = obj) do
     follower_count =
       case CommonsPub.Follows.FollowerCounts.one(context: obj.id) do
         {:ok, struct} -> struct.count
@@ -253,6 +339,7 @@ defmodule CommonsPub.Tag.Categories do
       "followers" => %{
         "totalCount" => follower_count
       },
+      "context" => indexing_object_format(Map.get(obj, :parent_category)),
       # "icon" => icon,
       # "image" => image,
       "name" => obj.name || obj.profile.name,
@@ -260,9 +347,11 @@ defmodule CommonsPub.Tag.Categories do
       # "summary" => character.summary,
       "createdAt" => obj.published_at,
       # home instance of object
-      "index_instance" => URI.parse(canonical_url).host
+      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url)
     }
   end
+
+  def indexing_object_format(_), do: nil
 
   defp index(obj) do
     object = indexing_object_format(obj)

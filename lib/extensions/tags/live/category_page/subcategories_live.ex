@@ -17,7 +17,7 @@ defmodule CommonsPub.Web.Page.Category.SubcategoriesLive do
   end
 
   def fetch(socket, assigns) do
-    IO.inspect(assigns)
+    # IO.inspect(assigns)
 
     {:ok, categories} =
       CommonsPub.Tag.GraphQL.TagResolver.category_children(
@@ -49,6 +49,13 @@ defmodule CommonsPub.Web.Page.Category.SubcategoriesLive do
     ~L"""
       <div
       id="subcategories">
+
+      <div class="community__discussion__actions">
+    <%# <input placeholder="Search collections..."/> %>
+    <a phx-target="#new_category" phx-click="toggle_category"><button>Define a category</button></a>
+
+    </div>
+
         <div
         phx-update="append"
         data-page="<%= @page %>"

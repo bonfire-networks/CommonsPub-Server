@@ -17,7 +17,7 @@ defmodule CommonsPub.Characters do
   alias CommonsPub.Characters.Character
   alias CommonsPub.Characters.Queries
 
-  # @replacement_regex ~r/[^a-zA-Z0-9-]/
+  @replacement_regex ~r/[^a-zA-Z0-9-]/
   # @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
 
   @doc "true if the provided preferred_username is available to register"
@@ -344,7 +344,8 @@ defmodule CommonsPub.Characters do
   def sanitise_username(username) do
     Slugger.slugify(username)
     # |> String.replace(@wordsplit_regex, "-")
-    # |> String.replace(@replacement_regex, "")
+    |> String.replace(@replacement_regex, "-")
+
     # |> String.replace(~r/--+/, "-")
   end
 

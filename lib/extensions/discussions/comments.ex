@@ -12,6 +12,7 @@ defmodule CommonsPub.Threads.Comments do
   alias CommonsPub.Threads.{Comment, CommentsQueries, Thread}
   alias CommonsPub.Users.User
   alias CommonsPub.Workers.APPublishWorker
+  alias CommonsPub.Utils.Web.CommonHelper
 
   def one(filters), do: Repo.single(CommentsQueries.query(Comment, filters))
 
@@ -244,6 +245,9 @@ defmodule CommonsPub.Threads.Comments do
   defp ap_publish(_, _), do: :ok
 
   def indexing_object_format(comment) do
+    thread = CommonHelper.maybe_preload(comment.thread, :context)
+    context = CommonHelper.maybe_preload(thread.context, :character)
+
     # follower_count =
     #   case CommonsPub.Follows.FollowerCounts.one(context: comment.id) do
     #     {:ok, struct} -> struct.count
@@ -261,7 +265,7 @@ defmodule CommonsPub.Threads.Comments do
       "reply_to_id" => comment.reply_to_id,
       "thread" => %{
         "id" => comment.thread_id,
-        "name" => comment.thread.name
+        "name" => thread.name
       },
       "creator" => CommonsPub.Search.Indexer.format_creator(comment),
       "canonical_url" => canonical_url,
@@ -274,7 +278,8 @@ defmodule CommonsPub.Threads.Comments do
       "content" => comment.content,
       "published_at" => comment.published_at,
       # home instance of object:
-      "index_instance" => URI.parse(canonical_url).host
+      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url),
+      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context)
     }
   end
 

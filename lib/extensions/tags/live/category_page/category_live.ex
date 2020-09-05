@@ -31,10 +31,7 @@ defmodule CommonsPub.Web.Page.Category do
 
     {:ok, category} =
       if !is_nil(id) and id != "" do
-        CommonsPub.Tag.GraphQL.TagResolver.category(
-          %{category_id: id},
-          %{context: %{current_user: socket.assigns.current_user}}
-        )
+        CommonsPub.Tag.Categories.get(id)
       else
         {:ok, %{}}
       end

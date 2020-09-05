@@ -3,6 +3,16 @@ defmodule CommonsPub.Common do
   alias CommonsPub.Repo
   alias CommonsPub.Common.{Changeset, DeletionError}
 
+  def is_ulid(str) when is_binary(str) do
+    with :error <- Ecto.ULID.dump(str) do
+      false
+    else
+      _ -> true
+    end
+  end
+
+  def is_ulid(_), do: false
+
   ### pagination
 
   def paginate(query, _opts), do: query

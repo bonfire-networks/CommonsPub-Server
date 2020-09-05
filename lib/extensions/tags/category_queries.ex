@@ -71,6 +71,14 @@ defmodule CommonsPub.Tag.Category.Queries do
     where(q, [category: f], f.id in ^ids)
   end
 
+  def filter(q, {:username, username}) when is_binary(username) do
+    where(q, [character: a], a.preferred_username == ^username)
+  end
+
+  def filter(q, {:username, usernames}) when is_list(usernames) do
+    where(q, [character: a], a.preferred_username in ^usernames)
+  end
+
   def filter(q, {:name, name}) when is_binary(name) do
     where(q, [category: f, profile: p], f.name == ^name)
   end

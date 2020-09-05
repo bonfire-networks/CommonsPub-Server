@@ -12,6 +12,7 @@
       <li phx-target="#write_widget" phx-click="toggle_post"><i class="feather-edit"></i> Write a post</li>
       <li phx-target="#new_community" phx-click="toggle_community"><i class="feather-users"></i> Start a community</li>
       <li phx-target="#new_collection" phx-click="toggle_collection"><i class="feather-folder"></i> Create a collection</li>
+      <li phx-target="#new_category" phx-click="toggle_category"><i class="feather-hash"></i> Define a category</li>
       <li phx-target="#post_link" phx-click="toggle_link"><i class="feather-link"></i> Share a link</li>
       <li phx-target="#publish_ad" phx-click="toggle_ad"><i class="feather-disc"></i> Publish an offer/request</li>
     </ul>
@@ -58,6 +59,15 @@
       my_communities: @my_communities,
       current_context: @current_context,
       id: "new_collection"
+    ) %>
+  <%= live_component(
+      @socket,
+      CommonsPub.Web.My.NewCategoryLive,
+      current_user: @current_user,
+      toggle_category: @toggle_category,
+      my_communities: @my_communities,
+      current_context: @current_context,
+      id: "new_category"
     ) %>
   <%= live_component(
       @socket,

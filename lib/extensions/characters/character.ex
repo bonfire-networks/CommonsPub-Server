@@ -54,9 +54,8 @@ defmodule CommonsPub.Characters.Character do
     # timestamps()
   end
 
-  @required ~w(id canonical_url)a
-  @create_cast @required ++
-                 ~w(preferred_username peer_id facet signing_key inbox_id outbox_id)a
+  @required ~w(id preferred_username canonical_url)a
+  @create_cast @required ++ ~w(peer_id facet signing_key inbox_id outbox_id)a
   @update_cast @required ++ ~w(facet signing_key is_disabled)a
 
   @doc """
@@ -70,7 +69,6 @@ defmodule CommonsPub.Characters.Character do
       ) do
     %CommonsPub.Characters.Character{}
     |> Changeset.cast(attrs, @create_cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       # characteristic_id: characteristic_pointer_id(attrs),
       # actor_id: actor.id,
@@ -78,6 +76,7 @@ defmodule CommonsPub.Characters.Character do
     )
     |> validate_username()
     |> cast_url()
+    |> Changeset.validate_required(@required)
     # with peer
     |> Changeset.unique_constraint(:preferred_username,
       name: "character_preferred_username_peer_id_index"
@@ -176,11 +175,11 @@ defmodule CommonsPub.Characters.Character do
     cast_url(changeset, Changeset.get_field(changeset, :canonical_url))
   end
 
-  defp cast_url(cs, x) when not is_nil(x), do: cs
+  defp cast_url(cs, canonical_url) when not is_nil(canonical_url), do: cs
 
   defp cast_url(cs, _) do
-    name = Changeset.get_field(cs, :preferred_username)
-    url = ActivityPub.Utils.actor_url(%{preferred_username: "#{name}"})
+    username = Changeset.get_field(cs, :preferred_username)
+    url = ActivityPub.Utils.actor_url(%{preferred_username: "#{username}"})
     Changeset.put_change(cs, :canonical_url, url)
   end
 

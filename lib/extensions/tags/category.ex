@@ -82,8 +82,8 @@ defmodule CommonsPub.Tag.Category do
     |> common_changeset()
   end
 
-  defp parent_category(%{parent_category: parent_category}) when is_binary(parent_category) do
-    parent_category
+  defp parent_category(%{parent_category: id}) when is_binary(id) do
+    id
   end
 
   defp parent_category(%{parent_category: %{id: id}}) when is_binary(id) do

@@ -2,16 +2,25 @@
 
 defmodule CommonsPub.Search.Indexer do
   require Logger
+  alias CommonsPub.Utils.Web.CommonHelper
 
   @public_index "public"
 
   def maybe_index_object(object) do
-    indexable_object = indexing_object_format(object)
+    indexable_object = maybe_indexable_object(object)
 
     if !is_nil(indexable_object) do
       index_object(indexable_object)
+    end
+  end
+
+  def maybe_indexable_object(%{} = object) do
+    indexable_object = indexing_object_format(object)
+
+    if !is_nil(indexable_object) do
+      indexable_object
     else
-      thing_name = object.__struct__
+      thing_name = Map.get(object, :__struct__)
 
       if(
         !is_nil(thing_name) and
@@ -22,7 +31,7 @@ defmodule CommonsPub.Search.Indexer do
         if(Kernel.function_exported?(thing_context_module, :indexing_object_format, 1)) do
           # IO.inspect(function_exists_in: thing_context_module)
           indexable_object = apply(thing_context_module, :indexing_object_format, [object])
-          index_object(indexable_object)
+          indexable_object
         else
           Logger.info(
             "Could not index #{thing_name} object (no context module with indexing_object_format/1)"
@@ -32,6 +41,10 @@ defmodule CommonsPub.Search.Indexer do
         Logger.info("Could not index #{thing_name} object (no known context module)")
       end
     end
+  end
+
+  def maybe_indexable_object(_) do
+    nil
   end
 
   # add to general instance search index
@@ -151,6 +164,9 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def indexing_object_format(%CommonsPub.Communities.Community{} = community) do
+    community = CommonHelper.maybe_preload(community, :context)
+    context = CommonHelper.maybe_preload(community.context, :character)
+
     follower_count =
       case CommonsPub.Follows.FollowerCounts.one(context: community.id) do
         {:ok, struct} -> struct.count
@@ -174,12 +190,14 @@ defmodule CommonsPub.Search.Indexer do
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
       "index_instance" => host(url),
-      "published_at" => community.published_at
+      "published_at" => community.published_at,
+      "context" => indexing_object_format(context)
     }
   end
 
   def indexing_object_format(%CommonsPub.Collections.Collection{} = collection) do
-    collection = CommonsPub.Repo.preload(collection, community: [:character])
+    collection = CommonHelper.maybe_preload(collection, :context)
+    context = CommonHelper.maybe_preload(collection.context, :character)
 
     follower_count =
       case CommonsPub.Follows.FollowerCounts.one(context: collection.id) do
@@ -203,16 +221,15 @@ defmodule CommonsPub.Search.Indexer do
       "index_type" => "Collection",
       "index_instance" => host(url),
       "published_at" => collection.published_at,
-      "community" => indexing_object_format(collection.community)
+      "context" => indexing_object_format(context)
     }
   end
 
   def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
-    resource =
-      CommonsPub.Repo.preload(resource,
-        collection: [:character, community: :character],
-        content: []
-      )
+    resource = CommonHelper.maybe_preload(resource, :context)
+    context = CommonHelper.maybe_preload(resource.context, :character)
+
+    resource = CommonHelper.maybe_preload(resource, :content)
 
     likes_count =
       case CommonsPub.Likes.LikerCounts.one(context: resource.id) do
@@ -238,14 +255,14 @@ defmodule CommonsPub.Search.Indexer do
       "summary" => Map.get(resource, :summary),
       "updated_at" => resource.updated_at,
       "index_type" => "Resource",
-      "index_instance" => URI.parse(canonical_url).host,
-      "collection" => indexing_object_format(resource.collection),
+      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url),
       "url" => resource_url,
       "author" => Map.get(resource, :author),
       "media_type" => resource.content.media_type,
       "subject" => Map.get(resource, :subject),
       "level" => Map.get(resource, :level),
-      "language" => Map.get(resource, :language)
+      "language" => Map.get(resource, :language),
+      "context" => indexing_object_format(context)
     }
   end
 

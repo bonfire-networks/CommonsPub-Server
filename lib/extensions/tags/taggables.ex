@@ -115,7 +115,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   defp insert_taggable(attrs) do
-    IO.inspect(insert_taggable: attrs)
+    # IO.inspect(insert_taggable: attrs)
     cs = Taggable.create_changeset(attrs)
     with {:ok, taggable} <- Repo.insert(cs), do: {:ok, taggable}
   end

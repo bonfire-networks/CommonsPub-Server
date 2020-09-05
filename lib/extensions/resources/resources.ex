@@ -57,6 +57,10 @@ defmodule CommonsPub.Resources do
     end)
   end
 
+  def create(%User{} = creator, _, attrs) when is_map(attrs) do
+    create(creator, attrs)
+  end
+
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, resource} <- insert_resource(creator, attrs),

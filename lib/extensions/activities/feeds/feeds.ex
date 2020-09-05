@@ -19,6 +19,10 @@ defmodule CommonsPub.Feeds do
     outbox_id(Repo.preload(obj, :character))
   end
 
+  def outbox_id(_) do
+    nil
+  end
+
   def inbox_id(%{inbox_id: id}) when not is_nil(id) do
     id
   end
@@ -29,6 +33,10 @@ defmodule CommonsPub.Feeds do
 
   def inbox_id(%{character: _} = obj) do
     inbox_id(Repo.preload(obj, :character))
+  end
+
+  def inbox_id(_) do
+    nil
   end
 
   @doc "Retrieves a single feed by arbitrary filters."

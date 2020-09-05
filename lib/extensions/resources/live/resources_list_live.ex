@@ -4,6 +4,12 @@ defmodule CommonsPub.Web.Component.ResourcesListLive do
 
   def render(assigns) do
     ~L"""
+    <div class="community__discussion__actions">
+    <%# <input placeholder="Search collections..."/> %>
+      <a href="#" phx-target="#post_link" phx-click="toggle_link">
+        <button >Share a link</button>
+      </a>
+    </div>
     <div
     phx-update="append"
     data-page="<%= @page %>"

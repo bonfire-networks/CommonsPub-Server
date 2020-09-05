@@ -32,6 +32,7 @@
       <%= live_component(
               @socket,
               CollectionResourcesLive,
+              context: @category,
               context_id: @category.id,
               selected_tab: "resources",
               id: :resources,
