@@ -87,6 +87,21 @@ defmodule Geolocation.GraphQLTest do
       assert_geolocation(grumble_post_key(q, conn, :update_spatial_thing, vars)["spatialThing"])
     end
 
+    test "updates an existing geolocation with only a name" do
+      user = fake_user!()
+      geo = fake_geolocation!(user)
+
+      q = update_geolocation_mutation()
+      conn = user_conn(user)
+      vars = %{spatial_thing: %{
+        "id" => geo.id,
+        "name" => geolocation_input()["name"],
+      }}
+      assert updated = grumble_post_key(q,conn, :update_spatial_thing, vars)["spatialThing"]
+      assert_geolocation(updated)
+      assert updated["name"] == vars[:spatial_thing]["name"]
+    end
+
     test "updates an existing geolocation with a mappable address" do
       user = fake_user!()
       geo = fake_geolocation!(user)
