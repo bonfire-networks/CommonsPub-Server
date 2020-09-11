@@ -204,6 +204,40 @@ defmodule ValueFlows.Test.Faking do
     gen_query(:id, &intent_subquery/1, options)
   end
 
+  def intents_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ intent_fields(fields)
+    field(:intents, [{:fields, fields} | options])
+  end
+
+  def intents_query(options \\ []) do
+    gen_query(&intents_subquery/1, options)
+  end
+
+  def intents_pages_subquery(options \\ []) do
+    args = [
+      after: var(:intents_after),
+      before: var(:intents_before),
+      limit: var(:intents_limit),
+    ]
+
+    page_subquery(
+      :intents_pages,
+      &intent_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def intents_pages_query(options \\ []) do
+    params = [
+      intents_after: list_type(:cursor),
+      intents_before: list_type(:cursor),
+      intents_limit: :int,
+    ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&intents_pages_subquery/1, [{:params, params} | options])
+  end
+
   def create_offer_mutation(options \\ []) do
     [intent: type!(:intent_create_params)]
     |> gen_mutation(&create_offer_submutation/1, options)
