@@ -30,9 +30,11 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   describe "create" do
     test "can create a proposal" do
       user = fake_user!()
+      attrs = proposal()
 
-      assert {:ok, proposal} = Proposals.create(user, proposal())
+      assert {:ok, proposal} = Proposals.create(user, attrs)
       assert_proposal_full(proposal)
+      assert proposal.unit_based == attrs[:unit_based]
     end
 
     test "can create a proposal with a scope" do
@@ -49,10 +51,12 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     test "can update an existing proposal" do
       user = fake_user!()
       proposal = fake_proposal!(user)
+      new_attrs = proposal()
 
-      assert {:ok, updated} = Proposals.update(proposal, proposal())
+      assert {:ok, updated} = Proposals.update(proposal, new_attrs)
       assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
+      assert updated.unit_based == new_attrs[:unit_based]
     end
 
     test "can update an existing proposal with a new context" do
