@@ -49,10 +49,6 @@ defmodule ValueFlows.Test.Faking do
       name: &assert_binary/1,
       note: &assert_binary/1,
       unit_based: &assert_boolean/1,
-      # TODO
-      # resource_quantity: assert_optional(&assert_measure/1),
-      # effort_quantity: assert_optional(&assert_measure/1),
-      # available_quantity: assert_optional(&assert_measure/1),
       has_beginning: assert_optional(&assert_datetime/1),
       has_end: assert_optional(&assert_datetime/1),
       created: assert_optional(&assert_datetime/1)
@@ -61,6 +57,26 @@ defmodule ValueFlows.Test.Faking do
 
   def assert_proposal(%Proposal{} = proposal, %{} = proposal2) do
     assert_proposals_eq(proposal, assert_proposal(proposal2))
+  end
+
+  def assert_proposal_full(%Proposal{} = proposal) do
+    assert_proposal_full(Map.from_struct(proposal))
+  end
+
+  def assert_proposal_full(proposal) do
+    assert_object(proposal, :assert_proposal,
+      id: &assert_ulid/1,
+      name: &assert_binary/1,
+      note: &assert_binary/1,
+      unit_based: &assert_boolean/1,
+      has_beginning: &assert_datetime/1,
+      has_end: &assert_datetime/1,
+      created: &assert_datetime/1
+    )
+  end
+
+  def assert_proposal_full(%Proposal{} = proposal, %{} = proposal2) do
+    assert_proposals_eq(proposal, assert_proposal_full(proposal2))
   end
 
   def assert_proposals_eq(%Proposal{} = proposal, %{} = proposal2) do

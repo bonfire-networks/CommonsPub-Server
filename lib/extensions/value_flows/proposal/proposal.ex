@@ -7,7 +7,7 @@ defmodule ValueFlows.Proposal do
     source: "vf_proposal",
     table_id: "PR0P0SA11SMADE0FTW01NTENTS"
 
-  import CommonsPub.Common.Changeset, only: [change_public: 1]
+  import CommonsPub.Common.Changeset, only: [change_public: 1, claim_changeset: 3]
   alias Ecto.Changeset
   alias CommonsPub.Users.User
   #
@@ -40,7 +40,7 @@ defmodule ValueFlows.Proposal do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note eligible_location_id)a
+  @cast @required ++ ~w(note has_beginning has_end unit_based eligible_location_id)a
 
   def create_changeset(
         %User{} = creator,
@@ -51,6 +51,7 @@ defmodule ValueFlows.Proposal do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
+      created: DateTime.utc_now(),
       creator_id: creator.id,
       context_id: context.id,
       is_public: true
@@ -66,6 +67,7 @@ defmodule ValueFlows.Proposal do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
+      created: DateTime.utc_now(),
       creator_id: creator.id,
       is_public: true
     )

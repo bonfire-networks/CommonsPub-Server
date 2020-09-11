@@ -19,9 +19,9 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposal = fake_proposal!(user)
 
       assert {:ok, fetched} = Proposals.one(id: proposal.id)
-      assert_proposal(proposal, fetched)
+      assert_proposal_full(proposal, fetched)
       assert {:ok, fetched} = Proposals.one(user: user)
-      assert_proposal(proposal, fetched)
+      assert_proposal_full(proposal, fetched)
       # TODO
       # assert {:ok, fetched} = Intents.one(context: comm)
     end
@@ -32,7 +32,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       user = fake_user!()
 
       assert {:ok, proposal} = Proposals.create(user, proposal())
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
 
     test "can create a proposal with a scope" do
@@ -40,7 +40,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       parent = fake_user!()
 
       assert {:ok, proposal} = Proposals.create(user, parent, proposal())
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
       assert proposal.context_id == parent.id
     end
   end
@@ -51,7 +51,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposal = fake_proposal!(user)
 
       assert {:ok, updated} = Proposals.update(proposal, proposal())
-      assert_proposal(updated)
+      assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
     end
 
@@ -62,7 +62,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
       new_context = fake_community!(user)
       assert {:ok, updated} = Proposals.update(proposal, new_context, proposal())
-      assert_proposal(updated)
+      assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
       assert updated.context_id == new_context.id
     end
