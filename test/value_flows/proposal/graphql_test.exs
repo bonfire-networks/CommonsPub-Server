@@ -16,7 +16,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       q = proposal_query()
       conn = user_conn(user)
       assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
   end
 
@@ -63,7 +63,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       conn = user_conn(user)
       vars = %{proposal: proposal_input()}
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
 
     test "creates a new proposal with a scope" do
@@ -74,7 +74,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       conn = user_conn(user)
       vars = %{proposal: proposal_input(%{"inScopeOf" => parent.id})}
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
   end
 
@@ -87,7 +87,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       conn = user_conn(user)
       vars = %{proposal: update_proposal_input(%{"id" => proposal.id})}
       assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
 
     test "updates an existing proposal with a new scope" do
@@ -104,7 +104,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       }
 
       assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
   end
 
