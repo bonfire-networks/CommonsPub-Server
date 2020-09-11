@@ -5,6 +5,8 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Test.Faking
 
+  import Geolocation.Simulate
+
   import Measurement.Simulate
   import Measurement.Test.Faking
 
@@ -44,6 +46,15 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       assert {:ok, proposal} = Proposals.create(user, parent, proposal())
       assert_proposal_full(proposal)
       assert proposal.context_id == parent.id
+    end
+
+    test "can create a proposal with an eligible location" do
+      user = fake_user!()
+      location = fake_geolocation!(user)
+
+      attrs = proposal(%{eligible_location_id: location.id})
+      assert {:ok, proposal} = Proposals.create(user, attrs)
+      assert proposal.eligible_location_id == location.id
     end
   end
 

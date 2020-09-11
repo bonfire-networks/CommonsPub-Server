@@ -45,7 +45,7 @@ defmodule ValueFlows.Hydration do
           resolve: &CommonResolver.context_edge/3
         ],
         eligible_location: [
-          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+          resolve: &ValueFlows.Proposal.GraphQL.eligible_location_edge/3
         ],
         publishes: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.publishes_edge/3

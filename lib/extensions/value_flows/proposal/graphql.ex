@@ -63,6 +63,16 @@ defmodule ValueFlows.Proposal.GraphQL do
     Proposals.many()
   end
 
+  def eligible_location_edge(%{eligible_location_id: id} = proposal, _, _) when not is_nil(id) do
+    proposal = Repo.preload(proposal, :eligible_location)
+    location = proposal
+    |> Map.get(:eligible_location, nil)
+    |> Geolocation.Geolocations.populate_coordinates()
+    {:ok, location}
+  end
+
+  def eligible_location_edge(_, _, _), do: {:ok, nil}
+
   ## fetchers
 
   def fetch_proposal(info, id) do

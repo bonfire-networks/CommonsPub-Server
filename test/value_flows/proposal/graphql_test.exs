@@ -5,6 +5,8 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   import CommonsPub.Utils.Simulation
   import CommonsPub.Test.Faking
 
+  import Geolocation.Simulate
+
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -53,6 +55,19 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
   end
 
+  describe "proposal.eligibleLocation" do
+    test "fetches an associated eligible location" do
+      user = fake_user!()
+      location = fake_geolocation!(user)
+      proposal = fake_proposal!(user, nil, %{eligible_location_id: location.id})
+
+      q = proposal_query(fields: [eligible_location: [:id]])
+      conn = user_conn(user)
+      assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
+      assert proposal["eligibleLocation"]["id"] == location.id
+    end
+  end
+
   describe "proposals" do
   end
 
@@ -75,6 +90,17 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       vars = %{proposal: proposal_input(%{"inScopeOf" => parent.id})}
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
       assert_proposal_full(proposal)
+    end
+
+    test "creates a new proposal with an eligible location" do
+      user = fake_user!()
+      location = fake_geolocation!(user)
+
+      q = create_proposal_mutation(fields: [eligible_location: [:id]])
+      conn = user_conn(user)
+      vars = %{proposal: proposal_input(%{"eligibleLocation" => location.id})}
+      assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
+      assert proposal["eligibleLocation"]["id"] == location.id
     end
   end
 
