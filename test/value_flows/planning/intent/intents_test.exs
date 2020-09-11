@@ -3,6 +3,8 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Test.Faking
+  import CommonsPub.Tag.Simulate
+  import CommonsPub.Utils.Trendy, only: [some: 2]
 
   import Measurement.Simulate
   import Measurement.Test.Faking
@@ -90,6 +92,17 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       assert {:ok, intent} = Intents.create(user, action(), another_user, intent(measures))
       assert_intent(intent)
       assert intent.context_id == another_user.id
+    end
+
+    test "can create an intent with tags" do
+      user = fake_user!()
+      tags = some(5, fn -> fake_category!(user).id end)
+
+      attrs = intent(%{tags: tags})
+      assert {:ok, intent} = Intents.create(user, action(), attrs)
+      assert_intent(intent)
+      intent = CommonsPub.Repo.preload(intent, :tags)
+      assert Enum.count(intent.tags) == Enum.count(tags)
     end
   end
 

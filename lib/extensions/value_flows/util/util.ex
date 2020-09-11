@@ -19,11 +19,11 @@ defmodule ValueFlows.Util do
   lookup tag from URL(s), to support vf-graphql mode
   """
 
-  def try_tag_thing(_user, thing, %{resource_classified_as: urls})
-      when is_list(urls) and length(urls) > 0 do
-    # todo: lookup tag by URL
-    {:ok, thing}
-  end
+  # def try_tag_thing(_user, thing, %{resource_classified_as: urls})
+  #     when is_list(urls) and length(urls) > 0 do
+  #   # todo: lookup tag by URL
+  #   {:ok, thing}
+  # end
 
   def try_tag_thing(user, thing, tags) do
     CommonsPub.Tag.TagThings.try_tag_thing(user, thing, tags)
