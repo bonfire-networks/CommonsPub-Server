@@ -53,6 +53,19 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
   end
 
+  describe "intent.inScopeOf" do
+    test "returns the scope of the intent" do
+      user = fake_user!()
+      parent = fake_user!()
+      intent = fake_intent!(user, nil, parent)
+
+      q = intent_query(fields: [in_scope_of: [:__typename]])
+      conn = user_conn(user)
+      assert intent = grumble_post_key(q, conn, :intent, %{id: intent.id})
+      assert hd(intent["inScopeOf"])["__typename"] == "User"
+    end
+  end
+
   describe "create_intent" do
     test "creates a new intent given valid attributes" do
       user = fake_user!()
