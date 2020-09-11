@@ -7,12 +7,13 @@ defmodule ValueFlows.Proposal do
     source: "vf_proposal",
     table_id: "PR0P0SA11SMADE0FTW01NTENTS"
 
-  import CommonsPub.Common.Changeset, only: [change_public: 1, claim_changeset: 3]
+  import CommonsPub.Common.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
   alias CommonsPub.Users.User
   #
   # alias CommonsPub.Communities.Community
   alias ValueFlows.Proposal
+  alias ValueFlows.Proposal.{ProposedIntent, ProposedTo}
   alias ValueFlows.Planning.Intent
 
   @type t :: %__MODULE__{}

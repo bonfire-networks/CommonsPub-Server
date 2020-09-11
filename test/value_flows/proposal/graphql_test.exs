@@ -39,6 +39,23 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
   end
 
+  describe "proposal.publishes.publishedIn" do
+    test "lists the proposals for a proposed intent" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      intent = fake_intent!(user)
+
+      some(5, fn -> fake_proposed_intent!(proposal, intent) end)
+
+      q = proposal_query(fields: [
+        publishes: [:id, published_in: proposal_fields()]
+      ])
+      conn = user_conn(user)
+      assert fetched = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
+      assert_proposal(proposal, fetched)
+    end
+  end
+
   describe "proposal.publishedTo" do
     test "fetches all proposed to items for a proposal" do
       user = fake_user!()
@@ -54,6 +71,8 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       assert Enum.count(proposal["publishedTo"]) == 5
     end
   end
+
+
 
   describe "proposal.eligibleLocation" do
     test "fetches an associated eligible location" do

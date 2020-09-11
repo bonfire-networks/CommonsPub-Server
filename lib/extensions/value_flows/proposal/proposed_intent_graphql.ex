@@ -20,6 +20,20 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     })
   end
 
+  # FIXME ADD BATCHING, THIS IS NESTED DATA!!!!1!!!one!!!
+
+  def intent_in_proposal_edge(%{id: proposed_intent_id}, _, info) do
+    with {:ok, proposed_intent} <- Proposals.one_proposed_intent([:default, id: proposed_intent_id]) do
+      ValueFlows.Planning.Intent.GraphQL.intent(%{id: proposed_intent.publishes_id}, info)
+    end
+  end
+
+  def proposal_in_intent_edge(%{id: proposed_intent_id}, _, info) do
+    with {:ok, proposed_intent} <- Proposals.one_proposed_intent([:default, id: proposed_intent_id]) do
+      ValueFlows.Proposal.GraphQL.proposal(%{id: proposed_intent.published_in_id}, info)
+    end
+  end
+
   def publishes_edge(%{id: proposal_id}, _, _info) do
     # ResolveFields.run(%ResolveFields{
     #   module: __MODULE__,

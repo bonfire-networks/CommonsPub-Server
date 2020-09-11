@@ -53,6 +53,23 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
   end
 
+  describe "intent.publishedIn.publishes" do
+    test "lists the intents for a proposed intent" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      intent = fake_intent!(user)
+
+      some(5, fn -> fake_proposed_intent!(proposal, intent) end)
+
+      q = intent_query(fields: [
+        published_in: [:id, publishes: intent_fields()]
+      ])
+      conn = user_conn(user)
+      assert fetched = grumble_post_key(q, conn, :intent, %{id: intent.id})
+      assert_intent(intent, fetched)
+    end
+  end
+
   describe "intent.inScopeOf" do
     test "returns the scope of the intent" do
       user = fake_user!()
