@@ -15,6 +15,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.EconomicEvent.Queries
+  alias ValueFlows.Observation.Process.Processes
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -168,6 +169,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       {:receiver, &change_receiver/2},
       {:action, &change_action/2},
       {:location, &change_at_location/2},
+      {:input_of, &change_input_of/2},
+      {:output_of, &change_output_of/2},
       {:resource_spec, &change_conforms_to_resource_spec/2},
       {:resource_inventoried_as, &change_resource_inventoried_as/2},
       {:change_to_resource_inventoried_as, &change_to_resource_inventoried_as/2},
@@ -249,6 +252,26 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp change_action(changeset, _attrs), do: changeset
+
+
+  defp change_input_of(changeset, %{input_of: id}) do
+    with {:ok, input_of} <- Processes.one([:default, id: id]) do
+      EconomicEvent.change_input_process(changeset, input_of)
+    end
+  end
+
+  defp change_input_of(changeset, _attrs), do: changeset
+
+
+
+  defp change_output_of(changeset, %{output_of: id}) do
+    with {:ok, output_of} <- Processes.one([:default, id: id]) do
+      EconomicEvent.change_output_process(changeset, output_of)
+    end
+  end
+
+  defp change_output_of(changeset, _attrs), do: changeset
+
 
   defp change_at_location(changeset, %{at_location: id}) do
     with {:ok, location} <- Geolocations.one([:default, id: id]) do
