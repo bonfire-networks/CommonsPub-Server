@@ -46,6 +46,19 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.creator.id == user.id
     end
 
+    test "can create an economic event with context" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+      attrs = %{
+        in_scope_of: [fake_community!(user).id],
+      }
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
+      assert_economic_event(event)
+      assert event.context.id == hd(attrs.in_scope_of)
+    end
+
     test "can create an economic event with input and output" do
       user = fake_user!()
       provider = fake_user!()

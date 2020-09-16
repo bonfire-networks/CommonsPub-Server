@@ -178,21 +178,20 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
 
-  defp change_context(changeset, %{in_scope_of: context_ids} = resource_attrs)
+  defp change_context(changeset, %{in_scope_of: context_ids} = attrs)
        when is_list(context_ids) do
     # FIXME: support multiple contexts?
     context_id = List.first(context_ids)
 
     change_context(
       changeset,
-      Map.merge(resource_attrs, %{in_scope_of: context_id})
+      Map.merge(attrs, %{in_scope_of: context_id})
     )
   end
 
   defp change_context(changeset, %{in_scope_of: id}) do
     with {:ok, pointer} <- Pointers.one(id: id) do
-      context = Pointers.follow!(pointer)
-      EconomicEvent.change_context(changeset, context)
+      EconomicEvent.change_context(changeset, pointer)
     end
   end
 
