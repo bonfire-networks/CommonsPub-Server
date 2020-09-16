@@ -21,7 +21,6 @@ defmodule ValueFlows.Observation.EconomicEvent do
   @type t :: %__MODULE__{}
 
   pointable_schema do
-    field(:name, :string)
     field(:note, :string)
 
     # TODO: link to Agreement?
@@ -30,8 +29,6 @@ defmodule ValueFlows.Observation.EconomicEvent do
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)
     field(:has_point_in_time, :utc_datetime_usec)
-
-    belongs_to(:image, Content)
 
     belongs_to(:action, Action, type: :string)
 
@@ -87,7 +84,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
   @required ~w(is_public)a
   @cast @required ++
-          ~w(note agreed_in has_beginning has_end has_point_in_time action_id is_disabled image_id)a
+          ~w(note agreed_in has_beginning has_end has_point_in_time action_id is_disabled)a
 
   def create_changeset(
         %User{} = creator,

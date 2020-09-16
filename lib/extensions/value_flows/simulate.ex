@@ -10,8 +10,13 @@ defmodule ValueFlows.Simulate do
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Proposal.Proposals
   # alias ValueFlows.Proposal.ProposedIntent
+  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
+  alias ValueFlows.Observation.EconomicResource.EconomicResources
+  alias ValueFlows.Observation.Process.Processes
+
   alias ValueFlows.Knowledge.Action.Actions
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
+  alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
   ### Start fake data functions
 
@@ -28,7 +33,6 @@ defmodule ValueFlows.Simulate do
 
   def resource_specification(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &uuid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     # |> Map.put_new_lazy(:image, &icon/0)
@@ -47,19 +51,11 @@ defmodule ValueFlows.Simulate do
 
   def economic_event(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &uuid/0)
-    |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
-    # |> Map.put_new_lazy(:image, &icon/0)
-    |> Map.put_new_lazy(:action, &action/0)
+    |> Map.put_new_lazy(:action, &action_id/0)
     |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
     |> Map.put_new_lazy(:has_end, &future_datetime/0)
     |> Map.put_new_lazy(:has_point_in_time, &future_datetime/0)
-    |> Map.put_new_lazy(:input_of, &process/0)
-    |> Map.put_new_lazy(:output_of, &process/0)
-    |> Map.put_new_lazy(:resource_inventoried_as, &economic_resource/0)
-    |> Map.put_new_lazy(:to_resource_inventoried_as, &economic_resource/0)
-    |> Map.put_new_lazy(:resource_conforms_to, &resource_specification/0)
     |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
@@ -67,12 +63,10 @@ defmodule ValueFlows.Simulate do
 
   def economic_resource(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &uuid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:tracking_identifier, &uuid/0)
-    |> Map.put_new_lazy(:conforms_to, &resource_specification/0)
-    |> Map.put_new_lazy(:state, &action/0)
+    |> Map.put_new_lazy(:state, &action_id/0)
     # |> Map.put_new_lazy(:accounting_quantity, &measure/0)
     # |> Map.put_new_lazy(:onhand_quantity, &measure/0)
     # |> Map.put_new_lazy(:unit_of_effort, &unit/0)
@@ -84,7 +78,6 @@ defmodule ValueFlows.Simulate do
 
   def process(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &uuid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     # |> Map.put_new_lazy(:image, &icon/0)
@@ -237,4 +230,29 @@ defmodule ValueFlows.Simulate do
     {:ok, spec} = ProcessSpecifications.create(user, context, process_specification(overrides))
     spec
   end
+
+
+  def fake_economic_event!(user, overrides \\ %{}) do
+    {:ok, event} = EconomicEvents.create(user, economic_event(overrides))
+    event
+  end
+
+
+  def fake_process!(user, overrides \\ %{}) do
+    {:ok, process} = Processes.create(user, process(overrides))
+    process
+  end
+
+  def fake_resource_specification!(user, overrides \\ %{}) do
+    {:ok, spec} = ResourceSpecifications.create(user, resource_specification(overrides))
+    spec
+  end
+
+  def fake_economic_resource!(user, overrides \\ %{}) do
+    {:ok, spec} = EconomicResources.create(user, economic_resource(overrides))
+    spec
+  end
+
+
+
 end

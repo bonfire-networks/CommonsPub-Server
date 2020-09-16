@@ -110,7 +110,6 @@ defmodule ValueFlows.Observation.EconomicResource do
 
   def change_state_action(changeset, %Action{} = state) do
     Changeset.change(changeset,
-      state: state,
       state_id: state.id
     )
   end

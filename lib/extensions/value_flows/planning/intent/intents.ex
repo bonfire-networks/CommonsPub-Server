@@ -121,7 +121,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       with {:ok, cs} <- change_at_location(cs, attrs),
            {:ok, cs} <- change_agent(cs, attrs),
            {:ok, item} <- Repo.insert(cs),
-           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
+           {:ok, item} <- ValueFlows.Util.try_tag_thing(nil, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
            {:ok, activity} <- Activities.create(creator, item, act_attrs),

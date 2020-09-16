@@ -116,7 +116,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   def do_create(creator, changeset_fn, event_attrs, _) do
     Repo.transact_with(fn ->
-      with cs <- prepare_changeset(event_attrs, changeset_fn),
+      with {:ok, cs} <- prepare_changeset(event_attrs, changeset_fn),
            {:ok, item} <- Repo.insert(cs),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, event_attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -146,7 +146,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
           :at_location
         ])
 
-      with cs <- prepare_changeset(attrs, changeset_fn, event),
+      with {:ok, cs} <- prepare_changeset(attrs, changeset_fn, event),
            {:ok, event} <- Repo.update(cs),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
            :ok <- publish(event, :updated) do
@@ -168,18 +168,19 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp changeset_relations(cs, attrs) do
     attrs = parse_measurement_attrs(attrs)
-
-    cs
-    |> EconomicEvent.change_measures(attrs)
-    |> change_context(attrs)
-    |> change_provider(attrs)
-    |> change_receiver(attrs)
-    |> change_action(attrs)
-    |> change_at_location(attrs)
-    |> change_conforms_to_resource_spec(attrs)
-    |> change_resource_inventoried_as(attrs)
-    |> change_to_resource_inventoried_as(attrs)
+    ValueFlows.Util.handle_changeset_errors(cs, attrs, [
+      {:measures, &EconomicEvent.change_measures/2},
+      {:context, &change_context/2},
+      {:provider, &change_provider/2},
+      {:receiver, &change_receiver/2},
+      {:action, &change_action/2},
+      {:location, &change_at_location/2},
+      {:resource_spec, &change_conforms_to_resource_spec/2},
+      {:resource_inventoried_as, &change_resource_inventoried_as/2},
+      {:change_to_resource_inventoried_as, &change_to_resource_inventoried_as/2},
+    ])
   end
+
 
   defp change_context(changeset, %{in_scope_of: context_ids} = resource_attrs)
        when is_list(context_ids) do
@@ -331,16 +332,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp ap_publish(_, _, _), do: :ok
 
   def indexing_object_format(obj) do
-    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
-    image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
-
     %{
       "index_type" => "EconomicEvent",
       "id" => obj.id,
       # "canonicalUrl" => obj.character.canonical_url,
       # "icon" => icon,
-      "image" => image,
-      "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)

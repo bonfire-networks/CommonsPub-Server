@@ -16,7 +16,7 @@ defmodule ValueFlows.Test.Faking do
   # alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
-
+  alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.{
     Proposal
     # Proposals
@@ -154,6 +154,17 @@ defmodule ValueFlows.Test.Faking do
   def assert_process_specification(spec) do
     assert_object(spec, :assert_process_specification,
       name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      # classified_as: assert_optional(assert_list(&assert_url/1))
+    )
+  end
+
+  def assert_economic_event(%EconomicEvent{} = event) do
+    assert_economic_event(Map.from_struct(event))
+  end
+
+  def assert_economic_event(event) do
+    assert_object(event, :assert_economic_event,
       note: assert_optional(&assert_binary/1),
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )

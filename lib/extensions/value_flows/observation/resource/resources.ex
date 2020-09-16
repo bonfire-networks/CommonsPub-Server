@@ -100,7 +100,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   def do_create(creator, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      with cs <- prepare_changeset(attrs, changeset_fn),
+      with {:ok, cs} <- prepare_changeset(attrs, changeset_fn),
            {:ok, item} <- Repo.insert(cs),
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
@@ -135,7 +135,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
           :conforms_to
         ])
 
-      with cs <- prepare_changeset(attrs, changeset_fn, resource),
+      with {:ok, cs} <- prepare_changeset(attrs, changeset_fn, resource),
            {:ok, resource} <- Repo.update(cs),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(nil, resource, attrs),
            :ok <- publish(resource, :updated) do
@@ -157,17 +157,17 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp changeset_relations(cs, attrs) do
     attrs = parse_measurement_attrs(attrs)
-
-    cs
-    |> EconomicResource.change_measures(attrs)
-    |> change_context(attrs)
-    |> change_primary_accountable(attrs)
-    |> change_state_action(attrs)
-    |> change_stage_process_spec(attrs)
-    |> change_current_location(attrs)
-    |> change_conforms_to_resource_spec(attrs)
-    |> change_contained_in_resource(attrs)
-    |> change_unit_of_effort(attrs)
+    ValueFlows.Util.handle_changeset_errors(cs, attrs, [
+    {:measures, &EconomicResource.change_measures/2},
+    {:context, &change_context/2},
+    {:primary_accountable, &change_primary_accountable/2},
+    {:state_action, &change_state_action/2},
+    {:stage_process_spec, &change_stage_process_spec/2},
+    {:location, &change_current_location/2},
+    {:conforms_to_resource_spec, &change_conforms_to_resource_spec/2},
+    {:contained_in_resource, &change_contained_in_resource/2},
+    {:unit_of_effort, &change_unit_of_effort/2},
+    ])
   end
 
   defp change_context(changeset, %{in_scope_of: context_ids} = resource_attrs)
@@ -207,9 +207,9 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp change_state_action(changeset, _attrs), do: changeset
 
-  defp change_stage_process_spec(changeset, %{state: id}) do
-    with {:ok, state} <- ProcessSpecifications.one(id: id) do
-      EconomicResource.change_stage_process_spec(changeset, state)
+  defp change_stage_process_spec(changeset, %{stage: id}) do
+    with {:ok, stage} <- ProcessSpecifications.one(id: id) do
+      EconomicResource.change_stage_process_spec(changeset, stage)
     end
   end
 
