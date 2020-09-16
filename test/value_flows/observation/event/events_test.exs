@@ -4,6 +4,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
   import CommonsPub.Test.Faking
   import CommonsPub.Utils.{Trendy, Simulation}
   import ValueFlows.Simulate
+  import Measurement.Simulate
+
   import ValueFlows.Test.Faking
 
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
@@ -113,6 +115,23 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert_economic_event(event)
       assert event.resource_conforms_to.id == attrs.resource_conforms_to
       assert event.resource_classified_as == attrs.resource_classified_as
+    end
+
+    test "can create an economic event with measure" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      unit = fake_unit!(user)
+      action = action()
+      measures = %{
+        resource_quantity: measure(%{unit_id: unit.id}),
+        effort_quantity: measure(%{unit_id: unit.id}),
+      }
+
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(measures))
+      assert_economic_event(event)
+      assert event.resource_quantity.id
+      assert event.effort_quantity.id
     end
 
   end
