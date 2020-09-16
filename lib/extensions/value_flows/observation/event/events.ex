@@ -89,17 +89,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   ## mutations
 
-  # @spec create(User.t(), event_attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, event_attrs, params \\ []) when is_map(event_attrs) do
-    do_create(
-      creator,
-      fn -> EconomicEvent.create_changeset(creator, event_attrs) end,
-      event_attrs,
-      params
-    )
-  end
-
-  def do_create(creator, changeset_fn, event_attrs, %{
+  def create(creator, receiver, provider, action, event_attrs, %{
         new_inventoried_resource: new_inventoried_resource
       }) do
     new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
@@ -110,11 +100,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
              new_inventoried_resource
            ) do
       event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource})
-      do_create(creator, changeset_fn, event_attrs, nil)
+      create(creator, receiver, provider, action, event_attrs)
     end
   end
 
-  def do_create(creator, changeset_fn, event_attrs, _) do
+  def create(%User{} = creator, receiver, provider, action, event_attrs) do
+    changeset_fn = fn ->
+      EconomicEvent.create_changeset(creator, receiver, provider, action, event_attrs)
+    end
     Repo.transact_with(fn ->
       with {:ok, cs} <- prepare_changeset(event_attrs, changeset_fn),
            {:ok, item} <- Repo.insert(cs),
@@ -123,7 +116,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            # FIXME
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created) do
-        item = %{item | creator: creator}
+        item = %{item | creator: creator, receiver: receiver, provider: provider, action: action}
         index(item)
         {:ok, item}
       end

@@ -11,8 +11,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
   describe "one" do
     test "fetches an existing economic event by ID" do
      user = fake_user!()
-
-     event = fake_economic_event!(user, %{
+     provider = fake_user!()
+     receiver = fake_user!()
+     action = action()
+     event = fake_economic_event!(user, receiver, provider, action, %{
        input_of: fake_process!(user).id,
        output_of: fake_process!(user).id,
        resource_conforms_to: fake_resource_specification!(user).id,
@@ -26,9 +28,15 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
      assert_economic_event(fetched)
     end
 
-    test "cannot fetch a deleted economic event" do
 
-    end
   end
 
+  describe "create" do
+    test "can create an economic event" do
+      user = fake_user!()
+      attrs = {}
+
+    end
+
+  end
 end

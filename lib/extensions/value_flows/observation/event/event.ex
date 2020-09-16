@@ -84,10 +84,13 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
   @required ~w(is_public)a
   @cast @required ++
-          ~w(note agreed_in has_beginning has_end has_point_in_time action_id is_disabled)a
+          ~w(note agreed_in has_beginning has_end has_point_in_time is_disabled)a
 
   def create_changeset(
         %User{} = creator,
+        %{id: _} = receiver,
+        %{id: _} = provider,
+        %Action{} = action,
         attrs
       ) do
     %EconomicEvent{}
@@ -95,6 +98,9 @@ defmodule ValueFlows.Observation.EconomicEvent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
+      receiver_id: receiver.id,
+      provider_id: provider.id,
+      action_id: action.id,
       is_public: true
     )
     |> common_changeset()
@@ -111,10 +117,6 @@ defmodule ValueFlows.Observation.EconomicEvent do
       context: context,
       context_id: context.id
     )
-  end
-
-  def change_action(changeset, %Action{} = action) do
-    Changeset.change(changeset, action_id: action.id)
   end
 
   def change_provider(changeset, %{id: _} = provider) do
