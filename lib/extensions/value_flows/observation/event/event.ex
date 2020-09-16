@@ -84,7 +84,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
   @required ~w(is_public)a
   @cast @required ++
-          ~w(note agreed_in has_beginning has_end has_point_in_time is_disabled)a
+          ~w(note resource_classified_as agreed_in has_beginning has_end has_point_in_time is_disabled)a
 
   def create_changeset(
         %User{} = creator,
@@ -141,10 +141,10 @@ defmodule ValueFlows.Observation.EconomicEvent do
     )
   end
 
-  def change_conforms_to_resource_spec(changeset, %ResourceSpecification{} = conforms_to) do
+  def change_resource_conforms_to(changeset, %ResourceSpecification{} = conforms_to) do
     Changeset.change(changeset,
-      conforms_to: conforms_to,
-      conforms_to_id: conforms_to.id
+      resource_conforms_to: conforms_to,
+      resource_conforms_to_id: conforms_to.id
     )
   end
 

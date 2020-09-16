@@ -2,7 +2,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Test.Faking
-
+  import CommonsPub.Utils.{Trendy, Simulation}
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -72,6 +72,47 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert_economic_event(event)
       assert event.input_of.id == attrs.input_of
       assert event.output_of.id == attrs.output_of
+    end
+
+    test "can create an economic event with resource inventoried as" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+      attrs = %{
+        resource_inventoried_as: fake_economic_resource!(user).id,
+      }
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
+      assert_economic_event(event)
+      assert event.resource_inventoried_as.id == attrs.resource_inventoried_as
+    end
+
+    test "can create an economic event with to resource inventoried as" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+      attrs = %{
+        to_resource_inventoried_as: fake_economic_resource!(user).id,
+      }
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
+      assert_economic_event(event)
+      assert event.to_resource_inventoried_as.id == attrs.to_resource_inventoried_as
+    end
+
+    test "can create an economic event with: resource conforms to, resourceClassifiedAs" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+      attrs = %{
+        resource_conforms_to: fake_resource_specification!(user).id,
+        resource_classified_as: some(1..5, &url/0)
+      }
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
+      assert_economic_event(event)
+      assert event.resource_conforms_to.id == attrs.resource_conforms_to
+      assert event.resource_classified_as == attrs.resource_classified_as
     end
 
   end

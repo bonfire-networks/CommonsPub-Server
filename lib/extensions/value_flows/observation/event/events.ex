@@ -171,7 +171,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       {:location, &change_at_location/2},
       {:input_of, &change_input_of/2},
       {:output_of, &change_output_of/2},
-      {:resource_spec, &change_conforms_to_resource_spec/2},
+      {:resource_spec, &change_resource_conforms_to/2},
       {:resource_inventoried_as, &change_resource_inventoried_as/2},
       {:change_to_resource_inventoried_as, &change_to_resource_inventoried_as/2},
     ])
@@ -197,13 +197,13 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_context(changeset, _attrs), do: changeset
 
-  defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
+  defp change_resource_conforms_to(changeset, %{resource_conforms_to: id}) do
     with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
-      EconomicEvent.change_conforms_to_resource_spec(changeset, item)
+      EconomicEvent.change_resource_conforms_to(changeset, item)
     end
   end
 
-  defp change_conforms_to_resource_spec(changeset, _attrs), do: changeset
+  defp change_resource_conforms_to(changeset, _attrs), do: changeset
 
   defp change_resource_inventoried_as(changeset, %{resource_inventoried_as: id})
        when is_binary(id) do
