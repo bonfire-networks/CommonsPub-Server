@@ -1,4 +1,4 @@
-defmodule ExtendModule do
+defmodule ModuleExtend do
   defmacro extends(module) do
     module = Macro.expand(module, __CALLER__)
     functions = module.__info__(:functions)
