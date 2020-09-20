@@ -78,7 +78,7 @@ defmodule CommonsPub.Utils.Simulation do
   @doc "A random license for content"
   def license(), do: Faker.Util.pick(["GPLv3", "BSDv3", "AGPL", "Creative Commons"])
   @doc "Returns a city and country"
-  def location(), do: Faker.Address.city() <> " " <> Faker.Address.country()
+  def location(), do: Faker.Address.city() <> ", " <> Faker.Address.country()
   @doc "A website address"
   def website(), do: Faker.Internet.url()
   @doc "A verb to be used for an activity."
