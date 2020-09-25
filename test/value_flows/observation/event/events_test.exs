@@ -31,7 +31,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
      assert_economic_event(fetched)
     end
 
-
   end
 
   describe "create" do
@@ -161,7 +160,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         triggered_by: triggered_by.id
       }
       assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
-      IO.inspect(event)
       assert_economic_event(event)
       assert event.triggered_by.id == attrs.triggered_by
     end

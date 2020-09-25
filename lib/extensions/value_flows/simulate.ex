@@ -70,7 +70,6 @@ defmodule ValueFlows.Simulate do
     # |> Map.put_new_lazy(:onhand_quantity, &measure/0)
     # |> Map.put_new_lazy(:unit_of_effort, &unit/0)
     # |> Map.put_new_lazy(:image, &icon/0)
-    |> Map.put_new_lazy(:classified_as, fn -> some(1..5, &url/0) end)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
