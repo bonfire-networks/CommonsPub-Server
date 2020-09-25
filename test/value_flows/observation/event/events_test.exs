@@ -5,6 +5,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
   import CommonsPub.Utils.{Trendy, Simulation}
   import ValueFlows.Simulate
   import Measurement.Simulate
+  import Geolocation.Simulate
 
   import ValueFlows.Test.Faking
 
@@ -134,5 +135,47 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.effort_quantity.id
     end
 
+    test  "can create an economic event with location" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      unit = fake_unit!(user)
+      action = action()
+      location = fake_geolocation!(user)
+      attrs = %{
+        at_location: location.id
+      }
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
+      assert_economic_event(event)
+      assert event.at_location.id == attrs.at_location
+    end
+
+    test  "can create an economic event triggered by another event" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      unit = fake_unit!(user)
+      action = action()
+      triggered_by = fake_economic_event!(user, receiver, provider, action)
+      attrs = %{
+        triggered_by: triggered_by.id
+      }
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
+      IO.inspect(event)
+      assert_economic_event(event)
+      assert event.triggered_by.id == attrs.triggered_by
+    end
   end
+
+  describe "update" do
+
+
+  end
+
+  describe "soft delete" do
+
+
+  end
+
+
 end

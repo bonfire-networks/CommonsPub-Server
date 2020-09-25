@@ -171,6 +171,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       {:location, &change_at_location/2},
       {:input_of, &change_input_of/2},
       {:output_of, &change_output_of/2},
+      {:triggered_by, &change_triggered_by_event/2},
       {:resource_spec, &change_resource_conforms_to/2},
       {:resource_inventoried_as, &change_resource_inventoried_as/2},
       {:change_to_resource_inventoried_as, &change_to_resource_inventoried_as/2},
@@ -279,6 +280,15 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp change_at_location(changeset, _attrs), do: changeset
+
+  defp change_triggered_by_event(changeset, %{triggered_by: id}) do
+    with {:ok, triggered_by} <- one([:default, id: id]) do
+      EconomicEvent.change_triggered_by_event(changeset, triggered_by)
+    end
+  end
+
+  defp change_triggered_by_event(changeset, _attrs), do: changeset
+
 
   defp parse_measurement_attrs(attrs) do
     Enum.reduce(attrs, %{}, fn {k, v}, acc ->

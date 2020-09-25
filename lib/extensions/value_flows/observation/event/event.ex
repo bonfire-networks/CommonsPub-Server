@@ -172,7 +172,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
   def change_triggered_by_event(changeset, %EconomicEvent{} = item) do
     Changeset.change(changeset,
       triggered_by: item,
-      triggered_by_in_id: item.id
+      triggered_by_id: item.id
     )
   end
 
