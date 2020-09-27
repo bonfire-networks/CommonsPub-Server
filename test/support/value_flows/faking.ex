@@ -19,7 +19,8 @@ defmodule ValueFlows.Test.Faking do
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Observation.{
     EconomicEvent,
-    EconomicResource
+    EconomicResource,
+    Process
   }
   alias ValueFlows.{
     Proposal
@@ -63,6 +64,18 @@ defmodule ValueFlows.Test.Faking do
 
   def assert_process_specification(spec) do
     assert_object(spec, :assert_process_specification,
+      name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      # classified_as: assert_optional(assert_list(&assert_url/1))
+    )
+  end
+
+  def assert_process(%Process{} = spec) do
+    assert_process(Map.from_struct(spec))
+  end
+
+  def assert_process(spec) do
+    assert_object(spec, :assert_process,
       name: &assert_binary/1,
       note: assert_optional(&assert_binary/1),
       # classified_as: assert_optional(assert_list(&assert_url/1))

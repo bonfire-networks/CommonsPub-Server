@@ -85,6 +85,13 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   ## mutations
 
+  def create(%User{} = creator, %{id: _id} = context, attrs)
+      when is_map(attrs) do
+    do_create(creator, attrs, fn ->
+      Process.create_changeset(creator, context, attrs)
+    end)
+  end
+
   # @spec create(User.t(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
     do_create(creator, attrs, fn ->
