@@ -99,7 +99,11 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
       :current_location,
       :contained_in,
       :conforms_to
-    ]) |> Map.put :state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id)
+    ]) |> preload_state()
+  end
+
+  def preload_state(resource) do
+    resource |> Map.put :state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id)
   end
 
   ## mutations

@@ -15,15 +15,31 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
     test "fetches an existing economic resource by ID" do
      user = fake_user!()
 
+     assert {:ok, resource} = EconomicResources.create(user, economic_resource())
+
+     assert {:ok, fetched} = EconomicResources.one(id: resource.id)
+     assert_economic_resource(fetched)
+
     end
 
   end
 
   describe "create" do
-    test "can create an economic resource" do
+    test "can create an economic resource (usually should be done via EconomicEvent)" do
       user = fake_user!()
       assert {:ok, resource} = EconomicResources.create(user, economic_resource())
       assert_economic_resource(resource)
+    end
+
+    test "can create an economic resource with location" do
+      user = fake_user!()
+      location = fake_geolocation!(user)
+      attrs = %{
+        current_location: location.id
+      }
+      assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
+      assert_economic_resource(resource)
+      assert resource.current_location.id == attrs.current_location
     end
 
   end

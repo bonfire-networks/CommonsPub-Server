@@ -61,7 +61,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.context.id == hd(attrs.in_scope_of)
     end
 
-    test "can create an economic event with input and output" do
+    test "can create an economic event with input_of and output_of" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
@@ -76,7 +76,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.output_of.id == attrs.output_of
     end
 
-    test "can create an economic event with resource inventoried as" do
+    test "can create an economic event with resource_inventoried_as" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
@@ -89,7 +89,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.resource_inventoried_as.id == attrs.resource_inventoried_as
     end
 
-    test "can create an economic event with to resource inventoried as" do
+    test "can create an economic event with to_resource_inventoried_as" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
@@ -115,7 +115,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.resource_conforms_to.id == attrs.resource_conforms_to
     end
 
-    test "can create an economic event with resourceClassifiedAs" do
+    test "can create an economic event with resource_classified_as" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
@@ -128,7 +128,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.resource_classified_as == attrs.resource_classified_as
     end
 
-    test "can create an economic event with measure" do
+    test "can create an economic event with resource_quantity and effort_quantity" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
@@ -160,7 +160,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.at_location.id == attrs.at_location
     end
 
-    test  "can create an economic event triggered by another event" do
+    test  "can create an economic event triggered_by another event" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
