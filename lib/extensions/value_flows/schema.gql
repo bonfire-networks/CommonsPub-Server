@@ -2556,6 +2556,12 @@ type Process {
   The process with its inputs and outputs is part of the scenario.
   """
   nestedIn: Scenario
+
+  """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext!]
 }
 
 input ProcessCreateParams {
@@ -2605,6 +2611,12 @@ input ProcessCreateParams {
   scheme for purposes of categorization or grouping.
   """
   classifiedAs: [URI!]
+
+  """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!]
 }
 
 type ProcessResponse {
@@ -3951,7 +3963,7 @@ type ValueFlowsQuery {
   intentsPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
 
   "TEMPORARY - get filtered but non-paginated list of intents"
-  intentsFilter(
+  intentsFiltered(
     inScopeOf: [ID]
     tagIds: [ID]
     atLocation: [ID]
@@ -3967,6 +3979,30 @@ type ValueFlowsQuery {
 
   "Get paginated list of active needs (intents no provider)"
   needsPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
+
+  "Get paginated list of economic events"
+  economicEventsPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+  ): EconomicEventPage!
+
+  "Get paginated list of economic resources"
+  economicResourcesPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+  ): EconomicResourcePage!
+
+  "TEMPORARY - get filtered but non-paginated list of resources"
+  economicResourcesFiltered(
+    inScopeOf: [ID]
+    tagIds: [ID]
+    currentLocation: [ID]
+    geolocation: GeolocationFilters
+    agent: [ID]
+    state: [ID]
+  ): [EconomicResource]
 
   "Get paginated list of people"
   peoplePages(limit: Int, before: [Cursor!], after: [Cursor!]): AgentsPage!
@@ -3999,5 +4035,19 @@ type IntentsPage {
 type ProposalsPage {
   pageInfo: PageInfo!
   edges: [Proposal!]!
+  totalCount: Int!
+}
+
+"A page of Economic Events"
+type EconomicEventPage {
+  pageInfo: PageInfo!
+  edges: [EconomicEvent!]!
+  totalCount: Int!
+}
+
+"A page of Economic Resources"
+type EconomicResourcePage {
+  pageInfo: PageInfo!
+  edges: [EconomicResource!]!
   totalCount: Int!
 }

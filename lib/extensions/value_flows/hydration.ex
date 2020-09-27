@@ -129,6 +129,14 @@ defmodule ValueFlows.Hydration do
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
       },
+      process: %{
+        classified_as: [
+          resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
+        ],
+        tags: [
+          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+        ],
+      },
 
       # start Query resolvers
       value_flows_query: %{
@@ -188,12 +196,26 @@ defmodule ValueFlows.Hydration do
         economic_events: [
           resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.all_events/2
         ],
+        economic_events_pages: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.events/2
+        ],
+        economic_events_filtered: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.events_filtered/2
+        ],
+
         economic_resource: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resource/2
         ],
         economic_resources: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.all_resources/2
         ],
+        economic_resources_pages: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resources/2
+        ],
+        economic_resources_filtered: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resources_filtered/2
+        ],
+
         process: [
           resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2
         ],
@@ -217,7 +239,7 @@ defmodule ValueFlows.Hydration do
         needs_pages: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.needs/2
         ],
-        intents_filter: [
+        intents_filtered: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.intents_filtered/2
         ],
 
@@ -294,8 +316,20 @@ defmodule ValueFlows.Hydration do
         create_process_specification: [
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.create_process_spec/2
         ],
+        create_process: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.create_process/2
+        ],
         create_economic_event: [
           resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.create_event/2
+        ],
+        update_economic_event: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.update_event/2
+        ],
+        delete_economic_event: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.delete_event/2
+        ],
+        update_economic_resource: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.update_resource/2
         ]
       }
     }

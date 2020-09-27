@@ -101,6 +101,10 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     )
   end
 
+  defp resources_filter(%{agent: id} = page_opts, filters_acc) do
+    resources_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
+  end
+
   defp resources_filter(%{state: id} = page_opts, filters_acc) do
     resources_filter_next(:state, [state_id: id], page_opts, filters_acc)
   end

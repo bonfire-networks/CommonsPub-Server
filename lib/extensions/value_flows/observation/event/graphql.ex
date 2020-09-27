@@ -334,7 +334,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, event} <- update_fn.(event, changes) do
-      {:ok, %{event: event}}
+      {:ok, %{economic_event: event}}
     end
   end
 
