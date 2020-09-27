@@ -29,9 +29,6 @@ defmodule ValueFlows.Observation.EconomicResource do
 
     belongs_to(:conforms_to, ResourceSpecification)
 
-    # array of URI
-    field(:classified_as, {:array, :string}, virtual: true)
-
     belongs_to(:current_location, Geolocation)
 
     belongs_to(:contained_in, EconomicResource)
@@ -45,13 +42,12 @@ defmodule ValueFlows.Observation.EconomicResource do
 
     belongs_to(:unit_of_effort, Unit, on_replace: :nilify)
 
-    belongs_to(:stage, ProcessSpecification)
+    # belongs_to(:stage, ProcessSpecification)
 
     # TODO relations:
     # lot: ProductBatch
 
     belongs_to(:creator, User)
-    belongs_to(:context, Pointers.Pointer)
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
@@ -94,13 +90,6 @@ defmodule ValueFlows.Observation.EconomicResource do
     |> common_changeset()
   end
 
-  def change_context(changeset, %{id: _} = context) do
-    Changeset.change(changeset,
-      context: context,
-      context_id: context.id
-    )
-  end
-
   def change_primary_accountable(changeset, %{id: _} = primary_accountable) do
     Changeset.change(changeset,
       primary_accountable: primary_accountable,
@@ -110,7 +99,6 @@ defmodule ValueFlows.Observation.EconomicResource do
 
   def change_state_action(changeset, %Action{} = state) do
     Changeset.change(changeset,
-      state: state,
       state_id: state.id
     )
   end

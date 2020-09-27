@@ -69,7 +69,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def all_intents(_, _) do
-    Intents.many()
+    Intents.many([:default])
   end
 
   def intents_filtered(page_opts, _) do
@@ -272,13 +272,11 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
         :default,
         agent_id: ids,
         user: GraphQL.current_user(info)
-      ],
-      nil,
-      nil
+      ]
     )
   end
 
-  def list_intents(page_opts, base_filters, _data_filters, _cursor_type) do
+  def list_intents(page_opts, base_filters) do
     FetchPage.run(%FetchPage{
       queries: Queries,
       query: Intent,
@@ -290,43 +288,21 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def fetch_intents(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Planning.Intent.Queries,
-      query: ValueFlows.Planning.Intent,
-      # preload: [:provider, :receiver, :tags],
-      # cursor_fn: Intents.cursor(:followers),
-      page_opts: page_opts,
-      base_filters: [
-        :default,
-        # preload: [:provider, :receiver, :tags],
-        user: GraphQL.current_user(info)
-      ]
-      # data_filters: [page: [desc: [followers: page_opts]]],
-    })
+    list_intents(page_opts,
+      [:default, user: GraphQL.current_user(info)]
+    )
   end
 
   def fetch_offers(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Planning.Intent.Queries,
-      query: ValueFlows.Planning.Intent,
-      page_opts: page_opts,
-      base_filters: [
-        [:default, :offer],
-        user: GraphQL.current_user(info)
-      ]
-    })
+    list_intents(page_opts,
+      [:default, :offer, user: GraphQL.current_user(info)]
+    )
   end
 
   def fetch_needs(page_opts, info) do
-    FetchPage.run(%FetchPage{
-      queries: ValueFlows.Planning.Intent.Queries,
-      query: ValueFlows.Planning.Intent,
-      page_opts: page_opts,
-      base_filters: [
-        [:default, :need],
-        user: GraphQL.current_user(info)
-      ]
-    })
+    list_intents(page_opts,
+      [:default, :need, user: GraphQL.current_user(info)]
+    )
   end
 
   def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do

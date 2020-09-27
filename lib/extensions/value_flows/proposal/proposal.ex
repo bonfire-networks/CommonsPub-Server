@@ -13,6 +13,7 @@ defmodule ValueFlows.Proposal do
   #
   # alias CommonsPub.Communities.Community
   alias ValueFlows.Proposal
+  alias ValueFlows.Proposal.{ProposedIntent, ProposedTo}
   alias ValueFlows.Planning.Intent
 
   @type t :: %__MODULE__{}
@@ -40,7 +41,7 @@ defmodule ValueFlows.Proposal do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note eligible_location_id)a
+  @cast @required ++ ~w(note has_beginning has_end unit_based eligible_location_id)a
 
   def create_changeset(
         %User{} = creator,
@@ -51,6 +52,7 @@ defmodule ValueFlows.Proposal do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
+      created: DateTime.utc_now(),
       creator_id: creator.id,
       context_id: context.id,
       is_public: true
@@ -66,6 +68,7 @@ defmodule ValueFlows.Proposal do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
+      created: DateTime.utc_now(),
       creator_id: creator.id,
       is_public: true
     )

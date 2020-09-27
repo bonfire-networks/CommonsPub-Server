@@ -40,12 +40,20 @@ defmodule ValueFlows.Hydration do
       # organization: [
       #   is_type_of: &ValueFlows.Agent.GraphQL.organization_is_type_of/2
       # ],
+      proposed_intent: %{
+        publishes: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.intent_in_proposal_edge/3,
+        ],
+        published_in: [
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposal_in_intent_edge/3,
+        ],
+      },
       proposal: %{
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
         eligible_location: [
-          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+          resolve: &ValueFlows.Proposal.GraphQL.eligible_location_edge/3
         ],
         publishes: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.publishes_edge/3

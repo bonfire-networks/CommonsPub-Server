@@ -99,7 +99,6 @@ defmodule CommonsPub.Tag.TagThings do
   end
 
   defp tag_preprocess(user, taggable) do
-    IO.inspect(tag_preprocess: taggable)
 
     with {:ok, tag} <- CommonsPub.Tag.Taggables.maybe_make_taggable(user, taggable) do
       # with an object that we have just made taggable
@@ -115,10 +114,7 @@ defmodule CommonsPub.Tag.TagThings do
     tags = Enum.filter(tags, & &1)
 
     Repo.transact_with(fn ->
-      IO.inspect(tags_save: tags)
-      IO.inspect(thing_save: thing)
       cs = Taggable.thing_tags_changeset(thing, tags)
-      IO.inspect(thing_tags_save: cs)
       with {:ok, thing} <- Repo.update(cs, on_conflict: :nothing), do: {:ok, thing}
     end)
   end

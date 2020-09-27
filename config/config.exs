@@ -134,7 +134,7 @@ config :commons_pub, Flags, valid_contexts: contexts_all
 
 config :commons_pub, Likes, valid_contexts: contexts_all
 
-config :commons_pub, Threads, valid_contexts: contexts_all
+config :commons_pub, Threads, valid_contexts: [ValueFlows.Proposal] ++ contexts_all
 
 config :commons_pub, Resources, valid_contexts: contexts_all
 

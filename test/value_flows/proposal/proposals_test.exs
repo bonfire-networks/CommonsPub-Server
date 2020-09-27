@@ -5,6 +5,8 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Test.Faking
 
+  import Geolocation.Simulate
+
   import Measurement.Simulate
   import Measurement.Test.Faking
 
@@ -19,9 +21,9 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposal = fake_proposal!(user)
 
       assert {:ok, fetched} = Proposals.one(id: proposal.id)
-      assert_proposal(proposal, fetched)
+      assert_proposal_full(proposal, fetched)
       assert {:ok, fetched} = Proposals.one(user: user)
-      assert_proposal(proposal, fetched)
+      assert_proposal_full(proposal, fetched)
       # TODO
       # assert {:ok, fetched} = Intents.one(context: comm)
     end
@@ -30,9 +32,11 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   describe "create" do
     test "can create a proposal" do
       user = fake_user!()
+      attrs = proposal()
 
-      assert {:ok, proposal} = Proposals.create(user, proposal())
-      assert_proposal(proposal)
+      assert {:ok, proposal} = Proposals.create(user, attrs)
+      assert_proposal_full(proposal)
+      assert proposal.unit_based == attrs[:unit_based]
     end
 
     test "can create a proposal with a scope" do
@@ -40,8 +44,17 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       parent = fake_user!()
 
       assert {:ok, proposal} = Proposals.create(user, parent, proposal())
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
       assert proposal.context_id == parent.id
+    end
+
+    test "can create a proposal with an eligible location" do
+      user = fake_user!()
+      location = fake_geolocation!(user)
+
+      attrs = proposal(%{eligible_location_id: location.id})
+      assert {:ok, proposal} = Proposals.create(user, attrs)
+      assert proposal.eligible_location_id == location.id
     end
   end
 
@@ -49,10 +62,12 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     test "can update an existing proposal" do
       user = fake_user!()
       proposal = fake_proposal!(user)
+      new_attrs = proposal()
 
-      assert {:ok, updated} = Proposals.update(proposal, proposal())
-      assert_proposal(updated)
+      assert {:ok, updated} = Proposals.update(proposal, new_attrs)
+      assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
+      assert updated.unit_based == new_attrs[:unit_based]
     end
 
     test "can update an existing proposal with a new context" do
@@ -62,7 +77,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
       new_context = fake_community!(user)
       assert {:ok, updated} = Proposals.update(proposal, new_context, proposal())
-      assert_proposal(updated)
+      assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
       assert updated.context_id == new_context.id
     end

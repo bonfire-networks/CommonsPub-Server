@@ -21,7 +21,6 @@ defmodule ValueFlows.Observation.EconomicEvent do
   @type t :: %__MODULE__{}
 
   pointable_schema do
-    field(:name, :string)
     field(:note, :string)
 
     # TODO: link to Agreement?
@@ -30,8 +29,6 @@ defmodule ValueFlows.Observation.EconomicEvent do
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)
     field(:has_point_in_time, :utc_datetime_usec)
-
-    belongs_to(:image, Content)
 
     belongs_to(:action, Action, type: :string)
 
@@ -87,10 +84,13 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
   @required ~w(is_public)a
   @cast @required ++
-          ~w(note agreed_in has_beginning has_end has_point_in_time action_id is_disabled image_id)a
+          ~w(note resource_classified_as agreed_in has_beginning has_end has_point_in_time is_disabled)a
 
   def create_changeset(
         %User{} = creator,
+        %{id: _} = receiver,
+        %{id: _} = provider,
+        %Action{} = action,
         attrs
       ) do
     %EconomicEvent{}
@@ -98,6 +98,9 @@ defmodule ValueFlows.Observation.EconomicEvent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
+      receiver_id: receiver.id,
+      provider_id: provider.id,
+      action_id: action.id,
       is_public: true
     )
     |> common_changeset()
@@ -114,10 +117,6 @@ defmodule ValueFlows.Observation.EconomicEvent do
       context: context,
       context_id: context.id
     )
-  end
-
-  def change_action(changeset, %Action{} = action) do
-    Changeset.change(changeset, action_id: action.id)
   end
 
   def change_provider(changeset, %{id: _} = provider) do
@@ -142,10 +141,10 @@ defmodule ValueFlows.Observation.EconomicEvent do
     )
   end
 
-  def change_conforms_to_resource_spec(changeset, %ResourceSpecification{} = conforms_to) do
+  def change_resource_conforms_to(changeset, %ResourceSpecification{} = conforms_to) do
     Changeset.change(changeset,
-      conforms_to: conforms_to,
-      conforms_to_id: conforms_to.id
+      resource_conforms_to: conforms_to,
+      resource_conforms_to_id: conforms_to.id
     )
   end
 
@@ -173,7 +172,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
   def change_triggered_by_event(changeset, %EconomicEvent{} = item) do
     Changeset.change(changeset,
       triggered_by: item,
-      triggered_by_in_id: item.id
+      triggered_by_id: item.id
     )
   end
 

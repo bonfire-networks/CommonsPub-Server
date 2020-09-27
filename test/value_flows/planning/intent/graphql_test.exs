@@ -53,6 +53,71 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
   end
 
+  describe "intent.publishedIn.publishes" do
+    test "lists the intents for a proposed intent" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      intent = fake_intent!(user)
+
+      some(5, fn -> fake_proposed_intent!(proposal, intent) end)
+
+      q = intent_query(fields: [
+        published_in: [:id, publishes: intent_fields()]
+      ])
+      conn = user_conn(user)
+      assert fetched = grumble_post_key(q, conn, :intent, %{id: intent.id})
+      assert_intent(intent, fetched)
+    end
+  end
+
+  describe "intent.inScopeOf" do
+    test "returns the scope of the intent" do
+      user = fake_user!()
+      parent = fake_user!()
+      intent = fake_intent!(user, nil, parent)
+
+      q = intent_query(fields: [in_scope_of: [:__typename]])
+      conn = user_conn(user)
+      assert intent = grumble_post_key(q, conn, :intent, %{id: intent.id})
+      assert hd(intent["inScopeOf"])["__typename"] == "User"
+    end
+  end
+
+  describe "intents" do
+    test "fetches all items that are not deleted" do
+      user = fake_user!()
+      intents = some(5, fn -> fake_intent!(user) end)
+      # deleted
+      some(2, fn ->
+        intent = fake_intent!(user)
+        {:ok, intent} = Intents.soft_delete(intent)
+        intent
+      end)
+
+      q = intents_query()
+      conn = user_conn(user)
+      assert fetched_intents = grumble_post_key(q, conn, :intents, %{})
+      assert Enum.count(intents) == Enum.count(fetched_intents)
+    end
+  end
+
+  describe "intentsPages" do
+    test "fetches all items that are not deleted" do
+      user = fake_user!()
+      intents = some(5, fn -> fake_intent!(user) end)
+      # deleted
+      some(2, fn ->
+        intent = fake_intent!(user)
+        {:ok, intent} = Intents.soft_delete(intent)
+        intent
+      end)
+      q = intents_pages_query()
+      conn = user_conn(user)
+      assert page = grumble_post_key(q, conn, :intents_pages, %{})
+      assert Enum.count(intents) == page["totalCount"]
+    end
+  end
+
   describe "create_intent" do
     test "creates a new intent given valid attributes" do
       user = fake_user!()

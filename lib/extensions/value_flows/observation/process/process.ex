@@ -71,7 +71,7 @@ defmodule ValueFlows.Observation.Process do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note has_beginning has_end finished is_disabled image_id)a
+  @cast @required ++ ~w(note has_beginning has_end finished is_disabled)a
 
   def create_changeset(
         %User{} = creator,

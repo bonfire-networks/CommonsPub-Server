@@ -63,6 +63,16 @@ defmodule ValueFlows.Proposal.GraphQL do
     Proposals.many()
   end
 
+  def eligible_location_edge(%{eligible_location_id: id} = proposal, _, _) when not is_nil(id) do
+    proposal = Repo.preload(proposal, :eligible_location)
+    location = proposal
+    |> Map.get(:eligible_location, nil)
+    |> Geolocation.Geolocations.populate_coordinates()
+    {:ok, location}
+  end
+
+  def eligible_location_edge(_, _, _), do: {:ok, nil}
+
   ## fetchers
 
   def fetch_proposal(info, id) do
@@ -88,26 +98,34 @@ defmodule ValueFlows.Proposal.GraphQL do
     })
   end
 
-  def create_proposal(%{proposal: %{in_scope_of: context_ids} = proposal_attrs}, info)
+  def create_proposal(%{proposal: %{in_scope_of: context_ids} = attrs}, info)
       when is_list(context_ids) do
     # FIXME: support multiple contexts?
     context_id = List.first(context_ids)
 
-    create_proposal(
-      %{proposal: Map.merge(proposal_attrs, %{in_scope_of: context_id})},
-      info
-    )
+    Repo.transact_with(fn ->
+      do_create(attrs, info, fn user, attrs ->
+        with {:ok, pointer} <- Pointers.one(id: context_id) do
+          context = Pointers.follow!(pointer)
+          Proposals.create(user, context, attrs)
+        end
+      end)
+    end)
   end
 
   # FIXME: duplication!
-  def create_proposal(%{proposal: proposal_attrs}, info) do
+  def create_proposal(%{proposal: attrs}, info) do
     Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           proposal_attrs = Map.merge(proposal_attrs, %{is_public: true}),
-           {:ok, proposal} <- Proposals.create(user, proposal_attrs) do
-        {:ok, %{proposal: proposal}}
-      end
+      do_create(attrs, info, &Proposals.create/2)
     end)
+  end
+
+  defp do_create(%{} = attrs, info, create_fn) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         proposal_attrs = Map.merge(attrs, %{is_public: true}),
+         {:ok, proposal} <- create_fn.(user, proposal_attrs) do
+      {:ok, %{proposal: proposal}}
+    end
   end
 
   def update_proposal(%{proposal: %{in_scope_of: context_ids} = changes}, info) do

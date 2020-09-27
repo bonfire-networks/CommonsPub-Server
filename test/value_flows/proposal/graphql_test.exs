@@ -5,6 +5,8 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   import CommonsPub.Utils.Simulation
   import CommonsPub.Test.Faking
 
+  import Geolocation.Simulate
+
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
@@ -16,7 +18,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       q = proposal_query()
       conn = user_conn(user)
       assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
   end
 
@@ -37,6 +39,23 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
   end
 
+  describe "proposal.publishes.publishedIn" do
+    test "lists the proposals for a proposed intent" do
+      user = fake_user!()
+      proposal = fake_proposal!(user)
+      intent = fake_intent!(user)
+
+      some(5, fn -> fake_proposed_intent!(proposal, intent) end)
+
+      q = proposal_query(fields: [
+        publishes: [:id, published_in: proposal_fields()]
+      ])
+      conn = user_conn(user)
+      assert fetched = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
+      assert_proposal(proposal, fetched)
+    end
+  end
+
   describe "proposal.publishedTo" do
     test "fetches all proposed to items for a proposal" do
       user = fake_user!()
@@ -53,6 +72,34 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
   end
 
+
+
+  describe "proposal.eligibleLocation" do
+    test "fetches an associated eligible location" do
+      user = fake_user!()
+      location = fake_geolocation!(user)
+      proposal = fake_proposal!(user, nil, %{eligible_location_id: location.id})
+
+      q = proposal_query(fields: [eligible_location: [:id]])
+      conn = user_conn(user)
+      assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
+      assert proposal["eligibleLocation"]["id"] == location.id
+    end
+  end
+
+  describe "proposal.inScopeOf" do
+    test "returns the scope of the proposal" do
+      user = fake_user!()
+      parent = fake_user!()
+      proposal = fake_proposal!(user, parent)
+
+      q = proposal_query(fields: [in_scope_of: [:__typename]])
+      conn = user_conn(user)
+      assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
+      assert hd(proposal["inScopeOf"])["__typename"] == "User"
+    end
+  end
+
   describe "proposals" do
   end
 
@@ -63,18 +110,30 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       conn = user_conn(user)
       vars = %{proposal: proposal_input()}
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
 
     test "creates a new proposal with a scope" do
       user = fake_user!()
       parent = fake_user!()
 
-      q = create_proposal_mutation()
+      q = create_proposal_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      vars = %{proposal: proposal_input(%{"inScopeOf" => parent.id})}
+      vars = %{proposal: proposal_input(%{"inScopeOf" => [parent.id]})}
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
+      assert hd(proposal["inScopeOf"])["__typename"] == "User"
+    end
+
+    test "creates a new proposal with an eligible location" do
+      user = fake_user!()
+      location = fake_geolocation!(user)
+
+      q = create_proposal_mutation(fields: [eligible_location: [:id]])
+      conn = user_conn(user)
+      vars = %{proposal: proposal_input(%{"eligibleLocation" => location.id})}
+      assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
+      assert proposal["eligibleLocation"]["id"] == location.id
     end
   end
 
@@ -87,7 +146,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       conn = user_conn(user)
       vars = %{proposal: update_proposal_input(%{"id" => proposal.id})}
       assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
 
     test "updates an existing proposal with a new scope" do
@@ -104,7 +163,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       }
 
       assert proposal = grumble_post_key(q, conn, :update_proposal, vars)["proposal"]
-      assert_proposal(proposal)
+      assert_proposal_full(proposal)
     end
   end
 

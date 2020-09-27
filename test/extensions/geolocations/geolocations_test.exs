@@ -84,6 +84,15 @@ defmodule Geolocation.GeolocationsTest do
       assert geo.long
       assert geo.mappable_address == attrs[:mappable_address]
     end
+
+    test "update an existing location with only a name" do
+      user = fake_user!()
+      geo = fake_geolocation!(user)
+
+      new_attrs = %{name: geolocation().name}
+      assert {:ok, updated} = Geolocations.update(user, geo, new_attrs)
+      assert updated.name == new_attrs.name
+    end
   end
 
   describe "soft_delete" do

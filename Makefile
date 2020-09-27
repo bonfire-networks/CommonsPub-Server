@@ -69,10 +69,10 @@ dev-exports: init ## Load env vars from a dotenv file
 dev: init ## Run the app in dev
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
 
-dev-shell: init ## Run the app in dev
+dev-shell: init ## Open a shell, in dev mode
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web bash
 
-dev-bg: init ## Run the app in dev
+dev-bg: init ## Run the app in dev mode, in the background
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --detach --service-ports web elixir -S mix phx.server
 
 dev-pull: init ## Build the dev image

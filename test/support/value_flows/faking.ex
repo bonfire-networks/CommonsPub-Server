@@ -16,7 +16,10 @@ defmodule ValueFlows.Test.Faking do
   # alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
-
+  alias ValueFlows.Observation.{
+    EconomicEvent,
+    EconomicResource
+  }
   alias ValueFlows.{
     Proposal
     # Proposals
@@ -49,10 +52,6 @@ defmodule ValueFlows.Test.Faking do
       name: &assert_binary/1,
       note: &assert_binary/1,
       unit_based: &assert_boolean/1,
-      # TODO
-      # resource_quantity: assert_optional(&assert_measure/1),
-      # effort_quantity: assert_optional(&assert_measure/1),
-      # available_quantity: assert_optional(&assert_measure/1),
       has_beginning: assert_optional(&assert_datetime/1),
       has_end: assert_optional(&assert_datetime/1),
       created: assert_optional(&assert_datetime/1)
@@ -61,6 +60,26 @@ defmodule ValueFlows.Test.Faking do
 
   def assert_proposal(%Proposal{} = proposal, %{} = proposal2) do
     assert_proposals_eq(proposal, assert_proposal(proposal2))
+  end
+
+  def assert_proposal_full(%Proposal{} = proposal) do
+    assert_proposal_full(Map.from_struct(proposal))
+  end
+
+  def assert_proposal_full(proposal) do
+    assert_object(proposal, :assert_proposal,
+      id: &assert_ulid/1,
+      name: &assert_binary/1,
+      note: &assert_binary/1,
+      unit_based: &assert_boolean/1,
+      has_beginning: &assert_datetime/1,
+      has_end: &assert_datetime/1,
+      created: &assert_datetime/1
+    )
+  end
+
+  def assert_proposal_full(%Proposal{} = proposal, %{} = proposal2) do
+    assert_proposals_eq(proposal, assert_proposal_full(proposal2))
   end
 
   def assert_proposals_eq(%Proposal{} = proposal, %{} = proposal2) do
@@ -143,6 +162,30 @@ defmodule ValueFlows.Test.Faking do
     )
   end
 
+  def assert_economic_event(%EconomicEvent{} = event) do
+    assert_economic_event(Map.from_struct(event))
+  end
+
+  def assert_economic_event(event) do
+    assert_object(event, :assert_economic_event,
+      note: assert_optional(&assert_binary/1),
+      # classified_as: assert_optional(assert_list(&assert_url/1))
+    )
+  end
+
+  def assert_economic_resource(%EconomicResource{} = resource) do
+    assert_economic_resource(Map.from_struct(resource))
+  end
+
+  def assert_economic_resource(resource) do
+    assert_object(resource, :assert_economic_resource,
+      note: assert_optional(&assert_binary/1),
+      name: assert_optional(&assert_binary/1),
+      tracking_identifier: assert_optional(&assert_binary/1),
+      state: assert_optional(&assert_binary/1),
+    )
+  end
+
   ## Graphql
 
   def action_fields(extra \\ []) do
@@ -186,6 +229,40 @@ defmodule ValueFlows.Test.Faking do
   def intent_query(options \\ []) do
     options = Keyword.put_new(options, :id_type, :id)
     gen_query(:id, &intent_subquery/1, options)
+  end
+
+  def intents_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ intent_fields(fields)
+    field(:intents, [{:fields, fields} | options])
+  end
+
+  def intents_query(options \\ []) do
+    gen_query(&intents_subquery/1, options)
+  end
+
+  def intents_pages_subquery(options \\ []) do
+    args = [
+      after: var(:intents_after),
+      before: var(:intents_before),
+      limit: var(:intents_limit),
+    ]
+
+    page_subquery(
+      :intents_pages,
+      &intent_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def intents_pages_query(options \\ []) do
+    params = [
+      intents_after: list_type(:cursor),
+      intents_before: list_type(:cursor),
+      intents_limit: :int,
+    ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&intents_pages_subquery/1, [{:params, params} | options])
   end
 
   def create_offer_mutation(options \\ []) do
