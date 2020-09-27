@@ -2,6 +2,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Test.Faking
+  import CommonsPub.Tag.Simulate
+
   import CommonsPub.Utils.{Trendy, Simulation}
   import ValueFlows.Simulate
   import Measurement.Simulate
@@ -53,12 +55,30 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       provider = fake_user!()
       receiver = fake_user!()
       action = action()
+
       attrs = %{
         in_scope_of: [fake_community!(user).id],
       }
+
       assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
       assert_economic_event(event)
       assert event.context.id == hd(attrs.in_scope_of)
+    end
+
+    test "can create an economic event with tags" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+
+      tags = some(5, fn -> fake_category!(user).id end)
+      attrs = %{tags: tags}
+
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
+      assert_economic_event(event)
+
+      event = CommonsPub.Repo.preload(event, :tags)
+      assert Enum.count(event.tags) == Enum.count(tags)
     end
 
     test "can create an economic event with input_of and output_of" do
@@ -101,7 +121,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert_economic_event(event)
       assert event.to_resource_inventoried_as.id == attrs.to_resource_inventoried_as
     end
-
 
     test "can create an economic event with resource_inventoried_as and to_resource_inventoried_as" do
       user = fake_user!()
@@ -165,7 +184,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
-      unit = fake_unit!(user)
       action = action()
       location = fake_geolocation!(user)
       attrs = %{
@@ -180,7 +198,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
-      unit = fake_unit!(user)
       action = action()
       triggered_by = fake_economic_event!(user, receiver, provider, action)
       attrs = %{

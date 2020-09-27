@@ -2,7 +2,10 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Test.Faking
+  import CommonsPub.Tag.Simulate
+
   import CommonsPub.Utils.{Trendy, Simulation}
+
   import ValueFlows.Simulate
   import Measurement.Simulate
   import Geolocation.Simulate
@@ -39,6 +42,19 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
       assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
       assert_economic_resource(resource)
       assert resource.primary_accountable.id == attrs.primary_accountable
+    end
+
+    test "can create an economic resource with tags" do
+      user = fake_user!()
+
+      tags = some(5, fn -> fake_category!(user).id end)
+      attrs = %{tags: tags}
+
+      assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
+      assert_economic_resource(resource)
+
+      resource = CommonsPub.Repo.preload(resource, :tags)
+      assert Enum.count(resource.tags) == Enum.count(tags)
     end
 
     test "can create an economic resource with conforms_to" do

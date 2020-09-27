@@ -2,6 +2,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Test.Faking
+  import CommonsPub.Tag.Simulate
+  import CommonsPub.Utils.Trendy, only: [some: 2]
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -43,6 +45,18 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
       assert {:ok, spec} = ProcessSpecifications.create(user, parent, process_specification())
       assert_process_specification(spec)
       assert spec.context_id == parent.id
+    end
+
+    test "can create a process_specification with tags" do
+      user = fake_user!()
+      tags = some(5, fn -> fake_category!(user).id end)
+
+      attrs = process_specification(%{tags: tags})
+      assert {:ok, process_specification} = ProcessSpecifications.create(user, attrs)
+      assert_process_specification(process_specification)
+
+      process_specification = CommonsPub.Repo.preload(process_specification, :tags)
+      assert Enum.count(process_specification.tags) == Enum.count(tags)
     end
   end
 

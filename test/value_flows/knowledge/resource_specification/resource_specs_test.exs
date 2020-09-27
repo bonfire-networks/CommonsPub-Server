@@ -2,6 +2,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Test.Faking
+  import CommonsPub.Tag.Simulate
+  import CommonsPub.Utils.Trendy, only: [some: 2]
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -43,6 +45,18 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       assert {:ok, spec} = ResourceSpecifications.create(user, parent, resource_specification())
       assert_resource_specification(spec)
       assert spec.context_id == parent.id
+    end
+
+    test "can create a resource_specification with tags" do
+      user = fake_user!()
+      tags = some(5, fn -> fake_category!(user).id end)
+
+      attrs = resource_specification(%{tags: tags})
+      assert {:ok, resource_specification} = ResourceSpecifications.create(user, attrs)
+      assert_resource_specification(resource_specification)
+
+      resource_specification = CommonsPub.Repo.preload(resource_specification, :tags)
+      assert Enum.count(resource_specification.tags) == Enum.count(tags)
     end
   end
 
