@@ -2,8 +2,6 @@ defmodule Tag.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  alias CommonsPub.Tag.Taggable
-
   def category_table(), do: CommonsPub.Tag.Category.__schema__(:source)
   def category_id(), do: CommonsPub.Tag.Category.__schema__(:table_id)
 
@@ -14,7 +12,7 @@ defmodule Tag.Migrations do
     drop_pointable_table(CommonsPub.Tag.Category)
     flush()
 
-    create_mixin_table(Taggable) do
+    create_mixin_table(CommonsPub.Tag.Taggable) do
       add(:prefix, :string)
       add(:facet, :string)
     end
