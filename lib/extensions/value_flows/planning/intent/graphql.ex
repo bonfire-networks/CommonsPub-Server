@@ -323,11 +323,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     {:ok, nil}
   end
 
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    {:ok, urls}
-  end
+
 
   def create_offer(%{intent: intent_attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do

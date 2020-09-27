@@ -1225,6 +1225,12 @@ type EconomicEvent {
   An intent satisfied fully or partially by an economic event or commitment.
   """
   satisfies: [Satisfaction!]
+
+  """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [AnyContext]
 }
 
 input EconomicEventCreateParams {
@@ -1336,6 +1342,12 @@ input EconomicEventCreateParams {
   actions, requires explicitly identifying an economic resource on the receiving side.
   """
   toResourceInventoriedAs: ID
+
+  """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!]
 }
 
 type EconomicEventResponse {
@@ -1485,6 +1497,12 @@ type EconomicResource {
   granularity, from a town to an address to a warehouse location. Usually mappable.
   """
   currentLocation: SpatialThing
+
+  """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!]
 }
 
 """
@@ -1538,6 +1556,12 @@ input EconomicResourceCreateParams {
   A textual description or comment.
   """
   note: String
+
+  """
+  cpub: added tags field, linked to resourceClassifiedAs:
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  tags: [ID!]
 }
 
 type EconomicResourceResponse {

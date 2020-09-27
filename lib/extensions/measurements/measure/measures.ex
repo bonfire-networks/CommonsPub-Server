@@ -100,7 +100,10 @@ defmodule Measurement.Measure.Measures do
   end
 
   defp insert_measure(creator, unit, attrs) do
-    Repo.insert(Measurement.Measure.create_changeset(creator, unit, attrs))
+    # use upsert
+    Repo.insert(Measurement.Measure.create_changeset(creator, unit, attrs),
+      on_conflict: [set: [has_numerical_value: attrs.has_numerical_value]]
+    )
   end
 
   # defp publish(creator, measure, activity, :created) do # TODO

@@ -17,6 +17,12 @@ defmodule ValueFlows.Util.GraphQL do
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
 
+  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
+    thing = Repo.preload(thing, tags: :character)
+    urls = Enum.map(thing.tags, & &1.character.canonical_url)
+    {:ok, urls}
+  end
+
   def at_location_edge(%{at_location_id: id} = thing, _, _) when not is_nil(id) do
     thing = Repo.preload(thing, :at_location)
     {:ok, Geolocation.Geolocations.populate_coordinates(Map.get(thing, :at_location, nil))}

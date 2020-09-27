@@ -82,7 +82,7 @@ defmodule ValueFlows.Hydration do
           resolve: &UploadResolver.image_content_edge/3
         ],
         resource_classified_as: [
-          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_classifications_edge/3
+          resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
@@ -95,6 +95,14 @@ defmodule ValueFlows.Hydration do
         resource_inventoried_as: [
           resolve:
             &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
+        ],
+        resource_classified_as: [
+          resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
+        ]
+      },
+      economic_resource: %{
+        classified_as: [
+          resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
         ]
       },
 

@@ -186,11 +186,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     })
   end
 
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    {:ok, urls}
-  end
+
 
   def create_resource_spec(
         %{resource_specification: %{in_scope_of: context_ids} = resource_spec_attrs},

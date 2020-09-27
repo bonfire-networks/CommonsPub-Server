@@ -309,11 +309,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     {:ok, nil}
   end
 
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    {:ok, urls}
-  end
+
 
   def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
       when not is_nil(id) do
@@ -334,7 +330,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
            event_attrs = Map.merge(event_attrs, %{is_public: true}),
            #  {:ok, resource} <- ValueFlows.Observation.EconomicResource.GraphQL.create_resource(params, info),
            #  event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource}),
-           {:ok, event} <- EconomicEvents.create(user, event_attrs.receiver, event_attrs.provider, event_attrs.action, event_attrs, params) do
+           {:ok, event} <- EconomicEvents.create(user, event_attrs, params) do
         {:ok,
          %{economic_event: event, economic_resource: Map.get(event, :resource_inventoried_as)}}
       end

@@ -189,11 +189,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     })
   end
 
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    {:ok, urls}
-  end
+
 
   # FIXME: duplication!
   def create_process(%{process: process_attrs}, info) do

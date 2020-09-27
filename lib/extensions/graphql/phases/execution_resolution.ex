@@ -17,6 +17,10 @@ defmodule CommonsPub.Web.GraphQL.Phase.ExecutionResolution do
   def run(bp_root, options \\ []) do
     Absinthe.Phase.Document.Execution.Resolution.run(bp_root, options)
   rescue
+    error in Ecto.Query.CastError ->
+      debug_exception("You seem to have provided an incorrect data type (eg. an invalid ID)", error, __STACKTRACE__, :error)
+    error in Ecto.ConstraintError ->
+      debug_exception("You seem to be trying to insert duplicated data", error, __STACKTRACE__, :error)
     error ->
       debug_exception("The API encountered an exceptional error", error, __STACKTRACE__, :error)
   catch
