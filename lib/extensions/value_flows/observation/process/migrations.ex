@@ -14,7 +14,7 @@ defmodule ValueFlows.Observation.Process.Migrations do
       add(:name, :string)
       add(:note, :text)
 
-      add(:image_id, references(:mn_content))
+      # add(:image_id, references(:mn_content))
 
       add(:has_beginning, :timestamptz)
       add(:has_end, :timestamptz)

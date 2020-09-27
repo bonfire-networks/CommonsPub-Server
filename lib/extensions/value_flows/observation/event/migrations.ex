@@ -13,10 +13,10 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
 
   def up do
     create_pointable_table(ValueFlows.Observation.EconomicEvent) do
-      add(:name, :string)
+      # add(:name, :string)
       add(:note, :text)
 
-      add(:image_id, references(:mn_content))
+      # add(:image_id, references(:mn_content))
 
       add(:action_id, :string)
 
