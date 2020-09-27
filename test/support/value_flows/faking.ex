@@ -182,7 +182,7 @@ defmodule ValueFlows.Test.Faking do
       note: assert_optional(&assert_binary/1),
       name: assert_optional(&assert_binary/1),
       tracking_identifier: assert_optional(&assert_binary/1),
-      state: assert_optional(&assert_binary/1),
+      state: assert_optional(&assert_action/1),
     )
   end
 

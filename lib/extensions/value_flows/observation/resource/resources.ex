@@ -89,6 +89,19 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     )
   end
 
+  def preload_all(resource) do
+    Repo.preload(resource, [
+      :accounting_quantity,
+      :onhand_quantity,
+      :unit_of_effort,
+      # :state,
+      :primary_accountable,
+      :current_location,
+      :contained_in,
+      :conforms_to
+    ]) |> Map.put :state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id)
+  end
+
   ## mutations
 
   # @spec create(User.t(), attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
@@ -108,11 +121,14 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created) do
         item = %{item | creator: creator}
+        item = preload_all(item)
+
         index(item)
         {:ok, item}
       end
     end)
   end
+
 
   # TODO: take the user who is performing the update
   # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
@@ -122,18 +138,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   def do_update(resource, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      resource =
-        Repo.preload(resource, [
-          :accounting_quantity,
-          :onhand_quantity,
-          :unit_of_effort,
-          :state,
-          :stage,
-          :primary_accountable,
-          :current_location,
-          :contained_in,
-          :conforms_to
-        ])
+      resource = preload_all(resource)
 
       with {:ok, cs} <- prepare_changeset(attrs, changeset_fn, resource),
            {:ok, resource} <- Repo.update(cs),
@@ -143,6 +148,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
       end
     end)
   end
+
 
   defp prepare_changeset(attrs, changeset_fn, resource) do
     resource

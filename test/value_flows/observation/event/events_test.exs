@@ -102,18 +102,29 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.to_resource_inventoried_as.id == attrs.to_resource_inventoried_as
     end
 
-    test "can create an economic event with: resource conforms to, resourceClassifiedAs" do
+    test "can create an economic event with resource_conforms_to" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
       action = action()
       attrs = %{
         resource_conforms_to: fake_resource_specification!(user).id,
-        resource_classified_as: some(1..5, &url/0)
       }
       assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
       assert_economic_event(event)
       assert event.resource_conforms_to.id == attrs.resource_conforms_to
+    end
+
+    test "can create an economic event with resourceClassifiedAs" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+      attrs = %{
+        resource_classified_as: some(1..5, &url/0)
+      }
+      assert {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(attrs))
+      assert_economic_event(event)
       assert event.resource_classified_as == attrs.resource_classified_as
     end
 
