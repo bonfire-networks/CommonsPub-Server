@@ -16,6 +16,8 @@ defmodule ValueFlows.Observation.Process do
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
 
+  alias ValueFlows.Observation.EconomicEvent
+
   @type t :: %__MODULE__{}
 
   pointable_schema do
@@ -36,15 +38,19 @@ defmodule ValueFlows.Observation.Process do
 
     # TODO
     # workingAgents: [Agent!]
+
+    # trace: [EconomicEvent!]
+    # track: [EconomicEvent!]
+
+    # inputs(action: ID): [EconomicEvent!]
+    # outputs(action: ID): [EconomicEvent!]
+    # unplannedEconomicEvents(action: ID): [EconomicEvent!]
+
     # nextProcesses: [Process!]
     # previousProcesses: [Process!]
     # intendedInputs(action: ID): [Process!]
     # intendedOutputs(action: ID): [Process!]
-    # inputs(action: ID): [EconomicEvent!]
-    # outputs(action: ID): [EconomicEvent!]
-    # unplannedEconomicEvents(action: ID): [EconomicEvent!]
-    # trace: [EconomicEvent!]
-    # track: [EconomicEvent!]
+
     # committedInputs(action: ID): [Commitment!]
     # committedOutputs(action: ID): [Commitment!]
     # plannedWithin: Plan

@@ -41,4 +41,5 @@ defmodule ValueFlows.Observation.Process.Migrations do
   def down do
     drop_pointable_table(ValueFlows.Observation.Process)
   end
+
 end

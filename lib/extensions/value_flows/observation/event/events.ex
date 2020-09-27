@@ -105,6 +105,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     end
   end
 
+  def create(creator, receiver, provider, action, event_attrs, _) do
+    create(creator, receiver, provider, action, event_attrs)
+  end
+
   def create(%User{} = creator, receiver, provider, action, event_attrs) do
     changeset_fn = fn ->
       EconomicEvent.create_changeset(creator, receiver, provider, action, event_attrs)
