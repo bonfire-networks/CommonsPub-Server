@@ -237,8 +237,8 @@ defmodule ValueFlows.Simulate do
   end
 
 
-  def fake_economic_event!(user, receiver, provider, action, overrides \\ %{}) do
-    {:ok, event} = EconomicEvents.create(user, receiver, provider, action, economic_event(overrides))
+  def fake_economic_event!(user, overrides \\ %{}) do
+    {:ok, event} = EconomicEvents.create(user, economic_event(overrides))
     event
   end
 

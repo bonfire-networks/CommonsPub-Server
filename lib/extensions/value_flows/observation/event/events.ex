@@ -88,9 +88,24 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     )
   end
 
+  def preload_all(event) do
+    Repo.preload(event, [
+      :resource_quantity,
+      :effort_quantity,
+      :at_location,
+      :provider,
+      :receiver
+    ])
+    |> preload_action()
+  end
+
+  def preload_action(event) do
+    event |> Map.put(:action, ValueFlows.Knowledge.Action.Actions.action!(event.action_id))
+  end
+
   ## mutations
 
-  def create(creator, receiver, provider, action, event_attrs, %{
+  def create(creator, event_attrs, %{
         new_inventoried_resource: new_inventoried_resource
       }) do
     new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
@@ -101,18 +116,19 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
              new_inventoried_resource
            ) do
       event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource})
-      create(creator, receiver, provider, action, event_attrs)
+      create(creator, event_attrs)
     end
   end
 
-  def create(creator, receiver, provider, action, event_attrs, _) do
-    create(creator, receiver, provider, action, event_attrs)
+  def create(creator, event_attrs, _) do
+    create(creator, event_attrs)
   end
 
-  def create(%User{} = creator, receiver, provider, action, event_attrs) do
+  def create(%User{} = creator, event_attrs) do
     changeset_fn = fn ->
-      EconomicEvent.create_changeset(creator, receiver, provider, action, event_attrs)
+      EconomicEvent.create_changeset(creator, event_attrs)
     end
+
     Repo.transact_with(fn ->
       with {:ok, cs} <- prepare_changeset(event_attrs, changeset_fn),
            {:ok, item} <- Repo.insert(cs),
@@ -121,7 +137,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            # FIXME
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created) do
-        item = %{item | creator: creator, receiver: receiver, provider: provider, action: action}
+        item = %{item | creator: creator}
+        item = preload_all(item)
+
         index(item)
         {:ok, item}
       end
@@ -136,13 +154,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   def do_update(event, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      event =
-        Repo.preload(event, [
-          :available_quantity,
-          :resource_quantity,
-          :effort_quantity,
-          :at_location
-        ])
+      event = preload_all(event)
 
       with {:ok, cs} <- prepare_changeset(attrs, changeset_fn, event),
            {:ok, event} <- Repo.update(cs),
@@ -166,6 +178,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp changeset_relations(cs, attrs) do
     attrs = parse_measurement_attrs(attrs)
+
     ValueFlows.Util.handle_changeset_errors(cs, attrs, [
       {:measures, &EconomicEvent.change_measures/2},
       {:context, &change_context/2},
@@ -178,10 +191,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       {:triggered_by, &change_triggered_by_event/2},
       {:resource_spec, &change_resource_conforms_to/2},
       {:resource_inventoried_as, &change_resource_inventoried_as/2},
-      {:change_to_resource_inventoried_as, &change_to_resource_inventoried_as/2},
+      {:change_to_resource_inventoried_as, &change_to_resource_inventoried_as/2}
     ])
   end
-
 
   defp change_context(changeset, %{in_scope_of: context_ids} = attrs)
        when is_list(context_ids) do
@@ -257,7 +269,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_action(changeset, _attrs), do: changeset
 
-
   defp change_input_of(changeset, %{input_of: id}) do
     with {:ok, input_of} <- Processes.one([:default, id: id]) do
       EconomicEvent.change_input_process(changeset, input_of)
@@ -266,8 +277,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_input_of(changeset, _attrs), do: changeset
 
-
-
   defp change_output_of(changeset, %{output_of: id}) do
     with {:ok, output_of} <- Processes.one([:default, id: id]) do
       EconomicEvent.change_output_process(changeset, output_of)
@@ -275,7 +284,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp change_output_of(changeset, _attrs), do: changeset
-
 
   defp change_at_location(changeset, %{at_location: id}) do
     with {:ok, location} <- Geolocations.one([:default, id: id]) do
@@ -292,7 +300,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp change_triggered_by_event(changeset, _attrs), do: changeset
-
 
   defp parse_measurement_attrs(attrs) do
     Enum.reduce(attrs, %{}, fn {k, v}, acc ->
