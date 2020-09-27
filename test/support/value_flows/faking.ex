@@ -16,9 +16,11 @@ defmodule ValueFlows.Test.Faking do
   # alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
+  alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Observation.{
     EconomicEvent,
-    EconomicResource
+    EconomicResource,
+    Process
   }
   alias ValueFlows.{
     Proposal
@@ -39,6 +41,44 @@ defmodule ValueFlows.Test.Faking do
       resource_effect: &assert_binary/1,
       onhand_effect: assert_optional(&assert_binary/1),
       note: assert_optional(&assert_binary/1)
+    )
+  end
+
+
+  def assert_resource_specification(%ResourceSpecification{} = spec) do
+    assert_resource_specification(Map.from_struct(spec))
+  end
+
+  def assert_resource_specification(spec) do
+    assert_object(spec, :assert_resource_specification,
+      name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      # classified_as: assert_optional(assert_list(&assert_url/1))
+    )
+  end
+
+
+  def assert_process_specification(%ProcessSpecification{} = spec) do
+    assert_process_specification(Map.from_struct(spec))
+  end
+
+  def assert_process_specification(spec) do
+    assert_object(spec, :assert_process_specification,
+      name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      # classified_as: assert_optional(assert_list(&assert_url/1))
+    )
+  end
+
+  def assert_process(%Process{} = spec) do
+    assert_process(Map.from_struct(spec))
+  end
+
+  def assert_process(spec) do
+    assert_object(spec, :assert_process,
+      name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
 
@@ -150,17 +190,6 @@ defmodule ValueFlows.Test.Faking do
     ])
   end
 
-  def assert_process_specification(%ProcessSpecification{} = spec) do
-    assert_process_specification(Map.from_struct(spec))
-  end
-
-  def assert_process_specification(spec) do
-    assert_object(spec, :assert_process_specification,
-      name: &assert_binary/1,
-      note: assert_optional(&assert_binary/1),
-      # classified_as: assert_optional(assert_list(&assert_url/1))
-    )
-  end
 
   def assert_economic_event(%EconomicEvent{} = event) do
     assert_economic_event(Map.from_struct(event))
@@ -182,7 +211,8 @@ defmodule ValueFlows.Test.Faking do
       note: assert_optional(&assert_binary/1),
       name: assert_optional(&assert_binary/1),
       tracking_identifier: assert_optional(&assert_binary/1),
-      state: assert_optional(&assert_binary/1),
+      state_id: assert_optional(&assert_binary/1),
+      # state: assert_optional(&assert_action/1),
     )
   end
 
@@ -427,6 +457,54 @@ defmodule ValueFlows.Test.Faking do
   def delete_proposed_to_submutation(_options \\ []) do
     field(:delete_proposed_to, args: [id: var(:id)])
   end
+
+
+  def resource_specification_fields(extra \\ []) do
+    extra ++ ~w(id name note)a
+  end
+
+  def resource_specification_response_fields(extra \\ []) do
+    [resource_specification: resource_specification_fields(extra)]
+  end
+
+  def resource_specification_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &resource_specification_subquery/1, options)
+  end
+
+  def resource_specification_subquery(options \\ []) do
+    gen_subquery(:id, :resource_specification, &resource_specification_fields/1, options)
+  end
+
+  def create_resource_specification_mutation(options \\ []) do
+    [resource_specification: type!(:resource_specification_create_params)]
+    |> gen_mutation(&create_resource_specification_submutation/1, options)
+  end
+
+  def create_resource_specification_submutation(options \\ []) do
+    [resource_specification: var(:resource_specification)]
+    |> gen_submutation(:create_resource_specification, &resource_specification_response_fields/1, options)
+  end
+
+  def update_resource_specification_mutation(options \\ []) do
+    [resource_specification: type!(:resource_specification_update_params)]
+    |> gen_mutation(&update_resource_specification_submutation/1, options)
+  end
+
+  def update_resource_specification_submutation(options \\ []) do
+    [resource_specification: var(:resource_specification)]
+    |> gen_submutation(:update_resource_specification, &resource_specification_response_fields/1, options)
+  end
+
+  def delete_resource_specification_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_resource_specification_submutation/1, options)
+  end
+
+  def delete_resource_specification_submutation(_options \\ []) do
+    field(:delete_resource_specification, args: [id: var(:id)])
+  end
+
 
   def process_specification_fields(extra \\ []) do
     extra ++ ~w(id name note)a

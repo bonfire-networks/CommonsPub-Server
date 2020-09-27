@@ -194,7 +194,7 @@ defmodule CommonsPub.Resources do
 
   def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
     resource = CommonHelper.maybe_preload(resource, :context)
-    context = CommonHelper.maybe_preload(resource.context, :character)
+    context = CommonHelper.maybe_preload(Map.get(resource, :context), :character)
 
     resource = CommonHelper.maybe_preload(resource, :content)
 
@@ -209,7 +209,7 @@ defmodule CommonsPub.Resources do
 
     canonical_url = CommonsPub.ActivityPub.Utils.get_object_canonical_url(resource)
 
-    IO.inspect(%{
+    %{
       "id" => resource.id,
       "name" => resource.name,
       "canonical_url" => canonical_url,
@@ -233,6 +233,6 @@ defmodule CommonsPub.Resources do
       "free_access" => Map.get(resource, :free_access),
       "accessibility_feature" => Map.get(resource, :accessibility_feature),
       "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context)
-    })
+    }
   end
 end

@@ -16,6 +16,8 @@ defmodule ValueFlows.Observation.Process do
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
 
+  alias ValueFlows.Observation.EconomicEvent
+
   @type t :: %__MODULE__{}
 
   pointable_schema do
@@ -36,15 +38,19 @@ defmodule ValueFlows.Observation.Process do
 
     # TODO
     # workingAgents: [Agent!]
+
+    # trace: [EconomicEvent!]
+    # track: [EconomicEvent!]
+
+    # inputs(action: ID): [EconomicEvent!]
+    # outputs(action: ID): [EconomicEvent!]
+    # unplannedEconomicEvents(action: ID): [EconomicEvent!]
+
     # nextProcesses: [Process!]
     # previousProcesses: [Process!]
     # intendedInputs(action: ID): [Process!]
     # intendedOutputs(action: ID): [Process!]
-    # inputs(action: ID): [EconomicEvent!]
-    # outputs(action: ID): [EconomicEvent!]
-    # unplannedEconomicEvents(action: ID): [EconomicEvent!]
-    # trace: [EconomicEvent!]
-    # track: [EconomicEvent!]
+
     # committedInputs(action: ID): [Commitment!]
     # committedOutputs(action: ID): [Commitment!]
     # plannedWithin: Plan
@@ -73,6 +79,23 @@ defmodule ValueFlows.Observation.Process do
   @required ~w(name is_public)a
   @cast @required ++ ~w(note has_beginning has_end finished is_disabled)a
 
+
+  def create_changeset(
+        %User{} = creator,
+        %{id: _} = context,
+        attrs
+      ) do
+    %Process{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
+    |> Changeset.change(
+      creator_id: creator.id,
+      context_id: context.id,
+      is_public: true
+    )
+    |> common_changeset()
+  end
+
   def create_changeset(
         %User{} = creator,
         attrs
@@ -98,6 +121,7 @@ defmodule ValueFlows.Observation.Process do
     |> change_public()
     |> change_disabled()
   end
+
 
   def context_module, do: ValueFlows.Observation.Process.Processes
 

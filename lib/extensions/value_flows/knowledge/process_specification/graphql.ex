@@ -186,11 +186,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     })
   end
 
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    {:ok, urls}
-  end
+
 
   def create_process_spec(
         %{process_specification: %{in_scope_of: context_ids} = process_spec_attrs},

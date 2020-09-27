@@ -45,9 +45,6 @@ defmodule CommonsPub.Communities do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Community, filters))}
 
   ### Mutations
-  def create(%User{} = creator, nil, %{} = attrs) do
-    create(creator, attrs)
-  end
 
   def create(%User{} = creator, %{id: _} = community_or_context, %{} = attrs) do
     Repo.transact_with(fn ->
@@ -68,6 +65,11 @@ defmodule CommonsPub.Communities do
       end
     end)
   end
+
+  def create(%User{} = creator, _, %{} = attrs) do
+    create(creator, attrs)
+  end
+
 
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do

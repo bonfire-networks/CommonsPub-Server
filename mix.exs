@@ -225,7 +225,9 @@ defmodule CommonsPub.Mixfile do
       # test coverage statistics
       {:excoveralls, "~> 0.10", only: :test},
       # module mocking
-      {:mock, "~> 0.3.3", only: :test}
+      {:mock, "~> 0.3.3", only: :test},
+      # autorun tests during dev
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false}
     ]
   end
 

@@ -31,7 +31,7 @@ defmodule CommonsPub.Meta.TableServiceTest do
   alias CommonsPub.Locales.{Country, Language}
 
   @known_schemas [
-    Table,
+    # Table,
     Feature,
     Feed,
     Peer,
@@ -44,8 +44,8 @@ defmodule CommonsPub.Meta.TableServiceTest do
     Flag,
     Follow,
     Like,
-    Country,
-    Language,
+    # Country,
+    # Language,
     RegisterEmailAccess,
     RegisterEmailDomainAccess,
     Block,

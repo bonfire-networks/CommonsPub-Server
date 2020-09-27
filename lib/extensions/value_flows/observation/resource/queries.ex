@@ -158,11 +158,11 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
   end
 
   def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [resource: c], c.primary_accountable_id == ^id or c.receiver_id == ^id)
+    where(q, [resource: c], c.primary_accountable_id == ^id or c.creator_id == ^id)
   end
 
   def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [resource: c], c.primary_accountable_id in ^ids or c.receiver_id in ^ids)
+    where(q, [resource: c], c.primary_accountable_id in ^ids or c.creator_id in ^ids)
   end
 
   def filter(q, {:primary_accountable_id, id}) when is_binary(id) do
@@ -189,7 +189,14 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     where(q, [resource: c], c.state_id == ^id)
   end
 
-  def filter(q, {:current_location_id, current_location_id}) do
+  def filter(q, {:current_location_id, current_location_ids}) when is_list(current_location_ids) do
+    q
+    |> join_to(:geolocation)
+    |> preload(:current_location)
+    |> where([resource: c], c.current_location_id in ^current_location_ids)
+  end
+
+  def filter(q, {:current_location_id, current_location_id}) when is_binary(current_location_id) do
     q
     |> join_to(:geolocation)
     |> preload(:current_location)

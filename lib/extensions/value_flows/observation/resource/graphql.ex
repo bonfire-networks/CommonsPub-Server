@@ -101,6 +101,10 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     )
   end
 
+  defp resources_filter(%{agent: id} = page_opts, filters_acc) do
+    resources_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
+  end
+
   defp resources_filter(%{state: id} = page_opts, filters_acc) do
     resources_filter_next(:state, [state_id: id], page_opts, filters_acc)
   end
@@ -303,11 +307,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     {:ok, nil}
   end
 
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    {:ok, urls}
-  end
+
 
   def create_resource(%{new_inventoried_resource: resource_attrs}, info) do
     with {:ok, resource} <- create_resource(%{economic_resource: resource_attrs}, info) do

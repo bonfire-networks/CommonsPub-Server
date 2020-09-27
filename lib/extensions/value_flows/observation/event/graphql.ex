@@ -291,29 +291,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     })
   end
 
-  def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
 
-  def fetch_provider_edge(_, _, _) do
-    {:ok, nil}
-  end
-
-  def fetch_receiver_edge(%{receiver_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
-
-  def fetch_receiver_edge(_, _, _) do
-    {:ok, nil}
-  end
-
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    {:ok, urls}
-  end
 
   def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
       when not is_nil(id) do
@@ -356,7 +334,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
          {:ok, event} <- update_fn.(event, changes) do
-      {:ok, %{event: event}}
+      {:ok, %{economic_event: event}}
     end
   end
 

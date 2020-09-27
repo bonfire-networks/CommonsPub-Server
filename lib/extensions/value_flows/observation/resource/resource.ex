@@ -27,6 +27,8 @@ defmodule ValueFlows.Observation.EconomicResource do
 
     belongs_to(:image, Content)
 
+    field(:classified_as, {:array, :string}, virtual: true)
+
     belongs_to(:conforms_to, ResourceSpecification)
 
     belongs_to(:current_location, Geolocation)

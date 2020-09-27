@@ -26,14 +26,14 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   Used by:
   * GraphQL Item queries
   * ActivityPub integration
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for this (inc. tests)
   """
   def one(filters), do: Repo.single(Queries.query(EconomicResource, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for this (inc. tests)
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(EconomicResource, filters))}
 
@@ -89,6 +89,24 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     )
   end
 
+  def preload_all(resource) do
+    Repo.preload(resource, [
+      :accounting_quantity,
+      :onhand_quantity,
+      :unit_of_effort,
+      # :state,
+      :primary_accountable,
+      :current_location,
+      :contained_in,
+      :conforms_to,
+      :image
+    ]) |> preload_state()
+  end
+
+  def preload_state(resource) do
+    resource |> Map.put :state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id)
+  end
+
   ## mutations
 
   # @spec create(User.t(), attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
@@ -108,11 +126,14 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created) do
         item = %{item | creator: creator}
+        item = preload_all(item)
+
         index(item)
         {:ok, item}
       end
     end)
   end
+
 
   # TODO: take the user who is performing the update
   # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
@@ -122,18 +143,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   def do_update(resource, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      resource =
-        Repo.preload(resource, [
-          :accounting_quantity,
-          :onhand_quantity,
-          :unit_of_effort,
-          :state,
-          :stage,
-          :primary_accountable,
-          :current_location,
-          :contained_in,
-          :conforms_to
-        ])
+      resource = preload_all(resource)
 
       with {:ok, cs} <- prepare_changeset(attrs, changeset_fn, resource),
            {:ok, resource} <- Repo.update(cs),
@@ -143,6 +153,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
       end
     end)
   end
+
 
   defp prepare_changeset(attrs, changeset_fn, resource) do
     resource
@@ -170,8 +181,8 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp change_primary_accountable(changeset, %{primary_accountable: id}) do
     with {:ok, pointer} <- Pointers.one(id: id) do
-      primary_accountable = Pointers.follow!(pointer)
-      EconomicResource.change_primary_accountable(changeset, primary_accountable)
+      # primary_accountable = Pointers.follow!(pointer)
+      EconomicResource.change_primary_accountable(changeset, pointer)
     end
   end
 

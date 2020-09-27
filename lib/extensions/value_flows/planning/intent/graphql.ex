@@ -305,29 +305,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     )
   end
 
-  def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
-
-  def fetch_provider_edge(_, _, _) do
-    {:ok, nil}
-  end
-
-  def fetch_receiver_edge(%{receiver_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
-    {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
-  end
-
-  def fetch_receiver_edge(_, _, _) do
-    {:ok, nil}
-  end
-
-  def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
-    thing = Repo.preload(thing, tags: :character)
-    urls = Enum.map(thing.tags, & &1.character.canonical_url)
-    {:ok, urls}
-  end
 
   def create_offer(%{intent: intent_attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do

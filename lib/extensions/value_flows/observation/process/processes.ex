@@ -20,14 +20,14 @@ defmodule ValueFlows.Observation.Process.Processes do
   Used by:
   * GraphQL Item queries
   * ActivityPub integration
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for this (inc. tests)
   """
   def one(filters), do: Repo.single(Queries.query(Process, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for this (inc. tests)
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Process, filters))}
 
@@ -84,6 +84,13 @@ defmodule ValueFlows.Observation.Process.Processes do
   end
 
   ## mutations
+
+  def create(%User{} = creator, %{id: _id} = context, attrs)
+      when is_map(attrs) do
+    do_create(creator, attrs, fn ->
+      Process.create_changeset(creator, context, attrs)
+    end)
+  end
 
   # @spec create(User.t(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do

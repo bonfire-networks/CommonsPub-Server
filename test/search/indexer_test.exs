@@ -8,11 +8,11 @@ defmodule CommonsPub.Search.IndexerTest do
   test "format community" do
     community = fake_user!() |> fake_community!()
     json = Indexer.indexing_object_format(community)
-    assert json["index_mothership_object_id"] == community.id
-    assert json["canonicalUrl"] == community.character.canonical_url
+    assert json["id"] == community.id
+    assert json["canonical_url"] == community.character.canonical_url
     # assert json["icon"] == community.icon
     # assert json["image"] == community.image
-    assert json["preferredUsername"] == community.character.preferred_username
+    assert json["username"] == community.character.preferred_username
     assert json["summary"] == community.summary
     assert json["index_type"] == "Community"
   end
@@ -23,10 +23,10 @@ defmodule CommonsPub.Search.IndexerTest do
     collection = fake_collection!(user, community)
 
     json = Indexer.indexing_object_format(collection)
-    assert json["index_mothership_object_id"] == collection.id
-    assert json["canonicalUrl"] == collection.character.canonical_url
+    assert json["id"] == collection.id
+    assert json["canonical_url"] == collection.character.canonical_url
     # assert json["icon"] == collection.icon
-    assert json["preferredUsername"] == collection.character.preferred_username
+    assert json["username"] == collection.character.preferred_username
     assert json["summary"] == collection.summary
     assert json["index_type"] == "Collection"
     assert is_map(json["community"])
@@ -40,8 +40,8 @@ defmodule CommonsPub.Search.IndexerTest do
 
     json = Indexer.indexing_object_format(resource)
     assert String.starts_with?(json["url"], "http")
-    assert json["index_mothership_object_id"] == resource.id
-    assert json["canonicalUrl"] == resource.canonical_url
+    assert json["id"] == resource.id
+    assert json["canonical_url"] == resource.canonical_url
     # assert json["icon"] == resource.icon
     assert json["summary"] == resource.summary
     assert json["index_type"] == "Resource"
