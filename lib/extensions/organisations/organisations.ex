@@ -127,7 +127,7 @@ defmodule Organisation.Organisations do
 
   defp attrs_with_organisation(attrs, organisation) do
     attrs = Map.put(attrs, :id, organisation.id)
-    IO.inspect(attrs)
+    # IO.inspect(attrs)
     {:ok, attrs}
   end
 
@@ -137,7 +137,7 @@ defmodule Organisation.Organisations do
   end
 
   defp insert_organisation(creator, attrs) do
-    IO.inspect(attrs)
+    # IO.inspect(attrs)
     cs = Organisation.create_changeset(creator, attrs)
     with {:ok, organisation} <- Repo.insert(cs), do: {:ok, organisation}
   end

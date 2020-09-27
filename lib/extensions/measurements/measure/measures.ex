@@ -101,8 +101,8 @@ defmodule Measurement.Measure.Measures do
 
   defp insert_measure(creator, unit, attrs) do
     # use upsert
-    Repo.insert(Measurement.Measure.create_changeset(creator, unit, attrs),
-      on_conflict: [set: [has_numerical_value: attrs.has_numerical_value]]
+    Repo.insert(Measurement.Measure.create_changeset(creator, unit, attrs)
+      # on_conflict: [set: [has_numerical_value: attrs.has_numerical_value]]
     )
   end
 
