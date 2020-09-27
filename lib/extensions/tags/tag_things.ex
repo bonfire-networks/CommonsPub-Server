@@ -21,17 +21,13 @@ defmodule CommonsPub.Tag.TagThings do
     things_add_tags(user, thing, tag_ids)
   end
 
-  def try_tag_thing(user, thing, %{tags: tag_ids})
-      when is_list(tag_ids) and length(tag_ids) > 0 do
-    things_add_tags(user, thing, tag_ids)
-  end
 
   @doc """
   otherwise maybe we have tagnames inline in the note?
   """
   def try_tag_thing(_user, thing, %{note: text}) when bit_size(text) > 1 do
     # CommonsPub.Web.Component.TagAutocomplete.try_prefixes(text)
-    # TODO
+    # TODO - use tags in the note
     {:ok, thing}
   end
 

@@ -249,6 +249,14 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
+if Mix.env == :dev do
+  config :mix_test_watch,
+    clear: true,
+    tasks: [
+        "test",
+      ]
+end
+
 config :mime, :types, %{
   "application/activity+json" => ["json"],
   "application/ld+json" => ["json"],

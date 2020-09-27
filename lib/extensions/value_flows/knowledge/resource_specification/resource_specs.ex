@@ -21,14 +21,14 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   Used by:
   * GraphQL Item queries
   * ActivityPub integration
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for this (inc. tests)
   """
   def one(filters), do: Repo.single(Queries.query(ResourceSpecification, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for this (inc. tests)
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(ResourceSpecification, filters))}
 
@@ -185,8 +185,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
         |> changeset_fn.()
 
       with {:ok, resource_spec} <- Repo.update(cs),
-           {:ok, resource_spec} <- ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs),
-           :ok <- publish(resource_spec, :updated) do
+           {:ok, resource_spec} <- ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs) do
+        publish(resource_spec, :updated)
         {:ok, resource_spec}
       end
     end)

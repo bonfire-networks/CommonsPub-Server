@@ -33,6 +33,8 @@ make dev-setup
 make dev
 ```
 
+4. To help with test-driven-development, run `make dev-watch-test` and it will re-run relevant tests whenever you modify a module
+
 #### Other useful makefile tasks
 
 - `make dev-build` - rebuild the dev docker image
@@ -74,17 +76,20 @@ Launch the database & search index (in a second shell, preferably):
 make dev-services-up
 ```
 
-And reset it:
+And reset/create it:
 
 ```
 mix ecto.reset
 ```
 
-Finally, you may launch the application in iex:
+Finally, you may launch the application in the iex console:
 
 ```
 iex -S mix phx.server
 ```
+
+To help with test-driven-development, run `mix test.watch --stale` instead, and it will re-run relevant tests whenever you modify a module.
+
 
 ### Option 3 (the hard metal one) - fully manual
 

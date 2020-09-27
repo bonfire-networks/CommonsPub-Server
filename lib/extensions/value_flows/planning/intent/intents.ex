@@ -22,14 +22,14 @@ defmodule ValueFlows.Planning.Intent.Intents do
   Used by:
   * GraphQL Item queries
   * ActivityPub integration
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for this (inc. tests)
   """
   def one(filters), do: Repo.single(Queries.query(Intent, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for this (inc. tests)
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Intent, filters))}
 

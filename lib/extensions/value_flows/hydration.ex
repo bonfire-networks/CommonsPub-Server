@@ -232,6 +232,9 @@ defmodule ValueFlows.Hydration do
         update_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.update_proposal/2
         ],
+        update_resource_specification: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.update_resource_spec/2
+        ],
         update_process_specification: [
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.update_process_spec/2
         ],
@@ -240,6 +243,9 @@ defmodule ValueFlows.Hydration do
         ],
         delete_proposal: [
           resolve: &ValueFlows.Proposal.GraphQL.delete_proposal/2
+        ],
+        delete_resource_specification: [
+          resolve: &ValueFlows.Knowledge.ResourceSpecification.GraphQL.delete_resource_spec/2
         ],
         delete_process_specification: [
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.delete_process_spec/2

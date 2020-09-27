@@ -42,6 +42,13 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
+  def resource_specification_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
+  end
+
+
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
 
   def action, do: Faker.Util.pick(Actions.actions_list())

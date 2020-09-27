@@ -2,6 +2,7 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   alias ValueFlows.Knowledge.ResourceSpecification
   # alias ValueFlows.Knowledge.ResourceSpecifications
+  alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
   import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -36,6 +37,13 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
 
   def join_to(q, :tags, jq) do
     join(q, jq, [resource_spec: c], t in assoc(c, :tags), as: :tags)
+  end
+
+  def join_to(q, {:follow, follower_id}, jq) do
+    join(q, jq, [resource_spec: c], f in Follow,
+      as: :follow,
+      on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
   end
 
   ### filter/2
