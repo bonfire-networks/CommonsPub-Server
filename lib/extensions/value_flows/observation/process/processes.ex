@@ -190,14 +190,11 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   def indexing_object_format(obj) do
     # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
-    image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
-
     %{
       "index_type" => "Process",
       "id" => obj.id,
       # "canonicalUrl" => obj.canonical_url,
       # "icon" => icon,
-      "image" => image,
       "name" => obj.name,
       "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,

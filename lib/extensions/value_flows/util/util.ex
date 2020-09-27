@@ -28,4 +28,18 @@ defmodule ValueFlows.Util do
   def try_tag_thing(user, thing, tags) do
     CommonsPub.Tag.TagThings.try_tag_thing(user, thing, tags)
   end
+
+
+  def handle_changeset_errors(cs, attrs, fn_list) do
+    Enum.reduce_while(fn_list, cs, fn {field_name, cs_handler}, cs ->
+      case cs_handler.(cs, attrs) do
+        {:error, reason} -> {:halt, {:error, {field_name, reason}}}
+        cs -> {:cont, cs}
+      end
+    end )
+    |> case do
+      {:error, _} = e -> e
+      cs -> {:ok, cs}
+    end
+  end
 end
