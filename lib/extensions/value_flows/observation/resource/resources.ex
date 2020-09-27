@@ -180,8 +180,8 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp change_primary_accountable(changeset, %{primary_accountable: id}) do
     with {:ok, pointer} <- Pointers.one(id: id) do
-      primary_accountable = Pointers.follow!(pointer)
-      EconomicResource.change_primary_accountable(changeset, primary_accountable)
+      # primary_accountable = Pointers.follow!(pointer)
+      EconomicResource.change_primary_accountable(changeset, pointer)
     end
   end
 
