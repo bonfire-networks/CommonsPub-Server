@@ -136,3 +136,6 @@ config :commons_pub, CommonsPub.Uploads,
   base_url: base_url <> uploads_dir <> "/"
 
 config :commons_pub, CommonsPub.Workers.ActivityWorker, log_level: :warn
+
+config :mix_test_watch,
+  clear: true

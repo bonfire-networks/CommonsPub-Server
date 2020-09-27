@@ -66,6 +66,7 @@
 | metrics                | BSD                                | 1.0.1       | https://hex.pm/packages/metrics                                     |
 | mime                   | Apache 2.0                         | 1.4.0       | https://hex.pm/packages/mime                                        |
 | mimerl                 | MIT                                | 1.2.0       | https://hex.pm/packages/mimerl                                      |
+| mix_test_watch         | MIT                                | 1.0.2       | https://hex.pm/packages/mix_test_watch                              |
 | mochiweb               | MIT                                | 2.20.1      | https://hex.pm/packages/mochiweb                                    |
 | mock                   | MIT                                |             | https://hex.pm/packages/mock                                        |
 | nimble_parsec          | Apache 2.0                         | 0.6.0       | https://hex.pm/packages/nimble_parsec                               |

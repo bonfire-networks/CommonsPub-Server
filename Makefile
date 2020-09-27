@@ -146,6 +146,9 @@ dev-test-db: init ## Create or reset the test DB
 dev-test: init ## Run tests
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test $(dir)
 
+dev-watch-test: init ## Run tests
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test.watch --stale $(dir)
+
 dev-psql: init ## Run postgres (without Docker)
 	psql -h localhost -U postgres $(APP_DEV_CONTAINER)
 
