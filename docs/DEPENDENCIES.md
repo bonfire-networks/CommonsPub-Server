@@ -21,23 +21,23 @@
 | cowlib                 | ISC                                | 2.9.1       | https://hex.pm/packages/cowlib                                      |
 | db_connection          | Apache 2.0                         | 2.2.2       | https://hex.pm/packages/db_connection                               |
 | dbg                    | Apache 2.0                         | 1.0.1       | https://hex.pm/packages/dbg                                         |
-| decimal                | Apache 2.0                         | 1.8.1       | https://hex.pm/packages/decimal                                     |
+| decimal                | Apache 2.0                         | 1.9.0       | https://hex.pm/packages/decimal                                     |
 | docset_api             | Undefined                          | 0.1.0       | https://github.com/mayel/hexdocs_docset_api.git                     |
 | earmark                | Apache 2.0                         | 1.4.10      | https://hex.pm/packages/earmark                                     |
 | earmark_parser         | Apache 2.0                         | 1.4.10      | https://hex.pm/packages/earmark_parser                              |
 | ecto                   | Apache 2.0                         | 3.4.6       | https://hex.pm/packages/ecto                                        |
 | ecto_sql               | Apache 2.0                         | 3.4.5       | https://hex.pm/packages/ecto_sql                                    |
 | ecto_ulid              | MIT                                | 0.2.0       | https://github.com/irresponsible/ecto-ulid                          |
-| elixir_make            | Apache 2.0                         | 0.6.0       | https://hex.pm/packages/elixir_make                                 |
+| elixir_make            | Apache 2.0                         | 0.6.1       | https://hex.pm/packages/elixir_make                                 |
 | email_checker          | MIT                                | 0.1.3       | https://hex.pm/packages/email_checker                               |
 | esqlite                | Apache; Apache 2.0                 | 0.4.1       | https://hex.pm/packages/esqlite                                     |
 | eternal                | MIT                                | 1.2.1       | https://hex.pm/packages/eternal                                     |
-| ex_doc                 | Apache 2.0                         | 0.22.2      | https://hex.pm/packages/ex_doc                                      |
+| ex_doc                 | Apache 2.0                         | 0.22.6      | https://hex.pm/packages/ex_doc                                      |
 | ex_machina             | MIT                                | 2.4.0       | https://hex.pm/packages/ex_machina                                  |
 | excoveralls            | MIT                                |             | https://hex.pm/packages/excoveralls                                 |
-| faker                  | MIT                                | 0.14.0      | https://hex.pm/packages/faker                                       |
-| file_system            | WTFPL                              | 0.2.8       | https://hex.pm/packages/file_system                                 |
-| flexto                 | Apache 2.0                         | 0.2.0       | https://hex.pm/packages/flexto                                      |
+| faker                  | MIT                                | 0.15.0      | https://hex.pm/packages/faker                                       |
+| file_system            | WTFPL                              | 0.2.9       | https://hex.pm/packages/file_system                                 |
+| flexto                 | Apache 2.0                         | 0.2.2       | https://hex.pm/packages/flexto                                      |
 | floki                  | MIT                                | 0.28.0      | https://hex.pm/packages/floki                                       |
 | furlex                 | Apache 2.0                         | 0.4.3       | https://gitlab.com/moodlenet/servers/furlex                         |
 | gen_smtp               | BSD 2-clause; Unrecognized license | 0.15.0      | https://hex.pm/packages/gen_smtp                                    |
@@ -46,7 +46,7 @@
 | geo_postgis            | MIT                                | 3.3.1       | https://hex.pm/packages/geo_postgis                                 |
 | geocoder               | MIT                                | 1.0.0       | https://hex.pm/packages/geocoder                                    |
 | geohash                | Apache 2.0                         | 1.2.1       | https://hex.pm/packages/geohash                                     |
-| gettext                | Apache 2.0                         | 0.18.1      | https://hex.pm/packages/gettext                                     |
+| gettext                | Apache 2.0                         | 0.18.2      | https://hex.pm/packages/gettext                                     |
 | grumble                | Apache 2.0                         | 0.1.3       | https://hex.pm/packages/grumble                                     |
 | gun                    | ISC                                | 2.0.0-pre.2 | https://github.com/ninenines/gun.git                                |
 | hackney                | Apache 2.0                         | 1.16.0      | https://hex.pm/packages/hackney                                     |
@@ -56,11 +56,11 @@
 | http_signatures        | GPLv3                              | 0.1.0       | https://git.pleroma.social/pleroma/elixir-libraries/http_signatures |
 | httpoison              | MIT                                | 1.7.0       | https://hex.pm/packages/httpoison                                   |
 | idna                   | MIT                                | 6.0.1       | https://hex.pm/packages/idna                                        |
-| jason                  | Apache 2.0                         | 1.2.1       | https://hex.pm/packages/jason                                       |
+| jason                  | Apache 2.0                         | 1.2.2       | https://hex.pm/packages/jason                                       |
 | jumper                 | MIT                                | 1.0.1       | https://hex.pm/packages/jumper                                      |
 | licensir               | MIT                                | 0.6.0       | https://github.com/mayel/licensir                                   |
 | linkify                | MIT                                | 0.2.0       | https://gitlab.com/CommonsPub/linkify.git                           |
-| makeup                 | BSD; Unrecognized license          | 1.0.3       | https://hex.pm/packages/makeup                                      |
+| makeup                 | BSD; Unrecognized license          | 1.0.4       | https://hex.pm/packages/makeup                                      |
 | makeup_elixir          | BSD                                | 0.14.1      | https://hex.pm/packages/makeup_elixir                               |
 | meck                   | Apache 2.0                         |             | https://hex.pm/packages/meck                                        |
 | metrics                | BSD                                | 1.0.1       | https://hex.pm/packages/metrics                                     |
@@ -71,22 +71,22 @@
 | nimble_parsec          | Apache 2.0                         | 0.6.0       | https://hex.pm/packages/nimble_parsec                               |
 | oban                   | Apache 2.0                         | 1.2.0       | https://hex.pm/packages/oban                                        |
 | parse_trans            | Apache 2.0                         | 3.3.0       | https://hex.pm/packages/parse_trans                                 |
-| phoenix                | MIT                                | 1.5.4       | https://hex.pm/packages/phoenix                                     |
-| phoenix_ecto           | MIT                                | 4.2.0       | https://hex.pm/packages/phoenix_ecto                                |
+| phoenix                | MIT                                | 1.5.5       | https://hex.pm/packages/phoenix                                     |
+| phoenix_ecto           | MIT                                | 4.2.1       | https://hex.pm/packages/phoenix_ecto                                |
 | phoenix_html           | MIT                                | 2.14.2      | https://hex.pm/packages/phoenix_html                                |
 | phoenix_integration    | MIT                                | 0.8.2       | https://hex.pm/packages/phoenix_integration                         |
-| phoenix_live_dashboard | MIT                                | 0.2.7       | https://hex.pm/packages/phoenix_live_dashboard                      |
+| phoenix_live_dashboard | MIT                                | 0.2.8       | https://hex.pm/packages/phoenix_live_dashboard                      |
 | phoenix_live_reload    | MIT                                | 1.2.4       | https://hex.pm/packages/phoenix_live_reload                         |
-| phoenix_live_view      | MIT                                | 0.14.4      | https://hex.pm/packages/phoenix_live_view                           |
+| phoenix_live_view      | MIT                                | 0.14.7      | https://hex.pm/packages/phoenix_live_view                           |
 | phoenix_pubsub         | MIT                                | 2.0.0       | https://hex.pm/packages/phoenix_pubsub                              |
 | plug                   | Apache 2.0                         | 1.10.4      | https://hex.pm/packages/plug                                        |
 | plug_cowboy            | Apache 2.0                         | 2.3.0       | https://hex.pm/packages/plug_cowboy                                 |
 | plug_crypto            | Apache 2.0                         | 1.1.2       | https://hex.pm/packages/plug_crypto                                 |
-| pointers               | Apache 2.0                         | 0.5.0       | https://github.com/commonspub/pointers.git                          |
+| pointers               | Apache 2.0                         | 0.5.1       | https://github.com/commonspub/pointers.git                          |
 | pointers_ulid          | MIT                                | 0.2.2       | https://hex.pm/packages/pointers_ulid                               |
 | poison                 | CC0-1.0                            | 4.0.1       | https://hex.pm/packages/poison                                      |
 | poolboy                | Unlicense; Apache 2.0; ISC         | 1.5.2       | https://hex.pm/packages/poolboy                                     |
-| postgrex               | Apache 2.0                         | 0.15.5      | https://hex.pm/packages/postgrex                                    |
+| postgrex               | Apache 2.0                         | 0.15.6      | https://hex.pm/packages/postgrex                                    |
 | protocol_ex            | MIT                                | 0.4.3       | https://hex.pm/packages/protocol_ex                                 |
 | ranch                  | ISC                                | 1.7.1       | https://hex.pm/packages/ranch                                       |
 | recase                 | MIT                                | 0.6.0       | https://hex.pm/packages/recase                                      |
