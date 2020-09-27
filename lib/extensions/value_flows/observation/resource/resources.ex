@@ -98,7 +98,8 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
       :primary_accountable,
       :current_location,
       :contained_in,
-      :conforms_to
+      :conforms_to,
+      :image
     ]) |> preload_state()
   end
 

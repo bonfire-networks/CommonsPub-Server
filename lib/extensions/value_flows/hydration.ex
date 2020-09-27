@@ -64,10 +64,10 @@ defmodule ValueFlows.Hydration do
       },
       intent: %{
         provider: [
-          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_provider_edge/3
+          resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
         ],
         receiver: [
-          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_receiver_edge/3
+          resolve: &ValueFlows.Util.GraphQL.fetch_receiver_edge/3
         ],
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
@@ -92,18 +92,42 @@ defmodule ValueFlows.Hydration do
         ]
       },
       economic_event: %{
+        provider: [
+          resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
+        ],
+        receiver: [
+          resolve: &ValueFlows.Util.GraphQL.fetch_receiver_edge/3
+        ],
+        action: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
+        ],
         resource_inventoried_as: [
           resolve:
             &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
         ],
         resource_classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
-        ]
+        ],
+        at_location: [
+          resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+        ],
+        tags: [
+          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+        ],
       },
       economic_resource: %{
         classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
-        ]
+        ],
+        current_location: [
+          resolve: &ValueFlows.Util.GraphQL.current_location_edge/3
+        ],
+        image: [
+          resolve: &UploadResolver.image_content_edge/3
+        ],
+        tags: [
+          resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+        ],
       },
 
       # start Query resolvers
