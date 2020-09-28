@@ -552,6 +552,51 @@ defmodule ValueFlows.Test.Faking do
     field(:delete_process_specification, args: [id: var(:id)])
   end
 
+  def economic_event_fields(extra \\ []) do
+    extra ++ ~w(id note)a
+  end
+
+  def economic_event_response_fields(extra \\ []) do
+    [economic_event: economic_event_fields(extra)]
+  end
+
+  def economic_event_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &economic_event_subquery/1, options)
+  end
+
+  def economic_event_subquery(options \\ []) do
+    gen_subquery(:id, :economic_event, &economic_event_fields/1, options)
+  end
+
+  def create_economic_event_mutation(options \\ []) do
+    [event: type!(:economic_event_create_params)]
+    |> gen_mutation(&create_economic_event_submutation/1, options)
+  end
+
+  def create_economic_event_submutation(options \\ []) do
+    [event: var(:event)]
+    |> gen_submutation(:create_economic_event, &economic_event_response_fields/1, options)
+  end
+
+  def update_economic_event_mutation(options \\ []) do
+    [economic_event: type!(:economic_event_update_params)]
+    |> gen_mutation(&update_economic_event_submutation/1, options)
+  end
+
+  def update_economic_event_submutation(options \\ []) do
+    [economic_event: var(:economic_event)]
+    |> gen_submutation(:update_economic_event, &economic_event_response_fields/1, options)
+  end
+
+  def delete_economic_event_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_economic_event_submutation/1, options)
+  end
+
+  def delete_economic_event_submutation(_options \\ []) do
+    field(:delete_economic_event, args: [id: var(:id)])
+  end
 
 
 end
