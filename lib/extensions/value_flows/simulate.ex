@@ -101,6 +101,15 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
+  def process_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
+    # |> Map.put_new_lazy(:image, &icon/0)
+    # |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
+
+  end
+
   def process_specification(base \\ %{}) do
     base
     |> Map.put_new_lazy(:name, &name/0)

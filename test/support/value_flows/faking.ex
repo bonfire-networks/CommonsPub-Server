@@ -552,6 +552,52 @@ defmodule ValueFlows.Test.Faking do
     field(:delete_process_specification, args: [id: var(:id)])
   end
 
+  def process_fields(extra \\ []) do
+    extra ++ ~w(id name note)a
+  end
+
+  def process_response_fields(extra \\ []) do
+    [process: process_fields(extra)]
+  end
+
+  def process_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &process_subquery/1, options)
+  end
+
+  def process_subquery(options \\ []) do
+    gen_subquery(:id, :process, &process_fields/1, options)
+  end
+
+  def create_process_mutation(options \\ []) do
+    [process: type!(:process_create_params)]
+    |> gen_mutation(&create_process_submutation/1, options)
+  end
+
+  def create_process_submutation(options \\ []) do
+    [process: var(:process)]
+    |> gen_submutation(:create_process, &process_response_fields/1, options)
+  end
+
+  def update_process_mutation(options \\ []) do
+    [process: type!(:process_update_params)]
+    |> gen_mutation(&update_process_submutation/1, options)
+  end
+
+  def update_process_submutation(options \\ []) do
+    [process: var(:process)]
+    |> gen_submutation(:update_process, &process_response_fields/1, options)
+  end
+
+  def delete_process_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_process_submutation/1, options)
+  end
+
+  def delete_process_submutation(_options \\ []) do
+    field(:delete_process, args: [id: var(:id)])
+  end
+
   def economic_event_fields(extra \\ []) do
     extra ++ ~w(id note)a
   end
