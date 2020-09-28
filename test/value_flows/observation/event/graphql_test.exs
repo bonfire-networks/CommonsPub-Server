@@ -93,9 +93,61 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
 
   describe "EconomicEvents" do
     test "return a list of economicEvents" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+      events = some(5, fn -> fake_economic_event!(user, %{
+        provider: provider.id,
+        receiver: receiver.id,
+        action: action.id
+      }) end)
+      # deleted
+      some(2, fn ->
+        event = fake_economic_event!(user, %{
+          provider: provider.id,
+          receiver: receiver.id,
+          action: action.id
+        })
+        {:ok, event} = EconomicEvents.soft_delete(event)
+        event
+      end)
 
+      q = economic_events_query()
+      conn = user_conn(user)
+      assert fetched_economic_events = grumble_post_key(q, conn, :economic_events, %{})
+      assert Enum.count(events) == Enum.count(fetched_economic_events)
     end
   end
+
+  describe "EconomicEventsPages" do
+    test "fetches all items that are not deleted" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+      events = some(5, fn -> fake_economic_event!(user, %{
+        provider: provider.id,
+        receiver: receiver.id,
+        action: action.id
+      }) end)
+      # deleted
+      some(2, fn ->
+        event = fake_economic_event!(user, %{
+          provider: provider.id,
+          receiver: receiver.id,
+          action: action.id
+        })
+        {:ok, event} = EconomicEvents.soft_delete(event)
+        event
+      end)
+      q = economic_events_pages_query()
+      conn = user_conn(user)
+      assert page = grumble_post_key(q, conn, :economic_events_pages, %{})
+      assert Enum.count(events) == page["totalCount"]
+    end
+  end
+
 
   describe "createEconomicEvent" do
     test "create a new economic event" do

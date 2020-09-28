@@ -650,6 +650,40 @@ defmodule ValueFlows.Test.Faking do
     gen_subquery(:id, :economic_event, &economic_event_fields/1, options)
   end
 
+  def economic_events_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ economic_event_fields(fields)
+    field(:economic_events, [{:fields, fields} | options])
+  end
+
+  def economic_events_query(options \\ []) do
+    gen_query(&economic_events_subquery/1, options)
+  end
+
+  def economic_events_pages_subquery(options \\ []) do
+    args = [
+      after: var(:economic_events_after),
+      before: var(:economic_events_before),
+      limit: var(:economic_events_limit),
+    ]
+
+    page_subquery(
+      :economic_events_pages,
+      &economic_event_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def economic_events_pages_query(options \\ []) do
+    params = [
+      economic_events_after: list_type(:cursor),
+      economic_events_before: list_type(:cursor),
+      economic_events_limit: :int,
+    ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&economic_events_pages_subquery/1, [{:params, params} | options])
+  end
+
   def create_economic_event_mutation(options \\ []) do
     [event: type!(:economic_event_create_params)]
     |> gen_mutation(&create_economic_event_submutation/1, options)

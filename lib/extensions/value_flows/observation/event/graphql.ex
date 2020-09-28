@@ -77,7 +77,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def all_events(_, _) do
-    EconomicEvents.many()
+    EconomicEvents.many([:default])
   end
 
   def events_filtered(page_opts, _) do
