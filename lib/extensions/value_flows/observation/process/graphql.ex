@@ -73,7 +73,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   end
 
   def all_processes(_, _) do
-    Processes.many()
+    Processes.many([:default])
   end
 
   def processes_filtered(page_opts, _) do

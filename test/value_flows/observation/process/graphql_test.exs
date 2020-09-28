@@ -15,12 +15,8 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     test "fetches a process by ID" do
       user = fake_user!()
       process = fake_process!(user)
-      IO.inspect(process.id)
       q = process_query()
-      IO.puts(PP.to_string(q))
       conn = user_conn(user)
-      IO.puts(PP.to_string(grumble_post_key(q, conn, :process, %{id: process.id})))
-
       assert_process(grumble_post_key(q, conn, :process, %{id: process.id}))
     end
 
@@ -39,23 +35,35 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "Processes" do
     test "returns a list of Processes" do
-      # users = some_fake_users!(3)
-      # # 9
-      # process_specs = some_fake_Processes!(3, users)
+      user = fake_user!()
+      processes = some(5, fn -> fake_process!(user) end)
+      # deleted
+      some(2, fn ->
+        process = fake_process!(user)
+        {:ok, process} = Processes.soft_delete(process)
+        process
+      end)
+      q = processes_query()
+      conn = user_conn(user)
+      assert fetched_processes = grumble_post_key(q, conn, :processes, %{})
+      assert Enum.count(processes) == Enum.count(fetched_processes)
+    end
+  end
 
-      # root_page_test(%{
-      #   query: Processes_query(),
-      #   connection: json_conn(),
-      #   return_key: :Processes,
-      #   default_limit: 5,
-      #   total_count: 9,
-      #   data: order_follower_count(Processes),
-      #   assert_fn: &assert_collection/2,
-      #   cursor_fn: Collections.test_cursor(:followers),
-      #   after: :collections_after,
-      #   before: :collections_before,
-      #   limit: :collections_limit
-      # })
+  describe "processesPages" do
+    test "fetches all items that are not deleted" do
+      user = fake_user!()
+      processes = some(5, fn -> fake_process!(user) end)
+      # deleted
+      some(2, fn ->
+        process = fake_process!(user)
+        {:ok, process} = Processes.soft_delete(process)
+        process
+      end)
+      q = processes_pages_query()
+      conn = user_conn(user)
+      assert page = grumble_post_key(q, conn, :processes_pages, %{})
+      assert Enum.count(processes) == page["totalCount"]
     end
   end
 

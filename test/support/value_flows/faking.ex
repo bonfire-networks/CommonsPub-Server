@@ -569,6 +569,41 @@ defmodule ValueFlows.Test.Faking do
     gen_subquery(:id, :process, &process_fields/1, options)
   end
 
+  def processes_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ process_fields(fields)
+    field(:processes, [{:fields, fields} | options])
+  end
+
+  def processes_query(options \\ []) do
+    gen_query(&processes_subquery/1, options)
+  end
+
+  def processes_pages_subquery(options \\ []) do
+    args = [
+      after: var(:processes_after),
+      before: var(:processes_before),
+      limit: var(:processes_limit),
+    ]
+
+    page_subquery(
+      :processes_pages,
+      &process_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def processes_pages_query(options \\ []) do
+    params = [
+      processes_after: list_type(:cursor),
+      processes_before: list_type(:cursor),
+      processes_limit: :int,
+    ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&processes_pages_subquery/1, [{:params, params} | options])
+  end
+
+
   def create_process_mutation(options \\ []) do
     [process: type!(:process_create_params)]
     |> gen_mutation(&create_process_submutation/1, options)
