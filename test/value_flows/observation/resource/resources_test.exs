@@ -14,7 +14,11 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
   describe "one" do
     test "fetches an existing economic resource by ID" do
      user = fake_user!()
-
+     resource = fake_economic_resource!(user)
+     assert {:ok, fetched} = EconomicResources.one(id: resource.id)
+     assert_economic_resource(fetched)
+     assert {:ok, fetched} = EconomicResources.one(user: user)
+     assert_economic_resource(fetched)
     end
 
   end
@@ -28,48 +32,70 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
     test "can create an economic resource with current_location" do
       user = fake_user!()
-      assert {:ok, resource} = EconomicResources.create(user, economic_resource())
+      location = fake_geolocation!(user)
+      attrs = %{
+        current_location: location.id
+      }
+      assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
       assert_economic_resource(resource)
+      assert resource.current_location.id == attrs.current_location
     end
 
     test "can create an economic resource with conforms_to" do
       user = fake_user!()
-      assert {:ok, resource} = EconomicResources.create(user, economic_resource())
+      attrs = %{
+        conforms_to: fake_resource_specification!(user).id,
+      }
+      assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
       assert_economic_resource(resource)
+      assert resource.conforms_to.id == attrs.conforms_to
     end
 
     test "can create an economic resource with contained_in" do
       user = fake_user!()
-      assert {:ok, resource} = EconomicResources.create(user, economic_resource())
+      attrs = %{
+        contained_in: fake_economic_resource!(user).id,
+      }
+      assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
       assert_economic_resource(resource)
+      assert resource.contained_in.id == attrs.contained_in
     end
 
     test "can create an economic resource with primary_accountable" do
       user = fake_user!()
-      assert {:ok, resource} = EconomicResources.create(user, economic_resource())
+      owner = fake_user!()
+      attrs = %{
+        primary_accountable: owner.id
+      }
+      assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
       assert_economic_resource(resource)
+      assert resource.primary_accountable.id == attrs.primary_accountable
     end
 
     test "can create an economic resource with accounting_quantity and onhand_quantity" do
       user = fake_user!()
-      assert {:ok, resource} = EconomicResources.create(user, economic_resource())
+      unit = fake_unit!(user)
+      attrs = %{
+        accounting_quantity: measure(%{unit_id: unit.id}),
+        onhand_quantity: measure(%{unit_id: unit.id}),
+      }
+
+      assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
       assert_economic_resource(resource)
+      assert resource.onhand_quantity.id
+      assert resource.accounting_quantity.id
     end
 
     test "can create an economic resource with unit_of_effort" do
       user = fake_user!()
-      assert {:ok, resource} = EconomicResources.create(user, economic_resource())
+      attrs = %{
+        unit_of_effort: fake_unit!(user).id,
+      }
+      assert {:ok, resource} = EconomicResources.create(user, economic_resource(attrs))
       assert_economic_resource(resource)
+      assert resource.unit_of_effort.id === attrs.unit_of_effort
     end
 
-
-  end
-
-  describe "update" do
-
-  end
-
-  describe "soft_delete" do
   end
 
 end
