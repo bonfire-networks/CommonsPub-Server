@@ -98,4 +98,21 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   end
 
+
+  describe "update" do
+    test "update an existing resource" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      resource = fake_economic_resource!(user)
+      attrs = %{
+        accounting_quantity: measure(%{unit_id: unit.id}),
+        onhand_quantity: measure(%{unit_id: unit.id}),
+      }
+      assert {:ok, updated} = EconomicResources.update(resource, economic_resource(attrs))
+      assert_economic_resource(updated)
+      assert resource != updated
+      assert resource.accounting_quantity_id != updated.accounting_quantity_id
+      assert resource.onhand_quantity_id != updated.onhand_quantity_id
+    end
+  end
 end

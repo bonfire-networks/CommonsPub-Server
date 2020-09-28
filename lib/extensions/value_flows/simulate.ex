@@ -81,7 +81,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:tracking_identifier, &uuid/0)
-    |> Map.put_new_lazy(:state, &action_id/0)
+    # |> Map.put_new_lazy(:state, &action_id/0)
     # |> Map.put_new_lazy(:accounting_quantity, &measure/0)
     # |> Map.put_new_lazy(:onhand_quantity, &measure/0)
     # |> Map.put_new_lazy(:unit_of_effort, &unit/0)

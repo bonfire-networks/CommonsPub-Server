@@ -211,7 +211,7 @@ defmodule ValueFlows.Test.Faking do
       note: assert_optional(&assert_binary/1),
       name: assert_optional(&assert_binary/1),
       tracking_identifier: assert_optional(&assert_binary/1),
-      state_id: assert_optional(&assert_binary/1),
+      # state_id: assert_optional(&assert_binary/1),
       # state: assert_optional(&assert_action/1),
     )
   end
@@ -713,5 +713,55 @@ defmodule ValueFlows.Test.Faking do
     field(:delete_economic_event, args: [id: var(:id)])
   end
 
+  def economic_resource_fields(extra \\ []) do
+    extra ++ ~w(id name note tracking_identifier)a
+  end
+
+  def economic_resource_response_fields(extra \\ []) do
+    [economic_resource: economic_resource_fields(extra)]
+  end
+
+  def economic_resource_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &economic_resource_subquery/1, options)
+  end
+
+  def economic_resource_subquery(options \\ []) do
+    gen_subquery(:id, :economic_resource, &economic_resource_fields/1, options)
+  end
+
+  def economic_resources_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ economic_resource_fields(fields)
+    field(:economic_resources, [{:fields, fields} | options])
+  end
+
+  def economic_resources_query(options \\ []) do
+    gen_query(&economic_resources_subquery/1, options)
+  end
+
+  def economic_resources_pages_subquery(options \\ []) do
+    args = [
+      after: var(:economic_resources_after),
+      before: var(:economic_resources_before),
+      limit: var(:economic_resources_limit),
+    ]
+
+    page_subquery(
+      :economic_resources_pages,
+      &economic_resource_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def economic_resources_pages_query(options \\ []) do
+    params = [
+      economic_resources_after: list_type(:cursor),
+      economic_resources_before: list_type(:cursor),
+      economic_resources_limit: :int,
+    ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&economic_resources_pages_subquery/1, [{:params, params} | options])
+  end
 
 end
