@@ -3987,6 +3987,13 @@ type ValueFlowsQuery {
     after: [Cursor!]
   ): EconomicEventPage!
 
+  "Get paginated list of processes"
+  processesPages(
+    limit: Int
+    before: [Cursor!]
+    after: [Cursor!]
+  ): ProcessPage!
+
   "Get paginated list of economic resources"
   economicResourcesPages(
     limit: Int
@@ -4042,6 +4049,13 @@ type ProposalsPage {
 type EconomicEventPage {
   pageInfo: PageInfo!
   edges: [EconomicEvent!]!
+  totalCount: Int!
+}
+
+"A page of Processes"
+type ProcessPage {
+  pageInfo: PageInfo!
+  edges: [Process!]!
   totalCount: Int!
 }
 

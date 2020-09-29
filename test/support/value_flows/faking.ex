@@ -211,7 +211,7 @@ defmodule ValueFlows.Test.Faking do
       note: assert_optional(&assert_binary/1),
       name: assert_optional(&assert_binary/1),
       tracking_identifier: assert_optional(&assert_binary/1),
-      state_id: assert_optional(&assert_binary/1),
+      # state_id: assert_optional(&assert_binary/1),
       # state: assert_optional(&assert_action/1),
     )
   end
@@ -552,6 +552,232 @@ defmodule ValueFlows.Test.Faking do
     field(:delete_process_specification, args: [id: var(:id)])
   end
 
+  def process_fields(extra \\ []) do
+    extra ++ ~w(id name note)a
+  end
 
+  def process_response_fields(extra \\ []) do
+    [process: process_fields(extra)]
+  end
+
+  def process_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &process_subquery/1, options)
+  end
+
+  def process_subquery(options \\ []) do
+    gen_subquery(:id, :process, &process_fields/1, options)
+  end
+
+  def processes_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ process_fields(fields)
+    field(:processes, [{:fields, fields} | options])
+  end
+
+  def processes_query(options \\ []) do
+    gen_query(&processes_subquery/1, options)
+  end
+
+  def processes_pages_subquery(options \\ []) do
+    args = [
+      after: var(:processes_after),
+      before: var(:processes_before),
+      limit: var(:processes_limit),
+    ]
+
+    page_subquery(
+      :processes_pages,
+      &process_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def processes_pages_query(options \\ []) do
+    params = [
+      processes_after: list_type(:cursor),
+      processes_before: list_type(:cursor),
+      processes_limit: :int,
+    ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&processes_pages_subquery/1, [{:params, params} | options])
+  end
+
+
+  def create_process_mutation(options \\ []) do
+    [process: type!(:process_create_params)]
+    |> gen_mutation(&create_process_submutation/1, options)
+  end
+
+  def create_process_submutation(options \\ []) do
+    [process: var(:process)]
+    |> gen_submutation(:create_process, &process_response_fields/1, options)
+  end
+
+  def update_process_mutation(options \\ []) do
+    [process: type!(:process_update_params)]
+    |> gen_mutation(&update_process_submutation/1, options)
+  end
+
+  def update_process_submutation(options \\ []) do
+    [process: var(:process)]
+    |> gen_submutation(:update_process, &process_response_fields/1, options)
+  end
+
+  def delete_process_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_process_submutation/1, options)
+  end
+
+  def delete_process_submutation(_options \\ []) do
+    field(:delete_process, args: [id: var(:id)])
+  end
+
+  def economic_event_fields(extra \\ []) do
+    extra ++ ~w(id note)a
+  end
+
+  def economic_event_response_fields(extra \\ []) do
+    [economic_event: economic_event_fields(extra)]
+  end
+
+  def economic_event_response_fields(extra_event, extra_resource) do
+    [economic_event: economic_event_fields(extra_event), economic_resource: economic_resource_fields(extra_resource)]
+  end
+
+  def economic_event_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &economic_event_subquery/1, options)
+  end
+
+  def economic_event_subquery(options \\ []) do
+    gen_subquery(:id, :economic_event, &economic_event_fields/1, options)
+  end
+
+  def economic_events_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ economic_event_fields(fields)
+    field(:economic_events, [{:fields, fields} | options])
+  end
+
+  def economic_events_query(options \\ []) do
+    gen_query(&economic_events_subquery/1, options)
+  end
+
+  def economic_events_pages_subquery(options \\ []) do
+    args = [
+      after: var(:economic_events_after),
+      before: var(:economic_events_before),
+      limit: var(:economic_events_limit),
+    ]
+
+    page_subquery(
+      :economic_events_pages,
+      &economic_event_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def economic_events_pages_query(options \\ []) do
+    params = [
+      economic_events_after: list_type(:cursor),
+      economic_events_before: list_type(:cursor),
+      economic_events_limit: :int,
+    ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&economic_events_pages_subquery/1, [{:params, params} | options])
+  end
+
+  def create_economic_event_mutation(options \\ []) do
+    # event without any new resource
+    [event: type!(:economic_event_create_params)]
+    |> gen_mutation(&create_economic_event_submutation/1, options)
+  end
+
+  def create_economic_event_submutation(options \\ []) do
+    [event: var(:event)]
+    |> gen_submutation(:create_economic_event, &economic_event_response_fields/1, options)
+  end
+
+  def create_economic_event_mutation(event_options, resource_options) do
+    # event with a resource
+    [event: type!(:economic_event_create_params), new_inventoried_resource: type!(:economic_resource_create_params)]
+    |> gen_mutation(&create_economic_event_submutation/2, event_options, resource_options)
+  end
+
+  def create_economic_event_submutation(event_options, resource_options) do
+    [event: var(:event), new_inventoried_resource: var(:new_inventoried_resource)]
+    |> gen_submutation(:create_economic_event, &economic_event_response_fields/2, event_options, resource_options)
+  end
+
+  def update_economic_event_mutation(options \\ []) do
+    [economic_event: type!(:economic_event_update_params)]
+    |> gen_mutation(&update_economic_event_submutation/1, options)
+  end
+
+  def update_economic_event_submutation(options \\ []) do
+    [economic_event: var(:economic_event)]
+    |> gen_submutation(:update_economic_event, &economic_event_response_fields/1, options)
+  end
+
+  def delete_economic_event_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_economic_event_submutation/1, options)
+  end
+
+  def delete_economic_event_submutation(_options \\ []) do
+    field(:delete_economic_event, args: [id: var(:id)])
+  end
+
+  def economic_resource_fields(extra \\ []) do
+    extra ++ ~w(id name note tracking_identifier)a
+  end
+
+  def economic_resource_response_fields(extra \\ []) do
+    [economic_resource: economic_resource_fields(extra)]
+  end
+
+  def economic_resource_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &economic_resource_subquery/1, options)
+  end
+
+  def economic_resource_subquery(options \\ []) do
+    gen_subquery(:id, :economic_resource, &economic_resource_fields/1, options)
+  end
+
+  def economic_resources_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ economic_resource_fields(fields)
+    field(:economic_resources, [{:fields, fields} | options])
+  end
+
+  def economic_resources_query(options \\ []) do
+    gen_query(&economic_resources_subquery/1, options)
+  end
+
+  def economic_resources_pages_subquery(options \\ []) do
+    args = [
+      after: var(:economic_resources_after),
+      before: var(:economic_resources_before),
+      limit: var(:economic_resources_limit),
+    ]
+
+    page_subquery(
+      :economic_resources_pages,
+      &economic_resource_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def economic_resources_pages_query(options \\ []) do
+    params = [
+      economic_resources_after: list_type(:cursor),
+      economic_resources_before: list_type(:cursor),
+      economic_resources_limit: :int,
+    ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&economic_resources_pages_subquery/1, [{:params, params} | options])
+  end
 
 end

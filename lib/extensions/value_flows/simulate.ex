@@ -67,18 +67,34 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
+  def economic_event_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("note", &summary/0)
+    |> Map.put_new_lazy("hasBeginning", &past_datetime_iso/0)
+    |> Map.put_new_lazy("hasEnd", &future_datetime_iso/0)
+    |> Map.put_new_lazy("hasPointInTime", &future_datetime_iso/0)
+    # |> Map.put_new_lazy("resource_classified_as", fn -> some(1..5, &url/0) end)
+  end
+
   def economic_resource(base \\ %{}) do
     base
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:tracking_identifier, &uuid/0)
-    |> Map.put_new_lazy(:state, &action_id/0)
+    # |> Map.put_new_lazy(:state, &action_id/0)
     # |> Map.put_new_lazy(:accounting_quantity, &measure/0)
     # |> Map.put_new_lazy(:onhand_quantity, &measure/0)
     # |> Map.put_new_lazy(:unit_of_effort, &unit/0)
     # |> Map.put_new_lazy(:image, &icon/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def economic_resource_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
+    |> Map.put_new_lazy("tracking_identifier", &uuid/0)
   end
 
   def process(base \\ %{}) do
@@ -90,6 +106,15 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:finished, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def process_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
+    # |> Map.put_new_lazy(:image, &icon/0)
+    # |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
+
   end
 
   def process_specification(base \\ %{}) do

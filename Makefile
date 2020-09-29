@@ -2,9 +2,15 @@
 
 ORG_NAME=reflow
 APP_NAME=commonspub
-APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
 APP_DOCKER_REPO="$(ORG_NAME)/$(APP_NAME)"
 APP_DEV_CONTAINER="$(ORG_NAME)_$(APP_NAME)_dev"
+APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
+APP_PROD_CONTAINER="$(ORG_NAME)_$(APP_NAME)_prod"
+APP_PROD_DOCKERFILE=Dockerfile.prod
+APP_PROD_DOCKERCOMPOSE=docker-compose.prod.yml
+APP_REL_CONTAINER="$(ORG_NAME)_$(APP_NAME)_rel"
+APP_REL_DOCKERFILE=Dockerfile.rel
+APP_REL_DOCKERCOMPOSE=docker-compose.rel.yml
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
 APP_BUILD ?= `git rev-parse --short HEAD`
 
@@ -21,47 +27,71 @@ init:
 help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-prepare_for_release:
+assets-prepare:
 	cp lib/*/*/overlay/* rel/overlays/
 
-build_without_cache: init prepare_for_release ## Build the Docker image
+prod-build: init assets-prepare ## Build the Docker image using previous cache
+	docker build \
+		-t $(APP_DOCKER_REPO):$(APP_VSN)-prod-$(APP_BUILD) \
+		-f $(APP_PROD_DOCKERFILE) .
+	make prod-tag-latest
+
+prod-tag-latest: init ## Add latest tag to last build
+	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-prod-$(APP_BUILD) $(APP_DOCKER_REPO):prod-latest
+
+prod-upgrade: 
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run backend mix deps.get --only prod
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run backend npm install --prefix assets
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run backend mix phx.digest
+
+prod-shell: 
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run --rm backend /bin/sh
+
+prod-up: 
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) up
+
+rel-setup: init assets-prepare ## Run the app in Docker
+	docker-compose -p $(APP_REL_CONTAINER) -f $(APP_REL_DOCKERCOMPOSE) pull
+	docker-compose -p $(APP_REL_CONTAINER) -f $(APP_REL_DOCKERCOMPOSE) build
+
+rel-run: init ## Run the app in Docker
+	docker-compose -p $(APP_REL_CONTAINER) -f $(APP_REL_DOCKERCOMPOSE) up
+
+rel-run-bg: init ## Run the app in Docker, and keep running in the background
+	docker-compose -p $(APP_REL_CONTAINER) -f $(APP_REL_DOCKERCOMPOSE) up -d
+
+rel-build-no-cache: init assets-prepare ## Build the Docker image
 	docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
 		--build-arg APP_BUILD=$(APP_BUILD) \
-		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
-	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
+		-t $(APP_DOCKER_REPO):$(APP_VSN)-rel-$(APP_BUILD) \
+		-f $(APP_REL_DOCKERFILE) .
 
-build: init prepare_for_release ## Build the Docker image using previous cache
+rel-build: init assets-prepare ## Build the Docker image using previous cache
 	docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
 		--build-arg APP_BUILD=$(APP_BUILD) \
-		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
-	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
+		-t $(APP_DOCKER_REPO):$(APP_VSN)-rel-$(APP_BUILD) \
+		-f $(APP_REL_DOCKERFILE) .
+	@echo $(APP_DOCKER_REPO):$(APP_VSN)-rel-$(APP_BUILD)
 
-push: init tag_latest ## Add latest tag to last build and push
-	@echo docker push $(APP_DOCKER_REPO):latest
-	docker push $(APP_DOCKER_REPO):latest
+rel-tag-latest: init ## Add latest tag to last build
+	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-rel-$(APP_BUILD) $(APP_DOCKER_REPO):release-latest
 
-tag_latest: init ## Add latest tag to last build
-	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
-	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
+rel-tag-stable: init ## Tag stable, latest and version tags to the last build
+	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-rel-$(APP_BUILD) $(APP_DOCKER_REPO):release-$(APP_VSN)
+	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-rel-$(APP_BUILD) $(APP_DOCKER_REPO):release-stable
 
-tag_stable: init ## Tag stable, latest and version tags to the last build
-	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
-	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
-	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
-	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
+rel-push: init rel-tag-latest ## Add latest tag to last build and push
+	docker push $(APP_DOCKER_REPO):release-latest
 
-push_stable: init tag_stable ## Tag stable, latest and version tags to the last build and push
-	@echo docker push $(APP_DOCKER_REPO):stable
-	docker push $(APP_DOCKER_REPO):stable
-	@echo docker push $(APP_DOCKER_REPO):$(APP_VSN)
-	docker push $(APP_DOCKER_REPO):$(APP_VSN)
-	@echo docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
-	docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
+rel-push-stable: init rel-tag-stable ## Tag stable, latest and version tags to the last build and push
+	docker push $(APP_DOCKER_REPO):release-stable
+	docker push $(APP_DOCKER_REPO):rel-$(APP_VSN)
+	docker push $(APP_DOCKER_REPO):$(APP_VSN)-rel-$(APP_BUILD)
 
 dev-exports: init ## Load env vars from a dotenv file
 	awk '{print "export " $$0}' config/dev/*.env
@@ -87,7 +117,7 @@ dev-rebuild: init ## Rebuild the dev image (without cache)
 dev-recompile: init ## Recompile the dev codebase (without cache)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix compile --force
 
-licenses: init
+dev-licenses: init
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix licenses
 	mv -f DEPENDENCIES.md docs/
 
@@ -96,7 +126,7 @@ dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.rebar --force
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.get
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm install --prefix assets
-	make licenses
+	make dev-licenses
 
 dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild lib=pointers`
 	sudo rm -rf deps/$(lib)
@@ -106,11 +136,11 @@ dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild l
 
 dev-dep-update: init ## Upgrade a dep, eg: `make dev-dep-update lib=plug`
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update $(lib)
-	make licenses
+	make dev-licenses
 
 dev-deps-update-all: init ## Upgrade all deps
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update --all
-	make licenses
+	make dev-licenses
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm update --prefix assets && npm outdated --prefix assets
 
 dev-db-up: init ## Start the dev DB
@@ -181,12 +211,3 @@ manual-deps: init ## Prepare dependencies (without Docker)
 manual-db: init ## Create or reset the DB (without Docker)
 	mix ecto.reset
 
-prepare: init ## Run the app in Docker
-	docker-compose pull
-	docker-compose build
-
-run: init ## Run the app in Docker
-	docker-compose up
-
-run-bg: init ## Run the app in Docker, and keep running in the background
-	docker-compose up -d

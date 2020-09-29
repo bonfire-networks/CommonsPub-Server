@@ -1,12 +1,12 @@
 FROM elixir:1.10.4-alpine
 
-ENV HOME=/opt/app/ TERM=xterm
+ENV MIX_ENV=prod HOME=/opt/app/ TERM=xterm
 
 WORKDIR $HOME
 
 # dev tools
 RUN apk update && \
-    apk add --no-cache bash curl inotify-tools 
+    apk add --no-cache bash curl 
 
 # various dependencies of dependencies
 RUN apk add --no-cache git \
@@ -20,6 +20,20 @@ RUN apk add --no-cache git \
 
 # dependencies for comeonin
 RUN apk add --no-cache cmake make gcc libc-dev
+
+# COPY mix.exs mix.lock ./
+
+# RUN mix local.hex --force
+# RUN mix local.rebar --force
+
+# RUN mix deps.get --only prod
+
+# RUN mix compile
+
+# COPY assets/package* ./assets/
+# RUN npm install --prefix assets
+
+# RUN mix phx.digest
 
 EXPOSE 4000/tcp
 EXPOSE 4004/tcp

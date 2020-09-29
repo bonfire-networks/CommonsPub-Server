@@ -181,7 +181,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
     ValueFlows.Util.handle_changeset_errors(cs, attrs, [
       {:measures, &EconomicEvent.change_measures/2},
-      {:context, &change_context/2},
+      {:in_scope_of, &change_context/2},
       {:provider, &change_provider/2},
       {:receiver, &change_receiver/2},
       {:action, &change_action/2},
@@ -191,7 +191,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       {:triggered_by, &change_triggered_by_event/2},
       {:resource_spec, &change_resource_conforms_to/2},
       {:resource_inventoried_as, &change_resource_inventoried_as/2},
-      {:change_to_resource_inventoried_as, &change_to_resource_inventoried_as/2}
+      {:to_resource_inventoried_as, &change_to_resource_inventoried_as/2}
     ])
   end
 
@@ -206,7 +206,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     )
   end
 
-  defp change_context(changeset, %{in_scope_of: id}) do
+  defp change_context(changeset, %{in_scope_of: id}) when is_binary(id) do
     with {:ok, pointer} <- Pointers.one(id: id) do
       EconomicEvent.change_context(changeset, pointer)
     end

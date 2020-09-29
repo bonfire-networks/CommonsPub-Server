@@ -101,6 +101,9 @@ defmodule ValueFlows.Hydration do
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
         ],
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
         resource_inventoried_as: [
           resolve:
             &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
@@ -116,6 +119,9 @@ defmodule ValueFlows.Hydration do
         ],
       },
       economic_resource: %{
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
         classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
         ],
@@ -130,6 +136,9 @@ defmodule ValueFlows.Hydration do
         ],
       },
       process: %{
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
         classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
         ],
@@ -217,10 +226,13 @@ defmodule ValueFlows.Hydration do
         ],
 
         process: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.Process.GraphQL.process/2
         ],
         processes: [
-          resolve: &ValueFlows.Observation.Process.GraphQL.simulate/2
+          resolve: &ValueFlows.Observation.Process.GraphQL.all_processes/2
+        ],
+        processes_pages: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.processes/2
         ],
 
         # Planning
@@ -292,6 +304,9 @@ defmodule ValueFlows.Hydration do
         update_process_specification: [
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.update_process_spec/2
         ],
+        update_process: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.update_process/2
+        ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
         ],
@@ -303,6 +318,9 @@ defmodule ValueFlows.Hydration do
         ],
         delete_process_specification: [
           resolve: &ValueFlows.Knowledge.ProcessSpecification.GraphQL.delete_process_spec/2
+        ],
+        delete_process: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.delete_process/2
         ],
         delete_proposed_intent: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.delete_proposed_intent/2

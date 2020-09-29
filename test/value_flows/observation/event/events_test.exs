@@ -292,8 +292,29 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
   end
 
   describe "update" do
+    test "updates an existing event" do
+      user = fake_user!()
+      economic_event = fake_economic_event!(user)
+
+      assert {:ok, updated} = EconomicEvents.update(economic_event, economic_event(%{note: "test"}))
+      assert_economic_event(updated)
+      assert economic_event != updated
+    end
+
   end
 
+
   describe "soft delete" do
+    test "delete an existing event" do
+      user = fake_user!()
+      spec = fake_economic_event!(user)
+
+      refute spec.deleted_at
+      assert {:ok, spec} = EconomicEvents.soft_delete(spec)
+      assert spec.deleted_at
+    end
+
   end
+
+
 end

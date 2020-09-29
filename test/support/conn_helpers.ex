@@ -68,24 +68,34 @@ defmodule CommonsPub.Web.Test.ConnHelpers do
   def gql_post_200(conn, query),
     do: gql_post(conn, query, 200)
 
-  def gql_post_data(conn, query) do
+  def gql_post_data(conn, query, show_output \\ false) do
+
     case gql_post_200(conn, query) do
-      %{"data" => _data, "errors" => errors} ->
+      %{"data" => data, "errors" => errors} ->
+        IO.inspect(graphql_query: query)
+        IO.inspect(graphql_response: data)
         throw({:additional_errors, errors})
 
       %{"errors" => errors} ->
+        IO.inspect(graphql_query: query)
         throw({:unexpected_errors, errors})
 
       %{"data" => data} ->
-        # IO.inspect(client_received: data)
+
+        if(show_output || CommonsPub.Config.get([:logging, :tests_output_graphql])) do
+          IO.inspect(graphql_query: query)
+          IO.inspect(graphql_response: data)
+        end
+
         data
 
       other ->
+        IO.inspect(graphql_query: query)
         throw({:horribly_wrong, other})
     end
   end
 
-  def grumble_post_data(query, conn, vars \\ %{}, name \\ "test") do
+  def grumble_post_data(query, conn, vars \\ %{}, name \\ "test", show_output \\ false) do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
     # IO.puts("query: " <> query)
@@ -97,12 +107,12 @@ defmodule CommonsPub.Web.Test.ConnHelpers do
         operationName: name
       })
 
-    gql_post_data(conn, query)
+    gql_post_data(conn, query, show_output)
   end
 
-  def grumble_post_key(query, conn, key, vars \\ %{}, name \\ "test") do
+  def grumble_post_key(query, conn, key, vars \\ %{}, name \\ "test", show_output \\ false) do
     key = camel(key)
-    assert %{^key => val} = grumble_post_data(query, conn, vars, name)
+    assert %{^key => val} = grumble_post_data(query, conn, vars, name, show_output)
     val
   end
 

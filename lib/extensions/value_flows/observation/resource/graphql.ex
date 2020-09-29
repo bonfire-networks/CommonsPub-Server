@@ -77,7 +77,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
   def all_resources(_, _) do
-    EconomicResources.many()
+    EconomicResources.many([:default])
   end
 
   def resources_filtered(page_opts, _) do
