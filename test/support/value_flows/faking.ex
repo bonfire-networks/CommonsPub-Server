@@ -641,6 +641,10 @@ defmodule ValueFlows.Test.Faking do
     [economic_event: economic_event_fields(extra)]
   end
 
+  def economic_event_response_fields(extra_event, extra_resource) do
+    [economic_event: economic_event_fields(extra_event), economic_resource: economic_resource_fields(extra_resource)]
+  end
+
   def economic_event_query(options \\ []) do
     options = Keyword.put_new(options, :id_type, :id)
     gen_query(:id, &economic_event_subquery/1, options)
@@ -685,6 +689,7 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def create_economic_event_mutation(options \\ []) do
+    # event without any new resource
     [event: type!(:economic_event_create_params)]
     |> gen_mutation(&create_economic_event_submutation/1, options)
   end
@@ -692,6 +697,17 @@ defmodule ValueFlows.Test.Faking do
   def create_economic_event_submutation(options \\ []) do
     [event: var(:event)]
     |> gen_submutation(:create_economic_event, &economic_event_response_fields/1, options)
+  end
+
+  def create_economic_event_mutation(event_options, resource_options) do
+    # event with a resource
+    [event: type!(:economic_event_create_params), new_inventoried_resource: type!(:economic_resource_create_params)]
+    |> gen_mutation(&create_economic_event_submutation/2, event_options, resource_options)
+  end
+
+  def create_economic_event_submutation(event_options, resource_options) do
+    [event: var(:event), new_inventoried_resource: var(:new_inventoried_resource)]
+    |> gen_submutation(:create_economic_event, &economic_event_response_fields/2, event_options, resource_options)
   end
 
   def update_economic_event_mutation(options \\ []) do

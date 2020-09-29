@@ -194,10 +194,23 @@ defmodule CommonsPub.Web.Test.GraphQLFields do
     mutation(name: name, params: params, params: params2, field: field_fn.(options))
   end
 
+  def gen_mutation(params, field_fn, field1_options, field2_options) do
+    params2 = Keyword.get(field1_options, :params, [])
+    name = Keyword.get(field1_options, :name, "test")
+    mutation(name: name, params: params, params: params2, field: field_fn.(field1_options, field2_options))
+  end
+
   def gen_submutation(args, field_name, field_fn, options) do
     args2 = Keyword.get(options, :args, [])
     fields = Keyword.get(options, :fields, [])
     field(field_name, args: args, args: args2, fields: field_fn.(fields))
+  end
+
+  def gen_submutation(args, field_name, field_fn, field1_options, field2_options) do
+    args2 = Keyword.get(field1_options, :args, [])
+    fields1 = Keyword.get(field1_options, :fields, [])
+    fields2 = Keyword.get(field2_options, :fields, [])
+    field(field_name, args: args, args: args2, fields: field_fn.(fields1, fields2))
   end
 
   ### collections

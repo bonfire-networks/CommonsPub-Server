@@ -389,10 +389,36 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       assert hd(event["tags"])["__typename"] == "Category"
     end
 
-    test "create an economic resource with an economic event" do
+    test "create an economic resource produced by an economic event" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      # action = action()
+      # q = create_economic_event_mutation(fields: [provider: [:id]])
+      q = create_economic_event_mutation([fields: [provider: [:id]]], [fields: [:id]])
+     # q = create_economic_event_mutation(%{event: [fields: [provider: [:id]]], resource: [fields: [:id]]})
+
+      conn = user_conn(user)
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => "produce"
+          }),
+        newInventoriedResource: economic_resource_input()
+      }
+
+      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", true)
+      assert event = response["economicEvent"]
+      assert resource = response["economicResource"]
+      assert_economic_event(event)
+      assert_economic_resource(resource)
+      # assert event["resourceConformsTo"]["id"] == resource_conforms_to.id
     end
 
-    test "create an economic event that consume an existing resource" do
+    test "create an economic event that consumes an existing resource" do
     end
 
     test "fails if the economic event consumes an economic resource that does not exist" do

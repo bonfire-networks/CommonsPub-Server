@@ -90,6 +90,13 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
+  def economic_resource_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("note", &summary/0)
+    |> Map.put_new_lazy("tracking_identifier", &uuid/0)
+  end
+
   def process(base \\ %{}) do
     base
     |> Map.put_new_lazy(:name, &name/0)
