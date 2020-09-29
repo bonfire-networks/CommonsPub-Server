@@ -40,15 +40,25 @@ prod-tag-latest: init ## Add latest tag to last build
 	docker tag $(APP_DOCKER_REPO):$(APP_VSN)-prod-$(APP_BUILD) $(APP_DOCKER_REPO):prod-latest
 
 prod-upgrade: 
-	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run backend mix deps.get --only prod
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run backend mix deps.get 
+	## --only prod
 	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run backend npm install --prefix assets
 	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run backend mix phx.digest
 
 prod-shell: 
-	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run --rm backend /bin/sh
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run --service-ports --rm backend /bin/sh
 
 prod-up: 
 	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) up
+
+prod-services: init ## Run the prod app services, in the background
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) up -d db search frontend
+
+prod-bg: init prod-services ## Run the app in prod, in the background
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) run --detach --service-ports backend mix phx.server
+
+prod-logs: 
+	docker-compose -p $(APP_PROD_CONTAINER) -f $(APP_PROD_DOCKERCOMPOSE) logs -f
 
 rel-setup: init assets-prepare ## Run the app in Docker
 	docker-compose -p $(APP_REL_CONTAINER) -f $(APP_REL_DOCKERCOMPOSE) pull
