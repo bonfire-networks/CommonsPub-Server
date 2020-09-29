@@ -60,11 +60,14 @@ defmodule ValueFlows.Simulate do
 
   def economic_event(base \\ %{}) do
     base
+    |> Map.put_new_lazy(:action, &action_id/0)
+    |> Map.put_new_lazy(:provider, &fake_user_id/0)
+    |> Map.put_new_lazy(:receiver, &fake_user_id/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
     |> Map.put_new_lazy(:has_end, &future_datetime/0)
     |> Map.put_new_lazy(:has_point_in_time, &future_datetime/0)
-    |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
+    # |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
@@ -268,18 +271,6 @@ defmodule ValueFlows.Simulate do
 
 
   def fake_economic_event!(user, overrides \\ %{}) do
-
-    provider = fake_user!()
-    receiver = fake_user!()
-    action = action()
-
-    required = %{
-      provider: provider.id,
-      receiver: receiver.id,
-      action: action.id
-    }
-
-    overrides = Map.merge(overrides, required)
 
     {:ok, event} = EconomicEvents.create(user, economic_event(overrides))
     event

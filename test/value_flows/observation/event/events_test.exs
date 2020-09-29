@@ -16,15 +16,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
   describe "one" do
     test "fetches an existing economic event by ID" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
 
       event =
         fake_economic_event!(user, %{
-          provider: provider.id,
-          receiver: receiver.id,
-          action: action.id,
           input_of: fake_process!(user).id,
           output_of: fake_process!(user).id,
           resource_conforms_to: fake_resource_specification!(user).id,
@@ -65,15 +59,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with context" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
 
       attrs = %{
-        in_scope_of: [fake_community!(user).id],
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        in_scope_of: [fake_community!(user).id]
       }
 
       assert {:ok, event} =
@@ -85,12 +73,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with tags" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
 
       tags = some(5, fn -> fake_category!(user).id end)
-      attrs = %{tags: tags, provider: provider.id, receiver: receiver.id, action: action.id}
+      attrs = %{tags: tags}
 
       assert {:ok, event} =
                EconomicEvents.create(user, economic_event(attrs))
@@ -103,16 +88,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with input_of and output_of" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
 
       attrs = %{
         input_of: fake_process!(user).id,
-        output_of: fake_process!(user).id,
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        output_of: fake_process!(user).id
       }
 
       assert {:ok, event} =
@@ -125,15 +104,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with resource_inventoried_as" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
-
       attrs = %{
-        resource_inventoried_as: fake_economic_resource!(user).id,
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        resource_inventoried_as: fake_economic_resource!(user).id
       }
 
       assert {:ok, event} =
@@ -145,15 +117,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with to_resource_inventoried_as" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
 
       attrs = %{
-        to_resource_inventoried_as: fake_economic_resource!(user).id,
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        to_resource_inventoried_as: fake_economic_resource!(user).id
       }
 
       assert {:ok, event} =
@@ -165,16 +131,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with resource_inventoried_as and to_resource_inventoried_as" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
 
       attrs = %{
         resource_inventoried_as: fake_economic_resource!(user).id,
-        to_resource_inventoried_as: fake_economic_resource!(user).id,
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        to_resource_inventoried_as: fake_economic_resource!(user).id
       }
 
       assert {:ok, event} =
@@ -187,15 +147,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with resource_conforms_to" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
 
       attrs = %{
-        resource_conforms_to: fake_resource_specification!(user).id,
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        resource_conforms_to: fake_resource_specification!(user).id
       }
 
       assert {:ok, event} =
@@ -207,15 +161,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with resource_classified_as" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
 
       attrs = %{
-        resource_classified_as: some(1..5, &url/0),
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        resource_classified_as: some(1..5, &url/0)
       }
 
       assert {:ok, event} =
@@ -227,17 +175,12 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with resource_quantity and effort_quantity" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+
       unit = fake_unit!(user)
-      action = action()
 
       measures = %{
         resource_quantity: measure(%{unit_id: unit.id}),
-        effort_quantity: measure(%{unit_id: unit.id}),
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        effort_quantity: measure(%{unit_id: unit.id})
       }
 
       assert {:ok, event} =
@@ -250,16 +193,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event with location" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
+
       location = fake_geolocation!(user)
 
       attrs = %{
-        at_location: location.id,
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        at_location: location.id
       }
 
       assert {:ok, event} =
@@ -271,16 +209,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "can create an economic event triggered_by another event" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      action = action()
+
       triggered_by = fake_economic_event!(user)
 
       attrs = %{
-        triggered_by: triggered_by.id,
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
+        triggered_by: triggered_by.id
       }
 
       assert {:ok, event} =

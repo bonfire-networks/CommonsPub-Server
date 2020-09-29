@@ -21,20 +21,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
   describe "EconomicEventsResourcesMutations" do
     test "create an economic resource produced by an economic event" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
-      # action = action()
-      # q = create_economic_event_mutation(fields: [provider: [:id]])
+
       q = create_economic_event_mutation([fields: [provider: [:id]]], [fields: [:id]])
-     # q = create_economic_event_mutation(%{event: [fields: [provider: [:id]]], resource: [fields: [:id]]})
 
       conn = user_conn(user)
 
       vars = %{
         event:
           economic_event_input(%{
-            "provider" => provider.id,
-            "receiver" => receiver.id,
             "action" => "produce"
           }),
         newInventoriedResource: economic_resource_input()
