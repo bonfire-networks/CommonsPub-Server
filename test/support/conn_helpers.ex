@@ -69,18 +69,27 @@ defmodule CommonsPub.Web.Test.ConnHelpers do
     do: gql_post(conn, query, 200)
 
   def gql_post_data(conn, query) do
+
     case gql_post_200(conn, query) do
       %{"data" => _data, "errors" => errors} ->
+        IO.inspect(graphql_query: query)
         throw({:additional_errors, errors})
 
       %{"errors" => errors} ->
+        IO.inspect(graphql_query: query)
         throw({:unexpected_errors, errors})
 
       %{"data" => data} ->
-        # IO.inspect(client_received: data)
+
+        if(CommonsPub.Config.get([:logging, :tests_output_graphql])) do
+          IO.inspect(graphql_query: query)
+          IO.inspect(graphql_response: data)
+        end
+
         data
 
       other ->
+        IO.inspect(graphql_query: query)
         throw({:horribly_wrong, other})
     end
   end

@@ -11,6 +11,8 @@ config :commons_pub, CommonsPub.Web.Endpoint,
 config :logger, level: :warn
 # config :logger, level: :debug
 # config :commons_pub, CommonsPub.Repo, log: false
+config :commons_pub, :logging,
+  tests_output_graphql: false
 
 # Configure your database
 config :commons_pub, CommonsPub.Repo,

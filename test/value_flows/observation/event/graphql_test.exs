@@ -240,7 +240,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       assert event["outputOf"]["id"] == process.id
     end
 
-    test "create an economic event with a resource Inventoried as" do
+    test "create an economic event with a resourceInventoriedAs" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
@@ -312,7 +312,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       assert event["resourceConformsTo"]["id"] == resource_conforms_to.id
     end
 
-    test "create an economic event with measures" do
+    test "create an economic event with measurements" do
     end
 
     test "create an economic event with location" do
@@ -398,13 +398,13 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
     test "fails if the economic event consumes an economic resource that does not exist" do
     end
 
-    test "fails if the economic event consumes a quantity of an economic resource bigger than the existing one" do
+    test "fails if the economic event consumes a higher quantity of an economic resource than available" do
     end
 
     test "create an economic event that transfers an existing resource from a provider to a receiver" do
     end
 
-    test "fails to transfer an economic resource if the provider does not have rights to transfer an existing resource" do
+    test "fails to transfer an economic resource if the provider does not have rights to transfer it" do
     end
 
     test "fails to transfer an economic resource if it does not exist" do
@@ -415,7 +415,16 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
     test "update an existing economic event" do
     end
 
-    test "fails if has been deleted" do
+    test "fails if it has previously been deleted" do
     end
+  end
+
+  describe "deleteEconomicEvent" do
+    test "deletes an existing economic event" do
+    end
+
+    test "fails to delete an economic resource if the user does not have rights to delete it" do
+    end
+
   end
 end
