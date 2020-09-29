@@ -103,15 +103,15 @@ defmodule ValueFlows.Observation.Process.Processes do
     Repo.transact_with(fn ->
       cs = changeset_fn.()
 
-      with {:ok, item} <- Repo.insert(cs),
-           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
+      with {:ok, process} <- Repo.insert(cs),
+           {:ok, process} <- ValueFlows.Util.try_tag_thing(creator, process, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, item, activity, :created) do
-        item = %{item | creator: creator}
-        index(item)
-        {:ok, item}
+           {:ok, activity} <- Activities.create(creator, process, act_attrs),
+           :ok <- publish(creator, process, activity, :created) do
+        process = %{process | creator: creator}
+        index(process)
+        {:ok, process}
       end
     end)
   end

@@ -3,6 +3,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   import CommonsPub.Test.Faking
   import CommonsPub.Utils.Simulation
+  import CommonsPub.Tag.Simulate
   import CommonsPub.Utils.Trendy, only: [some: 2]
 
   import Geolocation.Simulate
@@ -261,6 +262,28 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(intent)
       assert intent["image"]["url"] == "https://via.placeholder.com/150.png"
+    end
+
+    test "create an intent with tags" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+
+      tags = some(5, fn -> fake_category!(user).id end)
+
+      q = create_intent_mutation(fields: [tags: [:__typename]])
+      conn = user_conn(user)
+
+      vars = %{
+        intent:
+          intent_input(unit, %{
+            "tags" => tags
+          })
+      }
+
+      assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+
+      assert_intent(intent)
+      assert hd(intent["tags"])["__typename"] == "Category"
     end
 
     test "fail if given an invalid action" do

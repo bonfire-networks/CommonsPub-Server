@@ -410,7 +410,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
         newInventoriedResource: economic_resource_input()
       }
 
-      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", true)
+      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", false)
       assert event = response["economicEvent"]
       assert resource = response["economicResource"]
       assert_economic_event(event)

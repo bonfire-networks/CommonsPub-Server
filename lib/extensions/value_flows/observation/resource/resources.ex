@@ -119,17 +119,17 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   def do_create(creator, attrs, changeset_fn) do
     Repo.transact_with(fn ->
       with {:ok, cs} <- prepare_changeset(attrs, changeset_fn),
-           {:ok, item} <- Repo.insert(cs),
-           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
+           {:ok, resource} <- Repo.insert(cs),
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, item, activity, :created) do
-        item = %{item | creator: creator}
-        item = preload_all(item)
+           {:ok, activity} <- Activities.create(creator, resource, act_attrs),
+           :ok <- publish(creator, resource, activity, :created) do
+        resource = %{resource | creator: creator}
+        resource = preload_all(resource)
 
-        index(item)
-        {:ok, item}
+        index(resource)
+        {:ok, resource}
       end
     end)
   end
@@ -205,24 +205,24 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp change_current_location(changeset, _attrs), do: changeset
 
   defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
-    with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
-      EconomicResource.change_conforms_to_resource_spec(changeset, item)
+    with {:ok, resource} <- ResourceSpecifications.one([:default, id: id]) do
+      EconomicResource.change_conforms_to_resource_spec(changeset, resource)
     end
   end
 
   defp change_conforms_to_resource_spec(changeset, _attrs), do: changeset
 
   defp change_contained_in_resource(changeset, %{contained_in: id}) do
-    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
-      EconomicResource.change_contained_in_resource(changeset, item)
+    with {:ok, resource} <- EconomicResources.one([:default, id: id]) do
+      EconomicResource.change_contained_in_resource(changeset, resource)
     end
   end
 
   defp change_contained_in_resource(changeset, _attrs), do: changeset
 
   defp change_unit_of_effort(changeset, %{unit_of_effort: id}) do
-    with {:ok, item} <- Units.one([:default, id: id]) do
-      EconomicResource.change_unit_of_effort(changeset, item)
+    with {:ok, resource} <- Units.one([:default, id: id]) do
+      EconomicResource.change_unit_of_effort(changeset, resource)
     end
   end
 
