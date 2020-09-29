@@ -107,32 +107,68 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   ## mutations
 
+  def create(
+        creator,
+        %{
+          resource_inventoried_as: from_existing_resource,
+          to_resource_inventoried_as: to_existing_resource
+        },
+        %{
+          new_inventoried_resource: new_inventoried_resource
+        }
+      )
+      when not is_nil(from_existing_resource) and not is_nil(to_existing_resource) do
+    {:error, "Oops, you cannot act on three resources in one event."}
+  end
+
+  def create(
+        creator,
+        %{
+          to_resource_inventoried_as: to_existing_resource
+        } = event_attrs,
+        %{
+          new_inventoried_resource: new_inventoried_resource
+        }
+      )
+      when not is_nil(to_existing_resource) do
+    # this creates a new FROM resource as part of an event with an incrementDecrement action
+    create_resource_and_event(
+      creator,
+      event_attrs,
+      new_inventoried_resource,
+      :resource_inventoried_as
+    )
+  end
+
+  def create(
+        creator,
+        %{
+          resource_inventoried_as: from_existing_resource
+        } = event_attrs,
+        %{
+          new_inventoried_resource: new_inventoried_resource
+        }
+      )
+      when not is_nil(from_existing_resource) do
+    # this creates a new TO resource as part of an event with an incrementDecrement action
+    create_resource_and_event(
+      creator,
+      event_attrs,
+      new_inventoried_resource,
+      :to_resource_inventoried_as
+    )
+  end
+
   def create(creator, event_attrs, %{
         new_inventoried_resource: new_inventoried_resource
       }) do
-    # this creates a new resource as a side effect of an event like produce
-    create_resource_for_event(creator, event_attrs, new_inventoried_resource, :resource_inventoried_as)
-  end
-
-  def create(creator, event_attrs, %{
-        new_inventoried_resource: new_inventoried_resource,
-        resource_inventoried_as: from_existing_resource
-      }) when not is_nil(from_existing_resource) do
-    # this creates a new resource as a side effect of an event an incrementDecrement action
-    create_resource_for_event(creator, event_attrs, new_inventoried_resource, :to_resource_inventoried_as)
-  end
-
-  def create_resource_for_event(creator, event_attrs, new_inventoried_resource, field_name) do
-    new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
-
-    with {:ok, resource} <-
-           ValueFlows.Observation.EconomicResource.EconomicResources.create(
-             creator,
-             new_inventoried_resource
-           ) do
-      event_attrs = Map.merge(event_attrs, %{field_name: resource})
-      create(creator, event_attrs)
-    end
+    # this creates a completly new resource as part of an event like produce
+    create_resource_and_event(
+      creator,
+      event_attrs,
+      new_inventoried_resource,
+      :resource_inventoried_as
+    )
   end
 
   def create(creator, event_attrs, _) do
@@ -146,9 +182,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
     Repo.transact_with(fn ->
       with {:ok, cs} <- prepare_changeset(event_attrs, changeset_fn),
-           {:ok, event} <- Repo.insert(cs),
+           {:ok, event} <- Repo.insert(cs |> EconomicEvent.create_changeset_validate()),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, event_attrs),
-            event = preload_all(event),
+           event = preload_all(event),
            {:ok, event} <- event_side_effects(event),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -162,26 +198,45 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     end)
   end
 
+  defp create_resource_and_event(creator, event_attrs, new_inventoried_resource, field_name) do
+    new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
+
+    with {:ok, resource} <-
+           ValueFlows.Observation.EconomicResource.EconomicResources.create(
+             creator,
+             new_inventoried_resource
+           ) do
+      event_attrs = Map.merge(event_attrs, %{field_name => resource})
+      create(creator, event_attrs)
+    end
+  end
+
   def event_side_effects(%EconomicEvent{action: %{resource_effect: "increment"}} = event) do
-    Logger.warn("# TODO: Add event resourceQuantity to both accountingQuantity and onhandQuantity")
-    # IO.inspect(event)
+    Logger.warn(
+      "# TODO: Add event resourceQuantity to both accountingQuantity and onhandQuantity"
+    )
+
+    # IO.inspect(increment: event)
     {:ok, event}
   end
 
   def event_side_effects(%EconomicEvent{action: %{resource_effect: "decrement"}} = event) do
-    Logger.warn("# TODO: Subtract event resourceQuantity from both accountingQuantity and onhandQuantity")
-    # IO.inspect(event)
+    Logger.warn(
+      "# TODO: Subtract event resourceQuantity from both accountingQuantity and onhandQuantity"
+    )
+
+    # IO.inspect(decrement: event)
     {:ok, event}
   end
 
   def event_side_effects(%EconomicEvent{action: %{resource_effect: "decrementIncrement"}} = event) do
     Logger.warn("# TODO: https://lab.allmende.io/valueflows/vf-app-specs/vf-apps/-/issues/4")
-    # IO.inspect(event)
+    # IO.inspect(decrementIncrement: event)
     {:ok, event}
   end
 
   def event_side_effects(event) do
-    Logger.warn("Unhandled side effect")
+    # IO.inspect(event)
     {:ok, event}
   end
 
@@ -254,8 +309,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp change_context(changeset, _attrs), do: changeset
 
   defp change_resource_conforms_to(changeset, %{resource_conforms_to: id}) do
-    with {:ok, event} <- ResourceSpecifications.one([:default, id: id]) do
-      EconomicEvent.change_resource_conforms_to(changeset, event)
+    with {:ok, res_spec} <- ResourceSpecifications.one([:default, id: id]) do
+      EconomicEvent.change_resource_conforms_to(changeset, res_spec)
     end
   end
 
@@ -263,8 +318,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_resource_inventoried_as(changeset, %{resource_inventoried_as: id})
        when is_binary(id) do
-    with {:ok, event} <- EconomicResources.one([:default, id: id]) do
-      EconomicEvent.change_resource_inventoried_as(changeset, event)
+    with {:ok, resource} <- EconomicResources.one([:default, id: id]) do
+      EconomicEvent.change_resource_inventoried_as(changeset, resource)
     end
   end
 
@@ -275,9 +330,13 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp change_resource_inventoried_as(changeset, _attrs), do: changeset
 
   defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: id}) do
-    with {:ok, event} <- EconomicResources.one([:default, id: id]) do
-      EconomicEvent.change_to_resource_inventoried_as(changeset, event)
+    with {:ok, resource} <- EconomicResources.one([:default, id: id]) do
+      EconomicEvent.change_to_resource_inventoried_as(changeset, resource)
     end
+  end
+
+  defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: %{} = resource}) do
+    EconomicEvent.change_to_resource_inventoried_as(changeset, resource)
   end
 
   defp change_to_resource_inventoried_as(changeset, _attrs), do: changeset

@@ -4,6 +4,7 @@ defmodule ValueFlows.Simulate do
 
   import CommonsPub.Utils.Simulation
   import CommonsPub.Utils.Trendy
+  import CommonsPub.Test.Faking
 
   import Measurement.Simulate
 
@@ -55,6 +56,7 @@ defmodule ValueFlows.Simulate do
   def actions, do: Actions.actions_list()
 
   def action_id, do: action().id
+  def fake_user_id, do: fake_user!().id
 
   def economic_event(base \\ %{}) do
     base
@@ -69,6 +71,9 @@ defmodule ValueFlows.Simulate do
 
   def economic_event_input(base \\ %{}) do
     base
+    |> Map.put_new_lazy("action", &action_id/0)
+    |> Map.put_new_lazy("provider", &fake_user_id/0)
+    |> Map.put_new_lazy("receiver", &fake_user_id/0)
     |> Map.put_new_lazy("note", &summary/0)
     |> Map.put_new_lazy("hasBeginning", &past_datetime_iso/0)
     |> Map.put_new_lazy("hasEnd", &future_datetime_iso/0)
@@ -263,6 +268,19 @@ defmodule ValueFlows.Simulate do
 
 
   def fake_economic_event!(user, overrides \\ %{}) do
+
+    provider = fake_user!()
+    receiver = fake_user!()
+    action = action()
+
+    required = %{
+      provider: provider.id,
+      receiver: receiver.id,
+      action: action.id
+    }
+
+    overrides = Map.merge(overrides, required)
+
     {:ok, event} = EconomicEvents.create(user, economic_event(overrides))
     event
   end

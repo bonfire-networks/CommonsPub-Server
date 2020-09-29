@@ -82,7 +82,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
     timestamps(inserted_at: false)
   end
 
-  @required ~w(is_public)a
+  @required ~w(action_id provider_id receiver_id is_public)a
   @cast @required ++
           ~w(note resource_classified_as agreed_in has_beginning has_end has_point_in_time is_disabled)a
 
@@ -92,12 +92,17 @@ defmodule ValueFlows.Observation.EconomicEvent do
       ) do
     %EconomicEvent{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
+    # |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
       is_public: true
     )
     |> common_changeset()
+  end
+
+  def create_changeset_validate(cs) do
+    cs
+    |> Changeset.validate_required(@required)
   end
 
   def update_changeset(%EconomicEvent{} = event, attrs) do
