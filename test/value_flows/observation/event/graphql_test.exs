@@ -69,24 +69,24 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
 
   describe "economicEvent.inScopeOf" do
     test "return the scope of the intent" do
-      # user = fake_user!()
-      # provider = fake_user!()
-      # parent = fake_user!()
-      # receiver = fake_user!()
-      # action = action()
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
 
-      # event = fake_economic_event!(user, %{
-      #   provider: provider.id,
-      #   receiver: receiver.id,
-      #   action: action.id,
-      #   is_scope_of: parent
-      # })
+      parent = fake_user!()
 
-      # q = economic_event_query(fields: [in_scope_of: [:__typename]])
-      # conn = user_conn(user)
-      # assert fetched = grumble_post_key(q, conn, :economic_event, %{id: event.id})
-      # IO.inspect(fetched)
-      # assert hd(fetched["inScopeOf"])["__typename"] == "User"
+      event = fake_economic_event!(user, %{
+        provider: provider.id,
+        receiver: receiver.id,
+        action: action.id,
+        in_scope_of: parent.id
+      })
+
+      q = economic_event_query(fields: [in_scope_of: [:__typename]])
+      conn = user_conn(user)
+      assert fetched = grumble_post_key(q, conn, :economic_event, %{id: event.id})
+      assert hd(fetched["inScopeOf"])["__typename"] == "User"
     end
   end
 

@@ -101,6 +101,9 @@ defmodule ValueFlows.Hydration do
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
         ],
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
         resource_inventoried_as: [
           resolve:
             &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
@@ -116,6 +119,9 @@ defmodule ValueFlows.Hydration do
         ],
       },
       economic_resource: %{
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
         classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
         ],
@@ -130,6 +136,9 @@ defmodule ValueFlows.Hydration do
         ],
       },
       process: %{
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
         classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
         ],
