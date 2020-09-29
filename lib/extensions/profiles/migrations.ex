@@ -2,7 +2,9 @@ defmodule CommonsPub.Profiles.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  defp table_name(), do: CommonsPub.Profiles.Profile.__schema__(:source)
+  alias CommonsPub.Profiles.Profile
+
+  defp table_name(), do: Profile.__schema__(:source)
 
   def migrate(index_opts, :up) do
     # a profile is a group actor that is home to resources

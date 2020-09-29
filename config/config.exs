@@ -33,7 +33,9 @@ alias CommonsPub.Tag.Taggable
 
 fallback_env = fn a, b, c -> System.get_env(a) || System.get_env(b) || c end
 
+desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
 hostname = System.get_env("HOSTNAME", "localhost")
+base_url = System.get_env("BASE_URL", "http://localhost:4000")
 
 # LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
 config :commons_pub, CommonsPub.Web.Endpoint,
@@ -44,6 +46,10 @@ config :commons_pub, CommonsPub.Web.Endpoint,
 # stuff you might need to change to be viable
 
 config :commons_pub, :app_name, System.get_env("APP_NAME", "CommonsPub")
+
+config :commons_pub,
+       :frontend_base_url,
+       System.get_env("FRONTEND_BASE_URL", base_url)
 
 config :commons_pub, CommonsPub.Web.Gettext, default_locale: "en", locales: ~w(en es)
 
@@ -92,8 +98,6 @@ contexts_all =
       Like,
       ValueFlows.Planning.Intent
     ]
-
-desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
 
 config :commons_pub, Instance,
   hostname: hostname,
@@ -172,9 +176,16 @@ config :commons_pub, Uploads.IconUploader, allowed_media_types: image_media_type
 
 config :commons_pub, Uploads.ImageUploader, allowed_media_types: image_media_types
 
+{:ok, cwd} = File.cwd()
+uploads_dir = "/uploads"
+
 config :commons_pub, Uploads,
   # default to 20mb
-  max_file_size: "20000000"
+  max_file_size: "20000000",
+  # the following should be overriden depending on env
+  directory: cwd <> uploads_dir,
+  path: uploads_dir,
+  base_url: base_url <> uploads_dir <> "/"
 
 # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
 # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable

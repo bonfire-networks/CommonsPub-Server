@@ -20,6 +20,7 @@
 .npm
 .erlang.cookie
 docs/exdoc
+.ash_history
 
 # Prevent committing custom emojis
 /priv/static/emoji/custom/*

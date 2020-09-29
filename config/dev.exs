@@ -108,10 +108,6 @@ config :commons_pub, :base_url, base_url
 
 config :commons_pub, :ap_base_path, System.get_env("AP_BASE_PATH", "/pub")
 
-config :commons_pub,
-       :frontend_base_url,
-       System.get_env("FRONTEND_BASE_URL", base_url)
-
 config :commons_pub, CommonsPub.Users,
   # enable open signups in dev
   public_registration: true
@@ -127,12 +123,5 @@ config :commons_pub, CommonsPub.OAuth,
   website: "https://commonspub.dev.local/",
   scopes: "read,write,follow"
 
-{:ok, cwd} = File.cwd()
-uploads_dir = "/uploads"
-
-config :commons_pub, CommonsPub.Uploads,
-  directory: cwd <> uploads_dir,
-  path: uploads_dir,
-  base_url: base_url <> uploads_dir <> "/"
 
 config :commons_pub, CommonsPub.Workers.ActivityWorker, log_level: :warn
