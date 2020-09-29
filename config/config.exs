@@ -249,12 +249,12 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-if Mix.env == :dev do
+if Mix.env() == :dev do
   config :mix_test_watch,
     clear: true,
     tasks: [
-        "test",
-      ]
+      "test"
+    ]
 end
 
 config :mime, :types, %{
@@ -262,6 +262,104 @@ config :mime, :types, %{
   "application/ld+json" => ["json"],
   "application/jrd+json" => ["json"]
 }
+
+# transactional emails
+
+mail_blackhole = fn var ->
+  IO.puts(
+    "WARNING: The environment variable #{var} was not set or was set incorrectly, mail will NOT be sent."
+  )
+
+  config :commons_pub, CommonsPub.Mail.MailService, adapter: Bamboo.LocalAdapter
+end
+
+mail_mailgun = fn ->
+  # depends on whether you're registered with Mailgun in EU, US, etc
+  base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
+
+  case System.get_env("MAIL_KEY") do
+    nil ->
+      mail_blackhole.("MAIL_KEY")
+
+    key ->
+      case System.get_env("MAIL_DOMAIN") do
+        nil ->
+          mail_blackhole.("MAIL_DOMAIN")
+
+        domain ->
+          case System.get_env("MAIL_FROM") do
+            nil ->
+              mail_blackhole.("MAIL_FROM")
+
+            from ->
+              IO.puts("NOTE: Transactional emails will be sent through Mailgun.")
+
+              config :commons_pub, CommonsPub.Mail.MailService,
+                adapter: Bamboo.MailgunAdapter,
+                api_key: key,
+                base_uri: base_uri,
+                domain: domain,
+                reply_to: from
+          end
+      end
+  end
+end
+
+mail_smtp = fn ->
+  case System.get_env("MAIL_SERVER") do
+    nil ->
+      mail_blackhole.("MAIL_SERVER")
+
+    server ->
+      case System.get_env("MAIL_DOMAIN") do
+        nil ->
+          mail_blackhole.("MAIL_DOMAIN")
+
+        domain ->
+          case System.get_env("MAIL_USER") do
+            nil ->
+              mail_blackhole.("MAIL_USER")
+
+            user ->
+              case System.get_env("MAIL_PASSWORD") do
+                nil ->
+                  mail_blackhole.("MAIL_PASSWORD")
+
+                password ->
+                  case System.get_env("MAIL_FROM") do
+                    nil ->
+                      mail_blackhole.("MAIL_FROM")
+
+                    from ->
+
+                      IO.puts("NOTE: Transactional emails will be sent through SMTP.")
+
+                      config :commons_pub, CommonsPub.Mail.MailService,
+                        adapter: Bamboo.SMTPAdapter,
+                        server: server,
+                        hostname: domain,
+                        port: 587,
+                        username: user,
+                        password: password,
+                        tls: :always,
+                        allowed_tls_versions: [:"tlsv1.2"],
+                        ssl: false,
+                        retries: 1,
+                        auth: :always,
+                        reply_to: from
+                  end
+              end
+          end
+      end
+  end
+end
+
+case System.get_env("MAIL_BACKEND") do
+  "mailgun" -> mail_mailgun.()
+  "smtp" -> mail_smtp.()
+  # mail_blackhole.("MAIL_BACKEND")
+  _ -> mail_mailgun.()
+end
 
 config :argon2_elixir,
   # argon2id, see https://hexdocs.pm/argon2_elixir/Argon2.Stats.html
