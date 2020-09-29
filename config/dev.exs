@@ -118,7 +118,7 @@ config :commons_pub, CommonsPub.Users,
 
 config :commons_pub, CommonsPub.Mail.Checker, mx: false
 
-config :commons_pub, CommonsPub.Mail.MailService, adapter: Bamboo.LocalAdapter
+# config :commons_pub, CommonsPub.Mail.MailService, adapter: Bamboo.LocalAdapter
 
 config :commons_pub, CommonsPub.OAuth,
   client_name: "CommonsPub",
