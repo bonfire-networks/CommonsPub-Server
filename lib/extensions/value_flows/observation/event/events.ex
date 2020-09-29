@@ -95,6 +95,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       :resource_quantity,
       :effort_quantity,
       :at_location,
+      :resource_inventoried_as,
+      :to_resource_inventoried_as,
       :provider,
       :receiver
     ])
@@ -211,16 +213,110 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     end
   end
 
-  def event_side_effects(%EconomicEvent{action: %{resource_effect: "increment"}} = event) do
-    Logger.warn(
-      "# TODO: Add event resourceQuantity to both accountingQuantity and onhandQuantity"
-    )
+  defp event_side_effects(
+         %EconomicEvent{
+           action: %{resource_effect: "increment"},
+           resource_quantity: resource_quantity,
+           resource_inventoried_as_id: resource_inventoried_as_id
+         } = event
+       )
+       when not is_nil(resource_quantity) and not is_nil(resource_inventoried_as_id) do
+    resource =
+      Repo.preload(event.resource_inventoried_as, [:accounting_quantity, :onhand_quantity])
 
-    # IO.inspect(increment: event)
-    {:ok, event}
+    resource = resource_increment(resource, resource_quantity)
+    # IO.inspect(incremented: event)
+    {:ok, %{event | resource_inventoried_as: resource}}
   end
 
-  def event_side_effects(%EconomicEvent{action: %{resource_effect: "decrement"}} = event) do
+  def resource_increment(
+        resource,
+        by_quantity
+      ) do
+    resource = resource_set_onhand_quantity(resource, by_quantity)
+    resource = resource_set_accounting_quantity(resource, by_quantity)
+  end
+
+  def resource_set_accounting_quantity({:error, error}, _) do
+    {:error, error}
+  end
+
+  def resource_set_onhand_quantity(
+        %{
+          onhand_quantity: %{unit_id: onhand_unit} = onhand_quantity
+        } = resource,
+        %{unit_id: event_unit} = by_quantity
+      )
+      when onhand_unit != event_unit do
+    {:error,
+     "The units used on existing resource's onhand quantity do not match the event's unit"}
+  end
+
+  def resource_set_accounting_quantity(
+        %{
+          accounting_quantity: %{unit_id: accounting_unit} = accounting_quantity
+        } = resource,
+        %{unit_id: event_unit} = by_quantity
+      )
+      when accounting_unit != event_unit do
+     {:error,
+     "The units used on existing the resource's accounting quantity do not match the event's unit"}
+  end
+
+  def resource_set_onhand_quantity(
+        %{
+          onhand_quantity: %{unit_id: onhand_unit} = onhand_quantity
+        } = resource,
+        %{unit_id: event_unit} = by_quantity
+      )
+      when onhand_unit == event_unit do
+    Logger.warn("# TODO: Add event resourceQuantity to onhandQuantity")
+    resource
+  end
+
+  def resource_set_accounting_quantity(
+        %{
+          accounting_quantity: %{unit_id: accounting_unit} = accounting_quantity
+        } = resource,
+        %{unit_id: event_unit} = by_quantity
+      )
+      when accounting_unit == event_unit do
+    Logger.warn("# TODO: Add event resourceQuantity to accountingQuantity ")
+    resource
+  end
+
+  def resource_set_onhand_quantity(
+        %{
+          onhand_quantity_id: existing_quantity
+        } = resource,
+        by_quantity
+      )
+      when is_nil(existing_quantity) do
+    Logger.warn("# TODO: Set onhandQuantity")
+    resource
+  end
+
+  def resource_set_accounting_quantity(
+        %{
+          accounting_quantity_id: existing_quantity
+        } = resource,
+        by_quantity
+      )
+      when is_nil(existing_quantity) do
+    Logger.warn("# TODO: Set accountingQuantity ")
+    resource
+  end
+
+
+
+  defp event_side_effects(
+         %EconomicEvent{
+           action: %{resource_effect: "decrement"},
+           resource_quantity: resource_quantity,
+           resource_inventoried_as_id: resource_inventoried_as_id
+         } = event
+       )
+       when not is_nil(resource_quantity) and not is_nil(resource_inventoried_as_id) do
     Logger.warn(
       "# TODO: Subtract event resourceQuantity from both accountingQuantity and onhandQuantity"
     )
@@ -229,13 +325,19 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     {:ok, event}
   end
 
-  def event_side_effects(%EconomicEvent{action: %{resource_effect: "decrementIncrement"}} = event) do
+  defp event_side_effects(
+         %EconomicEvent{
+           action: %{resource_effect: "decrementIncrement"},
+           resource_quantity: resource_quantity
+         } = event
+       )
+       when not is_nil(resource_quantity) do
     Logger.warn("# TODO: https://lab.allmende.io/valueflows/vf-app-specs/vf-apps/-/issues/4")
     # IO.inspect(decrementIncrement: event)
     {:ok, event}
   end
 
-  def event_side_effects(event) do
+  defp event_side_effects(event) do
     # IO.inspect(event)
     {:ok, event}
   end

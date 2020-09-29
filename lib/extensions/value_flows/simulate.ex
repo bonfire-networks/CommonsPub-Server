@@ -271,6 +271,14 @@ defmodule ValueFlows.Simulate do
 
 
   def fake_economic_event!(user, overrides \\ %{}) do
+    unit = fake_unit!(user)
+    measure_attrs = %{unit_id: unit.id}
+
+    measures = %{
+      resource_quantity: measure(measure_attrs)
+    }
+
+    overrides = Map.merge(overrides, measures)
 
     {:ok, event} = EconomicEvents.create(user, economic_event(overrides))
     event
@@ -288,6 +296,16 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_economic_resource!(user, overrides \\ %{}) do
+
+    unit = fake_unit!(user)
+    measure_attrs = %{unit_id: unit.id}
+
+    measures = %{
+      accounting_quantity: measure(measure_attrs)
+    }
+
+    overrides = Map.merge(overrides, measures)
+
     {:ok, spec} = EconomicResources.create(user, economic_resource(overrides))
     spec
   end

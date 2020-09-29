@@ -211,7 +211,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       assert event["resourceInventoriedAs"]["id"] == resource_inventoried_as.id
     end
 
-    test "create an economic event with to resource Inventoried as" do
+    test "create an economic event with toResourceInventoriedAs" do
       user = fake_user!()
 
       resource_inventoried_as = fake_economic_resource!(user)

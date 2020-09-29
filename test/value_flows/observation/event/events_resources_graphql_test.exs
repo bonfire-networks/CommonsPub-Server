@@ -22,7 +22,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     test "create an economic resource produced by an economic event" do
       user = fake_user!()
 
-      q = create_economic_event_mutation([fields: [provider: [:id]]], [fields: [:id]])
+      q = create_economic_event_mutation([fields: [provider: [:id]]], fields: [:id])
 
       conn = user_conn(user)
 
@@ -42,6 +42,35 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       # assert event["resourceConformsTo"]["id"] == resource_conforms_to.id
     end
 
+    test "fails if trying to increment a resource with a different unit" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+
+      resource_inventoried_as = fake_economic_resource!(user)
+      IO.inspect(resource_inventoried_as)
+
+      q = create_economic_event_mutation(fields: [resource_inventoried_as: [:id]])
+      conn = user_conn(user)
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            "action" => "raise",
+            "resourceQuantity" => measure_input(unit),
+            "resourceInventoriedAs" => resource_inventoried_as.id
+          })
+      }
+      IO.inspect(vars)
+
+      assert event =
+               grumble_post_key(q, conn, :create_economic_event, vars, "test", true)[
+                 "economicEvent"
+               ]
+
+      assert_economic_event(event)
+      assert event["resourceInventoriedAs"]["id"] == resource_inventoried_as.id
+    end
+
     test "create an economic event that consumes an existing resource" do
     end
 
@@ -59,8 +88,5 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
 
     test "fails to transfer an economic resource if it does not exist" do
     end
-
   end
-
-
 end
