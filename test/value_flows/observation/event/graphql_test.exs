@@ -3,6 +3,8 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
 
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Utils.Simulation
+  import CommonsPub.Tag.Simulate
+
   import CommonsPub.Test.Faking
 
   import Measurement.Simulate
@@ -23,16 +25,17 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       receiver = fake_user!()
       action = action()
 
-      event = fake_economic_event!(user, %{
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id,
-        input_of: fake_process!(user).id,
-        output_of: fake_process!(user).id,
-        resource_conforms_to: fake_resource_specification!(user).id,
-        to_resource_inventoried_as: fake_economic_resource!(user).id,
-        resource_inventoried_as: fake_economic_resource!(user).id
-      })
+      event =
+        fake_economic_event!(user, %{
+          provider: provider.id,
+          receiver: receiver.id,
+          action: action.id,
+          input_of: fake_process!(user).id,
+          output_of: fake_process!(user).id,
+          resource_conforms_to: fake_resource_specification!(user).id,
+          to_resource_inventoried_as: fake_economic_resource!(user).id,
+          resource_inventoried_as: fake_economic_resource!(user).id
+        })
 
       q = economic_event_query()
       conn = user_conn(user)
@@ -46,25 +49,26 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       receiver = fake_user!()
       action = action()
 
-      event = fake_economic_event!(user, %{
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id,
-        input_of: fake_process!(user).id,
-        output_of: fake_process!(user).id,
-        resource_conforms_to: fake_resource_specification!(user).id,
-        to_resource_inventoried_as: fake_economic_resource!(user).id,
-        resource_inventoried_as: fake_economic_resource!(user).id
-      })
+      event =
+        fake_economic_event!(user, %{
+          provider: provider.id,
+          receiver: receiver.id,
+          action: action.id,
+          input_of: fake_process!(user).id,
+          output_of: fake_process!(user).id,
+          resource_conforms_to: fake_resource_specification!(user).id,
+          to_resource_inventoried_as: fake_economic_resource!(user).id,
+          resource_inventoried_as: fake_economic_resource!(user).id
+        })
 
       q = economic_event_query()
       conn = user_conn(user)
 
       assert {:ok, spec} = EconomicEvents.soft_delete(event)
-      assert [%{"code" => "not_found", "path" => ["economicEvent"], "status" => 404}] =
-      grumble_post_errors(q, conn, %{id: event.id})
-    end
 
+      assert [%{"code" => "not_found", "path" => ["economicEvent"], "status" => 404}] =
+               grumble_post_errors(q, conn, %{id: event.id})
+    end
   end
 
   describe "economicEvent.inScopeOf" do
@@ -76,12 +80,13 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
 
       parent = fake_user!()
 
-      event = fake_economic_event!(user, %{
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id,
-        in_scope_of: parent.id
-      })
+      event =
+        fake_economic_event!(user, %{
+          provider: provider.id,
+          receiver: receiver.id,
+          action: action.id,
+          in_scope_of: parent.id
+        })
 
       q = economic_event_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
@@ -90,25 +95,31 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
     end
   end
 
-
   describe "EconomicEvents" do
     test "return a list of economicEvents" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
       action = action()
-      events = some(5, fn -> fake_economic_event!(user, %{
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
-      }) end)
+
+      events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            provider: provider.id,
+            receiver: receiver.id,
+            action: action.id
+          })
+        end)
+
       # deleted
       some(2, fn ->
-        event = fake_economic_event!(user, %{
-          provider: provider.id,
-          receiver: receiver.id,
-          action: action.id
-        })
+        event =
+          fake_economic_event!(user, %{
+            provider: provider.id,
+            receiver: receiver.id,
+            action: action.id
+          })
+
         {:ok, event} = EconomicEvents.soft_delete(event)
         event
       end)
@@ -126,28 +137,35 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       provider = fake_user!()
       receiver = fake_user!()
       action = action()
-      events = some(5, fn -> fake_economic_event!(user, %{
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
-      }) end)
+
+      events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            provider: provider.id,
+            receiver: receiver.id,
+            action: action.id
+          })
+        end)
+
       # deleted
       some(2, fn ->
-        event = fake_economic_event!(user, %{
-          provider: provider.id,
-          receiver: receiver.id,
-          action: action.id
-        })
+        event =
+          fake_economic_event!(user, %{
+            provider: provider.id,
+            receiver: receiver.id,
+            action: action.id
+          })
+
         {:ok, event} = EconomicEvents.soft_delete(event)
         event
       end)
+
       q = economic_events_pages_query()
       conn = user_conn(user)
       assert page = grumble_post_key(q, conn, :economic_events_pages, %{})
       assert Enum.count(events) == page["totalCount"]
     end
   end
-
 
   describe "createEconomicEvent" do
     test "create a new economic event" do
@@ -157,31 +175,43 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       action = action()
       q = create_economic_event_mutation()
       conn = user_conn(user)
-      vars = %{event: economic_event_input(%{
-        provider: provider.id,
-        receiver: receiver.id,
-        action: action.id
-      })}
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            provider: provider.id,
+            receiver: receiver.id,
+            action: action.id
+          })
+      }
+
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
       assert_economic_event(event)
     end
 
-
-    test "creates a new proposal with a scope" do
+    test "creates a new economic event with a scope" do
       user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
       parent = fake_user!()
 
-      q = create_proposal_mutation(fields: [in_scope_of: [:__typename]])
+      q = create_economic_event_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      vars = %{proposal: proposal_input(%{"inScopeOf" => [parent.id]})}
-      assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
-      assert_proposal_full(proposal)
-      assert hd(proposal["inScopeOf"])["__typename"] == "User"
-    end
 
+      vars = %{
+        event:
+          economic_event_input(%{
+            "inScopeOf" => [parent.id],
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => action.id
+          })
+      }
 
-    test "create an economic event with a scope" do
-
+      assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
+      assert_economic_event(event)
+      assert hd(event["inScopeOf"])["__typename"] == "User"
     end
 
     test "create an economic event with an input and an output" do
@@ -193,13 +223,17 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       q = create_economic_event_mutation(fields: [input_of: [:id], output_of: [:id]])
       conn = user_conn(user)
 
-      vars = %{event: economic_event_input(%{
-        "inputOf" => process.id,
-        "outputOf" => process.id,
-        "provider" =>  provider.id,
-        "receiver" =>  receiver.id,
-        "action" => action.id
-      })}
+      vars = %{
+        event:
+          economic_event_input(%{
+            "inputOf" => process.id,
+            "outputOf" => process.id,
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => action.id
+          })
+      }
+
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
       assert_economic_event(event)
       assert event["inputOf"]["id"] == process.id
@@ -215,12 +249,16 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       q = create_economic_event_mutation(fields: [resource_inventoried_as: [:id]])
       conn = user_conn(user)
 
-      vars = %{event: economic_event_input(%{
-        "resourceInventoriedAs" => resource_inventoried_as.id,
-        "provider" =>  provider.id,
-        "receiver" =>  receiver.id,
-        "action" => action.id
-      })}
+      vars = %{
+        event:
+          economic_event_input(%{
+            "resourceInventoriedAs" => resource_inventoried_as.id,
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => action.id
+          })
+      }
+
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
       assert_economic_event(event)
       assert event["resourceInventoriedAs"]["id"] == resource_inventoried_as.id
@@ -235,12 +273,16 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       q = create_economic_event_mutation(fields: [to_resource_inventoried_as: [:id]])
       conn = user_conn(user)
 
-      vars = %{event: economic_event_input(%{
-        "toResourceInventoriedAs" => resource_inventoried_as.id,
-        "provider" =>  provider.id,
-        "receiver" =>  receiver.id,
-        "action" => action.id
-      })}
+      vars = %{
+        event:
+          economic_event_input(%{
+            "toResourceInventoriedAs" => resource_inventoried_as.id,
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => action.id
+          })
+      }
+
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
       assert_economic_event(event)
       assert event["toResourceInventoriedAs"]["id"] == resource_inventoried_as.id
@@ -255,19 +297,22 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       q = create_economic_event_mutation(fields: [resource_conforms_to: [:id]])
       conn = user_conn(user)
 
-      vars = %{event: economic_event_input(%{
-        "resourceConformsTo" => resource_conforms_to.id,
-        "provider" =>  provider.id,
-        "receiver" =>  receiver.id,
-        "action" => action.id
-      })}
+      vars = %{
+        event:
+          economic_event_input(%{
+            "resourceConformsTo" => resource_conforms_to.id,
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => action.id
+          })
+      }
+
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
       assert_economic_event(event)
       assert event["resourceConformsTo"]["id"] == resource_conforms_to.id
     end
 
     test "create an economic event with measures" do
-
     end
 
     test "create an economic event with location" do
@@ -279,80 +324,98 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQLTest do
       q = create_economic_event_mutation(fields: [at_location: [:id]])
       conn = user_conn(user)
 
-      vars = %{event: economic_event_input(%{
-        "at_location" => geo.id,
-        "provider" =>  provider.id,
-        "receiver" =>  receiver.id,
-        "action" => action.id
-      })}
+      vars = %{
+        event:
+          economic_event_input(%{
+            "at_location" => geo.id,
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => action.id
+          })
+      }
+
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
       assert_economic_event(event)
       assert event["atLocation"]["id"] == geo.id
-
     end
 
     test "create an economic event triggered by another economic event" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
-      trigger = fake_economic_event!(user)
       action = action()
+      trigger = fake_economic_event!(user)
       q = create_economic_event_mutation(fields: [triggered_by: [:id]])
       conn = user_conn(user)
 
-      vars = %{event: economic_event_input(%{
-        "triggered_by" => trigger.id,
-        "provider" =>  provider.id,
-        "receiver" =>  receiver.id,
-        "action" => action.id
-      })}
+      vars = %{
+        event:
+          economic_event_input(%{
+            "triggered_by" => trigger.id,
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => action.id
+          })
+      }
+
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
       assert_economic_event(event)
       assert event["triggeredBy"]["id"] == trigger.id
     end
 
     test "create an economic event with tags" do
+      user = fake_user!()
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+      tags = some(5, fn -> fake_category!(user).id end)
 
+      q = create_economic_event_mutation(fields: [tags: [:__typename]])
+      conn = user_conn(user)
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            "tags" => tags,
+            "provider" => provider.id,
+            "receiver" => receiver.id,
+            "action" => action.id
+          })
+      }
+
+      assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
+
+      assert_economic_event(event)
+      assert hd(event["tags"])["__typename"] == "Category"
     end
 
     test "create an economic resource with an economic event" do
-
     end
 
     test "create an economic event that consume an existing resource" do
-
     end
 
     test "fails if the economic event consumes an economic resource that does not exist" do
-
     end
 
     test "fails if the economic event consumes a quantity of an economic resource bigger than the existing one" do
-
     end
 
     test "create an economic event that transfers an existing resource from a provider to a receiver" do
-
     end
 
     test "fails to transfer an economic resource if the provider does not have rights to transfer an existing resource" do
-
     end
 
     test "fails to transfer an economic resource if it does not exist" do
-
     end
-
   end
 
   describe "updateEconomicEvent" do
     test "update an existing economic event" do
-
     end
 
     test "fails if has been deleted" do
-
     end
   end
-
 end

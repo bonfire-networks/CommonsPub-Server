@@ -115,4 +115,17 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
       assert resource.onhand_quantity_id != updated.onhand_quantity_id
     end
   end
+
+  describe "soft delete" do
+    test "delete an existing resource" do
+      user = fake_user!()
+      spec = fake_economic_resource!(user)
+
+      refute spec.deleted_at
+      assert {:ok, spec} = EconomicResources.soft_delete(spec)
+      assert spec.deleted_at
+    end
+
+  end
+
 end
