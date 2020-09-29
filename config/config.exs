@@ -31,6 +31,8 @@ alias CommonsPub.Workers.GarbageCollector
 alias Measurement.Unit.Units
 alias CommonsPub.Tag.Taggable
 
+fallback_env = fn a, b, c -> System.get_env(a) || System.get_env(b) || c end
+
 hostname = System.get_env("HOSTNAME", "localhost")
 
 # LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
@@ -243,7 +245,13 @@ config :commons_pub, ecto_repos: [CommonsPub.Repo]
 
 config :commons_pub, CommonsPub.Repo,
   types: Forkable.PostgresTypes,
-  migration_primary_key: [name: :id, type: :binary_id]
+  migration_primary_key: [name: :id, type: :binary_id],
+  # the following are usually overidden depending on env
+  username: fallback_env.("POSTGRES_USER", "DATABASE_USER", "postgres"),
+  password: fallback_env.("POSTGRES_PASSWORD", "DATABASE_PASS", "postgres"),
+  database: fallback_env.("POSTGRES_DB", "DATABASE_NAME", "commonspub"),
+  hostname: fallback_env.("DATABASE_HOST", "POSTGRES_HOST", "localhost"),
+  pool_size: 15
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

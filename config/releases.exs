@@ -6,8 +6,8 @@ fallback_env = fn a, b, c -> System.get_env(a) || System.get_env(b) || c end
 config :commons_pub, CommonsPub.Repo,
   username: fallback_env.("POSTGRES_USER", "DATABASE_USER", "postgres"),
   password: fallback_env.("POSTGRES_PASSWORD", "DATABASE_PASS", "postgres"),
-  database: fallback_env.("POSTGRES_DB", "DATABASE_NAME", "postgres"),
-  hostname: fallback_env.("POSTGRES_HOST", "DATABASE_HOST", "localhost"),
+  database: fallback_env.("POSTGRES_DB", "DATABASE_NAME", "commonspub_rel"),
+  hostname: fallback_env.("DATABASE_HOST", "POSTGRES_HOST", "localhost"),
   pool_size: 15
 
 hostname = System.fetch_env!("HOSTNAME")
