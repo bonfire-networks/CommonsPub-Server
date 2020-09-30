@@ -2,6 +2,7 @@
 defmodule Measurement.Measure.Queries do
   import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
+  alias CommonsPub.Repo
   alias CommonsPub.Users.User
   alias Measurement.{Measure, Unit}
 
@@ -144,4 +145,13 @@ defmodule Measurement.Measure.Queries do
   end
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+
+  def inc_quantity(id, amount) do
+    from(r in Measure,
+      update: [inc: [has_numerical_value: ^amount]],
+      where: r.id == ^id
+    )
+    |> Repo.update_all([])
+  end
+
 end

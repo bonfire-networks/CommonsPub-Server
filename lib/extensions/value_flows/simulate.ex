@@ -49,7 +49,6 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("note", &summary/0)
   end
 
-
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
 
   def action, do: Faker.Util.pick(Actions.actions_list())
@@ -81,6 +80,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("hasBeginning", &past_datetime_iso/0)
     |> Map.put_new_lazy("hasEnd", &future_datetime_iso/0)
     |> Map.put_new_lazy("hasPointInTime", &future_datetime_iso/0)
+
     # |> Map.put_new_lazy("resource_classified_as", fn -> some(1..5, &url/0) end)
   end
 
@@ -120,9 +120,9 @@ defmodule ValueFlows.Simulate do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("note", &summary/0)
+
     # |> Map.put_new_lazy(:image, &icon/0)
     # |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
-
   end
 
   def process_specification(base \\ %{}) do
@@ -269,7 +269,6 @@ defmodule ValueFlows.Simulate do
     spec
   end
 
-
   def fake_economic_event!(user, overrides \\ %{}) do
     unit = fake_unit!(user)
     measure_attrs = %{unit_id: unit.id}
@@ -284,7 +283,6 @@ defmodule ValueFlows.Simulate do
     event
   end
 
-
   def fake_process!(user, overrides \\ %{}) do
     {:ok, process} = Processes.create(user, process(overrides))
     process
@@ -296,8 +294,11 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_economic_resource!(user, overrides \\ %{}) do
-
     unit = fake_unit!(user)
+    fake_economic_resource!(user, overrides, unit)
+  end
+
+  def fake_economic_resource!(user, overrides, unit) do
     measure_attrs = %{unit_id: unit.id}
 
     measures = %{
@@ -309,7 +310,4 @@ defmodule ValueFlows.Simulate do
     {:ok, spec} = EconomicResources.create(user, economic_resource(overrides))
     spec
   end
-
-
-
 end

@@ -11,113 +11,84 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   def event_side_effects(
         %EconomicEvent{
           action: %{label: action, resource_effect: operation},
-          resource_quantity: resource_quantity,
-          resource_inventoried_as_id: resource_inventoried_as_id,
-          to_resource_inventoried_as_id: to_resource_inventoried_as_id
+          resource_quantity: quantity
         } = event
+      ) do
+    event =
+      Repo.preload(event,
+        resource_inventoried_as: [:accounting_quantity, :onhand_quantity],
+        to_resource_inventoried_as: [:accounting_quantity, :onhand_quantity]
       )
-      when not is_nil(resource_quantity) and not is_nil(resource_inventoried_as_id) and
-             not is_nil(to_resource_inventoried_as_id) and operation == "decrementIncrement" do
-    # we have two resources that can be affected, and an decrementIncrement action
 
-    # preload quantities
-    resource =
-      Repo.preload(event.resource_inventoried_as, [:accounting_quantity, :onhand_quantity])
+    resource = event.resource_inventoried_as
+    to_resource = event.to_resource_inventoried_as
 
-    to_resource =
-      Repo.preload(event.to_resource_inventoried_as, [:accounting_quantity, :onhand_quantity])
+    cond do
+      #     If action.resourceEffect is "+"
+      operation == "increment" and event.resource_inventoried_as_id != nil ->
+        #         Add event resourceQuantity to accountingQuantity
+        resource = quantity_effect(:accounting_quantity, resource, quantity, operation)
 
-    {:ok, resource, to_resource} =
-      two_resources_update_quantities(resource, to_resource, resource_quantity, action)
+        #         Add event resourceQuantity to onhandQuantity
+        resource = quantity_effect(:onhand_quantity, resource, quantity, operation)
 
-    {:ok, %{event | resource_inventoried_as: resource, to_resource_inventoried_as: to_resource}}
+        return_updated_event(event, resource)
+
+      #     ElseIf action.resourceEffect is "-"
+      operation == "decrement" and event.resource_inventoried_as_id != nil ->
+        #         Subtract event resourceQuantity from accountingQuantity
+        resource = quantity_effect(:accounting_quantity, resource, quantity, operation)
+
+        #         Subtract event resourceQuantity from onhandQuantity
+        resource = quantity_effect(:onhand_quantity, resource, quantity, operation)
+
+        return_updated_event(event, resource)
+
+      # ElseIf action.resourceEffect is "-+"
+      operation == "decrementIncrement" ->
+        # # (two resources can be affected)
+        # If action is "transfer-custody" or "transfer-complete" or "move"
+        cond do
+
+          #FIXME  both onhandQuantity and accountingQuantity should be changed in case of transfer or move
+
+          action == "transfer-custody" or action == "transfer" or action == "move" ->
+            #     If the from-resource exists
+            #         Subtract event resourceQuantity from from_resource.onhandQuantity
+            resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement")
+
+            #     If the to-resource exists
+            #         Add event resourceQuantity to to_resource.onhandQuantity
+            to_resource = quantity_effect(:onhand_quantity, to_resource, quantity, "increment")
+
+            return_updated_event(event, resource, to_resource)
+
+          # ElseIf action is "transfer-all-rights" or "transfer-complete" or "move"
+          action == "transfer-all-rights" or action == "transfer" or action == "move" ->
+            #     If the from-resource exists
+            #         Subtract event resourceQuantity from from_resource.accountingQuantity
+            resource = quantity_effect(:accounting_quantity, resource, quantity, "decrement")
+
+            #     If the to-resource exists
+            #         Add event resourceQuantity to to_resource.accountingQuantity
+            to_resource =
+              quantity_effect(:accounting_quantity, to_resource, quantity, "increment")
+
+            return_updated_event(event, resource, to_resource)
+
+          # Else
+          true ->
+            {:ok, event}
+        end
+
+      # Else
+      true ->
+        {:ok, event}
+    end
   end
 
-  def two_resources_update_quantities(resource, to_resource, by_quantity, action) do
-    {:ok, resource, to_resource} =
-      two_resources_update_onhand_quantity(resource, to_resource, by_quantity, action)
-
-    {:ok, resource, to_resource} =
-      two_resources_update_accounting_quantity(resource, to_resource, by_quantity, action)
-  end
-
-  def two_resources_update_onhand_quantity(resource, to_resource, by_quantity, action)
-      when action == "transfer-custody" or action == "transfer-complete" or action == "move" do
-    resource = resource_update_onhand_quantity(resource, by_quantity, "decrement")
-    to_resource = resource_update_onhand_quantity(to_resource, by_quantity, "increment")
-
-    {:ok, resource, to_resource}
-  end
-
-  def two_resources_update_onhand_quantity(resource, to_resource, _, _) do
-    {:ok, resource, to_resource}
-  end
-
-  def two_resources_update_accounting_quantity(resource, to_resource, by_quantity, action)
-      when action == "transfer-all-rights" or action == "transfer-complete" or action == "move" do
-    resource = resource_update_accounting_quantity(resource, by_quantity, "decrement")
-    to_resource = resource_update_accounting_quantity(to_resource, by_quantity, "increment")
-
-    {:ok, resource, to_resource}
-  end
-
-  def two_resources_update_accounting_quantity(resource, to_resource, _, _) do
-    {:ok, resource, to_resource}
-  end
-
-  def event_side_effects(
-        %EconomicEvent{
-          action: %{resource_effect: operation},
-          resource_quantity: resource_quantity,
-          resource_inventoried_as_id: resource_inventoried_as_id
-        } = event
-      )
-      when not is_nil(resource_quantity) and not is_nil(resource_inventoried_as_id) do
-    resource =
-      Repo.preload(event.resource_inventoried_as, [:accounting_quantity, :onhand_quantity])
-
-    resource = resource_update_quantities(resource, resource_quantity, operation)
-    # IO.inspect(incremented: event)
-
-    {:ok, %{event | resource_inventoried_as: resource}}
-  end
-
-  def event_side_effects(
-        %EconomicEvent{
-          action: %{resource_effect: "decrementIncrement"},
-          resource_quantity: resource_quantity
-        } = event
-      )
-      when not is_nil(resource_quantity) do
-    Logger.warn("# TODO: https://lab.allmende.io/valueflows/vf-app-specs/vf-apps/-/issues/4")
-    # IO.inspect(decrementIncrement: event)
-    {:ok, event}
-  end
-
-  def event_side_effects(event) do
-    # IO.inspect(event)
-    {:ok, event}
-  end
-
-  def resource_update_quantities(
-        resource,
-        by_quantity,
-        operation
-      )
-      when operation != "noEffect" do
-    resource = resource_update_onhand_quantity(resource, by_quantity, operation)
-    resource = resource_update_accounting_quantity(resource, by_quantity, operation)
-  end
-
-  def resource_update_quantities(_, _, _) do
-    Logger.info("do not set quantities since action is noEffect?")
-  end
-
-  def resource_update_accounting_quantity({:error, error}, _, _) do
-    {:error, error}
-  end
-
-  def resource_update_onhand_quantity(
+  def quantity_effect(
+        :onhand_quantity,
         %{
           onhand_quantity: %{unit_id: onhand_unit} = onhand_quantity
         } = resource,
@@ -129,7 +100,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
      "The units used on the existing resource's onhand quantity do not match the event's unit"}
   end
 
-  def resource_update_accounting_quantity(
+  def quantity_effect(
+        :accounting_quantity,
         %{
           accounting_quantity: %{unit_id: accounting_unit} = accounting_quantity
         } = resource,
@@ -141,7 +113,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
      "The units used on the existing the resource's accounting quantity do not match the event's unit"}
   end
 
-  def resource_update_onhand_quantity(
+  def quantity_effect(
+        :onhand_quantity = field,
         %{
           onhand_quantity: %{unit_id: onhand_unit} = onhand_quantity
         } = resource,
@@ -150,10 +123,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
       )
       when onhand_unit == event_unit do
     Logger.warn("# TODO: Add/substract (#{operation}) by_quantity to onhandQuantity")
-    resource
+
+    onhand_quantity = measurement_effect(operation, onhand_quantity, by_quantity)
+
+    %{resource | onhand_quantity: onhand_quantity}
   end
 
-  def resource_update_accounting_quantity(
+  def quantity_effect(
+        :accounting_quantity = field,
         %{
           accounting_quantity: %{unit_id: accounting_unit} = accounting_quantity
         } = resource,
@@ -162,10 +139,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
       )
       when accounting_unit == event_unit do
     Logger.warn("# TODO: Add/substract event resourceQuantity to accountingQuantity ")
-    resource
+
+    accounting_quantity = measurement_effect(operation, accounting_quantity, by_quantity)
+
+    %{resource | accounting_quantity: accounting_quantity}
   end
 
-  def resource_update_onhand_quantity(
+  def quantity_effect(
+        :onhand_quantity = field,
         %{
           onhand_quantity_id: existing_quantity
         } = resource,
@@ -173,11 +154,12 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         _
       )
       when is_nil(existing_quantity) do
-    Logger.warn("# TODO: Set onhandQuantity")
+    Logger.warn("# TODO: Set onhandQuantity? ")
     resource
   end
 
-  def resource_update_accounting_quantity(
+  def quantity_effect(
+        :accounting_quantity = field,
         %{
           accounting_quantity_id: existing_quantity
         } = resource,
@@ -185,7 +167,30 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         _
       )
       when is_nil(existing_quantity) do
-    Logger.warn("# TODO: Set accountingQuantity ")
+    Logger.warn("# TODO: Set accountingQuantity? ")
     resource
+  end
+
+  def quantity_effect(_, resource, _, _) do
+    resource
+  end
+
+  def measurement_effect("decrement", measurement, amount) do
+    measurement_effect(nil, measurement, -amount)
+  end
+
+  def measurement_effect(_, %{id: id} = _measurement, %{has_numerical_value: amount}) do
+    Measurement.Measure.Queries.inc_quantity(id, amount)
+    # reload the measurement
+    {:ok, measurement} = Measurement.Measure.Measures.one(id: id)
+    measurement
+  end
+
+  def return_updated_event(event, resource) do
+    {:ok, %{event | resource_inventoried_as: resource}}
+  end
+
+  def return_updated_event(event, resource, to_resource) do
+    {:ok, %{event | resource_inventoried_as: resource, to_resource_inventoried_as: to_resource}}
   end
 end

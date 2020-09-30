@@ -322,4 +322,6 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
   # end
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+
+
 end

@@ -42,12 +42,48 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       # assert event["resourceConformsTo"]["id"] == resource_conforms_to.id
     end
 
+    test "increment a resource" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+
+      resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
+
+      q =
+        create_economic_event_mutation(
+          fields: [
+            :id,
+            resource_quantity: [:has_numerical_value],
+            resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ]
+          ]
+        )
+
+      conn = user_conn(user)
+      resource_inventoried_as
+
+      vars = %{
+        event:
+          economic_event_input(%{
+            "action" => "raise",
+            "resourceQuantity" => measure_input(unit, %{"hasNumericalValue" => 42}),
+            "resourceInventoriedAs" => resource_inventoried_as.id
+          })
+      }
+
+      assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", true)
+      assert event = response["economicEvent"]
+      assert_economic_event(event)
+      assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] == resource_inventoried_as.accounting_quantity.has_numerical_value + 42
+    end
+
     test "fails if trying to increment a resource with a different unit" do
       user = fake_user!()
       unit = fake_unit!(user)
 
       resource_inventoried_as = fake_economic_resource!(user)
-      IO.inspect(resource_inventoried_as)
 
       q = create_economic_event_mutation(fields: [resource_inventoried_as: [:id]])
       conn = user_conn(user)
@@ -61,8 +97,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      assert {:additional_errors, _} = catch_throw(grumble_post_key(q, conn, :create_economic_event, vars, "test", false))
-
+      assert {:additional_errors, _} =
+               catch_throw(grumble_post_key(q, conn, :create_economic_event, vars, "test", false))
     end
 
     test "create an economic event that consumes an existing resource" do
