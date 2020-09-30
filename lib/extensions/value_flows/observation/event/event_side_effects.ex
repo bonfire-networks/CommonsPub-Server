@@ -49,8 +49,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         # # (two resources can be affected)
         # If action is "transfer-custody" or "transfer-complete" or "move"
         cond do
-
-          #FIXME  both onhandQuantity and accountingQuantity should be changed in case of transfer or move
+          # FIXME  both onhandQuantity and accountingQuantity should be changed in case of transfer or move
 
           action == "transfer-custody" or action == "transfer" or action == "move" ->
             #     If the from-resource exists
@@ -122,7 +121,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         operation
       )
       when onhand_unit == event_unit do
-    Logger.warn("# TODO: Add/substract (#{operation}) by_quantity to onhandQuantity")
+    # Add/substract (#{operation}) by_quantity to onhandQuantity
 
     onhand_quantity = measurement_effect(operation, onhand_quantity, by_quantity)
 
@@ -138,7 +137,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         operation
       )
       when accounting_unit == event_unit do
-    Logger.warn("# TODO: Add/substract event resourceQuantity to accountingQuantity ")
+    #  Add/substract event resourceQuantity to accountingQuantity
 
     accounting_quantity = measurement_effect(operation, accounting_quantity, by_quantity)
 
