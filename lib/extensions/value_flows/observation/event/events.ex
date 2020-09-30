@@ -137,7 +137,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
         }
       )
       when not is_nil(to_existing_resource) do
-    # this creates a new FROM resource as part of an event with an incrementDecrement action
+    Logger.info("create a new FROM resource as part of an event")
+
     create_resource_and_event(
       creator,
       event_attrs,
@@ -156,7 +157,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
         }
       )
       when not is_nil(from_existing_resource) do
-    # this creates a new TO resource as part of an event with an incrementDecrement action
+    Logger.info("creates a new TO resource")
+
     create_resource_and_event(
       creator,
       event_attrs,
@@ -168,7 +170,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   def create(creator, event_attrs, %{
         new_inventoried_resource: new_inventoried_resource
       }) do
-    # this creates a completly new resource as part of an event like produce
+    Logger.info("create a completly new resource ")
+
     create_resource_and_event(
       creator,
       event_attrs,
@@ -178,7 +181,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   def create(creator, event_attrs, _) do
-    create(creator, event_attrs)
+    with {:ok, event} <- create(creator, event_attrs) do
+      {:ok, event, nil}
+    end
   end
 
   def create(%User{} = creator, event_attrs) do
@@ -207,16 +212,18 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp create_resource_and_event(creator, event_attrs, new_inventoried_resource, field_name) do
     new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
 
-    with {:ok, resource} <-
+    with {:ok, new_resource} <-
            ValueFlows.Observation.EconomicResource.EconomicResources.create(
              creator,
              new_inventoried_resource
            ) do
-      event_attrs = Map.merge(event_attrs, %{field_name => resource})
-      create(creator, event_attrs)
+      event_attrs = Map.merge(event_attrs, %{field_name => new_resource})
+
+      with {:ok, event} <- create(creator, event_attrs) do
+        {:ok, event, new_resource}
+      end
     end
   end
-
 
   # TODO: take the user who is performing the update
   # @spec update(%EconomicEvent{}, attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
@@ -307,7 +314,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_resource_inventoried_as(changeset, _attrs), do: changeset
 
-  defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: id}) do
+  defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: id})
+       when is_binary(id) do
     with {:ok, resource} <- EconomicResources.one([:default, id: id]) do
       EconomicEvent.change_to_resource_inventoried_as(changeset, resource)
     end

@@ -40,8 +40,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       receiver = fake_user!()
       action = action()
 
-      assert {:ok, event} =
-               EconomicEvents.create(
+      assert {:ok, event} = EconomicEvents.create(
                  user,
                  economic_event(%{
                    provider: provider.id,
@@ -64,8 +63,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         in_scope_of: [fake_community!(user).id]
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.context.id == hd(attrs.in_scope_of)
@@ -77,8 +75,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       tags = some(5, fn -> fake_category!(user).id end)
       attrs = %{tags: tags}
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
 
@@ -94,8 +91,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         output_of: fake_process!(user).id
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.input_of.id == attrs.input_of
@@ -108,8 +104,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         resource_inventoried_as: fake_economic_resource!(user).id
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.resource_inventoried_as.id == attrs.resource_inventoried_as
@@ -122,8 +117,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         to_resource_inventoried_as: fake_economic_resource!(user).id
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.to_resource_inventoried_as.id == attrs.to_resource_inventoried_as
@@ -137,8 +131,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         to_resource_inventoried_as: fake_economic_resource!(user).id
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.resource_inventoried_as.id == attrs.resource_inventoried_as
@@ -152,8 +145,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         resource_conforms_to: fake_resource_specification!(user).id
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.resource_conforms_to.id == attrs.resource_conforms_to
@@ -166,8 +158,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         resource_classified_as: some(1..5, &url/0)
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.resource_classified_as == attrs.resource_classified_as
@@ -183,8 +174,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         effort_quantity: measure(%{unit_id: unit.id})
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(measures))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(measures))
 
       assert_economic_event(event)
       assert event.resource_quantity.id
@@ -200,8 +190,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         at_location: location.id
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.at_location.id == attrs.at_location
@@ -216,8 +205,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         triggered_by: triggered_by.id
       }
 
-      assert {:ok, event} =
-               EconomicEvents.create(user, economic_event(attrs))
+      assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
 
       assert_economic_event(event)
       assert event.triggered_by.id == attrs.triggered_by

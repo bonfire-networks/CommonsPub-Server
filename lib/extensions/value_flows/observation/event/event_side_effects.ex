@@ -49,9 +49,22 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         # # (two resources can be affected)
         # If action is "transfer-custody" or "transfer-complete" or "move"
         cond do
-          # FIXME  both onhandQuantity and accountingQuantity should be changed in case of transfer or move
+          action == "transfer" or action == "move" ->
+            #     If the from-resource exists
+            #         Subtract event resourceQuantity from from_resource.onhandQuantity and accountingQuantity
+            resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement")
+            resource = quantity_effect(:accounting_quantity, resource, quantity, "decrement")
 
-          action == "transfer-custody" or action == "transfer" or action == "move" ->
+            #     If the to-resource exists
+            #         Add event resourceQuantity to to_resource.onhandQuantity and accountingQuantity
+            to_resource = quantity_effect(:onhand_quantity, to_resource, quantity, "increment")
+
+            to_resource =
+              quantity_effect(:accounting_quantity, to_resource, quantity, "increment")
+
+            return_updated_event(event, resource, to_resource)
+
+          action == "transfer-custody" ->
             #     If the from-resource exists
             #         Subtract event resourceQuantity from from_resource.onhandQuantity
             resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement")
@@ -63,7 +76,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
             return_updated_event(event, resource, to_resource)
 
           # ElseIf action is "transfer-all-rights" or "transfer-complete" or "move"
-          action == "transfer-all-rights" or action == "transfer" or action == "move" ->
+          action == "transfer-all-rights" ->
             #     If the from-resource exists
             #         Subtract event resourceQuantity from from_resource.accountingQuantity
             resource = quantity_effect(:accounting_quantity, resource, quantity, "decrement")
@@ -117,13 +130,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         %{
           onhand_quantity: %{unit_id: onhand_unit} = onhand_quantity
         } = resource,
-        %{unit_id: event_unit} = by_quantity,
+        %{unit_id: event_unit, has_numerical_value: amount} = _by_quantity,
         operation
       )
       when onhand_unit == event_unit do
-    # Add/substract (#{operation}) by_quantity to onhandQuantity
-
-    onhand_quantity = measurement_effect(operation, onhand_quantity, by_quantity)
+    onhand_quantity = measurement_effect(operation, onhand_quantity, amount)
 
     %{resource | onhand_quantity: onhand_quantity}
   end
@@ -133,13 +144,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         %{
           accounting_quantity: %{unit_id: accounting_unit} = accounting_quantity
         } = resource,
-        %{unit_id: event_unit} = by_quantity,
+        %{unit_id: event_unit, has_numerical_value: amount} = _by_quantity,
         operation
       )
       when accounting_unit == event_unit do
-    #  Add/substract event resourceQuantity to accountingQuantity
-
-    accounting_quantity = measurement_effect(operation, accounting_quantity, by_quantity)
+    accounting_quantity = measurement_effect(operation, accounting_quantity, amount)
 
     %{resource | accounting_quantity: accounting_quantity}
   end
@@ -178,7 +187,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
     measurement_effect(nil, measurement, -amount)
   end
 
-  def measurement_effect(_, %{id: id} = _measurement, %{has_numerical_value: amount}) do
+  def measurement_effect(_, %{id: id} = _measurement, amount) do
     Measurement.Measure.Queries.inc_quantity(id, amount)
     # reload the measurement
     {:ok, measurement} = Measurement.Measure.Measures.one(id: id)
