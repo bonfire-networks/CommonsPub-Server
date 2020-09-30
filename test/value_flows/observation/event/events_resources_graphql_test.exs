@@ -60,15 +60,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
             "resourceInventoriedAs" => resource_inventoried_as.id
           })
       }
-      IO.inspect(vars)
 
-      assert event =
-               grumble_post_key(q, conn, :create_economic_event, vars, "test", true)[
-                 "economicEvent"
-               ]
+      assert {:additional_errors, _} = catch_throw(grumble_post_key(q, conn, :create_economic_event, vars, "test", false))
 
-      assert_economic_event(event)
-      assert event["resourceInventoriedAs"]["id"] == resource_inventoried_as.id
     end
 
     test "create an economic event that consumes an existing resource" do
