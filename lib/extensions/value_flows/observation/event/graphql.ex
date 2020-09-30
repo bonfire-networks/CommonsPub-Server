@@ -291,7 +291,9 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     })
   end
 
-
+  def fetch_resource_inventoried_as_edge(%{resource_inventoried_as: {:error, error}}, _, _) do
+    {:error, error}
+  end
 
   def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
       when not is_nil(id) do
