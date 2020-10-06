@@ -10,7 +10,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
 
   def event_side_effects(
         %EconomicEvent{
-          action: %{label: action, resource_effect: operation},
+          action: %{label: action, onhand_effect: onhand_effect, resource_effect: resource_effect},
           resource_quantity: quantity
         } = event
       ) do
@@ -25,17 +25,17 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
     # REFERENCE ISSUE:  https://lab.allmende.io/valueflows/vf-app-specs/vf-apps/-/issues/4
     cond do
       #     If action.resourceEffect is "+" or "-"
-      operation == "increment" or operation == "decrement" and event.resource_inventoried_as_id != nil ->
+      resource_effect == "increment" or resource_effect == "decrement" and event.resource_inventoried_as_id != nil ->
         #         Add event resourceQuantity to accountingQuantity
-        resource = quantity_effect(:accounting_quantity, resource, quantity, operation)
+        resource = quantity_effect(:accounting_quantity, resource, quantity, resource_effect)
 
         #         Add event resourceQuantity to onhandQuantity
-        resource = quantity_effect(:onhand_quantity, resource, quantity, operation)
+        resource = quantity_effect(:onhand_quantity, resource, quantity, resource_effect)
 
         return_updated_event(event, resource)
 
       # ElseIf action.resourceEffect is "-+"
-      operation == "decrementIncrement" ->
+      resource_effect == "decrementIncrement" or onhand_effect == "decrementIncrement" ->
         # # (two resources can be affected)
         # If action is "transfer-custody" or "transfer-complete" or "move"
         cond do

@@ -131,8 +131,8 @@ defmodule ValueFlows.Knowledge.Action.Actions do
       "transfer-custody" => %ValueFlows.Knowledge.Action{
         id: "transfer-custody",
         label: "transfer-custody",
-        resource_effect: "decrementIncrement",
-        onhand_effect: "noEffect",
+        resource_effect: "noEffect",
+        onhand_effect: "decrementIncrement",
         note:
           "give physical custody and control of a resource, without full accounting or ownership rights"
       },

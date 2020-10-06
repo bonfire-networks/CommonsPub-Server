@@ -351,7 +351,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp apply_resource_primary_accountable(%EconomicEvent{to_resource_inventoried_as_id: to_resource_id, receiver_id: receiver_id} = event)
       when not is_nil(to_resource_id) and not is_nil(receiver_id) do
     with {:ok, to_resource} <- EconomicResources.one([:default, id: to_resource_id]),
-          :ok <- validate_provider_access(event),
+         # :ok <- validate_provider_access(event),
          {:ok, to_resource} <- EconomicResources.update(to_resource, %{primary_accountable: receiver_id}) do
         {:ok, %{event | to_resource_inventoried_as: to_resource}}
     end
