@@ -22,24 +22,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
 
     resource = event.resource_inventoried_as
     to_resource = event.to_resource_inventoried_as
-
+    # REFERENCE ISSUE:  https://lab.allmende.io/valueflows/vf-app-specs/vf-apps/-/issues/4
     cond do
-      #     If action.resourceEffect is "+"
-      operation == "increment" and event.resource_inventoried_as_id != nil ->
+      #     If action.resourceEffect is "+" or "-"
+      operation == "increment" or operation == "decrement" and event.resource_inventoried_as_id != nil ->
         #         Add event resourceQuantity to accountingQuantity
         resource = quantity_effect(:accounting_quantity, resource, quantity, operation)
 
         #         Add event resourceQuantity to onhandQuantity
-        resource = quantity_effect(:onhand_quantity, resource, quantity, operation)
-
-        return_updated_event(event, resource)
-
-      #     ElseIf action.resourceEffect is "-"
-      operation == "decrement" and event.resource_inventoried_as_id != nil ->
-        #         Subtract event resourceQuantity from accountingQuantity
-        resource = quantity_effect(:accounting_quantity, resource, quantity, operation)
-
-        #         Subtract event resourceQuantity from onhandQuantity
         resource = quantity_effect(:onhand_quantity, resource, quantity, operation)
 
         return_updated_event(event, resource)
@@ -68,7 +58,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
             #     If the from-resource exists
             #         Subtract event resourceQuantity from from_resource.onhandQuantity
             resource = quantity_effect(:onhand_quantity, resource, quantity, "decrement")
-
             #     If the to-resource exists
             #         Add event resourceQuantity to to_resource.onhandQuantity
             to_resource = quantity_effect(:onhand_quantity, to_resource, quantity, "increment")
