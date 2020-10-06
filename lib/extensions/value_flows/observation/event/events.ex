@@ -196,6 +196,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            {:ok, event} <- Repo.insert(cs |> EconomicEvent.create_changeset_validate()),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, event_attrs),
            event = preload_all(event),
+           {:ok, event} <- apply_resource_primary_accountable(event),
            {:ok, event} <- EventSideEffects.event_side_effects(event),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -237,6 +238,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
       with {:ok, cs} <- prepare_changeset(attrs, changeset_fn, event),
            {:ok, event} <- Repo.update(cs),
+           {:ok, event} <- apply_resource_primary_accountable(event),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
            :ok <- publish(event, :updated) do
         {:ok, event}
@@ -259,18 +261,18 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     attrs = parse_measurement_attrs(attrs)
 
     ValueFlows.Util.handle_changeset_errors(cs, attrs, [
-      {:measures, &EconomicEvent.change_measures/2},
-      {:in_scope_of, &change_context/2},
-      {:provider, &change_provider/2},
-      {:receiver, &change_receiver/2},
-      {:action, &change_action/2},
-      {:location, &change_at_location/2},
-      {:input_of, &change_input_of/2},
-      {:output_of, &change_output_of/2},
-      {:triggered_by, &change_triggered_by_event/2},
-      {:resource_spec, &change_resource_conforms_to/2},
-      {:resource_inventoried_as, &change_resource_inventoried_as/2},
-      {:to_resource_inventoried_as, &change_to_resource_inventoried_as/2}
+      &EconomicEvent.change_measures/2,
+      &change_context/2,
+      &change_provider/2,
+      &change_receiver/2,
+      &change_action/2,
+      &change_at_location/2,
+      &change_input_of/2,
+      &change_output_of/2,
+      &change_triggered_by_event/2,
+      &change_resource_conforms_to/2,
+      &change_resource_inventoried_as/2,
+      &change_to_resource_inventoried_as/2
     ])
   end
 
@@ -344,6 +346,35 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp change_receiver(changeset, _attrs), do: changeset
+
+
+  defp apply_resource_primary_accountable(%EconomicEvent{to_resource_inventoried_as_id: to_resource_id, receiver_id: receiver_id} = event)
+      when not is_nil(to_resource_id) and not is_nil(receiver_id) do
+    with {:ok, to_resource} <- EconomicResources.one([:default, id: to_resource_id]),
+          :ok <- validate_provider_access(event),
+         {:ok, to_resource} <- EconomicResources.update(to_resource, %{primary_accountable: receiver_id}) do
+        {:ok, %{event | to_resource_inventoried_as: to_resource}}
+    end
+  end
+
+  defp apply_resource_primary_accountable(event) do
+    {:ok, event}
+  end
+
+  defp validate_provider_access(%EconomicEvent{resource_inventoried_as_id: resource_id} = event)
+      when not is_nil(resource_id) do
+    with {:ok, resource} <- EconomicResources.one([:default, id: resource_id]) do
+      if event.provider_id == resource.primary_accountable_id do
+        :ok
+      else
+        {:error, CommonsPub.Access.NotPermittedError.new()}
+      end
+    end
+  end
+
+  defp validate_provider_access(event) do
+    :ok
+  end
 
   defp change_action(changeset, %{action: action_id}) do
     with {:ok, action} <- Actions.action(action_id) do

@@ -169,13 +169,13 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp changeset_relations(cs, attrs) do
     attrs = parse_measurement_attrs(attrs)
     ValueFlows.Util.handle_changeset_errors(cs, attrs, [
-    {:measures, &EconomicResource.change_measures/2},
-    {:primary_accountable, &change_primary_accountable/2},
-    {:state_action, &change_state_action/2},
-    {:location, &change_current_location/2},
-    {:conforms_to_resource_spec, &change_conforms_to_resource_spec/2},
-    {:contained_in_resource, &change_contained_in_resource/2},
-    {:unit_of_effort, &change_unit_of_effort/2},
+    &EconomicResource.change_measures/2,
+    &change_primary_accountable/2,
+    &change_state_action/2,
+    &change_current_location/2,
+    &change_conforms_to_resource_spec/2,
+    &change_contained_in_resource/2,
+    &change_unit_of_effort/2,
     ])
   end
 
