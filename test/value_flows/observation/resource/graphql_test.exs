@@ -79,6 +79,28 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
   end
 
 
+  describe "EconomicResources.track" do
+    test "Returns a list of EconomicEvents affecting it that are inputs to Processes " do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      process = fake_process!(user)
+      input_events = some(3, fn -> fake_economic_event!(user, %{
+        input_of: process.id,
+        resource_inventoried_as: resource.id,
+        action: "use"
+      }) end)
+      output_events = some(5, fn -> fake_economic_event!(user, %{
+        output_of: process.id,
+        resource_inventoried_as: resource.id,
+        action: "produce"
+      }) end)
+      q = economic_resource_query(fields: [track: [:id]])
+      conn = user_conn(user)
+
+      assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+      assert Enum.count(resource["track"]) == 3
+    end
+  end
 
 
 end

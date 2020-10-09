@@ -15,6 +15,8 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.Queries
+  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
+  alias ValueFlows.Observation.Process.Processes
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.Action.Actions
 
@@ -87,6 +89,14 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
       data_filters,
       count_filters
     )
+  end
+
+  def track(resource) do
+   EconomicEvents.many([:default, track_resource: resource.id])
+  end
+
+  def trace(resource) do
+    EconomicEvents.many([:default, trace_resource: resource.id])
   end
 
   def preload_all(resource) do

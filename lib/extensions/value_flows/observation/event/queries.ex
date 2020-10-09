@@ -229,6 +229,34 @@ defmodule ValueFlows.Observation.EconomicEvent.Queries do
     filter(q, {:tag_ids, [id]})
   end
 
+  def filter(q, {:resource_inventoried_as_id, ids}) when is_list(ids) do
+    where(q, [event: c], c.resource_inventoried_as_id in ^ids)
+  end
+
+  def filter(q, {:resource_inventoried_as_id, id}) when is_binary(id) do
+    where(q, [event: c], c.resource_inventoried_as_id == ^id)
+  end
+
+
+  def filter(q, {:to_resource_inventoried_as_id, ids}) when is_list(ids) do
+    where(q, [event: c], c.to_resource_inventoried_as_id in ^ids)
+  end
+
+  def filter(q, {:to_resource_inventoried_as_id, id}) when is_binary(id) do
+    where(q, [event: c], c.to_resource_inventoried_as_id == ^id)
+  end
+
+  def filter(q, {:track_resource, id}) when is_binary(id) do
+    q
+    |> filter({:resource_inventoried_as_id, id})
+    |> where([event: c], not is_nil(c.input_of_id) or c.action_id in ["transfer","move"])
+  end
+
+  def filter(q, {:trace_resource, id}) when is_binary(id) do
+    where(q, [event: c], not is_nil(c.output_of_id) or \
+      (c.to_resource_inventoried_as_id == ^id and c.action_id in ["transfer","move"]))
+  end
+
   ## by ordering
 
   def filter(q, {:order, :id}) do

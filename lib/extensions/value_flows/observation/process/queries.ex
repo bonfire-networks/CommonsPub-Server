@@ -25,6 +25,7 @@ defmodule ValueFlows.Observation.Process.Queries do
     {data_q, count_q}
   end
 
+
   def join_to(q, spec, join_qualifier \\ :left)
 
   def join_to(q, specs, jq) when is_list(specs) do

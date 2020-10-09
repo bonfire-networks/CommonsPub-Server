@@ -67,6 +67,16 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     end
   end
 
+  describe "Process.track" do
+    test "Returns a list of economic events that are outputs" do
+
+    end
+  end
+
+  describe "Process.trace" do
+
+  end
+
   describe "createProcess" do
     test "create a new process" do
       user = fake_user!()

@@ -134,6 +134,12 @@ defmodule ValueFlows.Hydration do
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
+        trace: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.trace/3
+        ],
+        track: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.track/3
+        ],
       },
       process: %{
         in_scope_of: [

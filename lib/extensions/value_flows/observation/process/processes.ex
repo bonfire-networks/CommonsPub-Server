@@ -83,6 +83,22 @@ defmodule ValueFlows.Observation.Process.Processes do
     )
   end
 
+  def track(process) do
+    []
+  end
+
+  def trace(process) do
+    []
+  end
+
+  def inputs(process) do
+    []
+  end
+
+  def outputs(process) do
+    []
+  end
+
   ## mutations
 
   def create(%User{} = creator, %{id: _id} = context, attrs)

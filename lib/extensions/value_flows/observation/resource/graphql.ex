@@ -308,6 +308,14 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
 
+  def track(resource, _, _) do
+    EconomicResources.track(resource)
+  end
+
+  def trace(resource, _, _) do
+    EconomicResources.trace(resource)
+  end
+
 
   def create_resource(%{new_inventoried_resource: resource_attrs}, info) do
     with {:ok, resource} <- create_resource(%{economic_resource: resource_attrs}, info) do
