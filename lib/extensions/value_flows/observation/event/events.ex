@@ -347,12 +347,19 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_receiver(changeset, _attrs), do: changeset
 
+  defp update_resource_primary_accountable(event, resource) do
+    if event.action_id in ["transfer", "transfer-all-rights"] do
+      EconomicResources.update(resource, %{primary_accountable: event.receiver_id})
+    else
+      {:ok, resource}
+    end
+  end
 
   defp apply_resource_primary_accountable(%EconomicEvent{to_resource_inventoried_as_id: to_resource_id, receiver_id: receiver_id} = event)
       when not is_nil(to_resource_id) and not is_nil(receiver_id) do
     with {:ok, to_resource} <- EconomicResources.one([:default, id: to_resource_id]),
-         # :ok <- validate_provider_access(event),
-         {:ok, to_resource} <- EconomicResources.update(to_resource, %{primary_accountable: receiver_id}) do
+         :ok <- validate_provider_access(event),
+         {:ok, to_resource} <- update_resource_primary_accountable(event, to_resource) do
         {:ok, %{event | to_resource_inventoried_as: to_resource}}
     end
   end
@@ -364,7 +371,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp validate_provider_access(%EconomicEvent{resource_inventoried_as_id: resource_id} = event)
       when not is_nil(resource_id) do
     with {:ok, resource} <- EconomicResources.one([:default, id: resource_id]) do
-      if event.provider_id == resource.primary_accountable_id do
+      if is_nil(resource.primary_accountable_id) or \
+        event.provider_id == resource.primary_accountable_id do
         :ok
       else
         {:error, CommonsPub.Access.NotPermittedError.new()}
@@ -372,7 +380,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     end
   end
 
-  defp validate_provider_access(event) do
+  defp validate_provider_access(_event) do
     :ok
   end
 
