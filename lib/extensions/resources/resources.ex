@@ -35,7 +35,7 @@ defmodule CommonsPub.Resources do
   def create(%User{} = creator, %{} = collection_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       collection_or_context =
-        CommonsPub.Utils.Web.CommonHelper.maybe_preload(collection_or_context, :character)
+        CommonHelper.maybe_preload(collection_or_context, :character)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
@@ -193,6 +193,7 @@ defmodule CommonsPub.Resources do
   defp ap_publish(_, _), do: :ok
 
   def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
+    resource = CommonHelper.maybe_preload(resource, :creator)
     resource = CommonHelper.maybe_preload(resource, :context)
     context = CommonHelper.maybe_preload(Map.get(resource, :context), :character)
 
@@ -232,7 +233,8 @@ defmodule CommonsPub.Resources do
       "public_access" => Map.get(resource, :public_access),
       "free_access" => Map.get(resource, :free_access),
       "accessibility_feature" => Map.get(resource, :accessibility_feature),
-      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context)
+      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context),
+      "creator" => CommonsPub.Search.Indexer.format_creator(resource)
     }
   end
 end

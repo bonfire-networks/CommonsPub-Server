@@ -459,4 +459,33 @@ defmodule CommonsPub.Users do
     CommonsPub.Config.get!(__MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
+
+    def indexing_object_format(%CommonsPub.Users.User{} = user) do
+    follower_count =
+      case CommonsPub.Follows.FollowerCounts.one(context: user.id) do
+        {:ok, struct} -> struct.count
+        {:error, _} -> nil
+      end
+
+    icon = CommonsPub.Uploads.remote_url_from_id(user.icon_id)
+    image = CommonsPub.Uploads.remote_url_from_id(user.image_id)
+    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(user)
+
+    %{
+      "index_type" => "User",
+      "id" => user.id,
+      "canonical_url" => url,
+      "followers" => %{
+        "total_count" => follower_count
+      },
+      "icon" => icon,
+      "image" => image,
+      "name" => user.name,
+      "published_at" => user.published_at,
+      "username" => CommonsPub.Characters.display_username(user),
+      "summary" => Map.get(user, :summary),
+      "index_instance" => CommonsPub.Search.Indexer.host(url)
+    }
+  end
+
 end

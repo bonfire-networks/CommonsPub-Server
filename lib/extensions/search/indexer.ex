@@ -19,38 +19,38 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def maybe_indexable_object(%{} = object) do
-    indexable_object = indexing_object_format(object)
+    object_type = Map.get(object, :__struct__)
 
-    if !is_nil(indexable_object) do
-      indexable_object
-    else
-      thing_name = Map.get(object, :__struct__)
+    if(
+      !is_nil(object_type) and
+        Code.ensure_loaded?(object_type) and
+        Kernel.function_exported?(object_type, :context_module, 0)
+    ) do
+      object_context_module = apply(object_type, :context_module, [])
 
       if(
-        !is_nil(thing_name) and
-          Kernel.function_exported?(thing_name, :context_module, 0)
+        Code.ensure_loaded?(object_context_module) and
+          Kernel.function_exported?(object_context_module, :indexing_object_format, 1)
       ) do
-        thing_context_module = apply(thing_name, :context_module, [])
-
-        if(Kernel.function_exported?(thing_context_module, :indexing_object_format, 1)) do
-          # IO.inspect(function_exists_in: thing_context_module)
-          indexable_object = apply(thing_context_module, :indexing_object_format, [object])
-          indexable_object
-        else
-          Logger.warn(
-            "Could not index #{thing_name} object (no context module with indexing_object_format/1)"
-          )
-
-          nil
-        end
+        # IO.inspect(function_exists_in: object_context_module)
+        indexable_object = apply(object_context_module, :indexing_object_format, [object])
+        indexable_object
       else
-        Logger.warn("Could not index #{thing_name} object (no known context module)")
+        Logger.warn(
+          "Could not index #{object_type} object (no context module with indexing_object_format/1)"
+        )
+
         nil
       end
+    else
+      Logger.warn("Could not index #{object_type} object (not a known type or context_module undefined)")
+      nil
     end
   end
 
-  def maybe_indexable_object(_) do
+  def maybe_indexable_object(obj) do
+    Logger.warn("Could not index object (not a struct)")
+    IO.inspect(obj)
     nil
   end
 
@@ -142,100 +142,6 @@ defmodule CommonsPub.Search.Indexer do
     ""
   end
 
-  def indexing_object_format(%CommonsPub.Users.User{} = user) do
-    follower_count =
-      case CommonsPub.Follows.FollowerCounts.one(context: user.id) do
-        {:ok, struct} -> struct.count
-        {:error, _} -> nil
-      end
-
-    icon = CommonsPub.Uploads.remote_url_from_id(user.icon_id)
-    image = CommonsPub.Uploads.remote_url_from_id(user.image_id)
-    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(user)
-
-    %{
-      "id" => user.id,
-      "canonical_url" => url,
-      "followers" => %{
-        "total_count" => follower_count
-      },
-      "icon" => icon,
-      "image" => image,
-      "name" => user.name,
-      "username" => CommonsPub.Characters.display_username(user),
-      "summary" => Map.get(user, :summary),
-      "index_type" => "User",
-      "index_instance" => host(url),
-      "published_at" => user.published_at
-    }
-  end
-
-  def indexing_object_format(%CommonsPub.Communities.Community{} = community) do
-    community = CommonHelper.maybe_preload(community, :context)
-    context = CommonHelper.maybe_preload(community.context, :character)
-
-    follower_count =
-      case CommonsPub.Follows.FollowerCounts.one(context: community.id) do
-        {:ok, struct} -> struct.count
-        {:error, _} -> nil
-      end
-
-    icon = CommonsPub.Uploads.remote_url_from_id(community.icon_id)
-    image = CommonsPub.Uploads.remote_url_from_id(community.image_id)
-    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(community)
-
-    %{
-      "id" => community.id,
-      "canonical_url" => url,
-      "followers" => %{
-        "total_count" => follower_count
-      },
-      "icon" => icon,
-      "image" => image,
-      "name" => community.name,
-      "username" => CommonsPub.Characters.display_username(community),
-      "summary" => Map.get(community, :summary),
-      "index_type" => "Community",
-      "index_instance" => host(url),
-      "published_at" => community.published_at,
-      "context" => maybe_indexable_object(context)
-    }
-  end
-
-  def indexing_object_format(%CommonsPub.Collections.Collection{} = collection) do
-    collection = CommonHelper.maybe_preload(collection, :context)
-    context = CommonHelper.maybe_preload(collection.context, :character)
-
-    follower_count =
-      case CommonsPub.Follows.FollowerCounts.one(context: collection.id) do
-        {:ok, struct} -> struct.count
-        {:error, _} -> nil
-      end
-
-    icon = CommonsPub.Uploads.remote_url_from_id(collection.icon_id)
-    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(collection)
-
-    %{
-      "id" => collection.id,
-      "canonical_url" => url,
-      "followers" => %{
-        "total_count" => follower_count
-      },
-      "icon" => icon,
-      "name" => collection.name,
-      "username" => CommonsPub.Characters.display_username(collection),
-      "summary" => Map.get(collection, :summary),
-      "index_type" => "Collection",
-      "index_instance" => host(url),
-      "published_at" => collection.published_at,
-      "context" => maybe_indexable_object(context)
-    }
-  end
-
-  def indexing_object_format(_) do
-    nil
-  end
-
   def format_creator(%{creator: %{id: id}} = obj) when not is_nil(id) do
     creator = CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :creator).creator
 
@@ -248,6 +154,6 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def format_creator(_) do
-    %{}
+    nil
   end
 end

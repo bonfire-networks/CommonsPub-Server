@@ -24,6 +24,8 @@ defmodule CommonsPub.Communities do
   alias CommonsPub.Users.User
   alias CommonsPub.Workers.APPublishWorker
 
+  alias CommonsPub.Utils.Web.CommonHelper
+
   ### Cursor generators
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
@@ -49,8 +51,7 @@ defmodule CommonsPub.Communities do
   def create(%User{} = creator, %{id: _} = community_or_context, %{} = attrs) do
     Repo.transact_with(fn ->
       # TODO: address activity to context's outbox/followers
-      community_or_context =
-        CommonsPub.Utils.Web.CommonHelper.maybe_preload(community_or_context, :character)
+      community_or_context = CommonHelper.maybe_preload(community_or_context, :character)
 
       # with {:ok, comm_attrs} <- create_boxes(character, attrs),
       with {:ok, comm} <- insert_community(creator, community_or_context, attrs),
@@ -69,7 +70,6 @@ defmodule CommonsPub.Communities do
   def create(%User{} = creator, _, %{} = attrs) do
     create(creator, attrs)
   end
-
 
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do
@@ -231,4 +231,37 @@ defmodule CommonsPub.Communities do
   end
 
   defp ap_publish(_, _), do: :ok
+
+  def indexing_object_format(%CommonsPub.Communities.Community{} = community) do
+    community = CommonHelper.maybe_preload(community, [:context, :creator])
+    context = CommonHelper.maybe_preload(community.context, :character)
+
+    follower_count =
+      case CommonsPub.Follows.FollowerCounts.one(context: community.id) do
+        {:ok, struct} -> struct.count
+        {:error, _} -> nil
+      end
+
+    icon = CommonsPub.Uploads.remote_url_from_id(community.icon_id)
+    image = CommonsPub.Uploads.remote_url_from_id(community.image_id)
+    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(community)
+
+    %{
+      "id" => community.id,
+      "canonical_url" => url,
+      "followers" => %{
+        "total_count" => follower_count
+      },
+      "icon" => icon,
+      "image" => image,
+      "name" => community.name,
+      "username" => CommonsPub.Characters.display_username(community),
+      "summary" => Map.get(community, :summary),
+      "index_type" => "Community",
+      "index_instance" => CommonsPub.Search.Indexer.host(url),
+      "published_at" => community.published_at,
+      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context),
+      "creator" => CommonsPub.Search.Indexer.format_creator(community)
+    }
+  end
 end
