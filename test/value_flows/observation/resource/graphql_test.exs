@@ -80,7 +80,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
 
 
   describe "EconomicResources.track" do
-    test "Returns a list of EconomicEvents affecting it that are inputs to Processes " do
+    test "Returns a list of EconomicEvents that are inputs to Processes " do
       user = fake_user!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
@@ -100,7 +100,71 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
       assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
       assert Enum.count(resource["track"]) == 3
     end
+
+    test "Returns a list of transfer/move EconomicEvents with the resource defined as the resourceInventoriedAs" do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      input_events = some(3, fn -> fake_economic_event!(user, %{
+        resource_inventoried_as: resource.id,
+        action: "transfer"
+      }) end)
+      _other_events = some(5, fn -> fake_economic_event!(user, %{
+        resource_inventoried_as: resource.id,
+        action: "use"
+      }) end)
+      q = economic_resource_query(fields: [track: [:id]])
+      conn = user_conn(user)
+
+      assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+      assert Enum.count(resource["track"]) == 3
+    end
   end
+
+  describe "EconomicResources.trace" do
+    test "Returns a list of EconomicEvents affecting it that are outputs to Processes " do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      process = fake_process!(user)
+      input_events = some(3, fn -> fake_economic_event!(user, %{
+        input_of: process.id,
+        resource_inventoried_as: resource.id,
+        action: "use"
+      }) end)
+      output_events = some(5, fn -> fake_economic_event!(user, %{
+        output_of: process.id,
+        resource_inventoried_as: resource.id,
+        action: "produce"
+      }) end)
+      q = economic_resource_query(fields: [trace: [:id]])
+      conn = user_conn(user)
+
+      assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+      assert Enum.count(resource["trace"]) == 5
+    end
+
+    test "Returns a list of transfer/move EconomicEvents with the resource defined as the toResourceInventoriedAs" do
+      user = fake_user!()
+      alice = fake_user!()
+      resource = fake_economic_resource!(user)
+      input_events = some(3, fn -> fake_economic_event!(user, %{
+        provider: user.id,
+        receiver: alice.id,
+        to_resource_inventoried_as: resource.id,
+        action: "transfer"
+      }) end)
+      _other_events = some(5, fn -> fake_economic_event!(user, %{
+        provider: user.id,
+        receiver: alice.id,
+        to_resource_inventoried_as: resource.id,
+        action: "use"
+      }) end)
+      q = economic_resource_query(fields: [trace: [:id]])
+      conn = user_conn(user)
+
+      assert resource = grumble_post_key(q, conn, :economic_resource, %{id: resource.id})
+      assert Enum.count(resource["trace"]) == 3
+    end
+   end
 
 
 end
