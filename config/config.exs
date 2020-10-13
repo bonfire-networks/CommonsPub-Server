@@ -193,7 +193,7 @@ config :commons_pub, Uploads,
 # config :commons_pub, CommonsPub.Mail.MailService,
 #   adapter: Bamboo.MailgunAdapter
 
-config :commons_pub, :mrf_simple,
+config :activity_pub, :mrf_simple,
   media_removal: [],
   media_nsfw: [],
   report_removal: [],
@@ -239,7 +239,8 @@ version =
     _ -> "CommonsPub #{Mix.Project.config()[:version]} dev"
   end
 
-config :commons_pub, :instance,
+config :activity_pub, :instance,
+  hostname: "localhost",
   version: version,
   name: "CommonsPub",
   email: "root@localhost",
@@ -385,7 +386,7 @@ config :argon2_elixir,
   argon2_type: 2
 
 # Configures http settings, upstream proxy etc.
-config :commons_pub, :http,
+config :activity_pub, :http,
   proxy_url: nil,
   send_user_agent: true,
   adapter: [
@@ -406,7 +407,7 @@ config :tesla, adapter: Tesla.Adapter.Gun
 
 config :http_signatures, adapter: ActivityPub.Signature
 
-config :commons_pub, ActivityPub.Adapter, adapter: CommonsPub.ActivityPub.Adapter
+config :activity_pub, adapter: CommonsPub.ActivityPub.Adapter
 
 config :floki, :html_parser, Floki.HTMLParser.Html5ever
 
@@ -435,6 +436,11 @@ config :commons_pub, :ux,
   # prosemirror or ck5 as content editor:
   # editor: "prosemirror"
   editor: "ck5"
+
+config :activity_pub, :repo, CommonsPub.Repo
+
+# FIXME: dirty hack to fix url generation
+config :activity_pub, :base_url, "localhost"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -327,7 +327,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
 
   # Currently broken (it's hard)
   def delete_user(actor) do
-    with actor <- ActivityPub.Actor.format_local_actor(actor) do
+    with actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(actor) do
       ActivityPub.Actor.set_cache(actor)
       ActivityPub.delete(actor)
     end
@@ -335,7 +335,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
 
   def delete_comm_or_coll(actor) do
     with {:ok, creator} <- ActivityPub.Actor.get_by_local_id(actor.creator_id),
-         actor <- ActivityPub.Actor.format_local_actor(actor) do
+         actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(actor) do
       ActivityPub.Actor.invalidate_cache(actor)
       ActivityPub.delete(actor, true, creator.ap_id)
     end

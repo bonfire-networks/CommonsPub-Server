@@ -93,13 +93,13 @@ defmodule CommonsPub.ActivityPub.Utils do
       nil ->
         # Might be a local actor
         with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id) do
-          actor.mn_pointer_id
+          actor.pointer_id
         else
           _ -> nil
         end
 
       %ActivityPub.Object{} = object ->
-        object.mn_pointer_id
+        object.pointer_id
     end
   end
 

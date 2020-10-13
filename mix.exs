@@ -55,7 +55,6 @@ defmodule CommonsPub.Mixfile do
         :hackney,
         :mime,
         :belt,
-        :cachex,
         :bamboo,
         :bamboo_smtp
       ]
@@ -85,6 +84,8 @@ defmodule CommonsPub.Mixfile do
       },
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_error_payload, "~> 1.0"},
+      # activitypub
+      {:activity_pub, git: "https://gitlab.com/CommonsPub/activitypub", branch: "develop"},
       # webserver
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.2"},
@@ -159,13 +160,8 @@ defmodule CommonsPub.Mixfile do
       # html parser
       # {:fast_html, "~> 1.0"},
       {:html5ever, "~> 0.8"},
-      # activitypub signing
-      {
-        :http_signatures,
-        git: "https://git.pleroma.social/pleroma/elixir-libraries/http_signatures"
-      },
       # job queue
-      {:oban, "~> 1.2.0"},
+      {:oban, "~> 1.2.0", override: true},
       # timedate headers
       {:timex, "~> 3.5"},
       # caching
@@ -190,7 +186,7 @@ defmodule CommonsPub.Mixfile do
       {
         :pointers,
         # "~> 0.4"
-        git: "https://github.com/commonspub/pointers.git", branch: "main"
+        git: "https://github.com/commonspub/pointers.git", branch: "main", override: true
         # path: "uploads/pointers-main"
         # git: "https://github.com/mayel/pointers.git",
       },
