@@ -1841,6 +1841,11 @@ type Intent {
   """
   atLocation: SpatialThing
   publishedIn: [ProposedIntent!]
+
+  """
+  Added for CommonsPub
+  """
+  canonicalUrl: URI
 }
 
 input IntentCreateParams {
@@ -2834,6 +2839,11 @@ type Proposal {
   Location or area where the proposal is valid.
   """
   eligibleLocation: SpatialThing
+
+  """
+  Added for CommonsPub
+  """
+  canonicalUrl: URI
 }
 
 input ProposalCreateParams {
@@ -3988,11 +3998,7 @@ type ValueFlowsQuery {
   ): EconomicEventPage!
 
   "Get paginated list of processes"
-  processesPages(
-    limit: Int
-    before: [Cursor!]
-    after: [Cursor!]
-  ): ProcessPage!
+  processesPages(limit: Int, before: [Cursor!], after: [Cursor!]): ProcessPage!
 
   "Get paginated list of economic resources"
   economicResourcesPages(

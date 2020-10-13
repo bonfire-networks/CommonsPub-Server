@@ -108,6 +108,16 @@ defmodule ValueFlows.Proposal.Proposals do
     )
   end
 
+  def preloads(proposal) do
+      CommonsPub.Utils.Web.CommonHelper.maybe_preload(proposal, [
+        :context,
+        :eligible_location,
+        :creator,
+        # :proposed_to,
+        # :publishes
+      ])
+  end
+
   ## mutations
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
@@ -196,12 +206,10 @@ defmodule ValueFlows.Proposal.Proposals do
     do_update(proposal, attrs, &Proposal.update_changeset(&1, context, attrs))
   end
 
+
   def do_update(proposal, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      proposal =
-        Repo.preload(proposal, [
-          :eligible_location
-        ])
+      proposal = preloads(proposal)
 
       cs =
         proposal
@@ -267,6 +275,22 @@ defmodule ValueFlows.Proposal.Proposals do
     CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
+  end
+
+  def ap_object_format(obj) do
+    obj = preloads(obj)
+    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
+    # image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
+
+    Map.merge(
+      %{
+        "type" => "ValueFlows:Proposal",
+        # "canonicalUrl" => obj.canonical_url,
+        # "icon" => icon,
+        "published" => obj.has_beginning
+      },
+      CommonsPub.Common.keys_transform(obj, "to_string")
+    )
   end
 
   defp change_eligible_location(changeset, %{eligible_location: id}) do

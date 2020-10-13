@@ -153,9 +153,11 @@ defmodule CommonsPub.Utils.Simulation do
   # Widely useful schemas:
 
   def character(base \\ %{}) do
+    uname = preferred_username()
+
     base
-    |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
-    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:preferred_username, fn -> uname end)
+    |> Map.put_new_lazy(:canonical_url, fn -> CommonsPub.ActivityPub.Utils.generate_actor_url(uname) end)
     |> Map.put_new_lazy(:signing_key, &signing_key/0)
   end
 

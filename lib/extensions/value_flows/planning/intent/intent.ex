@@ -21,7 +21,6 @@ defmodule ValueFlows.Planning.Intent do
     field(:note, :string)
     belongs_to(:image, Content)
 
-    # TODO - use pointer like context?
     belongs_to(:provider, Pointers.Pointer)
     belongs_to(:receiver, Pointers.Pointer)
 
@@ -37,20 +36,21 @@ defmodule ValueFlows.Planning.Intent do
     # array of URI
     field(:resource_classified_as, {:array, :string})
 
-    # belongs_to(:resource_conforms_to, ResourceSpecification)
-    # belongs_to(:resource_inventoried_as, EconomicResource)
+    belongs_to(:resource_conforms_to, ResourceSpecification)
+    belongs_to(:resource_inventoried_as, EconomicResource)
 
     belongs_to(:at_location, Geolocation)
 
     belongs_to(:action, Action, type: :string)
 
-    # belongs_to(:input_of, Process)
-    # belongs_to(:output_of, Process)
+    many_to_many(:published_in, Proposal, join_through: ProposedIntent)
+
+    belongs_to(:input_of, Process)
+    belongs_to(:output_of, Process)
 
     # belongs_to(:agreed_in, Agreement)
 
     # inverse relationships
-    # has_many(:published_in, ProposedIntent)
     # has_many(:satisfied_by, Satisfaction)
 
     belongs_to(:creator, User)

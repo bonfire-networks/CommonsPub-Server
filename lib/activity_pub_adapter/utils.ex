@@ -125,12 +125,22 @@ defmodule CommonsPub.ActivityPub.Utils do
 
   def get_author(author) when is_binary(author), do: author
 
+  defp ap_base_url() do
+    CommonsPub.Web.base_url() <> System.get_env("AP_BASE_PATH", "/pub")
+  end
+
   @doc "Generate canonical URL for local object"
   def generate_object_ap_id(object) do
-    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-
-    "#{CommonsPub.Web.base_url()}#{ap_base_path}/objects/#{object.id}"
+    "#{ap_base_url()}/objects/#{object.id}"
   end
+
+  def generate_actor_url(%{preferred_username: u}) when is_binary(u),
+    do: generate_actor_url(u)
+
+  def generate_actor_url(u) when is_binary(u) and u !="",
+    do: ap_base_url() <> "/actors/" <> u
+
+  def generate_actor_url(actor), do: generate_object_ap_id(actor)
 
   @doc "Get canonical URL if set, or generate one"
 
@@ -138,29 +148,32 @@ defmodule CommonsPub.ActivityPub.Utils do
   #   get_actor_canonical_url(actor)
   # end
 
-  def get_actor_canonical_url(%{canonical_url: canonical_url}) do
+  def get_actor_canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def get_actor_canonical_url(%{character: %{canonical_url: canonical_url}}) do
+  def get_actor_canonical_url(%{character: %{canonical_url: canonical_url}})
+      when not is_nil(canonical_url) do
     canonical_url
   end
 
-  def get_actor_canonical_url(%{character: _} = obj) do
+  def get_actor_canonical_url(%{character_id: character_id} = obj)
+      when not is_nil(character_id) do
     get_actor_canonical_url(
       Map.get(CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character), :character)
     )
   end
 
   def get_actor_canonical_url(actor) do
-    ActivityPub.Utils.actor_url(actor)
+    generate_actor_url(actor)
   end
 
-  def get_object_canonical_url(%{canonical_url: canonical_url}) do
+  def get_object_canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
     canonical_url
   end
 
   def get_object_canonical_url(object) do
-    ActivityPub.Utils.object_url(object)
+    generate_object_ap_id(object)
   end
+
 end
