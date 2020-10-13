@@ -569,6 +569,44 @@ defmodule ValueFlows.Test.Faking do
     gen_subquery(:id, :process, &process_fields/1, options)
   end
 
+  def process_inputs_query(options \\ []) do
+    query(
+        name: "test",
+        params: [id: type!(:id), action_id: type(:id)],
+        fields: [
+          field(
+            :process,
+            [
+              args: [id: var(:id)],
+              fields: process_fields() ++ [field(
+                :inputs,
+                [{:args, [action: var(:action_id)]} | options]
+              )]
+            ]
+          )
+        ]
+      )
+  end
+
+  def process_outputs_query(options \\ []) do
+    query(
+        name: "test",
+        params: [id: type!(:id), action_id: type(:id)],
+        fields: [
+          field(
+            :process,
+            [
+              args: [id: var(:id)],
+              fields: process_fields() ++ [field(
+                :outputs,
+                [{:args, [action: var(:action_id)]} | options]
+              )]
+            ]
+          )
+        ]
+      )
+  end
+
   def processes_subquery(options \\ []) do
     fields = Keyword.get(options, :fields, [])
     fields = fields ++ process_fields(fields)

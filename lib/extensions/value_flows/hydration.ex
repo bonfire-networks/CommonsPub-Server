@@ -151,6 +151,18 @@ defmodule ValueFlows.Hydration do
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
+        track:  [
+          resolve: &ValueFlows.Observation.Process.GraphQL.track/3
+        ],
+        trace:  [
+          resolve: &ValueFlows.Observation.Process.GraphQL.trace/3
+        ],
+        inputs:  [
+          resolve: &ValueFlows.Observation.Process.GraphQL.inputs/3
+        ],
+        outputs:  [
+          resolve: &ValueFlows.Observation.Process.GraphQL.outputs/3
+        ],
       },
 
       # start Query resolvers

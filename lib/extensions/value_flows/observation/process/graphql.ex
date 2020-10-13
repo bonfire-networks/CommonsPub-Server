@@ -128,6 +128,30 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     processes_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
+
+  def track(process, _, _) do
+    Processes.track(process)
+  end
+
+  def trace(process, _, _) do
+    Processes.trace(process)
+  end
+
+  def inputs(process, %{action: action_id}, _) when is_binary(action_id) do
+    Processes.inputs(process, action_id)
+  end
+
+  def inputs(process, _, _) do
+    Processes.inputs(process)
+  end
+
+  def outputs(process, %{action: action_id}, _) when is_binary(action_id) do
+    Processes.outputs(process, action_id)
+  end
+
+  def outputs(process, _, _) do
+    Processes.outputs(process)
+  end
   ## fetchers
 
   def fetch_process(info, id) do
