@@ -33,6 +33,70 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
   end
 
+  describe "track" do
+    test "Return the process to which it is an input" do
+      user = fake_user!()
+      process = fake_process!(user)
+      event = fake_economic_event!(user, %{
+        input_of: process.id,
+        action: "consume"
+      })
+      assert {:ok, [tracked_process]} = EconomicEvents.track(event)
+      assert process.id == tracked_process.id
+    end
+
+    test "return an economic Resource which it affected as the output of a process" do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      another_resource = fake_economic_resource!(user)
+      process = fake_process!(user)
+      event = fake_economic_event!(user, %{
+        output_of: process.id,
+        action: "produce"
+      })
+      event_a = fake_economic_event!(user, %{
+        output_of: process.id,
+        action: "produce",
+        resource_inventoried_as: resource.id
+      })
+      event_b = fake_economic_event!(user, %{
+        output_of: process.id,
+        action: "produce",
+        resource_inventoried_as: another_resource.id
+      })
+      assert {:ok, resources} = EconomicEvents.track(event)
+      assert Enum.map(resources, &(&1.id)) == [resource.id, another_resource.id]
+    end
+
+    test "if it is a transfer or move event, the EconomicResource labelled toResourceInventoriedAs" do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      event = fake_economic_event!(user, %{
+        action: "transfer",
+        to_resource_inventoried_as: resource.id,
+        provider: user.id,
+        receiver: user.id
+      })
+      assert {:ok, [tracked_resource]} = EconomicEvents.track(event)
+      assert resource.id == tracked_resource.id
+    end
+  end
+
+  describe "trace" do
+    test "Return the process to which it is an output" do
+
+    end
+
+    test "return an economic Resource which it affected as the input of a process" do
+
+    end
+
+    test "if it is a transfer or move event and the current EconomicResource is the toResourceInventoriedAs,
+          then the previous EconomicResource is the resourceInventoriedAs" do
+
+    end
+  end
+
   describe "create" do
     test "can create an economic event" do
       user = fake_user!()

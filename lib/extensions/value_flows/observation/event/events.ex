@@ -111,6 +111,19 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     event |> Map.put(:action, ValueFlows.Knowledge.Action.Actions.action!(event.action_id))
   end
 
+  def track(event) do
+    with {:ok, events} <- many([:default, output_of_id: event.output_of_id]),
+         resource_ids = Enum.map(events, &(&1.resource_inventoried_as_id)) ++ [event.to_resource_inventoried_as_id],
+         {:ok, resources} <- EconomicResources.many([:default, id: resource_ids]) do
+        #  {:ok, processes} <- Processes.many([:default, id: event.input_of_id]) do
+      {:ok, resources}
+    end
+  end
+
+  def trace(event) do
+    []
+  end
+
   ## mutations
 
   def create(
