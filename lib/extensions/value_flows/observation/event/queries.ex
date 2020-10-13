@@ -257,6 +257,14 @@ defmodule ValueFlows.Observation.EconomicEvent.Queries do
       (c.to_resource_inventoried_as_id == ^id and c.action_id in ["transfer","move"]))
   end
 
+  def filter(q, {:output_of_id, id}) when is_binary(id) do
+    where(q, [event: c], c.output_of_id == ^id)
+  end
+
+  def filter(q, {:input_of_id, id}) when is_binary(id) do
+    where(q, [event: c], c.input_of_id == ^id)
+  end
+
   ## by ordering
 
   def filter(q, {:order, :id}) do

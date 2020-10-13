@@ -11,6 +11,7 @@ defmodule ValueFlows.Observation.Process.Processes do
   # alias Measurement.Measure
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Queries
+  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -83,20 +84,24 @@ defmodule ValueFlows.Observation.Process.Processes do
     )
   end
 
-  def track(process) do
-    []
-  end
+  def track(process), do: outputs(process)
 
-  def trace(process) do
-    []
-  end
+  def trace(process), do: inputs(process)
 
   def inputs(process) do
-    []
+    EconomicEvents.many([:default, input_of_id: process.id])
+  end
+
+  def inputs(process, action_id) do
+    EconomicEvents.many([:default, input_of_id: process.id, action_id: action_id])
   end
 
   def outputs(process) do
-    []
+    EconomicEvents.many([:default, output_of_id: process.id])
+  end
+
+  def outputs(process, action_id) do
+    EconomicEvents.many([:default, output_of_id: process.id, action_id: action_id])
   end
 
   ## mutations
