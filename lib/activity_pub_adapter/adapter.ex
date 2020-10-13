@@ -38,7 +38,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   def get_raw_actor_by_ap_id(ap_id) do
     # FIXME: this should not query the AP db
     with {:ok, actor} <- ActivityPub.Actor.get_or_fetch_by_ap_id(ap_id),
-         {:ok, actor} <- get_actor_by_username(actor.username) do
+         {:ok, actor} <- get_raw_actor_by_username(actor.username) do
       {:ok, actor}
     else
       {:error, e} -> {:error, e}
@@ -79,6 +79,9 @@ defmodule CommonsPub.ActivityPub.Adapter do
       {:error, _} -> nil
     end
   end
+
+  def check_local(%{character: %{peer_id: nil}}), do: true
+  def check_local(_), do: false
 
   def format_local_actor(actor) do
     type =
@@ -154,7 +157,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
       id: actor.id,
       data: data,
       keys: actor.character.signing_key,
-      local: true,
+      local: check_local(actor),
       ap_id: id,
       pointer_id: actor.id,
       username: actor.character.preferred_username,
@@ -251,13 +254,13 @@ defmodule CommonsPub.ActivityPub.Adapter do
           {:ok, created_actor, created_actor}
 
         "MN:Community" ->
-          {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
+          {:ok, creator} = get_raw_actor_by_ap_id(actor["attributedTo"])
           {:ok, created_actor} = CommonsPub.Communities.create_remote(creator, create_attrs)
           {:ok, created_actor, creator}
 
         "MN:Collection" ->
-          {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
-          {:ok, community} = get_actor_by_ap_id(actor["context"])
+          {:ok, creator} = get_raw_actor_by_ap_id(actor["attributedTo"])
+          {:ok, community} = get_raw_actor_by_ap_id(actor["context"])
 
           {:ok, created_actor} =
             CommonsPub.Collections.create_remote(creator, community, create_attrs)
@@ -394,7 +397,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
     with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
          {:ok, parent_comment} <- Comments.one(id: parent_id),
          {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
-         {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
+         {:ok, actor} <- get_raw_actor_by_ap_id(object.data["actor"]),
          {:ok, comment} <-
            Comments.create_reply(actor, thread, parent_comment, %{
              is_public: object.public,
@@ -416,7 +419,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
     with pointer_id <- CommonsPub.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
          {:ok, pointer} <- Pointers.one(id: pointer_id),
          parent = CommonsPub.Meta.Pointers.follow!(pointer),
-         {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
+         {:ok, actor} <- get_raw_actor_by_ap_id(object.data["actor"]),
          {:ok, thread} <- Threads.create(actor, %{is_public: true, is_local: false}, parent),
          {:ok, comment} <-
            Comments.create(actor, thread, %{
@@ -436,8 +439,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
         %{data: %{"context" => context}} = _activity,
         %{data: %{"type" => "Document", "actor" => actor}} = object
       ) do
-    with {:ok, collection} <- get_actor_by_ap_id(context),
-         {:ok, actor} <- get_actor_by_ap_id(actor),
+    with {:ok, collection} <- get_raw_actor_by_ap_id(context),
+         {:ok, actor} <- get_raw_actor_by_ap_id(actor),
          {:ok, content} <-
            CommonsPub.Uploads.upload(
              CommonsPub.Uploads.ResourceUploader,
@@ -491,8 +494,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
   end
 
   def perform(:handle_activity, %{data: %{"type" => "Follow"}} = activity) do
-    with {:ok, follower} <- get_actor_by_ap_id(activity.data["actor"]),
-         {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]),
+    with {:ok, follower} <- get_raw_actor_by_ap_id(activity.data["actor"]),
+         {:ok, followed} <- get_raw_actor_by_ap_id(activity.data["object"]),
          {:ok, _} <-
            CommonsPub.Follows.create(follower, followed, %{
              is_public: true,
@@ -510,8 +513,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
         :handle_activity,
         %{data: %{"type" => "Undo", "object" => %{"type" => "Follow"}}} = activity
       ) do
-    with {:ok, follower} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
-         {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
+    with {:ok, follower} <- get_raw_actor_by_ap_id(activity.data["object"]["actor"]),
+         {:ok, followed} <- get_raw_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, follow} <-
            CommonsPub.Follows.one(deleted: false, creator: follower.id, context: followed.id),
          {:ok, _} <- CommonsPub.Follows.soft_delete(follower, follow) do
@@ -522,8 +525,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
   end
 
   def perform(:handle_activity, %{data: %{"type" => "Block"}} = activity) do
-    with {:ok, blocker} <- get_actor_by_ap_id(activity.data["actor"]),
-         {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]),
+    with {:ok, blocker} <- get_raw_actor_by_ap_id(activity.data["actor"]),
+         {:ok, blocked} <- get_raw_actor_by_ap_id(activity.data["object"]),
          {:ok, _} <-
            CommonsPub.Blocks.create(blocker, blocked, %{
              is_public: true,
@@ -542,8 +545,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
         :handle_activity,
         %{data: %{"type" => "Undo", "object" => %{"type" => "Block"}}} = activity
       ) do
-    with {:ok, blocker} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
-         {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]["object"]),
+    with {:ok, blocker} <- get_raw_actor_by_ap_id(activity.data["object"]["actor"]),
+         {:ok, blocked} <- get_raw_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, block} <- CommonsPub.Blocks.find(blocker, blocked),
          {:ok, _} <- CommonsPub.Blocks.soft_delete(blocker, block) do
       :ok
@@ -554,7 +557,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
   def perform(:handle_activity, %{data: %{"type" => "Like"}} = activity) do
     with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
-         {:ok, actor} <- get_actor_by_username(ap_actor.username),
+         {:ok, actor} <- get_raw_actor_by_username(ap_actor.username),
          %ActivityPub.Object{} = object <-
            ActivityPub.Object.get_cached_by_ap_id(activity.data["object"]),
          {:ok, liked} <- Pointers.one(id: object.pointer_id),
@@ -578,7 +581,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
     object = ActivityPub.Object.get_cached_by_ap_id(obj_id)
 
     if object.data["type"] in ["Person", "MN:Community", "MN:Collection", "Group"] do
-      with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
+      with {:ok, actor} <- get_raw_actor_by_ap_id(activity.data["object"]),
            {:ok, _} <-
              (case actor do
                 %User{} -> CommonsPub.Users.soft_delete_remote(actor)
@@ -622,7 +625,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
   def perform(:handle_activity, %{data: %{"type" => "Flag", "object" => objects}} = activity)
       when length(objects) > 1 do
-    with {:ok, actor} <- get_actor_by_ap_id(activity.data["actor"]) do
+    with {:ok, actor} <- get_raw_actor_by_ap_id(activity.data["actor"]) do
       activity.data["object"]
       |> Enum.map(fn ap_id -> ActivityPub.Object.get_cached_by_ap_id(ap_id) end)
       # Filter nils
@@ -643,8 +646,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
   end
 
   def perform(:handle_activity, %{data: %{"type" => "Flag", "object" => [account]}} = activity) do
-    with {:ok, actor} <- get_actor_by_ap_id(activity.data["actor"]),
-         {:ok, account} <- get_actor_by_ap_id(account) do
+    with {:ok, actor} <- get_raw_actor_by_ap_id(activity.data["actor"]),
+         {:ok, account} <- get_raw_actor_by_ap_id(account) do
       CommonsPub.Flags.create(actor, account, %{
         message: activity.data["content"],
         is_local: false
