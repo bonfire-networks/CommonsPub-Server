@@ -109,13 +109,13 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   def preloads(proposal) do
-      CommonsPub.Utils.Web.CommonHelper.maybe_preload(proposal, [
-        :context,
-        :eligible_location,
-        :creator,
-        # :proposed_to,
-        # :publishes
-      ])
+    CommonsPub.Utils.Web.CommonHelper.maybe_preload(proposal, [
+      :context,
+      :eligible_location,
+      :creator
+      # :proposed_to,
+      # :publishes
+    ])
   end
 
   ## mutations
@@ -206,7 +206,6 @@ defmodule ValueFlows.Proposal.Proposals do
     do_update(proposal, attrs, &Proposal.update_changeset(&1, context, attrs))
   end
 
-
   def do_update(proposal, attrs, changeset_fn) do
     Repo.transact_with(fn ->
       proposal = preloads(proposal)
@@ -277,7 +276,7 @@ defmodule ValueFlows.Proposal.Proposals do
     :ok
   end
 
-  def ap_object_format(obj) do
+  def ap_object_format_attempt1(obj) do
     obj = preloads(obj)
     # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
     # image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
@@ -291,6 +290,42 @@ defmodule ValueFlows.Proposal.Proposals do
       },
       CommonsPub.Common.keys_transform(obj, "to_string")
     )
+  end
+
+  def graphql_get_proposal(id) do
+    query =
+      Grumble.PP.to_string(
+        Grumble.field(
+          :proposal,
+          args: [id: Grumble.var(:id)],
+          fields: ValueFlows.Simulate.proposal_fields([eligible_location: [:name]])
+        )
+      )
+      |> IO.inspect()
+
+    with {:ok, g} <-
+           """
+            query ($id: ID) {
+               #{query}
+             }
+           """
+           |> Absinthe.run(CommonsPub.Web.GraphQL.Schema, variables: %{"id" => id}) do
+      g |> Map.get(:data) |> Map.get("proposal")
+    end
+  end
+
+  def ap_object_prepare_attempt2(id) do
+    with obj <- graphql_get_proposal(id) do
+      Map.merge(
+        %{
+          "type" => "ValueFlows:Proposal"
+          # "canonicalUrl" => obj.canonical_url,
+          # "icon" => icon,
+          # "published" => obj.hasBeginning
+        },
+        obj
+      )
+    end
   end
 
   defp change_eligible_location(changeset, %{eligible_location: id}) do
