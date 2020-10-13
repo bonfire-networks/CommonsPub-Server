@@ -254,7 +254,7 @@ defmodule ValueFlows.Proposal.Proposals do
       # "canonicalUrl" => obj.canonical_url,
       # "icon" => icon,
       "name" => obj.name,
-      "note" => Map.get(obj, :note),
+      "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
       # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
@@ -264,7 +264,7 @@ defmodule ValueFlows.Proposal.Proposals do
   defp index(obj) do
     object = indexing_object_format(obj)
 
-    CommonsPub.Search.Indexer.index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
   end
