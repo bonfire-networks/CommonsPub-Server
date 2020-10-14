@@ -24,7 +24,7 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
-      add(:current_location_id, references(:geolocation))
+      add(:current_location_id, weak_pointer(Geolocation), null: true)
 
       add(:contained_in_id, weak_pointer(EconomicResource), null: true)
 
@@ -33,8 +33,8 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
       # usually linked to Agent
       add(:primary_accountable_id, weak_pointer(), null: true)
 
-      add(:accounting_quantity_id, references("measurement_measure", on_delete: :nilify_all))
-      add(:onhand_quantity_id, references("measurement_measure", on_delete: :nilify_all))
+      add(:accounting_quantity_id, weak_pointer(Measurement.Measure), null: true)
+      add(:onhand_quantity_id, weak_pointer(Measurement.Measure), null: true)
       add(:unit_of_effort_id, references("measurement_unit", on_delete: :nilify_all))
 
       add(:stage_id, weak_pointer(ProcessSpecification), null: true)

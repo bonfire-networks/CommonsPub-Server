@@ -33,8 +33,8 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
 
       add(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
 
-      add(:resource_quantity_id, references("measurement_measure", on_delete: :nilify_all))
-      add(:effort_quantity_id, references("measurement_measure", on_delete: :nilify_all))
+      add(:resource_quantity_id, weak_pointer(Measurement.Measure), null: true)
+      add(:effort_quantity_id, weak_pointer(Measurement.Measure), null: true)
 
       add(:has_beginning, :timestamptz)
       add(:has_end, :timestamptz)
@@ -47,7 +47,7 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
       add(:agreed_in, :string)
       # belongs_to(:agreed_in, Agreement)
 
-      add(:at_location_id, references(:geolocation))
+      add(:at_location_id, weak_pointer(Geolocation), null: true)
 
       add(:triggered_by_id, weak_pointer(EconomicEvent), null: true)
 
