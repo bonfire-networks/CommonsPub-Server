@@ -130,14 +130,22 @@ defmodule CommonsPub.ActivityPub.Utils do
   end
 
   @doc "Generate canonical URL for local object"
-  def generate_object_ap_id(object) do
-    "#{ap_base_url()}/objects/#{object.id}"
+  def generate_object_ap_id(%{id: id}) do
+    "#{ap_base_url()}/objects/#{id}"
+  end
+
+  def generate_object_ap_id(id) when is_binary(id) or is_number(id) do
+    "#{ap_base_url()}/objects/#{id}"
+  end
+
+  def generate_object_ap_id(_) do
+    nil
   end
 
   def generate_actor_url(%{preferred_username: u}) when is_binary(u),
     do: generate_actor_url(u)
 
-  def generate_actor_url(u) when is_binary(u) and u !="",
+  def generate_actor_url(u) when is_binary(u) and u != "",
     do: ap_base_url() <> "/actors/" <> u
 
   def generate_actor_url(actor), do: generate_object_ap_id(actor)
@@ -175,5 +183,4 @@ defmodule CommonsPub.ActivityPub.Utils do
   def get_object_canonical_url(object) do
     generate_object_ap_id(object)
   end
-
 end

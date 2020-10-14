@@ -46,6 +46,9 @@ defmodule ValueFlows.Util.GraphQL do
     urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
+  def fetch_classifications_edge(_, _, _) do
+    {:ok, nil}
+  end
 
   def current_location_edge(%{current_location_id: id} = thing, _, _) when not is_nil(id) do
     thing = Repo.preload(thing, :current_location)

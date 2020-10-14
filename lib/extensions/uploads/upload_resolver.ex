@@ -48,8 +48,13 @@ defmodule CommonsPub.Web.GraphQL.UploadResolver do
   end
 
   def icon_content_edge(%{icon_id: id}, _, info), do: content_edge(id, info)
+  def icon_content_edge(_, _, _), do: {:ok, nil}
+
   def image_content_edge(%{image_id: id}, _, info), do: content_edge(id, info)
+  def image_content_edge(_, _, _), do: {:ok, nil}
+
   def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id, info)
+  def resource_content_edge(_, _, _), do: {:ok, nil}
 
   def content_edge(id, info) when is_binary(id) do
     ResolveFields.run(%ResolveFields{
