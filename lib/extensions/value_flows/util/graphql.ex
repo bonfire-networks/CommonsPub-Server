@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util.GraphQL do
-  use Absinthe.Schema.Notation
 
   alias CommonsPub.{
     GraphQL,
@@ -9,6 +8,7 @@ defmodule ValueFlows.Util.GraphQL do
 
   require Logger
 
+  # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/util.gql"
 
   # object :page_info do

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
-  use Absinthe.Schema.Notation
 
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
@@ -38,10 +37,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
-  # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
+  #  use Absinthe.Schema.Notation
+ # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
-  # TODO: put in config
-  # @tags_seperator " "
 
   ## resolvers
 
