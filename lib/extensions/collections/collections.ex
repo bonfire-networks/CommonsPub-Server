@@ -25,7 +25,6 @@ defmodule CommonsPub.Collections do
 
   alias CommonsPub.Utils.Web.CommonHelper
 
-
   def cursor(:followers), do: &[&1.follower_count, &1.id]
 
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -66,6 +65,10 @@ defmodule CommonsPub.Collections do
         {:ok, %{coll | character: character}}
       end
     end)
+  end
+
+  def create(%User{} = creator, _, attrs) when is_map(attrs) do
+    create(creator, attrs)
   end
 
   # Create without context
