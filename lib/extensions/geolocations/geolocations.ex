@@ -93,7 +93,7 @@ defmodule Geolocation.Geolocations do
 
   @spec create(User.t(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, context, attrs) when is_map(attrs) do
+  def create(%User{} = creator, %{} = context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, context, attrs),
@@ -104,6 +104,10 @@ defmodule Geolocation.Geolocations do
         {:ok, populate_result(item, character)}
       end
     end)
+  end
+
+  def create(%User{} = creator, _, attrs) when is_map(attrs) do
+    create(creator, attrs)
   end
 
   @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}

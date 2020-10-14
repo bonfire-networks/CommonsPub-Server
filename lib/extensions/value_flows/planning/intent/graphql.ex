@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.GraphQL do
-  use Absinthe.Schema.Notation
-
   # default to 100 km radius
   @radius_default_distance 100_000
 
@@ -41,10 +39,9 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
+  #  use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
-  # TODO: put in config
-  # @tags_seperator " "
 
   ## resolvers
 
@@ -288,23 +285,25 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def fetch_intents(page_opts, info) do
-    list_intents(page_opts,
+    list_intents(
+      page_opts,
       [:default, user: GraphQL.current_user(info)]
     )
   end
 
   def fetch_offers(page_opts, info) do
-    list_intents(page_opts,
+    list_intents(
+      page_opts,
       [:default, :offer, user: GraphQL.current_user(info)]
     )
   end
 
   def fetch_needs(page_opts, info) do
-    list_intents(page_opts,
+    list_intents(
+      page_opts,
       [:default, :need, user: GraphQL.current_user(info)]
     )
   end
-
 
   def create_offer(%{intent: intent_attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do

@@ -15,7 +15,7 @@ defmodule ExtendingModule do
   def name(), do: Faker.Person.last_name()
 
   # example of modifying the input of a function
-  def maybe_one_of(list), do: list ++ [""] |> ArchiveModule.maybe_one_of()
+  # def maybe_one_of(list), do: list ++ [""] |> ArchiveModule.maybe_one_of()
 
   # example of modifying the output of a function
   def location(), do: ArchiveModule.location() |> String.replace(",", " -")

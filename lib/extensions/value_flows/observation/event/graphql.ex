@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
-  use Absinthe.Schema.Notation
 
   # default to 100 km radius
   @radius_default_distance 100_000
@@ -41,6 +40,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
+    # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
   # TODO: put in config

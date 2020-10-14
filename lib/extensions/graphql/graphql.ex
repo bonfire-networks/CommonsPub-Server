@@ -58,7 +58,7 @@ defmodule CommonsPub.GraphQL do
 
   def not_in_list_or_empty_page(info), do: not_in_list_or(info, &empty_page/0)
 
-  def current_user(%{context: context}), do: context.current_user
+  def current_user(%{context: %{current_user: current_user}}), do: current_user
   def current_user(_), do: nil
 
   def current_user_or(info, value), do: lazy_or(current_user(info), value)

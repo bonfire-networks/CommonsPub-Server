@@ -202,6 +202,8 @@ defmodule CommonsPub.Mixfile do
       # {:redix, "~> 0.10.5"}, # Redis client
       # {:ex_redi, "~> 0.1.1"}, # RediSearch client
       # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
+      # used for graphql tests + VF<>AP hooks
+      {:assertions, "~> 0.10"},
       # dev/test only
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:grumble, "~> 0.1.3", only: [:dev, :test]},

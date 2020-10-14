@@ -23,6 +23,9 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
   def published_to_edge(%{id: proposal_id}, _, _info) do
     Proposals.many_proposed_to([:default, proposed_id: proposal_id])
   end
+  def published_to_edge(_, _, _info) do
+    {:ok, nil}
+  end
 
   def propose_to(%{proposed_to: agent_id, proposed: proposed_id}, info) do
     with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),

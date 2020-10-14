@@ -7,7 +7,7 @@ defmodule ValueFlows.Test.Faking do
 
   # import CommonsPub.Utils.Trendy
 
-  # import ValueFlows.Simulate
+  import ValueFlows.Simulate
   # import Measurement.Test.Faking
   import Grumble
 
@@ -342,10 +342,6 @@ defmodule ValueFlows.Test.Faking do
 
   def delete_intent_submutation(_options \\ []) do
     field(:delete_intent, args: [id: var(:id)])
-  end
-
-  def proposal_fields(extra \\ []) do
-    extra ++ ~w(id name note created has_beginning has_end unit_based)a
   end
 
   def proposal_response_fields(extra \\ []) do

@@ -61,6 +61,11 @@ type Unit {
   symbol: String!
 
   inScopeOf: AnyContext
+
+  """
+  Added for CommonsPub
+  """
+  canonicalUrl: URI
 }
 
 """
@@ -75,6 +80,11 @@ type Measure {
 
   "A unit of measure."
   hasUnit: Unit!
+
+  """
+  Added for CommonsPub
+  """
+  canonicalUrl: URI
 }
 
 """

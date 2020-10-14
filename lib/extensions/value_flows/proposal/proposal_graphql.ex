@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.GraphQL do
-  use Absinthe.Schema.Notation
   # alias CommonsPub.Web.GraphQL.{CommonResolver}
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
@@ -35,6 +34,7 @@ defmodule ValueFlows.Proposal.GraphQL do
   # alias ValueFlows.Proposal.Queries
   # alias CommonsPub.Web.GraphQL.CommonResolver
 
+  # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/proposal.gql"
 
   ## resolvers
@@ -65,9 +65,12 @@ defmodule ValueFlows.Proposal.GraphQL do
 
   def eligible_location_edge(%{eligible_location_id: id} = proposal, _, _) when not is_nil(id) do
     proposal = Repo.preload(proposal, :eligible_location)
-    location = proposal
-    |> Map.get(:eligible_location, nil)
-    |> Geolocation.Geolocations.populate_coordinates()
+
+    location =
+      proposal
+      |> Map.get(:eligible_location, nil)
+      |> Geolocation.Geolocations.populate_coordinates()
+
     {:ok, location}
   end
 

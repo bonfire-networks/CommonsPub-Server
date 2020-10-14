@@ -21,6 +21,7 @@ defmodule ValueFlows.Proposal do
   pointable_schema do
     field(:name, :string)
     field(:note, :string)
+
     field(:created, :utc_datetime_usec)
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)

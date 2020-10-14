@@ -21,6 +21,13 @@ defmodule ValueFlows.Proposal.Proposals do
 
   alias ValueFlows.Planning.Intent
 
+  # use Assertions.AbsintheCase, async: true, schema: ValueFlows.Schema
+  # import Assertions.Absinthe, only: [document_for: 4]
+
+
+  @schema CommonsPub.Web.GraphQL.Schema
+
+
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
@@ -106,6 +113,16 @@ defmodule ValueFlows.Proposal.Proposals do
       data_filters,
       count_filters
     )
+  end
+
+  def preloads(proposal) do
+    CommonsPub.Utils.Web.CommonHelper.maybe_preload(proposal, [
+      :context,
+      :eligible_location,
+      :creator
+      # :proposed_to,
+      # :publishes
+    ])
   end
 
   ## mutations
@@ -198,10 +215,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
   def do_update(proposal, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      proposal =
-        Repo.preload(proposal, [
-          :eligible_location
-        ])
+      proposal = preloads(proposal)
 
       cs =
         proposal
@@ -254,7 +268,7 @@ defmodule ValueFlows.Proposal.Proposals do
       # "canonicalUrl" => obj.canonical_url,
       # "icon" => icon,
       "name" => obj.name,
-      "note" => Map.get(obj, :note),
+      "summary" => Map.get(obj, :note),
       "published_at" => obj.published_at,
       "creator" => CommonsPub.Search.Indexer.format_creator(obj)
       # "index_instance" => URI.parse(obj.canonical_url).host, # home instance of object
@@ -264,9 +278,97 @@ defmodule ValueFlows.Proposal.Proposals do
   defp index(obj) do
     object = indexing_object_format(obj)
 
-    CommonsPub.Search.Indexer.index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
+  end
+
+  def ap_object_format_attempt1(obj) do
+    obj = preloads(obj)
+    # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
+    # image = CommonsPub.Uploads.remote_url_from_id(obj.image_id)
+
+    Map.merge(
+      %{
+        "type" => "ValueFlows:Proposal",
+        # "canonicalUrl" => obj.canonical_url,
+        # "icon" => icon,
+        "published" => obj.has_beginning
+      },
+      CommonsPub.Common.keys_transform(obj, "to_string")
+    )
+  end
+
+  def graphql_get_proposal_attempt2(id) do
+    query =
+      Grumble.PP.to_string(
+        Grumble.field(
+          :proposal,
+          args: [id: Grumble.var(:id)],
+          fields: ValueFlows.Simulate.proposal_fields([eligible_location: [:name]])
+        )
+      )
+      |> IO.inspect()
+
+    with {:ok, g} <-
+           """
+            query ($id: ID) {
+               #{query}
+             }
+           """
+           |> Absinthe.run(@schema, variables: %{"id" => id}) do
+      g |> Map.get(:data) |> Map.get("proposal")
+    end
+  end
+
+    def ap_object_prepare_attempt2(id) do
+    with obj <- graphql_get_proposal_attempt2(id) do
+      Map.merge(
+        %{
+          "type" => "ValueFlows:Proposal"
+          # "canonicalUrl" => obj.canonical_url,
+          # "icon" => icon,
+          # "published" => obj.hasBeginning
+        },
+        obj
+      )
+    end
+  end
+
+  def graphql_get_proposal_attempt3(id) do
+
+
+    query = Assertions.Absinthe.document_for(@schema, :proposal, 4, [])
+    IO.inspect(query)
+
+    with {:ok, g} <-
+           """
+            query ($id: ID) {
+              proposal(id: $id) {
+                #{query}
+              }
+            }
+           """
+           |> Absinthe.run(@schema, variables: %{"id" => id}) do
+            IO.inspect(g)
+      g |> Map.get(:data) |> Map.get("proposal")
+    end
+  end
+
+
+
+  def ap_object_prepare_attempt3(id) do
+    with obj <- graphql_get_proposal_attempt3(id) do
+      Map.merge(
+        %{
+          "type" => "ValueFlows:Proposal"
+          # "canonicalUrl" => obj.canonical_url,
+          # "icon" => icon,
+          # "published" => obj.hasBeginning
+        },
+        obj
+      )
+    end
   end
 
   defp change_eligible_location(changeset, %{eligible_location: id}) do

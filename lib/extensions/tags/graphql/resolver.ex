@@ -157,6 +157,11 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
     {:ok, tags}
   end
 
+  def tags_edges(_, _, _) do
+
+    {:ok, nil}
+  end
+
   def tag_prepare(%{category: %{id: id} = category} = tag, _page_opts, _info)
       when not is_nil(id) do
     # TODO: do this better

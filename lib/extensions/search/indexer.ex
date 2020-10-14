@@ -10,7 +10,7 @@ defmodule CommonsPub.Search.Indexer do
     indexable_object = maybe_indexable_object(object)
 
     if !is_nil(indexable_object) do
-      index_object(indexable_object)
+      index_public_object(indexable_object)
     end
   end
 
@@ -18,8 +18,20 @@ defmodule CommonsPub.Search.Indexer do
     nil
   end
 
-  def maybe_indexable_object(%{} = object) do
-    object_type = Map.get(object, :__struct__)
+  def maybe_indexable_object(%{"index_type" => index_type} = object)
+      when not is_nil(index_type) do
+    # already formatted indexable object
+    object
+  end
+
+  def maybe_indexable_object(%Pointers.Pointer{} = pointer) do
+    pointed_object = CommonsPub.Meta.Pointers.follow!(pointer)
+    maybe_indexable_object(pointed_object)
+  end
+
+  def maybe_indexable_object(%{__struct__: object_type} = object) do
+    # already formatted indexable object
+    # object_type = Map.get(object, :__struct__)
 
     if(
       !is_nil(object_type) and
@@ -43,21 +55,24 @@ defmodule CommonsPub.Search.Indexer do
         nil
       end
     else
-      Logger.warn("Could not index #{object_type} object (not a known type or context_module undefined)")
+      Logger.warn(
+        "Could not index #{object_type} object (not a known type or context_module undefined)"
+      )
+
       nil
     end
   end
 
   def maybe_indexable_object(obj) do
-    Logger.warn("Could not index object (not a struct)")
+    Logger.warn("Could not index object (not formated for indexing or not a struct)")
     IO.inspect(obj)
     nil
   end
 
   # add to general instance search index
-  def index_object(objects) do
+  def index_public_object(object) do
     # IO.inspect(search_indexing: objects)
-    index_objects(objects, @public_index, true)
+    index_objects(object, @public_index, true)
   end
 
   # index several things in an existing index
