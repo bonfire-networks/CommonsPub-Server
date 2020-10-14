@@ -21,6 +21,13 @@ defmodule ValueFlows.Proposal.Proposals do
 
   alias ValueFlows.Planning.Intent
 
+  # use Assertions.AbsintheCase, async: true, schema: ValueFlows.Schema
+  # import Assertions.Absinthe, only: [document_for: 4]
+
+
+  @schema CommonsPub.Web.GraphQL.Schema
+
+
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
@@ -292,7 +299,7 @@ defmodule ValueFlows.Proposal.Proposals do
     )
   end
 
-  def graphql_get_proposal(id) do
+  def graphql_get_proposal_attempt2(id) do
     query =
       Grumble.PP.to_string(
         Grumble.field(
@@ -309,13 +316,49 @@ defmodule ValueFlows.Proposal.Proposals do
                #{query}
              }
            """
-           |> Absinthe.run(CommonsPub.Web.GraphQL.Schema, variables: %{"id" => id}) do
+           |> Absinthe.run(@schema, variables: %{"id" => id}) do
       g |> Map.get(:data) |> Map.get("proposal")
     end
   end
 
-  def ap_object_prepare_attempt2(id) do
-    with obj <- graphql_get_proposal(id) do
+    def ap_object_prepare_attempt2(id) do
+    with obj <- graphql_get_proposal_attempt2(id) do
+      Map.merge(
+        %{
+          "type" => "ValueFlows:Proposal"
+          # "canonicalUrl" => obj.canonical_url,
+          # "icon" => icon,
+          # "published" => obj.hasBeginning
+        },
+        obj
+      )
+    end
+  end
+
+  def graphql_get_proposal_attempt3(id) do
+
+
+    query = Assertions.Absinthe.document_for(@schema, :proposal, 4, [])
+    IO.inspect(query)
+
+    with {:ok, g} <-
+           """
+            query ($id: ID) {
+              proposal(id: $id) {
+                #{query}
+              }
+            }
+           """
+           |> Absinthe.run(@schema, variables: %{"id" => id}) do
+            IO.inspect(g)
+      g |> Map.get(:data) |> Map.get("proposal")
+    end
+  end
+
+
+
+  def ap_object_prepare_attempt3(id) do
+    with obj <- graphql_get_proposal_attempt3(id) do
       Map.merge(
         %{
           "type" => "ValueFlows:Proposal"
