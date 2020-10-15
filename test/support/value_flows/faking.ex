@@ -17,11 +17,13 @@ defmodule ValueFlows.Test.Faking do
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ResourceSpecification
+
   alias ValueFlows.Observation.{
     EconomicEvent,
     EconomicResource,
     Process
   }
+
   alias ValueFlows.{
     Proposal
     # Proposals
@@ -44,7 +46,6 @@ defmodule ValueFlows.Test.Faking do
     )
   end
 
-
   def assert_resource_specification(%ResourceSpecification{} = spec) do
     assert_resource_specification(Map.from_struct(spec))
   end
@@ -52,11 +53,10 @@ defmodule ValueFlows.Test.Faking do
   def assert_resource_specification(spec) do
     assert_object(spec, :assert_resource_specification,
       name: &assert_binary/1,
-      note: assert_optional(&assert_binary/1),
+      note: assert_optional(&assert_binary/1)
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
-
 
   def assert_process_specification(%ProcessSpecification{} = spec) do
     assert_process_specification(Map.from_struct(spec))
@@ -65,7 +65,7 @@ defmodule ValueFlows.Test.Faking do
   def assert_process_specification(spec) do
     assert_object(spec, :assert_process_specification,
       name: &assert_binary/1,
-      note: assert_optional(&assert_binary/1),
+      note: assert_optional(&assert_binary/1)
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
@@ -77,7 +77,7 @@ defmodule ValueFlows.Test.Faking do
   def assert_process(spec) do
     assert_object(spec, :assert_process,
       name: &assert_binary/1,
-      note: assert_optional(&assert_binary/1),
+      note: assert_optional(&assert_binary/1)
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
@@ -190,14 +190,13 @@ defmodule ValueFlows.Test.Faking do
     ])
   end
 
-
   def assert_economic_event(%EconomicEvent{} = event) do
     assert_economic_event(Map.from_struct(event))
   end
 
   def assert_economic_event(event) do
     assert_object(event, :assert_economic_event,
-      note: assert_optional(&assert_binary/1),
+      note: assert_optional(&assert_binary/1)
       # classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
@@ -210,7 +209,7 @@ defmodule ValueFlows.Test.Faking do
     assert_object(resource, :assert_economic_resource,
       note: assert_optional(&assert_binary/1),
       name: assert_optional(&assert_binary/1),
-      tracking_identifier: assert_optional(&assert_binary/1),
+      tracking_identifier: assert_optional(&assert_binary/1)
       # state_id: assert_optional(&assert_binary/1),
       # state: assert_optional(&assert_action/1),
     )
@@ -275,7 +274,7 @@ defmodule ValueFlows.Test.Faking do
     args = [
       after: var(:intents_after),
       before: var(:intents_before),
-      limit: var(:intents_limit),
+      limit: var(:intents_limit)
     ]
 
     page_subquery(
@@ -286,11 +285,12 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def intents_pages_query(options \\ []) do
-    params = [
-      intents_after: list_type(:cursor),
-      intents_before: list_type(:cursor),
-      intents_limit: :int,
-    ] ++ Keyword.get(options, :params, [])
+    params =
+      [
+        intents_after: list_type(:cursor),
+        intents_before: list_type(:cursor),
+        intents_limit: :int
+      ] ++ Keyword.get(options, :params, [])
 
     gen_query(&intents_pages_subquery/1, [{:params, params} | options])
   end
@@ -454,7 +454,6 @@ defmodule ValueFlows.Test.Faking do
     field(:delete_proposed_to, args: [id: var(:id)])
   end
 
-
   def resource_specification_fields(extra \\ []) do
     extra ++ ~w(id name note)a
   end
@@ -479,7 +478,11 @@ defmodule ValueFlows.Test.Faking do
 
   def create_resource_specification_submutation(options \\ []) do
     [resource_specification: var(:resource_specification)]
-    |> gen_submutation(:create_resource_specification, &resource_specification_response_fields/1, options)
+    |> gen_submutation(
+      :create_resource_specification,
+      &resource_specification_response_fields/1,
+      options
+    )
   end
 
   def update_resource_specification_mutation(options \\ []) do
@@ -489,7 +492,11 @@ defmodule ValueFlows.Test.Faking do
 
   def update_resource_specification_submutation(options \\ []) do
     [resource_specification: var(:resource_specification)]
-    |> gen_submutation(:update_resource_specification, &resource_specification_response_fields/1, options)
+    |> gen_submutation(
+      :update_resource_specification,
+      &resource_specification_response_fields/1,
+      options
+    )
   end
 
   def delete_resource_specification_mutation(options \\ []) do
@@ -500,7 +507,6 @@ defmodule ValueFlows.Test.Faking do
   def delete_resource_specification_submutation(_options \\ []) do
     field(:delete_resource_specification, args: [id: var(:id)])
   end
-
 
   def process_specification_fields(extra \\ []) do
     extra ++ ~w(id name note)a
@@ -526,7 +532,11 @@ defmodule ValueFlows.Test.Faking do
 
   def create_process_specification_submutation(options \\ []) do
     [process_specification: var(:process_specification)]
-    |> gen_submutation(:create_process_specification, &process_specification_response_fields/1, options)
+    |> gen_submutation(
+      :create_process_specification,
+      &process_specification_response_fields/1,
+      options
+    )
   end
 
   def update_process_specification_mutation(options \\ []) do
@@ -536,7 +546,11 @@ defmodule ValueFlows.Test.Faking do
 
   def update_process_specification_submutation(options \\ []) do
     [process_specification: var(:process_specification)]
-    |> gen_submutation(:update_process_specification, &process_specification_response_fields/1, options)
+    |> gen_submutation(
+      :update_process_specification,
+      &process_specification_response_fields/1,
+      options
+    )
   end
 
   def delete_process_specification_mutation(options \\ []) do
@@ -579,7 +593,7 @@ defmodule ValueFlows.Test.Faking do
     args = [
       after: var(:processes_after),
       before: var(:processes_before),
-      limit: var(:processes_limit),
+      limit: var(:processes_limit)
     ]
 
     page_subquery(
@@ -590,15 +604,15 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def processes_pages_query(options \\ []) do
-    params = [
-      processes_after: list_type(:cursor),
-      processes_before: list_type(:cursor),
-      processes_limit: :int,
-    ] ++ Keyword.get(options, :params, [])
+    params =
+      [
+        processes_after: list_type(:cursor),
+        processes_before: list_type(:cursor),
+        processes_limit: :int
+      ] ++ Keyword.get(options, :params, [])
 
     gen_query(&processes_pages_subquery/1, [{:params, params} | options])
   end
-
 
   def create_process_mutation(options \\ []) do
     [process: type!(:process_create_params)]
@@ -638,7 +652,10 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def economic_event_response_fields(extra_event, extra_resource) do
-    [economic_event: economic_event_fields(extra_event), economic_resource: economic_resource_fields(extra_resource)]
+    [
+      economic_event: economic_event_fields(extra_event),
+      economic_resource: economic_resource_fields(extra_resource)
+    ]
   end
 
   def economic_event_query(options \\ []) do
@@ -664,7 +681,7 @@ defmodule ValueFlows.Test.Faking do
     args = [
       after: var(:economic_events_after),
       before: var(:economic_events_before),
-      limit: var(:economic_events_limit),
+      limit: var(:economic_events_limit)
     ]
 
     page_subquery(
@@ -675,11 +692,12 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def economic_events_pages_query(options \\ []) do
-    params = [
-      economic_events_after: list_type(:cursor),
-      economic_events_before: list_type(:cursor),
-      economic_events_limit: :int,
-    ] ++ Keyword.get(options, :params, [])
+    params =
+      [
+        economic_events_after: list_type(:cursor),
+        economic_events_before: list_type(:cursor),
+        economic_events_limit: :int
+      ] ++ Keyword.get(options, :params, [])
 
     gen_query(&economic_events_pages_subquery/1, [{:params, params} | options])
   end
@@ -697,13 +715,21 @@ defmodule ValueFlows.Test.Faking do
 
   def create_economic_event_mutation(event_options, resource_options) do
     # event with a resource
-    [event: type!(:economic_event_create_params), new_inventoried_resource: type!(:economic_resource_create_params)]
+    [
+      event: type!(:economic_event_create_params),
+      new_inventoried_resource: type!(:economic_resource_create_params)
+    ]
     |> gen_mutation(&create_economic_event_submutation/2, event_options, resource_options)
   end
 
   def create_economic_event_submutation(event_options, resource_options) do
     [event: var(:event), new_inventoried_resource: var(:new_inventoried_resource)]
-    |> gen_submutation(:create_economic_event, &economic_event_response_fields/2, event_options, resource_options)
+    |> gen_submutation(
+      :create_economic_event,
+      &economic_event_response_fields/2,
+      event_options,
+      resource_options
+    )
   end
 
   def update_economic_event_mutation(options \\ []) do
@@ -756,7 +782,7 @@ defmodule ValueFlows.Test.Faking do
     args = [
       after: var(:economic_resources_after),
       before: var(:economic_resources_before),
-      limit: var(:economic_resources_limit),
+      limit: var(:economic_resources_limit)
     ]
 
     page_subquery(
@@ -767,13 +793,13 @@ defmodule ValueFlows.Test.Faking do
   end
 
   def economic_resources_pages_query(options \\ []) do
-    params = [
-      economic_resources_after: list_type(:cursor),
-      economic_resources_before: list_type(:cursor),
-      economic_resources_limit: :int,
-    ] ++ Keyword.get(options, :params, [])
+    params =
+      [
+        economic_resources_after: list_type(:cursor),
+        economic_resources_before: list_type(:cursor),
+        economic_resources_limit: :int
+      ] ++ Keyword.get(options, :params, [])
 
     gen_query(&economic_resources_pages_subquery/1, [{:params, params} | options])
   end
-
 end

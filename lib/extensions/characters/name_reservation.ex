@@ -2,7 +2,7 @@ defmodule CommonsPub.Characters.NameReservation do
   use Ecto.Schema
   alias Ecto.Changeset
 
-  alias CommonsPub.Characters.NameReservation
+  alias __MODULE__
 
   @primary_key {:id, Cloak.Ecto.SHA256, autogenerate: false}
   schema "actor_name_reservation" do

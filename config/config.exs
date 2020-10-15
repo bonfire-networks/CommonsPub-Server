@@ -403,7 +403,7 @@ config :phoenix, :json_library, Jason
 
 config :furlex, Furlex.Oembed, oembed_host: "https://oembed.com"
 
-config :tesla, adapter: Tesla.Adapter.Gun
+config :tesla, adapter: Tesla.Adapter.Hackney
 
 config :http_signatures, adapter: ActivityPub.Signature
 
