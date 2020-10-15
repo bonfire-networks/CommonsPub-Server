@@ -342,7 +342,7 @@ defmodule ValueFlows.Proposal.Proposals do
     |> List.to_string()
   end
 
-  @ignore [:communities, :collections, :my_like, :my_flag, :unit_based, :feature_count, :follower_count, :is_local, :is_disabled, :page_info, :edges, :threads, :outbox, :inbox, :followers]
+  @ignore [:communities, :collections, :my_like, :my_flag, :unit_based, :feature_count, :follower_count, :is_local, :is_disabled, :page_info, :edges, :threads, :outbox, :inbox, :followers, :community_follows]
 
   def fields_filter(e) do
     # IO.inspect(e)
