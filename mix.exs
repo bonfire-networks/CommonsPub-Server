@@ -55,7 +55,6 @@ defmodule CommonsPub.Mixfile do
         :hackney,
         :mime,
         :belt,
-        :cachex,
         :bamboo,
         :bamboo_smtp
       ]
@@ -85,10 +84,12 @@ defmodule CommonsPub.Mixfile do
       },
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_error_payload, "~> 1.0"},
+      # activitypub
+      {:activity_pub, git: "https://gitlab.com/CommonsPub/activitypub", branch: "develop"},
       # webserver
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.2"},
-      {:cowlib, "~> 2.9", override: true},
+      {:cowlib, "~> 2.9"},
       {:plug, "~> 1.10"},
       # security (CORS)
       {:cors_plug, "~> 2.0"},
@@ -121,14 +122,7 @@ defmodule CommonsPub.Mixfile do
       {:argon2_elixir, "~> 2.3"},
       # Outbound HTTP
       {:hackney, "~> 1.16"},
-      {:gun,
-       github: "ninenines/gun", ref: "e1a69b36b180a574c0ac314ced9613fdd52312cc", override: true},
-      {
-        :tesla,
-        git: "https://git.pleroma.social/pleroma/elixir-libraries/tesla.git",
-        ref: "61b7503cef33f00834f78ddfafe0d5d9dec2270b",
-        override: true
-      },
+      {:tesla, "~> 1.3"},
       ## Email
       # sending
       {:bamboo, "~> 1.5"},
@@ -153,19 +147,12 @@ defmodule CommonsPub.Mixfile do
       # camel/snake/kebabification
       {:recase, "~> 0.5"},
       # webpage info extraction
-      {:furlex,
-       git: "https://gitlab.com/moodlenet/servers/furlex",
-       ref: "589c6a2e15e97606c53f86b466087192de3680fa"},
+      {:furlex, git: "https://gitlab.com/CommonsPub/furlex"},
       # html parser
       # {:fast_html, "~> 1.0"},
       {:html5ever, "~> 0.8"},
-      # activitypub signing
-      {
-        :http_signatures,
-        git: "https://git.pleroma.social/pleroma/elixir-libraries/http_signatures"
-      },
       # job queue
-      {:oban, "~> 1.2.0"},
+      {:oban, "~> 2.0"},
       # timedate headers
       {:timex, "~> 3.5"},
       # caching
@@ -190,7 +177,7 @@ defmodule CommonsPub.Mixfile do
       {
         :pointers,
         # "~> 0.4"
-        git: "https://github.com/commonspub/pointers.git", branch: "main"
+        git: "https://github.com/commonspub/pointers.git", branch: "main", override: true
         # path: "uploads/pointers-main"
         # git: "https://github.com/mayel/pointers.git",
       },
@@ -210,7 +197,7 @@ defmodule CommonsPub.Mixfile do
       {:faker, "~> 0.12"},
       # required by CommonsPub.Utils.Simulation
       {:zest, "~> 0.1.1"},
-      # fake data generation for AP
+      # fake data generation for AP - still needed here?
       {:ex_machina, "~> 2.3", only: [:dev, :test]},
       # property testing
       {:stream_data, "~> 0.5"},

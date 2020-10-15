@@ -67,6 +67,13 @@ defmodule CommonsPub.Characters.Migrations do
     end
   end
 
+  def name_reservation_fix() do
+    alter table("actor_name_reservation") do
+      add(:name, :string, null: true)
+    end
+  end
+
+
   def merge_with_actor() do
     rename(table("mn_actor"), to: table("mn_actor_archived"))
     flush()

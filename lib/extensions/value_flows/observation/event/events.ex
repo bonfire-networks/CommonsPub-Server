@@ -127,13 +127,13 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   ## mutations
 
   def create(
-        creator,
+        _creator,
         %{
           resource_inventoried_as: from_existing_resource,
           to_resource_inventoried_as: to_existing_resource
         },
         %{
-          new_inventoried_resource: new_inventoried_resource
+          new_inventoried_resource: _new_inventoried_resource
         }
       )
       when not is_nil(from_existing_resource) and not is_nil(to_existing_resource) do

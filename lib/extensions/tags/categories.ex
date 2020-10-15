@@ -189,20 +189,20 @@ defmodule CommonsPub.Tag.Categories do
   end
 
   # todo: improve
-  def attrs_with_username(%{preferred_username: preferred_username, name: name} = attrs)
+  def attrs_with_username(%{preferred_username: preferred_username, name: _name} = attrs)
       when not is_nil(preferred_username) and preferred_username != "" do
     put_generated_username(attrs, preferred_username)
   end
 
   def attrs_with_username(
-        %{preferred_username: preferred_username, profile: %{name: name}} = attrs
+        %{preferred_username: preferred_username, profile: %{name: _name}} = attrs
       )
       when not is_nil(preferred_username) and preferred_username != "" do
     put_generated_username(attrs, preferred_username)
   end
 
   def attrs_with_username(
-        %{character: %{preferred_username: preferred_username}, profile: %{name: name}} = attrs
+        %{character: %{preferred_username: preferred_username}, profile: %{name: _name}} = attrs
       )
       when not is_nil(preferred_username) and preferred_username != "" do
     put_generated_username(attrs, preferred_username)
