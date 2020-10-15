@@ -13,7 +13,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
       comment = fake_comment!(actor, thread)
 
       assert {:ok, activity} = Publisher.comment(comment)
-      assert activity.object.mn_pointer_id == comment.id
+      assert activity.object.pointer_id == comment.id
       assert activity.local == true
       assert activity.object.local == true
 
@@ -64,7 +64,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
       resource = fake_resource!(actor, collection)
 
       assert {:ok, activity} = Publisher.create_resource(resource)
-      assert activity.object.mn_pointer_id == resource.id
+      assert activity.object.pointer_id == resource.id
       assert activity.local == true
       assert activity.object.local == true
       {:ok, collection} = ActivityPub.Actor.get_by_local_id(collection.id)

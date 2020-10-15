@@ -165,7 +165,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
   ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
   ## For now we just delete the folow and return an error if the followed account is private.
   def follow(follow) do
-    follow = Repo.preload(follow, creator: :actor, context: [:table])
+    follow = Repo.preload(follow, creator: :character, context: [:table])
 
     with {:ok, follower} <-
            Actor.get_cached_by_username(the_actor(follow.creator).preferred_username),
@@ -327,7 +327,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
 
   # Currently broken (it's hard)
   def delete_user(actor) do
-    with actor <- ActivityPub.Actor.format_local_actor(actor) do
+    with actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(actor) do
       ActivityPub.Actor.set_cache(actor)
       ActivityPub.delete(actor)
     end
@@ -335,7 +335,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
 
   def delete_comm_or_coll(actor) do
     with {:ok, creator} <- ActivityPub.Actor.get_by_local_id(actor.creator_id),
-         actor <- ActivityPub.Actor.format_local_actor(actor) do
+         actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(actor) do
       ActivityPub.Actor.invalidate_cache(actor)
       ActivityPub.delete(actor, true, creator.ap_id)
     end
