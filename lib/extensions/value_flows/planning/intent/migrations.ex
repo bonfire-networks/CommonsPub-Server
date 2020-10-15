@@ -21,6 +21,19 @@ defmodule ValueFlows.Planning.Intent.Migrations do
 
       add(:action_id, :string)
 
+      add(:image_id, references(:mn_content))
+
+      add(:provider_id, weak_pointer(), null: true)
+      add(:receiver_id, weak_pointer(), null: true)
+
+      add(:at_location_id, weak_pointer(Geolocation), null: true)
+
+      add(:available_quantity_id, weak_pointer(Measurement.Measure), null: true)
+      add(:resource_quantity_id, weak_pointer(Measurement.Measure), null: true)
+      add(:effort_quantity_id, weak_pointer(Measurement.Measure), null: true)
+
+      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+
       # optional context as scope
       add(:context_id, weak_pointer(), null: true)
 
@@ -49,23 +62,10 @@ defmodule ValueFlows.Planning.Intent.Migrations do
 
   def add_references do
     alter table(intent_table()) do
-      add_if_not_exists(:creator_id, references("mn_user", on_delete: :nilify_all))
-
-      add_if_not_exists(:image_id, references(:mn_content))
-
-      add_if_not_exists(:provider_id, weak_pointer(), null: true)
-      add_if_not_exists(:receiver_id, weak_pointer(), null: true)
-
-      add_if_not_exists(:available_quantity_id, weak_pointer(Measurement.Measure), null: true)
-      add_if_not_exists(:resource_quantity_id, weak_pointer(Measurement.Measure), null: true)
-      add_if_not_exists(:effort_quantity_id, weak_pointer(Measurement.Measure), null: true)
-
       add_if_not_exists(:input_of_id, weak_pointer(Process), null: true)
       add_if_not_exists(:output_of_id, weak_pointer(Process), null: true)
       add_if_not_exists(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
       add_if_not_exists(:resource_inventoried_as_id, weak_pointer(EconomicResource), null: true)
-
-      add_if_not_exists(:at_location_id, weak_pointer(Geolocation), null: true)
     end
   end
 

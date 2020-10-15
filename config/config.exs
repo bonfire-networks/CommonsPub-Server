@@ -439,8 +439,8 @@ config :commons_pub, :ux,
 
 config :activity_pub, :repo, CommonsPub.Repo
 
-# FIXME: dirty hack to fix url generation
-config :activity_pub, :base_url, "localhost"
+# for AP url generation
+config :activity_pub, :base_url, base_url
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
