@@ -70,7 +70,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   def create_resource(resource) do
-    with {:ok, collection} <- ActivityPub.Actor.get_cached_by_local_id(resource.collection_id),
+    with {:ok, context} <- ActivityPub.Actor.get_cached_by_local_id(resource.context_id), # FIXME: optional
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
          content_url <- CommonsPub.Uploads.remote_url_from_id(resource.content_id),
          icon_url <- CommonsPub.Uploads.remote_url_from_id(resource.icon_id),
@@ -82,7 +82,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
            "icon" => icon_url,
            "actor" => actor.ap_id,
            "attributedTo" => actor.ap_id,
-           "context" => collection.ap_id,
+           "context" => context.ap_id,
            "summary" => Map.get(resource, :summary),
            "type" => "Document",
            "tag" => resource.license,
@@ -94,9 +94,9 @@ defmodule CommonsPub.ActivityPub.Publisher do
          },
          params = %{
            actor: actor,
-           to: [@public_uri, collection.ap_id],
+           to: [@public_uri, context.ap_id],
            object: object,
-           context: collection.ap_id,
+           context: context.ap_id,
            additional: %{
              "cc" => [actor.data["followers"]]
            }
@@ -135,30 +135,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
     end
   end
 
-  def create_collection(collection) do
-    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(collection.creator_id),
-         {:ok, ap_collection} <- ActivityPub.Actor.get_cached_by_local_id(collection.id),
-         collection_object <-
-           ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
-         {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(collection.community_id),
-         params <- %{
-           actor: actor,
-           to: [@public_uri, ap_community.ap_id],
-           object: collection_object,
-           context: ActivityPub.Utils.generate_context_id(),
-           additional: %{
-             "cc" => [actor.data["followers"]]
-           }
-         },
-         {:ok, activity} <- ActivityPub.create(params) do
-      Ecto.Changeset.change(collection.character, %{canonical_url: collection_object["id"]})
-      |> Repo.update()
 
-      {:ok, activity}
-    else
-      e -> {:error, e}
-    end
-  end
 
   ## FIXME: this is currently implemented in a spec non-conforming way, AP follows are supposed to be handshakes
   ## that are only reflected in the host database upon receiving an Accept activity in response. in this case
@@ -226,13 +203,15 @@ defmodule CommonsPub.ActivityPub.Publisher do
 
   def like(like) do
     like = Repo.preload(like, [:context, creator: :character])
-    IO.inspect(pub_like: like)
+    # IO.inspect(pub_like: like)
 
     with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id) do
       liked = Pointers.follow!(like.context)
-      IO.inspect(pub_like_object: liked)
+      # IO.inspect(pub_like_context: liked)
 
       object = Utils.get_object(liked)
+      # IO.inspect(pub_like_object: object)
+
       ActivityPub.like(liker, object)
     else
       e -> {:error, e}
@@ -311,8 +290,8 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   # Works for Users, Collections, Communities (not MN.Actor)
-  def update_actor(actor) do
-    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(actor.id),
+  def update_actor(%{id: id} = actor) do
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(id),
          actor_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: actor}),
          params <- %{
            to: [@public_uri],
@@ -336,7 +315,8 @@ defmodule CommonsPub.ActivityPub.Publisher do
     end
   end
 
-  def delete_comm_or_coll(actor) do
+  # Works for Collections, Communities (not User or MN.Actor)
+  def delete_character(actor) do
     with {:ok, creator} <- ActivityPub.Actor.get_by_local_id(actor.creator_id),
          actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(actor) do
       ActivityPub.Actor.invalidate_cache(actor)
