@@ -80,7 +80,7 @@ defmodule CommonsPub.Mixfile do
     [
       {
         :absinthe,
-        "~> 1.5"
+        "~> 1.5.3"
         # git: "https://github.com/absinthe-graphql/absinthe", override: true,
       },
       {:absinthe_plug, "~> 1.5"},
@@ -202,9 +202,8 @@ defmodule CommonsPub.Mixfile do
       # {:redix, "~> 0.10.5"}, # Redis client
       # {:ex_redi, "~> 0.1.1"}, # RediSearch client
       # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
-      # used for graphql tests + VF<>AP hooks
-      {:assertions, "~> 0.10"},
-      # dev/test only
+      # {:assertions, "~> 0.10"}, # for graphql tests
+      # dev/test only:
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:grumble, "~> 0.1.3", only: [:dev, :test]},
       # fake app data generation, also used in prototype API endponts

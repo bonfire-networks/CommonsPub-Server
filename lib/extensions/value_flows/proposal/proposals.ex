@@ -24,9 +24,7 @@ defmodule ValueFlows.Proposal.Proposals do
   # use Assertions.AbsintheCase, async: true, schema: ValueFlows.Schema
   # import Assertions.Absinthe, only: [document_for: 4]
 
-
   @schema CommonsPub.Web.GraphQL.Schema
-
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -305,7 +303,7 @@ defmodule ValueFlows.Proposal.Proposals do
         Grumble.field(
           :proposal,
           args: [id: Grumble.var(:id)],
-          fields: ValueFlows.Simulate.proposal_fields([eligible_location: [:name]])
+          fields: ValueFlows.Simulate.proposal_fields(eligible_location: [:name])
         )
       )
       |> IO.inspect()
@@ -321,7 +319,7 @@ defmodule ValueFlows.Proposal.Proposals do
     end
   end
 
-    def ap_object_prepare_attempt2(id) do
+  def ap_object_prepare_attempt2(id) do
     with obj <- graphql_get_proposal_attempt2(id) do
       Map.merge(
         %{
@@ -335,10 +333,42 @@ defmodule ValueFlows.Proposal.Proposals do
     end
   end
 
+  def graphql_document_for(schema, type, nesting, overrides \\ []) do
+    schema
+    |> CommonsPub.Web.GraphQL.ListTypes.fields_for(type, nesting)
+    # |> IO.inspect()
+    |> CommonsPub.Web.GraphQL.ListTypes.merge_overrides(overrides)
+    |> CommonsPub.Web.GraphQL.ListTypes.format_fields(type, 10, schema)
+    |> List.to_string()
+  end
+
+  @ignore [:communities, :collections, :my_like, :my_flag, :unit_based, :feature_count, :follower_count, :is_local, :is_disabled, :page_info, :edges, :threads, :outbox, :inbox, :followers, :community_follows]
+
+  def fields_filter(e) do
+    # IO.inspect(e)
+
+    case e do
+      {key, {key2, val}} ->
+        if key not in @ignore and key2 not in @ignore and is_list(val) do
+          {key, {key2, for(n <- val, do: fields_filter(n))}}
+        # else
+        #   IO.inspect(hmm1: e)
+        end
+
+      {key, val} ->
+        if key not in @ignore and is_list(val) do
+          {key, for(n <- val, do: fields_filter(n))}
+        # else
+        #   IO.inspect(hmm2: e)
+        end
+
+      _ ->
+        if e not in @ignore, do: e
+    end
+  end
+
   def graphql_get_proposal_attempt3(id) do
-
-
-    query = Assertions.Absinthe.document_for(@schema, :proposal, 4, [])
+    query = graphql_document_for(@schema, :proposal, 4, &fields_filter/1)
     IO.inspect(query)
 
     with {:ok, g} <-
@@ -350,12 +380,10 @@ defmodule ValueFlows.Proposal.Proposals do
             }
            """
            |> Absinthe.run(@schema, variables: %{"id" => id}) do
-            IO.inspect(g)
+      IO.inspect(g)
       g |> Map.get(:data) |> Map.get("proposal")
     end
   end
-
-
 
   def ap_object_prepare_attempt3(id) do
     with obj <- graphql_get_proposal_attempt3(id) do
