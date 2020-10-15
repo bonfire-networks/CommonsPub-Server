@@ -123,6 +123,7 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
       Oban.drain_queue(queue: :mn_ap_publish)
 
       {:ok, like} = CommonsPub.Likes.create(user, comment, %{is_local: true})
+      # IO.inspect(like)
 
       assert {:ok, _, _} =
                APPublishWorker.perform(%{"context_id" => like.id, "op" => "create"}, %{})

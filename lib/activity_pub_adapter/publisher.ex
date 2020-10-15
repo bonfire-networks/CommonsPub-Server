@@ -168,9 +168,10 @@ defmodule CommonsPub.ActivityPub.Publisher do
     follow = Repo.preload(follow, creator: :character, context: [:table])
 
     with {:ok, follower} <-
-           Actor.get_cached_by_username(the_actor(follow.creator).preferred_username),
+           Actor.get_cached_by_username(follow.creator.character.preferred_username),
          followed = Pointers.follow!(follow.context),
-         {:ok, followed} <- Actor.get_or_fetch_by_username(the_actor(followed).preferred_username) do
+         followed = Repo.preload(followed, :character),
+         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.character.preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
         CommonsPub.Follows.soft_delete(follow.creator, follow)
         {:error, "account is private"}
@@ -181,16 +182,6 @@ defmodule CommonsPub.ActivityPub.Publisher do
     else
       e -> {:error, e}
     end
-  end
-
-  def the_actor(%{actor: _} = obj) do
-    Repo.preload(obj, :actor)
-    obj.actor
-  end
-
-  def the_actor(%{character: character} = obj) do
-    obj = Repo.preload(obj, :character)
-    obj.character
   end
 
   def unfollow(follow) do
@@ -234,10 +225,13 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   def like(like) do
-    like = Repo.preload(like, creator: :character, context: [])
+    like = Repo.preload(like, [:context, creator: :character])
+    IO.inspect(pub_like: like)
 
     with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id) do
       liked = Pointers.follow!(like.context)
+      IO.inspect(pub_like_object: liked)
+
       object = Utils.get_object(liked)
       ActivityPub.like(liker, object)
     else
@@ -266,7 +260,16 @@ defmodule CommonsPub.ActivityPub.Publisher do
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
         case flagged do
-          %{actor_id: id} when not is_nil(id) ->
+          %{character: %{preferred_username: preferred_username} = _character}
+          when not is_nil(preferred_username) ->
+            {:ok, account} = ActivityPub.Actor.get_or_fetch_by_username(preferred_username)
+
+            %{
+              statuses: nil,
+              account: account
+            }
+
+          %{character_id: id} when not is_nil(id) ->
             flagged = Repo.preload(flagged, :character)
 
             {:ok, account} =
