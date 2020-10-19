@@ -112,11 +112,38 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   def track(event) do
-    with {:ok, events} <- many([:default, output_of_id: event.output_of_id]),
-         resource_ids = Enum.map(events, &(&1.resource_inventoried_as_id)) ++ [event.to_resource_inventoried_as_id],
-         {:ok, resources} <- EconomicResources.many([:default, id: resource_ids]) do
-        #  {:ok, processes} <- Processes.many([:default, id: event.input_of_id]) do
-      {:ok, resources}
+    with {:ok, resources} <- track_resource_output(event),
+         {:ok, to_resources} <- track_to_resource_output(event),
+         {:ok, processes} <- track_process_input(event) do
+      {:ok, resources ++ to_resources ++ processes}
+    end
+  end
+
+
+  defp track_to_resource_output(event) do
+    if event.action_id in ["transfer", "move"] and not is_nil(event.to_resource_inventoried_as_id) do
+      EconomicResources.many([:default, id: event.to_resource_inventoried_as_id])
+    else
+      {:ok, []}
+    end
+  end
+
+  defp track_resource_output(event) do
+    if is_nil(event.output_of_id) do
+      {:ok, []}
+    else
+      with {:ok, events} <- many([:default, output_of_id: event.output_of_id]),
+           resource_ids = Enum.map(events, &(&1.resource_inventoried_as_id)) do
+        EconomicResources.many([:default, id: resource_ids])
+      end
+    end
+  end
+
+  defp track_process_input(event) do
+    if is_nil(event.input_of_id) do
+      {:ok, []}
+    else
+      Processes.many([:default, id: event.input_of_id])
     end
   end
 
