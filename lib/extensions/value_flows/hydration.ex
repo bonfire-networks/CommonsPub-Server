@@ -6,6 +6,10 @@ defmodule ValueFlows.Hydration do
 
   alias CommonsPub.Users.User
   alias CommonsPub.Communities.Community
+  alias ValueFlows.Observation.{
+    Process,
+    EconomicResource
+  }
 
   def hydrate() do
     agent_fields = %{
@@ -28,6 +32,9 @@ defmodule ValueFlows.Hydration do
       ],
       agent: [
         resolve_type: &__MODULE__.agent_resolve_type/2
+      ],
+      production_flow_item: [
+        resolve_type: &__MODULE__.production_flow_item_resolve_type/2
       ],
       accounting_scope: [
         resolve_type: &__MODULE__.resolve_context_type/2
@@ -125,6 +132,12 @@ defmodule ValueFlows.Hydration do
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
+        ],
+        trace: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.trace/3
+        ],
+        track: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.track/3
         ]
       },
       economic_resource: %{
@@ -398,4 +411,8 @@ defmodule ValueFlows.Hydration do
   # def resolve_context_type(%Organisation{}, _), do: :organisation
   def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%User{}, _), do: :user
+
+  def production_flow_item_resolve_type(%EconomicResource{}, _), do: :economic_resource
+  def production_flow_item_resolve_type(%Process{}, _), do: :process
+
 end

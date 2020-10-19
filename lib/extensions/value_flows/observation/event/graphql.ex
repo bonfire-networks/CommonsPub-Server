@@ -230,6 +230,16 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     events_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
+
+  def track(event, _, _) do
+    EconomicEvents.track(event)
+  end
+
+  def trace(event, _, _) do
+    EconomicEvents.trace(event)
+  end
+
+
   ## fetchers
 
   def fetch_event(info, id) do
