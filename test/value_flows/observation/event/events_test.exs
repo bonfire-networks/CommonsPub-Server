@@ -84,16 +84,52 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
   describe "trace" do
     test "Return the process to which it is an output" do
+      user = fake_user!()
+      process = fake_process!(user)
+      event = fake_economic_event!(user, %{
+        output_of: process.id,
+        action: "produce"
+      })
+      assert {:ok, [traced_process]} = EconomicEvents.trace(event)
 
+      assert process.id == traced_process.id
     end
 
     test "return an economic Resource which it affected as the input of a process" do
-
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      another_resource = fake_economic_resource!(user)
+      process = fake_process!(user)
+      event = fake_economic_event!(user, %{
+        input_of: process.id,
+        action: "consume"
+      })
+      event_a = fake_economic_event!(user, %{
+        input_of: process.id,
+        action: "use",
+        resource_inventoried_as: resource.id
+      })
+      event_b = fake_economic_event!(user, %{
+        input_of: process.id,
+        action: "cite",
+        resource_inventoried_as: another_resource.id
+      })
+      assert {:ok, resources} = EconomicEvents.trace(event)
+      assert Enum.map(resources, &(&1.id)) == [resource.id, another_resource.id]
     end
 
-    test "if it is a transfer or move event and the current EconomicResource is the toResourceInventoriedAs,
-          then the previous EconomicResource is the resourceInventoriedAs" do
-
+    test "if it is a transfer or move event, then the previous
+          EconomicResource is the resourceInventoriedAs" do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      event = fake_economic_event!(user, %{
+        action: "transfer",
+        resource_inventoried_as: resource.id,
+        provider: user.id,
+        receiver: user.id
+      })
+      assert {:ok, [traced_resource]} = EconomicEvents.trace(event)
+      assert resource.id == traced_resource.id
     end
   end
 

@@ -148,7 +148,38 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   def trace(event) do
-    []
+    with {:ok, resources} <- trace_resource_input(event),
+         {:ok, processes} <- trace_process_output(event),
+         {:ok, resources_inventoried_as} <- trace_resource_inventoried_as(event) do
+      {:ok, processes ++ resources_inventoried_as ++ resources}
+    end
+  end
+
+  defp trace_process_output(event) do
+    if is_nil(event.output_of_id) do
+      {:ok, []}
+    else
+      Processes.many([:default, id: event.output_of_id])
+    end
+  end
+
+  defp trace_resource_input(event) do
+    if is_nil(event.input_of_id) do
+      {:ok, []}
+    else
+      with {:ok, events} <- many([:default, input_of_id: event.input_of_id]),
+           resource_ids = Enum.map(events, &(&1.resource_inventoried_as_id)) do
+        EconomicResources.many([:default, id: resource_ids])
+      end
+    end
+  end
+
+  defp trace_resource_inventoried_as(event) do
+    if event.action_id in ["transfer", "move"] and not is_nil(event.resource_inventoried_as_id) do
+      EconomicResources.many([:default, id: event.resource_inventoried_as_id])
+    else
+      {:ok, []}
+    end
   end
 
   ## mutations
