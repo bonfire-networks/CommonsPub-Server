@@ -17,6 +17,10 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
   @behaviour ActivityPub.Adapter
 
+  def base_url() do
+    CommonsPub.Web.Endpoint.url()
+  end
+
   def get_follower_local_ids(actor) do
     {:ok, actor} = get_raw_actor_by_id(actor.pointer_id)
     {:ok, follows} = CommonsPub.Follows.many(context: actor.id)
