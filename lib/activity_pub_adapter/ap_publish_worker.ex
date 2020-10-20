@@ -35,7 +35,7 @@ defmodule CommonsPub.Workers.APPublishWorker do
   end
 
   @impl Worker
-  def perform(%{"context_id" => context_id, "op" => "delete"}, _job) do
+  def perform(%{"context_id" => context_id, "op" => "delete"}) do
     # FIXME
     object =
       with {:error, _e} <-
@@ -58,7 +58,7 @@ defmodule CommonsPub.Workers.APPublishWorker do
     end
   end
 
-  def perform(%{"context_id" => context_id, "op" => verb}, _job) do
+  def perform(%{"context_id" => context_id, "op" => verb}) do
     Pointers.one!(id: context_id)
     |> Pointers.follow!()
     |> only_local(&publish/2, verb)
