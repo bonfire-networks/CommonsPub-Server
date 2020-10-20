@@ -14,15 +14,15 @@ defmodule CommonsPub.NodeinfoAdapter do
   def gather_nodeinfo_data() do
     instance = Application.get_env(:activity_pub, :instance)
 
-    %{
-      name: CommonsPub.Application.name() |> String.downcase(),
-      version: CommonsPub.Application.version(),
+    %Nodeinfo{
+      app_name: CommonsPub.Application.name() |> String.downcase(),
+      app_version: CommonsPub.Application.version(),
       open_registrations: Config.get([CommonsPub.Users, :public_registration]),
       user_count: user_count(),
       node_name: instance[:name],
       node_description: instance[:description],
       federating: instance[:federating],
-      repository: CommonsPub.Application.repository()
+      app_repository: CommonsPub.Application.repository()
     }
   end
 end
