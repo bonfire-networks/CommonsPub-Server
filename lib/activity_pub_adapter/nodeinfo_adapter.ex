@@ -1,6 +1,5 @@
 defmodule CommonsPub.NodeinfoAdapter do
   @behaviour Nodeinfo.Adapter
-  alias CommonsPub.Application
   alias CommonsPub.Config
 
   def base_url() do
@@ -8,20 +7,22 @@ defmodule CommonsPub.NodeinfoAdapter do
   end
 
   def user_count() do
-    {:ok, users} = CommonsPub.Users.many(preset: :actor, peer: nil)
+    {:ok, users} = CommonsPub.Users.many(preset: :character, peer: nil)
     length(users)
   end
 
   def gather_nodeinfo_data() do
+    instance = Application.get_env(:activity_pub, :instance)
+
     %{
-      name: Application.name() |> String.downcase(),
-      version: Application.version(),
+      name: CommonsPub.Application.name() |> String.downcase(),
+      version: CommonsPub.Application.version(),
       open_registrations: Config.get([CommonsPub.Users, :public_registration]),
       user_count: user_count(),
-      nodeName: Config.get([:instance, :name]),
-      nodeDescription: Config.get([:instance, :description]),
-      federation: Config.get([:instance, :federating]),
-      repository: Application.repository()
+      node_name: instance[:name],
+      node_description: instance[:description],
+      federating: instance[:federating],
+      repository: CommonsPub.Application.repository()
     }
   end
 end
