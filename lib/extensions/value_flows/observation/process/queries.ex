@@ -159,27 +159,11 @@ defmodule ValueFlows.Observation.Process.Queries do
   end
 
   def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [process: c], c.provider_id == ^id or c.receiver_id == ^id)
+    where(q, [process: c], c.creator_id == ^id)
   end
 
   def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [process: c], c.provider_id in ^ids or c.receiver_id in ^ids)
-  end
-
-  def filter(q, {:provider_id, id}) when is_binary(id) do
-    where(q, [process: c], c.provider_id == ^id)
-  end
-
-  def filter(q, {:provider_id, ids}) when is_list(ids) do
-    where(q, [process: c], c.provider_id in ^ids)
-  end
-
-  def filter(q, {:receiver_id, id}) when is_binary(id) do
-    where(q, [process: c], c.receiver_id == ^id)
-  end
-
-  def filter(q, {:receiver_id, ids}) when is_list(ids) do
-    where(q, [process: c], c.receiver_id in ^ids)
+    where(q, [process: c], c.creator_id in ^ids)
   end
 
   def filter(q, {:action_id, ids}) when is_list(ids) do

@@ -31,6 +31,20 @@ defmodule ValueFlows.Test.Faking do
 
   alias ValueFlows.Proposal.{ProposedTo, ProposedIntent}
 
+  # def assert_agent(%{} = a) do
+  #   assert_agent(Map.from_struct(a))
+  # end
+
+  def assert_agent(a) do
+    assert_object(a, :assert_agent,
+      name: &assert_binary/1,
+      note: assert_optional(&assert_binary/1),
+      display_username: assert_optional(&assert_binary/1),
+      canonical_url: assert_optional(&assert_binary/1)
+    )
+  end
+
+
   def assert_action(%Action{} = action) do
     assert_action(Map.from_struct(action))
   end
@@ -216,6 +230,30 @@ defmodule ValueFlows.Test.Faking do
   end
 
   ## Graphql
+
+  def person_fields(extra \\ []) do
+    extra ++
+      ~w(name note agent_type canonical_url image display_username)a
+  end
+
+  def person_subquery(options \\ []) do
+    gen_subquery(:id, :person, &person_fields/1, options)
+  end
+
+  def person_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &person_subquery/1, options)
+  end
+
+  def people_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ person_fields(fields)
+    field(:people, [{:fields, fields} | options])
+  end
+
+  def people_query(options \\ []) do
+    gen_query(&people_subquery/1, options)
+  end
 
   def action_fields(extra \\ []) do
     extra ++
@@ -581,40 +619,44 @@ defmodule ValueFlows.Test.Faking do
 
   def process_inputs_query(options \\ []) do
     query(
-        name: "test",
-        params: [id: type!(:id), action_id: type(:id)],
-        fields: [
-          field(
-            :process,
-            [
-              args: [id: var(:id)],
-              fields: process_fields() ++ [field(
-                :inputs,
-                [{:args, [action: var(:action_id)]} | options]
-              )]
-            ]
-          )
-        ]
-      )
+      name: "test",
+      params: [id: type!(:id), action_id: type(:id)],
+      fields: [
+        field(
+          :process,
+          args: [id: var(:id)],
+          fields:
+            process_fields() ++
+              [
+                field(
+                  :inputs,
+                  [{:args, [action: var(:action_id)]} | options]
+                )
+              ]
+        )
+      ]
+    )
   end
 
   def process_outputs_query(options \\ []) do
     query(
-        name: "test",
-        params: [id: type!(:id), action_id: type(:id)],
-        fields: [
-          field(
-            :process,
-            [
-              args: [id: var(:id)],
-              fields: process_fields() ++ [field(
-                :outputs,
-                [{:args, [action: var(:action_id)]} | options]
-              )]
-            ]
-          )
-        ]
-      )
+      name: "test",
+      params: [id: type!(:id), action_id: type(:id)],
+      fields: [
+        field(
+          :process,
+          args: [id: var(:id)],
+          fields:
+            process_fields() ++
+              [
+                field(
+                  :outputs,
+                  [{:args, [action: var(:action_id)]} | options]
+                )
+              ]
+        )
+      ]
+    )
   end
 
   def processes_subquery(options \\ []) do

@@ -91,4 +91,12 @@ defmodule ValueFlows.Agent.GraphQL do
   def agent(%{id: id}, info) do
     {:ok, ValueFlows.Agent.Agents.agent(id, CommonsPub.GraphQL.current_user(info))}
   end
+
+  def mutate_person(_, _) do
+    {:error, "Please use one of these instead: createUser, updateProfile, deleteSelf"}
+  end
+
+  def mutate_organization(_, _) do
+    {:error, "Please use one of these instead (notice the spelling difference): createOrganisation, updateOrganisation, delete"}
+  end
 end
