@@ -34,7 +34,7 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
       }
 
       {:ok, activity} = ActivityPub.create(params)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
 
       assert {:ok, resource} =
                CommonsPub.Repo.fetch_by(CommonsPub.Resources.Resource, %{
@@ -58,7 +58,7 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
       followed = fake_user!() |> fake_community!()
       {:ok, ap_followed} = ActivityPub.Actor.get_by_local_id(followed.id)
       {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, follower} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
       {:ok, follow} = CommonsPub.Follows.one(creator: follower.id, context: followed.id)
 
@@ -120,9 +120,10 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
       user2 = fake_user!()
       thread = fake_thread!(user2, community)
       comment = fake_comment!(user2, thread, %{is_local: true})
-      Oban.drain_queue(:mn_ap_publish)
+      Oban.drain_queue(queue: :mn_ap_publish)
 
       {:ok, like} = CommonsPub.Likes.create(user, comment, %{is_local: true})
+      # IO.inspect(like)
 
       assert {:ok, _, _} =
                APPublishWorker.perform(%{"context_id" => like.id, "op" => "create"}, %{})
@@ -134,7 +135,7 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
       user = fake_user!()
       community = fake_user!() |> fake_community!()
       {:ok, follow} = CommonsPub.Follows.create(user, community, %{is_local: true})
-      Oban.drain_queue(:mn_ap_publish)
+      Oban.drain_queue(queue: :mn_ap_publish)
       {:ok, deleted_follow} = CommonsPub.Follows.soft_delete(user, follow)
 
       assert {:ok, activity} =
@@ -152,9 +153,9 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
       user2 = fake_user!()
       thread = fake_thread!(user2, community)
       comment = fake_comment!(user2, thread, %{is_local: true})
-      Oban.drain_queue(:mn_ap_publish)
+      Oban.drain_queue(queue: :mn_ap_publish)
       {:ok, like} = CommonsPub.Likes.create(user, comment, %{is_local: true})
-      Oban.drain_queue(:mn_ap_publish)
+      Oban.drain_queue(queue: :mn_ap_publish)
       {:ok, deleted_like} = CommonsPub.Likes.soft_delete(user, like)
 
       assert {:ok, activity, _, _} =
@@ -201,7 +202,7 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
       community = fake_community!(user)
       thread = fake_thread!(user, community)
       comment = fake_comment!(user, thread, %{is_local: true})
-      Oban.drain_queue(:mn_ap_publish)
+      Oban.drain_queue(queue: :mn_ap_publish)
       {:ok, comment} = CommonsPub.Threads.Comments.soft_delete(user, comment)
 
       assert {:ok, activity} =
@@ -215,7 +216,7 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
       community = fake_community!(user)
       collection = fake_collection!(user, community)
       resource = fake_resource!(user, collection)
-      Oban.drain_queue(:mn_ap_publish)
+      Oban.drain_queue(queue: :mn_ap_publish)
       {:ok, resource} = CommonsPub.Resources.soft_delete(user, resource)
 
       assert {:ok, activity} =

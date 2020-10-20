@@ -10,7 +10,13 @@ defmodule CommonsPub.Meta.Pointers do
 
   def many(filters \\ []), do: {:ok, Repo.all(PointersQueries.query(Pointer, filters))}
 
+  # already have a pointer - just return it
   def maybe_forge!(%Pointer{} = pointer), do: pointer
+
+  # for ActivityPub objects (like ActivityPub.Actor)
+  def maybe_forge!(%{pointer_id: pointer_id} = _ap_object), do: one!(id: pointer_id)
+
+  # forge a pointer
   def maybe_forge!(%{__struct__: _} = pointed), do: forge!(pointed)
 
   @doc """
@@ -23,11 +29,13 @@ defmodule CommonsPub.Meta.Pointers do
   @doc """
   Forge a pointer from a structure that participates in the meta abstraction.
 
-  Does not hit the database, is safe so long as the provided struct
-  participates in the meta abstraction
+  Does not hit the database.
+
+  Is safe so long as the provided struct participates in the meta abstraction.
   """
   @spec forge!(%{__struct__: atom, id: binary}) :: %Pointer{}
   def forge!(%{__struct__: table_id, id: id} = pointed) do
+    # IO.inspect(forge: pointed)
     table = TableService.lookup!(table_id)
     %Pointer{id: id, table: table, table_id: table.id, pointed: pointed}
   end
@@ -53,6 +61,7 @@ defmodule CommonsPub.Meta.Pointers do
 
   @spec preload!(Pointer.t() | [Pointer.t()]) :: Pointer.t() | [Pointer.t()]
   @spec preload!(Pointer.t() | [Pointer.t()], list) :: Pointer.t() | [Pointer.t()]
+
   @doc """
   Follows one or more pointers and adds the pointed records to the `pointed` attrs
   """

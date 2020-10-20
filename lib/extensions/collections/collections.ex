@@ -254,6 +254,32 @@ defmodule CommonsPub.Collections do
 
   defp ap_publish(_, _), do: :ok
 
+  def ap_activity("create", collection) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(collection.creator_id),
+         {:ok, ap_collection} <- ActivityPub.Actor.get_cached_by_local_id(collection.id),
+         collection_object <-
+           ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
+         # FIXME: optional
+         {:ok, ap_context} <- ActivityPub.Actor.get_cached_by_local_id(collection.context_id),
+         params <- %{
+           actor: actor,
+           to: [@public_uri, ap_context.ap_id],
+           object: collection_object,
+           context: ActivityPub.Utils.generate_context_id(),
+           additional: %{
+             "cc" => [actor.data["followers"]]
+           }
+         },
+         {:ok, activity} <- ActivityPub.create(params) do
+      Ecto.Changeset.change(collection.character, %{canonical_url: collection_object["id"]})
+      |> Repo.update()
+
+      {:ok, activity}
+    else
+      e -> {:error, e}
+    end
+  end
+
   def indexing_object_format(%CommonsPub.Collections.Collection{} = collection) do
     collection = CommonHelper.maybe_preload(collection, [:context, :creator])
     context = CommonHelper.maybe_preload(collection.context, :character)
