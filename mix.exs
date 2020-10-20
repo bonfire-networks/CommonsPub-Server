@@ -86,6 +86,7 @@ defmodule CommonsPub.Mixfile do
       {:absinthe_error_payload, "~> 1.0"},
       # activitypub
       {:activity_pub, git: "https://gitlab.com/CommonsPub/activitypub", branch: "develop"},
+      {:nodeinfo, git: "https://github.com/voxpub/nodeinfo", branch: "main"},
       # webserver
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.2"},
