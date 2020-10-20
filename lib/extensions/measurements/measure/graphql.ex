@@ -48,6 +48,10 @@ defmodule Measurement.Measure.GraphQL do
     })
   end
 
+    def has_unit_edge(_, _, info) do
+      {:ok, nil}
+    end
+
   # fetchers
 
   def fetch_measure(info, id) do

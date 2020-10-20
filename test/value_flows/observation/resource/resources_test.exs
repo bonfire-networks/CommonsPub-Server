@@ -23,6 +23,70 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   end
 
+  describe "EconomicResources.track" do
+    test "Returns a list of EconomicEvents affecting it that are inputs to Processes " do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      process = fake_process!(user)
+      input_events = some(3, fn -> fake_economic_event!(user, %{
+        input_of: process.id,
+        resource_inventoried_as: resource.id,
+        action: "use"
+      }) end)
+      output_events = some(5, fn -> fake_economic_event!(user, %{
+        output_of: process.id,
+        resource_inventoried_as: resource.id,
+        action: "produce"
+      }) end)
+      assert {:ok, events} = EconomicResources.track(resource)
+      assert Enum.map(events, &(&1.id)) == Enum.map(input_events, &(&1.id))
+    end
+
+    test "Returns a list of transfer/move EconomicEvents with the resource defined as the resourceInventoriedAs" do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      input_events = some(3, fn -> fake_economic_event!(user, %{
+        resource_inventoried_as: resource.id,
+        action: "transfer"
+      }) end)
+      assert {:ok, events} = EconomicResources.track(resource)
+      assert Enum.map(events, &(&1.id)) == Enum.map(input_events, &(&1.id))
+    end
+  end
+
+  describe "EconomicResources.trace" do
+    test "Returns a list of EconomicEvents affecting it that are outputs from Processes" do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      process = fake_process!(user)
+      input_events = some(3, fn -> fake_economic_event!(user, %{
+        input_of: process.id,
+        # to_resource_inventoried_as: resource.id,
+        action: "use"
+      }) end)
+      output_events = some(5, fn -> fake_economic_event!(user, %{
+        output_of: process.id,
+        # to_resource_inventoried_as: resource.id,
+        action: "produce"
+      }) end)
+      assert {:ok, events} = EconomicResources.trace(resource)
+      assert Enum.map(events, &(&1.id)) == Enum.map(output_events, &(&1.id))
+    end
+
+    test "Returns a list of transfer/move EconomicEvents with the resource defined as the toResourceInventoriedAs" do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      input_events = some(3, fn -> fake_economic_event!(user, %{
+        provider: user.id,
+        receiver: user.id,
+        to_resource_inventoried_as: resource.id,
+        action: "transfer"
+      }) end)
+      assert {:ok, events} = EconomicResources.trace(resource)
+      assert Enum.map(events, &(&1.id)) == Enum.map(input_events, &(&1.id))
+    end
+  end
+
   describe "create" do
     test "can create an economic resource" do
       user = fake_user!()

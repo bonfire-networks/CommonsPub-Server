@@ -11,11 +11,17 @@ defmodule Measurement.Hydration do
       #   resolve_type: &CommonResolver.resolve_context_type/2
       # ],
       unit: %{
+        canonical_url: [
+          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+        ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ]
       },
       measure: %{
+        canonical_url: [
+          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+        ],
         has_unit: [
           resolve: &Measurement.Measure.GraphQL.has_unit_edge/3
         ]

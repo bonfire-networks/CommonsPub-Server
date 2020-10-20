@@ -23,6 +23,8 @@ defmodule CommonsPub.Collections do
   alias CommonsPub.Users.User
   alias CommonsPub.Workers.APPublishWorker
 
+  alias CommonsPub.Utils.Web.CommonHelper
+
   def cursor(:followers), do: &[&1.follower_count, &1.id]
 
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -46,8 +48,7 @@ defmodule CommonsPub.Collections do
       # attrs = Characters.prepare_username(attrs)
 
       # TODO: address activity to context's outbox/followers
-      community_or_context =
-        CommonsPub.Utils.Web.CommonHelper.maybe_preload(community_or_context, :character)
+      community_or_context = CommonHelper.maybe_preload(community_or_context, :character)
 
       # with {:ok, character} <- Characters.create(creator, attrs),
       #      {:ok, coll_attrs} <- create_boxes(character, attrs),
@@ -64,6 +65,10 @@ defmodule CommonsPub.Collections do
         {:ok, %{coll | character: character}}
       end
     end)
+  end
+
+  def create(%User{} = creator, _, attrs) when is_map(attrs) do
+    create(creator, attrs)
   end
 
   # Create without context
@@ -248,4 +253,61 @@ defmodule CommonsPub.Collections do
   end
 
   defp ap_publish(_, _), do: :ok
+
+  def ap_activity("create", collection) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(collection.creator_id),
+         {:ok, ap_collection} <- ActivityPub.Actor.get_cached_by_local_id(collection.id),
+         collection_object <-
+           ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
+         # FIXME: optional
+         {:ok, ap_context} <- ActivityPub.Actor.get_cached_by_local_id(collection.context_id),
+         params <- %{
+           actor: actor,
+           to: [@public_uri, ap_context.ap_id],
+           object: collection_object,
+           context: ActivityPub.Utils.generate_context_id(),
+           additional: %{
+             "cc" => [actor.data["followers"]]
+           }
+         },
+         {:ok, activity} <- ActivityPub.create(params) do
+      Ecto.Changeset.change(collection.character, %{canonical_url: collection_object["id"]})
+      |> Repo.update()
+
+      {:ok, activity}
+    else
+      e -> {:error, e}
+    end
+  end
+
+  def indexing_object_format(%CommonsPub.Collections.Collection{} = collection) do
+    collection = CommonHelper.maybe_preload(collection, [:context, :creator])
+    context = CommonHelper.maybe_preload(collection.context, :character)
+
+    follower_count =
+      case CommonsPub.Follows.FollowerCounts.one(context: collection.id) do
+        {:ok, struct} -> struct.count
+        {:error, _} -> nil
+      end
+
+    icon = CommonsPub.Uploads.remote_url_from_id(collection.icon_id)
+    url = CommonsPub.ActivityPub.Utils.get_actor_canonical_url(collection)
+
+    %{
+      "index_type" => "Collection",
+      "id" => collection.id,
+      "canonical_url" => url,
+      "followers" => %{
+        "total_count" => follower_count
+      },
+      "icon" => icon,
+      "name" => collection.name,
+      "username" => CommonsPub.Characters.display_username(collection),
+      "summary" => Map.get(collection, :summary),
+      "published_at" => collection.published_at,
+      "index_instance" => CommonsPub.Search.Indexer.host(url),
+      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context),
+      "creator" => CommonsPub.Search.Indexer.format_creator(collection)
+    }
+  end
 end

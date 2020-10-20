@@ -7,6 +7,11 @@ defmodule ValueFlows.Hydration do
   alias CommonsPub.Users.User
   alias CommonsPub.Communities.Community
 
+  alias ValueFlows.Observation.{
+    Process,
+    EconomicResource
+  }
+
   def hydrate() do
     agent_fields = %{
       canonical_url: [
@@ -17,7 +22,20 @@ defmodule ValueFlows.Hydration do
       ],
       image: [
         resolve: &UploadResolver.image_content_edge/3
-      ]
+      ],
+      intents: [
+        resolve: &ValueFlows.Planning.Intent.GraphQL.provider_intents/3
+      ],
+      processes: [
+        resolve: &ValueFlows.Observation.Process.GraphQL.creator_processes/3
+      ],
+      economic_events: [
+        resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.agent_events/3
+      ],
+      inventoried_economic_resources: [
+        resolve: &ValueFlows.Observation.EconomicResource.GraphQL.agent_resources/3
+      ],
+
     }
 
     %{
@@ -28,6 +46,9 @@ defmodule ValueFlows.Hydration do
       ],
       agent: [
         resolve_type: &__MODULE__.agent_resolve_type/2
+      ],
+      production_flow_item: [
+        resolve_type: &__MODULE__.production_flow_item_resolve_type/2
       ],
       accounting_scope: [
         resolve_type: &__MODULE__.resolve_context_type/2
@@ -42,13 +63,16 @@ defmodule ValueFlows.Hydration do
       # ],
       proposed_intent: %{
         publishes: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.intent_in_proposal_edge/3,
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.intent_in_proposal_edge/3
         ],
         published_in: [
-          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposal_in_intent_edge/3,
-        ],
+          resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.proposal_in_intent_edge/3
+        ]
       },
       proposal: %{
+        canonical_url: [
+          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+        ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
@@ -60,9 +84,12 @@ defmodule ValueFlows.Hydration do
         ],
         published_to: [
           resolve: &ValueFlows.Proposal.ProposedToGraphQL.published_to_edge/3
-        ],
+        ]
       },
       intent: %{
+        canonical_url: [
+          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+        ],
         provider: [
           resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
         ],
@@ -92,6 +119,9 @@ defmodule ValueFlows.Hydration do
         ]
       },
       economic_event: %{
+        canonical_url: [
+          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+        ],
         provider: [
           resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
         ],
@@ -117,8 +147,17 @@ defmodule ValueFlows.Hydration do
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
+        trace: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.trace/3
+        ],
+        track: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.track/3
+        ]
       },
       economic_resource: %{
+        canonical_url: [
+          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+        ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
@@ -134,8 +173,17 @@ defmodule ValueFlows.Hydration do
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
+        trace: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.trace/3
+        ],
+        track: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.track/3
+        ]
       },
       process: %{
+        canonical_url: [
+          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+        ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
@@ -145,6 +193,18 @@ defmodule ValueFlows.Hydration do
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
+        track: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.track/3
+        ],
+        trace: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.trace/3
+        ],
+        inputs: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.inputs/3
+        ],
+        outputs: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.outputs/3
+        ]
       },
 
       # start Query resolvers
@@ -211,7 +271,6 @@ defmodule ValueFlows.Hydration do
         economic_events_filtered: [
           resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.events_filtered/2
         ],
-
         economic_resource: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resource/2
         ],
@@ -224,7 +283,6 @@ defmodule ValueFlows.Hydration do
         economic_resources_filtered: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.resources_filtered/2
         ],
-
         process: [
           resolve: &ValueFlows.Observation.Process.GraphQL.process/2
         ],
@@ -348,6 +406,24 @@ defmodule ValueFlows.Hydration do
         ],
         update_economic_resource: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.update_resource/2
+        ],
+        create_person: [
+          resolve: &ValueFlows.Agent.GraphQL.mutate_person/2
+        ],
+        update_person: [
+          resolve: &ValueFlows.Agent.GraphQL.mutate_person/2
+        ],
+        delete_person: [
+          resolve: &ValueFlows.Agent.GraphQL.mutate_person/2
+        ],
+        create_organization: [
+          resolve: &ValueFlows.Agent.GraphQL.mutate_organization/2
+        ],
+        update_organization: [
+          resolve: &ValueFlows.Agent.GraphQL.mutate_organization/2
+        ],
+        delete_organization: [
+          resolve: &ValueFlows.Agent.GraphQL.mutate_organization/2
         ]
       }
     }
@@ -367,4 +443,7 @@ defmodule ValueFlows.Hydration do
   # def resolve_context_type(%Organisation{}, _), do: :organisation
   def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%User{}, _), do: :user
+
+  def production_flow_item_resolve_type(%EconomicResource{}, _), do: :economic_resource
+  def production_flow_item_resolve_type(%Process{}, _), do: :process
 end

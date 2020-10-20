@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
-  use Absinthe.Schema.Notation
-
   # default to 100 km radius
   @radius_default_distance 100_000
 
@@ -41,6 +39,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
+  # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
   # TODO: put in config
@@ -80,7 +79,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     EconomicEvents.many([:default])
   end
 
-  def events_filtered(page_opts, _) do
+  def events_filtered(page_opts, _ \\ nil) do
     IO.inspect(events_filtered: page_opts)
     events_filter(page_opts, [])
   end
@@ -230,6 +229,14 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     events_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
+  def track(event, _, _) do
+    EconomicEvents.track(event)
+  end
+
+  def trace(event, _, _) do
+    EconomicEvents.trace(event)
+  end
+
   ## fetchers
 
   def fetch_event(info, id) do
@@ -241,17 +248,21 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     ])
   end
 
-  def creator_events_edge(%{creator: creator}, %{} = page_opts, info) do
+  def agent_events(%{id: agent}, %{} = page_opts, info) do
+    events_filtered(%{agent: agent})
+  end
+
+  def agent_events_edge(%{agent: agent}, %{} = page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
-      fetcher: :fetch_creator_events_edge,
-      context: creator,
+      fetcher: :fetch_agent_events_edge,
+      context: agent,
       page_opts: page_opts,
       info: info
     })
   end
 
-  def fetch_creator_events_edge(page_opts, info, ids) do
+  def fetch_agent_events_edge(page_opts, info, ids) do
     list_events(
       page_opts,
       [
@@ -291,7 +302,9 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     })
   end
 
-
+  def fetch_resource_inventoried_as_edge(%{resource_inventoried_as: {:error, error}}, _, _) do
+    {:error, error}
+  end
 
   def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
       when not is_nil(id) do
@@ -312,9 +325,8 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
            event_attrs = Map.merge(event_attrs, %{is_public: true}),
            #  {:ok, resource} <- ValueFlows.Observation.EconomicResource.GraphQL.create_resource(params, info),
            #  event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource}),
-           {:ok, event} <- EconomicEvents.create(user, event_attrs, params) do
-        {:ok,
-         %{economic_event: event, economic_resource: Map.get(event, :resource_inventoried_as)}}
+           {:ok, event, new_resource} <- EconomicEvents.create(user, event_attrs, params) do
+        {:ok, %{economic_event: event, economic_resource: new_resource}}
       end
     end)
   end

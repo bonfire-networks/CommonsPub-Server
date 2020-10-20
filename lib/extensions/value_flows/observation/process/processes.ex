@@ -11,6 +11,7 @@ defmodule ValueFlows.Observation.Process.Processes do
   # alias Measurement.Measure
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Queries
+  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -83,6 +84,34 @@ defmodule ValueFlows.Observation.Process.Processes do
     )
   end
 
+  def track(process), do: outputs(process)
+
+  def trace(process), do: inputs(process)
+
+  def inputs(%{id: id}, action_id \\ nil) when not is_nil(action_id) do
+    EconomicEvents.many([:default, input_of_id: id, action_id: action_id])
+  end
+
+  def inputs(%{id: id}, _) do
+    EconomicEvents.many([:default, input_of_id: id])
+  end
+
+  def inputs(_, _) do
+    {:ok, nil}
+  end
+
+  def outputs(%{id: id}, action_id \\ nil) when not is_nil(action_id) do
+    EconomicEvents.many([:default, output_of_id: id, action_id: action_id])
+  end
+
+  def outputs(%{id: id}, _) do
+    EconomicEvents.many([:default, output_of_id: id])
+  end
+
+  def outputs(_, _) do
+    {:ok, nil}
+  end
+
   ## mutations
 
   def create(%User{} = creator, %{id: _id} = context, attrs)
@@ -103,15 +132,15 @@ defmodule ValueFlows.Observation.Process.Processes do
     Repo.transact_with(fn ->
       cs = changeset_fn.()
 
-      with {:ok, item} <- Repo.insert(cs),
-           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
+      with {:ok, process} <- Repo.insert(cs),
+           {:ok, process} <- ValueFlows.Util.try_tag_thing(creator, process, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, item, activity, :created) do
-        item = %{item | creator: creator}
-        index(item)
-        {:ok, item}
+           {:ok, activity} <- Activities.create(creator, process, act_attrs),
+           :ok <- publish(creator, process, activity, :created) do
+        process = %{process | creator: creator}
+        index(process)
+        {:ok, process}
       end
     end)
   end
@@ -213,7 +242,7 @@ defmodule ValueFlows.Observation.Process.Processes do
   defp index(obj) do
     object = indexing_object_format(obj)
 
-    CommonsPub.Search.Indexer.index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
   end

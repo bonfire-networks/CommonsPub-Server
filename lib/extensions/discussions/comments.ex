@@ -286,7 +286,7 @@ defmodule CommonsPub.Threads.Comments do
   def index(comment) do
     object = indexing_object_format(comment)
 
-    CommonsPub.Search.Indexer.index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
   end

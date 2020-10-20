@@ -105,6 +105,11 @@ config :commons_pub, Instance,
   # what to show or exclude in Instance Timeline
   default_outbox_query_contexts: List.delete(contexts_all, Like)
 
+# config :commons_pub, User, # extend schema with Flexto
+#    has_many: [
+#     intents: {ValueFlows.Planning.Intent, foreign_key: :provider_id}   # has_many :bar, Bar, foreign_key: :the_bar_id
+#   ]
+
 config :commons_pub, Users,
   public_registration: false,
   default_outbox_query_contexts: contexts_all,
@@ -193,7 +198,7 @@ config :commons_pub, Uploads,
 # config :commons_pub, CommonsPub.Mail.MailService,
 #   adapter: Bamboo.MailgunAdapter
 
-config :commons_pub, :mrf_simple,
+config :activity_pub, :mrf_simple,
   media_removal: [],
   media_nsfw: [],
   report_removal: [],
@@ -239,7 +244,8 @@ version =
     _ -> "CommonsPub #{Mix.Project.config()[:version]} dev"
   end
 
-config :commons_pub, :instance,
+config :activity_pub, :instance,
+  hostname: "localhost",
   version: version,
   name: "CommonsPub",
   email: "root@localhost",
@@ -385,7 +391,7 @@ config :argon2_elixir,
   argon2_type: 2
 
 # Configures http settings, upstream proxy etc.
-config :commons_pub, :http,
+config :activity_pub, :http,
   proxy_url: nil,
   send_user_agent: true,
   adapter: [
@@ -402,11 +408,13 @@ config :phoenix, :json_library, Jason
 
 config :furlex, Furlex.Oembed, oembed_host: "https://oembed.com"
 
-config :tesla, adapter: Tesla.Adapter.Gun
+config :tesla, adapter: Tesla.Adapter.Hackney
 
 config :http_signatures, adapter: ActivityPub.Signature
 
-config :commons_pub, ActivityPub.Adapter, adapter: CommonsPub.ActivityPub.Adapter
+config :activity_pub, adapter: CommonsPub.ActivityPub.Adapter
+
+config :nodeinfo, adapter: CommonsPub.NodeinfoAdapter
 
 config :floki, :html_parser, Floki.HTMLParser.Html5ever
 
@@ -435,6 +443,8 @@ config :commons_pub, :ux,
   # prosemirror or ck5 as content editor:
   # editor: "prosemirror"
   editor: "ck5"
+
+config :activity_pub, :repo, CommonsPub.Repo
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

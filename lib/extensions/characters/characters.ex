@@ -445,6 +445,11 @@ defmodule CommonsPub.Characters do
     display_username(Map.get(obj, :character), full_hostname, prefix)
   end
 
+  def display_username(%Pointer{} = pointer, full_hostname, prefix) do
+    thing = CommonsPub.Meta.Pointers.follow!(pointer)
+    display_username(thing, full_hostname, prefix)
+  end
+
   def display_username(obj, _, _) do
     IO.inspect(could_not_display_username: obj)
     ""

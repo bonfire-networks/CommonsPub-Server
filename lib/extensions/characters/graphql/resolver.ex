@@ -203,7 +203,7 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
   # end
 
   @doc "Returns the canonical url"
-  def canonical_url_edge(%{character: %Character{canonical_url: u}}, _, _), do: {:ok, u}
+  def canonical_url_edge(obj, _, _), do: {:ok, CommonsPub.ActivityPub.Utils.get_actor_canonical_url(obj)}
 
   @doc "Returns the preferred_username "
   def preferred_username_edge(%{character: %Character{preferred_username: u}}, _, _), do: {:ok, u}

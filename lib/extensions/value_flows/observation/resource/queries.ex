@@ -75,8 +75,8 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter(q, [:deleted])
-    # filter q, [:deleted, {:preload, :primary_accountable}, {:preload, :receiver}]
+    #filter(q, [:deleted])
+    filter q, [:deleted, {:preload, :primary_accountable}]
   end
 
   def filter(q, :offer) do
@@ -264,7 +264,7 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
   end
 
   def filter(q, {:preload, :primary_accountable}) do
-    preload(q, [pointer: p], primary_accountable: p)
+    preload(q, :primary_accountable)
   end
 
   def filter(q, {:preload, :receiver}) do
@@ -322,4 +322,6 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
   # end
 
   # defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+
+
 end

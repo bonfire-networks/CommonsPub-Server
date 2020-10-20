@@ -217,7 +217,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   defp index(obj) do
     object = indexing_object_format(obj)
 
-    CommonsPub.Search.Indexer.index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
   end

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicResource.GraphQL do
-  use Absinthe.Schema.Notation
 
   # default to 100 km radius
   @radius_default_distance 100_000
@@ -41,10 +40,8 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
+  # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
-
-  # TODO: put in config
-  # @tags_seperator " "
 
   ## resolvers
 
@@ -80,7 +77,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     EconomicResources.many([:default])
   end
 
-  def resources_filtered(page_opts, _) do
+  def resources_filtered(page_opts, _ \\ nil) do
     IO.inspect(resources_filtered: page_opts)
     resources_filter(page_opts, [])
   end
@@ -247,17 +244,21 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     ])
   end
 
-  def creator_resources_edge(%{creator: creator}, %{} = page_opts, info) do
+  def agent_resources(%{id: agent}, %{} = page_opts, info) do
+    resources_filtered(%{agent: agent})
+  end
+
+  def agent_resources_edge(%{agent: agent}, %{} = page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
-      fetcher: :fetch_creator_resources_edge,
-      context: creator,
+      fetcher: :fetch_agent_resources_edge,
+      context: agent,
       page_opts: page_opts,
       info: info
     })
   end
 
-  def fetch_creator_resources_edge(page_opts, info, ids) do
+  def fetch_agent_resources_edge(page_opts, info, ids) do
     list_resources(
       page_opts,
       [
@@ -307,6 +308,14 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     {:ok, nil}
   end
 
+
+  def track(resource, _, _) do
+    EconomicResources.track(resource)
+  end
+
+  def trace(resource, _, _) do
+    EconomicResources.trace(resource)
+  end
 
 
   def create_resource(%{new_inventoried_resource: resource_attrs}, info) do

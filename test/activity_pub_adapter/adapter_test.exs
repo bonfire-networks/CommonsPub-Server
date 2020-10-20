@@ -5,6 +5,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
 
   use CommonsPub.DataCase
 
+
   describe "fetching local actors by id" do
     test "users" do
       user = fake_user!()
@@ -104,7 +105,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       assert %ActivityPub.Object{} =
                object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
 
-      assert {:ok, %Pointers.Pointer{}} = CommonsPub.Meta.Pointers.one(id: object.mn_pointer_id)
+      assert {:ok, %Pointers.Pointer{}} = CommonsPub.Meta.Pointers.one(id: object.pointer_id)
     end
   end
 
@@ -146,7 +147,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       }
 
       {:ok, _activity} = ActivityPub.create(params)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
     end
 
     test "resource" do
@@ -181,7 +182,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       }
 
       {:ok, activity} = ActivityPub.create(params)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
 
       assert {:ok, _} =
                CommonsPub.Repo.fetch_by(CommonsPub.Resources.Resource, %{
@@ -194,7 +195,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       followed = fake_user!() |> fake_community!()
       {:ok, ap_followed} = ActivityPub.Actor.get_by_local_id(followed.id)
       {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, follower} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
       assert {:ok, _} = CommonsPub.Follows.one(creator: follower.id, context: followed.id)
     end
@@ -204,9 +205,9 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       followed = fake_user!() |> fake_community!()
       {:ok, ap_followed} = ActivityPub.Actor.get_by_local_id(followed.id)
       {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, _} = ActivityPub.unfollow(follower, ap_followed, nil, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, follower} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
 
       assert {:error, _} =
@@ -218,7 +219,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       blocked = fake_user!() |> fake_community!()
       {:ok, ap_blocked} = ActivityPub.Actor.get_by_local_id(blocked.id)
       {:ok, _} = ActivityPub.block(blocker, ap_blocked, nil, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, blocker} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
       assert {:ok, _} = CommonsPub.Blocks.find(blocker, blocked)
     end
@@ -228,9 +229,9 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       blocked = fake_user!() |> fake_community!()
       {:ok, ap_blocked} = ActivityPub.Actor.get_by_local_id(blocked.id)
       {:ok, _} = ActivityPub.block(blocker, ap_blocked, nil, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, _} = ActivityPub.unblock(blocker, ap_blocked, nil, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, blocker} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
       assert {:error, _} = CommonsPub.Blocks.find(blocker, blocked)
     end
@@ -243,7 +244,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
       like_actor = actor()
       {:ok, _, _} = ActivityPub.like(like_actor, activity.object, nil, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, like_actor} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(like_actor.ap_id)
       assert {:ok, _} = CommonsPub.Likes.one(creator: like_actor.id, context: comment.id)
     end
@@ -266,7 +267,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
         content: "blocked AND reported!!!!"
       })
 
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
       assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: comment.id)
     end
@@ -292,7 +293,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
         content: "blocked AND reported!!!!"
       })
 
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
       assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: comment_1.id)
       assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: comment_2.id)
@@ -312,7 +313,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
         content: "blocked AND reported!!!!"
       })
 
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
       assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: actor.id)
     end
@@ -320,21 +321,21 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
     test "user deletes" do
       actor = actor()
       ActivityPub.delete(actor, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
     test "community deletes" do
       actor = community()
       ActivityPub.delete(actor, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
     test "collection deletes" do
       actor = collection()
       ActivityPub.delete(actor, false)
-      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
@@ -346,7 +347,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
-      %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, _} = CommonsPub.Threads.Comments.one(deleted: false, id: comment.id)
     end
 
@@ -358,7 +359,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       {:ok, activity} = CommonsPub.ActivityPub.Publisher.create_resource(resource)
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
-      %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, _} = CommonsPub.Resources.one(deleted: false, id: resource.id)
     end
 
@@ -373,8 +374,8 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       }
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
-      Oban.drain_queue(:ap_incoming)
-      {:ok, user} = Adapter.get_actor_by_ap_id(user.ap_id)
+      Oban.drain_queue(queue: :ap_incoming)
+      {:ok, user} = Adapter.get_raw_actor_by_ap_id(user.ap_id)
       assert user.name == "kawen"
     end
 
@@ -389,8 +390,8 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       }
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
-      Oban.drain_queue(:ap_incoming)
-      {:ok, comm} = Adapter.get_actor_by_ap_id(comm.ap_id)
+      Oban.drain_queue(queue: :ap_incoming)
+      {:ok, comm} = Adapter.get_raw_actor_by_ap_id(comm.ap_id)
       assert comm.name == "kawen"
     end
 
@@ -405,8 +406,8 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       }
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
-      Oban.drain_queue(:ap_incoming)
-      {:ok, coll} = Adapter.get_actor_by_ap_id(coll.ap_id)
+      Oban.drain_queue(queue: :ap_incoming)
+      {:ok, coll} = Adapter.get_raw_actor_by_ap_id(coll.ap_id)
       assert coll.name == "kawen"
     end
   end

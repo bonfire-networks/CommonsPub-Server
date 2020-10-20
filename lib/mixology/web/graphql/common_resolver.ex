@@ -34,6 +34,9 @@ defmodule CommonsPub.Web.GraphQL.CommonResolver do
       info: info
     })
   end
+  def context_edge(_, _, info) do
+    {:ok, nil}
+  end
 
   def fetch_context_edge(_, ids) do
     {:ok, ptrs} = Pointers.many(id: List.flatten(ids))

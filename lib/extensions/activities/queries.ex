@@ -89,6 +89,8 @@ defmodule CommonsPub.Activities.Queries do
   def filter(q, {:feed, ids}) when is_list(ids),
     do: where(q, [feed_activity: fa], fa.feed_id in ^ids)
 
+  def filter(q, {:feed, _}), do: q
+
   def filter(q, {:table, id}) when is_binary(id), do: where(q, [context: c], c.table_id == ^id)
 
   def filter(q, {:table, table}) when is_atom(table),

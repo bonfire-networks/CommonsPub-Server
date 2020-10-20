@@ -15,6 +15,10 @@ defmodule CommonsPub.Users.User do
   alias CommonsPub.Users
   alias CommonsPub.Users.{LocalUser, User}
 
+  # make the schema extensible
+  import Flexto, only: [flex_schema: 1]
+
+
   table_schema "mn_user" do
     # belongs_to(:actor, Actor)
     has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
@@ -39,6 +43,9 @@ defmodule CommonsPub.Users.User do
     field(:stale_error, :string, virtual: true)
     field(:extra_info, :map)
     timestamps()
+
+    flex_schema(:commons_pub) # boom! add extended fields
+
   end
 
   @register_required ~w(name)a

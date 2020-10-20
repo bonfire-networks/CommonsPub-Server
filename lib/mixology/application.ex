@@ -44,33 +44,7 @@ defmodule CommonsPub.Application do
       worker(TableService, []),
       {Phoenix.PubSub, [name: CommonsPub.PubSub, adapter: Phoenix.PubSub.PG2]},
       supervisor(Endpoint, []),
-      {Oban, CommonsPub.Config.get(Oban)},
-      %{
-        id: :cachex_actor,
-        start:
-          {Cachex, :start_link,
-           [
-             :ap_actor_cache,
-             [
-               default_ttl: 25_000,
-               ttl_interval: 1000,
-               limit: 2500
-             ]
-           ]}
-      },
-      %{
-        id: :cachex_object,
-        start:
-          {Cachex, :start_link,
-           [
-             :ap_object_cache,
-             [
-               default_ttl: 25_000,
-               ttl_interval: 1000,
-               limit: 2500
-             ]
-           ]}
-      }
+      {Oban, CommonsPub.Config.get(Oban)}
     ]
 
     opts = [strategy: :one_for_one, name: CommonsPub.Supervisor]

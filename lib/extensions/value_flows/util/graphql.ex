@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util.GraphQL do
-  use Absinthe.Schema.Notation
 
   alias CommonsPub.{
     GraphQL,
@@ -9,6 +8,7 @@ defmodule ValueFlows.Util.GraphQL do
 
   require Logger
 
+  # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/util.gql"
 
   # object :page_info do
@@ -46,10 +46,16 @@ defmodule ValueFlows.Util.GraphQL do
     urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
+  def fetch_classifications_edge(_, _, _) do
+    {:ok, nil}
+  end
 
   def current_location_edge(%{current_location_id: id} = thing, _, _) when not is_nil(id) do
     thing = Repo.preload(thing, :current_location)
     {:ok, Geolocation.Geolocations.populate_coordinates(Map.get(thing, :current_location, nil))}
+  end
+  def current_location_edge(_, _, _) do
+    {:ok, nil}
   end
 
   def at_location_edge(%{at_location_id: id} = thing, _, _) when not is_nil(id) do

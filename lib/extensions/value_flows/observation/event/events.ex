@@ -11,11 +11,17 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   # alias Measurement.Measure
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.Action.Actions
+
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
+
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.EconomicEvent.Queries
+  alias ValueFlows.Observation.EconomicEvent.EventSideEffects
+
   alias ValueFlows.Observation.Process.Processes
+
+  import Logger
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -93,6 +99,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       :resource_quantity,
       :effort_quantity,
       :at_location,
+      :resource_inventoried_as,
+      :to_resource_inventoried_as,
       :provider,
       :receiver
     ])
@@ -103,25 +111,156 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     event |> Map.put(:action, ValueFlows.Knowledge.Action.Actions.action!(event.action_id))
   end
 
+  def track(event) do
+    with {:ok, resources} <- track_resource_output(event),
+         {:ok, to_resources} <- track_to_resource_output(event),
+         {:ok, processes} <- track_process_input(event) do
+      {:ok, resources ++ to_resources ++ processes}
+    end
+  end
+
+  defp trace_resource_inventoried_as(
+         %{action_id: action_id, resource_inventoried_as_id: resource_inventoried_as_id} = _event
+       )
+       when action_id in ["transfer", "move"] and not is_nil(resource_inventoried_as_id) do
+    EconomicResources.many([:default, id: resource_inventoried_as_id])
+  end
+
+  defp trace_resource_inventoried_as(_) do
+    {:ok, []}
+  end
+
+  defp track_to_resource_output(
+         %{action_id: action_id, to_resource_inventoried_as_id: to_resource_inventoried_as_id} =
+           _event
+       )
+       when action_id in ["transfer", "move"] and not is_nil(to_resource_inventoried_as_id) do
+    EconomicResources.many([:default, id: to_resource_inventoried_as_id])
+  end
+
+  defp track_to_resource_output(_) do
+    {:ok, []}
+  end
+
+  defp track_resource_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
+    with {:ok, events} <- many([:default, output_of_id: output_of_id]),
+         resource_ids = Enum.map(events, & &1.resource_inventoried_as_id) do
+      EconomicResources.many([:default, id: resource_ids])
+    end
+  end
+
+  defp track_resource_output(_) do
+    {:ok, []}
+  end
+
+  defp track_process_input(%{input_of_id: input_of_id}) when not is_nil(input_of_id) do
+    Processes.many([:default, id: input_of_id])
+  end
+
+  defp track_process_input(_) do
+    {:ok, []}
+  end
+
+  def trace(event) do
+    with {:ok, resources} <- trace_resource_input(event),
+         {:ok, processes} <- trace_process_output(event),
+         {:ok, resources_inventoried_as} <- trace_resource_inventoried_as(event) do
+      {:ok, processes ++ resources_inventoried_as ++ resources}
+    end
+  end
+
+  defp trace_process_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
+    Processes.many([:default, id: output_of_id])
+  end
+
+  defp trace_process_output(_) do
+    {:ok, []}
+  end
+
+  defp trace_resource_input(%{input_of_id: input_of_id}) when not is_nil(input_of_id) do
+    with {:ok, events} <- many([:default, input_of_id: input_of_id]),
+         resource_ids = Enum.map(events, & &1.resource_inventoried_as_id) do
+      EconomicResources.many([:default, id: resource_ids])
+    end
+  end
+
+  defp trace_resource_input(_) do
+    {:ok, []}
+  end
+
   ## mutations
+
+  def create(
+        _creator,
+        %{
+          resource_inventoried_as: from_existing_resource,
+          to_resource_inventoried_as: to_existing_resource
+        },
+        %{
+          new_inventoried_resource: _new_inventoried_resource
+        }
+      )
+      when not is_nil(from_existing_resource) and not is_nil(to_existing_resource) do
+    {:error, "Oops, you cannot act on three resources in one event."}
+  end
+
+  def create(
+        creator,
+        %{
+          to_resource_inventoried_as: to_existing_resource
+        } = event_attrs,
+        %{
+          new_inventoried_resource: new_inventoried_resource
+        }
+      )
+      when not is_nil(to_existing_resource) do
+    Logger.info("create a new FROM resource as part of an event")
+
+    create_resource_and_event(
+      creator,
+      event_attrs,
+      new_inventoried_resource,
+      :resource_inventoried_as
+    )
+  end
+
+  def create(
+        creator,
+        %{
+          resource_inventoried_as: from_existing_resource
+        } = event_attrs,
+        %{
+          new_inventoried_resource: new_inventoried_resource
+        }
+      )
+      when not is_nil(from_existing_resource) do
+    Logger.info("creates a new TO resource")
+
+    create_resource_and_event(
+      creator,
+      event_attrs,
+      new_inventoried_resource,
+      :to_resource_inventoried_as
+    )
+  end
 
   def create(creator, event_attrs, %{
         new_inventoried_resource: new_inventoried_resource
       }) do
-    new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
+    Logger.info("create a completly new resource ")
 
-    with {:ok, resource} <-
-           ValueFlows.Observation.EconomicResource.EconomicResources.create(
-             creator,
-             new_inventoried_resource
-           ) do
-      event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource})
-      create(creator, event_attrs)
-    end
+    create_resource_and_event(
+      creator,
+      event_attrs,
+      new_inventoried_resource,
+      :resource_inventoried_as
+    )
   end
 
   def create(creator, event_attrs, _) do
-    create(creator, event_attrs)
+    with {:ok, event} <- create(creator, event_attrs) do
+      {:ok, event, nil}
+    end
   end
 
   def create(%User{} = creator, event_attrs) do
@@ -131,19 +270,37 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
     Repo.transact_with(fn ->
       with {:ok, cs} <- prepare_changeset(event_attrs, changeset_fn),
-           {:ok, item} <- Repo.insert(cs),
-           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, event_attrs),
+           {:ok, event} <- Repo.insert(cs |> EconomicEvent.create_changeset_validate()),
+           {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, event_attrs),
+           event = preload_all(event),
+           {:ok, event} <- apply_resource_primary_accountable(event),
+           {:ok, event} <- EventSideEffects.event_side_effects(event),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, item, activity, :created) do
-        item = %{item | creator: creator}
-        item = preload_all(item)
+           {:ok, activity} <- Activities.create(creator, event, act_attrs),
+           :ok <- publish(creator, event, activity, :created) do
+        event = %{event | creator: creator}
 
-        index(item)
-        {:ok, item}
+        index(event)
+        {:ok, event}
       end
     end)
+  end
+
+  defp create_resource_and_event(creator, event_attrs, new_inventoried_resource, field_name) do
+    new_inventoried_resource = Map.merge(new_inventoried_resource, %{is_public: true})
+
+    with {:ok, new_resource} <-
+           ValueFlows.Observation.EconomicResource.EconomicResources.create(
+             creator,
+             new_inventoried_resource
+           ) do
+      event_attrs = Map.merge(event_attrs, %{field_name => new_resource})
+
+      with {:ok, event} <- create(creator, event_attrs) do
+        {:ok, event, new_resource}
+      end
+    end
   end
 
   # TODO: take the user who is performing the update
@@ -158,6 +315,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
       with {:ok, cs} <- prepare_changeset(attrs, changeset_fn, event),
            {:ok, event} <- Repo.update(cs),
+           {:ok, event} <- apply_resource_primary_accountable(event),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
            :ok <- publish(event, :updated) do
         {:ok, event}
@@ -180,18 +338,18 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     attrs = parse_measurement_attrs(attrs)
 
     ValueFlows.Util.handle_changeset_errors(cs, attrs, [
-      {:measures, &EconomicEvent.change_measures/2},
-      {:in_scope_of, &change_context/2},
-      {:provider, &change_provider/2},
-      {:receiver, &change_receiver/2},
-      {:action, &change_action/2},
-      {:location, &change_at_location/2},
-      {:input_of, &change_input_of/2},
-      {:output_of, &change_output_of/2},
-      {:triggered_by, &change_triggered_by_event/2},
-      {:resource_spec, &change_resource_conforms_to/2},
-      {:resource_inventoried_as, &change_resource_inventoried_as/2},
-      {:to_resource_inventoried_as, &change_to_resource_inventoried_as/2}
+      &EconomicEvent.change_measures/2,
+      &change_context/2,
+      &change_provider/2,
+      &change_receiver/2,
+      &change_action/2,
+      &change_at_location/2,
+      &change_input_of/2,
+      &change_output_of/2,
+      &change_triggered_by_event/2,
+      &change_resource_conforms_to/2,
+      &change_resource_inventoried_as/2,
+      &change_to_resource_inventoried_as/2
     ])
   end
 
@@ -215,8 +373,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp change_context(changeset, _attrs), do: changeset
 
   defp change_resource_conforms_to(changeset, %{resource_conforms_to: id}) do
-    with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
-      EconomicEvent.change_resource_conforms_to(changeset, item)
+    with {:ok, res_spec} <- ResourceSpecifications.one([:default, id: id]) do
+      EconomicEvent.change_resource_conforms_to(changeset, res_spec)
     end
   end
 
@@ -224,8 +382,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_resource_inventoried_as(changeset, %{resource_inventoried_as: id})
        when is_binary(id) do
-    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
-      EconomicEvent.change_resource_inventoried_as(changeset, item)
+    with {:ok, resource} <- EconomicResources.one([:default, id: id]) do
+      EconomicEvent.change_resource_inventoried_as(changeset, resource)
     end
   end
 
@@ -235,10 +393,15 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp change_resource_inventoried_as(changeset, _attrs), do: changeset
 
-  defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: id}) do
-    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
-      EconomicEvent.change_to_resource_inventoried_as(changeset, item)
+  defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: id})
+       when is_binary(id) do
+    with {:ok, resource} <- EconomicResources.one([:default, id: id]) do
+      EconomicEvent.change_to_resource_inventoried_as(changeset, resource)
     end
+  end
+
+  defp change_to_resource_inventoried_as(changeset, %{to_resource_inventoried_as: %{} = resource}) do
+    EconomicEvent.change_to_resource_inventoried_as(changeset, resource)
   end
 
   defp change_to_resource_inventoried_as(changeset, _attrs), do: changeset
@@ -260,6 +423,46 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp change_receiver(changeset, _attrs), do: changeset
+
+  defp update_resource_primary_accountable(event, resource) do
+    if event.action_id in ["transfer", "transfer-all-rights"] do
+      EconomicResources.update(resource, %{primary_accountable: event.receiver_id})
+    else
+      {:ok, resource}
+    end
+  end
+
+  defp apply_resource_primary_accountable(
+         %EconomicEvent{to_resource_inventoried_as_id: to_resource_id, receiver_id: receiver_id} =
+           event
+       )
+       when not is_nil(to_resource_id) and not is_nil(receiver_id) do
+    with {:ok, to_resource} <- EconomicResources.one([:default, id: to_resource_id]),
+         :ok <- validate_provider_access(event),
+         {:ok, to_resource} <- update_resource_primary_accountable(event, to_resource) do
+      {:ok, %{event | to_resource_inventoried_as: to_resource}}
+    end
+  end
+
+  defp apply_resource_primary_accountable(event) do
+    {:ok, event}
+  end
+
+  defp validate_provider_access(%EconomicEvent{resource_inventoried_as_id: resource_id} = event)
+       when not is_nil(resource_id) do
+    with {:ok, resource} <- EconomicResources.one([:default, id: resource_id]) do
+      if is_nil(resource.primary_accountable_id) or
+           event.provider_id == resource.primary_accountable_id do
+        :ok
+      else
+        {:error, CommonsPub.Access.NotPermittedError.new()}
+      end
+    end
+  end
+
+  defp validate_provider_access(_event) do
+    :ok
+  end
 
   defp change_action(changeset, %{action: action_id}) do
     with {:ok, action} <- Actions.action(action_id) do
@@ -383,7 +586,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp index(obj) do
     object = indexing_object_format(obj)
 
-    CommonsPub.Search.Indexer.index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
   end

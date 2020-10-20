@@ -23,13 +23,15 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   # FIXME ADD BATCHING, THIS IS NESTED DATA!!!!1!!!one!!!
 
   def intent_in_proposal_edge(%{id: proposed_intent_id}, _, info) do
-    with {:ok, proposed_intent} <- Proposals.one_proposed_intent([:default, id: proposed_intent_id]) do
+    with {:ok, proposed_intent} <-
+           Proposals.one_proposed_intent([:default, id: proposed_intent_id]) do
       ValueFlows.Planning.Intent.GraphQL.intent(%{id: proposed_intent.publishes_id}, info)
     end
   end
 
   def proposal_in_intent_edge(%{id: proposed_intent_id}, _, info) do
-    with {:ok, proposed_intent} <- Proposals.one_proposed_intent([:default, id: proposed_intent_id]) do
+    with {:ok, proposed_intent} <-
+           Proposals.one_proposed_intent([:default, id: proposed_intent_id]) do
       ValueFlows.Proposal.GraphQL.proposal(%{id: proposed_intent.published_in_id}, info)
     end
   end
@@ -45,6 +47,10 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
     Proposals.many_proposed_intents([:default, published_in_id: proposal_id])
   end
 
+  def publishes_edge(_, _, _info) do
+    {:ok, nil}
+  end
+
   def published_in_edge(%{id: intent_id}, _, _info) do
     Proposals.many_proposed_intents([:default, publishes_id: intent_id])
   end
@@ -54,19 +60,23 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   end
 
   # def fetch_proposed_intents(_info, _ids) do
-    # FetchFields.run(%FetchFields{
-    #   queries: Proposal.ProposedIntentQueries,
-    #   query: ProposedIntent,
-    #   group_fn: & &1.id,
-    #   filters: [:deleted, published_in_id: ids]
-    # })
+  # FetchFields.run(%FetchFields{
+  #   queries: Proposal.ProposedIntentQueries,
+  #   query: ProposedIntent,
+  #   group_fn: & &1.id,
+  #   filters: [:deleted, published_in_id: ids]
+  # })
   # end
 
-  def propose_intent(%{published_in: published_in_id, publishes: publishes_id} = params, info) do
+  def propose_intent(
+        %{published_in: published_in_proposal_id, publishes: publishes_intent_id} = params,
+        info
+      ) do
     with {:ok, _} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, published_in} <-
-           ValueFlows.Proposal.GraphQL.proposal(%{id: published_in_id}, info),
-         {:ok, publishes} <- ValueFlows.Planning.Intent.GraphQL.intent(%{id: publishes_id}, info),
+           ValueFlows.Proposal.GraphQL.proposal(%{id: published_in_proposal_id}, info),
+         {:ok, publishes} <-
+           ValueFlows.Planning.Intent.GraphQL.intent(%{id: publishes_intent_id}, info),
          {:ok, proposed_intent} <- Proposals.propose_intent(published_in, publishes, params) do
       {:ok,
        %{proposed_intent: %{proposed_intent | published_in: published_in, publishes: publishes}}}

@@ -15,6 +15,8 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.Queries
+  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
+  alias ValueFlows.Observation.Process.Processes
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.Action.Actions
 
@@ -89,6 +91,30 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     )
   end
 
+  def track(%{id: id}) do
+    track(id)
+  end
+
+  def track(id) when is_binary(id) do
+    EconomicEvents.many([:default, track_resource: id])
+  end
+
+  def track(_) do
+    {:ok, nil}
+  end
+
+  def trace(%{id: id}) do
+    trace(id)
+  end
+
+  def trace(id) when is_binary(id) do
+    EconomicEvents.many([:default, trace_resource: id])
+  end
+
+  def trace(_) do
+    {:ok, nil}
+  end
+
   def preload_all(resource) do
     Repo.preload(resource, [
       :accounting_quantity,
@@ -100,11 +126,12 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
       :contained_in,
       :conforms_to,
       :image
-    ]) |> preload_state()
+    ])
+    |> preload_state()
   end
 
   def preload_state(resource) do
-    resource |> Map.put :state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id)
+    resource |> Map.put(:state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id))
   end
 
   ## mutations
@@ -119,21 +146,20 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   def do_create(creator, attrs, changeset_fn) do
     Repo.transact_with(fn ->
       with {:ok, cs} <- prepare_changeset(attrs, changeset_fn),
-           {:ok, item} <- Repo.insert(cs),
-           {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
+           {:ok, resource} <- Repo.insert(cs),
+           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, item, activity, :created) do
-        item = %{item | creator: creator}
-        item = preload_all(item)
+           {:ok, activity} <- Activities.create(creator, resource, act_attrs),
+           :ok <- publish(creator, resource, activity, :created) do
+        resource = %{resource | creator: creator}
+        resource = preload_all(resource)
 
-        index(item)
-        {:ok, item}
+        index(resource)
+        {:ok, resource}
       end
     end)
   end
-
 
   # TODO: take the user who is performing the update
   # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
@@ -154,7 +180,6 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     end)
   end
 
-
   defp prepare_changeset(attrs, changeset_fn, resource) do
     resource
     |> changeset_fn.()
@@ -168,14 +193,15 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp changeset_relations(cs, attrs) do
     attrs = parse_measurement_attrs(attrs)
+
     ValueFlows.Util.handle_changeset_errors(cs, attrs, [
-    {:measures, &EconomicResource.change_measures/2},
-    {:primary_accountable, &change_primary_accountable/2},
-    {:state_action, &change_state_action/2},
-    {:location, &change_current_location/2},
-    {:conforms_to_resource_spec, &change_conforms_to_resource_spec/2},
-    {:contained_in_resource, &change_contained_in_resource/2},
-    {:unit_of_effort, &change_unit_of_effort/2},
+      &EconomicResource.change_measures/2,
+      &change_primary_accountable/2,
+      &change_state_action/2,
+      &change_current_location/2,
+      &change_conforms_to_resource_spec/2,
+      &change_contained_in_resource/2,
+      &change_unit_of_effort/2
     ])
   end
 
@@ -205,24 +231,24 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp change_current_location(changeset, _attrs), do: changeset
 
   defp change_conforms_to_resource_spec(changeset, %{conforms_to: id}) do
-    with {:ok, item} <- ResourceSpecifications.one([:default, id: id]) do
-      EconomicResource.change_conforms_to_resource_spec(changeset, item)
+    with {:ok, resource} <- ResourceSpecifications.one([:default, id: id]) do
+      EconomicResource.change_conforms_to_resource_spec(changeset, resource)
     end
   end
 
   defp change_conforms_to_resource_spec(changeset, _attrs), do: changeset
 
   defp change_contained_in_resource(changeset, %{contained_in: id}) do
-    with {:ok, item} <- EconomicResources.one([:default, id: id]) do
-      EconomicResource.change_contained_in_resource(changeset, item)
+    with {:ok, resource} <- EconomicResources.one([:default, id: id]) do
+      EconomicResource.change_contained_in_resource(changeset, resource)
     end
   end
 
   defp change_contained_in_resource(changeset, _attrs), do: changeset
 
   defp change_unit_of_effort(changeset, %{unit_of_effort: id}) do
-    with {:ok, item} <- Units.one([:default, id: id]) do
-      EconomicResource.change_unit_of_effort(changeset, item)
+    with {:ok, resource} <- Units.one([:default, id: id]) do
+      EconomicResource.change_unit_of_effort(changeset, resource)
     end
   end
 
@@ -315,7 +341,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   defp index(obj) do
     object = indexing_object_format(obj)
 
-    CommonsPub.Search.Indexer.index_object(object)
+    CommonsPub.Search.Indexer.maybe_index_object(object)
 
     :ok
   end

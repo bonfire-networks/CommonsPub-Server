@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.Action.GraphQL do
-  use Absinthe.Schema.Notation
   # alias CommonsPub.Web.GraphQL.{CommonResolver}
 
   # import CommonsPub.Utils.Simulation
@@ -8,6 +7,7 @@ defmodule ValueFlows.Knowledge.Action.GraphQL do
 
   require Logger
 
+  # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/knowledge.gql"
 
   def action(%{id: id}, _) do

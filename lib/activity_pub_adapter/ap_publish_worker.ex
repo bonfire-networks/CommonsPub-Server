@@ -35,7 +35,8 @@ defmodule CommonsPub.Workers.APPublishWorker do
   end
 
   @impl Worker
-  def perform(%{"context_id" => context_id, "op" => "delete"}, _job) do
+  def perform(%{"context_id" => context_id, "op" => "delete"}) do
+    # FIXME
     object =
       with {:error, _e} <-
              CommonsPub.Users.one(join: :character, preload: :character, id: context_id),
@@ -57,78 +58,10 @@ defmodule CommonsPub.Workers.APPublishWorker do
     end
   end
 
-  def perform(%{"context_id" => context_id, "op" => verb}, _job) do
+  def perform(%{"context_id" => context_id, "op" => verb}) do
     Pointers.one!(id: context_id)
     |> Pointers.follow!()
     |> only_local(&publish/2, verb)
-  end
-
-  defp publish(%Collection{} = collection, "create"), do: Publisher.create_collection(collection)
-
-  defp publish(%Comment{} = comment, "create") do
-    Publisher.comment(comment)
-  end
-
-  defp publish(%Resource{} = resource, "create") do
-    Publisher.create_resource(resource)
-  end
-
-  defp publish(%Community{} = community, "create") do
-    Publisher.create_community(community)
-  end
-
-  defp publish(%Follow{} = follow, "create") do
-    Publisher.follow(follow)
-  end
-
-  defp publish(%Follow{} = follow, "delete") do
-    Publisher.unfollow(follow)
-  end
-
-  defp publish(%Flag{} = flag, "create") do
-    Publisher.flag(flag)
-  end
-
-  defp publish(%Block{} = block, "create") do
-    Publisher.block(block)
-  end
-
-  defp publish(%Block{} = block, "delete") do
-    Publisher.unblock(block)
-  end
-
-  defp publish(%Like{} = like, "create") do
-    Publisher.like(like)
-  end
-
-  defp publish(%Like{} = like, "delete") do
-    Publisher.unlike(like)
-  end
-
-  defp publish(%{__struct__: type} = actor, "update")
-       when type in [User, Community, Collection] do
-    Publisher.update_actor(actor)
-  end
-
-  defp publish(%User{} = user, "delete") do
-    Publisher.delete_user(user)
-  end
-
-  defp publish(%{__struct__: type} = actor, "delete")
-       when type in [Community, Collection] do
-    Publisher.delete_comm_or_coll(actor)
-  end
-
-  defp publish(%{__struct__: type} = object, "delete") when type in [Comment, Resource] do
-    Publisher.delete_comment_or_resource(object)
-  end
-
-  defp publish(context, verb) do
-    Logger.warn(
-      "Unsupported action for AP publisher: #{context.id}, #{verb} #{context.__struct__}"
-    )
-
-    :ignored
   end
 
   defp only_local(%Resource{collection_id: collection_id} = context, commit_fn, verb) do
@@ -151,4 +84,106 @@ defmodule CommonsPub.Workers.APPublishWorker do
   end
 
   defp only_local(_, _, _), do: :ignored
+
+  defp publish(%{__struct__: object_type} = local_object, verb) do
+    if(
+      !is_nil(object_type) and
+        Code.ensure_loaded?(object_type) and
+        Kernel.function_exported?(object_type, :context_module, 0)
+    ) do
+      object_context_module = apply(object_type, :context_module, [])
+
+      if(
+        Code.ensure_loaded?(object_context_module) and
+          Kernel.function_exported?(object_context_module, :ap_activity, 2)
+      ) do
+        # IO.inspect(function_exists_in: object_context_module)
+        apply(object_context_module, :ap_activity, [verb, local_object])
+      else
+        Logger.warn(
+          "May not publish #{object_type} object (no context module with ap_activity/2 (trying to fallback on deprecated functions in APPublishWorker))"
+        )
+
+        ap_activity(local_object, verb)
+
+        nil
+      end
+    else
+      Logger.warn(
+        "Could not index #{object_type} object (not a known type or context_module undefined)"
+      )
+
+      nil
+    end
+  end
+
+  # TODO: move Publisher.* funcs to context modules and deprecate the bellow
+
+  defp ap_activity(%Collection{} = collection, "create"), do: CommonsPub.Collections.ap_activity("create", collection)
+
+  defp ap_activity(%Comment{} = comment, "create") do
+    Publisher.comment(comment)
+  end
+
+  defp ap_activity(%Resource{} = resource, "create") do
+    Publisher.create_resource(resource)
+  end
+
+  defp ap_activity(%Community{} = community, "create") do
+    Publisher.create_community(community)
+  end
+
+  defp ap_activity(%Follow{} = follow, "create") do
+    Publisher.follow(follow)
+  end
+
+  defp ap_activity(%Follow{} = follow, "delete") do
+    Publisher.unfollow(follow)
+  end
+
+  defp ap_activity(%Flag{} = flag, "create") do
+    Publisher.flag(flag)
+  end
+
+  defp ap_activity(%Block{} = block, "create") do
+    Publisher.block(block)
+  end
+
+  defp ap_activity(%Block{} = block, "delete") do
+    Publisher.unblock(block)
+  end
+
+  defp ap_activity(%Like{} = like, "create") do
+    Publisher.like(like)
+  end
+
+  defp ap_activity(%Like{} = like, "delete") do
+    Publisher.unlike(like)
+  end
+
+  defp ap_activity(%{__struct__: type} = actor, "update")
+       when type in [User, Community, Collection] do
+    Publisher.update_actor(actor)
+  end
+
+  defp ap_activity(%User{} = user, "delete") do
+    Publisher.delete_user(user)
+  end
+
+  defp ap_activity(%{__struct__: type} = actor, "delete")
+       when type in [Community, Collection] do
+    Publisher.delete_character(actor)
+  end
+
+  defp ap_activity(%{__struct__: type} = object, "delete") when type in [Comment, Resource] do
+    Publisher.delete_comment_or_resource(object)
+  end
+
+  defp ap_activity(context, verb) do
+    Logger.warn(
+      "Unsupported action for AP publisher: #{context.id}, #{verb} #{context.__struct__}"
+    )
+
+    :ignored
+  end
 end

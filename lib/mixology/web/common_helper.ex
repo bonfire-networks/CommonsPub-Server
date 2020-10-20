@@ -2,6 +2,8 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   import Phoenix.LiveView
   require Logger
 
+  alias CommonsPub.Common
+
   alias CommonsPub.Users.Web.AccountHelper
   alias CommonsPub.Communities.Web.CommunitiesHelper
 
@@ -91,10 +93,10 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
         Recase.to_camel(key),
         Map.get(
           map,
-          maybe_str_to_atom(key),
+          Common.maybe_str_to_atom(key),
           Map.get(
             map,
-            maybe_str_to_atom(Recase.to_camel(key)),
+            Common.maybe_str_to_atom(Recase.to_camel(key)),
             fallback
           )
         )
@@ -106,16 +108,9 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     Map.get(map, key, fallback)
   end
 
-  def maybe_str_to_atom(str) do
-    try do
-      String.to_existing_atom(str)
-    rescue
-      ArgumentError -> str
-    end
-  end
 
   def input_to_atoms(data) do
-    data |> Map.new(fn {k, v} -> {maybe_str_to_atom(k), v} end)
+    data |> Map.new(fn {k, v} -> {Common.maybe_str_to_atom(k), v} end)
   end
 
   def random_string(length) do

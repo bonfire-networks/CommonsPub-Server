@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
-  use Absinthe.Schema.Notation
 
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
@@ -38,6 +37,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import
+  # use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
   # TODO: put in config
@@ -46,11 +46,11 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   ## resolvers
 
   def simulate(%{id: _id}, _) do
-    {:ok, ValueFlows.Simulate.process_spec()}
+    {:ok, ValueFlows.Simulate.process_specification/0}
   end
 
   def simulate(_, _) do
-    {:ok, CommonsPub.Utils.Trendy.some(1..5, &ValueFlows.Simulate.process_spec/0)}
+    {:ok, CommonsPub.Utils.Trendy.some(1..5, &ValueFlows.Simulate.process_specification/0)}
   end
 
   def process_spec(%{id: id}, info) do

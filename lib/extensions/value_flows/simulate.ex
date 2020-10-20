@@ -4,6 +4,7 @@ defmodule ValueFlows.Simulate do
 
   import CommonsPub.Utils.Simulation
   import CommonsPub.Utils.Trendy
+  import CommonsPub.Test.Faking
 
   import Measurement.Simulate
 
@@ -48,31 +49,38 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("note", &summary/0)
   end
 
-
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
 
   def action, do: Faker.Util.pick(Actions.actions_list())
   def actions, do: Actions.actions_list()
 
   def action_id, do: action().id
+  def fake_user_id, do: fake_user!().id
 
   def economic_event(base \\ %{}) do
     base
+    |> Map.put_new_lazy(:action, &action_id/0)
+    |> Map.put_new_lazy(:provider, &fake_user_id/0)
+    |> Map.put_new_lazy(:receiver, &fake_user_id/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
     |> Map.put_new_lazy(:has_end, &future_datetime/0)
     |> Map.put_new_lazy(:has_point_in_time, &future_datetime/0)
-    |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
+    # |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
   def economic_event_input(base \\ %{}) do
     base
+    |> Map.put_new_lazy("action", &action_id/0)
+    |> Map.put_new_lazy("provider", &fake_user_id/0)
+    |> Map.put_new_lazy("receiver", &fake_user_id/0)
     |> Map.put_new_lazy("note", &summary/0)
     |> Map.put_new_lazy("hasBeginning", &past_datetime_iso/0)
     |> Map.put_new_lazy("hasEnd", &future_datetime_iso/0)
     |> Map.put_new_lazy("hasPointInTime", &future_datetime_iso/0)
+
     # |> Map.put_new_lazy("resource_classified_as", fn -> some(1..5, &url/0) end)
   end
 
@@ -112,9 +120,9 @@ defmodule ValueFlows.Simulate do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("note", &summary/0)
+
     # |> Map.put_new_lazy(:image, &icon/0)
     # |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
-
   end
 
   def process_specification(base \\ %{}) do
@@ -249,6 +257,10 @@ defmodule ValueFlows.Simulate do
     proposed_to
   end
 
+  def proposal_fields(extra \\ []) do
+    extra ++ ~w(id name note created has_beginning has_end unit_based)a
+  end
+
   def fake_process_specification!(user, context \\ nil, overrides \\ %{})
 
   def fake_process_specification!(user, context, overrides) when is_nil(context) do
@@ -261,12 +273,23 @@ defmodule ValueFlows.Simulate do
     spec
   end
 
-
   def fake_economic_event!(user, overrides \\ %{}) do
+    unit = fake_unit!(user)
+    fake_economic_event!(user, overrides, unit)
+  end
+
+  def fake_economic_event!(user, overrides, unit) do
+    measure_attrs = %{unit_id: unit.id}
+
+    measures = %{
+      resource_quantity: measure(measure_attrs)
+    }
+
+    overrides = Map.merge(overrides, measures)
+
     {:ok, event} = EconomicEvents.create(user, economic_event(overrides))
     event
   end
-
 
   def fake_process!(user, overrides \\ %{}) do
     {:ok, process} = Processes.create(user, process(overrides))
@@ -279,10 +302,21 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_economic_resource!(user, overrides \\ %{}) do
+    unit = fake_unit!(user)
+    fake_economic_resource!(user, overrides, unit)
+  end
+
+  def fake_economic_resource!(user, overrides, unit) do
+    measure_attrs = %{unit_id: unit.id}
+
+    measures = %{
+      accounting_quantity: measure(measure_attrs),
+      onhand_quantity: measure(measure_attrs),
+    }
+
+    overrides = Map.merge(overrides, measures)
+
     {:ok, spec} = EconomicResources.create(user, economic_resource(overrides))
     spec
   end
-
-
-
 end
