@@ -375,7 +375,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
       Oban.drain_queue(queue: :ap_incoming)
-      {:ok, user} = Adapter.get_actor_by_ap_id(user.ap_id)
+      {:ok, user} = Adapter.get_raw_actor_by_ap_id(user.ap_id)
       assert user.name == "kawen"
     end
 
@@ -391,7 +391,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
       Oban.drain_queue(queue: :ap_incoming)
-      {:ok, comm} = Adapter.get_actor_by_ap_id(comm.ap_id)
+      {:ok, comm} = Adapter.get_raw_actor_by_ap_id(comm.ap_id)
       assert comm.name == "kawen"
     end
 
@@ -407,7 +407,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
       Oban.drain_queue(queue: :ap_incoming)
-      {:ok, coll} = Adapter.get_actor_by_ap_id(coll.ap_id)
+      {:ok, coll} = Adapter.get_raw_actor_by_ap_id(coll.ap_id)
       assert coll.name == "kawen"
     end
   end
