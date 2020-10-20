@@ -17,6 +17,24 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
   @behaviour ActivityPub.Adapter
 
+  def base_url() do
+    CommonsPub.Web.Endpoint.url()
+  end
+
+  def get_follower_local_ids(actor) do
+    {:ok, actor} = get_raw_actor_by_id(actor.pointer_id)
+    {:ok, follows} = CommonsPub.Follows.many(context: actor.id)
+
+    follows |> Enum.map(fn follow -> follow.creator_id end)
+  end
+
+  def get_following_local_ids(actor) do
+    {:ok, actor} = get_raw_actor_by_id(actor.pointer_id)
+    {:ok, follows} = CommonsPub.Follows.many(creator: actor.id)
+
+    follows |> Enum.map(fn follow -> follow.context_id end)
+  end
+
   def get_raw_actor_by_username(username) do
     # FIXME: this should be only one query
     with {:error, _e} <- Users.one([:default, username: username]),
@@ -169,7 +187,9 @@ defmodule CommonsPub.ActivityPub.Adapter do
     case get_raw_actor_by_id(id) do
       {:ok, actor} ->
         {:ok, format_local_actor(actor)}
-      _ -> {:error, "not found"}
+
+      _ ->
+        {:error, "not found"}
     end
   end
 
@@ -177,7 +197,9 @@ defmodule CommonsPub.ActivityPub.Adapter do
     case get_raw_actor_by_username(username) do
       {:ok, actor} ->
         {:ok, format_local_actor(actor)}
-      _ -> {:error, "not found"}
+
+      _ ->
+        {:error, "not found"}
     end
   end
 
@@ -185,7 +207,9 @@ defmodule CommonsPub.ActivityPub.Adapter do
     case get_raw_actor_by_ap_id(ap_id) do
       {:ok, actor} ->
         {:ok, format_local_actor(actor)}
-      _ -> {:error, "not found"}
+
+      _ ->
+        {:error, "not found"}
     end
   end
 
@@ -293,6 +317,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   def update_local_actor(actor, params) do
     keys = Map.get(params, :keys)
     params = Map.put(params, :signing_key, keys)
+
     with {:ok, local_actor} <-
            CommonsPub.Characters.one(username: actor.data["preferredUsername"]),
          {:ok, local_actor} <-

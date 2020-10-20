@@ -414,6 +414,8 @@ config :http_signatures, adapter: ActivityPub.Signature
 
 config :activity_pub, adapter: CommonsPub.ActivityPub.Adapter
 
+config :nodeinfo, adapter: CommonsPub.NodeinfoAdapter
+
 config :floki, :html_parser, Floki.HTMLParser.Html5ever
 
 config :sentry,
@@ -443,9 +445,6 @@ config :commons_pub, :ux,
   editor: "ck5"
 
 config :activity_pub, :repo, CommonsPub.Repo
-
-# for AP url generation
-config :activity_pub, :base_url, base_url
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -8,6 +8,8 @@ defmodule CommonsPub.Web.Router do
   use CommonsPub.Web, :router
   use Plug.ErrorHandler
   use Sentry.Plug
+  use ActivityPubWeb.Router
+  use NodeinfoWeb.Router
 
   if Mix.env() == :dev do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
@@ -95,55 +97,15 @@ defmodule CommonsPub.Web.Router do
     end
   end
 
-  pipeline :well_known do
-    plug(:accepts, ["json", "jrd+json"])
-  end
-
-  scope "/.well-known", ActivityPubWeb do
-    pipe_through(:well_known)
-
-    get "/webfinger", WebFingerController, :webfinger
-    get "/nodeinfo", NodeinfoController, :schemas
-  end
-
   @doc """
   Serve the mock homepage, or forward ActivityPub API requests to the AP module's router
   """
-
-  pipeline :activity_pub do
-    plug(:accepts, ["activity+json", "json", "html"])
-  end
-
-  pipeline :signed_activity_pub do
-    plug(:accepts, ["activity+json", "json"])
-    plug(ActivityPubWeb.Plugs.HTTPSignaturePlug)
-  end
-
-  ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-
-  scope ap_base_path, ActivityPubWeb do
-    pipe_through(:activity_pub)
-
-    get "/objects/:uuid", ActivityPubController, :object
-    get "/actors/:username", ActivityPubController, :actor
-    get "/actors/:username/followers", ActivityPubController, :followers
-    get "/actors/:username/following", ActivityPubController, :following
-    get "/actors/:username/outbox", ActivityPubController, :noop
-  end
-
-  scope ap_base_path, ActivityPubWeb do
-    pipe_through(:signed_activity_pub)
-
-    post "/actors/:username/inbox", ActivityPubController, :inbox
-    post "/shared_inbox", ActivityPubController, :inbox
-  end
 
   scope "/" do
     pipe_through :browser
     get "/", CommonsPub.Web.PageController, :index
     get "/confirm-email/:token", CommonsPub.Web.PageController, :confirm_email
     get "/logout", CommonsPub.Web.PageController, :logout
-    get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
   end
 
   pipeline :liveview do
