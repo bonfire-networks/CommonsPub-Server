@@ -1,5 +1,4 @@
 defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
-
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Trendy, only: [some: 2]
@@ -20,6 +19,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
   import Geolocation.Test.Faking
 
   @debug false
+  @schema CommonsPub.Web.GraphQL.Schema
 
   describe "EconomicEventsResourcesMutations" do
     test "create an economic resource produced by an economic event" do
@@ -65,7 +65,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
         )
 
       conn = user_conn(user)
-
 
       vars = %{
         event:
@@ -141,7 +140,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       }
 
       assert {:additional_errors, _} =
-               catch_throw(grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug))
+               catch_throw(
+                 grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
+               )
     end
 
     test "transfer an existing economic resource" do
@@ -152,20 +153,18 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
 
       q =
         create_economic_event_mutation(
-          [
-            fields: [
+          fields: [
+            :id,
+            resource_quantity: [:has_numerical_value],
+            resource_inventoried_as: [
               :id,
-              resource_quantity: [:has_numerical_value],
-              resource_inventoried_as: [
-                :id,
-                onhand_quantity: [:has_numerical_value],
-                accounting_quantity: [:has_numerical_value]
-              ],
-              to_resource_inventoried_as: [
-                :id,
-                onhand_quantity: [:has_numerical_value],
-                accounting_quantity: [:has_numerical_value]
-              ],
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ],
+            to_resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
             ]
           ]
         )
@@ -178,7 +177,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
             "action" => "transfer",
             "resourceQuantity" => measure_input(unit, %{"hasNumericalValue" => 42}),
             "resourceInventoriedAs" => resource_inventoried_as.id,
-            "toResourceInventoriedAs" => to_resource_inventoried_as.id,
+            "toResourceInventoriedAs" => to_resource_inventoried_as.id
             # "provider" => user.id,
             # "receiver" => user.id
           })
@@ -187,8 +186,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
       assert event = response["economicEvent"]
       assert_economic_event(event)
+
       assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
                resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+
       assert event["toResourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
                to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
     end
@@ -235,7 +236,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       user = fake_user!()
       unit = fake_unit!(user)
 
-
       q =
         create_economic_event_mutation(
           fields: [
@@ -260,33 +260,34 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      assert [%{"status" => 404, "code" => "not_found" }] = grumble_post_errors(q, conn, vars)
+      assert [%{"status" => 404, "code" => "not_found"}] = grumble_post_errors(q, conn, vars)
     end
 
     test "create an economic event that transfers an existing resource from a provider to a receiver" do
       alice = fake_user!()
       unit = fake_unit!(alice)
       bob = fake_user!()
-      resource_inventoried_as = fake_economic_resource!(alice, %{primary_accountable: alice.id}, unit)
+
+      resource_inventoried_as =
+        fake_economic_resource!(alice, %{primary_accountable: alice.id}, unit)
+
       to_resource_inventoried_as = fake_economic_resource!(alice, %{}, unit)
 
       q =
         create_economic_event_mutation(
-          [
-            fields: [
+          fields: [
+            :id,
+            resource_quantity: [:has_numerical_value],
+            resource_inventoried_as: [
               :id,
-              resource_quantity: [:has_numerical_value],
-              resource_inventoried_as: [
-                :id,
-                onhand_quantity: [:has_numerical_value],
-                accounting_quantity: [:has_numerical_value]
-              ],
-              to_resource_inventoried_as: [
-                :id,
-                onhand_quantity: [:has_numerical_value],
-                accounting_quantity: [:has_numerical_value],
-                primary_accountable: [:id]
-              ],
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ],
+            to_resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value],
+              primary_accountable: [:id]
             ]
           ]
         )
@@ -308,10 +309,13 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
       assert event = response["economicEvent"]
       assert_economic_event(event)
+
       assert event["resourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
                resource_inventoried_as.accounting_quantity.has_numerical_value - 42
+
       assert event["toResourceInventoriedAs"]["accountingQuantity"]["hasNumericalValue"] ==
                to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
+
       assert event["toResourceInventoriedAs"]["primaryAccountable"]["id"] == bob.id
     end
 
@@ -319,26 +323,27 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       alice = fake_user!()
       unit = fake_unit!(alice)
       bob = fake_user!()
-      resource_inventoried_as = fake_economic_resource!(alice, %{primary_accountable: bob.id}, unit)
+
+      resource_inventoried_as =
+        fake_economic_resource!(alice, %{primary_accountable: bob.id}, unit)
+
       to_resource_inventoried_as = fake_economic_resource!(alice, %{}, unit)
 
       q =
         create_economic_event_mutation(
-          [
-            fields: [
+          fields: [
+            :id,
+            resource_quantity: [:has_numerical_value],
+            resource_inventoried_as: [
               :id,
-              resource_quantity: [:has_numerical_value],
-              resource_inventoried_as: [
-                :id,
-                onhand_quantity: [:has_numerical_value],
-                accounting_quantity: [:has_numerical_value]
-              ],
-              to_resource_inventoried_as: [
-                :id,
-                onhand_quantity: [:has_numerical_value],
-                accounting_quantity: [:has_numerical_value],
-                primary_accountable: [:id]
-              ],
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ],
+            to_resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value],
+              primary_accountable: [:id]
             ]
           ]
         )
@@ -357,7 +362,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      assert [%{"status" => 403, "code" => "unauthorized" }] = grumble_post_errors(q, conn, vars)
+      assert [%{"status" => 403, "code" => "unauthorized"}] = grumble_post_errors(q, conn, vars)
     end
 
     test "can transfer custody of an economic resource when the provider does not have rights" do
@@ -365,26 +370,28 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       unit = fake_unit!(alice)
       bob = fake_user!()
       jess = fake_user!()
-      resource_inventoried_as = fake_economic_resource!(alice, %{primary_accountable: alice.id}, unit)
-      to_resource_inventoried_as = fake_economic_resource!(alice, %{primary_accountable: jess.id}, unit)
+
+      resource_inventoried_as =
+        fake_economic_resource!(alice, %{primary_accountable: alice.id}, unit)
+
+      to_resource_inventoried_as =
+        fake_economic_resource!(alice, %{primary_accountable: jess.id}, unit)
 
       q =
         create_economic_event_mutation(
-          [
-            fields: [
+          fields: [
+            :id,
+            resource_quantity: [:has_numerical_value],
+            resource_inventoried_as: [
               :id,
-              resource_quantity: [:has_numerical_value],
-              resource_inventoried_as: [
-                :id,
-                onhand_quantity: [:has_numerical_value],
-                accounting_quantity: [:has_numerical_value]
-              ],
-              to_resource_inventoried_as: [
-                :id,
-                onhand_quantity: [:has_numerical_value],
-                accounting_quantity: [:has_numerical_value],
-                primary_accountable: [:id]
-              ],
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value]
+            ],
+            to_resource_inventoried_as: [
+              :id,
+              onhand_quantity: [:has_numerical_value],
+              accounting_quantity: [:has_numerical_value],
+              primary_accountable: [:id]
             ]
           ]
         )
@@ -406,12 +413,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       assert response = grumble_post_key(q, conn, :create_economic_event, vars, "test", @debug)
       assert event = response["economicEvent"]
       assert_economic_event(event)
+
       assert event["resourceInventoriedAs"]["onhandQuantity"]["hasNumericalValue"] ==
-        resource_inventoried_as.onhand_quantity.has_numerical_value - 42
+               resource_inventoried_as.onhand_quantity.has_numerical_value - 42
+
       assert event["toResourceInventoriedAs"]["onhandQuantity"]["hasNumericalValue"] ==
-        to_resource_inventoried_as.onhand_quantity.has_numerical_value + 42
+               to_resource_inventoried_as.onhand_quantity.has_numerical_value + 42
+
       assert event["toResourceInventoriedAs"]["primaryAccountable"]["id"] == jess.id
     end
-
   end
 end

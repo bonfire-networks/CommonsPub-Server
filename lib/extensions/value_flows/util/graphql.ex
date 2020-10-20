@@ -54,6 +54,9 @@ defmodule ValueFlows.Util.GraphQL do
     thing = Repo.preload(thing, :current_location)
     {:ok, Geolocation.Geolocations.populate_coordinates(Map.get(thing, :current_location, nil))}
   end
+  def current_location_edge(_, _, _) do
+    {:ok, nil}
+  end
 
   def at_location_edge(%{at_location_id: id} = thing, _, _) when not is_nil(id) do
     thing = Repo.preload(thing, :at_location)

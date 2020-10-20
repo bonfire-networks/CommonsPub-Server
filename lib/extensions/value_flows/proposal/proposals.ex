@@ -333,14 +333,14 @@ defmodule ValueFlows.Proposal.Proposals do
     end
   end
 
-  def graphql_document_for(schema, type, nesting, overrides \\ []) do
-    schema
-    |> CommonsPub.Web.GraphQL.ListTypes.fields_for(type, nesting)
-    # |> IO.inspect()
-    |> CommonsPub.Web.GraphQL.ListTypes.merge_overrides(overrides)
-    |> CommonsPub.Web.GraphQL.ListTypes.format_fields(type, 10, schema)
-    |> List.to_string()
-  end
+  # def graphql_document_for(schema, type, nesting, override_fun \\ []) do
+  #   schema
+  #   |> CommonsPub.Web.GraphQL.QueryHelper.fields_for(type, nesting)
+  #   # |> IO.inspect()
+  #   |> CommonsPub.Web.GraphQL.QueryHelper.apply_overrides(override_fun)
+  #   |> CommonsPub.Web.GraphQL.QueryHelper.format_fields(type, 10, schema)
+  #   |> List.to_string()
+  # end
 
   @ignore [:communities, :collections, :my_like, :my_flag, :unit_based, :feature_count, :follower_count, :is_local, :is_disabled, :page_info, :edges, :threads, :outbox, :inbox, :followers, :community_follows]
 
@@ -367,26 +367,27 @@ defmodule ValueFlows.Proposal.Proposals do
     end
   end
 
-  def graphql_get_proposal_attempt3(id) do
-    query = graphql_document_for(@schema, :proposal, 4, &fields_filter/1)
-    IO.inspect(query)
+  # def graphql_get_proposal_attempt3(id) do
+  #   query = CommonsPub.Web.GraphQL.QueryHelper.document_for(@schema, :proposal, 4, &fields_filter/1)
+  #   IO.inspect(query)
 
-    with {:ok, g} <-
-           """
-            query ($id: ID) {
-              proposal(id: $id) {
-                #{query}
-              }
-            }
-           """
-           |> Absinthe.run(@schema, variables: %{"id" => id}) do
-      IO.inspect(g)
-      g |> Map.get(:data) |> Map.get("proposal")
-    end
-  end
+  #   with {:ok, g} <-
+  #          """
+  #           query ($id: ID) {
+  #             proposal(id: $id) {
+  #               #{query}
+  #             }
+  #           }
+  #          """
+  #          |> Absinthe.run(@schema, variables: %{"id" => id}) do
+  #     IO.inspect(g)
+  #     g |> Map.get(:data) |> Map.get("proposal")
+  #   end
+  # end
 
   def ap_object_prepare_attempt3(id) do
-    with obj <- graphql_get_proposal_attempt3(id) do
+    # with obj <- graphql_get_proposal_attempt3(id) do
+    with obj <- CommonsPub.Web.GraphQL.QueryHelper.run_query_id(id, @schema, :proposal, 4, &fields_filter/1) do
       Map.merge(
         %{
           "type" => "ValueFlows:Proposal"

@@ -88,20 +88,28 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   def trace(process), do: inputs(process)
 
-  def inputs(process) do
-    EconomicEvents.many([:default, input_of_id: process.id])
+  def inputs(%{id: id}, action_id \\ nil) when not is_nil(action_id) do
+    EconomicEvents.many([:default, input_of_id: id, action_id: action_id])
   end
 
-  def inputs(process, action_id) do
-    EconomicEvents.many([:default, input_of_id: process.id, action_id: action_id])
+  def inputs(%{id: id}, _) do
+    EconomicEvents.many([:default, input_of_id: id])
   end
 
-  def outputs(process) do
-    EconomicEvents.many([:default, output_of_id: process.id])
+  def inputs(_, _) do
+    {:ok, nil}
   end
 
-  def outputs(process, action_id) do
-    EconomicEvents.many([:default, output_of_id: process.id, action_id: action_id])
+  def outputs(%{id: id}, action_id \\ nil) when not is_nil(action_id) do
+    EconomicEvents.many([:default, output_of_id: id, action_id: action_id])
+  end
+
+  def outputs(%{id: id}, _) do
+    EconomicEvents.many([:default, output_of_id: id])
+  end
+
+  def outputs(_, _) do
+    {:ok, nil}
   end
 
   ## mutations
