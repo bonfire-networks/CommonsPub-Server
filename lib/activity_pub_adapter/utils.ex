@@ -1,19 +1,96 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule CommonsPub.ActivityPub.Utils do
   alias ActivityPub.Actor
   alias CommonsPub.Threads.Comments
+
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
+  def public_uri() do
+    @public_uri
+  end
+
+  def ap_base_url() do
+    CommonsPub.ActivityPub.Adapter.base_url() <> System.get_env("AP_BASE_PATH", "/pub")
+  end
+
+  def get_actor_username(%{preferred_username: u}) when is_binary(u),
+    do: u
+
+  def get_actor_username(%{character: %{preferred_username: u}}) when is_binary(u),
+    do: u
+
+  def get_actor_username(%{character: %Ecto.Association.NotLoaded{}} = obj) do
+    get_actor_username(
+      Map.get(CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character), :character)
+    )
+  end
+
+  def get_actor_username(u) when is_binary(u),
+    do: u
+
+  def generate_actor_url(u) when is_binary(u) and u != "",
+    do: ap_base_url() <> "/actors/" <> u
+
+  def generate_actor_url(u),
+    do: generate_actor_url(get_actor_username(u))
+
+
+  @doc "Get canonical URL if set, or generate one"
+
+  # def get_actor_canonical_url(%{actor: actor}) do
+  #   get_actor_canonical_url(actor)
+  # end
+
+  def get_actor_canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def get_actor_canonical_url(%{character: %{canonical_url: canonical_url}})
+      when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def get_actor_canonical_url(%{character: %Ecto.Association.NotLoaded{}} = obj) do
+    get_actor_canonical_url(
+      Map.get(CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character), :character)
+    )
+  end
+
+  def get_actor_canonical_url(actor) do
+    generate_actor_url(actor)
+  end
+
+  @doc "Generate canonical URL for local object"
+  def generate_object_ap_id(%{id: id}) do
+    "#{ap_base_url()}/objects/#{id}"
+  end
+
+  def generate_object_ap_id(id) when is_binary(id) or is_number(id) do
+    "#{ap_base_url()}/objects/#{id}"
+  end
+
+  def generate_object_ap_id(_) do
+    nil
+  end
+
+  @doc "Get canonical URL for object"
+  def get_object_canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def get_object_canonical_url(object) do
+    generate_object_ap_id(object)
+  end
+
   def determine_recipients(actor, comment) do
-    determine_recipients(actor, comment, [@public_uri], [actor.data["followers"]])
+    determine_recipients(actor, comment, [public_uri()], [actor.data["followers"]])
   end
 
   def determine_recipients(actor, comment, parent) do
     if(is_map(parent) and Map.has_key?(parent, :id)) do
       case ActivityPub.Actor.get_cached_by_local_id(parent.id) do
         {:ok, parent_actor} ->
-          determine_recipients(actor, comment, [parent_actor.ap_id, @public_uri], [
+          determine_recipients(actor, comment, [parent_actor.ap_id, public_uri()], [
             actor.data["followers"]
           ])
 
@@ -124,63 +201,4 @@ defmodule CommonsPub.ActivityPub.Utils do
   def get_author(%{"name" => name}), do: name
 
   def get_author(author) when is_binary(author), do: author
-
-  defp ap_base_url() do
-    CommonsPub.Web.base_url() <> System.get_env("AP_BASE_PATH", "/pub")
-  end
-
-  @doc "Generate canonical URL for local object"
-  def generate_object_ap_id(%{id: id}) do
-    "#{ap_base_url()}/objects/#{id}"
-  end
-
-  def generate_object_ap_id(id) when is_binary(id) or is_number(id) do
-    "#{ap_base_url()}/objects/#{id}"
-  end
-
-  def generate_object_ap_id(_) do
-    nil
-  end
-
-  def generate_actor_url(%{preferred_username: u}) when is_binary(u),
-    do: generate_actor_url(u)
-
-  def generate_actor_url(u) when is_binary(u) and u != "",
-    do: ap_base_url() <> "/actors/" <> u
-
-  def generate_actor_url(actor), do: generate_object_ap_id(actor)
-
-  @doc "Get canonical URL if set, or generate one"
-
-  # def get_actor_canonical_url(%{actor: actor}) do
-  #   get_actor_canonical_url(actor)
-  # end
-
-  def get_actor_canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
-    canonical_url
-  end
-
-  def get_actor_canonical_url(%{character: %{canonical_url: canonical_url}})
-      when not is_nil(canonical_url) do
-    canonical_url
-  end
-
-  def get_actor_canonical_url(%{character_id: character_id} = obj)
-      when not is_nil(character_id) do
-    get_actor_canonical_url(
-      Map.get(CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character), :character)
-    )
-  end
-
-  def get_actor_canonical_url(actor) do
-    generate_actor_url(actor)
-  end
-
-  def get_object_canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
-    canonical_url
-  end
-
-  def get_object_canonical_url(object) do
-    generate_object_ap_id(object)
-  end
 end

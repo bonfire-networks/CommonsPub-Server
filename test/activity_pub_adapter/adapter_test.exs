@@ -322,7 +322,9 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       actor = actor()
       ActivityPub.delete(actor, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
-      assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
+      IO.inspect(actor: actor)
+      IO.inspect(deleted: Adapter.get_actor_by_ap_id(Map.get(actor, :ap_id)))
+      assert {:error, "not found"} =  Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
     test "community deletes" do

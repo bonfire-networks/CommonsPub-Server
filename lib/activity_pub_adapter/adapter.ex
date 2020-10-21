@@ -18,7 +18,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   @behaviour ActivityPub.Adapter
 
   def base_url() do
-    CommonsPub.Web.Endpoint.url()
+    CommonsPub.Web.base_url()
   end
 
   def get_follower_local_ids(actor) do
@@ -36,7 +36,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   end
 
   def get_raw_actor_by_username(username) do
-    # FIXME: this should be only one query
+    # FIXME: this should be only one query (or two, using pointers?)
     with {:error, _e} <- Users.one([:default, username: username]),
          {:error, _e} <- Communities.one([:default, username: username]),
          {:error, _e} <- Collections.one([:default, username: username]),
@@ -46,6 +46,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   end
 
   def get_raw_actor_by_id(id) do
+    # FIXME: this should be only one query (or two, using pointers?)
     with {:error, _e} <- Users.one([:default, id: id]),
          {:error, _e} <- Communities.one([:default, id: id]),
          {:error, _e} <- Collections.one([:default, id: id]) do
@@ -107,7 +108,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
         %CommonsPub.Users.User{} -> "Person"
         %CommonsPub.Communities.Community{} -> "MN:Community"
         %CommonsPub.Collections.Collection{} -> "MN:Collection"
-        %CommonsPub.Characters.Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "Character")
+        # %CommonsPub.Characters.Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "Character")
+        _ -> "CommonsPub:Character"
       end
 
     actor =
@@ -126,19 +128,13 @@ defmodule CommonsPub.ActivityPub.Adapter do
           actor
       end
 
-    icon_url = CommonsPub.Uploads.remote_url_from_id(actor.icon_id)
+    icon_url = CommonsPub.Uploads.remote_url_from_id(Map.get(actor, :icon_id))
 
-    image_url =
-      if not Map.has_key?(actor, :resources) do
-        CommonsPub.Uploads.remote_url_from_id(actor.image_id)
-      else
-        nil
-      end
+    image_url = CommonsPub.Uploads.remote_url_from_id(Map.get(actor, :image_id))
 
-    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
+    id = Utils.generate_actor_url(actor)
 
-    id =
-      CommonsPub.Web.base_url() <> ap_base_path <> "/actors/#{actor.character.preferred_username}"
+    username = Utils.get_actor_username(actor)
 
     data = %{
       "type" => type,
@@ -147,8 +143,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
       "outbox" => "#{id}/outbox",
       "followers" => "#{id}/followers",
       "following" => "#{id}/following",
-      "preferredUsername" => actor.character.preferred_username,
-      "name" => actor.name,
+      "preferredUsername" => username,
+      "name" => Map.get(actor, :name),
       "summary" => Map.get(actor, :summary),
       "icon" => maybe_create_image_object(icon_url),
       "image" => maybe_create_image_object(image_url)
@@ -174,11 +170,11 @@ defmodule CommonsPub.ActivityPub.Adapter do
     %ActivityPub.Actor{
       id: actor.id,
       data: data,
-      keys: actor.character.signing_key,
+      keys: Map.get(Map.get(actor, :character, actor), :signing_key),
       local: check_local(actor),
       ap_id: id,
       pointer_id: actor.id,
-      username: actor.character.preferred_username,
+      username: username,
       deactivated: false
     }
   end
@@ -186,6 +182,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   def get_actor_by_id(id) do
     case get_raw_actor_by_id(id) do
       {:ok, actor} ->
+        # IO.inspect(get_raw_actor_by_id: actor)
         {:ok, format_local_actor(actor)}
 
       _ ->
@@ -605,10 +602,11 @@ defmodule CommonsPub.ActivityPub.Adapter do
       ) do
     object = ActivityPub.Object.get_cached_by_ap_id(obj_id)
 
-    if object.data["type"] in ["Person", "MN:Community", "MN:Collection", "Group"] do
+    if object.data["type"] in ["Person", "MN:Community", "MN:Collection", "Group", "CommonsPub:Character"] do
       with {:ok, actor} <- get_raw_actor_by_ap_id(activity.data["object"]),
            {:ok, _} <-
              (case actor do
+                #FIXME
                 %User{} -> CommonsPub.Users.soft_delete_remote(actor)
                 %Community{} -> CommonsPub.Communities.soft_delete(%User{}, actor)
                 %Collection{} -> CommonsPub.Collections.soft_delete(%User{}, actor)
@@ -617,6 +615,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
         :ok
       else
         {:error, e} ->
+          Logger.warn("Could not find actor to delete")
           {:error, e}
       end
     else

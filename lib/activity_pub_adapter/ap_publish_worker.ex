@@ -95,18 +95,25 @@ defmodule CommonsPub.Workers.APPublishWorker do
 
       if(
         Code.ensure_loaded?(object_context_module) and
-          Kernel.function_exported?(object_context_module, :ap_activity, 2)
+          Kernel.function_exported?(object_context_module, :ap_publish_activity, 2)
       ) do
         # IO.inspect(function_exists_in: object_context_module)
-        apply(object_context_module, :ap_activity, [verb, local_object])
+
+        try do
+          apply(object_context_module, :ap_publish_activity, [verb, local_object])
+        rescue
+          FunctionClauseError ->
+            Logger.warn(
+              "May not publish #{object_type} object - no function matching #{object_context_module}.ap_publish_activity(\"#{
+                verb
+              }\", object). Trying to fallback to CommonsPub.Workers.APPublishWorker.ap_activity/2"
+            )
+
+            ap_activity(local_object, verb)
+        end
       else
-        Logger.warn(
-          "May not publish #{object_type} object (no context module with ap_activity/2 (trying to fallback on deprecated functions in APPublishWorker))"
-        )
-
+        # temp fallback
         ap_activity(local_object, verb)
-
-
       end
     else
       Logger.warn(
@@ -120,7 +127,7 @@ defmodule CommonsPub.Workers.APPublishWorker do
   # TODO: move Publisher.* funcs to context modules and deprecate the bellow
 
   defp ap_activity(%Collection{} = collection, "create"),
-    do: CommonsPub.Collections.ap_activity("create", collection)
+    do: CommonsPub.Collections.ap_publish_activity("create", collection)
 
   defp ap_activity(%Comment{} = comment, "create") do
     Publisher.comment(comment)
@@ -162,28 +169,37 @@ defmodule CommonsPub.Workers.APPublishWorker do
     Publisher.unlike(like)
   end
 
-  defp ap_activity(%{__struct__: type} = actor, "update")
+  defp ap_activity(%{__struct__: type} = character, "update")
        when type in [User, Community, Collection] do
-    Publisher.update_actor(actor)
+    Publisher.update_character(character)
   end
 
   defp ap_activity(%User{} = user, "delete") do
     Publisher.delete_user(user)
   end
 
-  defp ap_activity(%{__struct__: type} = actor, "delete")
+  defp ap_activity(%{__struct__: type} = character, "delete")
        when type in [Community, Collection] do
-    Publisher.delete_character(actor)
+    Publisher.delete_character(character)
   end
 
   defp ap_activity(%{__struct__: type} = object, "delete") when type in [Comment, Resource] do
     Publisher.delete_comment_or_resource(object)
   end
 
-  defp ap_activity(context, verb) do
-    Logger.warn(
-      "Unsupported action for AP publisher: #{context.id}, #{verb} #{context.__struct__}"
+  defp ap_activity(%{__struct__: type, id: id} = _object, verb) do
+    Logger.error(
+      "Unable to federate - Unsupported verb/object combination for AP publisher... object ID: #{id} ; verb: #{verb} ; object type: #{type}"
     )
+
+    :ignored
+  end
+
+  defp ap_activity(object, verb) do
+    Logger.error(
+      "Unable to federate - Unsupported verb/object combination for AP publisher... verb: #{verb}}"
+    )
+    IO.inspect(object: object)
 
     :ignored
   end
