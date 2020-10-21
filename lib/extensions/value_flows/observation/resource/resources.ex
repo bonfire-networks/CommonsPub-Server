@@ -167,7 +167,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     do_update(resource, attrs, &EconomicResource.update_changeset(&1, attrs))
   end
 
-  def do_update(resource, attrs, changeset_fn) do
+  defp do_update(resource, attrs, changeset_fn) do
     Repo.transact_with(fn ->
       resource = preload_all(resource)
 

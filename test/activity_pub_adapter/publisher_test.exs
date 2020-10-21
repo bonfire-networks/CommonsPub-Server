@@ -104,7 +104,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
       community = fake_community!(actor)
       collection = fake_collection!(actor, community)
 
-      assert {:ok, activity} = CommonsPub.Collections.ap_activity("create", collection)
+      assert {:ok, activity} = CommonsPub.Collections.ap_publish_activity("create", collection)
       assert activity.data["object"]["type"] == "Group"
       assert activity.data["object"]["id"]
       {:ok, collection} = CommonsPub.Collections.one([:default, id: collection.id])
@@ -319,19 +319,19 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
   describe "updating actors" do
     test "it works for users" do
       actor = fake_user!()
-      assert {:ok, activity} = Publisher.update_actor(actor)
+      assert {:ok, activity} = Publisher.update_character(actor)
     end
 
     test "it works for communities" do
       actor = fake_user!() |> fake_community!()
-      assert {:ok, activity} = Publisher.update_actor(actor)
+      assert {:ok, activity} = Publisher.update_character(actor)
     end
 
     test "it works for collections" do
       user = fake_user!()
       comm = fake_community!(user)
       actor = fake_collection!(user, comm)
-      assert {:ok, activity} = Publisher.update_actor(actor)
+      assert {:ok, activity} = Publisher.update_character(actor)
     end
   end
 

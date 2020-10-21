@@ -29,7 +29,7 @@ defmodule CommonsPub.Application do
     :ok =
       :telemetry.attach(
         "oban-logger",
-        [:oban, :failure],
+        [:oban, :job, :exception],
         &CommonsPub.Workers.ObanLogger.handle_event/4,
         nil
       )

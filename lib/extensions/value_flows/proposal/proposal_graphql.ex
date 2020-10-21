@@ -101,6 +101,140 @@ defmodule ValueFlows.Proposal.GraphQL do
     })
   end
 
+  def proposals_filtered(page_opts, _ \\ nil) do
+    # IO.inspect(proposals_filtered: page_opts)
+    proposals_filter(page_opts, [])
+  end
+
+  # def proposals_filtered(page_opts, _) do
+  #   IO.inspect(unhandled_filtering: page_opts)
+  #   all_proposals(page_opts, nil)
+  # end
+
+  # TODO: support several filters combined, plus pagination on filtered queries
+
+  defp proposals_filter(%{agent: id} = page_opts, filters_acc) do
+    proposals_filter_next(:agent, [agent_id: id], page_opts, filters_acc)
+  end
+
+  defp proposals_filter(%{in_scope_of: context_id} = page_opts, filters_acc) do
+    proposals_filter_next(:in_scope_of, [context_id: context_id], page_opts, filters_acc)
+  end
+
+  defp proposals_filter(%{at_location: at_location_id} = page_opts, filters_acc) do
+    proposals_filter_next(:at_location, [eligible_location_id: at_location_id], page_opts, filters_acc)
+  end
+
+  defp proposals_filter(
+         %{
+           geolocation: %{
+             near_point: %{lat: lat, long: long},
+             distance: %{meters: distance_meters}
+           }
+         } = page_opts,
+         filters_acc
+       ) do
+    # IO.inspect(geo_with_point: page_opts)
+
+    proposals_filter_next(
+      :geolocation,
+      {
+        :near_point,
+        %Geo.Point{coordinates: {lat, long}, srid: 4326},
+        :distance_meters,
+        distance_meters
+      },
+      page_opts,
+      filters_acc
+    )
+  end
+
+  defp proposals_filter(
+         %{
+           geolocation: %{near_address: address} = geolocation
+         } = page_opts,
+         filters_acc
+       ) do
+    # IO.inspect(geo_with_address: page_opts)
+
+    with {:ok, coords} <- Geocoder.call(address) do
+      # IO.inspect(coords)
+
+      proposals_filter(
+        Map.merge(
+          page_opts,
+          %{
+            geolocation:
+              Map.merge(geolocation, %{
+                near_point: %{lat: coords.lat, long: coords.lon},
+                distance: Map.get(geolocation, :distance, %{meters: @radius_default_distance})
+              })
+          }
+        ),
+        filters_acc
+      )
+    else
+      _ ->
+        proposals_filter_next(
+          :geolocation,
+          [],
+          page_opts,
+          filters_acc
+        )
+    end
+  end
+
+  defp proposals_filter(
+         %{
+           geolocation: geolocation
+         } = page_opts,
+         filters_acc
+       ) do
+    # IO.inspect(geo_without_distance: page_opts)
+
+    proposals_filter(
+      Map.merge(
+        page_opts,
+        %{
+          geolocation:
+            Map.merge(geolocation, %{
+              # default to 100 km radius
+              distance: %{meters: @radius_default_distance}
+            })
+        }
+      ),
+      filters_acc
+    )
+  end
+
+  defp proposals_filter(
+         _,
+         filters_acc
+       ) do
+    # IO.inspect(filters_query: filters_acc)
+
+    # finally, if there's no more known params to acumulate, query with the filters
+    Proposals.many(filters_acc)
+  end
+
+  defp proposals_filter_next(param_remove, filter_add, page_opts, filters_acc)
+       when is_list(param_remove) and is_list(filter_add) do
+    # IO.inspect(proposals_filter_next: param_remove)
+    # IO.inspect(proposals_filter_add: filter_add)
+
+    proposals_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
+  end
+
+  defp proposals_filter_next(param_remove, filter_add, page_opts, filters_acc)
+       when not is_list(filter_add) do
+    proposals_filter_next(param_remove, [filter_add], page_opts, filters_acc)
+  end
+
+  defp proposals_filter_next(param_remove, filter_add, page_opts, filters_acc)
+       when not is_list(param_remove) do
+    proposals_filter_next([param_remove], filter_add, page_opts, filters_acc)
+  end
+
   def create_proposal(%{proposal: %{in_scope_of: context_ids} = attrs}, info)
       when is_list(context_ids) do
     # FIXME: support multiple contexts?

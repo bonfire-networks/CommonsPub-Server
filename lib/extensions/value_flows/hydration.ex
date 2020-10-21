@@ -1,7 +1,8 @@
 defmodule ValueFlows.Hydration do
   alias CommonsPub.Web.GraphQL.{
     CommonResolver,
-    UploadResolver
+    UploadResolver,
+    UsersResolver
   }
 
   alias CommonsPub.Users.User
@@ -24,7 +25,7 @@ defmodule ValueFlows.Hydration do
         resolve: &UploadResolver.image_content_edge/3
       ],
       intents: [
-        resolve: &ValueFlows.Planning.Intent.GraphQL.provider_intents/3
+        resolve: &ValueFlows.Planning.Intent.GraphQL.agent_intents/3
       ],
       processes: [
         resolve: &ValueFlows.Observation.Process.GraphQL.creator_processes/3
@@ -84,7 +85,10 @@ defmodule ValueFlows.Hydration do
         ],
         published_to: [
           resolve: &ValueFlows.Proposal.ProposedToGraphQL.published_to_edge/3
-        ]
+        ],
+        creator: [
+          resolve: &UsersResolver.creator_edge/3
+        ],
       },
       intent: %{
         canonical_url: [
@@ -169,6 +173,12 @@ defmodule ValueFlows.Hydration do
         ],
         image: [
           resolve: &UploadResolver.image_content_edge/3
+        ],
+        accounting_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.accounting_quantity_edge/3
+        ],
+        onhand_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.onhand_quantity_edge/3
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
@@ -322,6 +332,9 @@ defmodule ValueFlows.Hydration do
         ],
         proposals_pages: [
           resolve: &ValueFlows.Proposal.GraphQL.proposals/2
+        ],
+        proposals_filtered: [
+          resolve: &ValueFlows.Proposal.GraphQL.proposals_filtered/2
         ]
       },
 

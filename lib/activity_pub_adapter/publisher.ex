@@ -5,7 +5,6 @@ defmodule CommonsPub.ActivityPub.Publisher do
   alias CommonsPub.Meta.Pointers
   alias CommonsPub.Repo
 
-  @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
   # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
   def comment(comment) do
@@ -94,7 +93,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
          },
          params = %{
            actor: actor,
-           to: [@public_uri, context.ap_id],
+           to: [CommonsPub.ActivityPub.Utils.public_uri(), context.ap_id],
            object: object,
            context: context.ap_id,
            additional: %{
@@ -118,7 +117,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
            ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community}),
          params <- %{
            actor: actor,
-           to: [@public_uri],
+           to: [CommonsPub.ActivityPub.Utils.public_uri()],
            object: community_object,
            context: ActivityPub.Utils.generate_context_id(),
            additional: %{
@@ -290,11 +289,11 @@ defmodule CommonsPub.ActivityPub.Publisher do
   end
 
   # Works for Users, Collections, Communities (not MN.Actor)
-  def update_actor(%{id: id} = actor) do
+  def update_character(%{id: id} = actor) do
     with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(id),
          actor_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: actor}),
          params <- %{
-           to: [@public_uri],
+           to: [CommonsPub.ActivityPub.Utils.public_uri()],
            cc: [actor.data["followers"]],
            object: actor_object,
            actor: actor.ap_id,
