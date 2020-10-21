@@ -220,7 +220,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       {:ok, ap_blocked} = ActivityPub.Actor.get_by_local_id(blocked.id)
       {:ok, _} = ActivityPub.block(blocker, ap_blocked, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
-      {:ok, blocker} = CommonsPub.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
+      {:ok, blocker} = CommonsPub.ActivityPub.Adapter.get_raw_actor_by_ap_id(blocker.ap_id)
       assert {:ok, _} = CommonsPub.Blocks.find(blocker, blocked)
     end
 

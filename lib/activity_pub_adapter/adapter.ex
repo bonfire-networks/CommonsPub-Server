@@ -375,7 +375,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   def update_remote_actor(actor_object) do
     data = actor_object.data
 
-    with {:ok, actor} <- get_actor_by_id(actor_object.pointer_id) do
+    with {:ok, actor} <- get_raw_actor_by_id(actor_object.pointer_id) do
       case actor do
         %CommonsPub.Users.User{} ->
           update_user(actor, data)
