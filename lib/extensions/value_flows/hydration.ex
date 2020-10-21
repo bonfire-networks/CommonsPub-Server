@@ -1,7 +1,8 @@
 defmodule ValueFlows.Hydration do
   alias CommonsPub.Web.GraphQL.{
     CommonResolver,
-    UploadResolver
+    UploadResolver,
+    UsersResolver
   }
 
   alias CommonsPub.Users.User
@@ -84,7 +85,10 @@ defmodule ValueFlows.Hydration do
         ],
         published_to: [
           resolve: &ValueFlows.Proposal.ProposedToGraphQL.published_to_edge/3
-        ]
+        ],
+        creator: [
+          resolve: &UsersResolver.creator_edge/3
+        ],
       },
       intent: %{
         canonical_url: [
@@ -322,6 +326,9 @@ defmodule ValueFlows.Hydration do
         ],
         proposals_pages: [
           resolve: &ValueFlows.Proposal.GraphQL.proposals/2
+        ],
+        proposals_filtered: [
+          resolve: &ValueFlows.Proposal.GraphQL.proposals_filtered/2
         ]
       },
 
