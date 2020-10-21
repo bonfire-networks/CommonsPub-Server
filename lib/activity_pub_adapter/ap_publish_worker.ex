@@ -35,7 +35,7 @@ defmodule CommonsPub.Workers.APPublishWorker do
   end
 
   @impl Worker
-  def perform(%{"context_id" => context_id, "op" => "delete"}) do
+  def perform(%{args: %{"context_id" => context_id, "op" => "delete"}}) do
     # FIXME
     object =
       with {:error, _e} <-
@@ -58,7 +58,7 @@ defmodule CommonsPub.Workers.APPublishWorker do
     end
   end
 
-  def perform(%{"context_id" => context_id, "op" => verb}) do
+  def perform(%{args: %{"context_id" => context_id, "op" => verb}}) do
     Pointers.one!(id: context_id)
     |> Pointers.follow!()
     |> only_local(&publish/2, verb)
@@ -119,7 +119,8 @@ defmodule CommonsPub.Workers.APPublishWorker do
 
   # TODO: move Publisher.* funcs to context modules and deprecate the bellow
 
-  defp ap_activity(%Collection{} = collection, "create"), do: CommonsPub.Collections.ap_activity("create", collection)
+  defp ap_activity(%Collection{} = collection, "create"),
+    do: CommonsPub.Collections.ap_activity("create", collection)
 
   defp ap_activity(%Comment{} = comment, "create") do
     Publisher.comment(comment)
