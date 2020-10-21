@@ -27,9 +27,9 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
 
   ## resolvers
 
-  def character(%{character: character}, _, _info) do
-    {:ok, Repo.preload(character, :character)}
-  end
+  # def character(%{character: character} = obj, _, _info) do
+  #   {:ok, Repo.preload(character, :character)}
+  # end
 
   def character(%{character_id: id}, _, info) do
     character(%{character_id: id}, info)

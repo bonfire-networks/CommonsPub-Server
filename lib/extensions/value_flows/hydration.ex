@@ -174,6 +174,12 @@ defmodule ValueFlows.Hydration do
         image: [
           resolve: &UploadResolver.image_content_edge/3
         ],
+        accounting_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.accounting_quantity_edge/3
+        ],
+        onhand_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.onhand_quantity_edge/3
+        ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
         ],
