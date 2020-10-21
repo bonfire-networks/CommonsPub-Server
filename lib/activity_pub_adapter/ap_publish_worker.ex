@@ -106,14 +106,14 @@ defmodule CommonsPub.Workers.APPublishWorker do
 
         ap_activity(local_object, verb)
 
-        nil
+
       end
     else
       Logger.warn(
         "Could not index #{object_type} object (not a known type or context_module undefined)"
       )
 
-      nil
+      :ignored
     end
   end
 
