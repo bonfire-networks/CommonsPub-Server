@@ -25,7 +25,7 @@ defmodule ValueFlows.Hydration do
         resolve: &UploadResolver.image_content_edge/3
       ],
       intents: [
-        resolve: &ValueFlows.Planning.Intent.GraphQL.provider_intents/3
+        resolve: &ValueFlows.Planning.Intent.GraphQL.agent_intents/3
       ],
       processes: [
         resolve: &ValueFlows.Observation.Process.GraphQL.creator_processes/3

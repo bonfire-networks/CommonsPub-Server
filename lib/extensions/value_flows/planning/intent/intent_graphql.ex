@@ -42,7 +42,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   #  use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
-
   ## resolvers
 
   def intent(%{id: id}, info) do
@@ -252,8 +251,33 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     ])
   end
 
+  def agent_intents(%{id: agent}, %{} = page_opts, info) do
+    intents_filtered(%{agent: agent})
+  end
+
   def provider_intents(%{id: provider}, %{} = page_opts, info) do
     intents_filtered(%{provider: provider})
+  end
+
+  def agent_intents_edge(%{id: agent}, %{} = page_opts, info) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_agent_intents_edge,
+      context: agent,
+      page_opts: page_opts,
+      info: info
+    })
+  end
+
+  def fetch_agent_intents_edge(page_opts, info, ids) do
+    list_intents(
+      page_opts,
+      [
+        :default,
+        agent_id: ids,
+        user: GraphQL.current_user(info)
+      ]
+    )
   end
 
   def provider_intents_edge(%{id: provider}, %{} = page_opts, info) do
