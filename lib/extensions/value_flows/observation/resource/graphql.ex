@@ -77,7 +77,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     EconomicResources.many([:default])
   end
 
-  def resources_filtered(page_opts, _) do
+  def resources_filtered(page_opts, _ \\ nil) do
     IO.inspect(resources_filtered: page_opts)
     resources_filter(page_opts, [])
   end
@@ -244,17 +244,21 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     ])
   end
 
-  def creator_resources_edge(%{creator: creator}, %{} = page_opts, info) do
+  def agent_resources(%{id: agent}, %{} = page_opts, info) do
+    resources_filtered(%{agent: agent})
+  end
+
+  def agent_resources_edge(%{agent: agent}, %{} = page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
-      fetcher: :fetch_creator_resources_edge,
-      context: creator,
+      fetcher: :fetch_agent_resources_edge,
+      context: agent,
       page_opts: page_opts,
       info: info
     })
   end
 
-  def fetch_creator_resources_edge(page_opts, info, ids) do
+  def fetch_agent_resources_edge(page_opts, info, ids) do
     list_resources(
       page_opts,
       [

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.Process.GraphQL do
-
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
 
@@ -37,7 +36,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
 
   # SDL schema import
   #  use Absinthe.Schema.Notation
- # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
+  # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
   ## resolvers
 
@@ -73,7 +72,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     Processes.many([:default])
   end
 
-  def processes_filtered(page_opts, _) do
+  def processes_filtered(page_opts, _ \\ nil) do
     IO.inspect(processes_filtered: page_opts)
     processes_filter(page_opts, [])
   end
@@ -125,7 +124,6 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     processes_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
-
   def track(process, _, _) do
     Processes.track(process)
   end
@@ -149,6 +147,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   def outputs(process, _, _) do
     Processes.outputs(process)
   end
+
   ## fetchers
 
   def fetch_process(info, id) do
@@ -158,6 +157,10 @@ defmodule ValueFlows.Observation.Process.GraphQL do
       id: id
       # preload: :tags
     ])
+  end
+
+  def creator_processes(%{id: creator}, %{} = page_opts, info) do
+    processes_filtered(%{agent: creator})
   end
 
   def creator_processes_edge(%{creator: creator}, %{} = page_opts, info) do
@@ -209,8 +212,6 @@ defmodule ValueFlows.Observation.Process.GraphQL do
       # data_filters: [page: [desc: [followers: page_opts]]],
     })
   end
-
-
 
   # FIXME: duplication!
   def create_process(%{process: process_attrs}, info) do

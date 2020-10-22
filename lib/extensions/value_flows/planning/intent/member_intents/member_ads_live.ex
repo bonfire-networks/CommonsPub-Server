@@ -33,7 +33,7 @@ defmodule CommonsPub.Web.MemberLive.MemberAdsLive do
     page_opts = %{limit: 10}
 
     {:ok, ads} =
-      ValueFlows.Planning.Intent.GraphQL.fetch_creator_intents_edge(
+      ValueFlows.Planning.Intent.GraphQL.fetch_provider_intents_edge(
         page_opts,
         %{context: %{current_user: assigns.current_user}},
         assigns.current_user.id

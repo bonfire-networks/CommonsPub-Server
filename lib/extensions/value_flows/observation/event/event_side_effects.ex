@@ -25,7 +25,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
     # REFERENCE ISSUE:  https://lab.allmende.io/valueflows/vf-app-specs/vf-apps/-/issues/4
     cond do
       #     If action.resourceEffect is "+" or "-"
-      resource_effect == "increment" or resource_effect == "decrement" and event.resource_inventoried_as_id != nil ->
+      resource_effect == "increment" or
+          (resource_effect == "decrement" and event.resource_inventoried_as_id != nil) ->
         #         Add event resourceQuantity to accountingQuantity
         resource = quantity_effect(:accounting_quantity, resource, quantity, resource_effect)
 
@@ -151,7 +152,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         _
       )
       when is_nil(existing_quantity) do
-    Logger.warn("# TODO: Set onhandQuantity? ")
+    # Set onhandQuantity on a resource with no previous onhandQuantity
+    with {:ok, resource} <-
+           EconomicResources.update(resource, %{onhand_quantity: by_quantity}) do
+      resource
+    end
     resource
   end
 
@@ -164,8 +169,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         _
       )
       when is_nil(existing_quantity) do
-    Logger.warn("# TODO: Set accountingQuantity? ")
-    resource
+    # Set accountingQuantity on a resource with no previous accountingQuantity
+    with {:ok, resource} <-
+           EconomicResources.update(resource, %{accounting_quantity: by_quantity}) do
+      resource
+    end
   end
 
   def quantity_effect(_, resource, _, _) do

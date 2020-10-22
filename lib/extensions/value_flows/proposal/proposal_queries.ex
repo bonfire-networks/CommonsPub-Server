@@ -146,16 +146,23 @@ defmodule ValueFlows.Proposal.Queries do
   end
 
   def filter(q, {:agent_id, id}) when is_binary(id) do
-    where(q, [proposal: c], c.provider_id == ^id or c.receiver_id == ^id)
+    where(q, [proposal: c], c.creator_id == ^id)
   end
 
   def filter(q, {:agent_id, ids}) when is_list(ids) do
-    where(q, [proposal: c], c.provider_id in ^ids or c.receiver_id in ^ids)
+    where(q, [proposal: c], c.creator_id in ^ids)
   end
 
-  def filter(q, {:eligible_location_id, eligible_location_id}) do
+  def filter(q, {:eligible_location_id, eligible_location_id})
+      when is_binary(eligible_location_id) do
     q
     |> where([proposal: c], c.eligible_location_id == ^eligible_location_id)
+  end
+
+  def filter(q, {:eligible_location_id, eligible_location_id})
+      when is_list(eligible_location_id) do
+    q
+    |> where([proposal: c], c.eligible_location_id in ^eligible_location_id)
   end
 
   def filter(q, {:near_point, geom_point, :distance_meters, meters}) do

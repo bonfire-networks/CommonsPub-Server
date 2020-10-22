@@ -16,8 +16,11 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   import ValueFlows.Test.Faking
   alias ValueFlows.Planning.Intent.Intents
 
+  @debug false
+  @schema CommonsPub.Web.GraphQL.Schema
+
   describe "intent" do
-    test "fetches an existing intent by ID" do
+    test "fetches an existing intent by ID (via Graphql/HTTP)" do
       user = fake_user!()
       unit = fake_unit!(user)
       intent = fake_intent!(user, unit)
@@ -25,6 +28,34 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       q = intent_query()
       conn = user_conn(user)
       assert_intent(grumble_post_key(q, conn, :intent, %{id: intent.id}))
+    end
+
+    test "fetches a full nested intent by ID (via Absinthe.run)" do
+      user = fake_user!()
+
+      location = fake_geolocation!(user)
+
+      unit = fake_unit!(user)
+
+      parent = fake_user!()
+
+      intent = fake_intent!(user, unit, parent)
+
+      proposal = fake_proposal!(user)
+
+      some(5, fn -> fake_proposed_intent!(proposal, intent) end)
+
+      assert intent_queried =
+               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+                 intent.id,
+                 @schema,
+                 :intent,
+                 3,
+                 nil,
+                 @debug
+               )
+
+      assert_intent(intent_queried)
     end
 
     test "fails for deleted intent" do
@@ -62,9 +93,13 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       some(5, fn -> fake_proposed_intent!(proposal, intent) end)
 
-      q = intent_query(fields: [
-        published_in: [:id, publishes: intent_fields()]
-      ])
+      q =
+        intent_query(
+          fields: [
+            published_in: [:id, publishes: intent_fields()]
+          ]
+        )
+
       conn = user_conn(user)
       assert fetched = grumble_post_key(q, conn, :intent, %{id: intent.id})
       assert_intent(intent, fetched)
@@ -112,6 +147,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
         {:ok, intent} = Intents.soft_delete(intent)
         intent
       end)
+
       q = intents_pages_query()
       conn = user_conn(user)
       assert page = grumble_post_key(q, conn, :intents_pages, %{})

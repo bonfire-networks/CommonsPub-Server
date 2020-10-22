@@ -18,8 +18,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
   import Geolocation.Simulate
   import Geolocation.Test.Faking
 
+  @debug false
+  @schema CommonsPub.Web.GraphQL.Schema
+
   describe "EconomicEvent" do
-    test "fetches an economic event by ID" do
+    test "fetches an economic event by ID (via HTTP)" do
       user = fake_user!()
       provider = fake_user!()
       receiver = fake_user!()
@@ -41,6 +44,48 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       conn = user_conn(user)
       assert fetched = grumble_post_key(q, conn, :economic_event, %{id: event.id})
       assert_economic_event(fetched)
+    end
+
+    test "fetches a full nested economic event by ID (via Absinthe.run)" do
+      user = fake_user!()
+
+      location = fake_geolocation!(user)
+      unit = fake_unit!(user)
+
+      provider = fake_user!()
+      receiver = fake_user!()
+      action = action()
+
+      triggered_by = fake_economic_event!(user)
+
+      event =
+        fake_economic_event!(user, %{
+          in_scope_of: [fake_community!(user).id],
+          provider: provider.id,
+          receiver: receiver.id,
+          action: action.id,
+          input_of: fake_process!(user).id,
+          output_of: fake_process!(user).id,
+          triggered_by: triggered_by.id,
+          resource_conforms_to: fake_resource_specification!(user).id,
+          to_resource_inventoried_as: fake_economic_resource!(user).id,
+          resource_inventoried_as: fake_economic_resource!(user).id,
+          at_location: location.id
+        })
+
+      # IO.inspect(created: event)
+
+      assert queried =
+               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+                 event.id,
+                 @schema,
+                 :economic_event,
+                 3,
+                 nil,
+                 @debug
+               )
+
+      assert_economic_event(queried)
     end
 
     test "fails if has been deleted" do
@@ -94,8 +139,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
       # deleted
       some(2, fn ->
-        event =
-          fake_economic_event!(user)
+        event = fake_economic_event!(user)
 
         {:ok, event} = EconomicEvents.soft_delete(event)
         event
@@ -119,8 +163,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
       # deleted
       some(2, fn ->
-        event =
-          fake_economic_event!(user)
+        event = fake_economic_event!(user)
 
         {:ok, event} = EconomicEvents.soft_delete(event)
         event
@@ -142,13 +185,15 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       resource = fake_economic_resource!(user)
       another_resource = fake_economic_resource!(user)
 
-      event = fake_economic_event!(user, %{
-        input_of: process.id,
-        output_of: another_process.id,
-        resource_inventoried_as: resource.id,
-        to_resource_inventoried_as: another_resource.id,
-        action: "transfer"
-      })
+      event =
+        fake_economic_event!(user, %{
+          input_of: process.id,
+          output_of: another_process.id,
+          resource_inventoried_as: resource.id,
+          to_resource_inventoried_as: another_resource.id,
+          action: "transfer"
+        })
+
       q = economic_event_query(fields: [track: [:__typename]])
       conn = user_conn(user)
 
@@ -166,13 +211,15 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       resource = fake_economic_resource!(user)
       another_resource = fake_economic_resource!(user)
 
-      event = fake_economic_event!(user, %{
-        input_of: process.id,
-        output_of: another_process.id,
-        resource_inventoried_as: resource.id,
-        to_resource_inventoried_as: another_resource.id,
-        action: "transfer"
-      })
+      event =
+        fake_economic_event!(user, %{
+          input_of: process.id,
+          output_of: another_process.id,
+          resource_inventoried_as: resource.id,
+          to_resource_inventoried_as: another_resource.id,
+          action: "transfer"
+        })
+
       q = economic_event_query(fields: [trace: [:__typename]])
       conn = user_conn(user)
 
@@ -189,8 +236,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       conn = user_conn(user)
 
       vars = %{
-        event:
-          economic_event_input()
+        event: economic_event_input()
       }
 
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
@@ -361,7 +407,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       assert_economic_event(event)
       assert hd(event["tags"])["__typename"] == "Category"
     end
-
   end
 
   describe "updateEconomicEvent" do
@@ -378,6 +423,5 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
     test "fails to delete an economic resource if the user does not have rights to delete it" do
     end
-
   end
 end

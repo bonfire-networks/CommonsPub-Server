@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.GraphQL.ListTypes do
+defmodule CommonsPub.Web.GraphQL.QueryHelper do
   @moduledoc """
   Helpful functions for preparing to query or test Absinthe applications.
 
@@ -8,6 +8,36 @@ defmodule CommonsPub.Web.GraphQL.ListTypes do
 
   Adapted from https://github.com/devonestes/assertions (MIT license)
   """
+
+  import Logger
+
+  @spec run_query_id(any(), module(), atom(), non_neg_integer(), Keyword.t(), boolean()) ::
+          String.t()
+  def run_query_id(id, schema, type, nesting \\ 1, override_fun \\ nil, debug \\ nil) do
+    with {:ok, go} <-
+           query_with_id(schema, type, nesting, override_fun)
+           |> maybe_debug(debug)
+           |> Absinthe.run(schema, variables: %{"id" => id}) do
+
+      maybe_debug(go, debug)
+
+      go |> Map.get(:data) |> Map.get(Atom.to_string(type))
+
+    end
+  end
+
+  @spec query_with_id(module(), atom(), non_neg_integer(), Keyword.t()) :: String.t()
+  def query_with_id(schema, type, nesting \\ 1, override_fun \\ nil) do
+    document = document_for(schema, type, nesting, override_fun)
+
+    """
+     query ($id: ID) {
+       #{type}(id: $id) {
+         #{document}
+       }
+     }
+    """
+  end
 
   @doc """
   Returns a document containing the fields in a type and any sub-types down to a limited depth of
@@ -20,7 +50,8 @@ defmodule CommonsPub.Web.GraphQL.ListTypes do
   ## Example
 
       iex> document_for(:user, 2)
-      \"""
+
+      ```
       name
       age
       posts {
@@ -30,15 +61,17 @@ defmodule CommonsPub.Web.GraphQL.ListTypes do
       comments {
         body
       }
-      \"""
+      ```
+
   """
   @spec document_for(module(), atom(), non_neg_integer(), Keyword.t()) :: String.t()
-  def document_for(schema, type, nesting, overrides) do
+  def document_for(schema, type, nesting \\ 1, override_fun \\ nil) do
     schema
     |> fields_for(type, nesting)
-    |> merge_overrides(overrides)
+    |> apply_overrides(override_fun)
     |> format_fields(type, 10, schema)
     |> List.to_string()
+
   end
 
   @doc """
@@ -172,11 +205,11 @@ defmodule CommonsPub.Web.GraphQL.ListTypes do
     {["\n", camelize(type), padding(left_pad) | acc], left_pad}
   end
 
-  def merge_overrides(fields, override_fun) when is_function(override_fun) do
+  def apply_overrides(fields, override_fun) when is_function(override_fun) do
     fields = for n <- fields, do: override_fun.(n)
   end
 
-  def merge_overrides(fields, _) do
+  def apply_overrides(fields, _) do
     fields
   end
 
@@ -185,4 +218,19 @@ defmodule CommonsPub.Web.GraphQL.ListTypes do
   def padding(left_pad), do: Enum.map(1..left_pad, fn _ -> " " end)
 
   def camelize(type), do: Absinthe.Utils.camelize(to_string(type), lower: true)
+
+  def maybe_debug(%{errors: errors} = obj, debug) do
+    Logger.warn("GraphQL errors:")
+    IO.inspect(errors)
+
+    maybe_debug(Map.get(obj, :data), debug)
+  end
+
+  def maybe_debug(obj, debug) do
+    if(debug || CommonsPub.Config.get([:logging, :tests_output_graphql])) do
+      IO.inspect(graphql: obj)
+    end
+
+    obj
+  end
 end

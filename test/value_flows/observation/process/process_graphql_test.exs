@@ -11,13 +11,34 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   alias ValueFlows.Observation.Process.Processes
 
+  @debug false
+  @schema CommonsPub.Web.GraphQL.Schema
+
   describe "Process" do
-    test "fetches a process by ID" do
+    test "fetches a basic process by ID (via HTTP)" do
       user = fake_user!()
       process = fake_process!(user)
       q = process_query()
       conn = user_conn(user)
       assert_process(grumble_post_key(q, conn, :process, %{id: process.id}))
+    end
+
+    test "fetches a full nested process by ID (via Absinthe.run)" do
+      user = fake_user!()
+
+      process = fake_process!(user)
+
+      assert queried =
+               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+                 process.id,
+                 @schema,
+                 :process,
+                 3,
+                 nil,
+                 @debug
+               )
+
+      assert_process(queried)
     end
 
     test "fails if has been deleted" do
@@ -28,8 +49,9 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       conn = user_conn(user)
 
       assert {:ok, spec} = Processes.soft_delete(spec)
+
       assert [%{"code" => "not_found", "path" => ["process"], "status" => 404}] =
-              grumble_post_errors(q, conn, %{id: spec.id})
+               grumble_post_errors(q, conn, %{id: spec.id})
     end
   end
 
@@ -43,6 +65,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
         {:ok, process} = Processes.soft_delete(process)
         process
       end)
+
       q = processes_query()
       conn = user_conn(user)
       assert fetched_processes = grumble_post_key(q, conn, :processes, %{})
@@ -60,6 +83,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
         {:ok, process} = Processes.soft_delete(process)
         process
       end)
+
       q = processes_pages_query()
       conn = user_conn(user)
       assert page = grumble_post_key(q, conn, :processes_pages, %{})
@@ -71,10 +95,15 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     test "Returns a list of economic events that are outputs" do
       user = fake_user!()
       process = fake_process!(user)
-      output_events = some(5, fn -> fake_economic_event!(user, %{
-        output_of: process.id,
-        action: "produce"
-      }) end)
+
+      output_events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            output_of: process.id,
+            action: "produce"
+          })
+        end)
+
       q = process_query(fields: [track: [:id]])
       conn = user_conn(user)
 
@@ -87,10 +116,15 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     test "Returns a list of economic events that are outputs" do
       user = fake_user!()
       process = fake_process!(user)
-      input_events = some(5, fn -> fake_economic_event!(user, %{
-        input_of: process.id,
-        action: "consume"
-      }) end)
+
+      input_events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            input_of: process.id,
+            action: "consume"
+          })
+        end)
+
       q = process_query(fields: [trace: [:id]])
       conn = user_conn(user)
 
@@ -103,31 +137,48 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     test "Returns a list of economic events that are inputs" do
       user = fake_user!()
       process = fake_process!(user)
-      input_events = some(5, fn -> fake_economic_event!(user, %{
-        input_of: process.id,
-        action: "use"
-      }) end)
+
+      input_events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            input_of: process.id,
+            action: "use"
+          })
+        end)
+
       q = process_inputs_query(fields: economic_event_fields())
       conn = user_conn(user)
 
       assert process = grumble_post_key(q, conn, :process, %{id: process.id})
       assert Enum.count(process["inputs"]) == 5
     end
+
     test "Returns a list of economic events that are inputs and with an action consume" do
       user = fake_user!()
       process = fake_process!(user)
-      input_events = some(5, fn -> fake_economic_event!(user, %{
-        input_of: process.id,
-        action: "consume"
-      }) end)
-      _other_input_events = some(5, fn -> fake_economic_event!(user, %{
-        input_of: process.id,
-        action: "use"
-      }) end)
+
+      input_events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            input_of: process.id,
+            action: "consume"
+          })
+        end)
+
+      _other_input_events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            input_of: process.id,
+            action: "use"
+          })
+        end)
+
       q = process_inputs_query(fields: economic_event_fields())
       conn = user_conn(user)
 
-      assert process = grumble_post_key(q, conn, :process, %{id: process.id, action_id: "consume"})
+      assert process =
+               grumble_post_key(q, conn, :process, %{id: process.id, action_id: "consume"})
+
       assert Enum.count(process["inputs"]) == 5
     end
   end
@@ -136,31 +187,48 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     test "Returns a list of economic events that are outputs" do
       user = fake_user!()
       process = fake_process!(user)
-      output_events = some(5, fn -> fake_economic_event!(user, %{
-        output_of: process.id,
-        action: "produce"
-      }) end)
+
+      output_events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            output_of: process.id,
+            action: "produce"
+          })
+        end)
+
       q = process_outputs_query(fields: economic_event_fields())
       conn = user_conn(user)
 
       assert process = grumble_post_key(q, conn, :process, %{id: process.id})
       assert Enum.count(process["outputs"]) == 5
     end
+
     test "Returns a list of economic events that are outputs and with an action consume" do
       user = fake_user!()
       process = fake_process!(user)
-      output_events = some(5, fn -> fake_economic_event!(user, %{
-        output_of: process.id,
-        action: "produce"
-      }) end)
-      _other_output_events = some(5, fn -> fake_economic_event!(user, %{
-        output_of: process.id,
-        action: "raise"
-      }) end)
+
+      output_events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            output_of: process.id,
+            action: "produce"
+          })
+        end)
+
+      _other_output_events =
+        some(5, fn ->
+          fake_economic_event!(user, %{
+            output_of: process.id,
+            action: "raise"
+          })
+        end)
+
       q = process_outputs_query(fields: economic_event_fields())
       conn = user_conn(user)
 
-      assert process = grumble_post_key(q, conn, :process, %{id: process.id, action_id: "produce"})
+      assert process =
+               grumble_post_key(q, conn, :process, %{id: process.id, action_id: "produce"})
+
       assert Enum.count(process["outputs"]) == 5
     end
   end
@@ -207,8 +275,9 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       conn = user_conn(user)
       vars = %{process: process_input(%{"id" => spec.id})}
       assert {:ok, spec} = Processes.soft_delete(spec)
+
       assert [%{"code" => "not_found", "path" => ["updateProcess"], "status" => 404}] =
-              grumble_post_errors(q, conn, vars)
+               grumble_post_errors(q, conn, vars)
     end
   end
 
@@ -222,6 +291,4 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       assert grumble_post_key(q, conn, :delete_process, %{id: spec.id})
     end
   end
-
-
 end

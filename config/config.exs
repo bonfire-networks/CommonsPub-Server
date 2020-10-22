@@ -105,6 +105,11 @@ config :commons_pub, Instance,
   # what to show or exclude in Instance Timeline
   default_outbox_query_contexts: List.delete(contexts_all, Like)
 
+# config :commons_pub, User, # extend schema with Flexto
+#    has_many: [
+#     intents: {ValueFlows.Planning.Intent, foreign_key: :provider_id}   # has_many :bar, Bar, foreign_key: :the_bar_id
+#   ]
+
 config :commons_pub, Users,
   public_registration: false,
   default_outbox_query_contexts: contexts_all,

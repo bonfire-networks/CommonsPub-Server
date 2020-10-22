@@ -71,6 +71,7 @@
 | mochiweb               | MIT                                | 2.20.1  | https://hex.pm/packages/mochiweb                       |
 | mock                   | MIT                                |         | https://hex.pm/packages/mock                           |
 | nimble_parsec          | Apache 2.0                         | 0.5.0   | https://hex.pm/packages/nimble_parsec                  |
+| nodeinfo               | Undefined                          | 0.1.0   | https://github.com/voxpub/nodeinfo                     |
 | oban                   | Apache 2.0                         | 2.0.0   | https://hex.pm/packages/oban                           |
 | parse_trans            | Apache 2.0                         | 3.3.0   | https://hex.pm/packages/parse_trans                    |
 | phoenix                | MIT                                | 1.5.6   | https://hex.pm/packages/phoenix                        |

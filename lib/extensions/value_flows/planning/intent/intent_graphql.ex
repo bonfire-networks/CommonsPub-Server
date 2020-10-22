@@ -42,7 +42,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   #  use Absinthe.Schema.Notation
   # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
-
   ## resolvers
 
   def intent(%{id: id}, info) do
@@ -69,8 +68,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Intents.many([:default])
   end
 
-  def intents_filtered(page_opts, _) do
-    IO.inspect(intents_filtered: page_opts)
+  def intents_filtered(page_opts, _ \\ nil) do
+    # IO.inspect(intents_filtered: page_opts)
     intents_filter(page_opts, [])
   end
 
@@ -118,7 +117,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_with_point: page_opts)
+    # IO.inspect(geo_with_point: page_opts)
 
     intents_filter_next(
       :geolocation,
@@ -139,7 +138,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_with_address: page_opts)
+    # IO.inspect(geo_with_address: page_opts)
 
     with {:ok, coords} <- Geocoder.call(address) do
       # IO.inspect(coords)
@@ -174,7 +173,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_without_distance: page_opts)
+    # IO.inspect(geo_without_distance: page_opts)
 
     intents_filter(
       Map.merge(
@@ -195,7 +194,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          _,
          filters_acc
        ) do
-    IO.inspect(filters_query: filters_acc)
+    # IO.inspect(filters_query: filters_acc)
 
     # finally, if there's no more known params to acumulate, query with the filters
     Intents.many(filters_acc)
@@ -203,8 +202,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    IO.inspect(intents_filter_next: param_remove)
-    IO.inspect(intents_filter_add: filter_add)
+    # IO.inspect(intents_filter_next: param_remove)
+    # IO.inspect(intents_filter_add: filter_add)
 
     intents_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
@@ -252,22 +251,51 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     ])
   end
 
-  def creator_intents_edge(%{creator: creator}, %{} = page_opts, info) do
+  def agent_intents(%{id: agent}, %{} = page_opts, info) do
+    intents_filtered(%{agent: agent})
+  end
+
+  def provider_intents(%{id: provider}, %{} = page_opts, info) do
+    intents_filtered(%{provider: provider})
+  end
+
+  def agent_intents_edge(%{id: agent}, %{} = page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
-      fetcher: :fetch_creator_intents_edge,
-      context: creator,
+      fetcher: :fetch_agent_intents_edge,
+      context: agent,
       page_opts: page_opts,
       info: info
     })
   end
 
-  def fetch_creator_intents_edge(page_opts, info, ids) do
+  def fetch_agent_intents_edge(page_opts, info, ids) do
     list_intents(
       page_opts,
       [
         :default,
         agent_id: ids,
+        user: GraphQL.current_user(info)
+      ]
+    )
+  end
+
+  def provider_intents_edge(%{id: provider}, %{} = page_opts, info) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_provider_intents_edge,
+      context: provider,
+      page_opts: page_opts,
+      info: info
+    })
+  end
+
+  def fetch_provider_intents_edge(page_opts, info, ids) do
+    list_intents(
+      page_opts,
+      [
+        :default,
+        provider_id: ids,
         user: GraphQL.current_user(info)
       ]
     )

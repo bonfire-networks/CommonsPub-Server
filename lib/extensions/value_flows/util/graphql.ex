@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util.GraphQL do
-
   alias CommonsPub.{
     GraphQL,
     Repo
@@ -40,12 +39,12 @@ defmodule ValueFlows.Util.GraphQL do
     {:ok, nil}
   end
 
-
   def fetch_classifications_edge(%{tags: _tags} = thing, _, _) do
     thing = Repo.preload(thing, tags: :character)
     urls = Enum.map(thing.tags, & &1.character.canonical_url)
     {:ok, urls}
   end
+
   def fetch_classifications_edge(_, _, _) do
     {:ok, nil}
   end
@@ -55,12 +54,34 @@ defmodule ValueFlows.Util.GraphQL do
     {:ok, Geolocation.Geolocations.populate_coordinates(Map.get(thing, :current_location, nil))}
   end
 
+  def current_location_edge(_, _, _) do
+    {:ok, nil}
+  end
+
   def at_location_edge(%{at_location_id: id} = thing, _, _) when not is_nil(id) do
     thing = Repo.preload(thing, :at_location)
     {:ok, Geolocation.Geolocations.populate_coordinates(Map.get(thing, :at_location, nil))}
   end
 
   def at_location_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def accounting_quantity_edge(%{accounting_quantity_id: id} = thing, _, _) when not is_nil(id) do
+    thing = Repo.preload(thing, accounting_quantity: [:unit])
+    {:ok, Map.get(thing, :accounting_quantity)}
+  end
+
+  def accounting_quantity_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def onhand_quantity_edge(%{onhand_quantity_id: id} = thing, _, _) when not is_nil(id) do
+    thing = Repo.preload(thing, onhand_quantity: [:unit])
+    {:ok, Map.get(thing, :onhand_quantity)}
+  end
+
+  def onhand_quantity_edge(_, _, _) do
     {:ok, nil}
   end
 end

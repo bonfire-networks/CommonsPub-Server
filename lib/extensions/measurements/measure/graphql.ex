@@ -39,15 +39,6 @@ defmodule Measurement.Measure.GraphQL do
     })
   end
 
-  def has_unit_edge(%{unit_id: id}, _, info) do
-    ResolveFields.run(%ResolveFields{
-      module: __MODULE__,
-      fetcher: :fetch_has_unit_edge,
-      context: id,
-      info: info
-    })
-  end
-
   # fetchers
 
   def fetch_measure(info, id) do
@@ -67,6 +58,19 @@ defmodule Measurement.Measure.GraphQL do
       base_filters: [user: GraphQL.current_user(info)],
       data_filters: [:dafault]
     })
+  end
+
+  def has_unit_edge(%{unit_id: id}, _, info) do
+    ResolveFields.run(%ResolveFields{
+      module: __MODULE__,
+      fetcher: :fetch_has_unit_edge,
+      context: id,
+      info: info
+    })
+  end
+
+  def has_unit_edge(_, _, info) do
+    {:ok, nil}
   end
 
   def fetch_has_unit_edge(_, ids) do

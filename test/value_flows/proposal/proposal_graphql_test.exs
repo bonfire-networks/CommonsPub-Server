@@ -10,15 +10,55 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
+  @debug false
+  @schema CommonsPub.Web.GraphQL.Schema
+
   describe "proposal" do
-    test "fetches a proposal by ID" do
+    test "fetches a proposal by ID (via GraphQL HTTP)" do
       user = fake_user!()
       proposal = fake_proposal!(user)
 
       q = proposal_query()
+      # IO.inspect(q)
+
       conn = user_conn(user)
-      assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
-      assert_proposal_full(proposal)
+
+      assert proposal_queried =
+               grumble_post_key(q, conn, :proposal, %{id: proposal.id}, "test", false)
+
+      assert_proposal_full(proposal_queried)
+    end
+
+    test "fetches a full nested proposal by ID (via Absinthe.run)" do
+      user = fake_user!()
+
+      parent = fake_user!()
+
+      location = fake_geolocation!(user)
+
+      proposal = fake_proposal!(user, parent, %{eligible_location_id: location.id})
+
+      intent = fake_intent!(user)
+
+      some(5, fn ->
+        fake_proposed_intent!(proposal, intent)
+      end)
+
+      some(5, fn ->
+        fake_proposed_to!(fake_user!(), proposal)
+      end)
+
+      assert proposal_queried =
+               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+                 proposal.id,
+                 @schema,
+                 :proposal,
+                 4,
+                 nil,
+                 @debug
+               )
+
+      assert_proposal_full(proposal_queried)
     end
   end
 
@@ -47,9 +87,13 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
       some(5, fn -> fake_proposed_intent!(proposal, intent) end)
 
-      q = proposal_query(fields: [
-        publishes: [:id, published_in: proposal_fields()]
-      ])
+      q =
+        proposal_query(
+          fields: [
+            publishes: [:id, published_in: proposal_fields()]
+          ]
+        )
+
       conn = user_conn(user)
       assert fetched = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
       assert_proposal(proposal, fetched)
@@ -71,8 +115,6 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       assert Enum.count(proposal["publishedTo"]) == 5
     end
   end
-
-
 
   describe "proposal.eligibleLocation" do
     test "fetches an associated eligible location" do

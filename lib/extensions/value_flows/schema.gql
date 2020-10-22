@@ -2844,6 +2844,7 @@ type Proposal {
   Added for CommonsPub
   """
   canonicalUrl: URI
+  creator: Agent
 }
 
 input ProposalCreateParams {
@@ -3984,10 +3985,22 @@ type ValueFlowsQuery {
     action: [ID]
   ): [Intent]
 
-  "Get paginated list of active offers (intents no receiver)"
+  "TEMPORARY - get filtered but non-paginated list of proposals"
+  proposalsFiltered(
+    inScopeOf: [ID]
+    # tagIds: [ID]
+    atLocation: [ID]
+    geolocation: GeolocationFilters
+    agent: [ID]
+    # provider: [ID]
+    # receiver: [ID]
+    # action: [ID]
+  ): [Proposal]
+
+  "Get paginated list of active offers (intents with no receiver)"
   offersPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
 
-  "Get paginated list of active needs (intents no provider)"
+  "Get paginated list of active needs (intents with no provider)"
   needsPages(limit: Int, before: [Cursor!], after: [Cursor!]): IntentsPage!
 
   "Get paginated list of economic events"

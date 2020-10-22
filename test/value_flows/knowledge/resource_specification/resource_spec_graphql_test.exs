@@ -10,6 +10,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
 
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
+  @debug false
+  @schema CommonsPub.Web.GraphQL.Schema
+
   describe "resourceSpecification" do
     test "fetches a resource specification by ID" do
       user = fake_user!()
@@ -21,6 +24,23 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       assert_resource_specification(fetched)
     end
 
+    test "fetches a nested resource specification by ID (via Absinthe.run)" do
+      user = fake_user!()
+      spec = fake_resource_specification!(user)
+
+      assert queried =
+               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+                 spec.id,
+                 @schema,
+                 :resource_specification,
+                 4,
+                 nil,
+                 @debug
+               )
+
+      assert_resource_specification(queried)
+    end
+
     test "fails if has been deleted" do
       user = fake_user!()
       spec = fake_resource_specification!(user)
@@ -28,8 +48,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       q = resource_specification_query()
       conn = user_conn(user)
       assert {:ok, spec} = ResourceSpecifications.soft_delete(spec)
+
       assert [%{"code" => "not_found", "path" => ["resourceSpecification"], "status" => 404}] =
-              grumble_post_errors(q, conn, %{id: spec.id})
+               grumble_post_errors(q, conn, %{id: spec.id})
     end
   end
 
@@ -61,7 +82,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       q = create_resource_specification_mutation()
       conn = user_conn(user)
       vars = %{resource_specification: resource_specification_input()}
-      assert spec = grumble_post_key(q, conn, :create_resource_specification, vars)["resourceSpecification"]
+
+      assert spec =
+               grumble_post_key(q, conn, :create_resource_specification, vars)[
+                 "resourceSpecification"
+               ]
+
       assert_resource_specification(spec)
     end
 
@@ -85,7 +111,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       q = update_resource_specification_mutation()
       conn = user_conn(user)
       vars = %{resource_specification: resource_specification_input(%{"id" => spec.id})}
-      assert spec = grumble_post_key(q, conn, :update_resource_specification, vars)["resourceSpecification"]
+
+      assert spec =
+               grumble_post_key(q, conn, :update_resource_specification, vars)[
+                 "resourceSpecification"
+               ]
+
       assert_resource_specification(spec)
     end
 
@@ -97,8 +128,14 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       conn = user_conn(user)
       vars = %{resource_specification: resource_specification_input(%{"id" => spec.id})}
       assert {:ok, spec} = ResourceSpecifications.soft_delete(spec)
-      assert [%{"code" => "not_found", "path" => ["updateResourceSpecification"], "status" => 404}] =
-              grumble_post_errors(q, conn, vars)
+
+      assert [
+               %{
+                 "code" => "not_found",
+                 "path" => ["updateResourceSpecification"],
+                 "status" => 404
+               }
+             ] = grumble_post_errors(q, conn, vars)
     end
   end
 
@@ -112,6 +149,4 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       assert grumble_post_key(q, conn, :delete_resource_specification, %{"id" => spec.id})
     end
   end
-
-
 end

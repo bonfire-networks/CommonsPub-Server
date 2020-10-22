@@ -91,12 +91,28 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     )
   end
 
-  def track(resource) do
-   EconomicEvents.many([:default, track_resource: resource.id])
+  def track(%{id: id}) do
+    track(id)
   end
 
-  def trace(resource) do
-    EconomicEvents.many([:default, trace_resource: resource.id])
+  def track(id) when is_binary(id) do
+    EconomicEvents.many([:default, track_resource: id])
+  end
+
+  def track(_) do
+    {:ok, nil}
+  end
+
+  def trace(%{id: id}) do
+    trace(id)
+  end
+
+  def trace(id) when is_binary(id) do
+    EconomicEvents.many([:default, trace_resource: id])
+  end
+
+  def trace(_) do
+    {:ok, nil}
   end
 
   def preload_all(resource) do
@@ -110,11 +126,12 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
       :contained_in,
       :conforms_to,
       :image
-    ]) |> preload_state()
+    ])
+    |> preload_state()
   end
 
   def preload_state(resource) do
-    resource |> Map.put :state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id)
+    resource |> Map.put(:state, ValueFlows.Knowledge.Action.Actions.action!(resource.state_id))
   end
 
   ## mutations
@@ -144,14 +161,13 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     end)
   end
 
-
   # TODO: take the user who is performing the update
   # @spec update(%EconomicResource{}, attrs :: map) :: {:ok, EconomicResource.t()} | {:error, Changeset.t()}
   def update(%EconomicResource{} = resource, attrs) do
     do_update(resource, attrs, &EconomicResource.update_changeset(&1, attrs))
   end
 
-  def do_update(resource, attrs, changeset_fn) do
+  defp do_update(resource, attrs, changeset_fn) do
     Repo.transact_with(fn ->
       resource = preload_all(resource)
 
@@ -163,7 +179,6 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
       end
     end)
   end
-
 
   defp prepare_changeset(attrs, changeset_fn, resource) do
     resource
@@ -178,14 +193,15 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp changeset_relations(cs, attrs) do
     attrs = parse_measurement_attrs(attrs)
+
     ValueFlows.Util.handle_changeset_errors(cs, attrs, [
-    &EconomicResource.change_measures/2,
-    &change_primary_accountable/2,
-    &change_state_action/2,
-    &change_current_location/2,
-    &change_conforms_to_resource_spec/2,
-    &change_contained_in_resource/2,
-    &change_unit_of_effort/2,
+      &EconomicResource.change_measures/2,
+      &change_primary_accountable/2,
+      &change_state_action/2,
+      &change_current_location/2,
+      &change_conforms_to_resource_spec/2,
+      &change_contained_in_resource/2,
+      &change_unit_of_effort/2
     ])
   end
 
