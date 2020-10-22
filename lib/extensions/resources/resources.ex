@@ -34,8 +34,7 @@ defmodule CommonsPub.Resources do
           {:ok, Resource.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = collection_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      collection_or_context =
-        CommonHelper.maybe_preload(collection_or_context, :character)
+      collection_or_context = CommonHelper.maybe_preload(collection_or_context, :character)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
@@ -131,9 +130,9 @@ defmodule CommonsPub.Resources do
   @spec soft_delete(User.t(), Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user, %Resource{} = resource) do
     Repo.transact_with(fn ->
-      resource = Repo.preload(resource, [:context, collection: [:character]])
+      resource = Repo.preload(resource, [context: [:character]])
 
-      with {:ok, deleted} <- Common.soft_delete(resource),
+      with {:ok, deleted} <- Common.Deletion.soft_delete(resource),
            :ok <- chase_delete(user, deleted.id),
            :ok <- ap_publish("delete", resource) do
         {:ok, deleted}
@@ -163,19 +162,24 @@ defmodule CommonsPub.Resources do
     end
   end
 
-  defp publish(_creator, %{outbox_id: context_outbox}, _resource, activity) do
-    # _community = Repo.preload(collection, :community).community
-    feeds = [context_outbox, Feeds.instance_outbox_id()]
+  defp publish(creator, context, resource, activity) do
+    feeds = [
+      CommonsPub.Feeds.outbox_id(context),
+      CommonsPub.Feeds.outbox_id(creator),
+      CommonsPub.Feeds.outbox_id(resource),
+      Feeds.instance_outbox_id()
+    ]
+
     FeedActivities.publish(activity, feeds)
   end
 
-  defp publish(_creator, _context, _resource, activity) do
-    feeds = [Feeds.instance_outbox_id()]
-    FeedActivities.publish(activity, feeds)
-  end
+  defp publish(creator, resource, activity) do
+    feeds = [
+      CommonsPub.Feeds.outbox_id(creator),
+      CommonsPub.Feeds.outbox_id(resource),
+      Feeds.instance_outbox_id()
+    ]
 
-  defp publish(_creator, _resource, activity) do
-    feeds = [Feeds.instance_outbox_id()]
     FeedActivities.publish(activity, feeds)
   end
 

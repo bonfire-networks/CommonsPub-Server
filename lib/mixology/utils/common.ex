@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Common do
   alias CommonsPub.Repo
-  alias CommonsPub.Common.{Changeset, DeletionError}
 
   def is_ulid(str) when is_binary(str) do
     with :error <- Ecto.ULID.dump(str) do
@@ -109,75 +108,5 @@ defmodule CommonsPub.Common do
 
   # defp paginate_limit(query, limit)
 
-  ## Deletion
 
-  def trigger_soft_delete(id, user) do
-    with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
-      context = CommonsPub.Meta.Pointers.follow!(pointer)
-
-      context_module =
-        if Kernel.function_exported?(context.__struct__, :context_module, 0),
-          do: apply(context.__struct__, :context_module, [])
-
-      if !is_nil(context) and !is_nil(context.id) and !is_nil(context_module) and
-           allow_delete?(user, context) do
-        if Kernel.function_exported?(context_module, :soft_delete, 2) do
-          apply(context_module, :soft_delete, [user, context])
-        else
-          if Kernel.function_exported?(context_module, :soft_delete, 1) do
-            apply(context_module, :soft_delete, [context])
-          end
-        end
-      end
-    end
-  end
-
-  # FIXME: boilerplate code
-  defp allow_delete?(user, context) do
-    user.local_user.is_instance_admin or allow_user_delete?(user, context)
-  end
-
-  defp allow_user_delete?(user, %{creator_id: creator_id})
-       when not is_nil(creator_id) do
-    creator_id == user.id
-  end
-
-  defp allow_user_delete?(user, %{profile: %{creator_id: creator_id}})
-       when not is_nil(creator_id) do
-    creator_id == user.id
-  end
-
-  defp allow_user_delete?(_, _), do: false
-
-  @spec soft_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}
-  @doc "Marks an entry as deleted in the database"
-  def soft_delete(it), do: deletion_result(do_soft_delete(it))
-
-  @spec soft_delete!(any()) :: any()
-  @doc "Marks an entry as deleted in the database or throws a DeletionError"
-  def soft_delete!(it), do: deletion_result!(do_soft_delete(it))
-
-  defp do_soft_delete(it), do: Repo.update(Changeset.soft_delete_changeset(it))
-
-  @spec hard_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}
-  @doc "Deletes an entry from the database"
-  def hard_delete(it) do
-    it
-    |> Repo.delete(
-      stale_error_field: :id,
-      stale_error_message: "has already been deleted"
-    )
-    |> deletion_result()
-  end
-
-  @spec hard_delete!(any()) :: any()
-  @doc "Deletes an entry from the database, or throws a DeletionError"
-  def hard_delete!(it),
-    do: deletion_result!(hard_delete(it))
-
-  def deletion_result({:error, e}), do: {:error, DeletionError.new(e)}
-  def deletion_result(other), do: other
-
-  def deletion_result!({:ok, val}), do: val
-  def deletion_result!({:error, e}), do: throw(e)
 end

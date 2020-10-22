@@ -307,13 +307,13 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
     end)
   end
 
-  def outbox_edge(%User{outbox_id: _id} = user, page_opts, info) do
+  def outbox_edge(%User{character: %{outbox_id: _id}} = user, page_opts, info) do
     with :ok <- GraphQL.not_in_list_or_empty_page(info) do
       user_outbox_edge(user, page_opts, info)
     end
   end
 
-  def user_outbox_edge(%User{outbox_id: id}, page_opts, info) do
+  def user_outbox_edge(%User{character: %{outbox_id: id}}, page_opts, info) do
     ResolvePage.run(%ResolvePage{
       module: __MODULE__,
       fetcher: :fetch_user_outbox_edge,

@@ -351,7 +351,6 @@ mail_smtp = fn ->
                       mail_blackhole.("MAIL_FROM")
 
                     from ->
-
                       IO.puts("NOTE: Transactional emails will be sent through SMTP.")
 
                       config :commons_pub, CommonsPub.Mail.MailService,
@@ -421,9 +420,23 @@ config :commons_pub, :env, Mix.env()
 
 config :pointers, Pointers.Pointer,
   source: "pointers_pointer",
+  belongs_to: [
+    character: {
+      CommonsPub.Characters.Character,
+      foreign_key: :id,
+      define_field: false
+    }
+  ],
+  belongs_to: [
+    profile: {
+      CommonsPub.Profiles.Profile,
+      foreign_key: :id,
+      define_field: false
+    }
+  ],
   many_to_many: [
     tags: {
-      # if(Code.ensure_loaded?(Taggable), do: Taggable, else: :taggable),
+      # if(CommonsPub.Config.module_enabled?(Taggable), do: Taggable, else: :taggable),
       Taggable,
       join_through: "tags_things",
       unique: true,

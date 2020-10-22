@@ -41,8 +41,9 @@ defmodule Geolocation do
 
     belongs_to(:context, Pointer)
 
-    belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
-    belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
+    # belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
+    # belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
+
     # because it's keyed by pointer
     field(:follower_count, :any, virtual: true)
 

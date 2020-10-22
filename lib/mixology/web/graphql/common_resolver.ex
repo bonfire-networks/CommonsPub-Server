@@ -106,7 +106,7 @@ defmodule CommonsPub.Web.GraphQL.CommonResolver do
 
   def delete(%{context_id: id}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, deleted} <- Common.trigger_soft_delete(id, user) do
+         {:ok, deleted} <- CommonsPub.Common.Deletion.trigger_soft_delete(id, user) do
       {:ok, deleted}
     else
       e ->

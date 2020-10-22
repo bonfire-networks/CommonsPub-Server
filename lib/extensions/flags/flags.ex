@@ -51,7 +51,7 @@ defmodule CommonsPub.Flags do
 
   def soft_delete(%User{} = user, %Flag{} = flag) do
     Repo.transact_with(fn ->
-      with {:ok, flag} <- Common.soft_delete(flag),
+      with {:ok, flag} <- Common.Deletion.soft_delete(flag),
            :ok <- chase_delete(user, flag.id),
            :ok <- ap_publish("delete", flag) do
         {:ok, flag}

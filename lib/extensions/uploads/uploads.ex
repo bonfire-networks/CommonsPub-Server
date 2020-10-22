@@ -127,7 +127,7 @@ defmodule CommonsPub.Uploads do
   """
   @spec soft_delete(Content.t()) :: {:ok, Content.t()} | {:error, Changeset.t()}
   def soft_delete(%Content{} = content) do
-    CommonsPub.Common.soft_delete(content)
+    CommonsPub.Common.Deletion.soft_delete(content)
   end
 
   # def soft_delete_by(filters) do

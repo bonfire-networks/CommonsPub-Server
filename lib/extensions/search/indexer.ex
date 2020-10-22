@@ -35,13 +35,13 @@ defmodule CommonsPub.Search.Indexer do
 
     if(
       !is_nil(object_type) and
-        Code.ensure_loaded?(object_type) and
+        CommonsPub.Config.module_enabled?(object_type) and
         Kernel.function_exported?(object_type, :context_module, 0)
     ) do
       object_context_module = apply(object_type, :context_module, [])
 
       if(
-        Code.ensure_loaded?(object_context_module) and
+        CommonsPub.Config.module_enabled?(object_context_module) and
           Kernel.function_exported?(object_context_module, :indexing_object_format, 1)
       ) do
         # IO.inspect(function_exists_in: object_context_module)

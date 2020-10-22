@@ -294,10 +294,9 @@ defmodule CommonsPub.Users do
   # local userchara
   def soft_delete(deleter, %User{local_user: %LocalUser{}} = user) do
     Repo.transact_with(fn ->
-      with {:ok, user2} <- Common.soft_delete(user),
-           {:ok, local_user} <- Common.soft_delete(user.local_user),
-           %{user: users, feed: feeds} = deleted_ids([user2]),
-           :ok <- chase_delete(deleter, users, feeds),
+      with {:ok, user2} <- Common.Deletion.soft_delete(user),
+           {:ok, local_user} <- Common.Deletion.soft_delete(user.local_user),
+           :ok <- chase_delete(deleter, user2),
            :ok <- ap_publish("delete", user) do
         user = %{user2 | local_user: local_user, character: user.character}
         {:ok, user}
@@ -308,9 +307,8 @@ defmodule CommonsPub.Users do
   # remote user
   def soft_delete(_deleter, %User{local_user: nil} = user) do
     Repo.transact_with(fn ->
-      with {:ok, user2} <- Common.soft_delete(user),
-           %{user: users, feed: feeds} = deleted_ids([user2]),
-           :ok <- chase_delete(user, users, feeds),
+      with {:ok, user2} <- Common.Deletion.soft_delete(user),
+           :ok <- chase_delete(user, user2),
            :ok <- ap_publish("delete", user) do
         user = %{user2 | character: user.character}
         {:ok, user}
@@ -322,9 +320,8 @@ defmodule CommonsPub.Users do
   # @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def soft_delete_remote(%User{} = user) do
     Repo.transact_with(fn ->
-      with {:ok, user2} <- Common.soft_delete(user),
-           %{user: users, feed: feeds} = deleted_ids([user2]),
-           :ok <- chase_delete(user, users, feeds) do
+      with {:ok, user2} <- Common.Deletion.soft_delete(user),
+           :ok <- chase_delete(user, user2) do
         user = %{user2 | character: user.character}
         {:ok, user}
       end
@@ -337,35 +334,21 @@ defmodule CommonsPub.Users do
     with {:ok, _} <-
            Repo.transact_with(fn ->
              {_, ids} = update_by(@delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
-             %{user: users, feed: feeds} = deleted_ids(ids)
 
-             with :ok <- chase_delete(user, users, feeds) do
+             with :ok <- chase_delete(user, ids) do
                ap_publish("delete", ids)
              end
            end),
          do: :ok
   end
 
-  defp deleted_ids(records) do
-    Enum.reduce(records, %{user: [], feed: []}, fn
-      %{id: id, inbox_id: nil, outbox_id: nil}, acc ->
-        Map.put(acc, :user, [id | acc.user])
 
-      %{id: id, inbox_id: nil, outbox_id: o}, acc ->
-        Map.merge(acc, %{user: [id | acc.user], feed: [o | acc.feed]})
-
-      %{id: id, inbox_id: i, outbox_id: nil}, acc ->
-        Map.merge(acc, %{user: [id | acc.user], feed: [i | acc.feed]})
-
-      %{id: id, inbox_id: i, outbox_id: o}, acc ->
-        Map.merge(acc, %{user: [id | acc.user], feed: [i, o | acc.feed]})
-    end)
-  end
 
   # TODO: some of these queries could be combined if we modified the queries modules
-  defp chase_delete(user, users, []) do
+  defp chase_delete(user, users) do
     # Not yet required but ok
-    with :ok <- Activities.soft_delete_by(user, creator: users),
+    with :ok <- Characters.soft_delete_by(user, id: users),
+         :ok <- Activities.soft_delete_by(user, creator: users),
          :ok <- Activities.soft_delete_by(user, context: users),
          :ok <- Blocks.soft_delete_by(user, creator: users),
          :ok <- Blocks.soft_delete_by(user, context: users),
@@ -383,10 +366,6 @@ defmodule CommonsPub.Users do
       Flags.update_by(user, [creator: users], creator_id: @deleted_user_id)
       :ok
     end
-  end
-
-  defp chase_delete(user, users, feeds) do
-    with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, users, [])
   end
 
   # @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
@@ -460,7 +439,7 @@ defmodule CommonsPub.Users do
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
-    def indexing_object_format(%CommonsPub.Users.User{} = user) do
+  def indexing_object_format(%CommonsPub.Users.User{} = user) do
     follower_count =
       case CommonsPub.Follows.FollowerCounts.one(context: user.id) do
         {:ok, struct} -> struct.count
@@ -487,5 +466,4 @@ defmodule CommonsPub.Users do
       "index_instance" => CommonsPub.Search.Indexer.host(url)
     }
   end
-
 end

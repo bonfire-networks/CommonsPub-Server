@@ -38,7 +38,7 @@ defmodule CommonsPub.Web.GraphQL.CollectionsSchema do
     @desc "Create a collection"
     field :create_collection, :collection do
       arg(:context_id, :string)
-      arg(:community_id, :string)
+      # arg(:community_id, :string)
       arg(:collection, non_null(:collection_input))
       arg(:icon, :upload_input)
       resolve(&CollectionsResolver.create_collection/2)

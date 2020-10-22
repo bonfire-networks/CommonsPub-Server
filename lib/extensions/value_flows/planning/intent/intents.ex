@@ -218,7 +218,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   def soft_delete(%Intent{} = intent) do
     Repo.transact_with(fn ->
-      with {:ok, intent} <- Common.soft_delete(intent),
+      with {:ok, intent} <- Common.Deletion.soft_delete(intent),
            :ok <- publish(intent, :deleted) do
         {:ok, intent}
       end

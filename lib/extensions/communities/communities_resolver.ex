@@ -95,7 +95,7 @@ defmodule CommonsPub.Web.GraphQL.CommunitiesResolver do
     {:ok, Page.new([], [], & &1.id, %{})}
   end
 
-  def outbox_edge(%Community{outbox_id: id}, page_opts, info) do
+  def outbox_edge(%Community{character: %{outbox_id: id}}, page_opts, info) do
     with :ok <- GraphQL.not_in_list_or_empty_page(info) do
       ResolvePage.run(%ResolvePage{
         module: __MODULE__,

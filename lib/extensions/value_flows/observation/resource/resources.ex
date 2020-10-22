@@ -252,7 +252,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   def soft_delete(%EconomicResource{} = resource) do
     Repo.transact_with(fn ->
-      with {:ok, resource} <- Common.soft_delete(resource),
+      with {:ok, resource} <- Common.Deletion.soft_delete(resource),
            :ok <- publish(resource, :deleted) do
         {:ok, resource}
       end

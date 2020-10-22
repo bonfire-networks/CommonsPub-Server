@@ -9,7 +9,7 @@ defmodule CommonsPub.Collections.Collection do
   # alias CommonsPub.Characters.Character
   alias CommonsPub.Communities.Community
   alias CommonsPub.Collections.Collection
-  alias CommonsPub.Feeds.Feed
+  # alias CommonsPub.Feeds.Feed
   alias CommonsPub.Resources.Resource
   alias CommonsPub.Users.User
   alias CommonsPub.Uploads.Content
@@ -22,49 +22,42 @@ defmodule CommonsPub.Collections.Collection do
 
     belongs_to(:creator, User)
 
-    # TODO: replace by context
-    belongs_to(:community, Community)
+    # deprecated by context
+    # belongs_to(:community, Community)
 
     belongs_to(:context, Pointers.Pointer)
 
-    belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
-    belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
-    # belongs_to(:primary_language, Language)
+    # moved to Character
+    # belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
+    # belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
+
     # because it's keyed by pointer
     field(:follower_count, :any, virtual: true)
+
     has_many(:resources, Resource)
+
     field(:name, :string)
     field(:summary, :string)
+
     belongs_to(:icon, Content)
+
+    # belongs_to(:primary_language, Language)
+
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
+
     field(:is_disabled, :boolean, virtual: true, default: false)
     field(:disabled_at, :utc_datetime_usec)
+
     field(:deleted_at, :utc_datetime_usec)
+
     field(:extra_info, :map)
+
     timestamps()
   end
 
   @required ~w(name is_public creator_id)a
-  @cast @required ++ ~w(summary icon_id is_disabled inbox_id outbox_id)a
-
-  def create_changeset(
-        %User{} = creator,
-        %Community{} = community,
-        attrs
-      ) do
-    %Collection{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(
-      creator_id: creator.id,
-      # commmunity parent is deprecated in favour of context
-      community_id: community.id,
-      context_id: community.id,
-      is_public: true
-    )
-    |> Changeset.validate_required(@required)
-    |> common_changeset()
-  end
+  @cast @required ++ ~w(summary icon_id is_disabled)a
 
   def create_changeset(
         %User{} = creator,

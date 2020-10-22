@@ -13,11 +13,15 @@ defmodule CommonsPub.Web do
     quote do
       use Phoenix.Controller, namespace: CommonsPub.Web
       import Plug.Conn
-      import CommonsPub.Web.{Gettext, Router.Helpers}
+      import CommonsPub.Web.Gettext
+
       # Liveview support
       import Phoenix.LiveView.Controller
-      alias CommonsPub.Web.Router.Helpers, as: Routes
+
+      # import CommonsPub.Web.Router.Helpers
+      # alias CommonsPub.Web.Router.Helpers, as: Routes
       alias ActivityPubWeb.Router.Helpers, as: APRoutes
+
       alias CommonsPub.Web.Plugs.ScrubParams
 
       action_fallback(CommonsPub.Web.FallbackController)
@@ -81,7 +85,7 @@ defmodule CommonsPub.Web do
 
       import CommonsPub.Web.ErrorHelpers
       import CommonsPub.Web.Gettext
-      alias CommonsPub.Web.Router.Helpers, as: Routes
+      # alias CommonsPub.Web.Router.Helpers, as: Routes
     end
   end
 

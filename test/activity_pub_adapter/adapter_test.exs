@@ -56,6 +56,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       user = fake_user!()
       community = fake_community!(user)
       collection = fake_collection!(user, community)
+      # IO.inspect(collection)
       {:ok, actor} = ActivityPub.Actor.get_by_username(collection.character.preferred_username)
       assert actor.data["type"] == "MN:Collection"
       assert actor.username == collection.character.preferred_username
@@ -322,8 +323,8 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       actor = actor()
       ActivityPub.delete(actor, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
-      IO.inspect(actor: actor)
-      IO.inspect(deleted: Adapter.get_actor_by_ap_id(Map.get(actor, :ap_id)))
+      # IO.inspect(actor: actor)
+      # IO.inspect(deleted: Adapter.get_actor_by_ap_id(Map.get(actor, :ap_id)))
       assert {:error, "not found"} =  Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 

@@ -172,7 +172,7 @@ defmodule Measurement.Unit.Units do
 
   def soft_delete(%Unit{} = unit) do
     Repo.transact_with(fn ->
-      with {:ok, unit} <- Common.soft_delete(unit) do
+      with {:ok, unit} <- Common.Deletion.soft_delete(unit) do
         # :ok <- publish(unit, :deleted) do
         {:ok, unit}
       end

@@ -229,7 +229,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
   def soft_delete(%Proposal{} = proposal) do
     Repo.transact_with(fn ->
-      with {:ok, proposal} <- Common.soft_delete(proposal),
+      with {:ok, proposal} <- Common.Deletion.soft_delete(proposal),
            :ok <- publish(proposal, :deleted) do
         {:ok, proposal}
       end
@@ -244,7 +244,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
   @spec delete_proposed_intent(ProposedIntent.t()) :: {:ok, ProposedIntent.t()} | {:error, term}
   def delete_proposed_intent(%ProposedIntent{} = proposed_intent) do
-    Common.soft_delete(proposed_intent)
+    Common.Deletion.soft_delete(proposed_intent)
   end
 
   # if you like it then you should put a ring on it
@@ -254,7 +254,7 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   @spec delete_proposed_to(ProposedTo.t()) :: {:ok, ProposedTo.t()} | {:error, term}
-  def delete_proposed_to(proposed_to), do: Common.soft_delete(proposed_to)
+  def delete_proposed_to(proposed_to), do: Common.Deletion.soft_delete(proposed_to)
 
   def indexing_object_format(obj) do
     # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)

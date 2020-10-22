@@ -96,7 +96,7 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
       query: Collection,
       group_fn: &elem(&1, 0),
       map_fn: &elem(&1, 1),
-      filters: [community: ids, group_count: :community_id]
+      filters: [community: ids, group_count: :context_id]
     })
   end
 
@@ -123,11 +123,11 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
   #       queries: Collections.Queries,
   #       query: Collection,
   #       cursor_fn: Collections.cursor(:followers),
-  #       group_fn: &(&1.community_id),
+  #       group_fn: &(&1.context_id),
   #       page_opts: page_opts,
   #       base_filters: [community: ids, user: user],
   #       data_filters: [:default, page: [desc: [followers: page_opts]]],
-  #       count_filters: [group_count: :community_id],
+  #       count_filters: [group_count: :context_id],
   #     }
   #   )
   # end
@@ -145,7 +145,7 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
     })
   end
 
-  def community_edge(%Collection{community_id: id}, _, info) do
+  def community_edge(%Collection{context_id: id}, _, info) do
     ResolveFields.run(%ResolveFields{
       module: __MODULE__,
       fetcher: :fetch_community_edge,
@@ -167,7 +167,7 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
     {:ok, DateTime.utc_now()}
   end
 
-  def outbox_edge(%Collection{outbox_id: id}, page_opts, info) do
+  def outbox_edge(%Collection{character: %{outbox_id: id}}, page_opts, info) do
     with :ok <- GraphQL.not_in_list_or_empty_page(info) do
       ResolvePage.run(%ResolvePage{
         module: __MODULE__,
@@ -238,7 +238,7 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
 
         permitted? =
           user.local_user.is_instance_admin or
-            collection.community.creator_id == user.id
+            collection.creator_id == user.id
 
         if permitted? do
           with {:ok, uploads} <- UploadResolver.upload(user, params, info) do

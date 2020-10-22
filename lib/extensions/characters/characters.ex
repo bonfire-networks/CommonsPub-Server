@@ -17,6 +17,21 @@ defmodule CommonsPub.Characters do
   alias CommonsPub.Characters.Character
   alias CommonsPub.Characters.Queries
 
+  alias CommonsPub.{
+    Activities,
+    Blocks,
+    Common,
+    Collections,
+    Features,
+    Feeds,
+    Flags,
+    Follows,
+    Likes,
+    Repo,
+    Resources,
+    Threads
+  }
+
   @replacement_regex ~r/[^a-zA-Z0-9-]/
   # @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
 
@@ -322,12 +337,83 @@ defmodule CommonsPub.Characters do
     {:ok, character}
   end
 
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Character, filters), set: updates)
+  end
+
   def soft_delete(%Character{} = character) do
     Repo.transact_with(fn ->
-      with {:ok, character} <- Common.soft_delete(character) do
+      with {:ok, character} <- Common.Deletion.soft_delete(character),
+           %{character: chars, feed: feeds} = deleted_ids(character),
+           :ok <- chase_delete(%User{}, chars, feeds) do
         {:ok, character}
       end
     end)
+  end
+
+  def soft_delete(%{} = obj) do
+    soft_delete(obj_character(obj))
+  end
+
+  def soft_delete(list) when is_list(list) do
+    Enum.map(list, &soft_delete/1)
+    {:ok, nil}
+  end
+
+  def soft_delete(o) do
+    IO.inspect(could_not_delete: o)
+    {:ok, nil}
+  end
+
+  @delete_by_filters [select: :delete, deleted: false]
+
+  def soft_delete_by(%User{} = user, filters) do
+    Repo.transact_with(fn ->
+      {_, ids} = update_by(user, @delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
+
+      %{character: character, feed: feed} = deleted_ids(ids)
+      chase_delete(user, character, feed)
+
+      :ok
+    end)
+  end
+
+  defp deleted_ids(records) when is_list(records) do
+    Enum.reduce(records, %{character: [], feed: []}, fn
+      %{id: id, inbox_id: nil, outbox_id: nil}, acc ->
+        Map.put(acc, :character, [id | acc.character])
+
+      %{id: id, inbox_id: nil, outbox_id: o}, acc ->
+        Map.merge(acc, %{character: [id | acc.character], feed: [o | acc.feed]})
+
+      %{id: id, inbox_id: i, outbox_id: nil}, acc ->
+        Map.merge(acc, %{character: [id | acc.character], feed: [i | acc.feed]})
+
+      %{id: id, inbox_id: i, outbox_id: o}, acc ->
+        Map.merge(acc, %{character: [id | acc.character], feed: [i, o | acc.feed]})
+    end)
+  end
+
+  defp deleted_ids(records), do: deleted_ids([records])
+
+  defp chase_delete(user, characters) do
+    with :ok <- Activities.soft_delete_by(user, context: characters),
+         :ok <- Blocks.soft_delete_by(user, context: characters),
+         :ok <- Collections.soft_delete_by(user, community: characters),
+         :ok <- Features.soft_delete_by(user, context: characters),
+         :ok <- Flags.soft_delete_by(user, context: characters),
+         :ok <- Follows.soft_delete_by(user, context: characters),
+         :ok <- Likes.soft_delete_by(user, context: characters),
+         :ok <- Resources.soft_delete_by(user, collection: characters),
+         :ok <- Threads.soft_delete_by(user, context: characters) do
+      :ok
+    end
+  end
+
+  defp chase_delete(user, characters, []), do: chase_delete(user, characters)
+
+  defp chase_delete(user, characters, feeds) do
+    with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, characters)
   end
 
   def delete(%User{}, %Character{} = character), do: Repo.delete(character)
@@ -450,15 +536,15 @@ defmodule CommonsPub.Characters do
     ""
   end
 
-  # def obj_load_actor(%{actor: actor} = obj) do
-  #   Repo.preload(obj, :actor)
-  # end
-
-  def obj_load_actor(%{character: _character} = obj) do
+  def obj_with_character(obj) do
     CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character)
   end
 
-  def obj_actor(%{character: _character} = obj) do
-    obj_load_actor(obj).character
+  def obj_character(%{character: %Ecto.Association.NotLoaded{}} = obj) do
+    obj_character(obj_with_character(obj))
+  end
+
+  def obj_character(%{character: character} = _obj) do
+    character
   end
 end

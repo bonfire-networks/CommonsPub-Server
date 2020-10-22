@@ -365,7 +365,7 @@ defmodule CommonsPub.Tag.Categories do
 
   def soft_delete(%Category{} = c) do
     Repo.transact_with(fn ->
-      with {:ok, c} <- Common.soft_delete(c) do
+      with {:ok, c} <- Common.Deletion.soft_delete(c) do
         {:ok, c}
       else
         e ->

@@ -155,7 +155,7 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
 
     test "users" do
       user = fake_user!()
-      {:ok, user} = CommonsPub.Users.soft_delete(user, user)
+      {:ok, _deleted} = CommonsPub.Users.soft_delete(user, user)
 
       assert {:ok, activity} =
                APPublishWorker.perform(%{args: %{"context_id" => user.id, "op" => "delete"}})

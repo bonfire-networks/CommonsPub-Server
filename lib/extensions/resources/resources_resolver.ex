@@ -36,9 +36,9 @@ defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
     })
   end
 
-  def collection_edge(%Resource{collection: %Collection{} = c}, _, _info), do: {:ok, c}
+  def collection_edge(%Resource{context: %Collection{} = c}, _, _info), do: {:ok, c}
 
-  def collection_edge(%Resource{collection_id: id}, _, info) do
+  def collection_edge(%Resource{context_id: id}, _, info) do
     ResolveFields.run(%ResolveFields{
       module: __MODULE__,
       fetcher: :fetch_collection_edge,
@@ -238,8 +238,7 @@ defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
 
           permitted? =
             user.local_user.is_instance_admin or
-              resource.collection.creator_id == user.id or
-              resource.collection.community.creator_id == user.id
+              Map.get(Map.get(resource, :context, %{}), :creator_id) == user.id
 
           if permitted? do
             with {:ok, uploads} <- UploadResolver.upload(user, input_attrs, info) do

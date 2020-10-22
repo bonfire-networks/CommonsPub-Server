@@ -3,6 +3,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
   alias CommonsPub.{Collections, Communities, Common, Repo, Resources, Threads, Users}
   alias CommonsPub.ActivityPub.Utils
 
+  alias CommonsPub.Utils.Web.CommonHelper
+
   # alias CommonsPub.Characters
 
   alias CommonsPub.Search.Indexer
@@ -83,21 +85,25 @@ defmodule CommonsPub.ActivityPub.Adapter do
     []
   end
 
-  def get_creator_ap_id(actor) do
-    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(actor.creator_id) do
-      actor.ap_id
+  def get_creator_ap_id(%{creator_id: creator_id}) when not is_nil(creator_id) do
+    with {:ok, %{ap_id: ap_id}} <- ActivityPub.Actor.get_cached_by_local_id(creator_id) do
+      ap_id
     else
       {:error, _} -> nil
     end
   end
 
-  def get_community_ap_id(actor) do
-    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(actor.community_id) do
-      actor.ap_id
+  def get_creator_ap_id(_), do: nil
+
+  def get_context_ap_id(%{context_id: context_id}) when not is_nil(context_id) do
+    with {:ok, %{ap_id: ap_id}} <- ActivityPub.Actor.get_cached_by_local_id(context_id) do
+      ap_id
     else
-      {:error, _} -> nil
+      _ -> nil
     end
   end
+
+  def get_context_ap_id(_), do: nil
 
   def check_local(%{character: %{peer_id: nil}}), do: true
   def check_local(_), do: false
@@ -112,21 +118,14 @@ defmodule CommonsPub.ActivityPub.Adapter do
         _ -> "CommonsPub:Character"
       end
 
-    actor =
-      case actor do
-        %CommonsPub.Characters.Character{} ->
-          with {:ok, profile} <- CommonsPub.Profiles.one([:default, id: actor.id]) do
-            # IO.inspect(fed_profile: actor)
-            # IO.inspect(fed_profile: profile)
-            Map.merge(actor, profile)
-          else
-            _ ->
-              actor
-          end
+    actor = CommonHelper.maybe_preload(actor, [:character, :profile])
 
-        _ ->
-          actor
-      end
+    context = get_context_ap_id(actor)
+
+    actor =
+      actor
+      |> Map.merge(Map.get(actor, :character, %{}))
+      |> Map.merge(Map.get(actor, :profile, %{}))
 
     icon_url = CommonsPub.Uploads.remote_url_from_id(Map.get(actor, :icon_id))
 
@@ -156,12 +155,13 @@ defmodule CommonsPub.ActivityPub.Adapter do
           data
           |> Map.put("collections", get_and_format_collections_for_actor(actor))
           |> Map.put("attributedTo", get_creator_ap_id(actor))
+          |> Map.put("context", context)
 
         "MN:Collection" ->
           data
           |> Map.put("resources", get_and_format_resources_for_actor(actor))
           |> Map.put("attributedTo", get_creator_ap_id(actor))
-          |> Map.put("context", get_community_ap_id(actor))
+          |> Map.put("context", context)
 
         _ ->
           data
@@ -602,16 +602,15 @@ defmodule CommonsPub.ActivityPub.Adapter do
       ) do
     object = ActivityPub.Object.get_cached_by_ap_id(obj_id)
 
-    if object.data["type"] in ["Person", "MN:Community", "MN:Collection", "Group", "CommonsPub:Character"] do
+    if object.data["type"] in [
+         "Person",
+         "MN:Community",
+         "MN:Collection",
+         "Group",
+         "CommonsPub:Character"
+       ] do
       with {:ok, actor} <- get_raw_actor_by_ap_id(activity.data["object"]),
-           {:ok, _} <-
-             (case actor do
-                #FIXME
-                %User{} -> CommonsPub.Users.soft_delete_remote(actor)
-                %Community{} -> CommonsPub.Communities.soft_delete(%User{}, actor)
-                %Collection{} -> CommonsPub.Collections.soft_delete(%User{}, actor)
-              end) do
-        Indexer.maybe_delete_object(actor)
+           {:ok, _} <- CommonsPub.Common.Deletion.trigger_soft_delete(actor, true) do
         :ok
       else
         {:error, e} ->
@@ -622,13 +621,13 @@ defmodule CommonsPub.ActivityPub.Adapter do
       case object.data["formerType"] do
         "Note" ->
           with {:ok, comment} <- Comments.one(id: object.pointer_id),
-               {:ok, _} <- Common.soft_delete(comment) do
+               {:ok, _} <- Common.Deletion.soft_delete(comment) do
             :ok
           end
 
         "Document" ->
           with {:ok, resource} <- Resources.one(id: object.pointer_id),
-               {:ok, _} <- Common.soft_delete(resource) do
+               {:ok, _} <- Common.Deletion.soft_delete(resource) do
             Indexer.maybe_delete_object(resource)
             :ok
           end

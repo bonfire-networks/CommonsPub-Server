@@ -310,7 +310,8 @@ defmodule CommonsPub.Mixfile do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "ecto.seeds": ["run priv/repo/seeds.exs"],
       "sentry.recompile": ["deps.compile sentry --force", "compile"],
-      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "test"],
+      "cpub.deps.clean": ["deps.clean pointers --build"]
     ]
   end
 end

@@ -101,7 +101,7 @@ defmodule CommonsPub.Follows do
   @spec soft_delete(User.t(), Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user, %Follow{} = follow) do
     Repo.transact_with(fn ->
-      with {:ok, follow} <- Common.soft_delete(follow),
+      with {:ok, follow} <- Common.Deletion.soft_delete(follow),
            :ok <- chase_delete(user, [follow.id], [follow.context_id]),
            :ok <- ap_publish("delete", follow) do
         {:ok, follow}
@@ -158,7 +158,7 @@ defmodule CommonsPub.Follows do
   # defp unsubscribe(%{creator_id: creator_id, is_local: true, muted_at: nil}=follow) do
   #   context = CommonsPub.Meta.Pointers.follow!(Repo.preload(follow, :context).context)
   #   case FeedSubscriptions.one(deleted: false, subscriber: creator_id, feed: context.outbox_id) do
-  #     {:ok, sub} -> Common.soft_delete(sub)
+  #     {:ok, sub} -> Common.Deletion.soft_delete(sub)
   #     _ -> {:ok, []} # shouldn't be here
   #   end
   # end

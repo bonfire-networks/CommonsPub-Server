@@ -256,14 +256,14 @@ defmodule CommonsPub.Web.Test.GraphQLFields do
   def create_collection_mutation(options \\ []) do
     [
       collection: type!(:collection_input),
-      community_id: type!(:string),
+      context_id: type!(:string),
       icon: type(:upload_input)
     ]
     |> gen_mutation(&create_collection_submutation/1, options)
   end
 
   def create_collection_submutation(options \\ []) do
-    [collection: var(:collection), community_id: var(:community_id), icon: var(:icon)]
+    [collection: var(:collection), context_id: var(:context_id), icon: var(:icon)]
     |> gen_submutation(:create_collection, &collection_fields/1, options)
   end
 

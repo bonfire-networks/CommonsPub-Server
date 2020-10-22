@@ -177,7 +177,7 @@ defmodule CommonsPub.Threads.Comments do
   @spec soft_delete(User.t(), Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user, %Comment{} = comment) do
     Repo.transact_with(fn ->
-      with {:ok, deleted} <- Common.soft_delete(comment),
+      with {:ok, deleted} <- Common.Deletion.soft_delete(comment),
            :ok <- chase_delete(user, comment.id),
            :ok <- ap_publish("delete", comment) do
         {:ok, deleted}

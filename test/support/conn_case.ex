@@ -14,7 +14,8 @@ defmodule CommonsPub.Web.ConnCase do
       import Phoenix.ConnTest
       import CommonsPub.Web.ConnCase
       import CommonsPub.Web.Test.ConnHelpers
-      import CommonsPub.Web.Router.Helpers
+      # import CommonsPub.Web.Router.Helpers
+
       # The default endpoint for testing
       @endpoint CommonsPub.Web.Endpoint
     end

@@ -143,7 +143,7 @@ defmodule Measurement.Measure.Measures do
 
   # def soft_delete(%Measure{} = measure) do
   #   Repo.transact_with(fn ->
-  #     with {:ok, measure} <- Common.soft_delete(measure),
+  #     with {:ok, measure} <- Common.Deletion.soft_delete(measure),
   #          :ok <- publish(measure, :deleted) do
   #       {:ok, measure}
   #     end

@@ -60,8 +60,8 @@ defmodule CommonsPub.Config do
     Application.delete_env(:commons_pub, key)
   end
 
-  def loaded_module(mod) do
+  def module_enabled?(mod) do
+    # TODO: user-controlled disabling of extensions/modules
     Code.ensure_loaded?(mod)
-    mod
   end
 end

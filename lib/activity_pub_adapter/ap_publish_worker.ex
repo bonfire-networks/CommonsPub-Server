@@ -64,9 +64,8 @@ defmodule CommonsPub.Workers.APPublishWorker do
     |> only_local(&publish/2, verb)
   end
 
-  defp only_local(%Resource{collection_id: collection_id} = context, commit_fn, verb) do
-    with {:ok, collection} <- CommonsPub.Collections.one(id: collection_id),
-         {:ok, character} <- CommonsPub.Characters.one(id: collection.id),
+  defp only_local(%Resource{context_id: context_id} = context, commit_fn, verb) do
+    with {:ok, character} <- CommonsPub.Characters.one(id: context_id),
          true <- is_nil(character.peer_id) do
       commit_fn.(context, verb)
     else
@@ -88,13 +87,11 @@ defmodule CommonsPub.Workers.APPublishWorker do
   defp publish(%{__struct__: object_type} = local_object, verb) do
     if(
       !is_nil(object_type) and
-        Code.ensure_loaded?(object_type) and
         Kernel.function_exported?(object_type, :context_module, 0)
     ) do
       object_context_module = apply(object_type, :context_module, [])
 
       if(
-        Code.ensure_loaded?(object_context_module) and
           Kernel.function_exported?(object_context_module, :ap_publish_activity, 2)
       ) do
         # IO.inspect(function_exists_in: object_context_module)

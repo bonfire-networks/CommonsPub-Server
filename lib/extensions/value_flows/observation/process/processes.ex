@@ -209,7 +209,7 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   def soft_delete(%Process{} = process) do
     Repo.transact_with(fn ->
-      with {:ok, process} <- Common.soft_delete(process),
+      with {:ok, process} <- Common.Deletion.soft_delete(process),
            :ok <- publish(process, :deleted) do
         {:ok, process}
       end
