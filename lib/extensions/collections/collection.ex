@@ -7,10 +7,11 @@ defmodule CommonsPub.Collections.Collection do
   alias Ecto.Changeset
   alias CommonsPub.Collections
   # alias CommonsPub.Characters.Character
-  alias CommonsPub.Communities.Community
+  # alias CommonsPub.Communities.Community
   alias CommonsPub.Collections.Collection
-  # alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Threads.Thread
   alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Feeds.Feed
   alias CommonsPub.Users.User
   alias CommonsPub.Uploads.Content
 
@@ -24,8 +25,15 @@ defmodule CommonsPub.Collections.Collection do
 
     # deprecated by context
     # belongs_to(:community, Community)
+    field(:community_id, :string, virtual: true)
 
     belongs_to(:context, Pointers.Pointer)
+
+    belongs_to(:community, Community, foreign_key: :context_id, define_field: false)
+    belongs_to(:collection, Collection, foreign_key: :context_id, define_field: false)
+    has_many(:collections, Collection, foreign_key: :context_id)
+    has_many(:resources, Resource, foreign_key: :context_id)
+    has_many(:threads, Thread, foreign_key: :context_id)
 
     # moved to Character
     # belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
@@ -34,7 +42,6 @@ defmodule CommonsPub.Collections.Collection do
     # because it's keyed by pointer
     field(:follower_count, :any, virtual: true)
 
-    has_many(:resources, Resource)
 
     field(:name, :string)
     field(:summary, :string)

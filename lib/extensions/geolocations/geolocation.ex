@@ -53,7 +53,7 @@ defmodule Geolocation do
   @postgis_srid 4326
 
   @required ~w(name)a
-  @cast @required ++ ~w(note mappable_address lat long geom alt is_disabled inbox_id outbox_id)a
+  @cast @required ++ ~w(note mappable_address lat long geom alt is_disabled)a
 
   def create_changeset(
         %User{} = creator,

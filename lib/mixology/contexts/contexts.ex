@@ -99,13 +99,21 @@ defmodule CommonsPub.Common.Contexts do
   end
 
   defp context_feeds_list(%CommonsPub.Collections.Collection{} = c) do
-    c = Repo.preload(c, [:character, community: :character])
-    [CommonsPub.Feeds.outbox_id(c), CommonsPub.Feeds.outbox_id(Map.get(c, :community))]
+    c = Repo.preload(c, [:character, context: :character])
+
+    [
+      CommonsPub.Feeds.outbox_id(c),
+      CommonsPub.Feeds.outbox_id(Map.get(Map.get(c, :context, %{}), :character))
+    ]
   end
 
   defp context_feeds_list(%CommonsPub.Communities.Community{} = c) do
-    c = Repo.preload(c, :character)
-    [CommonsPub.Feeds.outbox_id(c)]
+    c = Repo.preload(c, :character, context: :character)
+
+    [
+      CommonsPub.Feeds.outbox_id(c),
+      CommonsPub.Feeds.outbox_id(Map.get(Map.get(c, :context, %{}), :character))
+    ]
   end
 
   defp context_feeds_list(%CommonsPub.Users.User{} = u) do

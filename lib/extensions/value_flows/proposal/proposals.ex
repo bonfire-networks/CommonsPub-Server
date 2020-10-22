@@ -199,7 +199,6 @@ defmodule ValueFlows.Proposal.Proposals do
     :ok
   end
 
-  defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   # @spec update(%Proposal{}, attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}

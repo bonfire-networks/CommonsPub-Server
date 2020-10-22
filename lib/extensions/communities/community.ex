@@ -14,7 +14,9 @@ defmodule CommonsPub.Communities.Community do
   alias CommonsPub.Communities
   alias CommonsPub.Communities.{Community, CommunityFollowerCount}
   alias CommonsPub.Collections.Collection
-  alias CommonsPub.Feeds.Feed
+  alias CommonsPub.Threads.Thread
+  alias CommonsPub.Resources.Resource
+  # alias CommonsPub.Feeds.Feed
   alias CommonsPub.Flags.Flag
   # alias CommonsPub.Locales.Language
   alias CommonsPub.Users.User
@@ -26,6 +28,12 @@ defmodule CommonsPub.Communities.Community do
 
     belongs_to(:creator, User)
     belongs_to(:context, Pointers.Pointer)
+
+    belongs_to(:community, Community, foreign_key: :context_id, define_field: false)
+    belongs_to(:collection, Collection, foreign_key: :context_id, define_field: false)
+    has_many(:collections, Collection, foreign_key: :context_id)
+    has_many(:resources, Resource, foreign_key: :context_id)
+    has_many(:threads, Thread, foreign_key: :context_id)
 
     # moved to Character
     # belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
@@ -53,8 +61,6 @@ defmodule CommonsPub.Communities.Community do
     field(:deleted_at, :utc_datetime_usec)
 
     field(:is_local, :boolean, virtual: true)
-
-    has_many(:collections, Collection)
 
     has_many(:flags, Flag)
 

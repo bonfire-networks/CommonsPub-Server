@@ -44,11 +44,6 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
 
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
 
-  def search_follows(%Me{user: %User{id: id}}, _, _) do
-    Follows.many(preset: {:search_follows, id})
-  end
-
-  def search_follows(_, _, _), do: {:ok, []}
 
   def user(%{user_id: id}, info) do
     Users.one(join: :character, preload: :character, id: id, user: GraphQL.current_user(info))

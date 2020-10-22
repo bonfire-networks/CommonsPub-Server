@@ -137,11 +137,12 @@ defmodule Geolocation.Geolocations do
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item}
   end
 
+
   defp publish(creator, context, geolocation, activity, :created) do
     feeds = [
-      context.outbox_id,
+      CommonsPub.Feeds.outbox_id(context),
       CommonsPub.Feeds.outbox_id(creator),
-      geolocation.outbox_id,
+      CommonsPub.Feeds.outbox_id(geolocation),
       Feeds.instance_outbox_id()
     ]
 
@@ -153,7 +154,7 @@ defmodule Geolocation.Geolocations do
   defp publish(creator, geolocation, activity, :created) do
     feeds = [
       CommonsPub.Feeds.outbox_id(creator),
-      geolocation.outbox_id,
+      CommonsPub.Feeds.outbox_id(geolocation),
       Feeds.instance_outbox_id()
     ]
 

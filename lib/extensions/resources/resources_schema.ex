@@ -25,8 +25,8 @@ defmodule CommonsPub.Web.GraphQL.ResourcesSchema do
   object :resources_mutations do
     @desc "Create a resource"
     field :create_resource, :resource do
-      @desc "Collection parent is deprecated, used context instead"
-      arg(:collection_id, :string)
+      # @desc "Collection parent is deprecated, used context instead"
+      # arg(:collection_id, :string)
       @desc "Where (eg. a Community or Collection) the resource is posted, if any"
       arg(:context_id, :string)
       arg(:resource, non_null(:resource_input))
@@ -47,7 +47,7 @@ defmodule CommonsPub.Web.GraphQL.ResourcesSchema do
     @desc "Copy a resource"
     field :copy_resource, :resource do
       arg(:resource_id, non_null(:string))
-      arg(:collection_id, non_null(:string))
+      arg(:context_id, non_null(:string))
       resolve(&ResourcesResolver.copy_resource/2)
     end
   end

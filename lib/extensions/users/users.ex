@@ -405,6 +405,10 @@ defmodule CommonsPub.Users do
     Repo.preload(user, [:local_user, :character], opts)
   end
 
+   def preload(u, _) do
+    u
+  end
+
   @spec preload_actor(User.t(), Keyword.t()) :: User.t()
   def preload_actor(%User{} = user, opts \\ []) do
     Repo.preload(user, :character, opts)

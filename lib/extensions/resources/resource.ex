@@ -17,6 +17,10 @@ defmodule CommonsPub.Resources.Resource do
 
     # replaced by context
     # belongs_to(:collection, Collection)
+    # field(:collection_id, :string, virtual: true)
+    # field(:community_id, :string, virtual: true)
+    belongs_to(:community, Community, foreign_key: :context_id, define_field: false)
+    belongs_to(:collection, Collection, foreign_key: :context_id, define_field: false)
 
     belongs_to(:context, Pointers.Pointer)
 

@@ -183,7 +183,7 @@ defmodule CommonsPub.Web.GraphQL.Collections.CollectionTest do
 
         child_page_test(%{
           query: query,
-          vars: %{collection_id: coll.id},
+          vars: %{context_id: coll.id},
           connection: conn,
           parent_key: :collection,
           child_key: :resources,
