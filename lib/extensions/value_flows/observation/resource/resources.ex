@@ -16,7 +16,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.Queries
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
-  alias ValueFlows.Observation.Process.Processes
+  # alias ValueFlows.Observation.Process.Processes
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.Action.Actions
 

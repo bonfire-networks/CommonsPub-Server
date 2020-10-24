@@ -15,8 +15,7 @@ defmodule Organisation.GraphQL.Schema do
     # UploadResolver
   }
 
-  alias CommonsPub.Characters.GraphQL.CommonsPub.Characters.GraphQL.Resolver
-
+  # alias CommonsPub.Characters.GraphQL.CommonsPub.Characters.GraphQL.Resolver
   # alias Organisation.GraphQL.Resolver
 
   object :organisations_queries do

@@ -19,6 +19,7 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
     ResolveRootPage
   }
 
+  alias CommonsPub.Communities.Community
   alias CommonsPub.Collections.Collection
   # alias CommonsPub.Resources.Resource
   alias CommonsPub.Web.GraphQL.UploadResolver
@@ -142,24 +143,6 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
       page_opts: page_opts,
       base_filters: [context: ids, user: user],
       data_filters: [:default, page: [desc: [followers: page_opts]]]
-    })
-  end
-
-  def community_edge(%Collection{context_id: id}, _, info) do
-    ResolveFields.run(%ResolveFields{
-      module: __MODULE__,
-      fetcher: :fetch_community_edge,
-      context: id,
-      info: info
-    })
-  end
-
-  def fetch_community_edge(_, ids) do
-    FetchFields.run(%FetchFields{
-      queries: Communities.Queries,
-      query: Communities.Community,
-      group_fn: & &1.id,
-      filters: [:default, id: ids]
     })
   end
 

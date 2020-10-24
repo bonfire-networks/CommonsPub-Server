@@ -10,7 +10,7 @@ defmodule CommonsPub.Users.User do
 
   alias Ecto.Changeset
   # alias CommonsPub.Characters.Character
-  alias CommonsPub.Feeds.Feed
+  # alias CommonsPub.Feeds.Feed
   alias CommonsPub.Uploads.Content
   alias CommonsPub.Users
   alias CommonsPub.Users.{LocalUser, User}
@@ -61,11 +61,13 @@ defmodule CommonsPub.Users.User do
   end
 
   @register_required ~w(name)a
-  @register_cast ~w(id name summary location website extra_info icon_id image_id is_public)a ++
-                   ~w(is_disabled)a
+  @register_cast ~w(id name summary location website extra_info icon_id image_id is_public is_disabled)a
+
+  @update_cast  ~w(name summary location website extra_info icon_id image_id is_public is_disabled)a
 
   @doc "Create a changeset for registration"
   def register_changeset(%{peer_id: peer_id} = attrs) when not is_nil(peer_id) do
+    # register remote user
     %User{}
     |> Changeset.cast(attrs, @register_cast)
     |> Changeset.validate_required(@register_required)
@@ -73,6 +75,7 @@ defmodule CommonsPub.Users.User do
   end
 
   def register_changeset(attrs) do
+    # register local user
     %User{}
     |> Changeset.cast(attrs, @register_cast)
     |> Changeset.validate_required(@register_required)
@@ -84,10 +87,6 @@ defmodule CommonsPub.Users.User do
     register_changeset(attrs)
     |> Changeset.put_change(:local_user_id, id)
   end
-
-  @update_cast [] ++
-                 ~w(name summary location website extra_info icon_id image_id is_public)a ++
-                 ~w(is_disabled)a
 
   @doc "Update the attributes for a user"
   def update_changeset(%User{} = user, attrs) do
@@ -106,7 +105,7 @@ defmodule CommonsPub.Users.User do
   defp maybe_local_changeset(changeset, true) do
     changeset
     |> Changeset.validate_length(:name, max: 142)
-    |> Changeset.validate_length(:summary, max: 500_000)
+    |> Changeset.validate_length(:summary, max: 5_000)
     |> Changeset.validate_length(:location, max: 255)
     |> Changeset.validate_length(:website, max: 255)
   end

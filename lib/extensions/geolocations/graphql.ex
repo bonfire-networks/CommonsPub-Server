@@ -4,14 +4,14 @@ defmodule Geolocation.GraphQL do
   require Logger
 
   alias CommonsPub.{
-    Activities,
+    # Activities,
     GraphQL,
     Repo
   }
 
   alias CommonsPub.GraphQL.{
     # ResolvePage,
-    ResolvePages,
+    # ResolvePages,
     ResolveField,
     # ResolveFields,
     ResolveRootPage,

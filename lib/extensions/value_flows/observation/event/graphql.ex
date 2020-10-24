@@ -248,7 +248,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     ])
   end
 
-  def agent_events(%{id: agent}, %{} = page_opts, info) do
+  def agent_events(%{id: agent}, %{} = _page_opts, _info) do
     events_filtered(%{agent: agent})
   end
 

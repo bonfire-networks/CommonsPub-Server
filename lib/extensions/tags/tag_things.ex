@@ -115,7 +115,7 @@ defmodule CommonsPub.Tag.TagThings do
     end)
   end
 
-  defp thing_tags_save(thing, tags) do
+  defp thing_tags_save(thing, _tags) do
     {:ok, thing}
   end
 

@@ -32,13 +32,16 @@ defmodule CommonsPub.Characters do
     Threads
   }
 
+  import Ecto.Query, only: [from: 2]
+
   @replacement_regex ~r/[^a-zA-Z0-9-]/
   # @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
 
   @doc "true if the provided preferred_username is available to register"
   @spec is_username_available?(username :: binary) :: boolean()
   def is_username_available?(username) when is_binary(username) do
-    is_nil(Repo.get(NameReservation, username))
+    # FIXME: is_nil(Repo.get(NameReservation, username))
+     !Repo.exists?(from nr in NameReservation, where: nr.name == ^username)
   end
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]

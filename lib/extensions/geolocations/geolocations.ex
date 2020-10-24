@@ -4,7 +4,7 @@ defmodule Geolocation.Geolocations do
     Activities,
     Common,
     Feeds,
-    Follows,
+    # Follows,
     Repo
   }
 

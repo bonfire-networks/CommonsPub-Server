@@ -10,9 +10,9 @@ defmodule Geolocation do
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
   alias Pointers.Pointer
-  alias CommonsPub.Feeds.Feed
+  # alias CommonsPub.Feeds.Feed
 
   @type t :: %__MODULE__{}
 

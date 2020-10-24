@@ -290,43 +290,39 @@ defmodule CommonsPub.Users do
     end)
   end
 
-  # @spec soft_delete(User.t(), User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  # local userchara
-  def soft_delete(deleter, %User{local_user: %LocalUser{}} = user) do
+  # remote user
+  def soft_delete(_deleter, %User{local_user: nil} = user) do
     Repo.transact_with(fn ->
-      with {:ok, user2} <- Common.Deletion.soft_delete(user),
-           {:ok, local_user} <- Common.Deletion.soft_delete(user.local_user),
-           :ok <- chase_delete(deleter, user2),
-           :ok <- ap_publish("delete", user) do
-        user = %{user2 | local_user: local_user, character: user.character}
-        {:ok, user}
+      with {:ok, user2} <- Common.Deletion.soft_delete(user) do
+        # ap_publish("delete", user)
+        chase_delete(user, user2)
+        {:ok, user2}
       end
     end)
   end
 
-  # remote user
-  def soft_delete(_deleter, %User{local_user: nil} = user) do
+  def soft_delete(deleter, %User{local_user: %LocalUser{}} = user) do
     Repo.transact_with(fn ->
       with {:ok, user2} <- Common.Deletion.soft_delete(user),
-           :ok <- chase_delete(user, user2),
-           :ok <- ap_publish("delete", user) do
-        user = %{user2 | character: user.character}
-        {:ok, user}
+           {:ok, local_user} <- Common.Deletion.soft_delete(user.local_user) do
+        chase_delete(deleter, user2)
+        ap_publish("delete", user)
+        {:ok, %{user2 | local_user: local_user}}
       end
     end)
   end
 
   # remote user, called by activitypub
   # @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  def soft_delete_remote(%User{} = user) do
-    Repo.transact_with(fn ->
-      with {:ok, user2} <- Common.Deletion.soft_delete(user),
-           :ok <- chase_delete(user, user2) do
-        user = %{user2 | character: user.character}
-        {:ok, user}
-      end
-    end)
-  end
+  # def soft_delete_remote(%User{} = user) do
+  #   Repo.transact_with(fn ->
+  #     with {:ok, user2} <- Common.Deletion.soft_delete(user),
+  #          :ok <- chase_delete(user, user2) do
+  #       user = user2
+  #       {:ok, user}
+  #     end
+  #   end)
+  # end
 
   @delete_by_filters [select: :delete, deleted: false]
 
@@ -342,28 +338,25 @@ defmodule CommonsPub.Users do
          do: :ok
   end
 
-
-
   # TODO: some of these queries could be combined if we modified the queries modules
   defp chase_delete(user, users) do
-    # Not yet required but ok
     with :ok <- Characters.soft_delete_by(user, id: users),
          :ok <- Activities.soft_delete_by(user, creator: users),
          :ok <- Activities.soft_delete_by(user, context: users),
          :ok <- Blocks.soft_delete_by(user, creator: users),
-         :ok <- Blocks.soft_delete_by(user, context: users),
-         :ok <- Flags.soft_delete_by(user, context: users),
+         #  :ok <- Blocks.soft_delete_by(user, context: users),
+         #  :ok <- Flags.soft_delete_by(user, context: users),
          :ok <- Follows.soft_delete_by(user, creator: users),
          :ok <- Follows.soft_delete_by(user, context: users),
          :ok <- Likes.soft_delete_by(user, creator: users),
          :ok <- Likes.soft_delete_by(user, context: users),
          :ok <- Threads.Comments.soft_delete_by(user, creator: users) do
-      # Give away some things to the deleted user
+      # Give away some things to the "deleted" user
       Communities.update_by(user, [creator: users], creator_id: @deleted_user_id)
       Collections.update_by(user, [creator: users], creator_id: @deleted_user_id)
       Resources.update_by(user, [creator: users], creator_id: @deleted_user_id)
       Features.update_by(user, [creator: users], creator_id: @deleted_user_id)
-      Flags.update_by(user, [creator: users], creator_id: @deleted_user_id)
+      # Flags.update_by(user, [creator: users], creator_id: @deleted_user_id)
       :ok
     end
   end
@@ -405,7 +398,7 @@ defmodule CommonsPub.Users do
     Repo.preload(user, [:local_user, :character], opts)
   end
 
-   def preload(u, _) do
+  def preload(u, _) do
     u
   end
 

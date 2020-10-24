@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.GraphQL do
+  # default to 100 km radius
+  @radius_default_distance 100_000
+
   # alias CommonsPub.Web.GraphQL.{CommonResolver}
   require Logger
   # import ValueFlows.Util, only: [maybe_put: 3]
@@ -122,7 +125,12 @@ defmodule ValueFlows.Proposal.GraphQL do
   end
 
   defp proposals_filter(%{at_location: at_location_id} = page_opts, filters_acc) do
-    proposals_filter_next(:at_location, [eligible_location_id: at_location_id], page_opts, filters_acc)
+    proposals_filter_next(
+      :at_location,
+      [eligible_location_id: at_location_id],
+      page_opts,
+      filters_acc
+    )
   end
 
   defp proposals_filter(

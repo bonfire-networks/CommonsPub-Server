@@ -21,7 +21,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   alias ValueFlows.Observation.Process.Processes
 
-  import Logger
+  require Logger
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]

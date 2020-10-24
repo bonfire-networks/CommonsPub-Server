@@ -16,7 +16,7 @@ defmodule ValueFlows.Observation.Process do
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification
 
-  alias ValueFlows.Observation.EconomicEvent
+  # alias ValueFlows.Observation.EconomicEvent
 
   @type t :: %__MODULE__{}
 

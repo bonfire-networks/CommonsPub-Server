@@ -244,7 +244,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     ])
   end
 
-  def agent_resources(%{id: agent}, %{} = page_opts, info) do
+  def agent_resources(%{id: agent}, %{} = _page_opts, _info) do
     resources_filtered(%{agent: agent})
   end
 

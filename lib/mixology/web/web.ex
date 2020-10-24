@@ -18,8 +18,8 @@ defmodule CommonsPub.Web do
       # Liveview support
       import Phoenix.LiveView.Controller
 
-      # import CommonsPub.Web.Router.Helpers
-      # alias CommonsPub.Web.Router.Helpers, as: Routes
+      import CommonsPub.Web.Router.Helpers
+      alias CommonsPub.Web.Router.Helpers, as: Routes
       alias ActivityPubWeb.Router.Helpers, as: APRoutes
 
       alias CommonsPub.Web.Plugs.ScrubParams
@@ -46,8 +46,8 @@ defmodule CommonsPub.Web do
 
       # use Phoenix.HTML
 
-      # alias CommonsPub.Web.Router.Helpers, as: Routes
-      # alias ActivityPubWeb.Router.Helpers, as: APRoutes
+      alias CommonsPub.Web.Router.Helpers, as: Routes
+      alias ActivityPubWeb.Router.Helpers, as: APRoutes
 
       # alias CommonsPub.Accounts.User
       # Include shared imports and aliases for views
@@ -85,7 +85,7 @@ defmodule CommonsPub.Web do
 
       import CommonsPub.Web.ErrorHelpers
       import CommonsPub.Web.Gettext
-      # alias CommonsPub.Web.Router.Helpers, as: Routes
+      alias CommonsPub.Web.Router.Helpers, as: Routes
     end
   end
 

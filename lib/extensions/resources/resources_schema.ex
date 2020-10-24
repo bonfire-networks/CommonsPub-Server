@@ -172,9 +172,14 @@ defmodule CommonsPub.Web.GraphQL.ResourcesSchema do
       resolve(&UsersResolver.creator_edge/3)
     end
 
-    @desc "The collection this resource is a part of"
+    @desc "The collection this resource is a part of, if any"
     field :collection, :collection do
       resolve(&ResourcesResolver.collection_edge/3)
+    end
+
+    @desc "The collection or other context this resource is in"
+    field :context, :any_context do
+      resolve(&CommonResolver.context_edge/3)
     end
 
     # @desc "Languages the resources is available in"

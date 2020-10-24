@@ -12,8 +12,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
   alias CommonsPub.Meta.Pointers
   alias CommonsPub.Threads.Comments
   alias CommonsPub.Users.User
-  alias CommonsPub.Communities.Community
-  alias CommonsPub.Collections.Collection
+  # alias CommonsPub.Communities.Community
+  # alias CommonsPub.Collections.Collection
   alias CommonsPub.Workers.APReceiverWorker
   require Logger
 

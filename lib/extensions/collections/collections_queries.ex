@@ -4,6 +4,7 @@ defmodule CommonsPub.Collections.Queries do
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Follows.{Follow, FollowerCount}
   alias CommonsPub.Users.User
+
   import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 

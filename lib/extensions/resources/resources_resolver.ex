@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
   alias CommonsPub.{Collections, GraphQL, Repo, Resources}
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
   alias CommonsPub.Collections.Collection
   alias CommonsPub.GraphQL.{FetchFields, ResolveFields, ResolvePages, FetchPage}
   alias CommonsPub.Resources.Resource

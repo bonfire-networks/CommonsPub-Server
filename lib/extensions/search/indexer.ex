@@ -2,7 +2,7 @@
 
 defmodule CommonsPub.Search.Indexer do
   require Logger
-  alias CommonsPub.Utils.Web.CommonHelper
+  # alias CommonsPub.Utils.Web.CommonHelper
 
   @public_index "public"
 
