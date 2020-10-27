@@ -213,11 +213,12 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
   def canonical_url_edge(obj, _, _),
     do: {:ok, CommonsPub.ActivityPub.Utils.get_actor_canonical_url(obj)}
 
-  @doc "Returns the preferred_username "
-  def preferred_username_edge(%{character: %Character{preferred_username: u}}, _, _), do: {:ok, u}
-
   @doc "Is this character local to this instance?"
-  def is_local_edge(%{character: %Character{peer_id: id}}, _, _), do: {:ok, is_nil(id)}
+  def is_local_edge(obj, _, _), do: {:ok, CommonsPub.ActivityPub.Utils.check_local(obj)}
+
+  @doc "Returns the preferred_username "
+  def preferred_username_edge(obj, _, _),
+    do: {:ok, CommonsPub.ActivityPub.Utils.get_actor_username(obj)}
 
   def display_username_edge(obj, _, _) do
     {:ok, Characters.display_username(obj)}

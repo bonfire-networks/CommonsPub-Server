@@ -43,11 +43,20 @@ defmodule CommonsPub.ActivityPub.Utils do
   def get_actor_username(u) when is_binary(u),
     do: u
 
+  def get_actor_username(_),
+    do: nil
+
   def generate_actor_url(u) when is_binary(u) and u != "",
     do: ap_base_url() <> "/actors/" <> u
 
-  def generate_actor_url(u),
-    do: generate_actor_url(get_actor_username(u))
+  def generate_actor_url(obj) do
+    with nil <- get_actor_username(obj) do
+      generate_object_ap_id(obj)
+    else
+      username ->
+        generate_actor_url(username)
+    end
+  end
 
   @doc "Get canonical URL if set, or generate one"
 
