@@ -364,7 +364,7 @@ defmodule CommonsPub.Characters do
   end
 
   def soft_delete(o) do
-    IO.inspect(could_not_delete: o)
+    # IO.inspect(could_not_delete_character: o)
     {:ok, nil}
   end
 

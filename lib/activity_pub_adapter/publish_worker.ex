@@ -24,35 +24,26 @@ defmodule CommonsPub.Workers.APPublishWorker do
 
   @impl Worker
   def perform(%{args: %{"op" => "delete", "context_id" => context_id}}) do
-    # FIXME
-    object =
-      with {:error, _e} <-
-             CommonsPub.Users.one(join: :character, preload: :character, id: context_id),
-           {:error, _e} <-
-             CommonsPub.Communities.one(join: :character, preload: :character, id: context_id),
-           {:error, _e} <-
-             CommonsPub.Collections.one(join: :character, preload: :character, id: context_id) do
-        {:error, "not found"}
-      end
-
-    case object do
-      {:ok, object} ->
-        only_local(object, "delete", &CommonsPub.ActivityPub.Publisher.publish/2)
-
-      _ ->
-        CommonsPub.Meta.Pointers.one!(id: context_id)
-        |> CommonsPub.Meta.Pointers.follow!()
-        |> only_local("delete", &CommonsPub.ActivityPub.Publisher.publish/2)
-    end
+    # filter for deleted objects
+    CommonsPub.Meta.Pointers.one!(id: context_id)
+    |> CommonsPub.Meta.Pointers.follow!(deleted: true)
+    |> CommonsPub.Repo.maybe_preload(:character)
+    |> only_local("delete", &CommonsPub.ActivityPub.Publisher.publish/2)
   end
 
   def perform(%{args: %{"context_id" => context_id, "op" => verb}}) do
     CommonsPub.Meta.Pointers.one!(id: context_id)
     |> CommonsPub.Meta.Pointers.follow!()
+    |> CommonsPub.Repo.maybe_preload(:character)
+    |> CommonsPub.Repo.maybe_preload(creator: [:character])
     |> only_local(verb, &CommonsPub.ActivityPub.Publisher.publish/2)
   end
 
-  defp only_local(%CommonsPub.Resources.Resource{context_id: context_id} = context, verb, commit_fn) do
+  defp only_local(
+         %CommonsPub.Resources.Resource{context_id: context_id} = context,
+         verb,
+         commit_fn
+       ) do
     with {:ok, character} <- CommonsPub.Characters.one(id: context_id),
          true <- is_nil(character.peer_id) do
       commit_fn.(verb, context)
@@ -63,14 +54,19 @@ defmodule CommonsPub.Workers.APPublishWorker do
   end
 
   defp only_local(%{is_local: true} = context, verb, commit_fn) do
+    # publish if explicitly known to be local
     commit_fn.(verb, context)
   end
 
   defp only_local(%{character: %{peer_id: nil}} = context, verb, commit_fn) do
+    # publish local characters
+    commit_fn.(verb, context)
+  end
+
+  defp only_local(%{creator: %{character: %{peer_id: nil}}} = context, verb, commit_fn) do
+    # publish if author is local
     commit_fn.(verb, context)
   end
 
   defp only_local(_, _, _), do: :ignored
-
-
 end
