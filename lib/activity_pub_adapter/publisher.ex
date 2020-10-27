@@ -2,30 +2,59 @@
 defmodule CommonsPub.ActivityPub.Publisher do
   require Logger
 
-  alias CommonsPub.Collections.Collection
-  alias CommonsPub.Communities.Community
-  alias CommonsPub.Resources.Resource
-  alias CommonsPub.Threads.Comment
-  alias CommonsPub.Users.User
+  # TODO: move specialised publish funcs to context modules (or make them extensible for extra types)
 
-  # TODO: move specialised publish funcs to context modules
+  @character_types [
+    CommonsPub.Users.User,
+    CommonsPub.Communities.Community,
+    CommonsPub.Collections.Collection,
+    CommonsPub.Characters.Character
+  ]
+  @thing_types [CommonsPub.Threads.Comment, CommonsPub.Resources.Resource]
 
-  def publish("update", %{__struct__: type} = character)
-      when type in [User, Community, Collection] do
-    update_character(character)
+  def publish("update", %{__struct__: type, id: id})
+      when type in @character_types do
+    # Works for Users, Collections, Communities (not MN.ActivityPub.Actor)
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(id),
+         actor_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: actor}),
+         params <- %{
+           to: [CommonsPub.ActivityPub.Utils.public_uri()],
+           cc: [actor.data["followers"]],
+           object: actor_object,
+           actor: actor.ap_id,
+           local: true
+         } do
+      ActivityPub.Actor.set_cache(actor)
+      ActivityPub.update(params)
+    else
+      e -> {:error, e}
+    end
   end
 
-  def publish("delete", %User{} = user) do
-    delete_user(user)
+  def publish("delete", %CommonsPub.Users.User{} = user) do
+    # is this broken?
+    with actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(user) do
+      ActivityPub.Actor.set_cache(actor)
+      ActivityPub.delete(actor)
+    end
   end
 
-  def publish("delete", %{__struct__: type} = character)
-      when type in [Community, Collection] do
-    delete_character(character)
+  def publish("delete", %{__struct__: type} = character) when type in @character_types do
+    # Works for Collections, Communities (not User or MN.ActivityPub.Actor)
+
+    with {:ok, creator} <- ActivityPub.Actor.get_by_local_id(character.creator_id),
+         actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(character) do
+      ActivityPub.Actor.invalidate_cache(actor)
+      ActivityPub.delete(actor, true, creator.ap_id)
+    end
   end
 
-  def publish("delete", %{__struct__: type} = object) when type in [Comment, Resource] do
-    delete_comment_or_resource(object)
+  def publish("delete", %{__struct__: type} = thing) when type in @thing_types do
+    with %ActivityPub.Object{} = object <- ActivityPub.Object.get_cached_by_pointer_id(thing.id) do
+      ActivityPub.delete(object)
+    else
+      e -> {:error, e}
+    end
   end
 
   def publish(verb, %{__struct__: object_type} = local_object) do
@@ -49,7 +78,6 @@ defmodule CommonsPub.ActivityPub.Publisher do
               verb,
               local_object
             )
-
         end
       else
         error(
@@ -59,7 +87,6 @@ defmodule CommonsPub.ActivityPub.Publisher do
           verb,
           local_object
         )
-
       end
     else
       error(
@@ -67,7 +94,6 @@ defmodule CommonsPub.ActivityPub.Publisher do
         verb,
         local_object
       )
-
     end
   end
 
@@ -79,52 +105,11 @@ defmodule CommonsPub.ActivityPub.Publisher do
     :ignored
   end
 
-  def delete_comment_or_resource(comment) do
-    with %ActivityPub.Object{} = object <- ActivityPub.Object.get_cached_by_pointer_id(comment.id) do
-      ActivityPub.delete(object)
-    else
-      e -> {:error, e}
-    end
-  end
-
-  # Works for Users, Collections, Communities (not MN.ActivityPub.Actor)
-  def update_character(%{id: id} = _character) do
-    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(id),
-         actor_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: actor}),
-         params <- %{
-           to: [CommonsPub.ActivityPub.Utils.public_uri()],
-           cc: [actor.data["followers"]],
-           object: actor_object,
-           actor: actor.ap_id,
-           local: true
-         } do
-      ActivityPub.Actor.set_cache(actor)
-      ActivityPub.update(params)
-    else
-      e -> {:error, e}
-    end
-  end
-
-  # Currently broken (it's hard)
-  def delete_user(actor) do
-    with actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(actor) do
-      ActivityPub.Actor.set_cache(actor)
-      ActivityPub.delete(actor)
-    end
-  end
-
-  # Works for Collections, Communities (not User or MN.ActivityPub.Actor)
-  def delete_character(actor) do
-    with {:ok, creator} <- ActivityPub.Actor.get_by_local_id(actor.creator_id),
-         actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(actor) do
-      ActivityPub.Actor.invalidate_cache(actor)
-      ActivityPub.delete(actor, true, creator.ap_id)
-    end
-  end
-
   def error(error, verb, %{__struct__: object_type, id: id}) do
     Logger.error(
-      "ActivityPub - Unable to federate - #{error}... object ID: #{id} ; verb: #{verb} ; object type: #{object_type}"
+      "ActivityPub - Unable to federate - #{error}... object ID: #{id} ; verb: #{verb} ; object type: #{
+        object_type
+      }"
     )
 
     :ignored
