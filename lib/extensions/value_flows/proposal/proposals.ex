@@ -2,7 +2,7 @@
 defmodule ValueFlows.Proposal.Proposals do
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
 
@@ -114,7 +114,7 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   def preloads(proposal) do
-    CommonsPub.Utils.Web.CommonHelper.maybe_preload(proposal, [
+    CommonsPub.Repo.maybe_preload(proposal, [
       :context,
       :eligible_location,
       :creator

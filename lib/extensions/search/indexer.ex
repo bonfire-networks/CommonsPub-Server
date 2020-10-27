@@ -158,7 +158,7 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def format_creator(%{creator: %{id: id}} = obj) when not is_nil(id) do
-    creator = CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :creator).creator
+    creator = CommonsPub.Repo.maybe_preload(obj, :creator).creator
 
     %{
       "id" => creator.id,

@@ -121,10 +121,9 @@ defmodule CommonsPub.Users do
       else: :ok
   end
 
-  defp should_check_register_access?(opts) do
+   defp should_check_register_access?(opts) do
     opts = opts ++ CommonsPub.Config.get(__MODULE__, [])
     # IO.inspect(should_check_register_access: Keyword.get(opts, :public_registration, false))
-
     not Keyword.get(opts, :public_registration, false)
   end
 

@@ -9,7 +9,7 @@ defmodule CommonsPub.Web.GraphQL.QueryHelper do
   Adapted from https://github.com/devonestes/assertions (MIT license)
   """
 
-  import Logger
+  require Logger
 
   @spec run_query_id(any(), module(), atom(), non_neg_integer(), Keyword.t(), boolean()) ::
           String.t()
@@ -206,7 +206,7 @@ defmodule CommonsPub.Web.GraphQL.QueryHelper do
   end
 
   def apply_overrides(fields, override_fun) when is_function(override_fun) do
-    fields = for n <- fields, do: override_fun.(n)
+    for n <- fields, do: override_fun.(n)
   end
 
   def apply_overrides(fields, _) do

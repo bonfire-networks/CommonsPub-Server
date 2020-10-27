@@ -217,7 +217,7 @@ defmodule CommonsPub.Threads.Comments do
 
   defp publish(creator, thread, _comment, activity, _context_id) do
     feeds =
-      CommonsPub.Common.Contexts.context_feeds(thread.context.pointed) ++
+      CommonsPub.Contexts.context_feeds(thread.context.pointed) ++
         [
           CommonsPub.Feeds.outbox_id(creator),
           thread.outbox_id,
@@ -300,8 +300,8 @@ defmodule CommonsPub.Threads.Comments do
   end
 
   def indexing_object_format(comment) do
-    thread = CommonHelper.maybe_preload(comment.thread, :context)
-    context = CommonHelper.maybe_preload(thread.context, :character)
+    thread = CommonsPub.Repo.maybe_preload(comment.thread, :context)
+    context = CommonsPub.Repo.maybe_preload(thread.context, :character)
 
     # follower_count =
     #   case CommonsPub.Follows.FollowerCounts.one(context: comment.id) do

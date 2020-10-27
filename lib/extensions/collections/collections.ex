@@ -48,7 +48,7 @@ defmodule CommonsPub.Collections do
       # attrs = Characters.prepare_username(attrs)
 
       # TODO: address activity to context's outbox/followers
-      community_or_context = CommonHelper.maybe_preload(community_or_context, :character)
+      community_or_context = CommonsPub.Repo.maybe_preload(community_or_context, :character)
 
       # with {:ok, character} <- Characters.create(creator, attrs),
       #      {:ok, coll_attrs} <- create_boxes(character, attrs),
@@ -233,8 +233,8 @@ defmodule CommonsPub.Collections do
   end
 
   def indexing_object_format(%CommonsPub.Collections.Collection{} = collection) do
-    collection = CommonHelper.maybe_preload(collection, [:context, :creator])
-    context = CommonHelper.maybe_preload(collection.context, :character)
+    collection = CommonsPub.Repo.maybe_preload(collection, [:context, :creator])
+    context = CommonsPub.Repo.maybe_preload(collection.context, :character)
 
     follower_count =
       case CommonsPub.Follows.FollowerCounts.one(context: collection.id) do

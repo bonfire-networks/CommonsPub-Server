@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Characters do
   alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Contexts
 
   alias CommonsPub.{Common, Feeds, Follows, Repo}
   # alias CommonsPub.Feeds.FeedActivities
@@ -364,7 +364,7 @@ defmodule CommonsPub.Characters do
   end
 
   def soft_delete(o) do
-    IO.inspect(could_not_delete: o)
+    # IO.inspect(could_not_delete_character: o)
     {:ok, nil}
   end
 
@@ -455,6 +455,8 @@ defmodule CommonsPub.Characters do
 
   def display_username(obj, full_hostname \\ false)
 
+  def display_username(%Ecto.Association.NotLoaded{}, _), do: nil
+
   def display_username(%CommonsPub.Communities.Community{} = obj, full_hostname) do
     display_username(obj, full_hostname, "&")
   end
@@ -530,7 +532,7 @@ defmodule CommonsPub.Characters do
   end
 
   def display_username(%{character: _} = obj, full_hostname, prefix) do
-    obj = CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character)
+    obj = CommonsPub.Repo.maybe_preload(obj, :character)
     display_username(Map.get(obj, :character), full_hostname, prefix)
   end
 
@@ -545,7 +547,7 @@ defmodule CommonsPub.Characters do
   end
 
   def obj_with_character(obj) do
-    CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character)
+    CommonsPub.Repo.maybe_preload(obj, :character)
   end
 
   def obj_character(%{character: %Ecto.Association.NotLoaded{}} = obj) do
