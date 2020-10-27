@@ -53,20 +53,11 @@ defmodule CommonsPub.Workers.APPublishWorker do
     end
   end
 
-  defp only_local(%{is_local: true} = context, verb, commit_fn) do
-    # publish if explicitly known to be local
-    commit_fn.(verb, context)
+  defp only_local(context, verb, commit_fn) do
+    if CommonsPub.ActivityPub.Utils.check_local(context) do
+      commit_fn.(verb, context)
+    else
+      :ignored
+    end
   end
-
-  defp only_local(%{character: %{peer_id: nil}} = context, verb, commit_fn) do
-    # publish local characters
-    commit_fn.(verb, context)
-  end
-
-  defp only_local(%{creator: %{character: %{peer_id: nil}}} = context, verb, commit_fn) do
-    # publish if author is local
-    commit_fn.(verb, context)
-  end
-
-  defp only_local(_, _, _), do: :ignored
 end

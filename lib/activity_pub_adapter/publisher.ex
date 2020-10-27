@@ -33,7 +33,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
 
   def publish("delete", %CommonsPub.Users.User{} = user) do
     # is this broken?
-    with actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(user) do
+    with actor <- CommonsPub.ActivityPub.Types.character_to_actor(user) do
       ActivityPub.Actor.set_cache(actor)
       ActivityPub.delete(actor)
     end
@@ -43,7 +43,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
     # Works for Collections, Communities (not User or MN.ActivityPub.Actor)
 
     with {:ok, creator} <- ActivityPub.Actor.get_by_local_id(character.creator_id),
-         actor <- CommonsPub.ActivityPub.Adapter.format_local_actor(character) do
+         actor <- CommonsPub.ActivityPub.Types.character_to_actor(character) do
       ActivityPub.Actor.invalidate_cache(actor)
       ActivityPub.delete(actor, true, creator.ap_id)
     end

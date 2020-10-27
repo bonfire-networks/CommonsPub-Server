@@ -13,6 +13,23 @@ defmodule CommonsPub.ActivityPub.Utils do
     CommonsPub.ActivityPub.Adapter.base_url() <> System.get_env("AP_BASE_PATH", "/pub")
   end
 
+  def check_local(%{is_local: true}) do
+    # publish if explicitly known to be local
+    true
+  end
+
+  def check_local(%{character: %{peer_id: nil}}) do
+    # publish local characters
+    true
+  end
+
+  def check_local(%{creator: %{character: %{peer_id: nil}}}) do
+    # publish if author is local
+    true
+  end
+
+  def check_local(_), do: false
+
   def get_actor_username(%{preferred_username: u}) when is_binary(u),
     do: u
 
@@ -20,9 +37,7 @@ defmodule CommonsPub.ActivityPub.Utils do
     do: u
 
   def get_actor_username(%{character: %Ecto.Association.NotLoaded{}} = obj) do
-    get_actor_username(
-      Map.get(CommonsPub.Repo.maybe_preload(obj, :character), :character)
-    )
+    get_actor_username(Map.get(CommonsPub.Repo.maybe_preload(obj, :character), :character))
   end
 
   def get_actor_username(u) when is_binary(u),
@@ -33,7 +48,6 @@ defmodule CommonsPub.ActivityPub.Utils do
 
   def generate_actor_url(u),
     do: generate_actor_url(get_actor_username(u))
-
 
   @doc "Get canonical URL if set, or generate one"
 
@@ -51,9 +65,7 @@ defmodule CommonsPub.ActivityPub.Utils do
   end
 
   def get_actor_canonical_url(%{character: %Ecto.Association.NotLoaded{}} = obj) do
-    get_actor_canonical_url(
-      Map.get(CommonsPub.Repo.maybe_preload(obj, :character), :character)
-    )
+    get_actor_canonical_url(Map.get(CommonsPub.Repo.maybe_preload(obj, :character), :character))
   end
 
   def get_actor_canonical_url(actor) do
@@ -81,6 +93,55 @@ defmodule CommonsPub.ActivityPub.Utils do
   def get_object_canonical_url(object) do
     generate_object_ap_id(object)
   end
+
+  def get_raw_character_by_username(username) do
+    # FIXME: this should be only one query, and support other types (or two, using pointers?)
+    with {:error, _e} <- CommonsPub.Users.one([:default, username: username]),
+         {:error, _e} <- CommonsPub.Communities.one([:default, username: username]),
+         {:error, _e} <- CommonsPub.Collections.one([:default, username: username]),
+         {:error, _e} <- CommonsPub.Characters.one([:default, username: username]) do
+      {:error, "not found"}
+    end
+  end
+
+  def get_raw_character_by_id(id) do
+    # FIXME: this should be only one query, and support other types (or two, using pointers?)
+    with {:error, _e} <- CommonsPub.Users.one([:default, id: id]),
+         {:error, _e} <- CommonsPub.Communities.one([:default, id: id]),
+         {:error, _e} <- CommonsPub.Collections.one([:default, id: id]) do
+      {:error, "not found"}
+    end
+  end
+
+  def get_raw_actor_by_ap_id(ap_id) do
+    # FIXME: this should not query the AP db
+    with {:ok, actor} <- ActivityPub.Actor.get_or_fetch_by_ap_id(ap_id),
+         {:ok, actor} <- get_raw_character_by_username(actor.username) do
+      {:ok, actor}
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def get_creator_ap_id(%{creator_id: creator_id}) when not is_nil(creator_id) do
+    with {:ok, %{ap_id: ap_id}} <- ActivityPub.Actor.get_cached_by_local_id(creator_id) do
+      ap_id
+    else
+      {:error, _} -> nil
+    end
+  end
+
+  def get_creator_ap_id(_), do: nil
+
+  def get_context_ap_id(%{context_id: context_id}) when not is_nil(context_id) do
+    with {:ok, %{ap_id: ap_id}} <- ActivityPub.Actor.get_cached_by_local_id(context_id) do
+      ap_id
+    else
+      _ -> nil
+    end
+  end
+
+  def get_context_ap_id(_), do: nil
 
   def determine_recipients(actor, comment) do
     determine_recipients(actor, comment, [public_uri()], [actor.data["followers"]])
@@ -201,4 +262,35 @@ defmodule CommonsPub.ActivityPub.Utils do
   def get_author(%{"name" => name}), do: name
 
   def get_author(author) when is_binary(author), do: author
+
+  def maybe_fix_image_object(url) when is_binary(url), do: url
+  def maybe_fix_image_object(%{"url" => url}), do: url
+  def maybe_fix_image_object(_), do: nil
+
+  def maybe_create_image_object(url, _actor) when is_nil(url), do: nil
+
+  def maybe_create_image_object(url, actor) do
+    case CommonsPub.Uploads.upload(CommonsPub.Uploads.ImageUploader, actor, %{url: url}, %{}) do
+      {:ok, upload} -> upload.id
+      {:error, _} -> nil
+    end
+  end
+
+  def maybe_create_image_object(url) when not is_nil(url) do
+    %{
+      "type" => "Image",
+      "url" => url
+    }
+  end
+
+  def maybe_create_image_object(_), do: nil
+
+  def maybe_create_icon_object(url, _actor) when is_nil(url), do: nil
+
+  def maybe_create_icon_object(url, actor) do
+    case CommonsPub.Uploads.upload(CommonsPub.Uploads.IconUploader, actor, %{url: url}, %{}) do
+      {:ok, upload} -> upload.id
+      {:error, _} -> nil
+    end
+  end
 end
