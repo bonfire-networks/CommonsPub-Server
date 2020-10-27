@@ -72,11 +72,12 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   end
 
   def all_resource_specs(_, _) do
-    ResourceSpecifications.many()
+    ResourceSpecifications.many([
+      :default,
+    ])
   end
 
   def resource_specs_filtered(page_opts, _) do
-    IO.inspect(resource_specs_filtered: page_opts)
     resource_specs_filter(page_opts, [])
   end
 
@@ -99,7 +100,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
          _,
          filters_acc
        ) do
-    IO.inspect(filters_query: filters_acc)
 
     # finally, if there's no more known params to acumulate, query with the filters
     ResourceSpecifications.many(filters_acc)
@@ -107,9 +107,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   defp resource_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    IO.inspect(resource_specs_filter_next: param_remove)
-    IO.inspect(resource_specs_filter_add: filter_add)
-
     resource_specs_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
 
@@ -129,8 +126,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     ResourceSpecifications.one([
       :default,
       user: GraphQL.current_user(info),
-      id: id
-      # preload: :tags
+      id: id,
     ])
   end
 
@@ -183,8 +179,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
       # data_filters: [page: [desc: [followers: page_opts]]],
     })
   end
-
-
 
   def create_resource_spec(
         %{resource_specification: %{in_scope_of: context_ids} = resource_spec_attrs},

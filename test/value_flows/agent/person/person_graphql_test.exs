@@ -38,7 +38,6 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
         fake_economic_resource!(user, %{
           primary_accountable: user.id
         })
-      IO.inspect(resource: resource)
 
       process = fake_process!(user)
 

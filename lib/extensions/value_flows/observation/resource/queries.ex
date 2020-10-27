@@ -50,6 +50,10 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     join(q, jq, [resource: c], t in assoc(c, :tags), as: :tags)
   end
 
+  def join_to(q, :unit_of_effort, jq) do
+    join(q, jq, [resource: c], t in assoc(c, :unit_of_effort), as: :unit_of_effort)
+  end
+
   # def join_to(q, :primary_accountable, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :primary_accountable), as: :pointer
   # end
@@ -76,7 +80,7 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
 
   def filter(q, :default) do
     #filter(q, [:deleted])
-    filter q, [:deleted, {:preload, :primary_accountable}]
+    filter q, [:deleted, {:preload, :primary_accountable}, {:preload, :unit_of_effort}]
   end
 
   def filter(q, :offer) do
@@ -269,6 +273,12 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
 
   def filter(q, {:preload, :receiver}) do
     preload(q, [pointer: p], receiver: p)
+  end
+
+  def filter(q, {:preload, :unit_of_effort}) do
+    q
+    |> join_to(:unit_of_effort)
+    |> preload([unit_of_effort: u], unit_of_effort: u)
   end
 
   def filter(q, {:preload, :current_location}) do
