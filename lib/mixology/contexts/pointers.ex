@@ -52,8 +52,8 @@ defmodule CommonsPub.Meta.Pointers do
     %Pointer{id: id, table: table, table_id: table.id}
   end
 
-  def follow!(pointer_or_pointers) do
-    case preload!(pointer_or_pointers) do
+  def follow!(pointer_or_pointers, filters \\ []) do
+    case preload!(pointer_or_pointers, [], filters) do
       %Pointer{} = pointer -> pointer.pointed
       pointers -> Enum.map(pointers, & &1.pointed)
     end
@@ -65,38 +65,40 @@ defmodule CommonsPub.Meta.Pointers do
   @doc """
   Follows one or more pointers and adds the pointed records to the `pointed` attrs
   """
-  def preload!(pointer_or_pointers, opts \\ [])
+  def preload!(pointer_or_pointers, opts \\ [], filters \\ [])
 
-  def preload!(%Pointer{id: id, table_id: table_id} = pointer, opts) do
+  def preload!(%Pointer{id: id, table_id: table_id} = pointer, opts, filters) do
+    # IO.inspect(pointer)
+
     if is_nil(pointer.pointed) or Keyword.get(opts, :force) do
-      {:ok, [pointed]} = loader(table_id, id: id)
+      {:ok, [pointed]} = loader(table_id, [id: id], filters)
       %{pointer | pointed: pointed}
     else
       pointer
     end
   end
 
-  def preload!(pointers, opts) when is_list(pointers) do
+  def preload!(pointers, opts, filters) when is_list(pointers) do
     pointers
-    |> preload_load(opts)
+    |> preload_load(opts, filters)
     |> preload_collate(pointers)
   end
 
-  def preload!(%{__struct__: _} = pointed, _), do: pointed
+  def preload!(%{__struct__: _} = pointed, _, _), do: pointed
 
   defp preload_collate(loaded, pointers), do: Enum.map(pointers, &collate(loaded, &1))
 
   defp collate(_, nil), do: nil
   defp collate(loaded, %{} = p), do: %{p | pointed: Map.get(loaded, p.id, %{})}
 
-  defp preload_load(pointers, opts) do
+  defp preload_load(pointers, opts, filters) do
     force = Keyword.get(opts, :force, false)
 
     pointers
     # find ids
     |> Enum.reduce(%{}, &preload_search(force, &1, &2))
     # query
-    |> Enum.reduce(%{}, &preload_per_table/2)
+    |> Enum.reduce(%{}, &preload_per_table(&1, &2, filters))
   end
 
   defp preload_search(false, %{pointed: pointed}, acc)
@@ -108,18 +110,28 @@ defmodule CommonsPub.Meta.Pointers do
     Map.put(acc, pointer.table_id, ids)
   end
 
-  defp preload_per_table({table_id, ids}, acc) do
-    {:ok, items} = loader(table_id, id: ids)
+  defp preload_per_table({table_id, ids}, acc, filters) do
+    {:ok, items} = loader(table_id, [id: ids], filters)
     Enum.reduce(items, acc, &Map.put(&2, &1.id, &1))
   end
 
-  defp loader(schema, filters) when not is_atom(schema) do
-    loader(TableService.lookup_schema!(schema), filters)
+  defp loader(schema, id_filters, override_filters) when not is_atom(schema) do
+    loader(TableService.lookup_schema!(schema), id_filters, override_filters)
   end
 
-  defp loader(schema, filters) do
+
+  defp loader(schema, id_filters, override_filters) do
     module = apply(schema, :queries_module, [])
-    filters = apply(schema, :follow_filters, []) ++ filters
+    filters = filters(schema, id_filters, override_filters)
+    # IO.inspect(filters)
     {:ok, Repo.all(apply(module, :query, [schema, filters]))}
+  end
+
+  defp filters(schema, id_filters, []) do
+    id_filters ++ apply(schema, :follow_filters, [])
+  end
+
+  defp filters(_schema, id_filters, override_filters) do
+    id_filters ++ override_filters
   end
 end
