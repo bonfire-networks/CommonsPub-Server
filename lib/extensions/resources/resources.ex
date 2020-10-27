@@ -34,7 +34,7 @@ defmodule CommonsPub.Resources do
           {:ok, Resource.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = collection_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      collection_or_context = CommonHelper.maybe_preload(collection_or_context, :character)
+      collection_or_context = CommonsPub.Repo.maybe_preload(collection_or_context, :character)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
@@ -240,11 +240,11 @@ defmodule CommonsPub.Resources do
   end
 
   def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
-    resource = CommonHelper.maybe_preload(resource, :creator)
-    resource = CommonHelper.maybe_preload(resource, :context)
-    context = CommonHelper.maybe_preload(Map.get(resource, :context), :character)
+    resource = CommonsPub.Repo.maybe_preload(resource, :creator)
+    resource = CommonsPub.Repo.maybe_preload(resource, :context)
+    context = CommonsPub.Repo.maybe_preload(Map.get(resource, :context), :character)
 
-    resource = CommonHelper.maybe_preload(resource, :content)
+    resource = CommonsPub.Repo.maybe_preload(resource, :content)
 
     likes_count =
       case CommonsPub.Likes.LikerCounts.one(context: resource.id) do

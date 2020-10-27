@@ -530,7 +530,7 @@ defmodule CommonsPub.Characters do
   end
 
   def display_username(%{character: _} = obj, full_hostname, prefix) do
-    obj = CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character)
+    obj = CommonsPub.Repo.maybe_preload(obj, :character)
     display_username(Map.get(obj, :character), full_hostname, prefix)
   end
 
@@ -545,7 +545,7 @@ defmodule CommonsPub.Characters do
   end
 
   def obj_with_character(obj) do
-    CommonsPub.Utils.Web.CommonHelper.maybe_preload(obj, :character)
+    CommonsPub.Repo.maybe_preload(obj, :character)
   end
 
   def obj_character(%{character: %Ecto.Association.NotLoaded{}} = obj) do

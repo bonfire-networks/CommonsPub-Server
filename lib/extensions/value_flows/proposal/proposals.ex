@@ -114,7 +114,7 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   def preloads(proposal) do
-    CommonsPub.Utils.Web.CommonHelper.maybe_preload(proposal, [
+    CommonsPub.Repo.maybe_preload(proposal, [
       :context,
       :eligible_location,
       :creator

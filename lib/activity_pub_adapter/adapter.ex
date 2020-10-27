@@ -118,7 +118,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
         _ -> "CommonsPub:Character"
       end
 
-    actor = CommonHelper.maybe_preload(actor, [:character, :profile])
+    actor = CommonsPub.Repo.maybe_preload(actor, [:character, :profile])
 
     context = get_context_ap_id(actor)
 
