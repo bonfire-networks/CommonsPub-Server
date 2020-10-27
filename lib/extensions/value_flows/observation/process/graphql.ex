@@ -159,8 +159,12 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     ])
   end
 
-  def creator_processes(%{id: creator}, %{} = _page_opts, _info) do
+  def creator_processes(%{id: creator}, _page_opts, _info) do
     processes_filtered(%{agent: creator})
+  end
+
+  def creator_processes(_,  _page_opts, _info) do
+    {:ok, nil}
   end
 
   def creator_processes_edge(%{creator: creator}, %{} = page_opts, info) do

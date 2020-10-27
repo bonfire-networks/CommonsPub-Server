@@ -455,6 +455,8 @@ defmodule CommonsPub.Characters do
 
   def display_username(obj, full_hostname \\ false)
 
+  def display_username(%Ecto.Association.NotLoaded{}, _), do: nil
+
   def display_username(%CommonsPub.Communities.Community{} = obj, full_hostname) do
     display_username(obj, full_hostname, "&")
   end
