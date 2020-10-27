@@ -3,6 +3,120 @@ defmodule CommonsPub.ActivityPub.Receiver do
   alias CommonsPub.ActivityPub.Utils
   alias CommonsPub.Search.Indexer
 
+  @actor_modules %{
+    "Person" => CommonsPub.Users,
+    "Group" => CommonsPub.Communities,
+    "MN:Collection" => CommonsPub.Collections,
+    "Organization" => CommonsPub.Organisations,
+    :fallback => CommonsPub.Characters
+  }
+  @activity_modules %{
+    "Follow" => CommonsPub.Follows,
+    "Like" => CommonsPub.Likes,
+    "Flag" => CommonsPub.Flags,
+    "Block" => CommonsPub.Blocks
+  }
+  @object_modules %{
+    "Note" => CommonsPub.Threads.Comments,
+    "Document" => CommonsPub.Resources,
+    "Follow" => CommonsPub.Follows,
+    "Like" => CommonsPub.Likes,
+    "Flag" => CommonsPub.Flags,
+    "Block" => CommonsPub.Blocks
+  }
+
+  @actor_types Map.keys(@actor_modules)
+  @activity_types Map.keys(@activity_modules)
+  @object_types Map.keys(@object_modules)
+
+  def perform(
+        :handle_activity,
+        %{
+          data: %{
+            "type" => activity_type,
+            "object" => %{"type" => object_type}
+          }
+        } = activity
+      )
+      when activity_type in @activity_types and object_type in @object_types do
+    IO.inspect("OOK1 #{activity_type} #{object_type}")
+
+    # CommonsPub.Contexts.run_context_function(@activity_types[activity_type], :ap_receive_activity, activity)
+  end
+
+  def perform(
+        :handle_activity,
+        %{
+          data: %{
+            "type" => activity_type,
+            "object" => %{"type" => object_type}
+          }
+        } = activity
+      )
+      when activity_type in @activity_types do
+    IO.inspect("OOK2 #{activity_type} #{object_type} ")
+
+    CommonsPub.Contexts.run_context_function(
+      @activity_types[activity_type],
+      :ap_receive_activity,
+      activity
+    )
+  end
+
+  def perform(
+        :handle_activity,
+        %{
+          data: %{
+            "type" => activity_type,
+            "object" => %{"type" => object_type}
+          }
+        } = activity
+      )
+      when object_type in @object_types do
+    IO.inspect("OOK3 #{activity_type} #{object_type}")
+
+    CommonsPub.Contexts.run_context_function(
+      @object_types[object_type],
+      :ap_receive_activity,
+      activity
+    )
+  end
+
+  def perform(
+        :handle_activity,
+        %{
+          data: %{
+            "type" => "Create" = activity_type,
+            "object" => object_id
+          }
+        } = activity
+      )
+      when is_binary(object_id) do
+    IO.inspect("OOK4 #{activity_type} #{object_id} ")
+
+    object = ActivityPub.Object.get_cached_by_ap_id(object_id)
+
+    handle_create(activity, object)
+  end
+
+  def perform(
+        :handle_activity,
+        %{
+          data: %{
+            "type" => activity_type
+          }
+        } = activity
+      )
+      when activity_type in @activity_types do
+    IO.inspect("OOK5 #{activity_type} ")
+
+    CommonsPub.Contexts.run_context_function(
+      @activity_types[activity_type],
+      :ap_receive_activity,
+      activity
+    )
+  end
+
   # Activity: Create
   def perform(
         :handle_activity,
@@ -15,43 +129,6 @@ defmodule CommonsPub.ActivityPub.Receiver do
       ) do
     object = ActivityPub.Object.get_cached_by_ap_id(object_id)
     handle_create(activity, object)
-  end
-
-  # Activity: Follow
-  def perform(:handle_activity, %{data: %{"type" => "Follow"}} = activity) do
-    with {:ok, follower} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]),
-         {:ok, followed} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]),
-         {:ok, _} <-
-           CommonsPub.Follows.create(follower, followed, %{
-             is_public: true,
-             is_muted: false,
-             is_local: false,
-             canonical_url: activity.data["id"]
-           }) do
-      :ok
-    else
-      {:error, e} -> {:error, e}
-    end
-  end
-
-  # Unfollow (Activity: Undo, Object: Follow)
-  def perform(
-        :handle_activity,
-        %{data: %{"type" => "Undo", "object" => %{"type" => "Follow"}}} = activity
-      ) do
-    with {:ok, follower} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["actor"]),
-         {:ok, followed} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, follow} <-
-           CommonsPub.Follows.one(deleted: false, creator: follower.id, context: followed.id),
-         {:ok, _} <- CommonsPub.Follows.soft_delete(follower, follow) do
-      :ok
-    else
-      {:error, e} -> {:error, e}
-    end
   end
 
   # Activity: Block
@@ -178,7 +255,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
           {:error, e}
       end
     else
-    # FIXME: support other object types
+      # FIXME: support other object types
       case object.data["formerType"] do
         "Note" ->
           with {:ok, comment} <- CommonsPub.Threads.Comments.one(id: object.pointer_id),
@@ -244,7 +321,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
         %{data: %{"context" => context}} = _activity,
         %{data: %{"type" => "Note"}} = object
       ) do
-        # TODO: dedup with prev function
+    # TODO: dedup with prev function
     with pointer_id <- CommonsPub.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
          {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id),
          parent = CommonsPub.Meta.Pointers.follow!(pointer),

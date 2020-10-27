@@ -84,8 +84,6 @@ defmodule CommonsPub.Follows do
 
   defp ap_publish(_, _), do: :ok
 
-
-
   def ap_publish_activity("create", %Follow{} = follow) do
     ## FIXME: this is currently implemented in a spec non-conforming way, AP follows are supposed to be handshakes
     ## that are only reflected in the host database upon receiving an Accept activity in response. in this case
@@ -125,6 +123,41 @@ defmodule CommonsPub.Follows do
     end
   end
 
+  # Activity: Follow
+  def ap_receive_activity(%{data: %{"type" => "Follow"}} = activity) do
+    with {:ok, follower} <-
+           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]),
+         {:ok, followed} <-
+           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]),
+         {:ok, _} <-
+           CommonsPub.Follows.create(follower, followed, %{
+             is_public: true,
+             is_muted: false,
+             is_local: false,
+             canonical_url: activity.data["id"]
+           }) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  # Unfollow (Activity: Undo, Object: Follow)
+  def ap_receive_activity(
+        %{data: %{"type" => "Undo", "object" => %{"type" => "Follow"}}} = activity
+      ) do
+    with {:ok, follower} <-
+           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["actor"]),
+         {:ok, followed} <-
+           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["object"]),
+         {:ok, follow} <-
+           CommonsPub.Follows.one(deleted: false, creator: follower.id, context: followed.id),
+         {:ok, _} <- CommonsPub.Follows.soft_delete(follower, follow) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
 
   @spec update(User.t(), Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def update(%User{}, %Follow{} = follow, fields) do
