@@ -28,7 +28,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
     delete_comment_or_resource(object)
   end
 
-  def publish(verb, %{__struct__: object_type, id: id} = local_object) do
+  def publish(verb, %{__struct__: object_type} = local_object) do
     if(
       !is_nil(object_type) and
         Kernel.function_exported?(object_type, :context_module, 0)
@@ -124,9 +124,7 @@ defmodule CommonsPub.ActivityPub.Publisher do
 
   def error(error, verb, %{__struct__: object_type, id: id}) do
     Logger.error(
-      "ActivityPub - Unable to federate - Unsupported verb/object combination for AP publisher  (not a known type or context_module undefined)... object ID: #{
-        id
-      } ; verb: #{verb} ; object type: #{object_type}"
+      "ActivityPub - Unable to federate - #{error}... object ID: #{id} ; verb: #{verb} ; object type: #{object_type}"
     )
 
     :ignored
