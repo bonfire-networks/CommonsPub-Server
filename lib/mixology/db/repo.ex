@@ -100,4 +100,26 @@ defmodule CommonsPub.Repo do
     {:ok, ret} = single(q)
     ret
   end
+
+  def maybe_preload(obj, :context) do
+    CommonsPub.Common.Contexts.prepare_context(obj)
+  end
+
+  def maybe_preload(obj, preloads) do
+    maybe_do_preload(obj, preloads)
+  end
+
+  def maybe_do_preload(obj, preloads) when is_struct(obj) do
+    CommonsPub.Repo.preload(obj, preloads)
+  rescue
+    ArgumentError ->
+      obj
+
+    MatchError ->
+      obj
+  end
+
+  def maybe_do_preload(obj, _) do
+    obj
+  end
 end

@@ -300,8 +300,8 @@ defmodule CommonsPub.Threads.Comments do
   end
 
   def indexing_object_format(comment) do
-    thread = CommonHelper.maybe_preload(comment.thread, :context)
-    context = CommonHelper.maybe_preload(thread.context, :character)
+    thread = CommonsPub.Repo.maybe_preload(comment.thread, :context)
+    context = CommonsPub.Repo.maybe_preload(thread.context, :character)
 
     # follower_count =
     #   case CommonsPub.Follows.FollowerCounts.one(context: comment.id) do
