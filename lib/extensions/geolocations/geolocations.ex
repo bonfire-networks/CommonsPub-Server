@@ -11,7 +11,7 @@ defmodule Geolocation.Geolocations do
   alias CommonsPub.Characters
 
   alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Contexts
   alias Geolocation
   alias Geolocation.Queries
   alias CommonsPub.Feeds.FeedActivities

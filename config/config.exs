@@ -20,16 +20,18 @@ alias CommonsPub.{
 alias CommonsPub.Blocks.Block
 alias CommonsPub.Collections.Collection
 alias CommonsPub.Communities.Community
-alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
 alias CommonsPub.Flags.Flag
 alias CommonsPub.Likes.Like
 alias CommonsPub.Resources.Resource
 alias CommonsPub.Threads.{Comment, Thread}
 alias CommonsPub.Users.User
-alias CommonsPub.Workers.GarbageCollector
+
+alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
 
 alias Measurement.Unit.Units
 alias CommonsPub.Tag.Taggable
+
+alias CommonsPub.Workers.GarbageCollector
 
 fallback_env = fn a, b, c -> System.get_env(a) || System.get_env(b) || c end
 
@@ -55,55 +57,90 @@ config :commons_pub, CommonsPub.Web.Gettext, default_locale: "en", locales: ~w(e
 
 # stuff you might want to change for your use case
 
-config :commons_pub, GarbageCollector,
-  # Contexts which require a mark phase, in execution order
-  mark: [Uploads],
-  # Contexts which need to perform maintainance, in execution order
-  sweep: [
-    Uploads,
-    FeedActivities,
-    FeedSubscriptions,
-    Feeds,
-    Features,
-    Resources,
-    Collections,
-    Communities,
-    Users,
-    CommonsPub.Characters
-  ],
-  # We will not sweep content newer than this
-  # one week
-  grace: 302_400
-
-contexts_agents = [
+types_agents = [
   User,
   Organisation
 ]
 
-contexts_characters = [
-  User,
-  Collection,
-  Community,
-  Geolocation,
-  Organisation,
-  CommonsPub.Tag.Category
+types_characters =
+  types_agents ++
+    [
+      Community,
+      Collection,
+      Geolocation,
+      CommonsPub.Tag.Category
+    ]
+
+types_inventory = [
+  CommonsPub.Threads.Thread,
+  CommonsPub.Threads.Comment,
+  CommonsPub.Resources.Resource,
+  Measurement.Unit,
+  CommonsPub.Tag.Category,
+  ValueFlows.Planning.Intent,
+  ValueFlows.Proposal,
+  ValueFlows.Observation.EconomicEvent,
+  ValueFlows.Observation.EconomicResource,
+  ValueFlows.Observation.Process,
+  ValueFlows.Knowledge.ProcessSpecification,
+  ValueFlows.Knowledge.ResourceSpecification
 ]
 
-contexts_all =
-  contexts_characters ++
-    [
-      Thread,
-      Comment,
-      Resource,
-      Like,
-      ValueFlows.Planning.Intent
-    ]
+types_actions = [
+  CommonsPub.Likes.Like,
+  CommonsPub.Blocks.Block,
+  CommonsPub.Flags.Flag,
+  CommonsPub.Follows.Follow,
+  Features.Feature
+]
+
+types_others = [
+  Instance,
+  Uploads.Upload,
+  Measurement.Measure,
+  CommonsPub.Tag.Taggable,
+  CommonsPub.Activities.Activity,
+  CommonsPub.Feeds.Feed,
+  CommonsPub.Peers.Peer,
+  CommonsPub.Access.RegisterEmailDomainAccess,
+  CommonsPub.Access.RegisterEmailAccess
+]
+
+types_all_contexts = types_characters ++ types_inventory
+types_all = types_all_contexts ++ types_actions ++ types_others
+
+config :commons_pub, CommonsPub.ActivityPub.Adapter,
+  actor_modules: %{
+    "Person" => CommonsPub.Users,
+    "Group" => CommonsPub.Communities,
+    "MN:Collection" => CommonsPub.Collections,
+    "Organization" => CommonsPub.Organisations,
+    :fallback => CommonsPub.Characters
+  },
+  activity_modules: %{
+    "Follow" => CommonsPub.Follows,
+    "Like" => CommonsPub.Likes,
+    "Flag" => CommonsPub.Flags,
+    "Block" => CommonsPub.Blocks
+  },
+  object_modules: %{
+    "Note" => CommonsPub.Threads.Comments,
+    "Document" => CommonsPub.Resources,
+    "Follow" => CommonsPub.Follows,
+    "Like" => CommonsPub.Likes,
+    "Flag" => CommonsPub.Flags,
+    "Block" => CommonsPub.Blocks
+  }
 
 config :commons_pub, Instance,
   hostname: hostname,
   description: desc,
   # what to show or exclude in Instance Timeline
-  default_outbox_query_contexts: List.delete(contexts_all, Like)
+  default_outbox_query_contexts: List.delete(types_all_contexts, Like),
+  types_characters: types_characters,
+  types_inventory: types_inventory,
+  types_actions: types_actions,
+  types_all: types_all
 
 # config :commons_pub, User, # extend schema with Flexto
 #    has_many: [
@@ -112,46 +149,46 @@ config :commons_pub, Instance,
 
 config :commons_pub, Users,
   public_registration: false,
-  default_outbox_query_contexts: contexts_all,
-  default_inbox_query_contexts: contexts_all
+  default_outbox_query_contexts: types_all_contexts,
+  default_inbox_query_contexts: types_all_contexts
 
 config :commons_pub, Communities,
-  valid_contexts: contexts_characters,
-  default_outbox_query_contexts: contexts_all,
-  default_inbox_query_contexts: contexts_all
+  valid_contexts: types_characters,
+  default_outbox_query_contexts: types_all_contexts,
+  default_inbox_query_contexts: types_all_contexts
 
 config :commons_pub, Collections,
-  valid_contexts: contexts_characters,
-  default_outbox_query_contexts: contexts_all,
-  default_inbox_query_contexts: contexts_all
+  valid_contexts: types_characters,
+  default_outbox_query_contexts: types_all_contexts,
+  default_inbox_query_contexts: types_all_contexts
 
-config :commons_pub, Organisation, valid_contexts: contexts_characters
+config :commons_pub, Organisation, valid_contexts: types_characters
 
 config :commons_pub, CommonsPub.Characters,
-  valid_contexts: contexts_characters,
-  default_outbox_query_contexts: contexts_all
+  valid_contexts: types_characters,
+  default_outbox_query_contexts: types_all_contexts
 
 config :commons_pub, Feeds,
-  valid_contexts: contexts_characters,
-  default_query_contexts: contexts_all
+  valid_contexts: types_characters,
+  default_query_contexts: types_all_contexts
 
-config :commons_pub, Blocks, valid_contexts: contexts_characters
+config :commons_pub, Blocks, valid_contexts: types_characters
 
-config :commons_pub, Follows, valid_contexts: contexts_characters
+config :commons_pub, Follows, valid_contexts: types_characters
 
-config :commons_pub, Features, valid_contexts: contexts_all
+config :commons_pub, Features, valid_contexts: types_all_contexts
 
-config :commons_pub, Flags, valid_contexts: contexts_all
+config :commons_pub, Flags, valid_contexts: types_all_contexts
 
-config :commons_pub, Likes, valid_contexts: contexts_all
+config :commons_pub, Likes, valid_contexts: types_all_contexts
 
-config :commons_pub, Threads, valid_contexts: [ValueFlows.Proposal] ++ contexts_all
+config :commons_pub, Threads, valid_contexts: types_all_contexts
 
-config :commons_pub, Resources, valid_contexts: contexts_all
+config :commons_pub, Resources, valid_contexts: types_all_contexts
 
-config :commons_pub, Units, valid_contexts: contexts_all
+config :commons_pub, Units, valid_contexts: types_all_contexts
 
-config :commons_pub, ValueFlows.Proposal.Proposals, valid_agent_contexts: contexts_agents
+config :commons_pub, ValueFlows.Proposal.Proposals, valid_agent_contexts: types_agents
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
@@ -191,6 +228,26 @@ config :commons_pub, Uploads,
   directory: cwd <> uploads_dir,
   path: uploads_dir,
   base_url: base_url <> uploads_dir <> "/"
+
+config :commons_pub, GarbageCollector,
+  # Contexts which require a mark phase, in execution order
+  mark: [Uploads],
+  # Contexts which need to perform maintainance, in execution order
+  sweep: [
+    Uploads,
+    FeedActivities,
+    FeedSubscriptions,
+    Feeds,
+    Features,
+    Resources,
+    Collections,
+    Communities,
+    Users,
+    CommonsPub.Characters
+  ],
+  # We will not sweep content newer than this
+  # one week
+  grace: 302_400
 
 # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
 # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
@@ -428,15 +485,13 @@ config :pointers, Pointers.Pointer,
   belongs_to: [
     character: {
       CommonsPub.Characters.Character,
-      foreign_key: :id,
-      define_field: false
+      foreign_key: :id, define_field: false
     }
   ],
   belongs_to: [
     profile: {
       CommonsPub.Profiles.Profile,
-      foreign_key: :id,
-      define_field: false
+      foreign_key: :id, define_field: false
     }
   ],
   many_to_many: [

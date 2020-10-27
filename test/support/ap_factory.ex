@@ -7,13 +7,25 @@ defmodule ActivityPub.Factory do
     actor
   end
 
+  def local_actor(attrs \\ %{}) do
+    actor = build(:local_actor, attrs)
+    {:ok, actor} = ActivityPub.LocalActor.insert(%{
+      local: true,
+      data: actor.data,
+      keys: nil,
+      username: actor.data["preferredUsername"]
+    })
+
+    actor
+  end
+
   def community() do
     actor = insert(:actor)
     {:ok, actor} = ActivityPub.Actor.get_by_ap_id(actor.data["id"])
 
     community =
       insert(:actor, %{
-        data: %{"type" => "MN:Community", "attributedTo" => actor.ap_id, "collections" => []}
+        data: %{"type" => "Group", "attributedTo" => actor.ap_id, "collections" => []}
       })
 
     {:ok, community} = ActivityPub.Actor.get_by_ap_id(community.data["id"])
@@ -26,7 +38,7 @@ defmodule ActivityPub.Factory do
 
     community =
       insert(:actor, %{
-        data: %{"type" => "MN:Community", "attributedTo" => actor.ap_id, "collections" => []}
+        data: %{"type" => "Group", "attributedTo" => actor.ap_id, "collections" => []}
       })
 
     {:ok, community} = ActivityPub.Actor.get_by_ap_id(community.data["id"])
@@ -71,6 +83,36 @@ defmodule ActivityPub.Factory do
     %ActivityPub.Object{
       data: merge_attributes(data, Map.get(attrs, :data, %{})),
       local: attrs[:local] || false,
+      public: true
+    }
+  end
+
+  def local_actor_factory(attrs \\ %{}) do
+    data = %{
+      "name" => sequence(:name, &"Test actor #{&1}"),
+      "preferredUsername" => sequence(:username, &"username#{&1}"),
+      "summary" => sequence(:bio, &"Tester Number#{&1}"),
+      "type" => "Person"
+    }
+
+    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
+
+    id =
+      attrs[:data]["id"] ||
+        ActivityPubWeb.base_url() <> ap_base_path <> "/actors/#{data["preferredUsername"]}"
+
+    data =
+      Map.merge(data, %{
+        "id" => id,
+        "inbox" => "#{id}/inbox",
+        "outbox" => "#{id}/outbox",
+        "followers" => "#{id}/followers",
+        "following" => "#{id}/following"
+      })
+
+    %ActivityPub.Object{
+      data: merge_attributes(data, Map.get(attrs, :data, %{})),
+      local: attrs[:local] || true,
       public: true
     }
   end

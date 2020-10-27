@@ -1,9 +1,54 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Common.Contexts do
+defmodule CommonsPub.Contexts do
   @doc "Helpers for working with contexts, and writing contexts that deal with graphql"
 
   alias CommonsPub.GraphQL.{Page, Pages}
   alias CommonsPub.Repo
+  require Logger
+
+  def run_context_function(object_type, fun, args, fallback_fun \\ &run_context_function_error/2)
+      when is_list(args) do
+
+    if(
+      !is_nil(object_type) and
+        Kernel.function_exported?(object_type, :context_module, 0)
+    ) do
+      object_context_module = apply(object_type, :context_module, [])
+
+      arity = length(args)
+
+      if(Kernel.function_exported?(object_context_module, fun, arity)) do
+        # IO.inspect(function_exists_in: object_context_module)
+
+        try do
+          apply(object_context_module, fun, args)
+        rescue
+          FunctionClauseError ->
+            fallback_fun.(
+              "No function matching the pattern #{object_context_module}.#{fun}(#{inspect(args)})",
+              args
+            )
+        end
+      else
+        fallback_fun.(
+          "No function defined at #{object_context_module}.#{fun}/#{arity}",
+          args
+        )
+      end
+    else
+      fallback_fun.(
+        "#{object_type} is not a known type or missing a context_module/0 function on schema module",
+        args
+      )
+    end
+  end
+
+  def run_context_function_error(error, args) do
+    Logger.error("Error running context function: #{error}")
+    IO.inspect(args: args)
+
+    {:error, error}
+  end
 
   def contexts_fetch!(ids) do
     with {:ok, ptrs} <-

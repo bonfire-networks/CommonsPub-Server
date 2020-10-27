@@ -85,7 +85,7 @@ defmodule CommonsPub.Mixfile do
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_error_payload, "~> 1.0"},
       # activitypub
-      {:activity_pub, git: "https://gitlab.com/CommonsPub/activitypub", branch: "develop"},
+      {:activity_pub, git: "https://gitlab.com/CommonsPub/activitypub", branch: "tbd"},
       {:nodeinfo, git: "https://github.com/voxpub/nodeinfo", branch: "main"},
       # webserver
       {:cowboy, "~> 2.6"},
@@ -163,9 +163,8 @@ defmodule CommonsPub.Mixfile do
       {:html_sanitize_ex, "~> 1.4"},
       {
         :linkify,
-        # "~> 0.2.0"
         git: "https://gitlab.com/CommonsPub/linkify.git",
-        ref: "9360ed495ec04ab0f9f254670484f01dea668d38"
+        branch: "master"
         # path: "uploads/linkify"
       },
       # geolocation in postgres

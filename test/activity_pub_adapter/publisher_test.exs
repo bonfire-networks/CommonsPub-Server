@@ -211,7 +211,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
 
       {:ok, flag} =
         CommonsPub.Flags.create(flagger, flagged, %{
-          message: "blocked AND reported!!!",
+          message: "this is not cool",
           is_local: true
         })
 
@@ -225,7 +225,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
 
       {:ok, flag} =
         CommonsPub.Flags.create(flagger, flagged, %{
-          message: "blocked AND reported!!!",
+          message: "this is not cool",
           is_local: true
         })
 
@@ -239,7 +239,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
 
       {:ok, flag} =
         CommonsPub.Flags.create(flagger, flagged, %{
-          message: "blocked AND reported!!!",
+          message: "this is not cool",
           is_local: true
         })
 
@@ -256,7 +256,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
 
       {:ok, flag} =
         CommonsPub.Flags.create(commented_actor, comment, %{
-          message: "blocked AND reported!!!",
+          message: "this is not cool",
           is_local: true
         })
 
@@ -273,7 +273,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
 
       {:ok, flag} =
         CommonsPub.Flags.create(flag_actor, resource, %{
-          message: "blocked AND reported!!!",
+          message: "this is not cool",
           is_local: true
         })
 
