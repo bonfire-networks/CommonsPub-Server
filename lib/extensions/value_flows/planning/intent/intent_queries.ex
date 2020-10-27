@@ -50,6 +50,18 @@ defmodule ValueFlows.Planning.Intent.Queries do
     join(q, jq, [intent: c], t in assoc(c, :tags), as: :tags)
   end
 
+  def join_to(q, :effort_quantity, jq) do
+    join(q, jq, [intent: c], q in assoc(c, :effort_quantity), as: :effort_quantity)
+  end
+
+  def join_to(q, :resource_quantity, jq) do
+    join(q, jq, [intent: c], q in assoc(c, :resource_quantity), as: :resource_quantity)
+  end
+
+  def join_to(q, :available_quantity, jq) do
+    join(q, jq, [intent: c], q in assoc(c, :available_quantity), as: :available_quantity)
+  end
+
   # def join_to(q, :provider, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :provider), as: :pointer
   # end
@@ -75,7 +87,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter(q, [:deleted])
+    filter(q, [:deleted, preload: :quantities])
     # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
   end
 
@@ -86,6 +98,8 @@ defmodule ValueFlows.Planning.Intent.Queries do
   def filter(q, :need) do
     where(q, [intent: c], is_nil(c.provider_id))
   end
+
+
 
   ## by join
 
@@ -268,7 +282,13 @@ defmodule ValueFlows.Planning.Intent.Queries do
     q
     |> join_to(:geolocation)
     |> preload(:at_location)
+    # preload(q, [geolocation: g], at_location: g)
+  end
 
+  def filter(q, {:preload, :quantities}) do
+    q
+    |> join_to([:available_quantity, :effort_quantity, :resource_quantity])
+    |> preload([:available_quantity, :effort_quantity, :resource_quantity])
     # preload(q, [geolocation: g], at_location: g)
   end
 
