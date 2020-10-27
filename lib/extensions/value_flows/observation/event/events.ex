@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
+  import ValueFlows.Util, only: [maybe_append: 2]
+
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
   alias CommonsPub.Common.Contexts
@@ -22,9 +24,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   alias ValueFlows.Observation.Process.Processes
 
   require Logger
-
-  def append([h | t], tail), do: [h | append(t, tail)]
-  def append([], tail), do: tail
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -119,7 +118,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     with {:ok, resources} <- track_resource_output(event),
          {:ok, to_resource} <- track_to_resource_output(event),
          {:ok, process} <- track_process_input(event) do
-      {:ok, [process, to_resource | resources]}
+      {:ok, resources |> maybe_append(process) |> maybe_append(to_resource)}
     end
   end
 
@@ -136,11 +135,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp track_resource_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
-    # with {:ok, events} <- many([:default, output_of_id: output_of_id]),
-    #      resource_ids = Enum.map(events, & &1.resource_inventoried_as_id) do
-    #   EconomicResources.many([:default, id: resource_ids])
-    # end
-
     EconomicResources.many([:default, join: [event_output: output_of_id]])
   end
 
