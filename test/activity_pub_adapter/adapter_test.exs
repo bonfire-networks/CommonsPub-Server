@@ -2,6 +2,8 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
   import ActivityPub.Factory
   import CommonsPub.Test.Faking
   alias CommonsPub.ActivityPub.Adapter
+  alias CommonsPub.ActivityPub.Receiver
+  alias CommonsPub.ActivityPub.Utils
 
   use CommonsPub.DataCase
 
@@ -78,7 +80,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
-      assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
+      assert {:ok, created_actor} = Receiver.create_remote_actor(actor.data, username)
       assert created_actor.character.preferred_username == username
       created_actor = CommonsPub.Repo.preload(created_actor, icon: [:content_mirror])
 
@@ -92,7 +94,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       username = actor.data["preferredUsername"] <> "@" <> host
       data = Map.put(actor.data, "name", "")
 
-      assert {:ok, created_actor} = Adapter.create_remote_actor(data, username)
+      assert {:ok, created_actor} = Receiver.create_remote_actor(data, username)
       assert created_actor.character.preferred_username == username
     end
 
@@ -101,7 +103,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
-      assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
+      assert {:ok, created_actor} = Receiver.create_remote_actor(actor.data, username)
 
       assert %ActivityPub.Object{} =
                object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
@@ -118,7 +120,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       note = insert(:note, %{actor: actor, data: %{"context" => ap_commented_actor.data["id"]}})
       note_activity = insert(:note_activity, %{note: note})
 
-      assert :ok = Adapter.perform(:handle_activity, note_activity)
+      assert :ok = Receiver.perform(:handle_activity, note_activity)
     end
 
     test "reply to a comment" do
@@ -221,7 +223,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       {:ok, ap_blocked} = ActivityPub.Actor.get_by_local_id(blocked.id)
       {:ok, _} = ActivityPub.block(blocker, ap_blocked, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
-      {:ok, blocker} = CommonsPub.ActivityPub.Adapter.get_raw_actor_by_ap_id(blocker.ap_id)
+      {:ok, blocker} = CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(blocker.ap_id)
       assert {:ok, _} = CommonsPub.Blocks.find(blocker, blocked)
     end
 
@@ -233,7 +235,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       {:ok, _} = ActivityPub.unblock(blocker, ap_blocked, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
-      {:ok, blocker} = CommonsPub.ActivityPub.Adapter.get_raw_actor_by_ap_id(blocker.ap_id)
+      {:ok, blocker} = CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(blocker.ap_id)
       assert {:error, _} = CommonsPub.Blocks.find(blocker, blocked)
     end
 
@@ -378,7 +380,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
       Oban.drain_queue(queue: :ap_incoming)
-      {:ok, user} = Adapter.get_raw_actor_by_ap_id(user.ap_id)
+      {:ok, user} = Utils.get_raw_actor_by_ap_id(user.ap_id)
       assert user.name == "kawen"
     end
 
@@ -394,7 +396,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
       Oban.drain_queue(queue: :ap_incoming)
-      {:ok, comm} = Adapter.get_raw_actor_by_ap_id(comm.ap_id)
+      {:ok, comm} = Utils.get_raw_actor_by_ap_id(comm.ap_id)
       assert comm.name == "kawen"
     end
 
@@ -410,7 +412,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
 
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
       Oban.drain_queue(queue: :ap_incoming)
-      {:ok, coll} = Adapter.get_raw_actor_by_ap_id(coll.ap_id)
+      {:ok, coll} = Utils.get_raw_actor_by_ap_id(coll.ap_id)
       assert coll.name == "kawen"
     end
   end
