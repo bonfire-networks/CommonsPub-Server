@@ -2,7 +2,7 @@
 defmodule CommonsPub.Profiles do
   alias CommonsPub.{Common, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Contexts
 
   alias CommonsPub.Profiles.Profile
   alias CommonsPub.Profiles.Queries

@@ -136,14 +136,14 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
       context:
         Map.merge(
           activity.context,
-          %{context: CommonsPub.Common.Contexts.prepare_context(activity.context.thread)}
+          %{context: CommonsPub.Contexts.prepare_context(activity.context.thread)}
         )
     })
   end
 
   defp prepare_parent_context(%{context: %{} = context} = activity) do
     activity
-    |> Map.merge(%{context: CommonsPub.Common.Contexts.prepare_context(context)})
+    |> Map.merge(%{context: CommonsPub.Contexts.prepare_context(context)})
   end
 
   defp prepare_parent_context(activity) do
@@ -152,7 +152,7 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
 
   defp prepare_activity(activity, _current_user) do
     # guess what type of thing we're dealing with
-    activity = CommonsPub.Common.Contexts.prepare_context(activity)
+    activity = CommonsPub.Contexts.prepare_context(activity)
 
     activity = prepare_parent_context(activity)
 

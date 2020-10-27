@@ -6,7 +6,7 @@ defmodule Measurement.Measure.Measures do
   }
 
   alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Contexts
   alias Measurement.{Measure, Unit}
   alias Measurement.Measure.Queries
   # alias CommonsPub.Communities.Community

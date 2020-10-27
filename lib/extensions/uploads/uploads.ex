@@ -263,21 +263,19 @@ defmodule CommonsPub.Uploads do
   end
 
   def allowed_media_types(upload_def) do
-    CommonsPub.Config.get(upload_def)
-    |> Keyword.fetch!(:allowed_media_types)
+    CommonsPub.Config.get([upload_def, :allowed_media_types])
   end
 
   def max_file_size() do
     {size, ""} =
-      CommonsPub.Config.get(__MODULE__)
-      |> Keyword.fetch!(:max_file_size)
+      CommonsPub.Config.get([__MODULE__, :max_file_size])
       |> Integer.parse()
 
     size
   end
 
   def base_url() do
-    CommonsPub.Config.get(__MODULE__) |> Keyword.fetch!(:base_url)
+    CommonsPub.Config.get([__MODULE__, :base_url])
   end
 
   def prepend_url(url) do

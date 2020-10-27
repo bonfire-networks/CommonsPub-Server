@@ -164,7 +164,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
          "Organization",
          "Application",
          "Service",
-         "MN:Community",
+         "Community",
          "MN:Collection",
          "CommonsPub:Character"
        ] do
@@ -209,7 +209,9 @@ defmodule CommonsPub.ActivityPub.Receiver do
   end
 
   def perform(:handle_activity, activity) do
+    Logger.warn("ActivityPub - ignored incoming activity")
     Logger.info("Unhandled activity type: #{activity.data["type"]}")
+    Logger.info("Unhandled object type: #{activity.data["object"]["type"]}")
     :ok
   end
 
@@ -242,6 +244,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
         %{data: %{"context" => context}} = _activity,
         %{data: %{"type" => "Note"}} = object
       ) do
+        # TODO: dedup with prev function
     with pointer_id <- CommonsPub.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
          {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id),
          parent = CommonsPub.Meta.Pointers.follow!(pointer),
@@ -350,7 +353,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
           {:ok, created_actor} = CommonsPub.Users.register(create_attrs)
           {:ok, created_actor, created_actor}
 
-        "MN:Community" ->
+        "Group" ->
           {:ok, creator} =
             CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(actor["attributedTo"])
 

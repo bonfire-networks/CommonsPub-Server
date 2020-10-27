@@ -4,7 +4,7 @@ def character_to_actor(actor) do
     type =
       case actor do
         %CommonsPub.Users.User{} -> "Person"
-        %CommonsPub.Communities.Community{} -> "MN:Community"
+        %CommonsPub.Communities.Community{} -> "Group"
         %CommonsPub.Collections.Collection{} -> "MN:Collection"
         # %CommonsPub.Characters.Character{} -> "CommonsPub:" <> Map.get(actor, :facet, "Character")
         _ -> "CommonsPub:Character"
@@ -43,7 +43,7 @@ def character_to_actor(actor) do
 
     data =
       case data["type"] do
-        "MN:Community" ->
+        "Group" ->
           data
           |> Map.put("collections", get_and_format_collections_for_actor(actor))
           |> Map.put("attributedTo", CommonsPub.ActivityPub.Utils.get_creator_ap_id(actor))

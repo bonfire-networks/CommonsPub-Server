@@ -102,7 +102,7 @@ defmodule CommonsPub.Repo do
   end
 
   def maybe_preload(obj, :context) do
-    CommonsPub.Common.Contexts.prepare_context(obj)
+    CommonsPub.Contexts.prepare_context(obj)
   end
 
   def maybe_preload(obj, preloads) do

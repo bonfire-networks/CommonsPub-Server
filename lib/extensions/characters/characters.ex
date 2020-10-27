@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Characters do
   alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Common.Contexts
+  alias CommonsPub.Contexts
 
   alias CommonsPub.{Common, Feeds, Follows, Repo}
   # alias CommonsPub.Feeds.FeedActivities
