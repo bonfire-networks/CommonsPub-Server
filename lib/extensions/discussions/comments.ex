@@ -244,6 +244,61 @@ defmodule CommonsPub.Threads.Comments do
 
   defp ap_publish(_, _), do: :ok
 
+  def ap_publish_activity("create", comment) do
+    comment = CommonsPub.Repo.preload(comment, thread: :context)
+
+    # IO.inspect(publish_comment: comment)
+
+    # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
+
+    context =
+      if(comment.thread.context) do
+        CommonsPub.Meta.Pointers.follow!(comment.thread.context)
+      end
+
+    context_ap_id =
+      if(context) do
+        CommonsPub.ActivityPub.Utils.get_object_ap_id(context)
+      end
+
+    comment_ap_id = CommonsPub.ActivityPub.Utils.generate_object_ap_id(comment)
+
+    # IO.inspect(comment_ap_id: comment_ap_id)
+
+    with nil <- ActivityPub.Object.get_by_pointer_id(comment.id),
+         {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
+         {to, cc} <- CommonsPub.ActivityPub.Utils.determine_recipients(actor, comment, context),
+         object = %{
+           "id" => comment_ap_id,
+           "content" => comment.content,
+           "to" => to,
+           "cc" => cc,
+           "actor" => actor.ap_id,
+           "attributedTo" => actor.ap_id,
+           "type" => "Note",
+           "inReplyTo" => CommonsPub.ActivityPub.Utils.get_in_reply_to(comment),
+           "context" => context_ap_id
+         },
+         params = %{
+           actor: actor,
+           to: to,
+           object: object,
+           context: context_ap_id,
+           additional: %{
+             "cc" => cc
+           }
+         },
+         {:ok, activity} <-
+           ActivityPub.create(params, comment.id) do
+      Ecto.Changeset.change(comment, %{canonical_url: activity.object.data["id"]})
+      |> CommonsPub.Repo.update()
+
+      {:ok, activity}
+    else
+      e -> {:error, e}
+    end
+  end
+
   def indexing_object_format(comment) do
     thread = CommonHelper.maybe_preload(comment.thread, :context)
     context = CommonHelper.maybe_preload(thread.context, :character)

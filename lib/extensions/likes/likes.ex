@@ -15,34 +15,6 @@ defmodule CommonsPub.Likes do
     Repo.insert(Like.create_changeset(liker, liked, fields))
   end
 
-  defp publish(creator, %{outbox_id: context_outbox_id}, %Like{} = like, verb) do
-    attrs = %{verb: verb, is_local: like.is_local}
-
-    with {:ok, activity} <- Activities.create(creator, like, attrs) do
-      FeedActivities.publish(activity, [CommonsPub.Feeds.outbox_id(creator), context_outbox_id])
-    end
-  end
-
-  defp publish(creator, _context, %Like{} = like, verb) do
-    attrs = %{verb: verb, is_local: like.is_local}
-
-    with {:ok, activity} <- Activities.create(creator, like, attrs) do
-      FeedActivities.publish(activity, [CommonsPub.Feeds.outbox_id(creator)])
-    end
-  end
-
-  defp ap_publish(verb, likes) when is_list(likes) do
-    APPublishWorker.batch_enqueue(verb, likes)
-    :ok
-  end
-
-  defp ap_publish(verb, %Like{is_local: true} = like) do
-    APPublishWorker.enqueue(verb, %{"context_id" => like.id})
-    :ok
-  end
-
-  defp ap_publish(_, _), do: :ok
-
   @doc """
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
   """
@@ -78,6 +50,63 @@ defmodule CommonsPub.Likes do
 
   def update_by(%User{}, filters, updates) do
     Repo.update_all(Queries.query(Like, filters), set: updates)
+  end
+
+  defp publish(creator, %{outbox_id: context_outbox_id}, %Like{} = like, verb) do
+    attrs = %{verb: verb, is_local: like.is_local}
+
+    with {:ok, activity} <- Activities.create(creator, like, attrs) do
+      FeedActivities.publish(activity, [CommonsPub.Feeds.outbox_id(creator), context_outbox_id])
+    end
+  end
+
+  defp publish(creator, _context, %Like{} = like, verb) do
+    attrs = %{verb: verb, is_local: like.is_local}
+
+    with {:ok, activity} <- Activities.create(creator, like, attrs) do
+      FeedActivities.publish(activity, [CommonsPub.Feeds.outbox_id(creator)])
+    end
+  end
+
+  defp ap_publish(verb, likes) when is_list(likes) do
+    APPublishWorker.batch_enqueue(verb, likes)
+    :ok
+  end
+
+  defp ap_publish(verb, %Like{is_local: true} = like) do
+    APPublishWorker.enqueue(verb, %{"context_id" => like.id})
+    :ok
+  end
+
+  defp ap_publish(_, _), do: :ok
+
+  def ap_publish_activity("create", %Like{} = like) do
+    like = CommonsPub.Repo.preload(like, [:context, creator: :character])
+    # IO.inspect(pub_like: like)
+
+    with {:ok, liker} <- ActivityPub.Actor.get_cached_by_local_id(like.creator_id) do
+      liked = CommonsPub.Meta.Pointers.follow!(like.context)
+      # IO.inspect(pub_like_context: liked)
+
+      object = CommonsPub.ActivityPub.Utils.get_object(liked)
+      # IO.inspect(pub_like_object: object)
+
+      ActivityPub.like(liker, object)
+    else
+      e -> {:error, e}
+    end
+  end
+
+  def ap_publish_activity("delete", %Like{} = like) do
+    like = CommonsPub.Repo.preload(like, creator: :character, context: [])
+
+    with {:ok, liker} <- ActivityPub.Actor.get_cached_by_local_id(like.creator_id) do
+      liked = CommonsPub.Meta.Pointers.follow!(like.context)
+      object = CommonsPub.ActivityPub.Utils.get_object(liked)
+      ActivityPub.unlike(liker, object)
+    else
+      e -> {:error, e}
+    end
   end
 
   @spec soft_delete(User.t(), Like.t()) :: {:ok, Like.t()} | {:error, any}

@@ -206,6 +206,32 @@ defmodule CommonsPub.Communities do
 
   defp ap_publish(_, _), do: :ok
 
+
+
+  def ap_publish_activity("create", %Community{} = community) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(community.creator_id),
+         {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(community.id),
+         community_object <-
+           ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community}),
+         params <- %{
+           actor: actor,
+           to: [CommonsPub.ActivityPub.Utils.public_uri()],
+           object: community_object,
+           context: ActivityPub.Utils.generate_context_id(),
+           additional: %{
+             "cc" => [actor.data["followers"]]
+           }
+         },
+         {:ok, activity} <- ActivityPub.create(params) do
+      Ecto.Changeset.change(community.character, %{canonical_url: community_object["id"]})
+      |> CommonsPub.Repo.update()
+
+      {:ok, activity}
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
   def indexing_object_format(%CommonsPub.Communities.Community{} = community) do
     community = Repo.preload(community, [:creator, context: [:character]])
     context = community.context

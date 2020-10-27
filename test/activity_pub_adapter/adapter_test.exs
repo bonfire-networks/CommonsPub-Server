@@ -129,7 +129,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       {:ok, comment} =
         CommonsPub.Threads.Comments.create(actor, thread, %{is_local: true, content: "hi"})
 
-      {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", comment)
       reply_actor = actor()
 
       object = %{
@@ -242,7 +242,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor)
       comment = fake_comment!(actor, thread)
-      {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", comment)
       like_actor = actor()
       {:ok, _, _} = ActivityPub.like(like_actor, activity.object, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
@@ -255,7 +255,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor)
       comment = fake_comment!(actor, thread)
-      {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", comment)
       flag_actor = actor()
       {:ok, account} = ActivityPub.Actor.get_by_local_id(actor.id)
 
@@ -278,9 +278,9 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor)
       comment_1 = fake_comment!(actor, thread)
-      {:ok, activity_1} = CommonsPub.ActivityPub.Publisher.comment(comment_1)
+      {:ok, activity_1} = CommonsPub.ActivityPub.Publisher.publish("create", comment_1)
       comment_2 = fake_comment!(actor, thread)
-      {:ok, activity_2} = CommonsPub.ActivityPub.Publisher.comment(comment_2)
+      {:ok, activity_2} = CommonsPub.ActivityPub.Publisher.publish("create", comment_2)
 
       flag_actor = actor()
       {:ok, account} = ActivityPub.Actor.get_by_local_id(actor.id)
@@ -347,7 +347,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor, %{is_local: false})
       comment = fake_comment!(actor, thread, %{is_local: false})
-      {:ok, activity} = CommonsPub.ActivityPub.Publisher.comment(comment)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", comment)
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
@@ -359,7 +359,7 @@ defmodule CommonsPub.ActivityPub.AdapterTest do
       community = fake_community!(actor)
       collection = fake_collection!(actor, community)
       resource = fake_resource!(actor, collection)
-      {:ok, activity} = CommonsPub.ActivityPub.Publisher.create_resource(resource)
+      {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", resource)
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)

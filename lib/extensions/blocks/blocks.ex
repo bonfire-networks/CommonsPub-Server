@@ -28,6 +28,37 @@ defmodule CommonsPub.Blocks do
     Repo.update_all(Queries.query(Block, filters), set: updates)
   end
 
+
+  def ap_publish_activity("create", %Block{} = block) do
+    block = CommonsPub.Repo.preload(block, creator: :character, context: [])
+
+    with {:ok, blocker} <-
+           ActivityPub.Actor.get_cached_by_username(block.creator.character.preferred_username),
+         blocked = CommonsPub.Meta.Pointers.follow!(block.context),
+         {:ok, blocked} <-
+           ActivityPub.Actor.get_or_fetch_by_username(blocked.character.preferred_username) do
+      # FIXME: insert pointer in AP database, insert cannonical URL in MN database
+      ActivityPub.block(blocker, blocked)
+    else
+      e -> {:error, e}
+    end
+  end
+
+  def ap_publish_activity("delete", %Block{} = block) do
+    block = CommonsPub.Repo.preload(block, creator: :character, context: [])
+
+    with {:ok, blocker} <-
+           ActivityPub.Actor.get_cached_by_username(block.creator.character.preferred_username),
+         blocked = CommonsPub.Meta.Pointers.follow!(block.context),
+         {:ok, blocked} <-
+           ActivityPub.Actor.get_or_fetch_by_username(blocked.character.preferred_username) do
+      ActivityPub.unblock(blocker, blocked)
+    else
+      e -> {:error, e}
+    end
+  end
+
+
   @spec soft_delete(User.t(), Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def soft_delete(%User{}, %Block{} = block) do
     Common.Deletion.soft_delete(block)

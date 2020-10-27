@@ -93,6 +93,68 @@ defmodule CommonsPub.Flags do
 
   defp ap_publish(_, _), do: :ok
 
+
+  def ap_publish_activity("create", %Flag{} = flag) do
+    flag = CommonsPub.Repo.preload(flag, creator: :character, context: [])
+
+    with {:ok, flagger} <-
+           ActivityPub.Actor.get_cached_by_username(flag.creator.character.preferred_username) do
+      flagged = CommonsPub.Meta.Pointers.follow!(flag.context)
+
+      # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
+      params =
+        case flagged do
+          %{character: %{preferred_username: preferred_username} = _character}
+          when not is_nil(preferred_username) ->
+            {:ok, account} = ActivityPub.Actor.get_or_fetch_by_username(preferred_username)
+
+            %{
+              statuses: nil,
+              account: account
+            }
+
+          %{character_id: id} when not is_nil(id) ->
+            flagged = CommonsPub.Repo.preload(flagged, :character)
+
+            {:ok, account} =
+              ActivityPub.Actor.get_or_fetch_by_username(flagged.character.preferred_username)
+
+            %{
+              statuses: nil,
+              account: account
+            }
+
+          %{creator_id: id} when not is_nil(id) ->
+            flagged = CommonsPub.Repo.preload(flagged, creator: :character)
+
+            {:ok, account} =
+              ActivityPub.Actor.get_or_fetch_by_username(
+                flagged.creator.character.preferred_username
+              )
+
+            %{
+              statuses: [ActivityPub.Object.get_cached_by_pointer_id(flagged.id)],
+              account: account
+            }
+        end
+
+      ActivityPub.flag(
+        %{
+          actor: flagger,
+          context: ActivityPub.Utils.generate_context_id(),
+          statuses: params.statuses,
+          account: params.account,
+          content: flag.message,
+          forward: true
+        },
+        flag.id
+      )
+    else
+      e -> {:error, e}
+    end
+  end
+
+
   defp insert_activity(flagger, flag, verb) do
     Activities.create(flagger, flag, %{verb: verb, is_local: flag.is_local})
   end
