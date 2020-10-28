@@ -34,7 +34,7 @@ defmodule CommonsPub.Contexts do
       rescue
         FunctionClauseError ->
           fallback_fun.(
-            "No function matching the pattern #{object_context_module}.#{fun}(#{inspect(args)})",
+            "No function matching the pattern called for #{object_context_module}.#{fun}/#{arity}",
             args
           )
       end

@@ -135,6 +135,10 @@ defmodule CommonsPub.ActivityPub.Utils do
     end
   end
 
+  def get_raw_character_by_ap_id(%{"id" => id}) do
+    get_raw_character_by_ap_id(id)
+  end
+
   def get_raw_character_by_ap_id(%{username: username} = _actor)
       when is_binary(username) do
     with {:ok, character} <- get_raw_character_by_username(username) do

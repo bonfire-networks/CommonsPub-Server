@@ -26,7 +26,7 @@ defmodule CommonsPub.Config do
     value = get(key, nil)
 
     if value == nil do
-      raise(Error, message: "Missing configuration value: #{inspect(key)}")
+      raise(Error, message: "Missing configuration value: #{inspect(key, pretty: true)}")
     else
       value
     end

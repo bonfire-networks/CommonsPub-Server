@@ -207,7 +207,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
         statuses: [activity.object],
         account: account,
         local: false,
-        content: "blocked AND reported!!!!"
+        content: "that is not very nice"
       })
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
@@ -233,7 +233,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
         statuses: [activity_1.object, activity_2.object],
         account: account,
         local: false,
-        content: "blocked AND reported!!!!"
+        content: "that is not very nice"
       })
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
@@ -253,7 +253,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
         statuses: [],
         account: account,
         local: false,
-        content: "blocked AND reported!!!!"
+        content: "that is not very nice"
       })
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
@@ -261,7 +261,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
       assert {:ok, flag} = CommonsPub.Flags.one(creator: flag_actor.id, context: actor.id)
     end
 
-    test "user deletes" do
+    test "deleted user" do
       actor = actor()
       ActivityPub.delete(actor, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
@@ -270,21 +270,21 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
-    test "community deletes" do
+    test "deleted community" do
       actor = community()
       ActivityPub.delete(actor, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
-    test "collection deletes" do
+    test "deleted collection" do
       actor = collection()
       ActivityPub.delete(actor, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
-    test "comment deletes" do
+    test "deleted comment" do
       actor = fake_user!()
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor, %{is_local: false})
@@ -296,7 +296,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
       assert {:error, _} = CommonsPub.Threads.Comments.one(deleted: false, id: comment.id)
     end
 
-    test "resource deletes" do
+    test "deleted resource" do
       actor = fake_user!()
       community = fake_community!(actor)
       collection = fake_collection!(actor, community)

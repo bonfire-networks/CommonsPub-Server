@@ -129,7 +129,7 @@ defmodule CommonsPub.Meta.TableService do
       {:ok, []}
     rescue
       e ->
-        Logger.info("TableService could not init because: #{inspect(e)}")
+        Logger.info("TableService could not init because: #{inspect(e, pretty: true)}")
         {:ok, []}
     end
   end

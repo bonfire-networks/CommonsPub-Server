@@ -52,6 +52,11 @@ defmodule CommonsPub.ActivityPub.Receiver do
     receive_activity(activity)
   end
 
+  def receive_activity(activity) when not is_map_key(activity, :data) do
+    # for cases when the worker gives us an activity
+    receive_activity(%{data: activity})
+  end
+
   @doc """
   load the object data
   """
@@ -70,13 +75,18 @@ defmodule CommonsPub.ActivityPub.Receiver do
     receive_activity(activity, object)
   end
 
+  def receive_activity(activity, object) when not is_map_key(object, :data) do
+    # for cases when the object comes to us embeded in the activity
+    receive_activity(activity, %{data: object})
+  end
+
   # Activity: Update + Object: actor/character
   def receive_activity(
         %{data: %{"type" => "Update"}} = _activity,
         %{data: %{"type" => object_type, "id" => ap_id}} = _object
       )
       when object_type in @actor_types do
-    Logger.warn("AP Match#0 - update actor")
+    Logger.info("AP Match#0 - update actor")
 
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id),
          {:ok, actor} <- CommonsPub.ActivityPub.Adapter.update_remote_actor(actor) do
@@ -94,7 +104,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
         %{data: %{"type" => object_type}} = object
       )
       when activity_type in @activity_types and object_type in @object_types do
-    Logger.warn(
+    Logger.info(
       "AP Match#1 - by activity_type and object_type: #{activity_type} + #{object_type} = #{
         @activity_modules[activity_type]
       } or #{@object_modules[object_type]}"
@@ -107,7 +117,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
         object
       )
     else
-      Logger.warn(
+      Logger.info(
         "AP Match#1.5 - mismatched activity_type and object_type, try first based on activity, otherwise on object"
       )
 
@@ -137,7 +147,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
         %{data: %{"type" => object_type}} = object
       )
       when activity_type in @activity_types do
-    Logger.warn(
+    Logger.info(
       "AP Match#2 - by activity_type: #{activity_type} + #{object_type} = #{
         @activity_modules[activity_type]
       }"
@@ -159,7 +169,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
         %{data: %{"type" => object_type}} = object
       )
       when object_type in @object_types do
-    Logger.warn(
+    Logger.info(
       "AP Match#3 - by object_type: #{activity_type} + #{object_type} = #{
         @object_modules[object_type]
       }"
@@ -181,7 +191,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
         object
       )
       when activity_type in @activity_types do
-    Logger.warn(
+    Logger.info(
       "AP Match#4 - Only activity_type known: #{activity_type} = #{
         @activity_modules[activity_type]
       }"
@@ -195,15 +205,11 @@ defmodule CommonsPub.ActivityPub.Receiver do
   end
 
   def receive_activity(activity, object) do
-    # for cases when the object comes to us embeded in the activity
-    receive_activity(activity, %{data: object})
-  end
-
-  def receive_activity(activity, object) do
+    # TODO actually save this rather than discard
     error = "ActivityPub - ignored incoming activity - unhandled activity or object type"
-    Logger.warn("#{error}")
-    Logger.warn("activity: #{inspect(activity)}")
-    Logger.warn("object: #{inspect(object)}")
+    Logger.error("#{error}")
+    Logger.info("activity: #{inspect(activity, pretty: true)}")
+    Logger.info("object: #{inspect(object, pretty: true)}")
     {:error, error}
   end
 
