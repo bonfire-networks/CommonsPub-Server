@@ -4,6 +4,9 @@ defmodule ValueFlows.Util do
   def maybe_put(map, _key, nil), do: map
   def maybe_put(map, key, value), do: Map.put(map, key, value)
 
+  def maybe_append(list, nil), do: list
+  def maybe_append(list, value), do: [value | list]
+
   @doc "Replace a key in a map"
   def map_key_replace(%{} = map, key, new_key) do
     map

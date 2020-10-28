@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicResource.Queries do
-  alias ValueFlows.Observation.EconomicResource
+  alias ValueFlows.Observation.{EconomicResource, EconomicEvent}
   # alias ValueFlows.Observation.EconomicResources
   alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
@@ -39,6 +39,15 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     join(q, jq, [resource: c], f in Follow,
       as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
+  end
+
+  def join_to(q, {:event_output, output_of_id}, jq) do
+    join(q, jq, [resource: r],
+      e in EconomicEvent,
+      as: :event,
+      on: is_nil(e.to_resource_inventoried_as_id) \
+          and e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id
     )
   end
 

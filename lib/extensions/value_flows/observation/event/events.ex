@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
+  import ValueFlows.Util, only: [maybe_append: 2]
+
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
   alias CommonsPub.Contexts
@@ -111,11 +113,48 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     event |> Map.put(:action, ValueFlows.Knowledge.Action.Actions.action!(event.action_id))
   end
 
+  # processes is actually only one, so we can use [process | resources]
   def track(event) do
     with {:ok, resources} <- track_resource_output(event),
-         {:ok, to_resources} <- track_to_resource_output(event),
-         {:ok, processes} <- track_process_input(event) do
-      {:ok, resources ++ to_resources ++ processes}
+         {:ok, to_resource} <- track_to_resource_output(event),
+         {:ok, process} <- track_process_input(event) do
+      {:ok, resources |> maybe_append(process) |> maybe_append(to_resource)}
+    end
+  end
+
+  defp track_to_resource_output(
+         %{action_id: action_id, to_resource_inventoried_as_id: to_resource_inventoried_as_id} =
+           _event
+       )
+       when action_id in ["transfer", "move"] and not is_nil(to_resource_inventoried_as_id) do
+    EconomicResources.one([:default, id: to_resource_inventoried_as_id])
+  end
+
+  defp track_to_resource_output(_) do
+    {:ok, nil}
+  end
+
+  defp track_resource_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
+    EconomicResources.many([:default, join: [event_output: output_of_id]])
+  end
+
+  defp track_resource_output(_) do
+    {:ok, []}
+  end
+
+  defp track_process_input(%{input_of_id: input_of_id}) when not is_nil(input_of_id) do
+    Processes.one([:default, id: input_of_id])
+  end
+
+  defp track_process_input(_) do
+    {:ok, nil}
+  end
+
+  def trace(event) do
+    with {:ok, resources} <- trace_resource_input(event),
+         {:ok, processes} <- trace_process_output(event),
+         {:ok, resources_inventoried_as} <- trace_resource_inventoried_as(event) do
+      {:ok, processes ++ resources_inventoried_as ++ resources}
     end
   end
 
@@ -128,45 +167,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp trace_resource_inventoried_as(_) do
     {:ok, []}
-  end
-
-  defp track_to_resource_output(
-         %{action_id: action_id, to_resource_inventoried_as_id: to_resource_inventoried_as_id} =
-           _event
-       )
-       when action_id in ["transfer", "move"] and not is_nil(to_resource_inventoried_as_id) do
-    EconomicResources.many([:default, id: to_resource_inventoried_as_id])
-  end
-
-  defp track_to_resource_output(_) do
-    {:ok, []}
-  end
-
-  defp track_resource_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
-    with {:ok, events} <- many([:default, output_of_id: output_of_id]),
-         resource_ids = Enum.map(events, & &1.resource_inventoried_as_id) do
-      EconomicResources.many([:default, id: resource_ids])
-    end
-  end
-
-  defp track_resource_output(_) do
-    {:ok, []}
-  end
-
-  defp track_process_input(%{input_of_id: input_of_id}) when not is_nil(input_of_id) do
-    Processes.many([:default, id: input_of_id])
-  end
-
-  defp track_process_input(_) do
-    {:ok, []}
-  end
-
-  def trace(event) do
-    with {:ok, resources} <- trace_resource_input(event),
-         {:ok, processes} <- trace_process_output(event),
-         {:ok, resources_inventoried_as} <- trace_resource_inventoried_as(event) do
-      {:ok, processes ++ resources_inventoried_as ++ resources}
-    end
   end
 
   defp trace_process_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
