@@ -109,28 +109,50 @@ types_others = [
 types_all_contexts = types_characters ++ types_inventory
 types_all = types_all_contexts ++ types_actions ++ types_others
 
+# configure which modules will receive which ActivityPub activities/objects
+
+actor_modules = %{
+  "Person" => CommonsPub.Users,
+  "Group" => CommonsPub.Communities,
+  "MN:Collection" => CommonsPub.Collections,
+  "Organization" => CommonsPub.Organisations,
+  fallback: CommonsPub.Characters
+}
+
+activity_modules = %{
+  "Follow" => CommonsPub.Follows,
+  "Like" => CommonsPub.Likes,
+  "Flag" => CommonsPub.Flags,
+  "Block" => CommonsPub.Blocks,
+  "Delete" => CommonsPub.Common.Deletion,
+  fallback: CommonsPub.Activities
+}
+
+object_modules = %{
+  "Note" => CommonsPub.Threads.Comments,
+  "Document" => CommonsPub.Resources,
+  "Follow" => CommonsPub.Follows,
+  "Like" => CommonsPub.Likes,
+  "Flag" => CommonsPub.Flags,
+  "Block" => CommonsPub.Blocks
+}
+
+possible_actor_types = [
+  "Person",
+  "Group",
+  "Organization",
+  "Application",
+  "Service",
+  "Community",
+  "MN:Collection",
+  "CommonsPub:Character"
+]
+
 config :commons_pub, CommonsPub.ActivityPub.Adapter,
-  actor_modules: %{
-    "Person" => CommonsPub.Users,
-    "Group" => CommonsPub.Communities,
-    "MN:Collection" => CommonsPub.Collections,
-    "Organization" => CommonsPub.Organisations,
-    :fallback => CommonsPub.Characters
-  },
-  activity_modules: %{
-    "Follow" => CommonsPub.Follows,
-    "Like" => CommonsPub.Likes,
-    "Flag" => CommonsPub.Flags,
-    "Block" => CommonsPub.Blocks
-  },
-  object_modules: %{
-    "Note" => CommonsPub.Threads.Comments,
-    "Document" => CommonsPub.Resources,
-    "Follow" => CommonsPub.Follows,
-    "Like" => CommonsPub.Likes,
-    "Flag" => CommonsPub.Flags,
-    "Block" => CommonsPub.Blocks
-  }
+  actor_modules: actor_modules,
+  activity_modules: activity_modules,
+  object_modules: object_modules,
+  possible_actor_types: possible_actor_types
 
 config :commons_pub, Instance,
   hostname: hostname,
