@@ -76,12 +76,13 @@ defmodule CommonsPub.ActivityPub.Publisher do
     :ignored
   end
 
-  def error(error, [verb, %{__struct__: object_type, id: id}]) do
+  def error(error, [verb, %{__struct__: object_type, id: id} = object]) do
     Logger.error(
       "ActivityPub - Unable to federate - #{error}... object ID: #{id} ; verb: #{verb} ; object type: #{
         object_type
       }"
     )
+    IO.inspect(object: object)
 
     :ignored
   end

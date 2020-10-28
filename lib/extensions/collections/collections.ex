@@ -9,7 +9,7 @@ defmodule CommonsPub.Collections do
     # Flags,
     # Follows,
     # Likes,
-    Repo,
+    Repo
     # Resources,
     # Threads
   }
@@ -229,6 +229,14 @@ defmodule CommonsPub.Collections do
       {:ok, activity}
     else
       e -> {:error, e}
+    end
+  end
+
+  def ap_receive_update(actor, data, creator) do
+    with {:ok, coll} <- CommonsPub.Collections.update(creator, actor, data) do
+      {:ok, coll}
+    else
+      {:error, e} -> {:error, e}
     end
   end
 

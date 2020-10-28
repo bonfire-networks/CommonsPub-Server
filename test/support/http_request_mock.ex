@@ -97,7 +97,7 @@ defmodule HttpRequestMock do
 
   def get(url, query, body, headers) do
     {:error,
-     "Not implemented the mock response for get #{inspect(url)}, #{query}, #{inspect(body)}, #{
+     "Not implemented the mock response for get #{inspect(url, pretty: true)}, #{query}, #{inspect(body, pretty: true)}, #{
        inspect(headers)
      }"}
   end

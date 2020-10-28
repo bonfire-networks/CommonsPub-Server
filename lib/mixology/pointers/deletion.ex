@@ -136,4 +136,34 @@ defmodule CommonsPub.Common.Deletion do
     Logger.error(error)
     deletion_result({:error, error})
   end
+
+  # ActivityPub incoming Activity: Delete
+
+  def ap_receive_activity(
+        %{data: %{"type" => "Delete"}} = _activity,
+        %{pointer_id: pointer_id} = _object
+      )
+      when is_binary(pointer_id) do
+    with {:ok, _} <- CommonsPub.Common.Deletion.trigger_soft_delete(pointer_id, true) do
+      :ok
+    end
+  end
+
+  def ap_receive_activity(
+        %{data: %{"type" => "Delete"}} = _activity,
+        %{} = delete_actor
+      ) do
+        # IO.inspect(delete: delete_actor)
+    with {:ok, character} <-
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(delete_actor),
+         {:ok, _} <- CommonsPub.Common.Deletion.trigger_soft_delete(character, true) do
+      :ok
+    else
+      {:error, e} ->
+        Logger.warn("Could not find character to delete")
+        IO.inspect(delete_actor)
+        IO.inspect(CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(delete_actor))
+        {:error, e}
+    end
+  end
 end

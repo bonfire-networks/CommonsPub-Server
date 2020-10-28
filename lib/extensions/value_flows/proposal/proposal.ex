@@ -114,4 +114,10 @@ defmodule ValueFlows.Proposal do
       name: :vf_proposal_eligible_location_id_fkey
     )
   end
+
+  def context_module, do: ValueFlows.Proposal.Proposals
+
+  def queries_module, do: ValueFlows.Proposal.Queries
+
+  def follow_filters, do: [:default]
 end

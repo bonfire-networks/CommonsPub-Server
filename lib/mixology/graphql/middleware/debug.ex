@@ -7,7 +7,7 @@ defmodule CommonsPub.Web.GraphQL.Middleware.Debug do
     IO.puts("""
     ==========DEBUG==========
     starting: #{path}
-    source: #{inspect(resolution.source)}
+    source: #{inspect(resolution.source, pretty: true)}
     -------------------------
     """)
 
@@ -18,7 +18,7 @@ defmodule CommonsPub.Web.GraphQL.Middleware.Debug do
     IO.puts("""
     ==========DEBUG==========
     resolved: #{path}
-    value: #{inspect(resolution.value)}
+    value: #{inspect(resolution.value, pretty: true)}
     -------------------------
     """)
 

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only#
 defmodule ValueFlows.Proposal.ProposalsTest do
-  use CommonsPub.Web.ConnCase, async: true
+  use CommonsPub.DataCase, async: true
 
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Test.Faking

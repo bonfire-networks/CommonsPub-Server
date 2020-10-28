@@ -65,7 +65,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   end
 
   def map_get(%Ecto.Association.NotLoaded{} = map, key, fallback) when is_atom(key) do
-    Logger.error("Cannot get key `#{key}` from an unloaded map: #{inspect(map)}")
+    Logger.error("Cannot get key `#{key}` from an unloaded map: #{inspect(map, pretty: true)}")
     fallback
   end
 

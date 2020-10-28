@@ -121,7 +121,7 @@ defmodule CommonsPub.Users do
       else: :ok
   end
 
-   defp should_check_register_access?(opts) do
+  defp should_check_register_access?(opts) do
     opts = opts ++ CommonsPub.Config.get(__MODULE__, [])
     # IO.inspect(should_check_register_access: Keyword.get(opts, :public_registration, false))
     not Keyword.get(opts, :public_registration, false)
@@ -422,6 +422,15 @@ defmodule CommonsPub.Users do
   end
 
   defp ap_publish(_, _), do: :ok
+
+  def ap_receive_update(actor, data, creator \\ nil) do
+    with {:ok, user} <-
+           CommonsPub.Users.update_remote(actor, data) do
+      {:ok, user}
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
 
   @doc false
   def default_inbox_query_contexts() do

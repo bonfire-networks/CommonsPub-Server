@@ -7,7 +7,7 @@ defmodule CommonsPub.Tag.Categories do
     # GraphQL,
     Repo,
     GraphQL.Page,
-    Common.Contexts,
+    Contexts,
     Activities,
     Feeds
   }

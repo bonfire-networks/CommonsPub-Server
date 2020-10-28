@@ -7,7 +7,7 @@ defmodule CommonsPub.Tag.Taggables do
     # GraphQL,
     Repo
     # GraphQL.Page,
-    # Common.Contexts
+    # Contexts
   }
 
   # alias CommonsPub.Users.User

@@ -45,4 +45,44 @@ defmodule ValueFlows.Util do
       cs -> {:ok, cs}
     end
   end
+
+  def ap_prepare_activity("create", thing, object) do
+    with context <- CommonsPub.ActivityPub.Utils.get_cached_actor_by_local_id!(Map.get(thing, :context_id)),
+          actor <- CommonsPub.ActivityPub.Utils.get_cached_actor_by_local_id!(Map.get(thing, :creator_id) || Map.get(thing, :primary_accountable_id) || Map.get(thing, :provider_id) || Map.get(thing, :receiver_id)),
+         ap_id <- CommonsPub.ActivityPub.Utils.generate_object_ap_id(thing),
+         object <- Map.merge(object, %{
+           "id" => ap_id,
+           "icon" => Map.get(object, :image),
+           "actor" => actor.ap_id,
+           "attributedTo" => actor.ap_id,
+           "context" => context.ap_id,
+           "name" => Map.get(object, :name, Map.get(object, :label)),
+           "summary" => Map.get(object, :note, Map.get(object, :summary))
+         }),
+         params = %{
+           actor: actor,
+           to: [CommonsPub.ActivityPub.Utils.public_uri(), context.ap_id],
+           object: object,
+           context: context.ap_id,
+           additional: %{
+             "cc" => [actor.data["followers"]]
+           }
+         },
+         {:ok, activity} <- ActivityPub.create(params, thing.id) do
+      Ecto.Changeset.change(thing, %{canonical_url: activity_object_id(activity)})
+      |> CommonsPub.Repo.update()
+
+      {:ok, activity}
+    else
+      e -> {:error, e}
+    end
+  end
+
+  def activity_object_id(%{object: %{data: %{"id" => id}}}) do
+    id
+  end
+
+  def activity_object_id(%{"object"=> %{"id" => id}}) do
+    id
+  end
 end

@@ -6,7 +6,7 @@ defmodule Taxonomy.TaxonomyTags do
   alias CommonsPub.{
     # Common, GraphQL,
     GraphQL.Page,
-    Common.Contexts,
+    Contexts,
     Repo
   }
 
@@ -101,7 +101,7 @@ defmodule Taxonomy.TaxonomyTags do
     tag = Repo.preload(tag, [:category, :parent_tag])
     parent_tag = tag.parent_tag
 
-    create_tag = cleanup(tag)
+    # create_tag = cleanup(tag)
 
     # IO.inspect(pointerise_parent: parent_tag)
 

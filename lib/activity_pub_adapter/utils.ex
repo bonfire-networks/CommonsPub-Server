@@ -103,7 +103,7 @@ defmodule CommonsPub.ActivityPub.Utils do
     generate_object_ap_id(object)
   end
 
-  def get_raw_character_by_username(username) do
+  def get_raw_character_by_username(username) when is_binary(username) do
     # FIXME: this should be only one query, and support other types (or two, using pointers?)
     with {:error, _e} <- CommonsPub.Users.one([:default, username: username]),
          {:error, _e} <- CommonsPub.Communities.one([:default, username: username]),
@@ -113,7 +113,9 @@ defmodule CommonsPub.ActivityPub.Utils do
     end
   end
 
-  def get_raw_character_by_id(id) do
+  def get_raw_character_by_username(%{} = character), do: character
+
+  def get_raw_character_by_id(id) when is_binary(id) do
     # FIXME: this should be only one query, and support other types (or two, using pointers?)
     with {:error, _e} <- CommonsPub.Users.one([:default, id: id]),
          {:error, _e} <- CommonsPub.Communities.one([:default, id: id]),
@@ -122,14 +124,67 @@ defmodule CommonsPub.ActivityPub.Utils do
     end
   end
 
-  def get_raw_actor_by_ap_id(ap_id) do
+  def get_raw_character_by_id(%{} = character), do: character
+
+  def get_raw_character_by_ap_id(ap_id) when is_binary(ap_id) do
     # FIXME: this should not query the AP db
-    with {:ok, actor} <- ActivityPub.Actor.get_or_fetch_by_ap_id(ap_id),
-         {:ok, actor} <- get_raw_character_by_username(actor.username) do
-      {:ok, actor}
+    with {:ok, actor} <- ActivityPub.Actor.get_or_fetch_by_ap_id(ap_id) do
+      get_raw_character_by_ap_id(actor)
     else
       {:error, e} -> {:error, e}
     end
+  end
+
+  def get_raw_character_by_ap_id(%{"id" => id}) do
+    get_raw_character_by_ap_id(id)
+  end
+
+  def get_raw_character_by_ap_id(%{username: username} = _actor)
+      when is_binary(username) do
+    with {:ok, character} <- get_raw_character_by_username(username) do
+      {:ok, character}
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def get_raw_character_by_ap_id(%{data: data}) do
+    get_raw_character_by_ap_id(data)
+  end
+
+  def get_raw_character_by_ap_id(%{} = character), do: character
+
+  def get_raw_character_by_ap_id!(ap_id) do
+    with {:ok, character} <- get_raw_character_by_ap_id(ap_id) do
+      character
+    else
+      _ -> nil
+    end
+  end
+
+  def get_or_fetch_actor_by_ap_id!(ap_id) do
+    with {:ok, actor} <- ActivityPub.Actor.get_or_fetch_by_ap_id(ap_id) do
+      actor
+    else
+      _ -> nil
+    end
+  end
+
+  def get_cached_actor_by_local_id!(ap_id) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(ap_id) do
+      actor
+    else
+      _ -> nil
+    end
+  end
+
+  def get_object_or_actor_by_ap_id!(ap_id) when is_binary(ap_id) do
+    ActivityPub.Object.get_cached_by_ap_id(ap_id) ||
+      get_or_fetch_actor_by_ap_id!(ap_id) || ap_id
+  end
+
+  def get_object_or_actor_by_ap_id!(ap_id) do
+    ap_id
   end
 
   def get_creator_ap_id(%{creator_id: creator_id}) when not is_nil(creator_id) do

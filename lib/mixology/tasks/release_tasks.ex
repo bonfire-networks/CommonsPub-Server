@@ -24,14 +24,14 @@ defmodule CommonsPub.ReleaseTasks do
     try do
       case repo.__adapter__.storage_up(repo.config) do
         :ok ->
-          Logger.info("The database for #{inspect(repo)} has been created")
+          Logger.info("The database for #{inspect(repo, pretty: true)} has been created")
 
         {:error, term} when is_binary(term) ->
-          raise "The database for #{inspect(repo)} couldn't be created: #{term}"
+          raise "The database for #{inspect(repo, pretty: true)} couldn't be created: #{term}"
       end
     rescue
       e ->
-        Logger.warn("The database for #{inspect(repo)} could not be created")
+        Logger.warn("The database for #{inspect(repo, pretty: true)} could not be created")
         IO.inspect(e)
         :ok
     end
@@ -160,13 +160,13 @@ defmodule CommonsPub.ReleaseTasks do
   defp drop_repo(repo) do
     case repo.__adapter__.storage_down(repo.config) do
       :ok ->
-        Logger.info("The database for #{inspect(repo)} has been dropped")
+        Logger.info("The database for #{inspect(repo, pretty: true)} has been dropped")
 
       {:error, :already_down} ->
-        Logger.warn("The database for #{inspect(repo)} has already been dropped")
+        Logger.warn("The database for #{inspect(repo, pretty: true)} has already been dropped")
 
       {:error, term} when is_binary(term) ->
-        raise "The database for #{inspect(repo)} couldn't be dropped: #{term}"
+        raise "The database for #{inspect(repo, pretty: true)} couldn't be dropped: #{term}"
     end
   end
 

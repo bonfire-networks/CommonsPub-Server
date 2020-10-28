@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicResource.GraphQL do
-
   # default to 100 km radius
   @radius_default_distance 100_000
 
@@ -78,7 +77,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
   def resources_filtered(page_opts, _ \\ nil) do
-    IO.inspect(resources_filtered: page_opts)
+    # IO.inspect(resources_filtered: page_opts)
     resources_filter(page_opts, [])
   end
 
@@ -132,7 +131,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_with_point: page_opts)
+    # IO.inspect(geo_with_point: page_opts)
 
     resources_filter_next(
       :geolocation,
@@ -153,7 +152,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_with_address: page_opts)
+    # IO.inspect(geo_with_address: page_opts)
 
     with {:ok, coords} <- Geocoder.call(address) do
       # IO.inspect(coords)
@@ -188,7 +187,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_without_distance: page_opts)
+    # IO.inspect(geo_without_distance: page_opts)
 
     resources_filter(
       Map.merge(
@@ -209,7 +208,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
          _,
          filters_acc
        ) do
-    IO.inspect(filters_query: filters_acc)
+    # IO.inspect(filters_query: filters_acc)
 
     # finally, if there's no more known params to acumulate, query with the filters
     EconomicResources.many(filters_acc)
@@ -217,8 +216,8 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   defp resources_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    IO.inspect(resources_filter_next: param_remove)
-    IO.inspect(resources_filter_add: filter_add)
+    # IO.inspect(resources_filter_next: param_remove)
+    # IO.inspect(resources_filter_add: filter_add)
 
     resources_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
@@ -246,6 +245,10 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   def agent_resources(%{id: agent}, %{} = _page_opts, _info) do
     resources_filtered(%{agent: agent})
+  end
+
+  def agent_resources(_, _page_opts, _info) do
+    {:ok, nil}
   end
 
   def agent_resources_edge(%{agent: agent}, %{} = page_opts, info) do
@@ -308,7 +311,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     {:ok, nil}
   end
 
-
   def track(resource, _, _) do
     EconomicResources.track(resource)
   end
@@ -316,7 +318,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   def trace(resource, _, _) do
     EconomicResources.trace(resource)
   end
-
 
   def create_resource(%{new_inventoried_resource: resource_attrs}, info) do
     with {:ok, resource} <- create_resource(%{economic_resource: resource_attrs}, info) do
