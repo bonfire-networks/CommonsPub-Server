@@ -58,6 +58,41 @@ defmodule CommonsPub.Blocks do
     end
   end
 
+  # Activity: Block
+  def ap_receive_activity(%{data: %{"type" => "Block"}} = activity) do
+    with {:ok, blocker} <-
+           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]),
+         {:ok, blocked} <-
+           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]),
+         {:ok, _} <-
+           CommonsPub.Blocks.create(blocker, blocked, %{
+             is_public: true,
+             is_muted: false,
+             is_blocked: true,
+             is_local: false,
+             canonical_url: activity.data["id"]
+           }) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  # Unblock (Activity: Undo, Object: Block)
+  def ap_receive_activity(
+        %{data: %{"type" => "Undo", "object" => %{"type" => "Block"}}} = activity
+      ) do
+    with {:ok, blocker} <-
+           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["actor"]),
+         {:ok, blocked} <-
+           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["object"]),
+         {:ok, block} <- CommonsPub.Blocks.find(blocker, blocked),
+         {:ok, _} <- CommonsPub.Blocks.soft_delete(blocker, block) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
 
   @spec soft_delete(User.t(), Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def soft_delete(%User{}, %Block{} = block) do

@@ -109,6 +109,27 @@ defmodule CommonsPub.Likes do
     end
   end
 
+  # Incoming Activity: Like
+  def ap_receive_activity(%{data: %{"type" => "Like"}} = activity) do
+    with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
+         {:ok, actor} <-
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_username(ap_actor.username),
+         %ActivityPub.Object{} = object <-
+           ActivityPub.Object.get_cached_by_ap_id(activity.data["object"]),
+         {:ok, liked} <- CommonsPub.Meta.Pointers.one(id: object.pointer_id),
+         liked = CommonsPub.Meta.Pointers.follow!(liked),
+         {:ok, _} <-
+           CommonsPub.Likes.create(actor, liked, %{
+             is_public: true,
+             is_local: false,
+             canonical_url: activity.data["id"]
+           }) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
   @spec soft_delete(User.t(), Like.t()) :: {:ok, Like.t()} | {:error, any}
   def soft_delete(%User{} = user, %Like{} = like) do
     Repo.transact_with(fn ->

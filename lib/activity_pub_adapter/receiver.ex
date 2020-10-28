@@ -6,15 +6,16 @@ defmodule CommonsPub.ActivityPub.Receiver do
   @actor_modules %{
     "Person" => CommonsPub.Users,
     "Group" => CommonsPub.Communities,
-    "MN:Collection" => CommonsPub.Collections,
+    "MN =>Collection" => CommonsPub.Collections,
     "Organization" => CommonsPub.Organisations,
-    :fallback => CommonsPub.Characters
+    fallback: CommonsPub.Characters
   }
   @activity_modules %{
     "Follow" => CommonsPub.Follows,
     "Like" => CommonsPub.Likes,
     "Flag" => CommonsPub.Flags,
-    "Block" => CommonsPub.Blocks
+    "Block" => CommonsPub.Blocks,
+    fallback: CommonsPub.Activities
   }
   @object_modules %{
     "Note" => CommonsPub.Threads.Comments,
@@ -39,9 +40,18 @@ defmodule CommonsPub.ActivityPub.Receiver do
         } = activity
       )
       when activity_type in @activity_types and object_type in @object_types do
-    IO.inspect("OOK1 #{activity_type} #{object_type}")
+    Logger.warn("Match#1 - by activity_type and object_type - #{activity_type} #{object_type}")
 
-    # CommonsPub.Contexts.run_context_function(@activity_types[activity_type], :ap_receive_activity, activity)
+    if @activity_modules[activity_type] == @object_modules[object_type] do
+      handle_activity(
+        @activity_modules[activity_type],
+        activity
+      )
+    else
+      # TODO
+      {:error,
+       "TBD: Which of the object or activity type preferred module should take precedence?"}
+    end
   end
 
   def perform(
@@ -54,11 +64,10 @@ defmodule CommonsPub.ActivityPub.Receiver do
         } = activity
       )
       when activity_type in @activity_types do
-    IO.inspect("OOK2 #{activity_type} #{object_type} ")
+    Logger.warn("Match#2 - by activity_type - #{activity_type} #{object_type} ")
 
-    CommonsPub.Contexts.run_context_function(
-      @activity_types[activity_type],
-      :ap_receive_activity,
+    handle_activity(
+      @activity_modules[activity_type],
       activity
     )
   end
@@ -73,11 +82,10 @@ defmodule CommonsPub.ActivityPub.Receiver do
         } = activity
       )
       when object_type in @object_types do
-    IO.inspect("OOK3 #{activity_type} #{object_type}")
+    Logger.warn("Match#3 - by object_type - #{activity_type} #{object_type}")
 
-    CommonsPub.Contexts.run_context_function(
-      @object_types[object_type],
-      :ap_receive_activity,
+    handle_activity(
+      @object_modules[object_type],
       activity
     )
   end
@@ -86,18 +94,34 @@ defmodule CommonsPub.ActivityPub.Receiver do
         :handle_activity,
         %{
           data: %{
-            "type" => "Create" = activity_type,
+            "type" => activity_type,
             "object" => object_id
           }
         } = activity
       )
       when is_binary(object_id) do
-    IO.inspect("OOK4 #{activity_type} #{object_id} ")
+    Logger.warn("Match#4 - need to load object first - #{activity_type} #{object_id} ")
 
     object = ActivityPub.Object.get_cached_by_ap_id(object_id)
 
-    handle_create(activity, object)
+    activity =
+      Map.merge(activity, %{
+        data: %{
+          "object" => object
+        }
+      })
+
+    IO.inspect(new_activity: activity)
+
+    perform(
+      :handle_activity,
+      activity
+    )
+
+    # handle_create(activity, object)
   end
+
+  def perform(:handle_activity, activity, object \\ nil)
 
   def perform(
         :handle_activity,
@@ -108,123 +132,12 @@ defmodule CommonsPub.ActivityPub.Receiver do
         } = activity
       )
       when activity_type in @activity_types do
-    IO.inspect("OOK5 #{activity_type} ")
+    Logger.warn("Match#5 - Only activity_type known - #{activity_type} ")
 
-    CommonsPub.Contexts.run_context_function(
-      @activity_types[activity_type],
-      :ap_receive_activity,
+    handle_activity(
+      @activity_modules[activity_type],
       activity
     )
-  end
-
-  # Activity: Create
-  def perform(
-        :handle_activity,
-        %{
-          data: %{
-            "type" => "Create",
-            "object" => object_id
-          }
-        } = activity
-      ) do
-    object = ActivityPub.Object.get_cached_by_ap_id(object_id)
-    handle_create(activity, object)
-  end
-
-  # Activity: Block
-  def perform(:handle_activity, %{data: %{"type" => "Block"}} = activity) do
-    with {:ok, blocker} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]),
-         {:ok, blocked} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]),
-         {:ok, _} <-
-           CommonsPub.Blocks.create(blocker, blocked, %{
-             is_public: true,
-             is_muted: false,
-             is_blocked: true,
-             is_local: false,
-             canonical_url: activity.data["id"]
-           }) do
-      :ok
-    else
-      {:error, e} -> {:error, e}
-    end
-  end
-
-  # Unblock (Activity: Undo, Object: Block)
-  def perform(
-        :handle_activity,
-        %{data: %{"type" => "Undo", "object" => %{"type" => "Block"}}} = activity
-      ) do
-    with {:ok, blocker} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["actor"]),
-         {:ok, blocked} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, block} <- CommonsPub.Blocks.find(blocker, blocked),
-         {:ok, _} <- CommonsPub.Blocks.soft_delete(blocker, block) do
-      :ok
-    else
-      {:error, e} -> {:error, e}
-    end
-  end
-
-  # Activity: Like
-  def perform(:handle_activity, %{data: %{"type" => "Like"}} = activity) do
-    with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
-         {:ok, actor} <-
-           CommonsPub.ActivityPub.Utils.get_raw_character_by_username(ap_actor.username),
-         %ActivityPub.Object{} = object <-
-           ActivityPub.Object.get_cached_by_ap_id(activity.data["object"]),
-         {:ok, liked} <- CommonsPub.Meta.Pointers.one(id: object.pointer_id),
-         liked = CommonsPub.Meta.Pointers.follow!(liked),
-         {:ok, _} <-
-           CommonsPub.Likes.create(actor, liked, %{
-             is_public: true,
-             is_local: false,
-             canonical_url: activity.data["id"]
-           }) do
-      :ok
-    else
-      {:error, e} -> {:error, e}
-    end
-  end
-
-  # Activity: Flag (many objects)
-  def perform(:handle_activity, %{data: %{"type" => "Flag", "object" => objects}} = activity)
-      when length(objects) > 1 do
-    with {:ok, actor} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]) do
-      activity.data["object"]
-      |> Enum.map(fn ap_id -> ActivityPub.Object.get_cached_by_ap_id(ap_id) end)
-      # Filter nils
-      |> Enum.filter(fn object -> object end)
-      |> Enum.map(fn object ->
-        CommonsPub.Meta.Pointers.one!(id: object.pointer_id)
-        |> CommonsPub.Meta.Pointers.follow!()
-      end)
-      |> Enum.each(fn object ->
-        CommonsPub.Flags.create(actor, object, %{
-          message: activity.data["content"],
-          is_local: false
-        })
-      end)
-
-      :ok
-    end
-  end
-
-  # Activity: Flag (one object)
-  def perform(:handle_activity, %{data: %{"type" => "Flag", "object" => [account]}} = activity) do
-    with {:ok, actor} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]),
-         {:ok, account} <- CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(account) do
-      CommonsPub.Flags.create(actor, account, %{
-        message: activity.data["content"],
-        is_local: false
-      })
-
-      :ok
-    end
   end
 
   # Activity: Delete
@@ -286,10 +199,17 @@ defmodule CommonsPub.ActivityPub.Receiver do
   end
 
   def perform(:handle_activity, activity) do
-    Logger.warn("ActivityPub - ignored incoming activity")
-    Logger.info("Unhandled activity type: #{activity.data["type"]}")
-    Logger.info("Unhandled object type: #{activity.data["object"]["type"]}")
-    :ok
+    error = "ActivityPub - ignored incoming activity - unhandled activity type"
+    Logger.warn("#{error} #{inspect(activity)}")
+    {:error, error}
+  end
+
+  def handle_activity(module, activity) do
+    CommonsPub.Contexts.run_context_function(
+      module,
+      :ap_receive_activity,
+      activity
+    )
   end
 
   def handle_create(
