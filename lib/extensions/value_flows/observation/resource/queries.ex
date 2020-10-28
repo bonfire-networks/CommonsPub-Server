@@ -46,8 +46,7 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     join(q, jq, [resource: r],
       e in EconomicEvent,
       as: :event,
-      on: is_nil(e.to_resource_inventoried_as_id) \
-          and e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id
+      on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id,
     )
   end
 
@@ -260,6 +259,10 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
       desc: coalesce(id.count, 0),
       desc: c.id
     )
+  end
+
+  def filter(q, {:distinct, :id}) do
+    distinct(q, :id)
   end
 
   # grouping and counting

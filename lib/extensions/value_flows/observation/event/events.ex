@@ -135,7 +135,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp track_resource_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
-    EconomicResources.many([:default, join: [event_output: output_of_id]])
+    EconomicResources.many([:default, join: [event_output: output_of_id], distinct: :id])
   end
 
   defp track_resource_output(_) do
