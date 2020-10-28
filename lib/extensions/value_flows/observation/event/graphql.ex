@@ -128,7 +128,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_with_point: page_opts)
+    # IO.inspect(geo_with_point: page_opts)
 
     events_filter_next(
       :geolocation,
@@ -149,7 +149,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_with_address: page_opts)
+    # IO.inspect(geo_with_address: page_opts)
 
     with {:ok, coords} <- Geocoder.call(address) do
       # IO.inspect(coords)
@@ -184,7 +184,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    IO.inspect(geo_without_distance: page_opts)
+    # IO.inspect(geo_without_distance: page_opts)
 
     events_filter(
       Map.merge(
@@ -205,7 +205,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          _,
          filters_acc
        ) do
-    IO.inspect(filters_query: filters_acc)
+    # IO.inspect(filters_query: filters_acc)
 
     # finally, if there's no more known params to acumulate, query with the filters
     EconomicEvents.many(filters_acc)
@@ -213,8 +213,8 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   defp events_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    IO.inspect(events_filter_next: param_remove)
-    IO.inspect(events_filter_add: filter_add)
+    # IO.inspect(events_filter_next: param_remove)
+    # IO.inspect(events_filter_add: filter_add)
 
     events_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
@@ -250,6 +250,10 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   def agent_events(%{id: agent}, %{} = _page_opts, _info) do
     events_filtered(%{agent: agent})
+  end
+
+  def agent_events(_, _page_opts, _info) do
+    {:ok, nil}
   end
 
   def agent_events_edge(%{agent: agent}, %{} = page_opts, info) do

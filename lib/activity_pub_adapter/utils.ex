@@ -170,6 +170,14 @@ defmodule CommonsPub.ActivityPub.Utils do
     end
   end
 
+  def get_cached_actor_by_local_id!(ap_id) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(ap_id) do
+      actor
+    else
+      _ -> nil
+    end
+  end
+
   def get_object_or_actor_by_ap_id!(ap_id) when is_binary(ap_id) do
     ActivityPub.Object.get_cached_by_ap_id(ap_id) ||
       get_or_fetch_actor_by_ap_id!(ap_id) || ap_id

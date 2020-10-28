@@ -44,7 +44,6 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
 
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
 
-
   def user(%{user_id: id}, info) do
     Users.one(join: :character, preload: :character, id: id, user: GraphQL.current_user(info))
   end
@@ -340,6 +339,8 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
       info: info
     })
   end
+
+  def creator_edge(_, _, info), do: {:ok, nil}
 
   def fetch_creator_edge(info, ids) do
     user = GraphQL.current_user(info)

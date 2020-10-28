@@ -101,7 +101,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
          _,
          filters_acc
        ) do
-    IO.inspect(filters_query: filters_acc)
+    # IO.inspect(filters_query: filters_acc)
 
     # finally, if there's no more known params to acumulate, query with the filters
     ProcessSpecifications.many(filters_acc)
