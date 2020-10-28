@@ -124,11 +124,11 @@ defmodule CommonsPub.Follows do
   end
 
   # Activity: Follow
-  def ap_receive_activity(%{data: %{"type" => "Follow"}} = activity) do
+  def ap_receive_activity(%{data: %{"type" => "Follow"}} = activity, object) do
     with {:ok, follower} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]),
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(activity.data["actor"]),
          {:ok, followed} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]),
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object),
          {:ok, _} <-
            CommonsPub.Follows.create(follower, followed, %{
              is_public: true,
@@ -144,12 +144,13 @@ defmodule CommonsPub.Follows do
 
   # Unfollow (Activity: Undo, Object: Follow)
   def ap_receive_activity(
-        %{data: %{"type" => "Undo", "object" => %{"type" => "Follow"}}} = activity
+        %{data: %{"type" => "Undo"}} = activity,
+        %{data:  %{"type" => "Follow"}} = object
       ) do
     with {:ok, follower} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["actor"]),
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object.data["actor"]),
          {:ok, followed} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["object"]),
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object.data["object"]),
          {:ok, follow} <-
            CommonsPub.Follows.one(deleted: false, creator: follower.id, context: followed.id),
          {:ok, _} <- CommonsPub.Follows.soft_delete(follower, follow) do

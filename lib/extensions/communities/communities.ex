@@ -12,7 +12,7 @@ defmodule CommonsPub.Communities do
     # Flags,
     # Follows,
     # Likes,
-    Repo,
+    Repo
     # Threads
   }
 
@@ -149,9 +149,7 @@ defmodule CommonsPub.Communities do
     with {:ok, _} <-
            Repo.transact_with(fn ->
              {_, ids} =
-               update_by(user, [{:deleted, false} | filters],
-                 deleted_at: DateTime.utc_now()
-               )
+               update_by(user, [{:deleted, false} | filters], deleted_at: DateTime.utc_now())
 
              CommonsPub.Characters.soft_delete(ids)
 
@@ -206,8 +204,6 @@ defmodule CommonsPub.Communities do
 
   defp ap_publish(_, _), do: :ok
 
-
-
   def ap_publish_activity("create", %Community{} = community) do
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(community.creator_id),
          {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(community.id),
@@ -227,6 +223,14 @@ defmodule CommonsPub.Communities do
       |> CommonsPub.Repo.update()
 
       {:ok, activity}
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def ap_receive_update(actor, data, creator) do
+    with {:ok, comm} <- CommonsPub.Communities.update(creator, actor, data) do
+      {:ok, comm}
     else
       {:error, e} -> {:error, e}
     end

@@ -154,11 +154,11 @@ defmodule CommonsPub.Flags do
   end
 
   # Activity: Flag (many objects)
-  def ap_receive_activity(%{data: %{"type" => "Flag", "object" => objects}} = activity)
+  def ap_receive_activity(%{data: %{"type" => "Flag"}} = activity, objects)
       when length(objects) > 1 do
     with {:ok, actor} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]) do
-      activity.data["object"]
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(activity.data["actor"]) do
+      objects
       |> Enum.map(fn ap_id -> ActivityPub.Object.get_cached_by_ap_id(ap_id) end)
       # Filter nils
       |> Enum.filter(fn object -> object end)
@@ -166,8 +166,8 @@ defmodule CommonsPub.Flags do
         CommonsPub.Meta.Pointers.one!(id: object.pointer_id)
         |> CommonsPub.Meta.Pointers.follow!()
       end)
-      |> Enum.each(fn object ->
-        CommonsPub.Flags.create(actor, object, %{
+      |> Enum.each(fn thing ->
+        CommonsPub.Flags.create(actor, thing, %{
           message: activity.data["content"],
           is_local: false
         })
@@ -178,11 +178,14 @@ defmodule CommonsPub.Flags do
   end
 
   # Activity: Flag (one object)
-  def ap_receive_activity(%{data: %{"type" => "Flag", "object" => [account]}} = activity) do
+  def ap_receive_activity(%{data: %{"type" => "Flag"}} = activity, [object]) do
     with {:ok, actor} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]),
-         {:ok, account} <- CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(account) do
-      CommonsPub.Flags.create(actor, account, %{
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(activity.data["actor"]),
+         {:ok, object} <- ActivityPub.Object.get_cached_by_ap_id(object),
+         thing =
+           CommonsPub.Meta.Pointers.one!(id: object.pointer_id)
+           |> CommonsPub.Meta.Pointers.follow!() do
+      CommonsPub.Flags.create(actor, thing, %{
         message: activity.data["content"],
         is_local: false
       })

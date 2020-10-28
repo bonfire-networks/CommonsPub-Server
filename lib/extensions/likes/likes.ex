@@ -110,12 +110,10 @@ defmodule CommonsPub.Likes do
   end
 
   # Incoming Activity: Like
-  def ap_receive_activity(%{data: %{"type" => "Like"}} = activity) do
+  def ap_receive_activity(%{data: %{"type" => "Like"}} = activity, object) do
     with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
          {:ok, actor} <-
            CommonsPub.ActivityPub.Utils.get_raw_character_by_username(ap_actor.username),
-         %ActivityPub.Object{} = object <-
-           ActivityPub.Object.get_cached_by_ap_id(activity.data["object"]),
          {:ok, liked} <- CommonsPub.Meta.Pointers.one(id: object.pointer_id),
          liked = CommonsPub.Meta.Pointers.follow!(liked),
          {:ok, _} <-

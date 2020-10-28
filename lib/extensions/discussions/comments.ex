@@ -299,6 +299,59 @@ defmodule CommonsPub.Threads.Comments do
     end
   end
 
+  # Activity: Create / Object : Note
+  def ap_receive_activity(
+        %{data: %{"type" => "Create"}} = _activity,
+        %{data: %{"type" => "Note", "inReplyTo" => in_reply_to}} = object
+      )
+      when not is_nil(in_reply_to) do
+    # This will fail if the reply isn't in database
+    with parent_id <- CommonsPub.ActivityPub.Utils.get_pointer_id_by_ap_id(in_reply_to),
+         {:ok, parent_comment} <- CommonsPub.Threads.Comments.one(id: parent_id),
+         {:ok, thread} <- CommonsPub.Threads.one(id: parent_comment.thread_id),
+         {:ok, actor} <-
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object.data["actor"]),
+         {:ok, comment} <-
+           CommonsPub.Threads.Comments.create_reply(actor, thread, parent_comment, %{
+             is_public: object.public,
+             content: object.data["content"],
+             is_local: false,
+             canonical_url: object.data["id"]
+           }) do
+      ActivityPub.Object.update(object, %{pointer_id: comment.id})
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  # Activity: Create / Object : Note
+  def ap_receive_activity(
+        %{data: %{"type" => "Create", "context" => context}} = _activity,
+        %{data: %{"type" => "Note"}} = object
+      ) do
+    # TODO: dedup with prev function
+    with pointer_id <- CommonsPub.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
+         {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id),
+         parent = CommonsPub.Meta.Pointers.follow!(pointer),
+         {:ok, actor} <-
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object.data["actor"]),
+         {:ok, thread} <-
+           CommonsPub.Threads.create(actor, %{is_public: true, is_local: false}, parent),
+         {:ok, comment} <-
+           CommonsPub.Threads.Comments.create(actor, thread, %{
+             is_public: object.public,
+             content: object.data["content"],
+             is_local: false,
+             canonical_url: object.data["id"]
+           }) do
+      ActivityPub.Object.update(object, %{pointer_id: comment.id})
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
   def indexing_object_format(comment) do
     thread = CommonsPub.Repo.maybe_preload(comment.thread, :context)
     context = CommonsPub.Repo.maybe_preload(thread.context, :character)

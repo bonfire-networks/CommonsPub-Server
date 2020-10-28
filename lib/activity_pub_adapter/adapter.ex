@@ -59,7 +59,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   end
 
   def get_actor_by_ap_id(ap_id) do
-    case CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(ap_id) do
+    case CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(ap_id) do
       {:ok, actor} ->
         {:ok, CommonsPub.ActivityPub.Types.character_to_actor(actor)}
 
@@ -86,17 +86,38 @@ defmodule CommonsPub.ActivityPub.Adapter do
   def update_remote_actor(actor_object) do
     data = actor_object.data
 
-    with {:ok, actor} <- CommonsPub.ActivityPub.Utils.get_raw_character_by_id(actor_object.pointer_id) do
+    with {:ok, character} <-
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_id(actor_object.pointer_id),
+         creator <- CommonsPub.Repo.maybe_preload(character, :creator) |> Map.get(:creator, nil) do
       # FIXME - support other types
-      case actor do
+      params = %{
+        name: data["name"],
+        summary: data["summary"],
+        icon_id:
+          CommonsPub.ActivityPub.Utils.maybe_create_icon_object(
+            CommonsPub.ActivityPub.Utils.maybe_fix_image_object(data["icon"]),
+            creator
+          ),
+        image_id:
+          CommonsPub.ActivityPub.Utils.maybe_create_image_object(
+            CommonsPub.ActivityPub.Utils.maybe_fix_image_object(data["image"]),
+            creator
+          )
+      }
+
+      # FIXME
+      case character do
         %CommonsPub.Users.User{} ->
-          CommonsPub.ActivityPub.Receiver.update_user(actor, data)
+          CommonsPub.Users.ap_receive_update(character, params, creator)
 
         %CommonsPub.Communities.Community{} ->
-          CommonsPub.ActivityPub.Receiver.update_community(actor, data)
+          CommonsPub.Communities.ap_receive_update(character, params, creator)
 
         %CommonsPub.Collections.Collection{} ->
-          CommonsPub.ActivityPub.Receiver.update_collection(actor, data)
+          CommonsPub.Collections.ap_receive_update(character, params, creator)
+
+        true ->
+          CommonsPub.Characters.ap_receive_update(character, params, creator)
       end
     end
   end
@@ -108,7 +129,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
     case CommonsPub.Characters.one(username: username) do
       {:error, _} ->
         with {:ok, _actor} <-
-               CommonsPub.ActivityPub.Receiver.create_remote_actor(actor.data, username) do
+               CommonsPub.ActivityPub.Receiver.create_remote_character(actor.data, username) do
           :ok
         else
           _e -> {:error, "Could not create remote actor"}

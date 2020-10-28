@@ -6,7 +6,6 @@ defmodule CommonsPub.Workers.APReceiverWorker do
 
   @impl Oban.Worker
   def perform(%{args: %{"op" => "handle_activity", "activity_id" => activity_id}}) do
-    activity = ActivityPub.Object.get_by_id(activity_id)
-    CommonsPub.ActivityPub.Receiver.perform(:handle_activity, activity)
+    CommonsPub.ActivityPub.Receiver.receive_activity(activity_id)
   end
 end

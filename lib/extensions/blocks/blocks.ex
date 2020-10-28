@@ -59,11 +59,11 @@ defmodule CommonsPub.Blocks do
   end
 
   # Activity: Block
-  def ap_receive_activity(%{data: %{"type" => "Block"}} = activity) do
+  def ap_receive_activity(%{data: %{"type" => "Block"}} = activity, object) do
     with {:ok, blocker} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["actor"]),
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(activity.data["actor"]),
          {:ok, blocked} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]),
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object),
          {:ok, _} <-
            CommonsPub.Blocks.create(blocker, blocked, %{
              is_public: true,
@@ -80,12 +80,13 @@ defmodule CommonsPub.Blocks do
 
   # Unblock (Activity: Undo, Object: Block)
   def ap_receive_activity(
-        %{data: %{"type" => "Undo", "object" => %{"type" => "Block"}}} = activity
+        %{data: %{"type" => "Undo"}} = activity,
+        %{data:  %{"type" => "Block"}} = object
       ) do
     with {:ok, blocker} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["actor"]),
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object.data["actor"]),
          {:ok, blocked} <-
-           CommonsPub.ActivityPub.Utils.get_raw_actor_by_ap_id(activity.data["object"]["object"]),
+           CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object.data["object"]),
          {:ok, block} <- CommonsPub.Blocks.find(blocker, blocked),
          {:ok, _} <- CommonsPub.Blocks.soft_delete(blocker, block) do
       :ok

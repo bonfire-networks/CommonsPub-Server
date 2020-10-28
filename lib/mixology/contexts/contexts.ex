@@ -56,7 +56,7 @@ defmodule CommonsPub.Contexts do
 
   def run_context_function_error(error, args) do
     Logger.error("Error running context function: #{error}")
-    IO.inspect(args: args)
+    IO.inspect(run_context_function: args)
 
     {:error, error}
   end

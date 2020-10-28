@@ -130,7 +130,7 @@ defmodule CommonsPub.Resources do
   @spec soft_delete(User.t(), Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user, %Resource{} = resource) do
     Repo.transact_with(fn ->
-      resource = Repo.preload(resource, [context: [:character]])
+      resource = Repo.preload(resource, context: [:character])
 
       with {:ok, deleted} <- Common.Deletion.soft_delete(resource),
            :ok <- chase_delete(user, deleted.id),
@@ -196,7 +196,7 @@ defmodule CommonsPub.Resources do
 
   defp ap_publish(_, _), do: :ok
 
-    def ap_publish_activity("create", %Resource{} = resource) do
+  def ap_publish_activity("create", %Resource{} = resource) do
     # FIXME: optional
     with {:ok, context} <- ActivityPub.Actor.get_cached_by_local_id(resource.context_id),
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
@@ -236,6 +236,47 @@ defmodule CommonsPub.Resources do
       {:ok, activity}
     else
       e -> {:error, e}
+    end
+  end
+
+  # Activity: Create / Object : Document
+  def ap_receive_activity(
+        %{data: %{"type" => "Create", "context" => context}} = _activity,
+        %{data: %{"type" => "Document", "actor" => actor}} = object
+      ) do
+    with {:ok, collection} <- CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(context),
+         {:ok, actor} <- CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(actor),
+         {:ok, content} <-
+           CommonsPub.Uploads.upload(
+             CommonsPub.Uploads.ResourceUploader,
+             actor,
+             %{url: object.data["url"]},
+             %{is_public: true}
+           ),
+         icon_url <- CommonsPub.ActivityPub.Utils.maybe_fix_image_object(object.data["icon"]),
+         icon_id <- CommonsPub.ActivityPub.Utils.maybe_create_icon_object(icon_url, actor),
+         attrs <- %{
+           is_public: true,
+           is_local: false,
+           is_disabled: false,
+           name: object.data["name"],
+           canonical_url: object.data["id"],
+           summary: object.data["summary"],
+           content_id: content.id,
+           license: object.data["tag"],
+           icon_id: icon_id,
+           author: CommonsPub.ActivityPub.Utils.get_author(object.data["author"]),
+           subject: object.data["subject"],
+           level: object.data["level"],
+           language: object.data["language"]
+         },
+         {:ok, resource} <-
+           CommonsPub.Resources.create(actor, collection, attrs) do
+      ActivityPub.Object.update(object, %{pointer_id: resource.id})
+      # Indexer.maybe_index_object(resource) # now being called in CommonsPub.Resources.create
+      :ok
+    else
+      {:error, e} -> {:error, e}
     end
   end
 

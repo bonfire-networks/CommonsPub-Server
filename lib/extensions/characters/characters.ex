@@ -41,7 +41,7 @@ defmodule CommonsPub.Characters do
   @spec is_username_available?(username :: binary) :: boolean()
   def is_username_available?(username) when is_binary(username) do
     # FIXME: is_nil(Repo.get(NameReservation, username))
-     !Repo.exists?(from nr in NameReservation, where: nr.name == ^username)
+    !Repo.exists?(from(nr in NameReservation, where: nr.name == ^username))
   end
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
@@ -344,6 +344,14 @@ defmodule CommonsPub.Characters do
     Repo.update_all(Queries.query(Character, filters), set: updates)
   end
 
+  def ap_receive_update(actor, data, creator) do
+    with {:ok, coll} <- CommonsPub.Characters.update(creator, actor, data) do
+      {:ok, coll}
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
   def soft_delete(%Character{} = character) do
     Repo.transact_with(fn ->
       with {:ok, character} <- Common.Deletion.soft_delete(character),
@@ -363,7 +371,7 @@ defmodule CommonsPub.Characters do
     {:ok, nil}
   end
 
-  def soft_delete(o) do
+  def soft_delete(_o) do
     # IO.inspect(could_not_delete_character: o)
     {:ok, nil}
   end
