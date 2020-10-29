@@ -17,6 +17,7 @@ defmodule CommonsPub.GraphQL.FetchPage do
   alias CommonsPub.Repo
   alias CommonsPub.GraphQL.{Page, FetchPage}
 
+
   @doc false
   def default_cursor(x), do: [x.id]
 

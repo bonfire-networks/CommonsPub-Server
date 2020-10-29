@@ -190,7 +190,7 @@ dev-test: init ## Run tests
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test $(dir)
 
 dev-watch-test: init ## Run tests
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test.watch --stale $(dir)
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports -e MIX_ENV=test web iex -S mix phx.server
 
 dev-psql: init ## Run postgres (without Docker)
 	psql -h localhost -U postgres $(APP_DEV_CONTAINER)

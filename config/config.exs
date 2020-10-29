@@ -353,13 +353,13 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-if Mix.env() == :dev do
-  config :mix_test_watch,
-    clear: true,
-    tasks: [
-      "test"
-    ]
-end
+# if Mix.env() == :dev do
+#   config :mix_test_watch,
+#     clear: true,
+#     tasks: [
+#       "test"
+#     ]
+# end
 
 config :mime, :types, %{
   "application/activity+json" => ["json"],
@@ -500,7 +500,13 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!()
 
-config :commons_pub, :env, Mix.env()
+config :cortex,
+  clear_before_running_tests: true,
+  disabled: {:system, "CI_RUN", false}
+
+env = Mix.env()
+config :commons_pub, :env, env
+IO.puts("Compiling with env #{env}")
 
 config :pointers, Pointers.Pointer,
   source: "pointers_pointer",

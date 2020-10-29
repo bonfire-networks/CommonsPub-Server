@@ -6,8 +6,8 @@ defmodule CommonsPub.Collections.Collection do
 
   alias Ecto.Changeset
   alias CommonsPub.Collections
-  # alias CommonsPub.Characters.Character
-  # alias CommonsPub.Communities.Community
+  alias CommonsPub.Characters.Character
+  alias CommonsPub.Communities.Community
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Threads.Thread
   alias CommonsPub.Resources.Resource
@@ -25,7 +25,7 @@ defmodule CommonsPub.Collections.Collection do
 
     # deprecated by context
     # belongs_to(:community, Community)
-    field(:community_id, :string, virtual: true)
+    # field(:community_id, :string, virtual: true)
 
     belongs_to(:context, Pointers.Pointer)
 
