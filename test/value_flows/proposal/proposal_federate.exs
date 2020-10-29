@@ -1,6 +1,6 @@
 defmodule ValueFlows.Proposal.FederateTest do
   use CommonsPub.DataCase, async: false
-
+ ###
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Utils.Simulation
   import CommonsPub.Test.Faking
@@ -34,14 +34,16 @@ defmodule ValueFlows.Proposal.FederateTest do
         fake_proposed_to!(fake_user!(), proposal)
       end)
 
-      assert {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", proposal)
-      # IO.inspect(activity)
+      IO.inspect(pre_fed: proposal)
 
-      # assert activity.object.pointer_id == proposal.id
+      assert {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create",  proposal)
+      # IO.inspect(pub_lished: activity) ##
+
+      assert activity.object.pointer_id == proposal.id
       assert activity.local == true
-      # assert activity.object.local == true
+      assert activity.object.local == true
 
-      # assert_proposal_full(activity.object)
+      assert activity.object.data["name"] == proposal.name
     end
   end
 end

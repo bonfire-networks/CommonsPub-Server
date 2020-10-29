@@ -298,13 +298,7 @@ defmodule ValueFlows.Proposal.Proposals do
     :community_follows
   ]
 
-  def field_key(k) do
-    case k do
-      "__typename" -> "type"
-      "canonicalUrl" -> "id"
-      _ -> k
-    end
-  end
+
 
   def fields_filter(e) do
     # IO.inspect(e)
@@ -312,14 +306,14 @@ defmodule ValueFlows.Proposal.Proposals do
     case e do
       {key, {key2, val}} ->
         if key not in @ignore and key2 not in @ignore and is_list(val) do
-          {field_key(key), {field_key(key2), for(n <- val, do: fields_filter(n))}}
+          {(key), {(key2), for(n <- val, do: fields_filter(n))}}
           # else
           #   IO.inspect(hmm1: e)
         end
 
       {key, val} ->
         if key not in @ignore and is_list(val) do
-          {field_key(key), for(n <- val, do: fields_filter(n))}
+          {(key), for(n <- val, do: fields_filter(n))}
           # else
           #   IO.inspect(hmm2: e)
         end
@@ -338,7 +332,9 @@ defmodule ValueFlows.Proposal.Proposals do
              :proposal,
              4,
              &fields_filter/1
-           ) do
+           ) |> deep_key_rename() do
+      IO.inspect(prepared: obj)
+
       Map.merge(
         %{
           "type" => "ValueFlows:Proposal"
@@ -350,6 +346,33 @@ defmodule ValueFlows.Proposal.Proposals do
       )
     end
   end
+
+  def deep_key_rename(map = %{}) do
+    map
+    |> Enum.map(fn {k, v} -> {field_key(k), deep_key_rename(v)} end)
+    |> Enum.into(%{})
+  end
+
+  def deep_key_rename(list) when is_list(list) do
+    list
+    |> Enum.map(fn v -> deep_key_rename(v) end)
+    # |> Enum.into(%{})
+  end
+
+
+  def deep_key_rename(o) do
+    o
+  end
+
+  def field_key(k) do
+    case k do
+      "__typename" -> "type"
+      "canonicalUrl" -> "id"
+      "displayUsername" -> "preferredUsername"
+      _ -> k
+    end
+  end
+
 
   def ap_publish_activity("create", %{id: id} = proposal) when is_binary(id) do
     ValueFlows.Util.ap_prepare_activity("create", proposal, ap_object_prepare(id))

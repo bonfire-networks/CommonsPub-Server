@@ -64,7 +64,9 @@ defmodule ValueFlows.Util do
            }
          },
          {:ok, activity} <- ActivityPub.create(params, thing.id) do
-      IO.puts(Jason.encode!(deep_map_from_struct(activity)))
+
+          IO.inspect(created: activity)
+      # IO.puts(struct_to_json(activity))
 
       if is_map_key(thing, :canonical_url) do
         Ecto.Changeset.change(thing, %{canonical_url: activity_object_id(activity)})
@@ -75,6 +77,10 @@ defmodule ValueFlows.Util do
     else
       e -> {:error, e}
     end
+  end
+
+  def struct_to_json(struct) do
+    Jason.encode!(deep_map_from_struct(struct))
   end
 
   def deep_map_from_struct(struct = %{__struct__: _}) do

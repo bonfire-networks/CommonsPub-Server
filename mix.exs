@@ -2,8 +2,7 @@
 defmodule CommonsPub.Mixfile do
   use Mix.Project
 
-  @library_dev_mode false
-  @library_dev_dir "./extensions/"
+  @library_dev_mode true
 
   # General configuration of the project
   def project do
@@ -85,7 +84,8 @@ defmodule CommonsPub.Mixfile do
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_error_payload, "~> 1.0"},
       # activitypub
-      {:activity_pub, git: "https://gitlab.com/CommonsPub/activitypub", branch: "tbd"},
+      {:activity_pub,
+       git: "https://gitlab.com/CommonsPub/activitypub", branch: "tbd", path: "libs/activitypub"},
       {:nodeinfo, git: "https://github.com/voxpub/nodeinfo", branch: "main"},
       # webserver
       {:cowboy, "~> 2.6"},
@@ -168,6 +168,7 @@ defmodule CommonsPub.Mixfile do
       },
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
+
       # geocoding
       {:geocoder, "~> 1.0"},
       {:earmark, "~> 1.4"},
@@ -268,36 +269,15 @@ defmodule CommonsPub.Mixfile do
     end
   end
 
-  defp dep_can_devmode(lib, params) do
-    # check if a devpath is specified or already exists or the lib is coming from SCM
-    @library_dev_mode and
-      (Keyword.has_key?(params, :path) or Keyword.has_key?(params, :git) or
-         Keyword.has_key?(params, :github) or
-         File.exists?(@library_dev_dir <> Atom.to_string(lib)))
+  defp dep_can_devmode(_lib, params) do
+    @library_dev_mode and Keyword.has_key?(params, :path) and
+      File.exists?(Keyword.get(params, :path))
   end
 
-  defp dep_devpath(lib, params) do
-    if Keyword.has_key?(params, :path) do
-      # if a path is set in deps_list() just use that
-      Keyword.get(params, :path)
-    else
-      lib = Atom.to_string(lib)
-      mixpath = "./deps/" <> lib
-      devpath = @library_dev_dir <> lib
-
-      if File.exists?(devpath) do
-        devpath
-      else
-        # try to copy git repo from ./deps to devpath
-        with {:ok, _copied} <- File.cp_r(mixpath, devpath) do
-          devpath
-        else
-          e ->
-            IO.inspect(could_not_copy_dep: e)
-            mixpath
-        end
-      end
-    end
+  defp dep_devpath(_lib, params) do
+    path = Keyword.get(params, :path)
+    IO.inspect(using_lib_path: path)
+    path
   end
 
   defp sentry?(), do: Mix.env() not in [:dev, :test]
