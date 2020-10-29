@@ -28,44 +28,28 @@ defmodule CommonsPub.Common.Deletion do
     end
   end
 
-  defp do_trigger_soft_delete(%{} = context, current_user) do
-    context_type = Map.get(context, :__struct__)
-
-    context_module =
-      if !is_nil(context_type) and
-           Kernel.function_exported?(context_type, :context_module, 0),
-         do: apply(context_type, :context_module, [])
-
-    if !is_nil(context) and !is_nil(Map.get(context, :id)) and !is_nil(context_module) do
-      if Kernel.function_exported?(context_module, :soft_delete, 2) do
-        apply(context_module, :soft_delete, [current_user, context])
-      else
-        if Kernel.function_exported?(context_module, :soft_delete, 1) do
-          apply(context_module, :soft_delete, [context])
-        else
-          log_unable(
-            "No soft_delete function in context module.",
-            context_type,
-            Map.get(context, :id)
-          )
-        end
-      end
-    else
-      log_unable(
-        "Not allowed or no context module or ID found.",
-        context_type,
-        Map.get(context, :id)
+  defp do_trigger_soft_delete(%{__struct__: object_type} = context, current_user) do
+    with {:error, e} <-
+           CommonsPub.Contexts.run_context_function(
+             object_type,
+             :soft_delete,
+             [current_user, context],
+             &log_unable/2
+           ) do
+      CommonsPub.Contexts.run_context_function(
+        object_type,
+        :soft_delete,
+        [context],
+        &log_unable/2
       )
     end
   end
 
   def trigger_soft_delete(context, _, _) do
-    IO.inspect(trigger_soft_delete: context)
 
     log_unable(
-      "Object not recognised.",
-      "",
-      ""
+      "Object to be deleted not recognised.",
+      context
     )
   end
 
@@ -131,9 +115,9 @@ defmodule CommonsPub.Common.Deletion do
   defp deletion_result!({:error, e}), do: throw(e)
   # defp deletion_result!(other), do: other
 
-  defp log_unable(e, type, id) do
-    error = "Unable to delete an object. #{e} Type: #{type} ID: #{id}"
-    Logger.error(error)
+  defp log_unable(e, args) do
+    error = "Unable to delete an object. #{e}"
+    Logger.error("#{error} - args: #{inspect(args, pretty: true)}")
     deletion_result({:error, error})
   end
 
@@ -153,7 +137,7 @@ defmodule CommonsPub.Common.Deletion do
         %{data: %{"type" => "Delete"}} = _activity,
         %{} = delete_actor
       ) do
-        # IO.inspect(delete: delete_actor)
+    # IO.inspect(delete: delete_actor)
     with {:ok, character} <-
            CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(delete_actor),
          {:ok, _} <- CommonsPub.Common.Deletion.trigger_soft_delete(character, true) do

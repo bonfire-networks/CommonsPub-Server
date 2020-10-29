@@ -80,7 +80,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def events_filtered(page_opts, _ \\ nil) do
-    IO.inspect(events_filtered: page_opts)
+    # IO.inspect(events_filtered: page_opts)
     events_filter(page_opts, [])
   end
 

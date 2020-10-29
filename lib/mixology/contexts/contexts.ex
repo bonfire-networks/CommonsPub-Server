@@ -32,9 +32,9 @@ defmodule CommonsPub.Contexts do
       try do
         apply(object_context_module, fun, args)
       rescue
-        FunctionClauseError ->
+        e in FunctionClauseError ->
           fallback_fun.(
-            "No function matching the pattern called for #{object_context_module}.#{fun}/#{arity}",
+            "#{Exception.format_banner(:error, e)}",
             args
           )
       end
