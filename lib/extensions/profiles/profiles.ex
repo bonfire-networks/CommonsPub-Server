@@ -184,9 +184,5 @@ defmodule CommonsPub.Profiles do
     end)
   end
 
-  # TODO move these to a common module
 
-  @doc "conditionally update a map"
-  def maybe_put(map, _key, nil), do: map
-  def maybe_put(map, key, value), do: Map.put(map, key, value)
 end

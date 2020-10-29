@@ -1,18 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util do
-  @doc "conditionally update a map"
-  def maybe_put(map, _key, nil), do: map
-  def maybe_put(map, key, value), do: Map.put(map, key, value)
 
-  def maybe_append(list, nil), do: list
-  def maybe_append(list, value), do: [value | list]
 
-  @doc "Replace a key in a map"
-  def map_key_replace(%{} = map, key, new_key) do
-    map
-    |> Map.put(new_key, map[key])
-    |> Map.delete(key)
-  end
+
 
   # def try_tag_thing(user, thing, attrs) do
   #   IO.inspect(attrs)
