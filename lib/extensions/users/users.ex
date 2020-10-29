@@ -290,7 +290,7 @@ defmodule CommonsPub.Users do
   end
 
   # remote user
-  def soft_delete(_deleter, %User{local_user: nil} = user) do
+  def soft_delete(_deleter, %User{local_user_id: nil} = user) do
     Repo.transact_with(fn ->
       with {:ok, user2} <- Common.Deletion.soft_delete(user) do
         # ap_publish("delete", user)
@@ -300,7 +300,8 @@ defmodule CommonsPub.Users do
     end)
   end
 
-  def soft_delete(deleter, %User{local_user: %LocalUser{}} = user) do
+  # local user
+  def soft_delete(deleter, %User{} = user) do
     Repo.transact_with(fn ->
       with {:ok, user2} <- Common.Deletion.soft_delete(user),
            {:ok, local_user} <- Common.Deletion.soft_delete(user.local_user) do
@@ -310,18 +311,6 @@ defmodule CommonsPub.Users do
       end
     end)
   end
-
-  # remote user, called by activitypub
-  # @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  # def soft_delete_remote(%User{} = user) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, user2} <- Common.Deletion.soft_delete(user),
-  #          :ok <- chase_delete(user, user2) do
-  #       user = user2
-  #       {:ok, user}
-  #     end
-  #   end)
-  # end
 
   @delete_by_filters [select: :delete, deleted: false]
 

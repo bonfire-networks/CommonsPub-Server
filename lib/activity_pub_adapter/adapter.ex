@@ -39,9 +39,9 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
   def get_actor_by_id(id) do
     case CommonsPub.ActivityPub.Utils.get_raw_character_by_id(id) do
-      {:ok, actor} ->
+      {:ok, character} ->
         # IO.inspect(get_raw_character_by_id: actor)
-        {:ok, CommonsPub.ActivityPub.Types.character_to_actor(actor)}
+        {:ok, CommonsPub.ActivityPub.Types.character_to_actor(character)}
 
       _ ->
         {:error, "not found"}

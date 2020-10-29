@@ -358,10 +358,6 @@ defmodule CommonsPub.Tag.Categories do
     :ok
   end
 
-  # TODO move this common module
-  @doc "conditionally update a map"
-  def maybe_put(map, _key, nil), do: map
-  def maybe_put(map, key, value), do: Map.put(map, key, value)
 
   def soft_delete(%Category{} = c) do
     Repo.transact_with(fn ->

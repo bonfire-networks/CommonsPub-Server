@@ -4,7 +4,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   @radius_default_distance 100_000
 
   require Logger
-  # import ValueFlows.Util, only: [maybe_put: 3]
+
 
   alias CommonsPub.{
     # Activities,
@@ -80,7 +80,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def events_filtered(page_opts, _ \\ nil) do
-    IO.inspect(events_filtered: page_opts)
+    # IO.inspect(events_filtered: page_opts)
     events_filter(page_opts, [])
   end
 

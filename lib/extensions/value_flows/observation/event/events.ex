@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
-  import ValueFlows.Util, only: [maybe_append: 2]
 
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
@@ -118,7 +117,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     with {:ok, resources} <- track_resource_output(event),
          {:ok, to_resource} <- track_to_resource_output(event),
          {:ok, process} <- track_process_input(event) do
-      {:ok, resources |> maybe_append(process) |> maybe_append(to_resource)}
+      {:ok, resources |> CommonsPub.Common.maybe_append(process) |> CommonsPub.Common.maybe_append(to_resource)}
     end
   end
 
@@ -507,7 +506,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp parse_measurement_attrs(attrs) do
     Enum.reduce(attrs, %{}, fn {k, v}, acc ->
       if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = ValueFlows.Util.map_key_replace(v, :has_unit, :unit_id)
+        v = CommonsPub.Common.map_key_replace(v, :has_unit, :unit_id)
         # I have no idea why the numerical value isn't auto converted
         Map.put(acc, k, v)
       else

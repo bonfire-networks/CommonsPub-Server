@@ -184,8 +184,4 @@ defmodule Taxonomy.TaxonomyTags do
     end)
   end
 
-  # TODO move this common module
-  @doc "conditionally update a map"
-  def maybe_put(map, _key, nil), do: map
-  def maybe_put(map, key, value), do: Map.put(map, key, value)
 end

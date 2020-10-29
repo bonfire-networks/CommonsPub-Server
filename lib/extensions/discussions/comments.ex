@@ -249,7 +249,7 @@ defmodule CommonsPub.Threads.Comments do
 
     # IO.inspect(publish_comment: comment)
 
-    # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
+    # FIXME: this may break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
 
     context =
       if(comment.thread.context) do
@@ -258,7 +258,7 @@ defmodule CommonsPub.Threads.Comments do
 
     context_ap_id =
       if(context) do
-        CommonsPub.ActivityPub.Utils.get_object_ap_id(context)
+        CommonsPub.ActivityPub.Utils.get_object_ap_id!(context)
       end
 
     comment_ap_id = CommonsPub.ActivityPub.Utils.generate_object_ap_id(comment)

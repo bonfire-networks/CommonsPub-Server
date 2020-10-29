@@ -3,6 +3,8 @@ defmodule CommonsPub.ActivityPub.Utils do
   alias ActivityPub.Actor
   alias CommonsPub.Threads.Comments
 
+  require Logger
+
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
   def public_uri() do
@@ -191,11 +193,18 @@ defmodule CommonsPub.ActivityPub.Utils do
     with {:ok, %{ap_id: ap_id}} <- ActivityPub.Actor.get_cached_by_local_id(creator_id) do
       ap_id
     else
-      {:error, _} -> nil
+      _ -> nil
     end
   end
 
   def get_creator_ap_id(_), do: nil
+
+  def get_different_creator_ap_id(%{id: id, creator_id: creator_id} = character)
+      when id != creator_id do
+    CommonsPub.ActivityPub.Utils.get_creator_ap_id(character)
+  end
+
+  def get_different_creator_ap_id(_), do: nil
 
   def get_context_ap_id(%{context_id: context_id}) when not is_nil(context_id) do
     with {:ok, %{ap_id: ap_id}} <- ActivityPub.Actor.get_cached_by_local_id(context_id) do
@@ -264,16 +273,27 @@ defmodule CommonsPub.ActivityPub.Utils do
     end
   end
 
-  def get_object_ap_id(object) do
-    case ActivityPub.Object.get_cached_by_pointer_id(object.id) do
+  def get_object_ap_id(%{id: id}) do
+    case ActivityPub.Object.get_cached_by_pointer_id(id) do
       nil ->
-        case ActivityPub.Actor.get_cached_by_local_id(object.id) do
+        case ActivityPub.Actor.get_cached_by_local_id(id) do
           {:ok, actor} -> actor.ap_id
           {:error, e} -> {:error, e}
         end
 
       object ->
         object.data["id"]
+    end
+  end
+
+  def get_object_ap_id(_) do
+    {:error, "No valid object provided to get_object_ap_id/1"}
+  end
+
+  def get_object_ap_id!(object) do
+    with {:error, e} <- get_object_ap_id(object) do
+      Logger.warn("get_object_ap_id!/1 - #{e}")
+      nil
     end
   end
 
@@ -331,7 +351,7 @@ defmodule CommonsPub.ActivityPub.Utils do
   def maybe_fix_image_object(%{"url" => url}), do: url
   def maybe_fix_image_object(_), do: nil
 
-  def maybe_create_image_object(url, _actor) when is_nil(url), do: nil
+  def maybe_create_image_object(nil, _actor), do: nil
 
   def maybe_create_image_object(url, actor) do
     case CommonsPub.Uploads.upload(CommonsPub.Uploads.ImageUploader, actor, %{url: url}, %{}) do
@@ -340,16 +360,16 @@ defmodule CommonsPub.ActivityPub.Utils do
     end
   end
 
-  def maybe_create_image_object(url) when not is_nil(url) do
+  def maybe_create_image_object(nil), do: nil
+
+  def maybe_create_image_object(url) do
     %{
       "type" => "Image",
       "url" => url
     }
   end
 
-  def maybe_create_image_object(_), do: nil
-
-  def maybe_create_icon_object(url, _actor) when is_nil(url), do: nil
+  def maybe_create_icon_object(nil, _actor), do: nil
 
   def maybe_create_icon_object(url, actor) do
     case CommonsPub.Uploads.upload(CommonsPub.Uploads.IconUploader, actor, %{url: url}, %{}) do

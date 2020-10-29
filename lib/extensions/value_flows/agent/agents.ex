@@ -24,8 +24,7 @@ defmodule ValueFlows.Agent.Agents do
 
   def actor_to_agent(a) do
     a
-    |> ValueFlows.Util.maybe_put(:note, a.summary)
+    |> CommonsPub.Common.maybe_put(:note, a.summary)
 
-    # |> ValueFlows.Util.maybe_put(:note, a.summary)
   end
 end
