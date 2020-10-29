@@ -2,12 +2,12 @@ defmodule CommonsPub.Workers.ObanLogger do
   require Logger
 
   def handle_event([:oban, :job, :exception], _timing, meta, nil) do
-    # IO.inspect(meta: meta)
-    Logger.error(
-      "[#{meta.queue}: #{meta.id}] #{meta.worker} job failed: #{inspect(meta.kind, pretty: true)} - #{inspect(meta.error, pretty: true)}"
-    )
 
-    # Logger.warn("[#{meta.queue}: #{meta.id}] args: #{inspect(meta.args, pretty: true)}")
+    Logger.error(
+      "[#{meta.queue}: #{meta.id}] #{meta.worker} job failed with #{inspect(meta.kind)}: #{
+        Exception.format_banner(meta.kind, meta.error, meta.stacktrace)
+      }"
+    )
 
     for line <- meta.stacktrace do
       Logger.warn("[#{meta.queue}: #{meta.id}] #{inspect(line, pretty: true)}")
