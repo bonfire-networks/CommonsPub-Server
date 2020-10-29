@@ -13,7 +13,6 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
       comment = fake_comment!(actor, thread)
 
       assert {:ok, activity} = Publisher.publish("create", comment)
-      # IO.inspect(activity)
       assert activity.object.pointer_id == comment.id
       assert activity.local == true
       assert activity.object.local == true

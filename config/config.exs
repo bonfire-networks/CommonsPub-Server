@@ -116,6 +116,8 @@ actor_modules = %{
   "Group" => CommonsPub.Communities,
   "MN:Collection" => CommonsPub.Collections,
   "Organization" => CommonsPub.Organisations,
+  "Application" => CommonsPub.Characters,
+  "Service" => CommonsPub.Characters,
   fallback: CommonsPub.Characters
 }
 
@@ -128,31 +130,38 @@ activity_modules = %{
   fallback: CommonsPub.Activities
 }
 
-object_modules = %{
+inventory_modules = %{
   "Note" => CommonsPub.Threads.Comments,
+  "Article" => CommonsPub.Threads.Comments,
+  "Question" => CommonsPub.Threads.Comments,
+  "Answer" => CommonsPub.Threads.Comments,
   "Document" => CommonsPub.Resources,
-  "Follow" => CommonsPub.Follows,
-  "Like" => CommonsPub.Likes,
-  "Flag" => CommonsPub.Flags,
-  "Block" => CommonsPub.Blocks
+  "Page" => CommonsPub.Resources,
+  "Video" => CommonsPub.Resources,
+  fallback: CommonsPub.Threads.Comments
 }
 
-possible_actor_types = [
-  "Person",
-  "Group",
-  "Organization",
-  "Application",
-  "Service",
-  "Community",
-  "MN:Collection",
-  "CommonsPub:Character"
-]
+object_modules =
+  Map.merge(inventory_modules, %{
+    "Follow" => CommonsPub.Follows,
+    "Like" => CommonsPub.Likes,
+    "Flag" => CommonsPub.Flags,
+    "Block" => CommonsPub.Blocks
+  })
+
+actor_types = Map.keys(actor_modules)
+activity_types = Map.keys(activity_modules)
+inventory_types = Map.keys(inventory_modules)
+object_types = Map.keys(object_modules)
 
 config :commons_pub, CommonsPub.ActivityPub.Adapter,
   actor_modules: actor_modules,
+  actor_types: actor_types,
   activity_modules: activity_modules,
+  activity_types: activity_types,
   object_modules: object_modules,
-  possible_actor_types: possible_actor_types
+  inventory_types: inventory_types,
+  object_types: object_types
 
 config :commons_pub, Instance,
   hostname: hostname,
@@ -333,7 +342,10 @@ config :activity_pub, :instance,
   federation_publisher_modules: [ActivityPubWeb.Publisher],
   federation_reachability_timeout_days: 7,
   federating: true,
-  rewrite_policy: []
+  rewrite_policy: [],
+  # supported_activity_types: activity_types,
+  supported_actor_types: actor_types,
+  supported_object_types: inventory_types
 
 ### Stuff you probably won't want to change
 

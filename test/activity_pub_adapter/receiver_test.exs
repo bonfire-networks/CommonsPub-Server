@@ -318,6 +318,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
         "actor" => user.ap_id
       }
 
+
       ActivityPubWeb.Transmogrifier.handle_incoming(data)
       Oban.drain_queue(queue: :ap_incoming)
       {:ok, user} = Utils.get_raw_character_by_ap_id(user.ap_id)

@@ -2,36 +2,15 @@ defmodule CommonsPub.ActivityPub.Receiver do
   require Logger
   alias CommonsPub.Search.Indexer
 
-  # the following constants are overidden in config, so please make any changes/additions there instead
+  # the following constants are derived from config, so please make any changes/additions there
 
-  @actor_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :actor_modules], %{
-                   "Person" => CommonsPub.Users,
-                   "Group" => CommonsPub.Communities,
-                   fallback: CommonsPub.Characters
-                 })
+  @actor_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :actor_modules])
+  @activity_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :activity_modules])
+  @object_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :object_modules])
 
-  @activity_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :activity_modules], %{
-                      "Follow" => CommonsPub.Follows,
-                      "Like" => CommonsPub.Likes,
-                      "Flag" => CommonsPub.Flags,
-                      "Block" => CommonsPub.Blocks,
-                      "Delete" => CommonsPub.Common.Deletion,
-                      fallback: CommonsPub.Activities
-                    })
-
-  @object_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :object_modules], %{
-                    "Note" => CommonsPub.Threads.Comments,
-                    "Follow" => CommonsPub.Follows,
-                    "Like" => CommonsPub.Likes,
-                    "Flag" => CommonsPub.Flags,
-                    "Block" => CommonsPub.Blocks
-                  })
-
-  @actor_types Map.keys(@actor_modules) ++
-                 CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :possible_actor_types])
-
-  @activity_types Map.keys(@activity_modules)
-  @object_types Map.keys(@object_modules)
+  @actor_types CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :actor_types])
+  @activity_types CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :activity_types])
+  @object_types CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :object_types])
 
   @doc """
   load the activity data
