@@ -163,8 +163,7 @@ defmodule CommonsPub.Mixfile do
       {:html_sanitize_ex, "~> 1.4"},
       {
         :linkify,
-        git: "https://gitlab.com/CommonsPub/linkify.git",
-        branch: "master"
+        git: "https://gitlab.com/CommonsPub/linkify.git", branch: "master"
         # path: "uploads/linkify"
       },
       # geolocation in postgres
@@ -215,7 +214,8 @@ defmodule CommonsPub.Mixfile do
       # module mocking
       {:mock, "~> 0.3.3", only: :test},
       # autorun tests during dev
-      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false}
+      {:cortex, "~> 0.1", only: [:dev, :test]}
+      # {:mix_test_watch, "~> 1.0", only: :dev, runtime: false}
     ]
   end
 

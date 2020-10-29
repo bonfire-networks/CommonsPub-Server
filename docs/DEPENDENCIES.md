@@ -18,6 +18,7 @@
 | comeonin               | BSD; Unrecognized license          | 5.3.1   | https://hex.pm/packages/comeonin                       |
 | connection             | Apache 2.0                         | 1.0.4   | https://hex.pm/packages/connection                     |
 | cors_plug              | Apache 2.0                         | 2.0.2   | https://hex.pm/packages/cors_plug                      |
+| cortex                 | MIT                                | 0.6.0   | https://hex.pm/packages/cortex                         |
 | cowboy                 | ISC                                | 2.8.0   | https://hex.pm/packages/cowboy                         |
 | cowboy_telemetry       | Apache 2.0                         | 0.3.0   | https://hex.pm/packages/cowboy_telemetry               |
 | cowlib                 | ISC                                | 2.9.1   | https://hex.pm/packages/cowlib                         |
@@ -67,7 +68,6 @@
 | metrics                | BSD                                | 1.0.1   | https://hex.pm/packages/metrics                        |
 | mime                   | Apache 2.0                         | 1.4.0   | https://hex.pm/packages/mime                           |
 | mimerl                 | MIT                                | 1.2.0   | https://hex.pm/packages/mimerl                         |
-| mix_test_watch         | MIT                                | 1.0.2   | https://hex.pm/packages/mix_test_watch                 |
 | mochiweb               | MIT                                | 2.20.1  | https://hex.pm/packages/mochiweb                       |
 | mock                   | MIT                                |         | https://hex.pm/packages/mock                           |
 | nimble_parsec          | Apache 2.0                         | 0.5.0   | https://hex.pm/packages/nimble_parsec                  |
