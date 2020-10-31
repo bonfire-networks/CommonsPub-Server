@@ -1,11 +1,13 @@
 defmodule ValueFlows.Proposal.FederateTest do
   use CommonsPub.DataCase, async: false
- ###
+
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Utils.Simulation
   import CommonsPub.Test.Faking
 
   import Geolocation.Simulate
+
+  import Measurement.Simulate
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -14,9 +16,10 @@ defmodule ValueFlows.Proposal.FederateTest do
   @schema CommonsPub.Web.GraphQL.Schema
 
   describe "proposal" do
-
     test "federates/publishes a proposal" do
       user = fake_user!()
+
+      unit = fake_unit!(user)
 
       parent = fake_user!()
 
@@ -24,20 +27,16 @@ defmodule ValueFlows.Proposal.FederateTest do
 
       proposal = fake_proposal!(user, parent, %{eligible_location_id: location.id})
 
-      intent = fake_intent!(user)
+      intent = fake_intent!(user, unit)
 
-      some(5, fn ->
-        fake_proposed_intent!(proposal, intent)
-      end)
+      fake_proposed_intent!(proposal, intent)
 
-      some(5, fn ->
-        fake_proposed_to!(fake_user!(), proposal)
-      end)
+      fake_proposed_to!(fake_user!(), proposal)
 
-      IO.inspect(pre_fed: proposal)
+      # IO.inspect(pre_fed: proposal)
 
-      assert {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create",  proposal)
-      # IO.inspect(pub_lished: activity) ##
+      assert {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", proposal)
+      # IO.inspect(published: activity) #######
 
       assert activity.object.pointer_id == proposal.id
       assert activity.local == true

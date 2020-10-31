@@ -254,7 +254,6 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     {:noreply, socket |> assign(page: assigns.page + 1) |> fetch_function.(assigns)}
   end
 
-
   def prepare_common(object) do
     link = e(content_url(object), e(object, :canonical_url, "#no-link"))
     icon = icon(object)
@@ -468,19 +467,27 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     canonical_url
   end
 
+  def object_url({:error, %{status: 404}}) do
+    "/404"
+  end
+
   def object_url(%{__struct__: module_name} = activity) do
-    IO.inspect(unsupported_by_activity_url: module_name)
-    "/+++" <> Map.get(activity, :id) <> "#unsupported_by_activity_url/" <> to_string(module_name)
+    IO.inspect(type_unknown_by_object_url: module_name)
+    "/+++" <> Map.get(activity, :id) <> "#type_unknown_by_object_url/" <> to_string(module_name)
   end
 
   def object_url(%{id: id} = activity) do
-    IO.inspect(unsupported_by_activity_url: activity)
-    "/+++" <> id <> "#unsupported_by_activity_url"
+    IO.inspect(unrecognised_by_object_url: activity)
+    "/+++" <> id <> "#type_unknown_by_object_url"
+  end
+
+  def object_url(id) when is_binary(id) do
+    CommonsPub.Meta.Pointers.get(id) |> object_url()
   end
 
   def object_url(activity) do
-    IO.inspect(unsupported_by_activity_url: activity)
-    "/#unsupported_by_activity_url"
+    IO.inspect(unsupported_by_object_url: activity)
+    "/404#unsupported_by_object_url"
   end
 
   def e_actor_field(obj, field, fallback) do

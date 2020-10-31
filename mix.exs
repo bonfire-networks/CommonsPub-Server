@@ -215,8 +215,8 @@ defmodule CommonsPub.Mixfile do
       # module mocking
       {:mock, "~> 0.3.3", only: :test},
       # autorun tests during dev
-      {:cortex, "~> 0.1", only: [:dev, :test]}
-      # {:mix_test_watch, "~> 1.0", only: :dev, runtime: false}
+      {:cortex, "~> 0.1", only: [:dev, :test]},
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false}
     ]
   end
 

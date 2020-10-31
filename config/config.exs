@@ -150,9 +150,10 @@ object_modules =
   })
 
 actor_types = Map.keys(actor_modules)
-activity_types = Map.keys(activity_modules)
+activity_types = Map.keys(activity_modules) ++ ["Create", "Update", "Accept", "Announce", "Undo"]
 inventory_types = Map.keys(inventory_modules)
 object_types = Map.keys(object_modules)
+all_types = actor_types ++ activity_types ++ inventory_types ++ object_types
 
 config :commons_pub, CommonsPub.ActivityPub.Adapter,
   actor_modules: actor_modules,
@@ -161,7 +162,8 @@ config :commons_pub, CommonsPub.ActivityPub.Adapter,
   activity_types: activity_types,
   object_modules: object_modules,
   inventory_types: inventory_types,
-  object_types: object_types
+  object_types: object_types,
+  all_types: all_types
 
 config :commons_pub, Instance,
   hostname: hostname,
@@ -343,7 +345,7 @@ config :activity_pub, :instance,
   federation_reachability_timeout_days: 7,
   federating: true,
   rewrite_policy: [],
-  # supported_activity_types: activity_types,
+  supported_activity_types: activity_types,
   supported_actor_types: actor_types,
   supported_object_types: inventory_types
 
@@ -365,13 +367,13 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# if Mix.env() == :dev do
-#   config :mix_test_watch,
-#     clear: true,
-#     tasks: [
-#       "test"
-#     ]
-# end
+if Mix.env() == :dev do
+  config :mix_test_watch,
+    clear: true,
+    tasks: [
+      "test"
+    ]
+end
 
 config :mime, :types, %{
   "application/activity+json" => ["json"],

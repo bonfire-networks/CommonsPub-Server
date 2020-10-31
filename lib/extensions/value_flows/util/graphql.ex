@@ -21,6 +21,10 @@ defmodule ValueFlows.Util.GraphQL do
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
 
+  @doc "Returns the canonical url for a character"
+  def canonical_url_edge(obj, _, _),
+    do: {:ok, CommonsPub.ActivityPub.Utils.get_object_canonical_url(obj)}
+
   def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do
     # CommonResolver.context_edge(%{context_id: id}, nil, info)
     {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}

@@ -4,7 +4,7 @@
 | absinthe               | MIT                                | 1.5.3   | https://hex.pm/packages/absinthe                       |
 | absinthe_error_payload | BSD-3; Unrecognized license        | 1.1.3   | https://hex.pm/packages/absinthe_error_payload         |
 | absinthe_plug          | MIT                                | 1.5.0   | https://hex.pm/packages/absinthe_plug                  |
-| activity_pub           | Undefined                          | 0.1.0   | https://gitlab.com/CommonsPub/activitypub              |
+| activity_pub           | Undefined                          | 0.1.0   |                                                        |
 | argon2_elixir          | Apache 2.0                         | 2.3.0   | https://hex.pm/packages/argon2_elixir                  |
 | bamboo                 | MIT                                | 1.6.0   | https://hex.pm/packages/bamboo                         |
 | bamboo_smtp            | MIT                                | 2.1.0   | https://hex.pm/packages/bamboo_smtp                    |
@@ -68,6 +68,7 @@
 | metrics                | BSD                                | 1.0.1   | https://hex.pm/packages/metrics                        |
 | mime                   | Apache 2.0                         | 1.4.0   | https://hex.pm/packages/mime                           |
 | mimerl                 | MIT                                | 1.2.0   | https://hex.pm/packages/mimerl                         |
+| mix_test_watch         | MIT                                | 1.0.2   | https://hex.pm/packages/mix_test_watch                 |
 | mochiweb               | MIT                                | 2.20.1  | https://hex.pm/packages/mochiweb                       |
 | mock                   | MIT                                |         | https://hex.pm/packages/mock                           |
 | nimble_parsec          | Apache 2.0                         | 0.5.0   | https://hex.pm/packages/nimble_parsec                  |

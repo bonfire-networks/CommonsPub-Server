@@ -50,8 +50,8 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
   def get_actor_by_username(username) do
     case CommonsPub.ActivityPub.Utils.get_raw_character_by_username(username) do
-      {:ok, actor} ->
-        {:ok, CommonsPub.ActivityPub.Types.character_to_actor(actor)}
+      {:ok, character} ->
+        {:ok, CommonsPub.ActivityPub.Types.character_to_actor(character)}
 
       _ ->
         {:error, "not found"}
@@ -60,11 +60,31 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
   def get_actor_by_ap_id(ap_id) do
     case CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(ap_id) do
-      {:ok, actor} ->
-        {:ok, CommonsPub.ActivityPub.Types.character_to_actor(actor)}
+      {:ok, character} ->
+        {:ok, CommonsPub.ActivityPub.Types.character_to_actor(character)}
 
       _ ->
         {:error, "not found"}
+    end
+  end
+
+  # def redirect_to_object(id) do
+  #   if System.get_env("LIVEVIEW_ENABLED", "true") == "true" do
+  #     url = CommonsPub.Utils.Web.CommonHelper.object_url(id)
+  #     if !String.contains?(url, "/404"), do: url
+  #   end
+  # end
+
+  def redirect_to_actor(username) do
+    if System.get_env("LIVEVIEW_ENABLED", "true") == "true" do
+      case CommonsPub.ActivityPub.Utils.get_raw_character_by_username(username) do
+        {:ok, character} ->
+          url = CommonsPub.Utils.Web.CommonHelper.object_url(character)
+          if !String.contains?(url, "/404"), do: url
+
+        _ ->
+          nil
+      end
     end
   end
 

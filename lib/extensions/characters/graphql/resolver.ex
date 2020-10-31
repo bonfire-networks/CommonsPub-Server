@@ -209,7 +209,7 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
   #   CommonsPub.Characters.GraphQL.Resolver.creator_edge(%{creator_id: id}, nil, info)
   # end
 
-  @doc "Returns the canonical url"
+  @doc "Returns the canonical url for a character"
   def canonical_url_edge(obj, _, _),
     do: {:ok, CommonsPub.ActivityPub.Utils.get_actor_canonical_url(obj)}
 

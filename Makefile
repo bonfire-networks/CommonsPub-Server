@@ -183,19 +183,22 @@ dev-db-migrate: init ## Run migrations on dev DB
 dev-db-seeds: init ## Insert some test data in dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.seeds
 
-dev-test-db: init ## Create or reset the test DB
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run -e MIX_ENV=test web mix ecto.reset
-
-dev-test: init ## Run tests
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test $(dir)
-
 dev-watch-test: init ## Run tests
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports -e MIX_ENV=test web iex -S mix phx.server
+
+test-db: init ## Create or reset the test DB
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run -e MIX_ENV=test web mix ecto.reset
+
+test: init ## Run tests
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test $(dir)
+
+test-watch: init ## Run tests
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test.watch --stale $(dir)
 
 dev-psql: init ## Run postgres (without Docker)
 	psql -h localhost -U postgres $(APP_DEV_CONTAINER)
 
-dev-test-psql: init ## Run postgres for tests (without Docker)
+test-psql: init ## Run postgres for tests (without Docker)
 	psql -h localhost -U postgres "$(APP_NAME)_test"
 
 dev-setup: dev-deps dev-db dev-db-migrate ## Prepare dependencies and DB for dev

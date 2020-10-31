@@ -72,7 +72,7 @@ defmodule ValueFlows.Hydration do
       },
       proposal: %{
         canonical_url: [
-          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
@@ -92,7 +92,7 @@ defmodule ValueFlows.Hydration do
       },
       intent: %{
         canonical_url: [
-          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
         ],
         provider: [
           resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
@@ -124,7 +124,7 @@ defmodule ValueFlows.Hydration do
       },
       economic_event: %{
         canonical_url: [
-          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
         ],
         provider: [
           resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
@@ -160,7 +160,7 @@ defmodule ValueFlows.Hydration do
       },
       economic_resource: %{
         canonical_url: [
-          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
@@ -192,7 +192,7 @@ defmodule ValueFlows.Hydration do
       },
       process: %{
         canonical_url: [
-          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+          resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3

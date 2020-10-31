@@ -4,6 +4,26 @@ defmodule CommonsPub.Meta.Pointers do
   alias CommonsPub.Repo
   alias Pointers.{Pointer}
 
+  def get(id, filters \\ [])
+
+  def get(id, filters) when is_binary(id) do
+    if CommonsPub.Common.is_ulid(id) do
+      with {:ok, pointer} <- one(id: id) do
+        get(pointer, filters)
+      end
+    else
+      {:error, CommonsPub.Common.NotFoundError.new()}
+    end
+  end
+
+  def get(%Pointer{} = pointer, filters) do
+    follow!(pointer, filters)
+  end
+
+  def get(%{} = thing, _) do
+    thing
+  end
+
   def one(filters), do: Repo.single(PointersQueries.query(Pointer, filters))
 
   def one!(filters), do: Repo.one!(PointersQueries.query(Pointer, filters))
@@ -118,7 +138,6 @@ defmodule CommonsPub.Meta.Pointers do
   defp loader(schema, id_filters, override_filters) when not is_atom(schema) do
     loader(TableService.lookup_schema!(schema), id_filters, override_filters)
   end
-
 
   defp loader(schema, id_filters, override_filters) do
     module = apply(schema, :queries_module, [])

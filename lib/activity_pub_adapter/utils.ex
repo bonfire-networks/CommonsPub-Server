@@ -85,7 +85,15 @@ defmodule CommonsPub.ActivityPub.Utils do
 
   @doc "Generate canonical URL for local object"
   def generate_object_ap_id(%{id: id}) do
-    "#{ap_base_url()}/objects/#{id}"
+    generate_object_ap_id(id)
+  end
+
+  def generate_object_ap_id(url = "http://" <> _) do
+    url
+  end
+
+  def generate_object_ap_id(url = "https://" <> _) do
+    url
   end
 
   def generate_object_ap_id(id) when is_binary(id) or is_number(id) do
@@ -121,7 +129,8 @@ defmodule CommonsPub.ActivityPub.Utils do
     # FIXME: this should be only one query, and support other types (or two, using pointers?)
     with {:error, _e} <- CommonsPub.Users.one([:default, id: id]),
          {:error, _e} <- CommonsPub.Communities.one([:default, id: id]),
-         {:error, _e} <- CommonsPub.Collections.one([:default, id: id]) do
+         {:error, _e} <- CommonsPub.Collections.one([:default, id: id]),
+         {:error, _e} <- CommonsPub.Characters.one([:default, id: id]) do
       {:error, "not found"}
     end
   end
