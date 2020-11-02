@@ -17,6 +17,8 @@ defmodule CommonsPub.Common do
   def maybe_put(map, _key, ""), do: map
   def maybe_put(map, key, value), do: Map.put(map, key, value)
 
+  @doc "Append an item to a list if it is not nil"
+  @spec maybe_append([any()], any()) :: [any()]
   def maybe_append(list, nil), do: list
   def maybe_append(list, value), do: [value | list]
 

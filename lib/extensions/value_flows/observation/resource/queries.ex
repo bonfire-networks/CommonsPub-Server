@@ -50,6 +50,14 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     )
   end
 
+  def join_to(q, {:event_input, input_of_id}, _jq) do
+    join(q, :inner, [resource: r],
+      e in EconomicEvent,
+      as: :event,
+      on: e.resource_inventoried_as_id == r.id and e.input_of_id == ^input_of_id
+    )
+  end
+
   def join_to(q, :geolocation, jq) do
     join(q, jq, [resource: c], g in assoc(c, :current_location), as: :geolocation)
   end
