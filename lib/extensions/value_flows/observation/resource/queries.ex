@@ -42,8 +42,8 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     )
   end
 
-  def join_to(q, {:event_output, output_of_id}, jq) do
-    join(q, jq, [resource: r],
+  def join_to(q, {:event_output, output_of_id}, _jq) do
+    join(q, :inner, [resource: r],
       e in EconomicEvent,
       as: :event,
       on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id,
