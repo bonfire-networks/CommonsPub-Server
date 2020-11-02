@@ -261,10 +261,6 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     )
   end
 
-  def filter(q, {:distinct, :id}) do
-    distinct(q, :id)
-  end
-
   # grouping and counting
 
   def filter(q, {:group_count, key}) when is_atom(key) do

@@ -93,7 +93,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
         provider: user.id,
         receiver: user.id
       })
-      IO.inspect(event, label: "event")
       assert {:ok, [tracked_resource]} = EconomicEvents.track(event)
       assert resource.id == tracked_resource.id
     end
