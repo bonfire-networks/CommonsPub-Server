@@ -37,14 +37,14 @@ defmodule CommonsPub.Mixfile do
         ],
         output: "docs/exdoc"
       ],
-      test_paths: ["test"], # can add test dirs to include, eg: "libs/activitypub/test" (if so, the corresponding support dir should also be added to elixirc_paths below)
+      test_paths: existing_paths(["test", "libs/activitypub/test"]), # can add test dirs to include, eg: "libs/activitypub/test" (if so, the corresponding support dir should also be added to elixirc_paths below)
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test]
     ]
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"] # "libs/activitypub/test/support"
+  defp elixirc_paths(:test), do: existing_paths(["lib", "test/support", "libs/activitypub/test/support"]) #
   defp elixirc_paths(:dev), do: ["lib"]
   defp elixirc_paths(_), do: ["lib"]
 
@@ -292,6 +292,10 @@ defmodule CommonsPub.Mixfile do
     path = Keyword.get(params, :path)
     IO.inspect(using_lib_path: path)
     path
+  end
+
+  defp existing_paths(list) do
+    IO.inspect(Enum.filter(list, & File.exists?(&1)))
   end
 
   defp sentry?(), do: Mix.env() not in [:dev, :test]

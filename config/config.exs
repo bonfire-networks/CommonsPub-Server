@@ -317,15 +317,19 @@ config :commons_pub, CommonsPub.MediaProxy,
   impl: CommonsPub.DirectHTTPMediaProxy,
   path: "/media/"
 
-### Standin data for values you'll have to provide in the ENV in prod
+fallback_secret_key_base = "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl"
 
+### Standin data for values you'll have to provide in the ENV in prod
 config :commons_pub, CommonsPub.Web.Endpoint,
   url: [host: "localhost"],
   protocol: "https",
-  secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
+  secret_key_base:  System.get_env("SECRET_KEY_BASE", fallback_secret_key_base),
   render_errors: [view: CommonsPub.Web.ErrorView, accepts: ["json", "activity+json"]],
   pubsub_server: CommonsPub.PubSub,
   secure_cookie_flag: true
+
+# config :activity_pub, ActivityPubWeb.Endpoint,
+#     secret_key_base:  System.get_env("SECRET_KEY_BASE", fallback_secret_key_base)
 
 version =
   with {version, 0} <- System.cmd("git", ["rev-parse", "HEAD"]) do
@@ -484,6 +488,7 @@ config :activity_pub, :instance,
 
 config :activity_pub, :repo, CommonsPub.Repo
 config :activity_pub, adapter: CommonsPub.ActivityPub.Adapter
+config :activity_pub, :endpoint, CommonsPub.Web.Endpoint
 config :nodeinfo, adapter: CommonsPub.NodeinfoAdapter
 
 # Configures http settings, upstream proxy etc.

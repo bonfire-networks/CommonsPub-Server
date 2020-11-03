@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule HttpRequestMock do
+defmodule CommonsPub.HttpRequestMock do
   require Logger
 
   def request(

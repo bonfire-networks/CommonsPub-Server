@@ -26,7 +26,7 @@ defmodule CommonsPub.Uploads do
   """
   @spec upload(upload_def :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Content.t()} | {:error, Changeset.t()}
-  def upload(upload_def, %User{} = uploader, file, attrs) do
+  def upload(upload_def, uploader, file, attrs) do
     file = CommonsPub.Utils.Web.CommonHelper.input_to_atoms(file)
 
     with {:ok, file} <- parse_file(file),
