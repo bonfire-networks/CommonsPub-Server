@@ -117,7 +117,12 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     with {:ok, resources} <- track_resource_output(event),
          {:ok, to_resource} <- track_to_resource_output(event),
          {:ok, process} <- track_process_input(event) do
-      {:ok, resources |> CommonsPub.Common.maybe_append(process) |> CommonsPub.Common.maybe_append(to_resource)}
+      {
+        :ok,
+        resources
+        |> CommonsPub.Common.maybe_append(process)
+        |> CommonsPub.Common.maybe_append(to_resource)
+      }
     end
   end
 
@@ -150,10 +155,15 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   def trace(event) do
-    with {:ok, resources} <- trace_resource_input(event),
-         {:ok, processes} <- trace_process_output(event),
-         {:ok, resources_inventoried_as} <- trace_resource_inventoried_as(event) do
-      {:ok, processes ++ resources_inventoried_as ++ resources}
+    with {:ok, resource_inventoried_as} <- trace_resource_inventoried_as(event),
+         {:ok, process} <- trace_process_output(event),
+         {:ok, resources} <- trace_resource_input(event) do
+      {
+        :ok,
+        resources
+        |> CommonsPub.Common.maybe_append(resource_inventoried_as)
+        |> CommonsPub.Common.maybe_append(process)
+      }
     end
   end
 
@@ -161,26 +171,28 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
          %{action_id: action_id, resource_inventoried_as_id: resource_inventoried_as_id} = _event
        )
        when action_id in ["transfer", "move"] and not is_nil(resource_inventoried_as_id) do
-    EconomicResources.many([:default, id: resource_inventoried_as_id])
+    EconomicResources.one([:default, id: resource_inventoried_as_id])
   end
 
   defp trace_resource_inventoried_as(_) do
-    {:ok, []}
+    {:ok, nil}
   end
 
   defp trace_process_output(%{output_of_id: output_of_id}) when not is_nil(output_of_id) do
-    Processes.many([:default, id: output_of_id])
+    Processes.one([:default, id: output_of_id])
   end
 
   defp trace_process_output(_) do
-    {:ok, []}
+    {:ok, nil}
   end
 
   defp trace_resource_input(%{input_of_id: input_of_id}) when not is_nil(input_of_id) do
-    with {:ok, events} <- many([:default, input_of_id: input_of_id]),
-         resource_ids = Enum.map(events, & &1.resource_inventoried_as_id) do
-      EconomicResources.many([:default, id: resource_ids])
-    end
+    # with {:ok, events} <- many([:default, input_of_id: input_of_id]),
+    #      resource_ids = Enum.map(events, & &1.resource_inventoried_as_id) do
+    #   EconomicResources.many([:default, id: resource_ids])
+    # end
+
+    EconomicResources.many([:default, [join: [event_input: input_of_id]]])
   end
 
   defp trace_resource_input(_) do

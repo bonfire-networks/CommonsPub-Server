@@ -80,6 +80,22 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert {:ok, [tracked_resource]} = EconomicEvents.track(event)
       assert resource.id == tracked_resource.id
     end
+
+    test "if it is a transfer or move event part of a process, the distinct EconomicResource labelled toResourceInventoriedAs" do
+      user = fake_user!()
+      resource = fake_economic_resource!(user)
+      process = fake_process!(user)
+      event = fake_economic_event!(user, %{
+        action: "transfer",
+        output_of: process.id,
+        resource_inventoried_as: resource.id,
+        # to_resource_inventoried_as: resource.id,
+        provider: user.id,
+        receiver: user.id
+      })
+      assert {:ok, [tracked_resource]} = EconomicEvents.track(event)
+      assert resource.id == tracked_resource.id
+    end
   end
 
   describe "trace" do
