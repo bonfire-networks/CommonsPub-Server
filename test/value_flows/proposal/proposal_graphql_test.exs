@@ -45,7 +45,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       end)
 
       some(5, fn ->
-        fake_proposed_to!(fake_user!(), proposal)
+        fake_proposed_to!(fake_agent!(), proposal)
       end)
 
       assert proposal_queried =
@@ -106,7 +106,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       proposal = fake_proposal!(user)
 
       some(5, fn ->
-        fake_proposed_to!(fake_user!(), proposal)
+        fake_proposed_to!(fake_agent!(), proposal)
       end)
 
       q = proposal_query(fields: [published_to: [:id]])

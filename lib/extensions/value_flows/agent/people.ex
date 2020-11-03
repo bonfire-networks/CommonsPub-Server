@@ -24,7 +24,7 @@ defmodule ValueFlows.Agent.People do
 
   def actor_to_person(u) do
     u
-    |> ValueFlows.Agent.Agents.actor_to_agent()
-    |> Map.put(:agent_type, :person)
+    |> ValueFlows.Agent.Agents.character_to_agent()
+    # |> Map.put(:agent_type, :person)
   end
 end

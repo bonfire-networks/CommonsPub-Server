@@ -34,7 +34,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
       user = fake_user!()
 
       location = fake_geolocation!(user)
-      owner = fake_user!()
+      owner = fake_agent!()
       unit = fake_unit!(user)
 
       attrs = %{

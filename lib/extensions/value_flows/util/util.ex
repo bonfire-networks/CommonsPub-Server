@@ -134,8 +134,6 @@ defmodule ValueFlows.Util do
            }
          } do
       activity_params
-    else
-      e -> {:error, e}
     end
   end
 
@@ -165,7 +163,7 @@ defmodule ValueFlows.Util do
 
   def ap_deep_key_rename(map, parent_key \\ nil)
 
-  def ap_deep_key_rename(map = %{}, parent_key) do
+  def ap_deep_key_rename(map = %{}, _parent_key) do
     map
     |> Enum.reject(fn {_, v} -> is_nil(v) or v == %{} end)
     |> Enum.map(fn {k, v} -> {ap_field_key(k), ap_deep_key_rename(v, k)} end)
@@ -189,7 +187,7 @@ defmodule ValueFlows.Util do
     CommonsPub.ActivityPub.Utils.get_object_canonical_url(val)
   end
 
-  def ap_deep_key_rename(val, parent_key) do
+  def ap_deep_key_rename(val, _parent_key) do
     # IO.inspect(deep_key_rename_k: parent_key)
     # IO.inspect(deep_key_rename_v: val)
     val

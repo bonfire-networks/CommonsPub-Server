@@ -152,8 +152,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
   describe "create" do
     test "can create an economic event" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
       action = action()
 
       assert {:ok, event} = EconomicEvents.create(

@@ -31,7 +31,7 @@ defmodule ValueFlows.Proposal.FederateTest do
 
       fake_proposed_intent!(proposal, intent)
 
-      fake_proposed_to!(fake_user!(), proposal)
+      fake_proposed_to!(fake_agent!(), proposal)
 
       # IO.inspect(pre_fed: proposal)
 

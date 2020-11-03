@@ -22,9 +22,28 @@ defmodule ValueFlows.Agent.Agents do
     end
   end
 
-  def actor_to_agent(a) do
+  def agent_to_character(a) do
     a
-    |> CommonsPub.Common.maybe_put(:note, a.summary)
+    |> CommonsPub.Common.maybe_put(:summary, Map.get(a, :note))
+  end
 
+  def character_to_agent(a) do
+    a
+    |> CommonsPub.Common.maybe_put(:note, Map.get(a, :summary))
+    |> add_type()
+  end
+
+  def add_type(%CommonsPub.Users.User{} = a) do
+    a
+    |> Map.put(:agent_type, :person)
+  end
+
+  def add_type(%Organisation{} = a) do
+    a
+    |> Map.put(:agent_type, :organization)
+  end
+
+  def add_type(a) do
+    a
   end
 end

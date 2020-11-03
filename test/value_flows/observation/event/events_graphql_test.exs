@@ -24,8 +24,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
   describe "EconomicEvent" do
     test "fetches an economic event by ID (via HTTP)" do
       user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
       action = action()
 
       event =
@@ -52,8 +52,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       location = fake_geolocation!(user)
       unit = fake_unit!(user)
 
-      provider = fake_user!()
-      receiver = fake_user!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
       action = action()
 
       triggered_by = fake_economic_event!(user)

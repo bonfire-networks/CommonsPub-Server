@@ -2,6 +2,7 @@
 defmodule ValueFlows.Planning.Intent.IntentsTest do
   use CommonsPub.Web.ConnCase, async: true
 
+  import CommonsPub.Utils.Simulation
   import CommonsPub.Test.Faking
   import CommonsPub.Tag.Simulate
   import CommonsPub.Utils.Trendy, only: [some: 2]
@@ -55,22 +56,22 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       user = fake_user!()
 
       attrs = %{
-        provider: fake_user!().id
+        provider: fake_agent!().id
       }
 
       assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
       assert intent.provider_id == attrs.provider
 
       attrs = %{
-        receiver: fake_user!().id
+        receiver: fake_agent!().id
       }
 
       assert {:ok, intent} = Intents.create(user, action(), intent(attrs))
       assert intent.receiver_id == attrs.receiver
 
       attrs = %{
-        receiver: fake_user!().id,
-        provider: fake_user!().id
+        receiver: fake_agent!().id,
+        provider: fake_agent!().id
       }
 
       assert {:ok, intent} = Intents.create(user, action(), intent(attrs))

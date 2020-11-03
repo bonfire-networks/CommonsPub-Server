@@ -25,11 +25,15 @@ defmodule ValueFlows.Simulate do
 
   def agent(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &uuid/0)
+    # |> Map.put_new_lazy(:id, &ulid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:agent_type, &agent_type/0)
+  end
+
+  def fake_agent!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
+    ValueFlows.Agent.Agents.character_to_agent(a_fake_user!(ValueFlows.Agent.Agents.agent_to_character(agent(overrides))))
   end
 
   def resource_specification(base \\ %{}) do
@@ -55,13 +59,13 @@ defmodule ValueFlows.Simulate do
   def actions, do: Actions.actions_list()
 
   def action_id, do: action().id
-  def fake_user_id, do: fake_user!().id
+  def fake_agent_id, do: fake_agent!().id
 
   def economic_event(base \\ %{}) do
     base
     |> Map.put_new_lazy(:action, &action_id/0)
-    |> Map.put_new_lazy(:provider, &fake_user_id/0)
-    |> Map.put_new_lazy(:receiver, &fake_user_id/0)
+    |> Map.put_new_lazy(:provider, &fake_agent_id/0)
+    |> Map.put_new_lazy(:receiver, &fake_agent_id/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
     |> Map.put_new_lazy(:has_end, &future_datetime/0)
@@ -74,8 +78,8 @@ defmodule ValueFlows.Simulate do
   def economic_event_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("action", &action_id/0)
-    |> Map.put_new_lazy("provider", &fake_user_id/0)
-    |> Map.put_new_lazy("receiver", &fake_user_id/0)
+    |> Map.put_new_lazy("provider", &fake_agent_id/0)
+    |> Map.put_new_lazy("receiver", &fake_agent_id/0)
     |> Map.put_new_lazy("note", &summary/0)
     |> Map.put_new_lazy("hasBeginning", &past_datetime_iso/0)
     |> Map.put_new_lazy("hasEnd", &future_datetime_iso/0)

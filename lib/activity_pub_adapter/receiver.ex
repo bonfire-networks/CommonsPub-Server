@@ -90,19 +90,19 @@ defmodule CommonsPub.ActivityPub.Receiver do
         "AP Match#1.5 - mismatched activity_type and object_type, try first based on activity, otherwise on object"
       )
 
-      with {:error, e} <-
+      with {:error, e1} <-
              handle_activity_with(
                @activity_modules[activity_type],
                activity,
                object
              ),
-           {:error, e} <-
+           {:error, e2} <-
              handle_activity_with(
                @object_modules[object_type],
                activity,
                object
              ) do
-        {:error, e}
+        {:error, e1 || e2}
       end
     end
   end

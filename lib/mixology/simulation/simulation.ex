@@ -157,7 +157,9 @@ defmodule CommonsPub.Utils.Simulation do
 
     base
     |> Map.put_new_lazy(:preferred_username, fn -> uname end)
-    |> Map.put_new_lazy(:canonical_url, fn -> CommonsPub.ActivityPub.Utils.generate_actor_url(uname) end)
+    |> Map.put_new_lazy(:canonical_url, fn ->
+      CommonsPub.ActivityPub.Utils.generate_actor_url(uname)
+    end)
     |> Map.put_new_lazy(:signing_key, &signing_key/0)
   end
 
@@ -436,19 +438,16 @@ defmodule CommonsPub.Utils.Simulation do
   #   base
   # end
 
-  def fake_user(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
+  def a_fake_user(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
     CommonsPub.Users.register(user(overrides), public_registration: true)
   end
 
-  def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    with {:ok, user} <- fake_user(overrides, opts) do
+  def a_fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
+    with {:ok, user} <- a_fake_user(overrides, opts) do
       maybe_confirm_user_email(user, opts)
     end
   end
 
-  def fake_admin!(overrides \\ %{}, opts \\ []) do
-    fake_user!(Map.put(overrides, :is_instance_admin, true), opts)
-  end
 
   defp maybe_confirm_user_email(user, opts) do
     # IO.inspect(opts)

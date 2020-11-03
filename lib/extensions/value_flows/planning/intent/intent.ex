@@ -13,12 +13,11 @@ defmodule ValueFlows.Planning.Intent do
 
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Planning.Intent
-
+  alias ValueFlows.Proposal.ProposedIntent
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Proposal
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.Process
-
 
   @type t :: %__MODULE__{}
 

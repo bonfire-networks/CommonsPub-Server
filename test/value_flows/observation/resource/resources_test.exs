@@ -127,7 +127,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
     test "can create an economic resource with primary_accountable" do
       user = fake_user!()
-      owner = fake_user!()
+      owner = fake_agent!()
       attrs = %{
         primary_accountable: owner.id
       }

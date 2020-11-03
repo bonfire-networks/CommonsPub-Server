@@ -241,7 +241,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     test "creates a new intent with a provider" do
       user = fake_user!()
       unit = fake_unit!(user)
-      provider = fake_user!()
+      provider = fake_agent!()
 
       q = create_intent_mutation(fields: [provider: [:id]])
       conn = user_conn(user)
@@ -254,7 +254,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     test "creates a new intent with a receiver" do
       user = fake_user!()
       unit = fake_unit!(user)
-      receiver = fake_user!()
+      receiver = fake_agent!()
 
       q = create_intent_mutation(fields: [receiver: [:id]])
       conn = user_conn(user)
@@ -267,8 +267,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     test "creates a new intent with a provider and a receiver" do
       user = fake_user!()
       unit = fake_unit!(user)
-      provider = fake_user!()
-      receiver = fake_user!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
 
       q = create_intent_mutation(fields: [receiver: [:id], provider: [:id]])
       conn = user_conn(user)

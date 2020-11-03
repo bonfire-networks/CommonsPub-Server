@@ -2,6 +2,7 @@
 defmodule ValueFlows.Proposal.ProposalsTest do
   use CommonsPub.DataCase, async: true
 
+  import CommonsPub.Utils.Simulation
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Test.Faking
 
@@ -163,7 +164,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     test "fetches an existing item" do
       user = fake_user!()
       proposal = fake_proposal!(user)
-      agent = fake_user!()
+      agent = fake_agent!()
       proposed_to = fake_proposed_to!(agent, proposal)
 
       assert {:ok, fetched} = Proposals.one_proposed_to(id: proposed_to.id)
@@ -181,7 +182,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
     test "ignores deleted items when using :deleted filter" do
       user = fake_user!()
-      proposed_to = fake_proposed_to!(fake_user!(), fake_proposal!(user))
+      proposed_to = fake_proposed_to!(fake_agent!(), fake_proposal!(user))
       assert {:ok, proposed_to} = Proposals.delete_proposed_to(proposed_to)
 
       assert {:error, %CommonsPub.Common.NotFoundError{}} =
@@ -193,7 +194,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     test "creates a new proposed to thing" do
       user = fake_user!()
       proposal = fake_proposal!(user)
-      agent = fake_user!()
+      agent = fake_agent!()
       assert {:ok, proposed_to} = Proposals.propose_to(agent, proposal)
       assert_proposed_to(proposed_to)
     end
@@ -202,7 +203,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   describe "delete_proposed_to" do
     test "deletes an existing proposed to" do
       user = fake_user!()
-      proposed_to = fake_proposed_to!(fake_user!(), fake_proposal!(user))
+      proposed_to = fake_proposed_to!(fake_agent!(), fake_proposal!(user))
 
       refute proposed_to.deleted_at
       assert {:ok, proposed_to} = Proposals.delete_proposed_to(proposed_to)

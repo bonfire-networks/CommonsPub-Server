@@ -25,6 +25,18 @@ defmodule CommonsPub.Test.Faking do
   import CommonsPub.Utils.Trendy
   import CommonsPub.Utils.Simulation
 
+  def fake_user(overrides \\ %{}, opts \\ []) do
+    a_fake_user(overrides, opts)
+  end
+
+  def fake_user!(overrides \\ %{}, opts \\ []) do
+    a_fake_user!(overrides, opts)
+  end
+
+  def fake_admin!(overrides \\ %{}, opts \\ []) do
+    fake_user!(Map.put(overrides, :is_instance_admin, true), opts)
+  end
+
   def fake_register_email_domain_access!(domain \\ domain())
       when is_binary(domain) do
     {:ok, wl} = Access.create_register_email_domain(domain)
