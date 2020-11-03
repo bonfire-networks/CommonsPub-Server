@@ -80,11 +80,11 @@
 | phoenix_html           | MIT                                | 2.14.2  | https://hex.pm/packages/phoenix_html                   |
 | phoenix_integration    | MIT                                | 0.8.2   | https://hex.pm/packages/phoenix_integration            |
 | phoenix_live_dashboard | MIT                                | 0.2.10  | https://hex.pm/packages/phoenix_live_dashboard         |
-| phoenix_live_reload    | MIT                                | 1.2.4   | https://hex.pm/packages/phoenix_live_reload            |
-| phoenix_live_view      | MIT                                | 0.14.7  | https://hex.pm/packages/phoenix_live_view              |
+| phoenix_live_reload    | MIT                                | 1.3.0   | https://hex.pm/packages/phoenix_live_reload            |
+| phoenix_live_view      | MIT                                | 0.14.8  | https://hex.pm/packages/phoenix_live_view              |
 | phoenix_pubsub         | MIT                                | 2.0.0   | https://hex.pm/packages/phoenix_pubsub                 |
 | plug                   | Apache 2.0                         | 1.11.0  | https://hex.pm/packages/plug                           |
-| plug_cowboy            | Apache 2.0                         | 2.4.0   | https://hex.pm/packages/plug_cowboy                    |
+| plug_cowboy            | Apache 2.0                         | 2.4.1   | https://hex.pm/packages/plug_cowboy                    |
 | plug_crypto            | Apache 2.0                         | 1.2.0   | https://hex.pm/packages/plug_crypto                    |
 | pointers               | Apache 2.0                         | 0.5.1   | https://github.com/commonspub/pointers.git             |
 | pointers_ulid          | MIT                                | 0.2.2   | https://hex.pm/packages/pointers_ulid                  |
