@@ -37,41 +37,29 @@ defmodule CommonsPub.Mixfile do
         ],
         output: "docs/exdoc"
       ],
+      test_paths: ["test"], # can add test dirs to include, eg: "libs/activitypub/test" (if so, the corresponding support dir should also be added to elixirc_paths below)
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test]
     ]
   end
 
-  # Configuration for the OTP application.
-  # Type `mix help compile.app` for more information.
-  def application do
-    [
-      mod: {CommonsPub.Application, []},
-      extra_applications: [
-        :logger,
-        :runtime_tools,
-        :os_mon,
-        :hackney,
-        :mime,
-        :belt,
-        :bamboo,
-        :bamboo_smtp
-      ]
-    ]
-  end
-
-  defp releases do
-    [
-      commons_pub: [
-        include_executables_for: [:unix]
-      ]
-    ]
-  end
-
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(:dev), do: ["lib", "test/support"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"] # "libs/activitypub/test/support"
+  defp elixirc_paths(:dev), do: ["lib"]
   defp elixirc_paths(_), do: ["lib"]
+
+  # Specifies mix commands
+  defp aliases do
+    [
+      "ecto.rebuild": ["ecto.reset", "ecto.seeds"],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "ecto.seeds": ["run priv/repo/seeds.exs"],
+      "sentry.recompile": ["deps.compile sentry --force", "compile"],
+      test: ["ecto.create --quiet", "ecto.migrate", "test"],
+      "cpub.deps.clean": ["deps.clean pointers --build"]
+    ]
+  end
 
   def deps_list do
     # graphql
@@ -220,6 +208,32 @@ defmodule CommonsPub.Mixfile do
     ]
   end
 
+  # Configuration for the OTP application.
+  # Type `mix help compile.app` for more information.
+  def application do
+    [
+      mod: {CommonsPub.Application, []},
+      extra_applications: [
+        :logger,
+        :runtime_tools,
+        :os_mon,
+        :hackney,
+        :mime,
+        :belt,
+        :bamboo,
+        :bamboo_smtp
+      ]
+    ]
+  end
+
+  defp releases do
+    [
+      commons_pub: [
+        include_executables_for: [:unix]
+      ]
+    ]
+  end
+
   def deps() do
     _configured_deps = Enum.map(deps_list(), &dep_process/1)
     # IO.inspect(configured_deps, limit: :infinity)
@@ -281,16 +295,4 @@ defmodule CommonsPub.Mixfile do
   end
 
   defp sentry?(), do: Mix.env() not in [:dev, :test]
-
-  defp aliases do
-    [
-      "ecto.rebuild": ["ecto.reset", "ecto.seeds"],
-      "ecto.setup": ["ecto.create", "ecto.migrate"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "ecto.seeds": ["run priv/repo/seeds.exs"],
-      "sentry.recompile": ["deps.compile sentry --force", "compile"],
-      test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      "cpub.deps.clean": ["deps.clean pointers --build"]
-    ]
-  end
 end

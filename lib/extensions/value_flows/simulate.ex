@@ -4,7 +4,7 @@ defmodule ValueFlows.Simulate do
 
   import CommonsPub.Utils.Simulation
   import CommonsPub.Utils.Trendy
-  import CommonsPub.Test.Faking
+  # import CommonsPub.Test.Faking
 
   import Measurement.Simulate
 

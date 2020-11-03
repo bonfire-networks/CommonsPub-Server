@@ -183,7 +183,7 @@ dev-db-migrate: init ## Run migrations on dev DB
 dev-db-seeds: init ## Insert some test data in dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.seeds
 
-dev-watch-test: init ## Run tests
+dev-test-watch: init ## Run tests
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports -e MIX_ENV=test web iex -S mix phx.server
 
 test-db: init ## Create or reset the test DB

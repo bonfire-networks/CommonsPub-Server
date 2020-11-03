@@ -35,7 +35,7 @@ alias CommonsPub.Workers.GarbageCollector
 
 fallback_env = fn a, b, c -> System.get_env(a) || System.get_env(b) || c end
 
-desc = System.get_env("INSTANCE_DESCRIPTION", "Local development instance")
+desc = System.get_env("INSTANCE_DESCRIPTION", "An instance of CommonsPub, a federated app ecosystem for open and cooperative networks")
 hostname = System.get_env("HOSTNAME", "localhost")
 base_url = System.get_env("BASE_URL", "http://localhost:4000")
 
@@ -334,20 +334,6 @@ version =
     _ -> "CommonsPub #{Mix.Project.config()[:version]} dev"
   end
 
-config :activity_pub, :instance,
-  hostname: "localhost",
-  version: version,
-  name: "CommonsPub",
-  email: "root@localhost",
-  description:
-    "An instance of CommonsPub, a federated app ecosystem for open and cooperative networks",
-  federation_publisher_modules: [ActivityPubWeb.Publisher],
-  federation_reachability_timeout_days: 7,
-  federating: true,
-  rewrite_policy: [],
-  supported_activity_types: activity_types,
-  supported_actor_types: actor_types,
-  supported_object_types: inventory_types
 
 ### Stuff you probably won't want to change
 
@@ -482,6 +468,24 @@ config :argon2_elixir,
   # argon2id, see https://hexdocs.pm/argon2_elixir/Argon2.Stats.html
   argon2_type: 2
 
+config :activity_pub, :instance,
+  hostname: hostname,
+  version: version,
+  name: "CommonsPub",
+  email: System.get_env("MAIL_FROM", "root@localhost"),
+  description: desc,
+  federation_publisher_modules: [ActivityPubWeb.Publisher],
+  federation_reachability_timeout_days: 7,
+  federating: true,
+  rewrite_policy: [],
+  supported_activity_types: activity_types,
+  supported_actor_types: actor_types,
+  supported_object_types: inventory_types
+
+config :activity_pub, :repo, CommonsPub.Repo
+config :activity_pub, adapter: CommonsPub.ActivityPub.Adapter
+config :nodeinfo, adapter: CommonsPub.NodeinfoAdapter
+
 # Configures http settings, upstream proxy etc.
 config :activity_pub, :http,
   proxy_url: nil,
@@ -503,10 +507,6 @@ config :furlex, Furlex.Oembed, oembed_host: "https://oembed.com"
 config :tesla, adapter: Tesla.Adapter.Hackney
 
 config :http_signatures, adapter: ActivityPub.Signature
-
-config :activity_pub, adapter: CommonsPub.ActivityPub.Adapter
-
-config :nodeinfo, adapter: CommonsPub.NodeinfoAdapter
 
 config :floki, :html_parser, Floki.HTMLParser.Html5ever
 
@@ -553,8 +553,6 @@ config :commons_pub, :ux,
   # prosemirror or ck5 as content editor:
   # editor: "prosemirror"
   editor: "ck5"
-
-config :activity_pub, :repo, CommonsPub.Repo
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

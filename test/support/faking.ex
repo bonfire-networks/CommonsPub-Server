@@ -60,31 +60,6 @@ defmodule CommonsPub.Test.Faking do
     end
   end
 
-  def fake_user(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    Users.register(user(overrides), public_registration: true)
-  end
-
-  def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    with {:ok, user} <- fake_user(overrides, opts) do
-      maybe_confirm_user_email(user, opts)
-    end
-  end
-
-  def fake_admin!(overrides \\ %{}, opts \\ []) do
-    fake_user!(Map.put(overrides, :is_instance_admin, true), opts)
-  end
-
-  defp maybe_confirm_user_email(user, opts) do
-    # IO.inspect(opts)
-
-    if Keyword.get(opts, :confirm_email) do
-      {:ok, user} = Users.confirm_email(user)
-      user
-    else
-      user
-    end
-  end
-
   def fake_token!(%User{} = user) do
     {:ok, token} = Access.unsafe_put_token(user)
     assert token.user_id == user.id

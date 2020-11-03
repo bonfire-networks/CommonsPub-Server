@@ -435,4 +435,29 @@ defmodule CommonsPub.Utils.Simulation do
   # def community_role(base \\ %{}) do
   #   base
   # end
+
+  def fake_user(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
+    CommonsPub.Users.register(user(overrides), public_registration: true)
+  end
+
+  def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
+    with {:ok, user} <- fake_user(overrides, opts) do
+      maybe_confirm_user_email(user, opts)
+    end
+  end
+
+  def fake_admin!(overrides \\ %{}, opts \\ []) do
+    fake_user!(Map.put(overrides, :is_instance_admin, true), opts)
+  end
+
+  defp maybe_confirm_user_email(user, opts) do
+    # IO.inspect(opts)
+
+    if Keyword.get(opts, :confirm_email) do
+      {:ok, user} = CommonsPub.Users.confirm_email(user)
+      user
+    else
+      user
+    end
+  end
 end
