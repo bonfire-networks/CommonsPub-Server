@@ -10,7 +10,7 @@ config :commons_pub, CommonsPub.Web.Endpoint,
 # Logging
 
 config :logger, level: :info
-config :commons_pub, CommonsPub.Repo, log: :info
+config :commons_pub, CommonsPub.Repo, log: :debug
 config :commons_pub, :logging, tests_output_graphql: false # see queries and responses in GraphQL test output
 config :commons_pub, :logging, tests_output_ap: true # see queries and responses in GraphQL test output
 
