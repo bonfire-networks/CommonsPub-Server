@@ -4,4 +4,5 @@ defmodule CommonsPub.Repo.Migrations.APLibTest do
   def change do
     ActivityPub.Migrations.prepare_test()
   end
+
 end

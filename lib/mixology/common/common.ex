@@ -12,6 +12,11 @@ defmodule CommonsPub.Common do
 
   def is_ulid(_), do: false
 
+  def maybe_get(_, _, fallback \\ nil)
+  def maybe_get(%{} = map, key, fallback), do: Map.get(map, key, fallback)
+  def maybe_get(_, _, fallback), do: fallback
+
+
   @doc "conditionally update a map"
   def maybe_put(map, _key, nil), do: map
   def maybe_put(map, _key, ""), do: map

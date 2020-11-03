@@ -25,12 +25,28 @@ defmodule ValueFlows.Agent.Agents do
   def agent_to_character(a) do
     a
     |> CommonsPub.Common.maybe_put(:summary, Map.get(a, :note))
+    |> CommonsPub.Common.maybe_put(:geolocation, Map.get(a, :primary_location))
   end
 
   def character_to_agent(a) do
     a
     |> CommonsPub.Common.maybe_put(:note, Map.get(a, :summary))
+    |> CommonsPub.Common.maybe_put(:primary_location, agent_location(a))
     |> add_type()
+  end
+
+  def agent_location(%{profile_id: profile_id} = a) when not is_nil(profile_id) do
+    CommonsPub.Repo.maybe_preload(a, profile: [:geolocation])
+    agent_location(Map.get(a, :profile))
+  end
+
+  def agent_location(%{geolocation_id: geolocation_id} = a) when not is_nil(geolocation_id) do
+    CommonsPub.Repo.maybe_preload(a, :geolocation)
+    Map.get(a, :geolocation)
+  end
+
+  def agent_location(_) do
+    nil
   end
 
   def add_type(%CommonsPub.Users.User{} = a) do

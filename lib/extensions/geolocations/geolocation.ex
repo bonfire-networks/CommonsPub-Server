@@ -56,7 +56,7 @@ defmodule Geolocation do
   @cast @required ++ ~w(note mappable_address lat long geom alt is_disabled)a
 
   def create_changeset(
-        %User{} = creator,
+        creator,
         %{id: _} = context,
         attrs
       ) do
@@ -64,7 +64,7 @@ defmodule Geolocation do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: creator.id,
+      creator_id: CommonsPub.Common.maybe_get(creator, :id),
       context_id: context.id,
       is_public: true
     )
@@ -72,14 +72,14 @@ defmodule Geolocation do
   end
 
   def create_changeset(
-        %User{} = creator,
+        creator,
         attrs
       ) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: creator.id,
+      creator_id: CommonsPub.Common.maybe_get(creator, :id),
       is_public: true
     )
     |> common_changeset()

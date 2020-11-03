@@ -29,6 +29,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:image, &image/0)
+    |> Map.put_new_lazy(:primary_location, &fake_geolocation_id/0)
     |> Map.put_new_lazy(:agent_type, &agent_type/0)
   end
 
@@ -60,6 +61,7 @@ defmodule ValueFlows.Simulate do
 
   def action_id, do: action().id
   def fake_agent_id, do: fake_agent!().id
+  def fake_geolocation_id, do: Geolocation.Simulate.fake_geolocation!().id
 
   def economic_event(base \\ %{}) do
     base

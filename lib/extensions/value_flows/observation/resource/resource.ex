@@ -92,10 +92,10 @@ defmodule ValueFlows.Observation.EconomicResource do
     |> common_changeset()
   end
 
-  def change_primary_accountable(changeset, %{id: _} = primary_accountable) do
+  def change_primary_accountable(changeset, %{id: id} = primary_accountable) do
     Changeset.change(changeset,
       primary_accountable: primary_accountable,
-      primary_accountable_id: primary_accountable.id
+      primary_accountable_id: id
     )
   end
 

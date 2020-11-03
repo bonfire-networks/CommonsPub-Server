@@ -212,6 +212,11 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     end
   end
 
+  defp change_primary_accountable(%{creator_id: id} = changeset, attrs) do
+    # default to creator if unspecified
+    change_primary_accountable(changeset, Map.merge(attrs, %{primary_accountable: id}))
+  end
+
   defp change_primary_accountable(changeset, _attrs), do: changeset
 
   defp change_state_action(changeset, %{state: state_id}) do

@@ -36,7 +36,7 @@ defmodule ValueFlows.Proposal.FederateTest do
       # IO.inspect(pre_fed: proposal)
 
       assert {:ok, activity} = CommonsPub.ActivityPub.Publisher.publish("create", proposal)
-      # IO.inspect(published: activity) #######
+      # IO.inspect(published: activity) ########
 
       assert activity.object.pointer_id == proposal.id
       assert activity.local == true

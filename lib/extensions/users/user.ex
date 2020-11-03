@@ -18,7 +18,6 @@ defmodule CommonsPub.Users.User do
   # make the schema extensible
   import Flexto, only: [flex_schema: 1]
 
-
   table_schema "mn_user" do
     # belongs_to(:actor, Actor)
     has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
@@ -37,6 +36,8 @@ defmodule CommonsPub.Users.User do
     field(:summary, :string)
 
     field(:location, :string)
+    belongs_to(:geolocation, Geolocation)
+
     field(:website, :string)
 
     belongs_to(:icon, Content)
@@ -56,14 +57,14 @@ defmodule CommonsPub.Users.User do
 
     timestamps()
 
-    flex_schema(:commons_pub) # boom! add extended fields
-
+    # boom! add extended fields
+    flex_schema(:commons_pub)
   end
 
   @register_required ~w(name)a
   @register_cast ~w(id name summary location website extra_info icon_id image_id is_public is_disabled)a
 
-  @update_cast  ~w(name summary location website extra_info icon_id image_id is_public is_disabled)a
+  @update_cast ~w(name summary location website extra_info icon_id image_id is_public is_disabled)a
 
   @doc "Create a changeset for registration"
   def register_changeset(%{peer_id: peer_id} = attrs) when not is_nil(peer_id) do
@@ -71,7 +72,7 @@ defmodule CommonsPub.Users.User do
     %User{}
     |> Changeset.cast(attrs, @register_cast)
     |> Changeset.validate_required(@register_required)
-    |> common_changeset()
+    |> common_changeset(attrs)
   end
 
   def register_changeset(attrs) do
@@ -79,7 +80,7 @@ defmodule CommonsPub.Users.User do
     %User{}
     |> Changeset.cast(attrs, @register_cast)
     |> Changeset.validate_required(@register_required)
-    |> common_changeset()
+    |> common_changeset(attrs)
     |> maybe_local_changeset(true)
   end
 
@@ -92,14 +93,18 @@ defmodule CommonsPub.Users.User do
   def update_changeset(%User{} = user, attrs) do
     user
     |> Changeset.cast(attrs, @update_cast)
-    |> common_changeset()
+    |> common_changeset(attrs)
     |> maybe_local_changeset(is_nil(Map.get(Map.get(user, :character, %{}), :peer_id)))
   end
 
-  defp common_changeset(changeset) do
+  defp common_changeset(changeset, attrs) do
     changeset
     |> change_synced_timestamp(:is_disabled, :disabled_at)
     |> change_public()
+    |> Changeset.change(
+      # TODO: validate location
+      geolocation_id: Map.get(attrs, :geolocation)
+    )
   end
 
   defp maybe_local_changeset(changeset, true) do

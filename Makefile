@@ -126,6 +126,7 @@ dev-rebuild: init ## Rebuild the dev image (without cache)
 
 dev-recompile: init ## Recompile the dev codebase (without cache)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix compile --force
+	make db-pre-migrations
 
 dev-licenses: init
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix licenses
@@ -143,6 +144,7 @@ dev-dep-rebuild: init ## Rebuild a specific library, eg: `make dev-dep-rebuild l
 	sudo rm -rf _build/$(lib)
 	sudo rm -rf _build/dev/lib/$(lib)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web rm -rf _build/$(lib) && mix deps.compile $(lib)
+	make db-pre-migrations
 
 dev-dep-update: init ## Upgrade a dep, eg: `make dev-dep-update lib=plug`
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update $(lib)
@@ -156,7 +158,7 @@ dev-deps-update-all: init ## Upgrade all deps
 	make dev-licenses
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm update --prefix assets && npm outdated --prefix assets
 
-dev-db-up: init ## Start the dev DB
+dev-db-up: init db-pre-migrations ## Start the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
 
 dev-search-up: init ## Start the dev search index
@@ -168,16 +170,16 @@ dev-services-up: init ## Start the dev DB & search index
 dev-db-admin: init ## Start the dev DB and dbeaver admin UI
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up dbeaver
 
-dev-db: init ## Create the dev DB
+dev-db: init db-pre-migrations ## Create the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.create
 
 dev-db-rollback: init ## Reset the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.rollback --log-sql
 
-dev-db-reset: init ## Reset the dev DB
+dev-db-reset: init db-pre-migrations ## Reset the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.reset
 
-dev-db-migrate: init ## Run migrations on dev DB
+dev-db-migrate: init db-pre-migrations ## Run migrations on dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.migrate --log-sql
 
 dev-db-seeds: init ## Insert some test data in dev DB
@@ -186,7 +188,7 @@ dev-db-seeds: init ## Insert some test data in dev DB
 dev-test-watch: init ## Run tests
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports -e MIX_ENV=test web iex -S mix phx.server
 
-test-db: init ## Create or reset the test DB
+test-db: init db-pre-migrations ## Create or reset the test DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run -e MIX_ENV=test web mix ecto.reset
 
 test: init ## Run tests
@@ -224,6 +226,9 @@ manual-deps: init ## Prepare dependencies (without Docker)
 	mix deps.get
 	npm install --prefix assets
 
-manual-db: init ## Create or reset the DB (without Docker)
+db-pre-migrations:
+	touch lib/extensions/*/migrations.ex
+
+manual-db: init db-pre-migrations ## Create or reset the DB (without Docker)
 	mix ecto.reset
 

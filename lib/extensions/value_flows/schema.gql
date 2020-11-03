@@ -2315,6 +2315,8 @@ type Organization implements Agent {
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
+
+  ## added for CPub:
   agentType: AgentType
   canonicalUrl: String
   displayUsername: String
@@ -2364,6 +2366,8 @@ type Person implements Agent {
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
+
+  ## added for CPub:
   agentType: AgentType
   canonicalUrl: String
   displayUsername: String

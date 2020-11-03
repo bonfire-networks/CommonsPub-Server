@@ -93,7 +93,7 @@ defmodule Geolocation.Geolocations do
 
   @spec create(User.t(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %{} = context, attrs) when is_map(attrs) do
+  def create(creator, %{} = context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, context, attrs),
@@ -106,12 +106,12 @@ defmodule Geolocation.Geolocations do
     end)
   end
 
-  def create(%User{} = creator, _, attrs) when is_map(attrs) do
+  def create(creator, _, attrs) when is_map(attrs) do
     create(creator, attrs)
   end
 
   @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  def create(creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, attrs),
@@ -159,7 +159,7 @@ defmodule Geolocation.Geolocations do
     ]
 
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", geolocation.id, creator.id)
+      ap_publish("create", geolocation.id, CommonsPub.Common.maybe_get(creator, :id))
     end
   end
 
