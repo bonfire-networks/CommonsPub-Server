@@ -96,10 +96,6 @@ defmodule ValueFlows.Observation.Process.Processes do
     EconomicEvents.many([:default, input_of_id: id])
   end
 
-  def inputs(_, _) do
-    {:ok, nil}
-  end
-
   def outputs(%{id: id}, action_id \\ nil) when not is_nil(action_id) do
     EconomicEvents.many([:default, output_of_id: id, action_id: action_id])
   end

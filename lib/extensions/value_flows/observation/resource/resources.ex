@@ -99,20 +99,12 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     EconomicEvents.many([:default, track_resource: id])
   end
 
-  def track(_) do
-    {:ok, nil}
-  end
-
   def trace(%{id: id}) do
     trace(id)
   end
 
   def trace(id) when is_binary(id) do
     EconomicEvents.many([:default, trace_resource: id])
-  end
-
-  def trace(_) do
-    {:ok, nil}
   end
 
   def preload_all(resource) do

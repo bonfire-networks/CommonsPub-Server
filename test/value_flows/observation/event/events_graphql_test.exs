@@ -198,7 +198,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       conn = user_conn(user)
 
       assert event = grumble_post_key(q, conn, :economic_event, %{id: event.id})
-      IO.inspect(event)
       assert Enum.count(event["track"]) == 3
     end
   end
