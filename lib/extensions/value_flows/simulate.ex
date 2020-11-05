@@ -21,6 +21,11 @@ defmodule ValueFlows.Simulate do
 
   ### Start fake data functions
 
+  def claim(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:note, &summary/0)
+  end
+
   def agent_type(), do: Faker.Util.pick([:person, :organization])
 
   def agent(base \\ %{}) do
