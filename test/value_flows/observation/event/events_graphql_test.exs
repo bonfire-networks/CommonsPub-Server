@@ -118,7 +118,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
       event =
         fake_economic_event!(user, %{
-          in_scope_of: parent.id
+          in_scope_of: [parent.id]
         })
 
       q = economic_event_query(fields: [in_scope_of: [:__typename]])
