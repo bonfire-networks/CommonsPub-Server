@@ -6,14 +6,17 @@ defmodule ValueFlows.Claim.Claims do
   alias ValueFlows.Claim
   alias ValueFlows.Claim.Queries
 
+  alias CommonsPub.Meta.Pointers
+
   def one(filters), do: Repo.single(Queries.query(Claim, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Claim, filters))}
 
-  def create(%User{} = creator, %{} = attrs) do
+  def create(%User{} = creator, %{id: _} = provider, %{id: _} = receiver, %{} = attrs) do
     Repo.transact_with(fn ->
-      with {:ok, claim} <- Repo.insert(Claim.create_changeset(creator, attrs)) do
-        {:ok, %{claim | creator: creator}}
+      with {:ok, provider_ptr} <- Pointers.one(id: provider.id),
+           {:ok, receiver_ptr} <- Pointers.one(id: receiver.id) do
+        Repo.insert(Claim.create_changeset(creator, provider_ptr, receiver_ptr, attrs))
       end
     end)
   end

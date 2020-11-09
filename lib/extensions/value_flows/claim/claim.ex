@@ -10,6 +10,8 @@ defmodule ValueFlows.Claim do
   alias Ecto.Changeset
   alias CommonsPub.Users.User
 
+  alias Measurement.Measure
+
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Observation.EconomicEvent
@@ -52,12 +54,19 @@ defmodule ValueFlows.Claim do
   @cast @required ++
     ~w(note finished agreed_in created due resource_classified_as is_disabled)a
 
-  def create_changeset(%User{} = creator, attrs) do
+  def create_changeset(%User{} = creator, %{id: _} = provider, %{id: _} = receiver, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      is_public: true
+      provider_id: provider.id,
+      receiver_id: receiver.id,
+      is_public: true,
+      # preload
+      provider: provider,
+      receiver: receiver,
+      creator: creator.id
     )
     |> common_changeset()
   end

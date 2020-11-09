@@ -25,6 +25,7 @@ defmodule ValueFlows.Test.Faking do
   }
 
   alias ValueFlows.{
+    Claim,
     Proposal
     # Proposals
   }
@@ -57,6 +58,21 @@ defmodule ValueFlows.Test.Faking do
       resource_effect: &assert_binary/1,
       onhand_effect: assert_optional(&assert_binary/1),
       note: assert_optional(&assert_binary/1)
+    )
+  end
+
+  def assert_claim(%Claim{} = claim) do
+    assert_claim(Map.from_struct(claim))
+  end
+
+  def assert_claim(claim) do
+    assert_object(claim, :assert_claim,
+      note: assert_optional(&assert_binary/1),
+      agreed_in: assert_optional(&assert_binary/1),
+      finished: assert_optional(&assert_boolean/1),
+      created: assert_optional(&assert_datetime/1),
+      due: assert_optional(&assert_datetime/1),
+      resource_classified_as: assert_optional(assert_list(&assert_url/1)),
     )
   end
 
