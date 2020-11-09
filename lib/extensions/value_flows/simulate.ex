@@ -272,15 +272,8 @@ defmodule ValueFlows.Simulate do
     extra ++ ~w(id name note created has_beginning has_end unit_based)a
   end
 
-  def fake_process_specification!(user, context \\ nil, overrides \\ %{})
-
-  def fake_process_specification!(user, context, overrides) when is_nil(context) do
+  def fake_process_specification!(user, overrides \\ %{}) do
     {:ok, spec} = ProcessSpecifications.create(user, process_specification(overrides))
-    spec
-  end
-
-  def fake_process_specification!(user, context, overrides) do
-    {:ok, spec} = ProcessSpecifications.create(user, context, process_specification(overrides))
     spec
   end
 

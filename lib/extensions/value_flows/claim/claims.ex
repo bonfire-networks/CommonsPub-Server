@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Claim.Claims do
+  import CommonsPub.Common, only: [maybe_put: 3]
+
   alias CommonsPub.Repo
   alias CommonsPub.Users.User
 
@@ -7,8 +9,6 @@ defmodule ValueFlows.Claim.Claims do
   alias ValueFlows.Claim.Queries
 
   alias CommonsPub.Meta.Pointers
-
-  import CommonsPub.Common, only: [maybe_put: 3]
 
   def one(filters), do: Repo.single(Queries.query(Claim, filters))
 

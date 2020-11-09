@@ -186,43 +186,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     })
   end
 
-
-
-  def create_process_spec(
-        %{process_specification: %{in_scope_of: context_ids} = process_spec_attrs},
-        info
-      )
-      when is_list(context_ids) do
-    # FIXME: support multiple contexts?
-    context_id = List.first(context_ids)
-
-    create_process_spec(
-      %{process_specification: Map.merge(process_spec_attrs, %{in_scope_of: context_id})},
-      info
-    )
-  end
-
-  def create_process_spec(
-        %{process_specification: %{in_scope_of: context_id} = process_spec_attrs},
-        info
-      )
-      when not is_nil(context_id) do
-    # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: context_id),
-           context = Pointers.follow!(pointer),
-           {:ok, uploads} <- UploadResolver.upload(user, process_spec_attrs, info),
-           process_spec_attrs = Map.merge(process_spec_attrs, uploads),
-           process_spec_attrs = Map.merge(process_spec_attrs, %{is_public: true}),
-           {:ok, process_spec} <-
-             ProcessSpecifications.create(user, context, process_spec_attrs) do
-        {:ok, %{process_specification: process_spec}}
-      end
-    end)
-  end
-
-  # FIXME: duplication!
   def create_process_spec(%{process_specification: process_spec_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
@@ -235,36 +198,17 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     end)
   end
 
-  def update_process_spec(%{process_specification: %{in_scope_of: context_ids} = changes}, info) do
-    context_id = List.first(context_ids)
-
+  def update_process_spec(%{process_specification: %{id: id} = changes}, info) do
     Repo.transact_with(fn ->
-      do_update(changes, info, fn process_spec, changes ->
-        with {:ok, pointer} <- Pointers.one(id: context_id) do
-          context = Pointers.follow!(pointer)
-          ProcessSpecifications.update(process_spec, context, changes)
-        end
-      end)
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+          {:ok, process_spec} <- process_spec(%{id: id}, info),
+          :ok <- ensure_update_permission(user, process_spec),
+          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
+          changes = Map.merge(changes, uploads),
+          {:ok, process_spec} <- ProcessSpecifications.update(process_spec, changes) do
+        {:ok, %{process_specification: process_spec}}
+      end
     end)
-  end
-
-  def update_process_spec(%{process_specification: changes}, info) do
-    Repo.transact_with(fn ->
-      do_update(changes, info, fn process_spec, changes ->
-        ProcessSpecifications.update(process_spec, changes)
-      end)
-    end)
-  end
-
-  defp do_update(%{id: id} = changes, info, update_fn) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, process_spec} <- process_spec(%{id: id}, info),
-         :ok <- ensure_update_permission(user, process_spec),
-         {:ok, uploads} <- UploadResolver.upload(user, changes, info),
-         changes = Map.merge(changes, uploads),
-         {:ok, process_spec} <- update_fn.(process_spec, changes) do
-      {:ok, %{process_specification: process_spec}}
-    end
   end
 
   def delete_process_spec(%{id: id}, info) do

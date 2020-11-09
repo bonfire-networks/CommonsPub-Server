@@ -42,7 +42,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       user = fake_user!()
       parent = fake_user!()
 
-      assert {:ok, spec} = ResourceSpecifications.create(user, parent, resource_specification())
+      attrs = %{in_scope_of: [parent.id]}
+
+      assert {:ok, spec} = ResourceSpecifications.create(user, resource_specification(attrs))
       assert_resource_specification(spec)
       assert spec.context_id == parent.id
     end
