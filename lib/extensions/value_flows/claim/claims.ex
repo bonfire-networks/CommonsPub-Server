@@ -14,6 +14,8 @@ defmodule ValueFlows.Claim.Claims do
 
   def create(%User{} = creator, %{id: _} = provider, %{id: _} = receiver, %{} = attrs) do
     Repo.transact_with(fn ->
+      attrs = prepare_attrs(attrs)
+
       with {:ok, provider_ptr} <- Pointers.one(id: provider.id),
            {:ok, receiver_ptr} <- Pointers.one(id: receiver.id) do
         Repo.insert(Claim.create_changeset(creator, provider_ptr, receiver_ptr, attrs))
@@ -21,11 +23,16 @@ defmodule ValueFlows.Claim.Claims do
     end)
   end
 
-  def update(%Claim{} = claim, %{} = attrs) do
-
+  def update(%Claim{} = claim, %{} = _attrs) do
+    {:ok, claim}
   end
 
   def soft_delete(%Claim{} = claim) do
+    {:ok, claim}
+  end
 
+  def prepare_attrs(attrs) do
+    attrs
+    |> CommonsPub.Common.maybe_put(:action_id, Map.get(attrs, :action))
   end
 end

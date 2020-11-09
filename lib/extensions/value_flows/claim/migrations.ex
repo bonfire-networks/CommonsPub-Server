@@ -13,8 +13,10 @@ defmodule ValueFlows.Claim.Migrations do
       add(:agreed_in, :string)
       add(:action_id, :string)
 
+      add(:finished, :boolean)
       add(:created, :timestamptz)
       add(:due, :timestamptz)
+      add(:resource_classified_as, {:array, :string})
 
       add(:provider_id, weak_pointer(), null: true)
       add(:receiver_id, weak_pointer(), null: true)

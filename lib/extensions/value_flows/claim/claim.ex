@@ -66,7 +66,7 @@ defmodule ValueFlows.Claim do
       # preload
       provider: provider,
       receiver: receiver,
-      creator: creator.id
+      creator: creator
     )
     |> common_changeset()
   end
