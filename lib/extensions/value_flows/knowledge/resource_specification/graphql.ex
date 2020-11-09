@@ -180,39 +180,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     })
   end
 
-  def create_resource_spec(
-        %{resource_specification: %{in_scope_of: context_ids} = resource_spec_attrs},
-        info
-      )
-      when is_list(context_ids) do
-    # FIXME: support multiple contexts?
-    context_id = List.first(context_ids)
-
-    create_resource_spec(
-      %{resource_specification: Map.merge(resource_spec_attrs, %{in_scope_of: context_id})},
-      info
-    )
-  end
-
-  def create_resource_spec(
-        %{resource_specification: %{in_scope_of: context_id} = resource_spec_attrs},
-        info
-      )
-      when not is_nil(context_id) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: context_id),
-           context = Pointers.follow!(pointer),
-           {:ok, uploads} <- UploadResolver.upload(user, resource_spec_attrs, info),
-           resource_spec_attrs = Map.merge(resource_spec_attrs, uploads),
-           resource_spec_attrs = Map.merge(resource_spec_attrs, %{is_public: true}),
-           {:ok, resource_spec} <-
-             ResourceSpecifications.create(user, context, resource_spec_attrs) do
-        {:ok, %{resource_specification: resource_spec}}
-      end
-    end)
-  end
-
   # FIXME: duplication!
   def create_resource_spec(%{resource_specification: resource_spec_attrs}, info) do
     Repo.transact_with(fn ->
@@ -226,34 +193,13 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     end)
   end
 
-  def update_resource_spec(%{resource_specification: %{in_scope_of: context_ids} = changes}, info) do
-    context_id = List.first(context_ids)
-
-    Repo.transact_with(fn ->
-      do_update(changes, info, fn resource_spec, changes ->
-        with {:ok, pointer} <- Pointers.one(id: context_id) do
-          context = Pointers.follow!(pointer)
-          ResourceSpecifications.update(resource_spec, context, changes)
-        end
-      end)
-    end)
-  end
-
-  def update_resource_spec(%{resource_specification: changes}, info) do
-    Repo.transact_with(fn ->
-      do_update(changes, info, fn resource_spec, changes ->
-        ResourceSpecifications.update(resource_spec, changes)
-      end)
-    end)
-  end
-
-  defp do_update(%{id: id} = changes, info, update_fn) do
+  def update_resource_spec(%{resource_specification: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, resource_spec} <- resource_spec(%{id: id}, info),
          :ok <- ensure_update_permission(user, resource_spec),
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
-         {:ok, resource_spec} <- update_fn.(resource_spec, changes) do
+         {:ok, resource_spec} <- ResourceSpecifications.update(resource_spec, changes) do
       {:ok, %{resource_specification: resource_spec}}
     end
   end

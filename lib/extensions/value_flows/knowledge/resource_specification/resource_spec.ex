@@ -50,7 +50,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note is_disabled image_id)a
+  @cast @required ++ ~w(note is_disabled context_id image_id)a
 
   def create_changeset(
         %User{} = creator,
