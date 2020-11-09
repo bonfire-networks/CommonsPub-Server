@@ -40,11 +40,12 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
 
     test "can create a process specification with context" do
       user = fake_user!()
-      parent = fake_user!()
 
-      assert {:ok, spec} = ProcessSpecifications.create(user, parent, process_specification())
+      attrs = %{in_scope_of: [fake_user!().id]}
+
+      assert {:ok, spec} = ProcessSpecifications.create(user, process_specification(attrs))
       assert_process_specification(spec)
-      assert spec.context_id == parent.id
+      assert spec.context_id == hd(attrs.in_scope_of)
     end
 
     test "can create a process_specification with tags" do
