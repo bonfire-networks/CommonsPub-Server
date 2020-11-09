@@ -22,8 +22,10 @@ defmodule ValueFlows.Claim.Migrations do
       add(:receiver_id, weak_pointer(), null: true)
       add(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
       add(:triggered_by_id, weak_pointer(EconomicEvent), null: true)
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:resource_quantity_id, weak_pointer(Measurement.Measure), null: true)
+      add(:effort_quantity_id, weak_pointer(Measurement.Measure), null: true)
 
+      add(:creator_id, references("mn_user", on_delete: :nilify_all))
       add(:context_id, weak_pointer(), null: true)
 
       add(:published_at, :timestamptz)

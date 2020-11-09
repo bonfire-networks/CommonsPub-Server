@@ -15,7 +15,6 @@ defmodule ValueFlows.Claim do
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.EconomicResource
 
   @type t :: %__MODULE__{}
 
@@ -52,23 +51,32 @@ defmodule ValueFlows.Claim do
 
   @required ~w(action_id)a
   @cast @required ++
-    ~w(note finished agreed_in created due resource_classified_as is_disabled)a
+    ~w(note finished agreed_in created due resource_classified_as is_disabled)a ++
+    ~w(context_id resource_conforms_to_id triggered_by_id)a
 
   def create_changeset(%User{} = creator, %{id: _} = provider, %{id: _} = receiver, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
       provider_id: provider.id,
       receiver_id: receiver.id,
-      is_public: true,
-      # preload
-      provider: provider,
-      receiver: receiver,
-      creator: creator
+      is_public: true
     )
+    |> change_measures(attrs)
     |> common_changeset()
+  end
+
+  def validate_required(changeset) do
+    Changeset.validate_required(changeset, @required)
+  end
+
+  def change_measures(changeset, %{} = attrs) do
+    measures = Map.take(attrs, measure_fields())
+
+    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
+      Changeset.put_assoc(c, field_name, measure)
+    end)
   end
 
   defp common_changeset(changeset) do
@@ -76,4 +84,6 @@ defmodule ValueFlows.Claim do
     |> change_public()
     |> change_disabled()
   end
+
+  def measure_fields, do: [:resource_quantity, :effort_quantity]
 end

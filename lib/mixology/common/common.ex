@@ -15,6 +15,18 @@ defmodule CommonsPub.Common do
   def maybe_put(map, _key, ""), do: map
   def maybe_put(map, key, value), do: Map.put(map, key, value)
 
+  @doc "Applies change_fn if the first parameter is not nil."
+  def maybe(nil, _change_fn), do: nil
+  def maybe(val, change_fn) do
+    change_fn.(val)
+  end
+
+  @doc "Applies change_fn if the first parameter is an {:ok, val} tuple, else returns the value"
+  def maybe_ok_error({:ok, val}, change_fn) do
+    {:ok, change_fn.(val)}
+  end
+  def maybe_ok_error(other, _change_fn), do: other
+
   @doc "Append an item to a list if it is not nil"
   @spec maybe_append([any()], any()) :: [any()]
   def maybe_append(list, nil), do: list
@@ -23,7 +35,7 @@ defmodule CommonsPub.Common do
   @doc "Replace a key in a map"
   def map_key_replace(%{} = map, key, new_key) do
     map
-    |> Map.put(new_key, map[key])
+    |> Map.put(new_key, Map.get(map, key))
     |> Map.delete(key)
   end
 
