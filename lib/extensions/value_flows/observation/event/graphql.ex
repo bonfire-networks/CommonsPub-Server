@@ -393,21 +393,13 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     end)
   end
 
-  def update_event(%{event: changes}, info) do
-    Repo.transact_with(fn ->
-      do_update(changes, info, fn event, changes ->
-        EconomicEvents.update(event, changes)
-      end)
-    end)
-  end
-
-  defp do_update(%{id: id} = changes, info, update_fn) do
+  def update_event(%{event: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, event} <- event(%{id: id}, info),
          :ok <- ensure_update_permission(user, event),
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
-         {:ok, event} <- update_fn.(event, changes) do
+         {:ok, event} <- EconomicEvents.update(event, changes) do
       {:ok, %{economic_event: event}}
     end
   end
