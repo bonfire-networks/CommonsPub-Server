@@ -62,20 +62,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
     join(q, jq, [intent: c], q in assoc(c, :available_quantity), as: :available_quantity)
   end
 
-  # def join_to(q, :provider, jq) do
-  #   join q, jq, [follow: f], c in assoc(f, :provider), as: :pointer
-  # end
-
-  # def join_to(q, :receiver, jq) do
-  #   join q, jq, [follow: f], c in assoc(f, :receiver), as: :pointer
-  # end
-
-  # def join_to(q, :follower_count, jq) do
-  #   join q, jq, [intent: c],
-  #     f in FollowerCount, on: c.id == f.context_id,
-  #     as: :follower_count
-  # end
-
   ### filter/2
 
   ## by many
@@ -270,19 +256,18 @@ defmodule ValueFlows.Planning.Intent.Queries do
     select(q, [intent: c], {field(c, ^key), count(c.id)})
   end
 
-  def filter(q, {:preload, :provider}) do
-    preload(q, [pointer: p], provider: p)
-  end
-
-  def filter(q, {:preload, :receiver}) do
-    preload(q, [pointer: p], receiver: p)
-  end
-
-  def filter(q, {:preload, :at_location}) do
+  def filter(q, {:preload, :all}) do
     q
-    |> join_to(:geolocation)
-    |> preload(:at_location)
-    # preload(q, [geolocation: g], at_location: g)
+    |> preload([
+      :provider,
+      :receiver,
+      :input_of,
+      :output_of,
+      :creator,
+      :context,
+      :at_location,
+    ])
+    |> filter({:preload, :quantities})
   end
 
   def filter(q, {:preload, :quantities}) do

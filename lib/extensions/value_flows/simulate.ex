@@ -245,14 +245,14 @@ defmodule ValueFlows.Simulate do
     claim
   end
 
-  def fake_intent!(user, unit \\ nil, context \\ nil, overrides \\ %{})
+  def fake_intent!(user, unit \\ nil, overrides \\ %{})
 
-  def fake_intent!(user, unit, context, overrides) when is_nil(unit) do
-    {:ok, intent} = Intents.create(user, action(), context, intent(overrides))
+  def fake_intent!(user, unit, overrides) when is_nil(unit) do
+    {:ok, intent} = Intents.create(user, intent(overrides))
     intent
   end
 
-  def fake_intent!(user, unit, context, overrides) do
+  def fake_intent!(user, unit, overrides) do
     measure_attrs = %{unit_id: unit.id}
 
     measures = %{
@@ -262,7 +262,7 @@ defmodule ValueFlows.Simulate do
     }
 
     overrides = Map.merge(overrides, measures)
-    {:ok, intent} = Intents.create(user, action(), context, intent(overrides))
+    {:ok, intent} = Intents.create(user, intent(overrides))
     intent
   end
 

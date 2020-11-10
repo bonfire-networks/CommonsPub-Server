@@ -39,7 +39,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       parent = fake_user!()
 
-      intent = fake_intent!(user, unit, parent)
+      intent = fake_intent!(user, unit, %{in_scope_of: [parent.id]})
 
       proposal = fake_proposal!(user)
 
@@ -110,7 +110,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     test "returns the scope of the intent" do
       user = fake_user!()
       parent = fake_user!()
-      intent = fake_intent!(user, nil, parent)
+      intent = fake_intent!(user, %{in_scope_of: [parent.id]})
 
       q = intent_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
