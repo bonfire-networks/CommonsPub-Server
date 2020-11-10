@@ -63,12 +63,24 @@ defmodule ValueFlows.Claim do
       receiver_id: receiver.id,
       is_public: true
     )
-    |> change_measures(attrs)
-    |> common_changeset()
+    |> common_changeset(attrs)
+  end
+
+  def update_changeset(%__MODULE__{} = claim, attrs) do
+    claim
+    |> Changeset.cast(attrs, @cast)
+    |> common_changeset(attrs)
   end
 
   def validate_required(changeset) do
     Changeset.validate_required(changeset, @required)
+  end
+
+  defp common_changeset(changeset, attrs) do
+    changeset
+    |> change_measures(attrs)
+    |> change_public()
+    |> change_disabled()
   end
 
   def change_measures(changeset, %{} = attrs) do
@@ -77,12 +89,6 @@ defmodule ValueFlows.Claim do
     Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
       Changeset.put_assoc(c, field_name, measure)
     end)
-  end
-
-  defp common_changeset(changeset) do
-    changeset
-    |> change_public()
-    |> change_disabled()
   end
 
   def measure_fields, do: [:resource_quantity, :effort_quantity]

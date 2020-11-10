@@ -8,9 +8,9 @@ defmodule ValueFlows.Simulate do
 
   import Measurement.Simulate
 
+  alias ValueFlows.Claim.Claims
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Proposal.Proposals
-  # alias ValueFlows.Proposal.ProposedIntent
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
   alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.Process.Processes
@@ -221,6 +221,16 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("available_quantity", fn -> measure_input(unit) end)
     |> Map.put_new_lazy("resource_quantity", fn -> measure_input(unit) end)
     |> Map.put_new_lazy("effort_quantity", fn -> measure_input(unit) end)
+  end
+
+  @doc "Shorter version of fake_claim!/4, but instead generates a provider and receiver."
+  def fake_claim!(user, overrides \\ %{}) do
+    fake_claim!(user, fake_user!(), fake_user!(), overrides)
+  end
+
+  def fake_claim!(user, provider, receiver, overrides \\ %{}) do
+    {:ok, claim} = Claims.create(user, provider, receiver, claim(overrides))
+    claim
   end
 
   def fake_intent!(user, unit \\ nil, context \\ nil, overrides \\ %{})

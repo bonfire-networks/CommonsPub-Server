@@ -15,19 +15,11 @@ defmodule ValueFlows.Claim.Claims do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Claim, filters))}
 
   def preload_all(%Claim{} = claim) do
-    Repo.preload(claim, [
-      :creator,
-      :provider,
-      :receiver,
-      :context,
-      :resource_conforms_to,
-      :resource_quantity,
-      :effort_quantity,
-      :triggered_by,
-    ])
+    # shouldn't fail
+    {:ok, claim} = one(id: claim.id, preload: :all)
+    claim
   end
 
-  # TODO: change attributes and then pass to changeset, use preload for rest
   def create(%User{} = creator, %{id: _} = provider, %{id: _} = receiver, %{} = attrs) do
     Repo.transact_with(fn ->
       attrs = prepare_attrs(attrs)
@@ -42,12 +34,19 @@ defmodule ValueFlows.Claim.Claims do
     end)
   end
 
-  def update(%Claim{} = claim, %{} = _attrs) do
-    {:ok, claim}
+  def update(%Claim{} = claim, %{} = attrs) do
+    Repo.transact_with(fn ->
+      attrs = prepare_attrs(attrs)
+
+      claim
+      |> Claim.update_changeset(attrs)
+      |> Repo.update()
+      |> CommonsPub.Common.maybe_ok_error(&preload_all/1)
+    end)
   end
 
   def soft_delete(%Claim{} = claim) do
-    {:ok, claim}
+    CommonsPub.Common.Deletion.soft_delete(claim)
   end
 
   defp prepare_attrs(attrs) do
