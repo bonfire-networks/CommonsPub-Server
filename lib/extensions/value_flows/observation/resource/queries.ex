@@ -292,6 +292,19 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     select(q, [resource: c], {field(c, ^key), count(c.id)})
   end
 
+  def filter(q, {:preload, :all}) do
+    preload(q, [
+      :accounting_quantity,
+      :onhand_quantity,
+      :unit_of_effort,
+      :primary_accountable,
+      :current_location,
+      :contained_in,
+      :conforms_to,
+      :image
+    ])
+  end
+
   def filter(q, {:preload, :primary_accountable}) do
     preload(q, :primary_accountable)
   end
