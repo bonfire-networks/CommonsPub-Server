@@ -67,6 +67,24 @@ defmodule ValueFlows.Util.GraphQL do
     {:ok, nil}
   end
 
+  def resource_quantity_edge(%{resource_quantity_id: id} = thing, _, _) when not is_nil(id) do
+    thing = Repo.preload(thing, resource_quantity: [:unit])
+    {:ok, Map.get(thing, :resource_quantity)}
+  end
+
+  def resource_quantity_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def effort_quantity_edge(%{effort_quantity_id: id} = thing, _, _) when not is_nil(id) do
+    thing = Repo.preload(thing, effort_quantity: [:unit])
+    {:ok, Map.get(thing, :effort_quantity)}
+  end
+
+  def effort_quantity_edge(_, _, _) do
+    {:ok, nil}
+  end
+
   def accounting_quantity_edge(%{accounting_quantity_id: id} = thing, _, _) when not is_nil(id) do
     thing = Repo.preload(thing, accounting_quantity: [:unit])
     {:ok, Map.get(thing, :accounting_quantity)}

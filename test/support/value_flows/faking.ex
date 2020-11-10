@@ -247,6 +247,62 @@ defmodule ValueFlows.Test.Faking do
 
   ## Graphql
 
+  def claim_fields(extra \\ []) do
+    extra ++ ~w(id note agreed_in finished created due resource_classified_as)a
+  end
+
+  def claim_response_fields(extra \\ []) do
+    [claim: claim_fields(extra)]
+  end
+
+  def claim_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &claim_subquery/1, options)
+  end
+
+  def claim_subquery(options \\ []) do
+    gen_subquery(:id, :claim, &claim_fields/1, options)
+  end
+
+  def claims_query(options \\ []) do
+    gen_query(&claims_subquery/1, options)
+  end
+
+  def claims_subquery(options \\ []) do
+    fields = Keyword.get(options, :fields, [])
+    fields = fields ++ claim_fields(fields)
+    field(:claims, [{:fields, fields} | options])
+  end
+
+  def create_claim_mutation(options \\ []) do
+    [claim: type!(:claim_create_params)]
+    |> gen_mutation(&create_claim_submutation/1, options)
+  end
+
+  def create_claim_submutation(options \\ []) do
+    [claim: var(:claim)]
+    |> gen_submutation(:create_claim, &claim_response_fields/1, options)
+  end
+
+  def update_claim_mutation(options \\ []) do
+    [claim: type!(:claim_update_params)]
+    |> gen_mutation(&update_claim_submutation/1, options)
+  end
+
+  def update_claim_submutation(options \\ []) do
+    [claim: var(:claim)]
+    |> gen_submutation(:update_claim, &claim_response_fields/1, options)
+  end
+
+  def delete_claim_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_claim_submutation/1, options)
+  end
+
+  def delete_claim_submutation(_options \\ []) do
+    field(:delete_claim, args: [id: var(:id)])
+  end
+
   def person_fields(extra \\ []) do
     extra ++
       ~w(name note agent_type canonical_url image display_username)a

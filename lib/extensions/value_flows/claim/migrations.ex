@@ -10,7 +10,7 @@ defmodule ValueFlows.Claim.Migrations do
   def up do
     create_pointable_table(ValueFlows.Claim) do
       add(:note, :text)
-      add(:agreed_in, :string)
+      add(:agreed_in, :text)
       add(:action_id, :string)
 
       add(:finished, :boolean)

@@ -32,6 +32,18 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
   end
 
+  def claim_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("note", &summary/0)
+    # FIXME: URI doesn't work, scalar?
+    # |> Map.put_new_lazy("agreedIn", &url/0)
+    |> Map.put_new_lazy("finished", &bool/0)
+    |> Map.put_new_lazy("created", &past_datetime_iso/0)
+    |> Map.put_new_lazy("due", &future_datetime_iso/0)
+    |> Map.put_new_lazy("action", &action_id/0)
+    # |> Map.put_new_lazy("resourceClassifiedAs", fn -> some(1..5, &url/0) end)
+  end
+
   def agent_type(), do: Faker.Util.pick([:person, :organization])
 
   def agent(base \\ %{}) do

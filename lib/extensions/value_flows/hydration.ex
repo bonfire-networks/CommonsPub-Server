@@ -121,6 +121,35 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3
         ]
       },
+      claim: %{
+        action: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3,
+        ],
+        provider: [
+          resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
+        ],
+        receiver: [
+          resolve: &ValueFlows.Util.GraphQL.fetch_receiver_edge/3
+        ],
+        resource_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.resource_quantity_edge/3
+        ],
+        effort_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
+        ],
+        resource_conforms_to: [
+          resolve: &ValueFlows.Claim.GraphQL.fetch_resource_conforms_to_edge/3,
+        ],
+        triggered_by: [
+          resolve: &ValueFlows.Claim.GraphQL.fetch_triggered_by_edge/3,
+        ],
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3,
+        ],
+        creator: [
+          resolve: &UsersResolver.creator_edge/3
+        ],
+      },
       economic_event: %{
         canonical_url: [
           resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
@@ -272,6 +301,14 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Agent.GraphQL.organizations/2
         ],
 
+        # Claim
+        claim: [
+          resolve: &ValueFlows.Claim.GraphQL.claim/2,
+        ],
+        claims: [
+          resolve: &ValueFlows.Claim.GraphQL.claims/2,
+        ],
+
         # Knowledge
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action/2
@@ -366,6 +403,9 @@ defmodule ValueFlows.Hydration do
 
       # start Mutation resolvers
       value_flows_mutation: %{
+        create_claim: [
+          resolve: &ValueFlows.Claim.GraphQL.create_claim/2,
+        ],
         create_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_intent/2
         ],
@@ -387,6 +427,9 @@ defmodule ValueFlows.Hydration do
         # create_action: [
         #   resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
         # ],
+        update_claim: [
+          resolve: &ValueFlows.Claim.GraphQL.update_claim/2,
+        ],
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],
@@ -401,6 +444,9 @@ defmodule ValueFlows.Hydration do
         ],
         update_process: [
           resolve: &ValueFlows.Observation.Process.GraphQL.update_process/2
+        ],
+        delete_claim: [
+          resolve: &ValueFlows.Claim.GraphQL.delete_claim/2,
         ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
