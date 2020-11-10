@@ -72,6 +72,24 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     Processes.many([:default])
   end
 
+  def track(process, _, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_track_process,
+      context: process,
+      info: info
+    })
+  end
+
+  def trace(process, _, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_trace_process,
+      context: process,
+      info: info
+    })
+  end
+
   def processes_filtered(page_opts, _ \\ nil) do
     # IO.inspect(processes_filtered: page_opts)
     processes_filter(page_opts, [])
@@ -124,11 +142,11 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     processes_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
-  def track(process, _, _) do
+  def fetch_track_process(_, process) do
     Processes.track(process)
   end
 
-  def trace(process, _, _) do
+  def fetch_trace_process(_, process) do
     Processes.trace(process)
   end
 

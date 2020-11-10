@@ -70,6 +70,10 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     join(q, jq, [resource: c], t in assoc(c, :unit_of_effort), as: :unit_of_effort)
   end
 
+  def join_to(q, :contained_in, jq) do
+    join(q, jq, [resource: c], t in assoc(c, :contained_in), as: :contained_in)
+  end
+
   # def join_to(q, :primary_accountable, jq) do
   #   join q, jq, [follow: f], c in assoc(f, :primary_accountable), as: :pointer
   # end
@@ -96,7 +100,12 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
 
   def filter(q, :default) do
     #filter(q, [:deleted])
-    filter q, [:deleted, {:preload, :primary_accountable}, {:preload, :unit_of_effort}]
+    filter q, [
+      :deleted,
+      # FIXME: use hydration
+      # preload: :primary_accountable,
+      # preload: :unit_of_effort,
+    ]
   end
 
   def filter(q, :offer) do
@@ -303,6 +312,12 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     |> preload(:current_location)
 
     # preload(q, [geolocation: g], current_location: g)
+  end
+
+  def filter(q, {:preload, :contained_in}) do
+    q
+    |> join_to(:contained_in)
+    |> preload([contained_in: cin], contained_in: cin)
   end
 
   # pagination

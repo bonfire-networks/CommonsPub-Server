@@ -16,7 +16,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   alias CommonsPub.GraphQL.{
     ResolveField,
-    # ResolveFields,
     # ResolvePage,
     ResolvePages,
     ResolveRootPage,
@@ -74,6 +73,24 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   def all_resources(_, _) do
     EconomicResources.many([:default])
+  end
+
+  def track(%{id: id}, _, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_track_resource,
+      context: id,
+      info: info
+    })
+  end
+
+  def trace(%{id: id}, _, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_trace_resource,
+      context: id,
+      info: info
+    })
   end
 
   def resources_filtered(page_opts, _ \\ nil) do
@@ -311,12 +328,41 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     {:ok, nil}
   end
 
-  def track(resource, _, _) do
-    EconomicResources.track(resource)
+  def fetch_unit_of_effort_edge(%{unit_of_effort_id: id} = thing, _, info)
+    when is_binary(id) do
+      thing = Repo.preload(thing, :unit_of_effort)
+      {:ok, Map.get(thing, :unit_of_effort)}
   end
 
-  def trace(resource, _, _) do
-    EconomicResources.trace(resource)
+  def fetch_unit_of_effort_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def fetch_contained_in_edge(%{contained_in_id: id} = thing, _, info)
+    when is_binary(id) do
+    thing = Repo.preload(thing, :contained_in)
+    {:ok, Map.get(thing, :contained_in)}
+  end
+
+  def fetch_contained_in_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def fetch_conforms_to_edge(%{conforms_to_id: id} = thing, _, _) when is_binary(id) do
+    thing = Repo.preload(thing, :conforms_to)
+    {:ok, Map.get(thing, :conforms_to)}
+  end
+
+  def fetch_conforms_to_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def fetch_track_resource(_, id) do
+    EconomicResources.track(id)
+  end
+
+  def fetch_trace_resource(_, id) do
+    EconomicResources.trace(id)
   end
 
   def create_resource(%{new_inventoried_resource: resource_attrs}, info) do

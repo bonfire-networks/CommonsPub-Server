@@ -21,6 +21,17 @@ defmodule ValueFlows.Simulate do
 
   ### Start fake data functions
 
+  def claim(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:note, &summary/0)
+    |> Map.put_new_lazy(:agreed_in, &url/0)
+    |> Map.put_new_lazy(:finished, &bool/0)
+    |> Map.put_new_lazy(:created, &past_datetime/0)
+    |> Map.put_new_lazy(:due, &future_datetime/0)
+    |> Map.put_new_lazy(:action, &action_id/0)
+    |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
+  end
+
   def agent_type(), do: Faker.Util.pick([:person, :organization])
 
   def agent(base \\ %{}) do
@@ -267,15 +278,8 @@ defmodule ValueFlows.Simulate do
     extra ++ ~w(id name note created has_beginning has_end unit_based)a
   end
 
-  def fake_process_specification!(user, context \\ nil, overrides \\ %{})
-
-  def fake_process_specification!(user, context, overrides) when is_nil(context) do
+  def fake_process_specification!(user, overrides \\ %{}) do
     {:ok, spec} = ProcessSpecifications.create(user, process_specification(overrides))
-    spec
-  end
-
-  def fake_process_specification!(user, context, overrides) do
-    {:ok, spec} = ProcessSpecifications.create(user, context, process_specification(overrides))
     spec
   end
 

@@ -36,7 +36,6 @@ defmodule ValueFlows.Hydration do
       inventoried_economic_resources: [
         resolve: &ValueFlows.Observation.EconomicResource.GraphQL.agent_resources/3
       ],
-
     }
 
     %{
@@ -138,15 +137,28 @@ defmodule ValueFlows.Hydration do
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
+        input_of: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_input_of_edge/3
+        ],
+        output_of: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_output_of_edge/3
+        ],
         resource_inventoried_as: [
           resolve:
             &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_resource_inventoried_as_edge/3
+        ],
+        to_resource_inventoried_as: [
+          resolve:
+            &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_to_resource_inventoried_as_edge/3
         ],
         resource_classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
         ],
         at_location: [
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
+        ],
+        triggered_by: [
+          resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_triggered_by_edge/3
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
@@ -179,6 +191,18 @@ defmodule ValueFlows.Hydration do
         ],
         onhand_quantity: [
           resolve: &ValueFlows.Util.GraphQL.onhand_quantity_edge/3
+        ],
+        primary_accountable: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_primary_accountable_edge/3
+        ],
+        unit_of_effort: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_unit_of_effort_edge/3
+        ],
+        contained_in: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_contained_in_edge/3
+        ],
+        conforms_to: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_conforms_to_edge/3
         ],
         tags: [
           resolve: &CommonsPub.Tag.GraphQL.TagResolver.tags_edges/3
