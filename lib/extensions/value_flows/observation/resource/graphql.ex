@@ -307,7 +307,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
       queries: ValueFlows.Observation.EconomicResource.Queries,
       query: ValueFlows.Observation.EconomicResource,
       # preload: [:primary_accountable, :receiver, :tags],
-      # cursor_fn: EconomicResources.cursor(:followers),
+      cursor_fn:  & &1.id,
       page_opts: page_opts,
       base_filters: [
         :default,

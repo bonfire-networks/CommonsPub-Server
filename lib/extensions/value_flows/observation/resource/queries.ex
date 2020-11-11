@@ -46,7 +46,7 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     join(q, :inner, [resource: r],
       e in EconomicEvent,
       as: :event,
-      on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id,
+      on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id
     )
   end
 
@@ -290,6 +290,19 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
 
   def filter(q, {:count, key}) when is_atom(key) do
     select(q, [resource: c], {field(c, ^key), count(c.id)})
+  end
+
+  def filter(q, {:preload, :all}) do
+    preload(q, [
+      :accounting_quantity,
+      :onhand_quantity,
+      :unit_of_effort,
+      :primary_accountable,
+      :current_location,
+      :contained_in,
+      :conforms_to,
+      :image
+    ])
   end
 
   def filter(q, {:preload, :primary_accountable}) do

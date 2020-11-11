@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Claim.Queries do
+  import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
+  alias CommonsPub.Follows.Follow
+  alias CommonsPub.Users.User
   alias ValueFlows.Claim
 
   def query(Claim) do
@@ -27,12 +30,21 @@ defmodule ValueFlows.Claim.Queries do
     join(q, jq, [claim: c], c2 in assoc(c, :context), as: :context)
   end
 
+  def join_to(q, {:follow, follower_id}, jq) do
+    join(q, jq, [claim: c], f in Follow,
+      as: :follow,
+      on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
+  end
+
   def filter(q, filters) when is_list(filters) do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
 
   def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
   def filter(q, {:join, join}), do: join_to(q, join)
+
+  ## by status
 
   def filter(q, :default) do
     filter(q, [:deleted])
@@ -42,11 +54,83 @@ defmodule ValueFlows.Claim.Queries do
     where(q, [claim: c], is_nil(c.deleted_at))
   end
 
+  def filter(q, :disabled) do
+    where(q, [claim: c], is_nil(c.disabled_at))
+  end
+
+  def filter(q, :private) do
+    where(q, [claim: c], not is_nil(c.published_at))
+  end
+
+  ## by user
+
+  def filter(q, {:creator, match_admin()}), do: q
+
+  def filter(q, {:creator, nil}) do
+    filter(q, ~w(disabled private)a)
+  end
+
+  def filter(q, {:creator, %User{id: id}}) do
+    q
+    |> join_to(follow: id)
+    |> where([claim: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> filter(~w(disabled)a)
+  end
+
+  ## by field values
+
   def filter(q, {:id, id}) when is_binary(id) do
     where(q, [claim: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
     where(q, [claim: c], c.id in ^ids)
+  end
+
+  def filter(q, {:provider_id, id}) when is_binary(id) do
+    where(q, [claim: c], c.provider_id == ^id)
+  end
+
+  def filter(q, {:provider_id, ids}) when is_list(ids) do
+    where(q, [claim: c], c.provider_id in ^ids)
+  end
+
+  def filter(q, {:receiver_id, id}) when is_binary(id) do
+    where(q, [claim: c], c.receiver_id == ^id)
+  end
+
+  def filter(q, {:receiver_id, ids}) when is_list(ids) do
+    where(q, [claim: c], c.receiver_id in ^ids)
+  end
+
+  def filter(q, {:context_id, id}) when is_binary(id) do
+    where(q, [claim: c], c.context_id == ^id)
+  end
+
+  def filter(q, {:context_id, ids}) when is_list(ids) do
+    where(q, [claim: c], c.context_id in ^ids)
+  end
+
+  def filter(q, {:action_id, ids}) when is_list(ids) do
+    where(q, [claim: c], c.action_id in ^ids)
+  end
+
+  def filter(q, {:action_id, id}) when is_binary(id) do
+    where(q, [claim: c], c.action_id == ^id)
+  end
+
+  ## preloading
+
+  def filter(q, {:preload, :all}) do
+    preload(q, [
+      :creator,
+      :provider,
+      :receiver,
+      :resource_conforms_to,
+      :resource_quantity,
+      :effort_quantity,
+      :context,
+      :triggered_by,
+    ])
   end
 end

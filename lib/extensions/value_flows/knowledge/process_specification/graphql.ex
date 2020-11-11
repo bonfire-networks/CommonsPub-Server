@@ -3,45 +3,19 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
   require Logger
 
-
-  alias CommonsPub.{
-    # Activities,
-    # Communities,
-    GraphQL,
-    Repo
-    # User
-  }
+  alias CommonsPub.{GraphQL, Repo}
 
   alias CommonsPub.GraphQL.{
     ResolveField,
-    # ResolveFields,
-    # ResolvePage,
     ResolvePages,
     ResolveRootPage,
     FetchPage
-    # FetchPages,
-    # CommonResolver
   }
-
-  # alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
-  alias CommonsPub.Meta.Pointers
-  # alias CommonsPub.Communities.Community
-  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
-  # alias ValueFlows.Knowledge.Action.Actions
-  # alias CommonsPub.Web.GraphQL.CommonResolver
   alias CommonsPub.Web.GraphQL.UploadResolver
-
-  # SDL schema import
-  # use Absinthe.Schema.Notation
-  # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
-
-  # TODO: put in config
-  # @tags_seperator " "
 
   ## resolvers
 
@@ -78,14 +52,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   end
 
   def process_specs_filtered(page_opts, _) do
-    IO.inspect(process_specs_filtered: page_opts)
     process_specs_filter(page_opts, [])
   end
-
-  # def process_specs_filtered(page_opts, _) do
-  #   IO.inspect(unhandled_filtering: page_opts)
-  #   all_process_specs(page_opts, nil)
-  # end
 
   # TODO: support several filters combined, plus pagination on filtered queries
 
@@ -101,17 +69,12 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
          _,
          filters_acc
        ) do
-    # IO.inspect(filters_query: filters_acc)
-
     # finally, if there's no more known params to acumulate, query with the filters
     ProcessSpecifications.many(filters_acc)
   end
 
   defp process_specs_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    IO.inspect(process_specs_filter_next: param_remove)
-    IO.inspect(process_specs_filter_add: filter_add)
-
     process_specs_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
 

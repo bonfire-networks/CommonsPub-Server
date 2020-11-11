@@ -7,12 +7,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
-  alias CommonsPub.Meta.Pointers
-
-  alias Geolocation.Geolocations
-  alias ValueFlows.Knowledge.Action.Actions
-
-  alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicResource.EconomicResources
@@ -421,18 +415,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     end
   end
 
-  defp publish(creator, context, event, activity, :created) do
-    feeds = [
-      context.outbox_id,
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", event.id, creator.id)
-    end
-  end
-
   defp publish(event, :updated) do
     # TODO: wrong if edited by admin
     ap_publish("update", event.id, event.creator_id)
@@ -452,8 +434,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
     :ok
   end
-
-  defp ap_publish(_, _, _), do: :ok
 
   def indexing_object_format(obj) do
     %{

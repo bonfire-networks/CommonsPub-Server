@@ -19,7 +19,7 @@ defmodule CommonsPub.Collections.Collection do
 
   table_schema "mn_collection" do
     # belongs_to(:actor, Character)
-    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
+    has_one(:character, Character, references: :id, foreign_key: :id)
 
     belongs_to(:creator, User)
 
