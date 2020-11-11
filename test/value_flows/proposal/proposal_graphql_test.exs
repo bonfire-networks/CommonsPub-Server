@@ -141,7 +141,19 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
   end
 
-  describe "proposals" do
+  describe "proposalPages" do
+    test "fetches a page of proposals" do
+      user = fake_user!()
+      proposals = some(5, fn -> fake_proposal!(user) end)
+      after_proposal = List.first(proposals)
+
+      q = proposals_pages_query()
+      conn = user_conn(user)
+      vars = %{after: after_proposal.id, limit: 2}
+      assert %{"edges" => fetched} = grumble_post_key(q, conn, :proposalsPages, vars)
+      assert Enum.count(fetched) == 2
+      assert List.first(fetched)["id"] == after_proposal.id
+    end
   end
 
   describe "createProposal" do

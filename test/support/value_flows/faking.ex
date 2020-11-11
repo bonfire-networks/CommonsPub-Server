@@ -467,6 +467,32 @@ defmodule ValueFlows.Test.Faking do
     gen_subquery(:id, :proposal, &proposal_fields/1, options)
   end
 
+  def proposals_pages_subquery(options \\ []) do
+    args = [
+      after: var(:after),
+      before: var(:before),
+      limit: var(:limit)
+    ]
+
+    page_subquery(
+      :proposals_pages,
+      &proposal_fields/1,
+      [{:args, args} | options]
+    )
+  end
+
+  def proposals_pages_query(options \\ []) do
+    params =
+      [
+        after: list_type(:cursor),
+        before: list_type(:cursor),
+        limit: :int
+      ] ++ Keyword.get(options, :params, [])
+
+    gen_query(&proposals_pages_subquery/1, [{:params, params} | options])
+  end
+
+
   def create_proposal_mutation(options \\ []) do
     [proposal: type!(:proposal_create_params)]
     |> gen_mutation(&create_proposal_submutation/1, options)
