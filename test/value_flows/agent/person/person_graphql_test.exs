@@ -29,10 +29,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
       # attach some data to the person...
 
       intent =
-        fake_intent!(user, nil, nil, %{
-          provider: user.id
-        })
-
+        fake_intent!(user, %{ provider: user.id })
 
       resource =
         fake_economic_resource!(user, %{

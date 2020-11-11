@@ -43,9 +43,9 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       user = fake_user!()
       parent = fake_user!()
 
-      assert {:ok, proposal} = Proposals.create(user, parent, proposal())
+      assert {:ok, proposal} = Proposals.create(user, proposal(%{in_scope_of: [parent.id]}))
       assert_proposal_full(proposal)
-      assert proposal.context_id == parent.id
+      assert proposal.context.id == parent.id
     end
 
     test "can create a proposal with an eligible location" do
@@ -73,10 +73,10 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     test "can update an existing proposal with a new context" do
       user = fake_user!()
       context = fake_community!(user)
-      proposal = fake_proposal!(user, context)
+      proposal = fake_proposal!(user, %{in_scope_of: [context.id]})
 
       new_context = fake_community!(user)
-      assert {:ok, updated} = Proposals.update(proposal, new_context, proposal())
+      assert {:ok, updated} = Proposals.update(proposal, proposal(%{in_scope_of: [new_context.id]}))
       assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
       assert updated.context_id == new_context.id

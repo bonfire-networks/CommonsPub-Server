@@ -31,13 +31,12 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
     test "fetches a full nested proposal by ID (via Absinthe.run)" do
       user = fake_user!()
-
       parent = fake_user!()
-
       location = fake_geolocation!(user)
-
-      proposal = fake_proposal!(user, parent, %{eligible_location_id: location.id})
-
+      proposal = fake_proposal!(user, %{
+        in_scope_of: [parent.id],
+        eligible_location_id: location.id
+      })
       intent = fake_intent!(user)
 
       some(5, fn ->
@@ -120,7 +119,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     test "fetches an associated eligible location" do
       user = fake_user!()
       location = fake_geolocation!(user)
-      proposal = fake_proposal!(user, nil, %{eligible_location_id: location.id})
+      proposal = fake_proposal!(user, %{eligible_location_id: location.id})
 
       q = proposal_query(fields: [eligible_location: [:id]])
       conn = user_conn(user)
@@ -133,7 +132,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     test "returns the scope of the proposal" do
       user = fake_user!()
       parent = fake_user!()
-      proposal = fake_proposal!(user, parent)
+      proposal = fake_proposal!(user, %{in_scope_of: [parent.id]})
 
       q = proposal_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
@@ -194,7 +193,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     test "updates an existing proposal with a new scope" do
       user = fake_user!()
       scope = fake_community!(user)
-      proposal = fake_proposal!(user, scope)
+      proposal = fake_proposal!(user, %{in_scope_of: [scope.id]})
 
       new_scope = fake_community!(user)
       q = update_proposal_mutation()

@@ -247,15 +247,8 @@ defmodule ValueFlows.Simulate do
     intent
   end
 
-  def fake_proposal!(user, context \\ nil, overrides \\ %{})
-
-  def fake_proposal!(user, context, overrides) when is_nil(context) do
+  def fake_proposal!(user, overrides \\ %{}) do
     {:ok, proposal} = Proposals.create(user, proposal(overrides))
-    proposal
-  end
-
-  def fake_proposal!(user, context, overrides) do
-    {:ok, proposal} = Proposals.create(user, context, proposal(overrides))
     proposal
   end
 
