@@ -70,6 +70,7 @@ defmodule ValueFlows.Proposal.GraphQL do
       queries: ValueFlows.Proposal.Queries,
       query: ValueFlows.Proposal,
       page_opts: page_opts,
+      cursor_fn:  & &1.id,
       base_filters: [
         :default,
         # preload: [:provider, :receiver, :tags],
