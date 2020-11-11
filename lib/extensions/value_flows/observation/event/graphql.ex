@@ -258,6 +258,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
       queries: ValueFlows.Observation.EconomicEvent.Queries,
       query: ValueFlows.Observation.EconomicEvent,
       page_opts: page_opts,
+      cursor_fn:  & &1.id,
       base_filters: [
         :default,
         user: GraphQL.current_user(info)

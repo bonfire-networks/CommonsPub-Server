@@ -226,6 +226,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
       # preload: [:provider, :receiver, :tags],
       # cursor_fn: Processes.cursor(:followers),
       page_opts: page_opts,
+      cursor_fn:  & &1.id,
       base_filters: [
         :default,
         # preload: [:provider, :receiver, :tags],
