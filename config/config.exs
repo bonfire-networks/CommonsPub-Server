@@ -38,12 +38,9 @@ fallback_env = fn a, b, c -> System.get_env(a) || System.get_env(b) || c end
 desc = System.get_env("INSTANCE_DESCRIPTION", "An instance of CommonsPub, a federated app ecosystem for open and cooperative networks")
 hostname = System.get_env("HOSTNAME", "localhost")
 base_url = System.get_env("BASE_URL", "http://localhost:4000")
+signing_salt = System.get_env("SIGNING_SALT", "CqAoopA2")
 
-# LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
-config :commons_pub, CommonsPub.Web.Endpoint,
-  live_view: [
-    signing_salt: "SECRET_SALT"
-  ]
+
 
 # stuff you might need to change to be viable
 
@@ -56,6 +53,13 @@ config :commons_pub,
 config :commons_pub, CommonsPub.Web.Gettext, default_locale: "en", locales: ~w(en es)
 
 # stuff you might want to change for your use case
+
+# LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
+config :commons_pub, :signing_salt, signing_salt
+config :commons_pub, CommonsPub.Web.Endpoint,
+  live_view: [
+    signing_salt: signing_salt
+  ]
 
 types_agents = [
   User,
