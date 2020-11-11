@@ -31,10 +31,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
   end
 
-  def join_to(q, :context, jq) do
-    join(q, jq, [intent: c], c2 in assoc(c, :context), as: :context)
-  end
-
   def join_to(q, {:follow, follower_id}, jq) do
     join(q, jq, [intent: c], f in Follow,
       as: :follow,
@@ -74,7 +70,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, :default) do
     filter(q, [:deleted, preload: :quantities])
-    # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
   end
 
   def filter(q, :offer) do
@@ -266,6 +261,8 @@ defmodule ValueFlows.Planning.Intent.Queries do
       :creator,
       :context,
       :at_location,
+      :resource_inventoried_as,
+      :resource_conforms_to,
     ])
     |> filter({:preload, :quantities})
   end
@@ -274,7 +271,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
     q
     |> join_to([:available_quantity, :effort_quantity, :resource_quantity])
     |> preload([:available_quantity, :effort_quantity, :resource_quantity])
-    # preload(q, [geolocation: g], at_location: g)
   end
 
   # pagination

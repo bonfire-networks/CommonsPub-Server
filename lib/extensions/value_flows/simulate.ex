@@ -218,7 +218,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
-  def intent_input(unit, base \\ %{}) do
+  def intent_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("note", &summary/0)
@@ -230,9 +230,6 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("has_point_in_time", &future_datetime_iso/0)
     |> Map.put_new_lazy("due", &future_datetime_iso/0)
     |> Map.put_new_lazy("finished", &bool/0)
-    |> Map.put_new_lazy("available_quantity", fn -> measure_input(unit) end)
-    |> Map.put_new_lazy("resource_quantity", fn -> measure_input(unit) end)
-    |> Map.put_new_lazy("effort_quantity", fn -> measure_input(unit) end)
   end
 
   @doc "Shorter version of fake_claim!/4, but instead generates a provider and receiver."
@@ -245,23 +242,7 @@ defmodule ValueFlows.Simulate do
     claim
   end
 
-  def fake_intent!(user, unit \\ nil, overrides \\ %{})
-
-  def fake_intent!(user, unit, overrides) when is_nil(unit) do
-    {:ok, intent} = Intents.create(user, intent(overrides))
-    intent
-  end
-
-  def fake_intent!(user, unit, overrides) do
-    measure_attrs = %{unit_id: unit.id}
-
-    measures = %{
-      resource_quantity: measure(measure_attrs),
-      effort_quantity: measure(measure_attrs),
-      available_quantity: measure(measure_attrs)
-    }
-
-    overrides = Map.merge(overrides, measures)
+  def fake_intent!(user, overrides \\ %{}) do
     {:ok, intent} = Intents.create(user, intent(overrides))
     intent
   end

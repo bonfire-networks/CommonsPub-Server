@@ -119,7 +119,19 @@ defmodule ValueFlows.Hydration do
         ],
         published_in: [
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3
-        ]
+        ],
+        resource_conforms_to: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_resource_conforms_to_edge/3
+        ],
+        resource_inventoried_as: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_resource_inventoried_as_edge/3
+        ],
+        input_of: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_input_of_edge/3
+        ],
+        output_of: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_output_of_edge/3
+        ],
       },
       claim: %{
         action: [

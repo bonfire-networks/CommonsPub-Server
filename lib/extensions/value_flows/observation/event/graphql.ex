@@ -5,45 +5,19 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   require Logger
 
-
-  alias CommonsPub.{
-    # Activities,
-    # Communities,
-    GraphQL,
-    Repo
-    # User
-  }
+  alias CommonsPub.{GraphQL, Repo}
 
   alias CommonsPub.GraphQL.{
     ResolveField,
-    # ResolveFields,
-    # ResolvePage,
     ResolvePages,
     ResolveRootPage,
     FetchPage
-    # FetchPages,
-    # CommonResolver
   }
-
-  # alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
-  # alias CommonsPub.Meta.Pointers
-  # alias CommonsPub.Communities.Community
-  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
   alias ValueFlows.Observation.EconomicEvent.Queries
-  # alias ValueFlows.Knowledge.Action.Actions
-  # alias CommonsPub.Web.GraphQL.CommonResolver
   alias CommonsPub.Web.GraphQL.UploadResolver
-
-  # SDL schema import
-  # use Absinthe.Schema.Notation
-  # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
-
-  # TODO: put in config
-  # @tags_seperator " "
 
   ## resolvers
 
@@ -80,14 +54,8 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def events_filtered(page_opts, _ \\ nil) do
-    # IO.inspect(events_filtered: page_opts)
     events_filter(page_opts, [])
   end
-
-  # def events_filtered(page_opts, _) do
-  #   IO.inspect(unhandled_filtering: page_opts)
-  #   all_events(page_opts, nil)
-  # end
 
   # TODO: support several filters combined, plus pagination on filtered queries
 
@@ -128,8 +96,6 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_with_point: page_opts)
-
     events_filter_next(
       :geolocation,
       {
@@ -149,11 +115,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_with_address: page_opts)
-
     with {:ok, coords} <- Geocoder.call(address) do
-      # IO.inspect(coords)
-
       events_filter(
         Map.merge(
           page_opts,
@@ -184,8 +146,6 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_without_distance: page_opts)
-
     events_filter(
       Map.merge(
         page_opts,
@@ -205,17 +165,12 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
          _,
          filters_acc
        ) do
-    # IO.inspect(filters_query: filters_acc)
-
     # finally, if there's no more known params to acumulate, query with the filters
     EconomicEvents.many(filters_acc)
   end
 
   defp events_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    # IO.inspect(events_filter_next: param_remove)
-    # IO.inspect(events_filter_add: filter_add)
-
     events_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
 
@@ -293,10 +248,8 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     FetchPage.run(%FetchPage{
       queries: Queries,
       query: EconomicEvent,
-      # cursor_fn: EconomicEvents.cursor(cursor_type),
       page_opts: page_opts,
       base_filters: base_filters
-      # data_filters: data_filters
     })
   end
 
@@ -304,15 +257,11 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
     FetchPage.run(%FetchPage{
       queries: ValueFlows.Observation.EconomicEvent.Queries,
       query: ValueFlows.Observation.EconomicEvent,
-      # preload: [:provider, :receiver, :tags],
-      # cursor_fn: EconomicEvents.cursor(:followers),
       page_opts: page_opts,
       base_filters: [
         :default,
-        # preload: [:provider, :receiver, :tags],
         user: GraphQL.current_user(info)
       ]
-      # data_filters: [page: [desc: [followers: page_opts]]],
     })
   end
 
@@ -385,8 +334,6 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
            {:ok, uploads} <- UploadResolver.upload(user, event_attrs, info),
            event_attrs = Map.merge(event_attrs, uploads),
            event_attrs = Map.merge(event_attrs, %{is_public: true}),
-           #  {:ok, resource} <- ValueFlows.Observation.EconomicResource.GraphQL.create_resource(params, info),
-           #  event_attrs = Map.merge(event_attrs, %{resource_inventoried_as: resource}),
            {:ok, event, new_resource} <- EconomicEvents.create(user, event_attrs, params) do
         {:ok, %{economic_event: event, economic_resource: new_resource}}
       end

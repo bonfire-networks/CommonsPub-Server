@@ -5,7 +5,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   require Logger
 
-
   alias CommonsPub.{GraphQL, Repo}
 
   alias CommonsPub.GraphQL.{
@@ -50,7 +49,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   def intents_filtered(page_opts, _ \\ nil) do
-    # IO.inspect(intents_filtered: page_opts)
     intents_filter(page_opts, [])
   end
 
@@ -98,8 +96,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_with_point: page_opts)
-
     intents_filter_next(
       :geolocation,
       {
@@ -119,10 +115,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_with_address: page_opts)
-
     with {:ok, coords} <- Geocoder.call(address) do
-      # IO.inspect(coords)
 
       intents_filter(
         Map.merge(
@@ -154,8 +147,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          } = page_opts,
          filters_acc
        ) do
-    # IO.inspect(geo_without_distance: page_opts)
-
     intents_filter(
       Map.merge(
         page_opts,
@@ -175,17 +166,12 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
          _,
          filters_acc
        ) do
-    # IO.inspect(filters_query: filters_acc)
-
     # finally, if there's no more known params to acumulate, query with the filters
     Intents.many(filters_acc)
   end
 
   defp intents_filter_next(param_remove, filter_add, page_opts, filters_acc)
        when is_list(param_remove) and is_list(filter_add) do
-    # IO.inspect(intents_filter_next: param_remove)
-    # IO.inspect(intents_filter_add: filter_add)
-
     intents_filter(Map.drop(page_opts, param_remove), filters_acc ++ filter_add)
   end
 
@@ -288,6 +274,46 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
         user: GraphQL.current_user(info)
       ]
     )
+  end
+
+  def fetch_resource_conforms_to_edge(%{resource_conforms_to_id: id} = thing, _, _)
+      when is_binary(id) do
+    thing = Repo.preload(thing, :resource_conforms_to)
+    {:ok, Map.get(thing, :resource_conforms_to)}
+  end
+
+  def fetch_resource_conforms_to_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
+      when is_binary(id) do
+    thing = Repo.preload(thing, :resource_inventoried_as)
+    {:ok, Map.get(thing, :resource_inventoried_as)}
+  end
+
+  def fetch_resource_inventoried_as_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def fetch_input_of_edge(%{input_of_id: id} = thing, _, _)
+      when is_binary(id) do
+    thing = Repo.preload(thing, :input_of)
+    {:ok, Map.get(thing, :input_of)}
+  end
+
+  def fetch_input_of_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+  def fetch_output_of_edge(%{output_of_id: id} = thing, _, _)
+      when is_binary(id) do
+    thing = Repo.preload(thing, :output_of)
+    {:ok, Map.get(thing, :output_of)}
+  end
+
+  def fetch_output_of_edge(_, _, _) do
+    {:ok, nil}
   end
 
   def list_intents(page_opts, base_filters) do

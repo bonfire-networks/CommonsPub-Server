@@ -10,7 +10,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias CommonsPub.Meta.Pointers
 
   alias Geolocation.Geolocations
-  # alias Measurement.Measure
+  alias ValueFlows.Knowledge.Action.Actions
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
 
@@ -88,7 +88,11 @@ defmodule ValueFlows.Planning.Intent.Intents do
   def preload_all(%Intent{} = intent) do
     # shouldn't fail
     {:ok, intent} = one(id: intent.id, preload: :all)
-    intent
+    preload_action(intent)
+  end
+
+  def preload_action(%Intent{} = intent) do
+    Map.put(intent, :action, Actions.action!(intent.action_id))
   end
 
   ## mutations
@@ -159,7 +163,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   # TODO: take the user who is performing the update
   # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def update(%Intent{} = intent, attrs) do
-    attrs = parse_measurement_attrs(attrs)
+    attrs = prepare_attrs(attrs)
 
     Repo.transact_with(fn ->
       with {:ok, intent} <- Repo.update(Intent.update_changeset(intent, attrs)),
@@ -217,7 +221,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     |> maybe_put(:input_of_id, Map.get(attrs, :input_of))
     |> maybe_put(:output_of_id, Map.get(attrs, :output_of))
     |> maybe_put(:resource_conforms_to_id, Map.get(attrs, :resource_conforms_to))
-    |> maybe_put(:resource_inventoried_as_id, Map.get(attrs, :resource_inventoried_as_id))
+    |> maybe_put(:resource_inventoried_as_id, Map.get(attrs, :resource_inventoried_as))
     |> parse_measurement_attrs()
   end
 

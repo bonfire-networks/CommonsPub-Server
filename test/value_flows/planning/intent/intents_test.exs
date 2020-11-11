@@ -7,7 +7,6 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   import CommonsPub.Utils.Trendy, only: [some: 2]
 
   import Measurement.Simulate
-  import Measurement.Test.Faking
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -17,8 +16,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   describe "one" do
     test "fetches an existing intent by ID" do
       user = fake_user!()
-      unit = fake_unit!(user)
-      intent = fake_intent!(user, unit)
+      intent = fake_intent!(user)
 
       assert {:ok, fetched} = Intents.one(id: intent.id)
       assert_intent(intent, fetched)
@@ -105,7 +103,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
     test "updates an existing intent" do
       user = fake_user!()
       unit = fake_unit!(user)
-      intent = fake_intent!(user, unit)
+      intent = fake_intent!(user)
 
       measures = %{
         resource_quantity: measure(%{unit_id: unit.id}),
