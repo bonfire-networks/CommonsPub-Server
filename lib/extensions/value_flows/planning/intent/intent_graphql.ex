@@ -14,12 +14,9 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     FetchPage
   }
 
-  alias CommonsPub.Meta.Pointers
-
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Planning.Intent.Queries
-  alias ValueFlows.Knowledge.Action.Actions
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   ## resolvers

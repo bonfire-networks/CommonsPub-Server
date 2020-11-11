@@ -4,42 +4,19 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
   require Logger
 
 
-  alias CommonsPub.{
-    # Activities,
-    # Communities,
-    GraphQL,
-    Repo
-    # User
-  }
+  alias CommonsPub.{GraphQL, Repo}
 
   alias CommonsPub.GraphQL.{
     ResolveField,
-    # ResolveFields,
-    # ResolvePage,
     ResolvePages,
     ResolveRootPage,
     FetchPage
-    # FetchPages,
-    # CommonResolver
   }
-
-  # alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
-  alias CommonsPub.Meta.Pointers
-  # alias CommonsPub.Communities.Community
-  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Knowledge.ResourceSpecification
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
   alias ValueFlows.Knowledge.ResourceSpecification.Queries
-  # alias ValueFlows.Knowledge.Action.Actions
-  # alias CommonsPub.Web.GraphQL.CommonResolver
   alias CommonsPub.Web.GraphQL.UploadResolver
-
-  # SDL schema import
-  #  use Absinthe.Schema.Notation
- # import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
-
 
   ## resolvers
 

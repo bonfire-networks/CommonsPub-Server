@@ -26,7 +26,7 @@ defmodule ValueFlows.Claim.GraphQL do
     })
   end
 
-  def fetch_claim(info, id) do
+  def fetch_claim(_info, id) do
     Claims.one([:default, id: id])
   end
 

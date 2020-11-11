@@ -113,18 +113,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     end
   end
 
-  defp publish(creator, context, process_spec, activity, :created) do
-    feeds = [
-      context.outbox_id,
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", process_spec.id, creator.id)
-    end
-  end
-
   defp publish(process_spec, :updated) do
     # TODO: wrong if edited by admin
     ap_publish("update", process_spec.id, process_spec.creator_id)
@@ -144,8 +132,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
     :ok
   end
-
-  defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   # @spec update(%ProcessSpecification{}, attrs :: map) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}

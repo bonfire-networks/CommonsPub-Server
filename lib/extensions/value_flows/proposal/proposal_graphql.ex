@@ -13,8 +13,6 @@ defmodule ValueFlows.Proposal.GraphQL do
     FetchPage
   }
 
-  alias CommonsPub.Meta.Pointers
-
   alias ValueFlows.Proposal.Proposals
 
   ## resolvers

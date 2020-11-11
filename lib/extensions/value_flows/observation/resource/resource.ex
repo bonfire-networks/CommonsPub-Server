@@ -14,7 +14,7 @@ defmodule ValueFlows.Observation.EconomicResource do
 
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
-  alias ValueFlows.Knowledge.ProcessSpecification
+  # alias ValueFlows.Knowledge.ProcessSpecification
 
   alias ValueFlows.Observation.EconomicResource
 

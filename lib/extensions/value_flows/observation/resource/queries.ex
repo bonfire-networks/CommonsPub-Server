@@ -46,7 +46,7 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     join(q, :inner, [resource: r],
       e in EconomicEvent,
       as: :event,
-      on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id,
+      on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id
     )
   end
 

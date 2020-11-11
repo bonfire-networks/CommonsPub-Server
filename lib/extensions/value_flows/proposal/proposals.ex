@@ -8,8 +8,6 @@ defmodule ValueFlows.Proposal.Proposals do
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
 
-  alias Geolocation.Geolocations
-  # alias Measurement.Measure
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
 
@@ -22,9 +20,6 @@ defmodule ValueFlows.Proposal.Proposals do
   }
 
   alias ValueFlows.Planning.Intent
-
-  # use Assertions.AbsintheCase, async: true, schema: ValueFlows.Schema
-  # import Assertions.Absinthe, only: [document_for: 4]
 
   @schema CommonsPub.Web.GraphQL.Schema
 
@@ -144,18 +139,6 @@ defmodule ValueFlows.Proposal.Proposals do
 
   defp publish(creator, proposal, activity, :created) do
     feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", proposal.id, creator.id)
-    end
-  end
-
-  defp publish(creator, context, proposal, activity, :created) do
-    feeds = [
-      context.outbox_id,
       CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]

@@ -7,9 +7,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
-  alias CommonsPub.Meta.Pointers
 
-  alias Geolocation.Geolocations
   alias ValueFlows.Knowledge.Action.Actions
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
@@ -126,18 +124,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end
   end
 
-  defp publish(creator, context, intent, activity, :created) do
-    feeds = [
-      context.outbox_id,
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", intent.id, creator.id)
-    end
-  end
-
   defp publish(intent, :updated) do
     # TODO: wrong if edited by admin
     ap_publish("update", intent.id, intent.creator_id)
@@ -157,8 +143,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
     :ok
   end
-
-  defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}

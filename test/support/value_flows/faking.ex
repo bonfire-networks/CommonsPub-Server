@@ -72,7 +72,7 @@ defmodule ValueFlows.Test.Faking do
       finished: assert_optional(&assert_boolean/1),
       created: assert_optional(&assert_datetime/1),
       due: assert_optional(&assert_datetime/1),
-      resource_classified_as: assert_optional(assert_list(&assert_url/1)),
+      resource_classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
 

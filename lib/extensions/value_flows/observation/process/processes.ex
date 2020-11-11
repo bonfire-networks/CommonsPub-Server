@@ -87,7 +87,8 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   def trace(process), do: inputs(process)
 
-  def inputs(%{id: id}, action_id \\ nil) when not is_nil(action_id) do
+  def inputs(attrs, action_id \\ nil)
+  def inputs(%{id: id}, action_id) when not is_nil(action_id) do
     EconomicEvents.many([:default, input_of_id: id, action_id: action_id])
   end
 
@@ -95,7 +96,12 @@ defmodule ValueFlows.Observation.Process.Processes do
     EconomicEvents.many([:default, input_of_id: id])
   end
 
-  def outputs(%{id: id}, action_id \\ nil) when not is_nil(action_id) do
+  def inputs(_, _) do
+    {:ok, nil}
+  end
+
+  def outputs(attrs, action_id \\ nil)
+  def outputs(%{id: id}, action_id) when not is_nil(action_id) do
     EconomicEvents.many([:default, output_of_id: id, action_id: action_id])
   end
 
@@ -143,18 +149,6 @@ defmodule ValueFlows.Observation.Process.Processes do
     end
   end
 
-  defp publish(creator, context, process, activity, :created) do
-    feeds = [
-      context.outbox_id,
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", process.id, creator.id)
-    end
-  end
-
   defp publish(process, :updated) do
     # TODO: wrong if edited by admin
     ap_publish("update", process.id, process.creator_id)
@@ -174,8 +168,6 @@ defmodule ValueFlows.Observation.Process.Processes do
 
     :ok
   end
-
-  defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   # @spec update(%Process{}, attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}

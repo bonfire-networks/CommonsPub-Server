@@ -7,16 +7,10 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
-  alias CommonsPub.Meta.Pointers
 
-  alias Geolocation.Geolocations
-  alias Measurement.Unit.Units
-  alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
-  alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.Queries
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
-  alias ValueFlows.Knowledge.Action.Actions
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -170,18 +164,6 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
     end
   end
 
-  defp publish(creator, context, resource, activity, :created) do
-    feeds = [
-      context.outbox_id,
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", resource.id, creator.id)
-    end
-  end
-
   defp publish(resource, :updated) do
     # TODO: wrong if edited by admin
     ap_publish("update", resource.id, resource.creator_id)
@@ -201,8 +183,6 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
     :ok
   end
-
-  defp ap_publish(_, _, _), do: :ok
 
   def indexing_object_format(obj) do
     # icon = CommonsPub.Uploads.remote_url_from_id(obj.icon_id)
