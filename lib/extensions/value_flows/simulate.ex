@@ -240,7 +240,7 @@ defmodule ValueFlows.Simulate do
 
   @doc "Shorter version of fake_claim!/4, but instead generates a provider and receiver."
   def fake_claim!(user, overrides \\ %{}) do
-    fake_claim!(user, fake_user!(), fake_user!(), overrides)
+    fake_claim!(user, fake_agent!(), fake_agent!(), overrides)
   end
 
   def fake_claim!(user, provider, receiver, overrides \\ %{}) do

@@ -4,7 +4,7 @@
 | absinthe               | MIT                                | 1.5.3   | https://hex.pm/packages/absinthe                       |
 | absinthe_error_payload | BSD-3; Unrecognized license        | 1.1.3   | https://hex.pm/packages/absinthe_error_payload         |
 | absinthe_plug          | MIT                                | 1.5.0   | https://hex.pm/packages/absinthe_plug                  |
-| activity_pub           | Undefined                          | 0.1.0   |                                                        |
+| activity_pub           | Undefined                          | 0.1.0   | https://gitlab.com/CommonsPub/activitypub              |
 | argon2_elixir          | Apache 2.0                         | 2.3.0   | https://hex.pm/packages/argon2_elixir                  |
 | bamboo                 | MIT                                | 1.6.0   | https://hex.pm/packages/bamboo                         |
 | bamboo_smtp            | MIT                                | 2.1.0   | https://hex.pm/packages/bamboo_smtp                    |
@@ -20,7 +20,7 @@
 | cors_plug              | Apache 2.0                         | 2.0.2   | https://hex.pm/packages/cors_plug                      |
 | cortex                 | MIT                                | 0.6.0   | https://hex.pm/packages/cortex                         |
 | cowboy                 | ISC                                | 2.8.0   | https://hex.pm/packages/cowboy                         |
-| cowboy_telemetry       | Apache 2.0                         | 0.3.0   | https://hex.pm/packages/cowboy_telemetry               |
+| cowboy_telemetry       | Apache 2.0                         | 0.3.1   | https://hex.pm/packages/cowboy_telemetry               |
 | cowlib                 | ISC                                | 2.9.1   | https://hex.pm/packages/cowlib                         |
 | db_connection          | Apache 2.0                         | 2.3.0   | https://hex.pm/packages/db_connection                  |
 | dbg                    | Apache 2.0                         | 1.0.1   | https://hex.pm/packages/dbg                            |
