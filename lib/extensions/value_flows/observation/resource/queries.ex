@@ -46,7 +46,7 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     join(q, :inner, [resource: r],
       e in EconomicEvent,
       as: :event,
-      on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id,
+      on: e.resource_inventoried_as_id == r.id and e.output_of_id == ^output_of_id
     )
   end
 
@@ -68,6 +68,10 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
 
   def join_to(q, :unit_of_effort, jq) do
     join(q, jq, [resource: c], t in assoc(c, :unit_of_effort), as: :unit_of_effort)
+  end
+
+  def join_to(q, :contained_in, jq) do
+    join(q, jq, [resource: c], t in assoc(c, :contained_in), as: :contained_in)
   end
 
   # def join_to(q, :primary_accountable, jq) do
@@ -96,7 +100,12 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
 
   def filter(q, :default) do
     #filter(q, [:deleted])
-    filter q, [:deleted, {:preload, :primary_accountable}, {:preload, :unit_of_effort}]
+    filter q, [
+      :deleted,
+      # FIXME: use hydration
+      # preload: :primary_accountable,
+      # preload: :unit_of_effort,
+    ]
   end
 
   def filter(q, :offer) do
@@ -283,6 +292,19 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     select(q, [resource: c], {field(c, ^key), count(c.id)})
   end
 
+  def filter(q, {:preload, :all}) do
+    preload(q, [
+      :accounting_quantity,
+      :onhand_quantity,
+      :unit_of_effort,
+      :primary_accountable,
+      :current_location,
+      :contained_in,
+      :conforms_to,
+      :image
+    ])
+  end
+
   def filter(q, {:preload, :primary_accountable}) do
     preload(q, :primary_accountable)
   end
@@ -303,6 +325,12 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
     |> preload(:current_location)
 
     # preload(q, [geolocation: g], current_location: g)
+  end
+
+  def filter(q, {:preload, :contained_in}) do
+    q
+    |> join_to(:contained_in)
+    |> preload([contained_in: cin], contained_in: cin)
   end
 
   # pagination

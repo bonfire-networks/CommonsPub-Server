@@ -8,9 +8,9 @@ defmodule ValueFlows.Simulate do
 
   import Measurement.Simulate
 
+  alias ValueFlows.Claim.Claims
   alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Proposal.Proposals
-  # alias ValueFlows.Proposal.ProposedIntent
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
   alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.Process.Processes
@@ -20,6 +20,29 @@ defmodule ValueFlows.Simulate do
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
   ### Start fake data functions
+
+  def claim(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:note, &summary/0)
+    |> Map.put_new_lazy(:agreed_in, &url/0)
+    |> Map.put_new_lazy(:finished, &bool/0)
+    |> Map.put_new_lazy(:created, &past_datetime/0)
+    |> Map.put_new_lazy(:due, &future_datetime/0)
+    |> Map.put_new_lazy(:action, &action_id/0)
+    |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
+  end
+
+  def claim_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("note", &summary/0)
+    # FIXME: URI doesn't work, scalar?
+    # |> Map.put_new_lazy("agreedIn", &url/0)
+    |> Map.put_new_lazy("finished", &bool/0)
+    |> Map.put_new_lazy("created", &past_datetime_iso/0)
+    |> Map.put_new_lazy("due", &future_datetime_iso/0)
+    |> Map.put_new_lazy("action", &action_id/0)
+    # |> Map.put_new_lazy("resourceClassifiedAs", fn -> some(1..5, &url/0) end)
+  end
 
   def agent_type(), do: Faker.Util.pick([:person, :organization])
 
@@ -201,7 +224,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
-  def intent_input(unit, base \\ %{}) do
+  def intent_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("note", &summary/0)
@@ -213,41 +236,25 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("has_point_in_time", &future_datetime_iso/0)
     |> Map.put_new_lazy("due", &future_datetime_iso/0)
     |> Map.put_new_lazy("finished", &bool/0)
-    |> Map.put_new_lazy("available_quantity", fn -> measure_input(unit) end)
-    |> Map.put_new_lazy("resource_quantity", fn -> measure_input(unit) end)
-    |> Map.put_new_lazy("effort_quantity", fn -> measure_input(unit) end)
   end
 
-  def fake_intent!(user, unit \\ nil, context \\ nil, overrides \\ %{})
+  @doc "Shorter version of fake_claim!/4, but instead generates a provider and receiver."
+  def fake_claim!(user, overrides \\ %{}) do
+    fake_claim!(user, fake_user!(), fake_user!(), overrides)
+  end
 
-  def fake_intent!(user, unit, context, overrides) when is_nil(unit) do
-    {:ok, intent} = Intents.create(user, action(), context, intent(overrides))
+  def fake_claim!(user, provider, receiver, overrides \\ %{}) do
+    {:ok, claim} = Claims.create(user, provider, receiver, claim(overrides))
+    claim
+  end
+
+  def fake_intent!(user, overrides \\ %{}) do
+    {:ok, intent} = Intents.create(user, intent(overrides))
     intent
   end
 
-  def fake_intent!(user, unit, context, overrides) do
-    measure_attrs = %{unit_id: unit.id}
-
-    measures = %{
-      resource_quantity: measure(measure_attrs),
-      effort_quantity: measure(measure_attrs),
-      available_quantity: measure(measure_attrs)
-    }
-
-    overrides = Map.merge(overrides, measures)
-    {:ok, intent} = Intents.create(user, action(), context, intent(overrides))
-    intent
-  end
-
-  def fake_proposal!(user, context \\ nil, overrides \\ %{})
-
-  def fake_proposal!(user, context, overrides) when is_nil(context) do
+  def fake_proposal!(user, overrides \\ %{}) do
     {:ok, proposal} = Proposals.create(user, proposal(overrides))
-    proposal
-  end
-
-  def fake_proposal!(user, context, overrides) do
-    {:ok, proposal} = Proposals.create(user, context, proposal(overrides))
     proposal
   end
 
@@ -267,15 +274,8 @@ defmodule ValueFlows.Simulate do
     extra ++ ~w(id name note created has_beginning has_end unit_based)a
   end
 
-  def fake_process_specification!(user, context \\ nil, overrides \\ %{})
-
-  def fake_process_specification!(user, context, overrides) when is_nil(context) do
+  def fake_process_specification!(user, overrides \\ %{}) do
     {:ok, spec} = ProcessSpecifications.create(user, process_specification(overrides))
-    spec
-  end
-
-  def fake_process_specification!(user, context, overrides) do
-    {:ok, spec} = ProcessSpecifications.create(user, context, process_specification(overrides))
     spec
   end
 

@@ -72,6 +72,24 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     Processes.many([:default])
   end
 
+  def track(process, _, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_track_process,
+      context: process,
+      info: info
+    })
+  end
+
+  def trace(process, _, info) do
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_trace_process,
+      context: process,
+      info: info
+    })
+  end
+
   def processes_filtered(page_opts, _ \\ nil) do
     # IO.inspect(processes_filtered: page_opts)
     processes_filter(page_opts, [])
@@ -124,11 +142,11 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     processes_filter_next([param_remove], filter_add, page_opts, filters_acc)
   end
 
-  def track(process, _, _) do
+  def fetch_track_process(_, process) do
     Processes.track(process)
   end
 
-  def trace(process, _, _) do
+  def fetch_trace_process(_, process) do
     Processes.trace(process)
   end
 
@@ -208,6 +226,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
       # preload: [:provider, :receiver, :tags],
       # cursor_fn: Processes.cursor(:followers),
       page_opts: page_opts,
+      cursor_fn:  & &1.id,
       base_filters: [
         :default,
         # preload: [:provider, :receiver, :tags],
@@ -217,7 +236,6 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     })
   end
 
-  # FIXME: duplication!
   def create_process(%{process: process_attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
@@ -230,21 +248,13 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     end)
   end
 
-  def update_process(%{process: changes}, info) do
-    Repo.transact_with(fn ->
-      do_update(changes, info, fn process, changes ->
-        Processes.update(process, changes)
-      end)
-    end)
-  end
-
-  defp do_update(%{id: id} = changes, info, update_fn) do
+  def update_process(%{process: %{id: id} = changes}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, process} <- process(%{id: id}, info),
          :ok <- ensure_update_permission(user, process),
          {:ok, uploads} <- UploadResolver.upload(user, changes, info),
          changes = Map.merge(changes, uploads),
-         {:ok, process} <- update_fn.(process, changes) do
+         {:ok, process} <- Processes.update(process, changes) do
       {:ok, %{process: process}}
     end
   end

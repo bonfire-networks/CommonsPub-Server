@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.Proposals do
+  import CommonsPub.Common, only: [maybe_put: 3]
+
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
   alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
 
-  alias Geolocation.Geolocations
-  # alias Measurement.Measure
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
 
@@ -20,9 +20,6 @@ defmodule ValueFlows.Proposal.Proposals do
   }
 
   alias ValueFlows.Planning.Intent
-
-  # use Assertions.AbsintheCase, async: true, schema: ValueFlows.Schema
-  # import Assertions.Absinthe, only: [document_for: 4]
 
   @schema CommonsPub.Web.GraphQL.Schema
 
@@ -113,63 +110,35 @@ defmodule ValueFlows.Proposal.Proposals do
     )
   end
 
-  def preloads(proposal) do
-    CommonsPub.Repo.maybe_preload(proposal, [
-      :context,
+  def preload_all(proposal) do
+    Repo.preload(proposal, [
+      :creator,
       :eligible_location,
-      :creator
-      # :proposed_to,
-      # :publishes
+      # pointers, not supported
+      :context,
     ])
   end
 
   ## mutations
 
-  # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %{id: _id} = context, attrs)
-      when is_map(attrs) do
-    do_create(creator, attrs, fn ->
-      Proposal.create_changeset(creator, context, attrs)
-    end)
-  end
-
-  # @spec create(User.t(), attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
+  @spec create(User.t(), attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    do_create(creator, attrs, fn ->
-      Proposal.create_changeset(creator, attrs)
-    end)
-  end
+    attrs = prepare_attrs(attrs)
 
-  def do_create(creator, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      cs = changeset_fn.()
-
-      with {:ok, cs} <- change_eligible_location(cs, attrs),
-           {:ok, item} <- Repo.insert(cs),
+      with {:ok, proposal} <- Repo.insert(Proposal.create_changeset(creator, attrs)),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- index(item),
-           :ok <- publish(creator, item, activity, :created) do
-        {:ok, item}
+           {:ok, activity} <- Activities.create(creator, proposal, act_attrs),
+           :ok <- index(proposal),
+           :ok <- publish(creator, proposal, activity, :created) do
+        {:ok, preload_all(proposal)}
       end
     end)
   end
 
   defp publish(creator, proposal, activity, :created) do
     feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", proposal.id, creator.id)
-    end
-  end
-
-  defp publish(creator, context, proposal, activity, :created) do
-    feeds = [
-      context.outbox_id,
       CommonsPub.Feeds.outbox_id(creator),
       Feeds.instance_outbox_id()
     ]
@@ -200,25 +169,12 @@ defmodule ValueFlows.Proposal.Proposals do
   end
 
   # TODO: take the user who is performing the update
-  # @spec update(%Proposal{}, attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
+  @spec update(%Proposal{}, attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
   def update(%Proposal{} = proposal, attrs) do
-    do_update(proposal, attrs, &Proposal.update_changeset(&1, attrs))
-  end
+    attrs = prepare_attrs(attrs)
 
-  def update(%Proposal{} = proposal, %{id: _id} = context, attrs) do
-    do_update(proposal, attrs, &Proposal.update_changeset(&1, context, attrs))
-  end
-
-  def do_update(proposal, attrs, changeset_fn) do
     Repo.transact_with(fn ->
-      proposal = preloads(proposal)
-
-      cs =
-        proposal
-        |> changeset_fn.()
-
-      with {:ok, cs} <- change_eligible_location(cs, attrs),
-           {:ok, proposal} <- Repo.update(cs),
+      with {:ok, proposal} <- Repo.update(Proposal.update_changeset(proposal, attrs)),
            :ok <- publish(proposal, :updated) do
         {:ok, proposal}
       end
@@ -283,11 +239,11 @@ defmodule ValueFlows.Proposal.Proposals do
     ValueFlows.Util.ap_publish_activity(activity_name, :proposal, proposal, 3, [:published_in])
   end
 
-  defp change_eligible_location(changeset, %{eligible_location: id}) do
-    with {:ok, location} <- Geolocations.one([:default, id: id]) do
-      {:ok, Proposal.change_eligible_location(changeset, location)}
-    end
+  defp prepare_attrs(attrs) do
+    attrs
+    |> maybe_put(:context_id,
+      attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
+    )
+    |> maybe_put(:eligible_location_id, Map.get(attrs, :eligible_location))
   end
-
-  defp change_eligible_location(changeset, _attrs), do: {:ok, changeset}
 end

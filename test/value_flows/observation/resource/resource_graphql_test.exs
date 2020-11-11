@@ -108,12 +108,16 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
         {:ok, resource} = EconomicResources.soft_delete(resource)
         resource
       end)
+      after_resource = List.first(resources)
 
       q = economic_resources_pages_query()
       conn = user_conn(user)
+      vars = %{after: after_resource.id, limit: 2}
 
-      assert page = grumble_post_key(q, conn, :economic_resources_pages, %{})
+      assert page = grumble_post_key(q, conn, :economic_resources_pages, vars)
       assert Enum.count(resources) == page["totalCount"]
+      assert List.first(page["edges"])["id"] == after_resource.id
+
     end
   end
 

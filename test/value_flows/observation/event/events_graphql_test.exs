@@ -118,7 +118,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
       event =
         fake_economic_event!(user, %{
-          in_scope_of: parent.id
+          in_scope_of: [parent.id]
         })
 
       q = economic_event_query(fields: [in_scope_of: [:__typename]])
@@ -160,7 +160,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
         some(5, fn ->
           fake_economic_event!(user)
         end)
-
+      after_event = List.first(events)
       # deleted
       some(2, fn ->
         event = fake_economic_event!(user)
@@ -171,8 +171,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
       q = economic_events_pages_query()
       conn = user_conn(user)
-      assert page = grumble_post_key(q, conn, :economic_events_pages, %{})
+      vars = %{after: after_event.id, limit: 2}
+      assert page = grumble_post_key(q, conn, :economic_events_pages, vars)
       assert Enum.count(events) == page["totalCount"]
+      assert List.first(page["edges"])["id"] == after_event.id
     end
   end
 
@@ -198,7 +200,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       conn = user_conn(user)
 
       assert event = grumble_post_key(q, conn, :economic_event, %{id: event.id})
-      IO.inspect(event)
       assert Enum.count(event["track"]) == 3
     end
   end
