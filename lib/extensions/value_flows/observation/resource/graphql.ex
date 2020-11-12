@@ -367,7 +367,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   def fetch_state_edge(%{state_id: id} = thing, _, _) when is_binary(id) do
     thing = EconomicResources.preload_state(thing)
-    {:ok, Map.get(thing, :conforms_to)}
+    {:ok, Map.get(thing, :state)}
   end
 
 

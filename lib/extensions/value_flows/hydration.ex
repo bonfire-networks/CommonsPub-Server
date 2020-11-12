@@ -126,6 +126,9 @@ defmodule ValueFlows.Hydration do
         resource_inventoried_as: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_resource_inventoried_as_edge/3
         ],
+        available_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.available_quantity_edge/3
+        ],
         resource_quantity: [
           resolve: &ValueFlows.Util.GraphQL.resource_quantity_edge/3
         ],

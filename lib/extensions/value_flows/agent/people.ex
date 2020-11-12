@@ -14,7 +14,7 @@ defmodule ValueFlows.Agent.People do
   end
 
   def person(id, signed_in_user) do
-    IO.inspect(id)
+    # IO.inspect(id)
 
     case CommonsPub.Users.one([:default, :geolocation, id: id, user: signed_in_user]) do
       {:ok, item} -> item |> ValueFlows.Agent.Agents.character_to_agent()

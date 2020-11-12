@@ -398,21 +398,16 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit2)
 
-      try do
-        event = fake_economic_event!(
-          user,
-          %{
-            to_resource_inventoried_as: to_resource_inventoried_as.id,
-            resource_inventoried_as: resource_inventoried_as.id,
-            action: "transfer-custody"
-          },
-          unit
-        )
-        refute event
-      rescue
-        MatchError ->
-          :ok
-      end
+      assert {:error, e} =
+               fake_economic_event!(
+                 user,
+                 %{
+                   to_resource_inventoried_as: to_resource_inventoried_as.id,
+                   resource_inventoried_as: resource_inventoried_as.id,
+                   action: "transfer-custody"
+                 },
+                 unit
+               )
     end
   end
 

@@ -268,8 +268,8 @@ defmodule CommonsPub.Tag.Categories do
   def update(user, %Category{} = category, attrs) do
     category = Repo.preload(category, [:profile, :character])
 
-    IO.inspect(category)
-    IO.inspect(attrs)
+    # IO.inspect(category)
+    # IO.inspect(attrs)
 
     Repo.transact_with(fn ->
       # :ok <- publish(category, :updated)

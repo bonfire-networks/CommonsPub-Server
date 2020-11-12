@@ -19,19 +19,24 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
   describe "Trace" do
     test "3 level nesting" do
       user = fake_user!()
-      resource = fake_economic_resource!(user)
-      other_resource = fake_economic_resource!(user)
+      unit = fake_unit!(user)
+
+      resource = fake_economic_resource!(user, %{}, unit)
+      other_resource = fake_economic_resource!(user, %{}, unit)
+
       process = fake_process!(user)
+
       output_event = fake_economic_event!(user, %{
         output_of: process.id,
         resource_inventoried_as: resource.id,
         action: "produce"
-      })
+      }, unit)
       input_event = fake_economic_event!(user, %{
         input_of: process.id,
         resource_inventoried_as: other_resource.id,
         action: "use"
-      })
+      }, unit)
+
       query = """
         query ($id: ID) {
         economicResource(id: $id) {
@@ -75,19 +80,22 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
   describe "Track" do
     test "3 level nesting" do
       user = fake_user!()
-      resource = fake_economic_resource!(user)
-      other_resource = fake_economic_resource!(user)
+      unit = fake_unit!(user)
+
+      resource = fake_economic_resource!(user, %{}, unit)
+      other_resource = fake_economic_resource!(user, %{}, unit)
+
       process = fake_process!(user)
       output_event = fake_economic_event!(user, %{
         output_of: process.id,
         resource_inventoried_as: resource.id,
         action: "produce"
-      })
+      }, unit)
       input_event = fake_economic_event!(user, %{
         input_of: process.id,
         resource_inventoried_as: other_resource.id,
         action: "use"
-      })
+      }, unit)
       query = """
         query ($id: ID) {
         economicResource(id: $id) {

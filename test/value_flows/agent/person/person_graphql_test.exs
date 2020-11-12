@@ -11,7 +11,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
-  @debug true
+  @debug false
   @schema CommonsPub.Web.GraphQL.Schema
 
   describe "person" do
@@ -68,11 +68,9 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
           unit
         )
 
-      IO.inspect(event: event)
-
-      # IO.inspect(
-      #   resource: ValueFlows.Observation.EconomicResource.EconomicResources.many(agent_id: user.id)
-      # )
+      # IO.inspect(intent: intent)
+      # IO.inspect(resource: resource)
+      # IO.inspect(event: event)
 
       assert queried =
                CommonsPub.Web.GraphQL.QueryHelper.run_query_id(

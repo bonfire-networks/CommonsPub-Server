@@ -312,8 +312,11 @@ defmodule ValueFlows.Simulate do
 
     overrides = Map.merge(overrides, measures)
 
-    {:ok, event} = EconomicEvents.create(user, economic_event(overrides))
-    event
+    with {:ok, event} <- EconomicEvents.create(user, economic_event(overrides)) do
+      event
+    else e ->
+      e
+    end
   end
 
   def fake_process!(user, overrides \\ %{}) do
