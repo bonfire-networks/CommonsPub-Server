@@ -14,7 +14,6 @@ defmodule CommonsPub.Common do
   def maybe_get(%{} = map, key, fallback), do: Map.get(map, key, fallback)
   def maybe_get(_, _, fallback), do: fallback
 
-
   @doc "conditionally update a map"
   def maybe_put(map, _key, nil), do: map
   def maybe_put(map, _key, ""), do: map
@@ -22,6 +21,7 @@ defmodule CommonsPub.Common do
 
   @doc "Applies change_fn if the first parameter is not nil."
   def maybe(nil, _change_fn), do: nil
+
   def maybe(val, change_fn) do
     change_fn.(val)
   end
@@ -30,6 +30,7 @@ defmodule CommonsPub.Common do
   def maybe_ok_error({:ok, val}, change_fn) do
     {:ok, change_fn.(val)}
   end
+
   def maybe_ok_error(other, _change_fn), do: other
 
   @doc "Append an item to a list if it is not nil"
@@ -84,6 +85,18 @@ defmodule CommonsPub.Common do
         String.to_atom(Recase.to_snake(thing))
       else
         thing |> Recase.to_camel()
+      end
+    end
+  end
+
+  def attr_get_id(attrs, field_name) do
+    if is_map(attrs) and Map.has_key?(attrs, field_name) do
+      attr = Map.get(attrs, field_name)
+
+      if is_map(attr) and Map.has_key?(attr, :id) do
+        attr.id
+      else
+        attr
       end
     end
   end

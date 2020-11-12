@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Claim.Claims do
-  import CommonsPub.Common, only: [maybe_put: 3]
+  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
 
   alias CommonsPub.Repo
   alias CommonsPub.Users.User
@@ -51,11 +51,11 @@ defmodule ValueFlows.Claim.Claims do
 
   defp prepare_attrs(attrs) do
     attrs
-    |> maybe_put(:action_id, Map.get(attrs, :action))
+    |> maybe_put(:action_id, attr_get_id(attrs, :action))
     |> maybe_put(:context_id,
       attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
     )
-    |> maybe_put(:resource_conforms_to_id, Map.get(attrs, :resource_conforms_to))
-    |> maybe_put(:triggered_by_id, Map.get(attrs, :triggered_by))
+    |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
+    |> maybe_put(:triggered_by_id, attr_get_id(attrs, :triggered_by))
   end
 end

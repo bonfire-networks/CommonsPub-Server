@@ -2,7 +2,7 @@
  Grouping around something to create a boundary or context, used for documenting,
 accounting, planning. Extended from the default of `Person | Organization`
 """
-union AccountingScope = Person | Organization | Community | Collection
+union AccountingScope = User | Organisation | Person | Organization | Community | Collection
 
 """
 An action verb defining the kind of event, commitment, or intent.

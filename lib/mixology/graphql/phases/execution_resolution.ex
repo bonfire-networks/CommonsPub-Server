@@ -31,7 +31,7 @@ defmodule CommonsPub.Web.GraphQL.Phase.ExecutionResolution do
   defp debug_exception(msg, exception, stacktrace, kind) do
     debug_log(msg, exception, stacktrace, kind)
 
-    if CommonsPub.Config.get(:env) == :dev or System.get_env("SENTRY_ENV") == "next" do
+    if CommonsPub.Config.get(:env) == :dev or CommonsPub.Config.get(:env) == :test or System.get_env("SENTRY_ENV") == "next" do
       {:error,
        msg <>
          ": " <>

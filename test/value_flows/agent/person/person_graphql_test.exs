@@ -87,9 +87,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
       assert_intent(List.first(queried["intents"]))
       assert_process(List.first(queried["processes"]))
       assert_economic_event(List.first(queried["economicEvents"]))
-
-      # assert_economic_resource(List.first(queried["inventoriedEconomicResources"])) #TODO: not sure why nil
-
+      assert_economic_resource(List.first(queried["inventoriedEconomicResources"]))
       assert_geolocation(queried["primaryLocation"])
     end
   end

@@ -63,7 +63,7 @@ defmodule CommonsPub.Profiles.Profile do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      geolocation_id: Map.get(attrs, :geolocation), # TODO: validate location
+      geolocation_id: CommonsPub.Common.attr_get_id(attrs, :geolocation), # TODO: validate location
       is_public: true
     )
     |> common_changeset()

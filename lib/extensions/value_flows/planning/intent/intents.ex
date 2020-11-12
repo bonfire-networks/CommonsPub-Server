@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  import CommonsPub.Common, only: [maybe_put: 3]
+  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
 
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
@@ -195,17 +195,17 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   defp prepare_attrs(attrs) do
     attrs
-    |> maybe_put(:action_id, Map.get(attrs, :action))
+    |> maybe_put(:action_id, attr_get_id(attrs, :action))
     |> maybe_put(:context_id,
       attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
     )
-    |> maybe_put(:at_location_id, Map.get(attrs, :at_location))
-    |> maybe_put(:provider_id, Map.get(attrs, :provider))
-    |> maybe_put(:receiver_id, Map.get(attrs, :receiver))
-    |> maybe_put(:input_of_id, Map.get(attrs, :input_of))
-    |> maybe_put(:output_of_id, Map.get(attrs, :output_of))
-    |> maybe_put(:resource_conforms_to_id, Map.get(attrs, :resource_conforms_to))
-    |> maybe_put(:resource_inventoried_as_id, Map.get(attrs, :resource_inventoried_as))
+    |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
+    |> maybe_put(:provider_id, attr_get_id(attrs, :provider))
+    |> maybe_put(:receiver_id, attr_get_id(attrs, :receiver))
+    |> maybe_put(:input_of_id, attr_get_id(attrs, :input_of))
+    |> maybe_put(:output_of_id, attr_get_id(attrs, :output_of))
+    |> maybe_put(:resource_conforms_to_id, attr_get_id(attrs, :resource_conforms_to))
+    |> maybe_put(:resource_inventoried_as_id, attr_get_id(attrs, :resource_inventoried_as))
     |> parse_measurement_attrs()
   end
 

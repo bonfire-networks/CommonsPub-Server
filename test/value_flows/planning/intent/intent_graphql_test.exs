@@ -16,7 +16,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   import ValueFlows.Test.Faking
   alias ValueFlows.Planning.Intent.Intents
 
-  @debug false
+  @debug true
   @schema CommonsPub.Web.GraphQL.Schema
 
   describe "intent" do
@@ -39,15 +39,19 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       parent = fake_user!()
 
       intent = fake_intent!(user, %{
+        provider: user.id,
+        at_location: location,
         resource_quantity: measure(%{unit_id: unit.id}),
         effort_quantity: measure(%{unit_id: unit.id}),
         available_quantity: measure(%{unit_id: unit.id}),
         in_scope_of: [parent.id]
       })
 
+      IO.inspect(intent: intent)
+
       proposal = fake_proposal!(user)
 
-      some(5, fn -> fake_proposed_intent!(proposal, intent) end)
+      fake_proposed_intent!(proposal, intent)
 
       assert intent_queried =
                CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
@@ -60,6 +64,13 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
                )
 
       assert_intent(intent_queried)
+      assert_proposal(hd(intent_queried["publishedIn"])["publishedIn"])
+      assert_geolocation(intent_queried["atLocation"])
+      assert_agent(intent_queried["provider"])
+      assert_measure(intent_queried["resourceQuantity"])
+      assert_measure(intent_queried["availableQuantity"])
+      assert_measure(intent_queried["effortQuantity"])
+      assert hd(intent_queried["inScopeOf"])["__typename"] == "Person"
     end
 
     test "fails for deleted intent" do
@@ -118,7 +129,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       q = intent_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       assert intent = grumble_post_key(q, conn, :intent, %{id: intent.id})
-      assert hd(intent["inScopeOf"])["__typename"] == "User"
+      assert hd(intent["inScopeOf"])["__typename"] == "Person"
     end
   end
 
@@ -211,7 +222,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert intent = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(intent)
       assert [context] = intent["inScopeOf"]
-      assert context["__typename"] == "User"
+      assert context["__typename"] == "Person"
     end
 
     test "creates a new intent with a location" do
@@ -372,7 +383,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert [context] = resp["inScopeOf"]
-      assert context["__typename"] == "User"
+      assert context["__typename"] == "Person"
     end
 
     test "updates an existing intent with a location" do

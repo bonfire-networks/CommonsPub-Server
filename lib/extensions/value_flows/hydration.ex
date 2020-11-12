@@ -5,8 +5,6 @@ defmodule ValueFlows.Hydration do
     UsersResolver
   }
 
-  alias CommonsPub.Users.User
-  alias CommonsPub.Communities.Community
 
   alias ValueFlows.Observation.{
     Process,
@@ -74,7 +72,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
         ],
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3
+          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
         ],
         eligible_location: [
           resolve: &ValueFlows.Proposal.GraphQL.eligible_location_edge/3
@@ -106,7 +104,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.at_location_edge/3
         ],
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3
+          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
         ],
         image: [
           resolve: &UploadResolver.image_content_edge/3
@@ -165,7 +163,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Claim.GraphQL.fetch_triggered_by_edge/3,
         ],
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3,
+          resolve: &ValueFlows.Util.GraphQL.scope_edge/3,
         ],
         creator: [
           resolve: &UsersResolver.creator_edge/3
@@ -194,7 +192,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
         ],
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3
+          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
         ],
         input_of: [
           resolve: &ValueFlows.Observation.EconomicEvent.GraphQL.fetch_input_of_edge/3
@@ -237,7 +235,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_state_edge/3
         ],
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3
+          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
         ],
         classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
@@ -284,7 +282,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
         ],
         in_scope_of: [
-          resolve: &CommonResolver.context_edge/3
+          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
         ],
         classified_as: [
           resolve: &ValueFlows.Util.GraphQL.fetch_classifications_edge/3
@@ -556,15 +554,18 @@ defmodule ValueFlows.Hydration do
           :organization | :person
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
+  def agent_resolve_type(%Organisation{}, _), do: :organization
+  def agent_resolve_type(%CommonsPub.Users.User{}, _), do: :person
   def agent_resolve_type(_, _), do: :person
-  # def agent_resolve_type(%User{}, _), do: :user
 
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true
 
-  # def resolve_context_type(%Organisation{}, _), do: :organisation
-  def resolve_context_type(%Community{}, _), do: :community
-  def resolve_context_type(%User{}, _), do: :user
+  def resolve_context_type(%CommonsPub.Users.User{}, _), do: :person
+  def resolve_context_type(%Organisation{}, _), do: :organization
+  def resolve_context_type(%CommonsPub.Communities.Community{}, _), do: :community
+  def resolve_context_type(%CommonsPub.Collections.Collection{}, _), do: :collection
+  def resolve_context_type(_, _), do: :agent
 
   def production_flow_item_resolve_type(%EconomicResource{}, _), do: :economic_resource
   def production_flow_item_resolve_type(%Process{}, _), do: :process

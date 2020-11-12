@@ -129,7 +129,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       q = economic_event_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       assert fetched = grumble_post_key(q, conn, :economic_event, %{id: event.id})
-      assert hd(fetched["inScopeOf"])["__typename"] == "User"
+      assert hd(fetched["inScopeOf"])["__typename"] == "Person"
     end
   end
 
@@ -280,7 +280,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
       assert event = grumble_post_key(q, conn, :create_economic_event, vars)["economicEvent"]
       assert_economic_event(event)
-      assert hd(event["inScopeOf"])["__typename"] == "User"
+      assert hd(event["inScopeOf"])["__typename"] == "Person"
     end
 
     test "create an economic event with an input and an output" do

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
-  import CommonsPub.Common, only: [maybe_put: 3]
+  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
 
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
@@ -212,15 +212,15 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
 
   defp prepare_attrs(attrs) do
     attrs
-    |> maybe_put(:primary_accountable_id, Map.get(attrs, :primary_accountable))
+    |> maybe_put(:primary_accountable_id, attr_get_id(attrs, :primary_accountable))
     |> maybe_put(:context_id,
       attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
     )
-    |> maybe_put(:current_location_id, Map.get(attrs, :current_location))
-    |> maybe_put(:conforms_to_id, Map.get(attrs, :conforms_to))
-    |> maybe_put(:contained_in_id, Map.get(attrs, :contained_in))
-    |> maybe_put(:unit_of_effort_id, Map.get(attrs, :unit_of_effort))
-    |> maybe_put(:state_id, Map.get(attrs, :state))
+    |> maybe_put(:current_location_id, attr_get_id(attrs, :current_location))
+    |> maybe_put(:conforms_to_id, attr_get_id(attrs, :conforms_to))
+    |> maybe_put(:contained_in_id, attr_get_id(attrs, :contained_in))
+    |> maybe_put(:unit_of_effort_id, attr_get_id(attrs, :unit_of_effort))
+    |> maybe_put(:state_id, attr_get_id(attrs, :state))
     |> parse_measurement_attrs()
   end
 

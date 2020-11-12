@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
-  import CommonsPub.Common, only: [maybe_put: 3]
+  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
 
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}

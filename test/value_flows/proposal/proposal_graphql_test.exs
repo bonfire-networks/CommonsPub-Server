@@ -137,7 +137,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       q = proposal_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       assert proposal = grumble_post_key(q, conn, :proposal, %{id: proposal.id})
-      assert hd(proposal["inScopeOf"])["__typename"] == "User"
+      assert hd(proposal["inScopeOf"])["__typename"] == "Person"
     end
   end
 
@@ -175,7 +175,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       vars = %{proposal: proposal_input(%{"inScopeOf" => [parent.id]})}
       assert proposal = grumble_post_key(q, conn, :create_proposal, vars)["proposal"]
       assert_proposal_full(proposal)
-      assert hd(proposal["inScopeOf"])["__typename"] == "User"
+      assert hd(proposal["inScopeOf"])["__typename"] == "Person"
     end
 
     test "creates a new proposal with an eligible location" do

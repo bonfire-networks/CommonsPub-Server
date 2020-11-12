@@ -103,7 +103,7 @@ defmodule CommonsPub.Users.User do
     |> change_public()
     |> Changeset.change(
       # TODO: validate location
-      geolocation_id: Map.get(attrs, :geolocation)
+      geolocation_id: CommonsPub.Common.attr_get_id(attrs, :geolocation)
     )
   end
 

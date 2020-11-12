@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.Proposals do
-  import CommonsPub.Common, only: [maybe_put: 3]
+  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
 
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
@@ -244,6 +244,6 @@ defmodule ValueFlows.Proposal.Proposals do
     |> maybe_put(:context_id,
       attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
     )
-    |> maybe_put(:eligible_location_id, Map.get(attrs, :eligible_location))
+    |> maybe_put(:eligible_location_id, attr_get_id(attrs, :eligible_location))
   end
 end

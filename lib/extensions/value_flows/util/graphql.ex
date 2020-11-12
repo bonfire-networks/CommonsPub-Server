@@ -25,8 +25,13 @@ defmodule ValueFlows.Util.GraphQL do
   def canonical_url_edge(obj, _, _),
     do: {:ok, CommonsPub.ActivityPub.Utils.get_object_canonical_url(obj)}
 
+  def scope_edge(%{context_id: id}, page_opts, info),
+    do: CommonsPub.Web.GraphQL.CommonResolver.context_edges(%{context_ids: [id]}, page_opts, info)
+
+  def scope_edge(_, _, _),
+    do: {:ok, nil}
+
   def fetch_provider_edge(%{provider_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
     {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
   end
 
@@ -35,7 +40,6 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def fetch_receiver_edge(%{receiver_id: id}, _, info) when not is_nil(id) do
-    # CommonResolver.context_edge(%{context_id: id}, nil, info)
     {:ok, ValueFlows.Agent.Agents.agent(id, GraphQL.current_user(info))}
   end
 

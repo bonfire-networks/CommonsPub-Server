@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.Process.Processes do
-  import CommonsPub.Common, only: [maybe_put: 3]
+  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
 
   alias CommonsPub.{Activities, Common, Feeds, Repo}
   alias CommonsPub.GraphQL.{Fields, Page}
@@ -217,7 +217,7 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   defp prepare_attrs(attrs) do
     attrs
-    |> maybe_put(:based_on_id, Map.get(attrs, :based_on))
+    |> maybe_put(:based_on_id, attr_get_id(attrs, :based_on))
     |> maybe_put(:context_id,
       attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
     )
