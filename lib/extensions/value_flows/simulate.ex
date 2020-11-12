@@ -41,6 +41,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy("created", &past_datetime_iso/0)
     |> Map.put_new_lazy("due", &future_datetime_iso/0)
     |> Map.put_new_lazy("action", &action_id/0)
+
     # |> Map.put_new_lazy("resourceClassifiedAs", fn -> some(1..5, &url/0) end)
   end
 
@@ -57,7 +58,9 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_agent!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    ValueFlows.Agent.Agents.character_to_agent(a_fake_user!(ValueFlows.Agent.Agents.agent_to_character(agent(overrides))))
+    ValueFlows.Agent.Agents.character_to_agent(
+      a_fake_user!(ValueFlows.Agent.Agents.agent_to_character(agent(overrides)))
+    )
   end
 
   def resource_specification(base \\ %{}) do
@@ -118,7 +121,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:note, &summary/0)
     |> Map.put_new_lazy(:tracking_identifier, &uuid/0)
-    # |> Map.put_new_lazy(:state, &action_id/0)
+    |> Map.put_new_lazy(:state, &action_id/0)
     # |> Map.put_new_lazy(:accounting_quantity, &measure/0)
     # |> Map.put_new_lazy(:onhand_quantity, &measure/0)
     # |> Map.put_new_lazy(:unit_of_effort, &unit/0)
@@ -217,7 +220,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:has_end, &future_datetime/0)
     |> Map.put_new_lazy(:has_point_in_time, &future_datetime/0)
     |> Map.put_new_lazy(:due, &future_datetime/0)
-    # TODO: list of URIs
+    # TODO: list of URIs?
     |> Map.put_new_lazy(:resource_classified_as, fn -> some(1..5, &url/0) end)
     |> Map.put_new_lazy(:finished, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
@@ -249,6 +252,21 @@ defmodule ValueFlows.Simulate do
   end
 
   def fake_intent!(user, overrides \\ %{}) do
+    unit = fake_unit!(user)
+    fake_intent!(user, overrides, unit)
+  end
+
+  def fake_intent!(user, overrides, unit) do
+    measure_attrs = %{unit_id: unit.id}
+
+    measures = %{
+      available_quantity: measure(measure_attrs),
+      resource_quantity: measure(measure_attrs),
+      effort_quantity: measure(measure_attrs)
+    }
+
+    overrides = Map.merge(overrides, measures)
+
     {:ok, intent} = Intents.create(user, intent(overrides))
     intent
   end
@@ -288,7 +306,8 @@ defmodule ValueFlows.Simulate do
     measure_attrs = %{unit_id: unit.id}
 
     measures = %{
-      resource_quantity: measure(measure_attrs)
+      resource_quantity: measure(measure_attrs),
+      effort_quantity: measure(measure_attrs)
     }
 
     overrides = Map.merge(overrides, measures)
@@ -317,7 +336,7 @@ defmodule ValueFlows.Simulate do
 
     measures = %{
       accounting_quantity: measure(measure_attrs),
-      onhand_quantity: measure(measure_attrs),
+      onhand_quantity: measure(measure_attrs)
     }
 
     overrides = Map.merge(overrides, measures)

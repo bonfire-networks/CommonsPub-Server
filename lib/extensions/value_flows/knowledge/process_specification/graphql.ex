@@ -193,6 +193,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
     end
   end
 
+
   # defp validate_agent(pointer) do
   #   if Pointers.table!(pointer).schema in valid_contexts() do
   #     :ok

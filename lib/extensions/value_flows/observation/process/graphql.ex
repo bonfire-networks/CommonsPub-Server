@@ -2,7 +2,6 @@
 defmodule ValueFlows.Observation.Process.GraphQL do
   require Logger
 
-
   alias CommonsPub.{
     # Activities,
     # Communities,
@@ -181,7 +180,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     processes_filtered(%{agent: creator})
   end
 
-  def creator_processes(_,  _page_opts, _info) do
+  def creator_processes(_, _page_opts, _info) do
     {:ok, nil}
   end
 
@@ -208,6 +207,16 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     )
   end
 
+  def fetch_based_on_edge(%{based_on_id: id} = thing, _, _)
+      when is_binary(id) do
+    thing = Repo.preload(thing, :based_on)
+    {:ok, Map.get(thing, :based_on)}
+  end
+
+  def fetch_based_on_edge(_, _, _) do
+    {:ok, nil}
+  end
+
   def list_processes(page_opts, base_filters, _data_filters, _cursor_type) do
     FetchPage.run(%FetchPage{
       queries: Queries,
@@ -226,7 +235,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
       # preload: [:provider, :receiver, :tags],
       # cursor_fn: Processes.cursor(:followers),
       page_opts: page_opts,
-      cursor_fn:  & &1.id,
+      cursor_fn: & &1.id,
       base_filters: [
         :default,
         # preload: [:provider, :receiver, :tags],

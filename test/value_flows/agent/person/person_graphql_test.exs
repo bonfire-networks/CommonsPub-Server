@@ -6,6 +6,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
   import CommonsPub.Web.Test.GraphQLAssertions
 
   import Geolocation.Test.Faking
+  import Measurement.Simulate
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -28,28 +29,50 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
 
       # attach some data to the person...
 
-      intent =
-        fake_intent!(user, %{ provider: user.id })
+      unit = fake_unit!(user)
+
+      intent = fake_intent!(user, %{provider: user.id})
+
+      rspec = fake_resource_specification!(user)
+
+      from_resource =
+        fake_economic_resource!(user2, %{name: "Previous Resource", conforms_to: rspec.id}, unit)
 
       resource =
-        fake_economic_resource!(user, %{
-          primary_accountable: user.id
-        })
+        fake_economic_resource!(
+          user,
+          %{
+            primary_accountable: user.id,
+            name: "Resulting Resource",
+            conforms_to: rspec.id
+          },
+          unit
+        )
 
-      process = fake_process!(user)
+      pspec = fake_process_specification!(user)
+      process = fake_process!(user, %{based_on: pspec.id})
 
       event =
-        fake_economic_event!(user, %{
-          provider: user2.id,
-          receiver: user.id,
-          action: "transfer",
-          input_of: fake_process!(user).id,
-          output_of: fake_process!(user2).id,
-          resource_conforms_to: fake_resource_specification!(user2).id,
-          resource_inventoried_as: fake_economic_resource!(user2, %{name: "Previous Resourec"}).id,
-          to_resource_inventoried_as: fake_economic_resource!(user, %{name: "Resulting Resource"}).id
-        })
-      IO.inspect(ress: ValueFlows.Observation.EconomicResource.EconomicResources.many(agent_id: user.id))
+        fake_economic_event!(
+          user,
+          %{
+            provider: user2.id,
+            receiver: user.id,
+            action: "transfer",
+            input_of: fake_process!(user).id,
+            output_of: fake_process!(user2).id,
+            resource_conforms_to: fake_resource_specification!(user).id,
+            resource_inventoried_as: from_resource.id,
+            to_resource_inventoried_as: resource.id
+          },
+          unit
+        )
+
+      IO.inspect(event: event)
+
+      # IO.inspect(
+      #   resource: ValueFlows.Observation.EconomicResource.EconomicResources.many(agent_id: user.id)
+      # )
 
       assert queried =
                CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
@@ -60,7 +83,6 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
                  nil,
                  @debug
                )
-
 
       assert_agent(queried)
       # assert_optional(assert_url(queried["image"]))

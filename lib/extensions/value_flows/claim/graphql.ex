@@ -42,15 +42,6 @@ defmodule ValueFlows.Claim.GraphQL do
     })
   end
 
-  def fetch_resource_conforms_to_edge(%{resource_conforms_to_id: id} = thing, _, _)
-      when is_binary(id) do
-    thing = Repo.preload(thing, :resource_conforms_to)
-    {:ok, Map.get(thing, :resource_conforms_to)}
-  end
-
-  def fetch_resource_conforms_to_edge(_, _, _) do
-    {:ok, nil}
-  end
 
   def fetch_triggered_by_edge(%{triggered_by_id: id} = thing, _, _) when is_binary(id) do
     thing = Repo.preload(thing, :triggered_by)

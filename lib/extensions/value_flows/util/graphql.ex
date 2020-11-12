@@ -71,6 +71,26 @@ defmodule ValueFlows.Util.GraphQL do
     {:ok, nil}
   end
 
+  def fetch_resource_conforms_to_edge(%{resource_conforms_to_id: id} = thing, _, _)
+      when is_binary(id) do
+    thing = Repo.preload(thing, :resource_conforms_to)
+    {:ok, Map.get(thing, :resource_conforms_to)}
+  end
+
+  def fetch_resource_conforms_to_edge(_, _, _) do
+    {:ok, nil}
+  end
+
+
+  def available_quantity_edge(%{available_quantity_id: id} = thing, _, _) when not is_nil(id) do
+    thing = Repo.preload(thing, available_quantity: [:unit])
+    {:ok, Map.get(thing, :available_quantity)}
+  end
+
+  def available_quantity_edge(_, _, _) do
+    {:ok, nil}
+  end
+
   def resource_quantity_edge(%{resource_quantity_id: id} = thing, _, _) when not is_nil(id) do
     thing = Repo.preload(thing, resource_quantity: [:unit])
     {:ok, Map.get(thing, :resource_quantity)}

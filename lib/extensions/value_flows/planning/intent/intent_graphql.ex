@@ -273,16 +273,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     )
   end
 
-  def fetch_resource_conforms_to_edge(%{resource_conforms_to_id: id} = thing, _, _)
-      when is_binary(id) do
-    thing = Repo.preload(thing, :resource_conforms_to)
-    {:ok, Map.get(thing, :resource_conforms_to)}
-  end
-
-  def fetch_resource_conforms_to_edge(_, _, _) do
-    {:ok, nil}
-  end
-
   def fetch_resource_inventoried_as_edge(%{resource_inventoried_as_id: id} = thing, _, _)
       when is_binary(id) do
     thing = Repo.preload(thing, :resource_inventoried_as)

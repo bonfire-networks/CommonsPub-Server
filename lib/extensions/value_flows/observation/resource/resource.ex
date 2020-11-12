@@ -71,7 +71,7 @@ defmodule ValueFlows.Observation.EconomicResource do
 
   @required ~w(name is_public)a
   @cast @required ++ ~w(note tracking_identifier current_location_id is_disabled image_id)a ++
-    ~w(primary_accountable_id contained_in_id unit_of_effort_id conforms_to_id current_location_id)a
+    ~w(primary_accountable_id state_id contained_in_id unit_of_effort_id conforms_to_id current_location_id)a
 
   def create_changeset(
         %User{} = creator,

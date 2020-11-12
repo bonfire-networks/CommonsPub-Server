@@ -365,6 +365,12 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     EconomicResources.trace(id)
   end
 
+  def fetch_state_edge(%{state_id: id} = thing, _, _) when is_binary(id) do
+    thing = EconomicResources.preload_state(thing)
+    {:ok, Map.get(thing, :conforms_to)}
+  end
+
+
   def create_resource(%{new_inventoried_resource: resource_attrs}, info) do
     with {:ok, resource} <- create_resource(%{economic_resource: resource_attrs}, info) do
       {:ok, Map.get(resource, :economic_resource)}

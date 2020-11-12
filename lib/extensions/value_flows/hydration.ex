@@ -121,10 +121,16 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Proposal.ProposedIntentGraphQL.published_in_edge/3
         ],
         resource_conforms_to: [
-          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_resource_conforms_to_edge/3
+          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3
         ],
         resource_inventoried_as: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_resource_inventoried_as_edge/3
+        ],
+        resource_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.resource_quantity_edge/3
+        ],
+        effort_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
         ],
         input_of: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_input_of_edge/3
@@ -150,7 +156,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
         ],
         resource_conforms_to: [
-          resolve: &ValueFlows.Claim.GraphQL.fetch_resource_conforms_to_edge/3,
+          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3,
         ],
         triggered_by: [
           resolve: &ValueFlows.Claim.GraphQL.fetch_triggered_by_edge/3,
@@ -174,6 +180,15 @@ defmodule ValueFlows.Hydration do
         ],
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
+        ],
+        resource_conforms_to: [
+          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3,
+        ],
+        resource_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.resource_quantity_edge/3
+        ],
+        effort_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
@@ -215,6 +230,9 @@ defmodule ValueFlows.Hydration do
         canonical_url: [
           resolve: &ValueFlows.Util.GraphQL.canonical_url_edge/3
         ],
+        state: [
+          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_state_edge/3
+        ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ],
@@ -226,6 +244,9 @@ defmodule ValueFlows.Hydration do
         ],
         image: [
           resolve: &UploadResolver.image_content_edge/3
+        ],
+        available_quantity: [
+          resolve: &ValueFlows.Util.GraphQL.available_quantity_edge/3
         ],
         accounting_quantity: [
           resolve: &ValueFlows.Util.GraphQL.accounting_quantity_edge/3
@@ -279,6 +300,9 @@ defmodule ValueFlows.Hydration do
         ],
         outputs: [
           resolve: &ValueFlows.Observation.Process.GraphQL.outputs/3
+        ],
+        based_on: [
+          resolve: &ValueFlows.Observation.Process.GraphQL.fetch_based_on_edge/3
         ]
       },
 
