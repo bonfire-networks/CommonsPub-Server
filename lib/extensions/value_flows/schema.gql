@@ -504,6 +504,11 @@ type Claim {
   receiver: Agent!
 
   """
+  Specifies if a calculation will be applied to this claim when an economic event is logged.
+  """
+  calculatedUsing: ValueCalculation
+
+  """
   References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
   """
   resourceClassifiedAs: [URI!]
@@ -722,6 +727,48 @@ input ClaimUpdateParams {
   Grouping around something to create a boundary or context, used for documenting, accounting, planning.
   """
   inScopeOf: [ID!]
+}
+
+"""
+A calculation performed using custom formulas for a certain context.
+"""
+type ValueCalculation {
+  formula: String
+
+  """
+  References the unit used for the claim.
+  """
+  valueUnit: Unit,
+
+  """
+  Relates a value calculation to a verb, such as consume, produce, work, improve, etc.
+  """
+  action: Action!
+
+  """
+  Relates a value calculation to a verb, like action, but for the related claim.
+  """
+  valueAction: Action!
+
+  """
+  Used to filter valueCalculations to find the one that matches the event.
+  """
+  resourceConformsTo: ResourceSpecification
+  
+  """
+  The resource specification the claim will apply to.
+  """
+  valueResourceConformsTo: ResourceSpecification
+
+  """
+  References a concept in a common taxonomy or other classification scheme for purposes of categorization or grouping.
+  """
+  resourceClassifiedAs: [URI!]
+
+  """
+  Grouping around something to create a boundary or context, used for documenting, accounting, planning.
+  """
+  inScopeOf: [AccountingScope!]
 }
 
 """
