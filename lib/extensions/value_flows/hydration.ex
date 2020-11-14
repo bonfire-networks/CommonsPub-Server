@@ -5,7 +5,6 @@ defmodule ValueFlows.Hydration do
     UsersResolver
   }
 
-
   alias ValueFlows.Observation.{
     Process,
     EconomicResource
@@ -33,7 +32,7 @@ defmodule ValueFlows.Hydration do
       ],
       inventoried_economic_resources: [
         resolve: &ValueFlows.Observation.EconomicResource.GraphQL.agent_resources/3
-      ],
+      ]
     }
 
     %{
@@ -85,7 +84,15 @@ defmodule ValueFlows.Hydration do
         ],
         creator: [
           resolve: &UsersResolver.creator_edge/3
+        ]
+      },
+      proposed_to: %{
+        proposed_to: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.proposed_to_agent/3
         ],
+        fetch_proposed_edge: [
+          resolve: &ValueFlows.Proposal.ProposedToGraphQL.fetch_proposed_edge/3
+        ]
       },
       intent: %{
         canonical_url: [
@@ -138,11 +145,11 @@ defmodule ValueFlows.Hydration do
         ],
         output_of: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_output_of_edge/3
-        ],
+        ]
       },
       claim: %{
         action: [
-          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3,
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
         ],
         provider: [
           resolve: &ValueFlows.Util.GraphQL.fetch_provider_edge/3
@@ -157,17 +164,17 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.effort_quantity_edge/3
         ],
         resource_conforms_to: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3,
+          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3
         ],
         triggered_by: [
-          resolve: &ValueFlows.Claim.GraphQL.fetch_triggered_by_edge/3,
+          resolve: &ValueFlows.Claim.GraphQL.fetch_triggered_by_edge/3
         ],
         in_scope_of: [
-          resolve: &ValueFlows.Util.GraphQL.scope_edge/3,
+          resolve: &ValueFlows.Util.GraphQL.scope_edge/3
         ],
         creator: [
           resolve: &UsersResolver.creator_edge/3
-        ],
+        ]
       },
       economic_event: %{
         canonical_url: [
@@ -183,7 +190,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action_edge/3
         ],
         resource_conforms_to: [
-          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3,
+          resolve: &ValueFlows.Util.GraphQL.fetch_resource_conforms_to_edge/3
         ],
         resource_quantity: [
           resolve: &ValueFlows.Util.GraphQL.resource_quantity_edge/3
@@ -256,7 +263,8 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Util.GraphQL.onhand_quantity_edge/3
         ],
         primary_accountable: [
-          resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_primary_accountable_edge/3
+          resolve:
+            &ValueFlows.Observation.EconomicResource.GraphQL.fetch_primary_accountable_edge/3
         ],
         unit_of_effort: [
           resolve: &ValueFlows.Observation.EconomicResource.GraphQL.fetch_unit_of_effort_edge/3
@@ -306,6 +314,12 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Observation.Process.GraphQL.fetch_based_on_edge/3
         ]
       },
+      resource_specification: %{
+        default_unit_of_effort: [
+          resolve:
+            &ValueFlows.Knowledge.ResourceSpecification.GraphQL.fetch_default_unit_of_effort_edge/3
+        ]
+      },
 
       # start Query resolvers
       value_flows_query: %{
@@ -340,10 +354,10 @@ defmodule ValueFlows.Hydration do
 
         # Claim
         claim: [
-          resolve: &ValueFlows.Claim.GraphQL.claim/2,
+          resolve: &ValueFlows.Claim.GraphQL.claim/2
         ],
         claims: [
-          resolve: &ValueFlows.Claim.GraphQL.claims/2,
+          resolve: &ValueFlows.Claim.GraphQL.claims/2
         ],
 
         # Knowledge
@@ -441,7 +455,7 @@ defmodule ValueFlows.Hydration do
       # start Mutation resolvers
       value_flows_mutation: %{
         create_claim: [
-          resolve: &ValueFlows.Claim.GraphQL.create_claim/2,
+          resolve: &ValueFlows.Claim.GraphQL.create_claim/2
         ],
         create_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_intent/2
@@ -465,7 +479,7 @@ defmodule ValueFlows.Hydration do
         #   resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
         # ],
         update_claim: [
-          resolve: &ValueFlows.Claim.GraphQL.update_claim/2,
+          resolve: &ValueFlows.Claim.GraphQL.update_claim/2
         ],
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
@@ -483,7 +497,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Observation.Process.GraphQL.update_process/2
         ],
         delete_claim: [
-          resolve: &ValueFlows.Claim.GraphQL.delete_claim/2,
+          resolve: &ValueFlows.Claim.GraphQL.delete_claim/2
         ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2

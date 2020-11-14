@@ -14,15 +14,18 @@ defmodule CommonsPub.Web.GraphQL.QueryHelper do
   @spec run_query_id(any(), module(), atom(), non_neg_integer(), Keyword.t(), boolean()) ::
           String.t()
   def run_query_id(id, schema, type, nesting \\ 1, override_fun \\ nil, debug \\ nil) do
-    with {:ok, go} <-
-           query_with_id(schema, type, nesting, override_fun)
-           |> maybe_debug(debug)
-           |> Absinthe.run(schema, variables: %{"id" => id}) do
 
-      maybe_debug(go, debug)
+    q = query_with_id(schema, type, nesting, override_fun)
+
+    with {:ok, go} <- Absinthe.run(q, schema, variables: %{"id" => id}) do
+
+      maybe_debug(q, go, debug)
 
       go |> Map.get(:data) |> Map.get(Atom.to_string(type))
 
+    else e ->
+        maybe_debug(q, e, true)
+        e
     end
   end
 
@@ -71,7 +74,6 @@ defmodule CommonsPub.Web.GraphQL.QueryHelper do
     |> apply_overrides(override_fun)
     |> format_fields(type, 10, schema)
     |> List.to_string()
-
   end
 
   @doc """
@@ -219,18 +221,16 @@ defmodule CommonsPub.Web.GraphQL.QueryHelper do
 
   def camelize(type), do: Absinthe.Utils.camelize(to_string(type), lower: true)
 
-  def maybe_debug(%{errors: errors} = obj, debug) do
-    Logger.warn("GraphQL errors:")
-    IO.inspect(errors)
-
-    maybe_debug(Map.get(obj, :data), debug)
+  def maybe_debug(q, %{errors: errors} = obj, _) do
+    Logger.warn("The below GraphQL query had some errors in the response:")
+    IO.inspect(errors: errors)
+    maybe_debug(q, Map.get(obj, :data), true)
   end
 
-  def maybe_debug(obj, debug) do
+  def maybe_debug(q, obj, debug) do
     if(debug || CommonsPub.Config.get([:logging, :tests_output_graphql])) do
-      IO.inspect(graphql: obj)
+      IO.inspect(graphql_query: q)
+      IO.inspect(graphql_response: obj)
     end
-
-    obj
   end
 end

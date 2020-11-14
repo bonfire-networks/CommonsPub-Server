@@ -54,6 +54,16 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     ])
   end
 
+  def fetch_default_unit_of_effort_edge(%{default_unit_of_effort_id: id} = thing, _, _)
+      when not is_nil(id) do
+    thing = Repo.preload(thing, :default_unit_of_effort)
+    {:ok, Map.get(thing, :default_unit_of_effort)}
+  end
+
+  def fetch_default_unit_of_effort_edge(_, _, _) do
+    {:ok, nil}
+  end
+
   def resource_specs_filtered(page_opts, _) do
     resource_specs_filter(page_opts, [])
   end
