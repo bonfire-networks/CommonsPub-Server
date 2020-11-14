@@ -84,6 +84,8 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     })
   end
 
+  def track(_, _, _), do: {:ok, nil}
+
   def trace(%{id: id}, _, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
@@ -92,6 +94,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
       info: info
     })
   end
+  def trace(_, _, _), do: {:ok, nil}
 
   def resources_filtered(page_opts, _ \\ nil) do
     # IO.inspect(resources_filtered: page_opts)
@@ -291,6 +294,33 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     )
   end
 
+  def spec_conforms_to_resources(%{conforms_to: spec_id}, %{} = _page_opts, _info) do
+    EconomicResources.many([conforms_to: spec_id])
+  end
+
+  def spec_conforms_to_resources_edge(%{conforms_to: spec_id}, %{} = page_opts, info) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_spec_conforms_to_resources_edge,
+      context: spec_id,
+      page_opts: page_opts,
+      info: info
+    })
+  end
+
+  def fetch_spec_conforms_to_resources_edge(page_opts, info, ids) do
+    list_resources(
+      page_opts,
+      [
+        :default,
+        conforms_to: ids,
+        user: GraphQL.current_user(info)
+      ],
+      nil,
+      nil
+    )
+  end
+
   def list_resources(page_opts, base_filters, _data_filters, _cursor_type) do
     FetchPage.run(%FetchPage{
       queries: Queries,
@@ -353,9 +383,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     {:ok, Map.get(thing, :conforms_to)}
   end
 
-  def fetch_conforms_to_edge(_, _, _) do
-    {:ok, nil}
-  end
+  def fetch_conforms_to_edge(_, _, _), do: {:ok, nil}
 
   def fetch_track_resource(_, id) do
     EconomicResources.track(id)
@@ -369,6 +397,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     thing = EconomicResources.preload_state(thing)
     {:ok, Map.get(thing, :state)}
   end
+  def fetch_state_edge(_, _, _), do: {:ok, nil}
 
 
   def create_resource(%{new_inventoried_resource: resource_attrs}, info) do

@@ -318,7 +318,10 @@ defmodule ValueFlows.Hydration do
         default_unit_of_effort: [
           resolve:
             &ValueFlows.Knowledge.ResourceSpecification.GraphQL.fetch_default_unit_of_effort_edge/3
-        ]
+        ],
+        # conforming_resources: [
+        #   resolve: %ValueFlows.Knowledge.ResourceSpecification.GraphQL.fetch_conforming_resources_edge/3
+        # ]
       },
 
       # start Query resolvers

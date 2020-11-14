@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
-
   require Logger
-
 
   alias CommonsPub.{GraphQL, Repo}
 
@@ -50,7 +48,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   def all_resource_specs(_, _) do
     ResourceSpecifications.many([
-      :default,
+      :default
     ])
   end
 
@@ -62,6 +60,10 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
 
   def fetch_default_unit_of_effort_edge(_, _, _) do
     {:ok, nil}
+  end
+
+  def fetch_conforming_resources_edge(%{conforms_to: id}, page_opts, info) when not is_nil(id) do
+    ValueFlows.Observation.EconomicResource.GraphQL.spec_conforms_to_resources(%{conforms_to: id}, page_opts, info)
   end
 
   def resource_specs_filtered(page_opts, _) do
@@ -87,7 +89,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
          _,
          filters_acc
        ) do
-
     # finally, if there's no more known params to acumulate, query with the filters
     ResourceSpecifications.many(filters_acc)
   end
@@ -113,7 +114,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQL do
     ResourceSpecifications.one([
       :default,
       user: GraphQL.current_user(info),
-      id: id,
+      id: id
     ])
   end
 
