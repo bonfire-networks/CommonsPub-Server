@@ -71,16 +71,6 @@ if(CommonsPub.Config.module_enabled?(Measurement.Simulate)) do
   for _ <- 1..2 do
     unit1 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_community.())
     unit2 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
-
-    if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
-      for _ <- 1..2,
-          do:
-            ValueFlows.Simulate.fake_intent!(
-              random_user.(),
-              Faker.Util.pick([unit1, unit2]),
-              maybe_random_community.()
-            )
-    end
   end
 end
 
@@ -89,12 +79,69 @@ if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
   for _ <- 1..2 do
     user = random_user.()
 
-    _process_spec =
-      ValueFlows.Simulate.fake_process_specification!(user, maybe_random_community.())
+    # some lonesome intents and proposals
+    intent = ValueFlows.Simulate.fake_intent!(user)
+    proposal = ValueFlows.Simulate.fake_proposal!(user)
+  end
 
-    intent = ValueFlows.Simulate.fake_intent!(user, nil, maybe_random_community.())
-    proposal = ValueFlows.Simulate.fake_proposal!(user, maybe_random_community.())
+  for _ <- 1..2 do
+    user = random_user.()
+
+    _process_spec =
+      ValueFlows.Simulate.fake_process_specification!(user)
+    res_spec =
+      ValueFlows.Simulate.fake_resource_specification!(user)
+
+    # some proposed intents
+    intent = ValueFlows.Simulate.fake_intent!(user, %{resource_conforms_to: res_spec})
+    proposal = ValueFlows.Simulate.fake_proposal!(user)
     ValueFlows.Simulate.fake_proposed_to!(random_user.(), proposal)
     ValueFlows.Simulate.fake_proposed_intent!(proposal, intent)
+
+    # define some geolocations
+    if(CommonsPub.Config.module_enabled?(Geolocation.Simulate)) do
+      for _ <- 1..2 do
+        place = Geolocation.Simulate.fake_geolocation!(random_user.())
+
+        # define some intents with geolocation
+        intent =
+          ValueFlows.Simulate.fake_intent!(
+            random_user.(),
+            %{at_location: place}
+          )
+
+        # define some proposals with geolocation
+        proposal = ValueFlows.Simulate.fake_proposal!(user, %{eligible_location: place})
+
+        # both with geo
+        intent =
+          ValueFlows.Simulate.fake_intent!(
+            random_user.(),
+            %{at_location: place}
+          )
+
+        proposal = ValueFlows.Simulate.fake_proposal!(user, %{eligible_location: place})
+        ValueFlows.Simulate.fake_proposed_intent!(proposal, intent)
+
+      end
+    end
+
+    if(CommonsPub.Config.module_enabled?(Measurement.Simulate)) do
+      unit1 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_community.())
+      unit2 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
+
+      # define some intents with measurements
+      for _ <- 1..2 do
+        intent =
+          ValueFlows.Simulate.fake_intent!(
+            random_user.(),
+            %{},
+            Faker.Util.pick([unit1, unit2])
+          )
+
+        proposal = ValueFlows.Simulate.fake_proposal!(user)
+        ValueFlows.Simulate.fake_proposed_intent!(proposal, intent)
+      end
+    end
   end
 end
