@@ -1,7 +1,8 @@
 # Generate some fake data and put it in the DB for testing/development purposes
 
-import CommonsPub.Test.Faking
-alias CommonsPub.Utils.Simulation
+import CommonsPub.Utils.Simulation
+
+System.put_env("SEARCH_INDEXING_DISABLED", "true")
 
 admin =
   %{
@@ -20,12 +21,12 @@ random_user = fn -> Faker.Util.pick(users) end
 # start some communities
 communities = for _ <- 1..2, do: fake_community!(random_user.())
 subcommunities = for _ <- 1..2, do: fake_community!(random_user.(), Faker.Util.pick(communities))
-maybe_random_community = fn -> Simulation.maybe_one_of(communities ++ subcommunities) end
+maybe_random_community = fn -> maybe_one_of(communities ++ subcommunities) end
 
 # create fake collections
 collections = for _ <- 1..4, do: fake_collection!(random_user.(), maybe_random_community.())
 subcollections = for _ <- 1..2, do: fake_collection!(random_user.(), Faker.Util.pick(collections))
-maybe_random_collection = fn -> Simulation.maybe_one_of(collections ++ subcollections) end
+maybe_random_collection = fn -> maybe_one_of(collections ++ subcollections) end
 
 # start fake threads
 for _ <- 1..3 do
@@ -87,10 +88,8 @@ if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
   for _ <- 1..2 do
     user = random_user.()
 
-    _process_spec =
-      ValueFlows.Simulate.fake_process_specification!(user)
-    res_spec =
-      ValueFlows.Simulate.fake_resource_specification!(user)
+    _process_spec = ValueFlows.Simulate.fake_process_specification!(user)
+    res_spec = ValueFlows.Simulate.fake_resource_specification!(user)
 
     # some proposed intents
     intent = ValueFlows.Simulate.fake_intent!(user, %{resource_conforms_to: res_spec})
@@ -100,29 +99,48 @@ if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
 
     # define some geolocations
     if(CommonsPub.Config.module_enabled?(Geolocation.Simulate)) do
+
+      places = for _ <- 1..2, do: Geolocation.Simulate.fake_geolocation!(random_user.())
+random_place = fn -> Faker.Util.pick(places) end
+
+
       for _ <- 1..2 do
-        place = Geolocation.Simulate.fake_geolocation!(random_user.())
 
         # define some intents with geolocation
         intent =
           ValueFlows.Simulate.fake_intent!(
             random_user.(),
-            %{at_location: place}
+            %{at_location: random_place.()}
           )
 
         # define some proposals with geolocation
-        proposal = ValueFlows.Simulate.fake_proposal!(user, %{eligible_location: place})
+        proposal = ValueFlows.Simulate.fake_proposal!(user, %{eligible_location: random_place.()})
 
         # both with geo
         intent =
           ValueFlows.Simulate.fake_intent!(
             random_user.(),
-            %{at_location: place}
+            %{at_location: random_place.()}
           )
 
-        proposal = ValueFlows.Simulate.fake_proposal!(user, %{eligible_location: place})
+        proposal = ValueFlows.Simulate.fake_proposal!(user, %{eligible_location: random_place.()})
         ValueFlows.Simulate.fake_proposed_intent!(proposal, intent)
 
+        # some economic events
+        user = random_user.()
+
+        resource_inventoried_as = ValueFlows.Simulate.fake_economic_resource!(user, %{current_location: random_place.()})
+        to_resource_inventoried_as = ValueFlows.Simulate.fake_economic_resource!(random_user.(), %{current_location: random_place.()})
+
+        ValueFlows.Simulate.fake_economic_event!(
+          user,
+          %{
+            to_resource_inventoried_as: to_resource_inventoried_as.id,
+            resource_inventoried_as: resource_inventoried_as.id,
+            action: Faker.Util.pick(["transfer", "move"]),
+            at_location: random_place.()
+          }
+        )
       end
     end
 
@@ -130,8 +148,8 @@ if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
       unit1 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_community.())
       unit2 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
 
-      # define some intents with measurements
       for _ <- 1..2 do
+        # define some intents with measurements
         intent =
           ValueFlows.Simulate.fake_intent!(
             random_user.(),
@@ -141,6 +159,23 @@ if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
 
         proposal = ValueFlows.Simulate.fake_proposal!(user)
         ValueFlows.Simulate.fake_proposed_intent!(proposal, intent)
+
+        # some economic events
+        user = random_user.()
+        unit = Faker.Util.pick([unit1, unit2])
+
+        resource_inventoried_as = ValueFlows.Simulate.fake_economic_resource!(user, %{}, unit)
+        to_resource_inventoried_as = ValueFlows.Simulate.fake_economic_resource!(random_user.(), %{}, unit)
+
+        ValueFlows.Simulate.fake_economic_event!(
+          user,
+          %{
+            to_resource_inventoried_as: to_resource_inventoried_as.id,
+            resource_inventoried_as: resource_inventoried_as.id,
+            action: Faker.Util.pick(["transfer", "move"])
+          },
+          unit
+        )
       end
     end
   end

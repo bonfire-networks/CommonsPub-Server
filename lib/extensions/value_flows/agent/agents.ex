@@ -74,6 +74,10 @@ defmodule ValueFlows.Agent.Agents do
     |> image_url_or_path()
   end
 
+  def agent_image(_) do
+    nil
+  end
+
   def image_url_or_path(content) do
     CommonsPub.Utils.Web.CommonHelper.e(
       content,
@@ -81,10 +85,6 @@ defmodule ValueFlows.Agent.Agents do
       :path,
       CommonsPub.Utils.Web.CommonHelper.e(content, :content_mirror, :url, nil)
     )
-  end
-
-  def agent_image(_) do
-    nil
   end
 
   def add_type(%CommonsPub.Users.User{} = a) do

@@ -468,7 +468,7 @@ defmodule CommonsPub.Utils.Simulation do
   end
 
   def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
-    with {:ok, user} <- a_fake_user(overrides, opts) do
+    with {:ok, user} <- fake_user(overrides, opts) do
       maybe_confirm_user_email(user, opts)
     end
   end
