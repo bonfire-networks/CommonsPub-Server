@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Test.Faking do
-  import ExUnit.Assertions
+  # import ExUnit.Assertions
 
   alias CommonsPub.{
     Access,
@@ -20,10 +20,13 @@ defmodule CommonsPub.Test.Faking do
     Users.User
   }
 
-  # alias CommonsPub.Characters
-
   import CommonsPub.Utils.Trendy
   import CommonsPub.Utils.Simulation
+
+  def maybe_assert(value) do
+    require ExUnit.Assertions
+    ExUnit.Assertions.assert(value)
+  end
 
   def fake_user(overrides \\ %{}, opts \\ []) do
     a_fake_user(overrides, opts)
@@ -62,7 +65,7 @@ defmodule CommonsPub.Test.Faking do
 
   def fake_activity!(user, context, overrides \\ %{}) do
     {:ok, activity} = Activities.create(user, context, activity(overrides))
-    assert activity.creator_id == user.id
+    maybe_assert activity.creator_id == user.id
     activity
   end
 
@@ -74,7 +77,7 @@ defmodule CommonsPub.Test.Faking do
 
   def fake_token!(%User{} = user) do
     {:ok, token} = Access.unsafe_put_token(user)
-    assert token.user_id == user.id
+    maybe_assert token.user_id == user.id
     token
   end
 
@@ -87,7 +90,7 @@ defmodule CommonsPub.Test.Faking do
         %{}
       )
 
-    assert content.uploader_id == user.id
+    maybe_assert content.uploader_id == user.id
     content
   end
 
@@ -95,7 +98,7 @@ defmodule CommonsPub.Test.Faking do
 
   def fake_community!(%User{} = user, context, %{} = overrides) do
     {:ok, community} = Communities.create(user, context, community(overrides))
-    assert community.creator_id == user.id
+    maybe_assert community.creator_id == user.id
     community
   end
 
@@ -104,13 +107,13 @@ defmodule CommonsPub.Test.Faking do
   def fake_collection!(user, context, overrides)
       when is_map(overrides) and is_nil(context) do
     {:ok, collection} = Collections.create(user, collection(overrides))
-    assert collection.creator_id == user.id
+    maybe_assert collection.creator_id == user.id
     collection
   end
 
   def fake_collection!(user, context, overrides) when is_map(overrides) do
     {:ok, collection} = Collections.create(user, context, collection(overrides))
-    assert collection.creator_id == user.id
+    maybe_assert collection.creator_id == user.id
     collection
   end
 
@@ -121,8 +124,8 @@ defmodule CommonsPub.Test.Faking do
       |> Map.put(:content_id, fake_content!(user, overrides).id)
 
     {:ok, resource} = Resources.create(user, context, attrs)
-    assert resource.creator_id == user.id
-    # assert resource.context_id == context.id
+    maybe_assert resource.creator_id == user.id
+    # maybe_assert resource.context_id == context.id
     resource
   end
 
@@ -130,26 +133,26 @@ defmodule CommonsPub.Test.Faking do
 
   def fake_thread!(user, nil, overrides) when is_map(overrides) do
     {:ok, thread} = Threads.create(user, thread(overrides))
-    assert thread.creator_id == user.id
+    maybe_assert thread.creator_id == user.id
     thread
   end
 
   def fake_thread!(user, context, overrides) when is_map(overrides) do
     {:ok, thread} = Threads.create(user, thread(overrides), context)
-    assert thread.creator_id == user.id
+    maybe_assert thread.creator_id == user.id
     thread
   end
 
   def fake_comment!(user, thread, overrides \\ %{}) when is_map(overrides) do
     {:ok, comment} = Comments.create(user, thread, comment(overrides))
-    assert comment.creator_id == user.id
+    maybe_assert comment.creator_id == user.id
     comment
   end
 
   def fake_reply!(user, thread, comment, overrides \\ %{}) when is_map(overrides) do
     fake = comment(Map.put_new(overrides, :in_reply_to, comment.id))
     {:ok, comment} = Comments.create(user, thread, fake)
-    assert comment.creator_id == user.id
+    maybe_assert comment.creator_id == user.id
     comment
   end
 
@@ -186,29 +189,29 @@ defmodule CommonsPub.Test.Faking do
 
   def like!(user, context, args \\ %{}) do
     {:ok, like} = Likes.create(user, context, like_input(args))
-    assert like.creator_id == user.id
-    assert like.context_id == context.id
+    maybe_assert like.creator_id == user.id
+    maybe_assert like.context_id == context.id
     like
   end
 
   def flag!(user, context, args \\ %{}) do
     {:ok, flag} = Flags.create(user, context, flag_input(args))
-    assert flag.creator_id == user.id
-    assert flag.context_id == context.id
+    maybe_assert flag.creator_id == user.id
+    maybe_assert flag.context_id == context.id
     flag
   end
 
   def follow!(user, context, args \\ %{}) do
     {:ok, follow} = Follows.create(user, context, follow_input(args))
-    assert follow.creator_id == user.id
-    assert follow.context_id == context.id
+    maybe_assert follow.creator_id == user.id
+    maybe_assert follow.context_id == context.id
     follow
   end
 
   def feature!(user, context, args \\ %{}) do
     {:ok, feature} = Features.create(user, context, feature_input(args))
-    assert feature.creator_id == user.id
-    assert feature.context_id == context.id
+    maybe_assert feature.creator_id == user.id
+    maybe_assert feature.context_id == context.id
     feature
   end
 end
