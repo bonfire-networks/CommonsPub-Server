@@ -368,7 +368,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp prepare_attrs(attrs) do
     attrs
     |> maybe_put(:action_id, attr_get_id(attrs, :action))
-    |> maybe_put(:context_id,
+    |> maybe_put(
+      :context_id,
       attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
     )
     |> maybe_put(:provider_id, attr_get_id(attrs, :provider))
