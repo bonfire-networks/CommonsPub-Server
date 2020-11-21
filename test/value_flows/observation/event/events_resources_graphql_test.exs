@@ -194,6 +194,91 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
                to_resource_inventoried_as.accounting_quantity.has_numerical_value + 42
     end
 
+    test "create an economic resource produced by an economic event, and then transfer part of it" do
+      alice = fake_user!()
+      bob = fake_user!()
+
+      unit = fake_unit!(alice)
+
+      fields = [
+        fields: [
+          :id,
+          resource_quantity: [:has_numerical_value],
+          resource_inventoried_as: [
+            :id,
+            # :primary_accountable,
+            onhand_quantity: [:has_numerical_value],
+            accounting_quantity: [:has_numerical_value]
+          ],
+          to_resource_inventoried_as: [
+            :id,
+            # :primary_accountable,
+            onhand_quantity: [:has_numerical_value],
+            accounting_quantity: [:has_numerical_value]
+          ]
+        ],
+        fields: [:id]
+      ]
+
+      q_a = create_economic_event_mutation(fields)
+
+      conn_a = user_conn(alice)
+
+      vars_a = %{
+        event:
+          economic_event_input(%{
+            "action" => "produce",
+            "resourceQuantity" => measure_input(unit, %{"hasNumericalValue" => 10})
+          }),
+        newInventoriedResource: economic_resource_input(%{"name" => "resource A"})
+      }
+
+      assert response_a =
+               grumble_post_key(q_a, conn_a, :create_economic_event, vars_a, "test", @debug)
+
+      assert event_a = response_a["economicEvent"]
+      assert resource_a = response_a["economicResource"]
+      IO.inspect(event_a)
+      IO.inspect(resource_a)
+      assert resource_a_alt = event_a["resourceInventoriedAs"]
+      assert_economic_event(event_a)
+      assert_economic_resource(resource_a)
+      assert_economic_resource(resource_a_alt)
+
+      # now transfer it
+      q_b = create_economic_event_mutation(fields)
+
+      conn_b = user_conn(bob)
+
+      vars_b = %{
+        event:
+          economic_event_input(%{
+            "action" => "transfer",
+            "resourceQuantity" => measure_input(unit, %{"hasNumericalValue" => 2}),
+            "resourceInventoriedAs" => resource_a_alt.id
+            # "provider" => user.id,
+            # "receiver" => user.id
+          }),
+        newInventoriedResource: economic_resource_input(%{"name" => "resource B"})
+      }
+
+      assert response_b =
+               grumble_post_key(q_b, conn_b, :create_economic_event, vars_b, "test", @debug)
+
+      assert event_b = response_b["economicEvent"]
+      assert resource_a_updated = event_b["resourceInventoriedAs"]
+      assert resource_b = event_b["toResourceInventoriedAs"]
+      assert_economic_event(event_b)
+      assert_economic_resource(resource_a_updated)
+      assert_economic_resource(resource_b)
+
+      assert resource_a_updated["accountingQuantity"]["hasNumericalValue"] ==
+               8
+
+      assert resource_b["accountingQuantity"]["hasNumericalValue"] ==
+               2
+    end
+
     test "create an economic event that consumes an existing resource" do
       user = fake_user!()
       unit = fake_unit!(user)
@@ -261,7 +346,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       }
 
       assert [%{"status" => 200, "code" => "foreign", "message" => "does not exist"}] =
-        grumble_post_errors(q, conn, vars)
+               grumble_post_errors(q, conn, vars)
     end
 
     test "create an economic event that transfers an existing resource from a provider to a receiver" do
