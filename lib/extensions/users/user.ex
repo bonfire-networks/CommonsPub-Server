@@ -11,7 +11,7 @@ defmodule CommonsPub.Users.User do
   alias Ecto.Changeset
   # alias CommonsPub.Characters.Character
   # alias CommonsPub.Feeds.Feed
-  alias CommonsPub.Uploads.Content
+  # alias CommonsPub.Uploads.Content
   alias CommonsPub.Users
   alias CommonsPub.Users.{LocalUser, User}
 

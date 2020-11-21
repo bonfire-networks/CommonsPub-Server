@@ -20,7 +20,7 @@ defmodule CommonsPub.Communities.Community do
   alias CommonsPub.Flags.Flag
   # alias CommonsPub.Locales.Language
   alias CommonsPub.Users.User
-  alias CommonsPub.Uploads.Content
+  # alias CommonsPub.Uploads.Content
 
   table_schema "mn_community" do
     has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)

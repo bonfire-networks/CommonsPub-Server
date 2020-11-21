@@ -10,7 +10,7 @@ defmodule CommonsPub.Profiles.Profile do
   # alias CommonsPub.Profiles.Profile
   # alias CommonsPub.Feeds.Feed
   alias CommonsPub.Users.User
-  alias CommonsPub.Uploads.Content
+  # alias CommonsPub.Uploads.Content
 
   # alias Pointers.Pointer
 
