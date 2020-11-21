@@ -1818,7 +1818,7 @@ type Intent {
   """
   The uri to an image relevant to the intent, such as a photo. // WIP FIXME adding content rather than uri
   """
-  image: Content
+  image: URI
 
   """
   A textual description or comment.
@@ -1949,7 +1949,7 @@ input IntentCreateParams {
   """
   The uri to an image relevant to the intent, such as a photo.
   """
-  image: UploadInput
+  image: URI
 
   """
   A textual description or comment.
@@ -2075,7 +2075,7 @@ input IntentUpdateParams {
   """
   The uri to an image relevant to the intent, such as a photo.
   """
-  image: UploadInput
+  image: URI
 
   """
   The intent is complete or not.  This is irrespective of if the original goal

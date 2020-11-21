@@ -48,8 +48,8 @@ defmodule CommonsPub.Communities.Community do
     field(:name, :string)
     field(:summary, :string)
 
-    belongs_to(:icon, Content)
-    belongs_to(:image, Content)
+    belongs_to(:icon, CommonsPub.Uploads.Content)
+    belongs_to(:image, CommonsPub.Uploads.Content)
 
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
