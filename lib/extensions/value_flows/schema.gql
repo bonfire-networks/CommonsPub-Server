@@ -115,7 +115,7 @@ input AgentCreateParams {
   image: URI
 
   """
-  (`SpatialThing`)  The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
+  (`SpatialThing`) The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location.
   """
   primaryLocation: ID
 
@@ -1700,7 +1700,7 @@ type Intent {
   finished: Boolean
 
   """
-  The uri to an image relevant to the intent, such as a photo. // WIP FIXME adding content rather than uri
+  The uri to an image relevant to the intent, such as a photo. 
   """
   image: URI 
 
