@@ -157,8 +157,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
            EconomicResources.update(resource, %{onhand_quantity: by_quantity}) do
       resource
     end
-
-    resource
   end
 
   def quantity_effect(
