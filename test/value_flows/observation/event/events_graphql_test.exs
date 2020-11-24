@@ -26,7 +26,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       user = fake_user!()
       unit = fake_unit!(user)
 
-      provider = fake_agent!()
+      provider = fake_agent_from_user!(user)
       receiver = fake_agent!()
 
       action = action()
@@ -56,7 +56,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
       unit = fake_unit!(user)
 
-      provider = fake_agent!()
+      provider = fake_agent_from_user!(user)
       receiver = fake_agent!()
       action = action()
 

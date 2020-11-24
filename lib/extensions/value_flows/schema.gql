@@ -1198,13 +1198,11 @@ input EconomicEventCreateParams {
   """
   (`Agent`) The economic agent from whom the actual economic event is initiated.
   """
-  provider: ID!
-
+  provider: ID ## changed for CPub (was required)
   """
   (`Agent`) The economic agent whom the actual economic event is for.
   """
-  receiver: ID!
-
+  receiver: ID ## changed for CPub (was required)
   """
   Grouping around something to create a boundary or context, used for documenting, accounting, planning.
   """
