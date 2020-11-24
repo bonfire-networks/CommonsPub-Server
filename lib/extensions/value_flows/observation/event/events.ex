@@ -88,23 +88,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     )
   end
 
-  def preload_all(event) do
-    Repo.preload(event, [
-      :context,
-      :creator,
-      :resource_quantity,
-      :effort_quantity,
-      :at_location,
-      :input_of,
-      :output_of,
-      :resource_conforms_to,
-      :resource_inventoried_as,
-      :to_resource_inventoried_as,
-      :provider,
-      :receiver,
-      :triggered_by
-    ])
-    |> preload_action()
+  def preload_all(%EconomicEvent{} = event) do
+    {:ok, event} = one(id: event.id, preload: :all)
+    preload_action(event)
   end
 
   def preload_action(event) do
