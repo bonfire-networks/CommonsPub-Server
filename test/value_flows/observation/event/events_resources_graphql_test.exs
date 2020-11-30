@@ -209,14 +209,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
           resource_inventoried_as: [
             :id,
             primary_accountable: [:id],
-            onhand_quantity: [:has_numerical_value],
-            accounting_quantity: [:has_numerical_value]
+            onhand_quantity: [:id, :has_numerical_value],
+            accounting_quantity: [:id, :has_numerical_value]
           ],
           to_resource_inventoried_as: [
             :id,
             primary_accountable: [:id],
-            onhand_quantity: [:has_numerical_value],
-            accounting_quantity: [:has_numerical_value]
+            onhand_quantity: [:id, :has_numerical_value],
+            accounting_quantity: [:id, :has_numerical_value]
           ]
         ],
       ]
@@ -248,18 +248,15 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
                grumble_post_key(q_a, conn_a, :create_economic_event, vars_a, "test", true)
 
       assert event_a = response_a["economicEvent"]
-      IO.inspect(event_a: event_a)
       assert_economic_event(event_a)
 
       resource_a = response_a["economicResource"]
-      IO.inspect(resource_a: resource_a)
       # assert_economic_resource(resource_a)
 
       resource_a_alt = event_a["resourceInventoriedAs"]
-      IO.inspect(resource_a_alt: resource_a_alt)
       # assert_economic_resource(resource_a_alt)
 
-      from_resource_id = Map.get(resource_a || %{}, "id", Map.get(resource_a_alt || %{}, "id"))
+      from_resource_id = Map.get(resource_a || resource_a_alt, "id")
       assert from_resource_id
 
       # now transfer it
@@ -286,12 +283,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
       assert resource_a_updated = event_b["resourceInventoriedAs"]
       assert resource_b = event_b["toResourceInventoriedAs"]
       assert_economic_event(event_b)
-      # assert_economic_resource(resource_a_updated)
-      # assert_economic_resource(resource_b)
 
+      assert resource_a_updated["onhandQuantity"]["hasNumericalValue"] ==
+               8
       assert resource_a_updated["accountingQuantity"]["hasNumericalValue"] ==
                8
 
+      assert resource_b["onhandQuantity"]["hasNumericalValue"] ==
+               2
       assert resource_b["accountingQuantity"]["hasNumericalValue"] ==
                2
     end
