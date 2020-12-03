@@ -418,6 +418,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
       unit = fake_unit!(alice)
 
       resource_inventoried_as = fake_economic_resource!(alice, %{}, unit)
+      IO.inspect(resource_inventoried_as: resource_inventoried_as)
       to_resource_inventoried_as = fake_economic_resource!(bob, %{}, unit)
 
       assert {:error, _e} =

@@ -357,6 +357,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
       assert event.resource_conforms_to.id == attrs.resource_conforms_to
     end
 
+    @tag :skip
     test "can create an economic event with resource_classified_as" do
       user = fake_user!()
 

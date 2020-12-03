@@ -379,28 +379,46 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   defp validate_user_involvement(
          %{id: creator_id},
-         %{provider: provider_id, receiver: receiver_id} = _event
+         %{provider: provider, receiver: receiver} = _event
        )
-       when (is_binary(provider_id) and is_binary(receiver_id) and provider_id == creator_id) or
-              receiver_id == creator_id do
+       when (is_binary(provider) and is_binary(receiver) and provider == creator_id) or
+              receiver == creator_id do
+    :ok
+  end
+
+  defp validate_user_involvement(
+         creator,
+         %{provider: provider, receiver: receiver} = _event
+       )
+       when provider == creator or
+              receiver == creator do
     :ok
   end
 
   defp validate_user_involvement(_creator, _event) do
-    {:error, CommonsPub.Access.NotPermittedError.new()}
+    {:error, CommonsPub.Access.NotPermittedError.message("You cannot do this if you are not receiver or provider.")}
   end
 
   defp validate_provider_is_primary_accountable(
-         %{resource_inventoried_as_id: resource_id, provider_id: provider_id} = event
+         %{resource_inventoried_as_id: resource_id, provider_id: provider_id} = _event
        )
        when not is_nil(resource_id) and not is_nil(provider_id) do
     with {:ok, resource} <- EconomicResources.one([:default, id: resource_id]) do
-      if is_nil(resource.primary_accountable_id) or
-           provider_id == resource.primary_accountable_id do
-        :ok
-      else
-        {:error, CommonsPub.Access.NotPermittedError.new()}
-      end
+      validate_provider_is_primary_accountable(%{
+        resource_inventoried_as: resource,
+        provider_id: provider_id
+      })
+    end
+  end
+
+  defp validate_provider_is_primary_accountable(
+         %{resource_inventoried_as: resource, provider_id: provider_id} = _event
+       )
+       when is_struct(resource) and not is_nil(provider_id) do
+    if is_nil(resource.primary_accountable_id) or provider_id == resource.primary_accountable_id do
+      :ok
+    else
+      {:error, CommonsPub.Access.NotPermittedError.message("You cannot do this since the provider is not accountable for the resource.")}
     end
   end
 
@@ -409,8 +427,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp validate_receiver_is_primary_accountable(
-         %{to_resource_inventoried_as_id: resource_id, receiver_id: receiver_id} =
-           event
+         %{to_resource_inventoried_as_id: resource_id, receiver_id: receiver_id} = event
        )
        when not is_nil(resource_id) do
     with {:ok, resource} <- EconomicResources.one([:default, id: resource_id]) do
@@ -418,7 +435,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            receiver_id == resource.primary_accountable_id do
         :ok
       else
-        {:error, CommonsPub.Access.NotPermittedError.new()}
+        {:error, CommonsPub.Access.NotPermittedError.message("You cannot do this since the receiver is not accountable for the target resource.")}
       end
     end
   end
