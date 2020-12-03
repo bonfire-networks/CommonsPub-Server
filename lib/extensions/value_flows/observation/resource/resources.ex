@@ -225,14 +225,15 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResources do
   end
 
   defp parse_measurement_attrs(attrs) do
-    Enum.reduce(attrs, %{}, fn {k, v}, acc ->
-      if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = CommonsPub.Common.map_key_replace(v, :has_unit, :unit_id)
-        # I have no idea why the numerical value isn't auto converted
-        Map.put(acc, k, v)
-      else
-        Map.put(acc, k, v)
-      end
-    end)
+    for {k, v} <- attrs, into: %{} do
+      v =
+        if is_map(v) and Map.has_key?(v, :has_unit) do
+          CommonsPub.Common.map_key_replace(v, :has_unit, :unit_id)
+        else
+          v
+        end
+
+      {k, v}
+    end
   end
 end

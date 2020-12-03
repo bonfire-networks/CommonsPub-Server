@@ -1,7 +1,7 @@
 defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   import Logger
 
-  alias CommonsPub.Repo
+  alias CommonsPub.{Common, Repo}
 
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
@@ -152,9 +152,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         _
       )
       when is_nil(existing_quantity) do
+    new_quantity = Measurement.Measure.copy(by_quantity)
     # Set onhandQuantity on a resource with no previous onhandQuantity
     with {:ok, resource} <-
-           EconomicResources.update(resource, %{onhand_quantity: by_quantity}) do
+           EconomicResources.update(resource, %{onhand_quantity: new_quantity}) do
       resource
     end
   end
@@ -168,9 +169,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         _
       )
       when is_nil(existing_quantity) do
+    new_quantity = Measurement.Measure.copy(by_quantity)
     # Set accountingQuantity on a resource with no previous accountingQuantity
     with {:ok, resource} <-
-           EconomicResources.update(resource, %{accounting_quantity: by_quantity}) do
+           EconomicResources.update(resource, %{accounting_quantity: new_quantity}) do
       resource
     end
   end
