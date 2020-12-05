@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.Measures.GraphQL do
+defmodule Bonfire.Quantify.Measures.GraphQL do
   use Absinthe.Schema.Notation
 
   alias CommonsPub.GraphQL
@@ -15,8 +15,8 @@ defmodule Bonfire.Quantities.Measures.GraphQL do
     FetchFields
   }
 
-  alias Bonfire.Quantities.Measures
-  alias Bonfire.Quantities.Units
+  alias Bonfire.Quantify.Measures
+  alias Bonfire.Quantify.Units
 
   @repo CommonsPub.Repo
 
@@ -53,8 +53,8 @@ defmodule Bonfire.Quantities.Measures.GraphQL do
 
   def fetch_measures(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: Bonfire.Quantities.Measures.Queries,
-      query: Bonfire.Quantities.Measure,
+      queries: Bonfire.Quantify.Measures.Queries,
+      query: Bonfire.Quantify.Measure,
       cursor_fn:  & &1.id,
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)],
@@ -77,8 +77,8 @@ defmodule Bonfire.Quantities.Measures.GraphQL do
 
   def fetch_has_unit_edge(_, ids) do
     FetchFields.run(%FetchFields{
-      queries: Bonfire.Quantities.Units.Queries,
-      query: Bonfire.Quantities.Unit,
+      queries: Bonfire.Quantify.Units.Queries,
+      query: Bonfire.Quantify.Unit,
       group_fn: & &1.id,
       filters: [:deleted, :private, id: ids]
     })

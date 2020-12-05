@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.Units do
+defmodule Bonfire.Quantify.Units do
 
   alias CommonsPub.Common
   alias CommonsPub.GraphQL.{Fields, Page, Pagination}
   # alias CommonsPub.Contexts
 
-  alias Bonfire.Quantities.Unit
-  alias Bonfire.Quantities.Units.Queries
+  alias Bonfire.Quantify.Unit
+  alias Bonfire.Quantify.Units.Queries
 
   @repo CommonsPub.Repo
   @user CommonsPub.Users.User
@@ -160,7 +160,7 @@ defmodule Bonfire.Quantities.Units do
   # defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Unit{}, attrs :: map) :: {:ok, Bonfire.Quantities.Unit.t()} | {:error, Changeset.t()}
+  @spec update(%Unit{}, attrs :: map) :: {:ok, Bonfire.Quantify.Unit.t()} | {:error, Changeset.t()}
   def update(%Unit{} = unit, attrs) do
     @repo.update(Unit.update_changeset(unit, attrs))
   end

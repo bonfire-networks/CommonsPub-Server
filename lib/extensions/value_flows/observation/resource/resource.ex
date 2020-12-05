@@ -9,8 +9,8 @@ defmodule ValueFlows.Observation.EconomicResource do
 
   alias CommonsPub.Users.User
 
-  alias Bonfire.Quantities.Measure
-  alias Bonfire.Quantities.Unit
+  alias Bonfire.Quantify.Measure
+  alias Bonfire.Quantify.Unit
 
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification

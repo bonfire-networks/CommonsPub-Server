@@ -1,4 +1,4 @@
-defmodule Bonfire.Quantities.Hydration do
+defmodule Bonfire.Quantify.Hydration do
 
   alias CommonsPub.Web.GraphQL.CommonResolver
 
@@ -20,38 +20,38 @@ defmodule Bonfire.Quantities.Hydration do
           resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
         ],
         has_unit: [
-          resolve: &Bonfire.Quantities.Measures.GraphQL.has_unit_edge/3
+          resolve: &Bonfire.Quantify.Measures.GraphQL.has_unit_edge/3
         ]
       },
       measurement_query: %{
         units: [
-          resolve: &Bonfire.Quantities.Units.GraphQL.all_units/2
+          resolve: &Bonfire.Quantify.Units.GraphQL.all_units/2
         ],
         units_pages: [
-          resolve: &Bonfire.Quantities.Units.GraphQL.units/2
+          resolve: &Bonfire.Quantify.Units.GraphQL.units/2
         ],
         unit: [
-          resolve: &Bonfire.Quantities.Units.GraphQL.unit/2
+          resolve: &Bonfire.Quantify.Units.GraphQL.unit/2
         ],
         measures_pages: [
-          resolve: &Bonfire.Quantities.Measures.GraphQL.measures_pages/2
+          resolve: &Bonfire.Quantify.Measures.GraphQL.measures_pages/2
         ],
         # all_measures: [
-        #   resolve: &Bonfire.Quantities.Measures.GraphQL.all_measures/2
+        #   resolve: &Bonfire.Quantify.Measures.GraphQL.all_measures/2
         # ],
         measure: [
-          resolve: &Bonfire.Quantities.Measures.GraphQL.measure/2
+          resolve: &Bonfire.Quantify.Measures.GraphQL.measure/2
         ]
       },
       measurement_mutation: %{
         create_unit: [
-          resolve: &Bonfire.Quantities.Units.GraphQL.create_unit/2
+          resolve: &Bonfire.Quantify.Units.GraphQL.create_unit/2
         ],
         update_unit: [
-          resolve: &Bonfire.Quantities.Units.GraphQL.update_unit/2
+          resolve: &Bonfire.Quantify.Units.GraphQL.update_unit/2
         ],
         delete_unit: [
-          resolve: &Bonfire.Quantities.Units.GraphQL.delete_unit/2
+          resolve: &Bonfire.Quantify.Units.GraphQL.delete_unit/2
         ]
       }
     }

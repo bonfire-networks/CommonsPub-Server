@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.Measures.Queries do
+defmodule Bonfire.Quantify.Measures.Queries do
   import CommonsPub.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   alias CommonsPub.Repo
   alias CommonsPub.Users.User
-  alias Bonfire.Quantities.{Measure, Unit}
+  alias Bonfire.Quantify.{Measure, Unit}
 
   def query(Measure) do
     from(c in Measure, as: :measure)

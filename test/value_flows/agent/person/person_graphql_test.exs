@@ -6,7 +6,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
   import CommonsPub.Web.Test.GraphQLAssertions
 
   import Geolocation.Test.Faking
-  import Bonfire.Quantities.Simulate
+  import Bonfire.Quantify.Simulate
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

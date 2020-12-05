@@ -8,7 +8,7 @@ defmodule ValueFlows.Test.Faking do
   # import CommonsPub.Utils.Trendy
 
   import ValueFlows.Simulate
-  # import Bonfire.Quantities.Test.Faking
+  # import Bonfire.Quantify.Test.Faking
   import Grumble
 
   # alias CommonsPub.Utils.Simulation

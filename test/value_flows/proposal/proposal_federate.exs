@@ -6,7 +6,7 @@ defmodule ValueFlows.Proposal.FederateTest do
 
   import Geolocation.Simulate
 
-  import Bonfire.Quantities.Simulate
+  import Bonfire.Quantify.Simulate
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

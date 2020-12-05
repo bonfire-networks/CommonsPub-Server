@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.Units.GraphQL do
+defmodule Bonfire.Quantify.Units.GraphQL do
   use Absinthe.Schema.Notation
   require Logger
 
@@ -18,10 +18,10 @@ defmodule Bonfire.Quantities.Units.GraphQL do
 
   alias CommonsPub.Meta.Pointers
 
-  alias Bonfire.Quantities.Unit
-  alias Bonfire.Quantities.Units
-  alias Bonfire.Quantities.Units.Queries
-  alias Bonfire.Quantities.Measures
+  alias Bonfire.Quantify.Unit
+  alias Bonfire.Quantify.Units
+  alias Bonfire.Quantify.Units.Queries
+  alias Bonfire.Quantify.Measures
 
   @repo CommonsPub.Repo
 

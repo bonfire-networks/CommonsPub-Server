@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.Measure do
+defmodule Bonfire.Quantify.Measure do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "measurement_measure",
@@ -10,7 +10,7 @@ defmodule Bonfire.Quantities.Measure do
   alias Ecto.Changeset
   alias CommonsPub.Users.User
   # alias CommonsPub.Characters.Character
-  alias Bonfire.Quantities.Unit
+  alias Bonfire.Quantify.Unit
 
   @type t :: %__MODULE__{}
 

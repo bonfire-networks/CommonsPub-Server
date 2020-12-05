@@ -1,8 +1,8 @@
 # # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.UnitsTest do
+defmodule Bonfire.Quantify.UnitsTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import Bonfire.Quantities.Test.Faking
+  import Bonfire.Quantify.Test.Faking
 
   # import CommonsPub.Utils.Trendy
   import CommonsPub.Utils.Simulation
@@ -15,9 +15,9 @@ defmodule Bonfire.Quantities.UnitsTest do
 
   alias CommonsPub.Utils.Simulation
 
-  import Bonfire.Quantities.Simulate
-  alias Bonfire.Quantities.Unit
-  alias Bonfire.Quantities.Units
+  import Bonfire.Quantify.Simulate
+  alias Bonfire.Quantify.Unit
+  alias Bonfire.Quantify.Units
 
   describe "one" do
     test "returns an item if it exists" do

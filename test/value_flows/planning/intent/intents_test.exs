@@ -6,7 +6,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   import CommonsPub.Tag.Simulate
   import CommonsPub.Utils.Trendy, only: [some: 2]
 
-  import Bonfire.Quantities.Simulate
+  import Bonfire.Quantify.Simulate
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

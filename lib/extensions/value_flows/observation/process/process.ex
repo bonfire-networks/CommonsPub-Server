@@ -11,7 +11,7 @@ defmodule ValueFlows.Observation.Process do
   #
   # alias CommonsPub.Communities.Community
   alias ValueFlows.Observation.Process
-  # alias Bonfire.Quantities.Measure
+  # alias Bonfire.Quantify.Measure
 
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ProcessSpecification

@@ -9,8 +9,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   import Geolocation.Simulate
   import Geolocation.Test.Faking
 
-  import Bonfire.Quantities.Simulate
-  import Bonfire.Quantities.Test.Faking
+  import Bonfire.Quantify.Simulate
+  import Bonfire.Quantify.Test.Faking
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

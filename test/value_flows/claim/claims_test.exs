@@ -2,7 +2,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Simulation
-  import Bonfire.Quantities.Simulate
+  import Bonfire.Quantify.Simulate
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 

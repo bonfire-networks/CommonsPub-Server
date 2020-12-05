@@ -33,8 +33,8 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
       # usually linked to Agent
       add(:primary_accountable_id, weak_pointer(), null: true)
 
-      add(:accounting_quantity_id, weak_pointer(Bonfire.Quantities.Measure), null: true)
-      add(:onhand_quantity_id, weak_pointer(Bonfire.Quantities.Measure), null: true)
+      add(:accounting_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+      add(:onhand_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
       add(:unit_of_effort_id, references("measurement_unit", on_delete: :nilify_all))
 
       add(:stage_id, weak_pointer(ProcessSpecification), null: true)

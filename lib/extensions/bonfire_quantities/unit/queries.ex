@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.Units.Queries do
+defmodule Bonfire.Quantify.Units.Queries do
   import CommonsPub.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  # alias Bonfire.Quantities.Units
+  # alias Bonfire.Quantify.Units
   # alias CommonsPub.Follows.{
   #   Follow
   #   # FollowerCount
@@ -11,7 +11,7 @@ defmodule Bonfire.Quantities.Units.Queries do
 
   # alias CommonsPub.Users
   alias CommonsPub.Users.User
-  alias Bonfire.Quantities.Unit
+  alias Bonfire.Quantify.Unit
 
   def query(Unit) do
     from(c in Unit, as: :unit)

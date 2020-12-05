@@ -1,8 +1,8 @@
 # # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.Test.Faking do
+defmodule Bonfire.Quantify.Test.Faking do
   @moduledoc false
 
-  import Bonfire.Quantities.Simulate
+  import Bonfire.Quantify.Simulate
 
   # import ExUnit.Assertions
   import CommonsPub.Web.Test.GraphQLAssertions
@@ -12,9 +12,9 @@ defmodule Bonfire.Quantities.Test.Faking do
   import Grumble
 
   # alias CommonsPub.Utils.Simulation
-  alias Bonfire.Quantities.{Measure, Unit}
-  # alias Bonfire.Quantities.Measures
-  # alias Bonfire.Quantities.Units
+  alias Bonfire.Quantify.{Measure, Unit}
+  # alias Bonfire.Quantify.Measures
+  # alias Bonfire.Quantify.Units
 
   ## Unit
 

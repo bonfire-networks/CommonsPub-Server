@@ -28,9 +28,9 @@ defmodule ValueFlows.Planning.Intent.Migrations do
 
       add(:at_location_id, weak_pointer(Geolocation), null: true)
 
-      add(:available_quantity_id, weak_pointer(Bonfire.Quantities.Measure), null: true)
-      add(:resource_quantity_id, weak_pointer(Bonfire.Quantities.Measure), null: true)
-      add(:effort_quantity_id, weak_pointer(Bonfire.Quantities.Measure), null: true)
+      add(:available_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+      add(:resource_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
+      add(:effort_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
 
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
 

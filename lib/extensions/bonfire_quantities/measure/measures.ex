@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Quantities.Measures do
+defmodule Bonfire.Quantify.Measures do
 
   alias CommonsPub.GraphQL.{Fields, Page, Pagination}
   # alias CommonsPub.Contexts
 
-  alias Bonfire.Quantities.{Measure, Unit}
-  alias Bonfire.Quantities.Measures.Queries
+  alias Bonfire.Quantify.{Measure, Unit}
+  alias Bonfire.Quantify.Measures.Queries
 
   @user CommonsPub.Users.User
   @repo CommonsPub.Repo
@@ -99,7 +99,7 @@ defmodule Bonfire.Quantities.Measures do
   defp insert_measure(creator, unit, attrs) do
     # TODO: use upsert?
     # TODO: should we re-use the same measurement instead of storing duplicates? (but would have to be careful to insert a new measurement rather than update)
-    @repo.insert(Bonfire.Quantities.Measure.create_changeset(creator, unit, attrs)
+    @repo.insert(Bonfire.Quantify.Measure.create_changeset(creator, unit, attrs)
       # on_conflict: [set: [has_numerical_value: attrs.has_numerical_value]]
     )
   end

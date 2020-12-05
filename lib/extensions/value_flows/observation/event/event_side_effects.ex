@@ -152,7 +152,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         _
       )
       when is_nil(existing_quantity) do
-    new_quantity = Bonfire.Quantities.Measure.copy(by_quantity)
+    new_quantity = Bonfire.Quantify.Measure.copy(by_quantity)
     # Set onhandQuantity on a resource with no previous onhandQuantity
     with {:ok, resource} <-
            EconomicResources.update(resource, %{onhand_quantity: new_quantity}) do
@@ -169,7 +169,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         _
       )
       when is_nil(existing_quantity) do
-    new_quantity = Bonfire.Quantities.Measure.copy(by_quantity)
+    new_quantity = Bonfire.Quantify.Measure.copy(by_quantity)
     # Set accountingQuantity on a resource with no previous accountingQuantity
     with {:ok, resource} <-
            EconomicResources.update(resource, %{accounting_quantity: new_quantity}) do
@@ -187,9 +187,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   end
 
   def measurement_effect(_, %{id: id} = _measurement, amount) do
-    Bonfire.Quantities.Measures.Queries.inc_quantity(id, amount)
+    Bonfire.Quantify.Measures.Queries.inc_quantity(id, amount)
     # reload the measurement
-    {:ok, measurement} = Bonfire.Quantities.Measures.one(id: id)
+    {:ok, measurement} = Bonfire.Quantify.Measures.one(id: id)
     measurement
   end
 
