@@ -26,9 +26,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
     receive_activity(%{data: activity})
   end
 
-  @doc """
-  load the object data
-  """
+  # load the object data
   def receive_activity(
         %{
           data: %{

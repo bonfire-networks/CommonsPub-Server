@@ -4,7 +4,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
     source: "vf_process_spec",
     table_id: "ASPEC1F1CAT10NF0RPR0CESSES"
 
-  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User

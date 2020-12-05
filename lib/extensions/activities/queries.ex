@@ -2,7 +2,7 @@
 defmodule CommonsPub.Activities.Queries do
   alias CommonsPub.Activities.Activity
   alias CommonsPub.Meta.TableService
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Activity), do: from(a in Activity, as: :activity)

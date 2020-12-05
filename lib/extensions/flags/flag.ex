@@ -5,9 +5,9 @@ defmodule CommonsPub.Flags.Flag do
 
   Flags participate in the meta system and must be created from a pointer
   """
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
-  import CommonsPub.Common.Changeset, only: [change_synced_timestamp: 3]
+  import CommonsPub.Repo.Changeset, only: [change_synced_timestamp: 3]
 
   alias CommonsPub.Flags
   alias CommonsPub.Communities.Community

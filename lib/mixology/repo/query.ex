@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Common.Query do
+defmodule CommonsPub.Repo.Query do
   import Ecto.Query
 
   def unroll(items, key \\ :context)

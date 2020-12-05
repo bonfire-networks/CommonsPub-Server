@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Quantities.Units.Queries do
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
   # alias Bonfire.Quantities.Units
@@ -91,7 +91,7 @@ defmodule Bonfire.Quantities.Units.Queries do
   #   |> filter(~w(disabled)a)
   # end
 
-  def filter(q, {:user, %User{id: id}}) do
+  def filter(q, {:user, %User{id: _id}}) do
     q
     |> where([unit: c], not is_nil(c.published_at))
     |> filter(~w(disabled)a)

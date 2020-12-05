@@ -4,7 +4,7 @@ defmodule CommonsPub.Common.Deletion do
   alias CommonsPub.Common.DeletionError
   alias CommonsPub.Users.User
 
-  import Logger
+  require Logger
 
   @doc "Find and runs the soft_delete function in the context module based on object type. "
   def trigger_soft_delete(id, current_user) when is_binary(id) do
@@ -29,7 +29,7 @@ defmodule CommonsPub.Common.Deletion do
   end
 
   defp do_trigger_soft_delete(%{__struct__: object_type} = context, current_user) do
-    with {:error, e} <-
+    with {:error, _e} <-
            CommonsPub.Contexts.run_context_function(
              object_type,
              :soft_delete,
@@ -61,7 +61,7 @@ defmodule CommonsPub.Common.Deletion do
   @doc "Marks an entry as deleted in the database or throws a DeletionError"
   def soft_delete!(it), do: deletion_result!(do_soft_delete(it))
 
-  defp do_soft_delete(it), do: Repo.update(CommonsPub.Common.Changeset.soft_delete_changeset(it))
+  defp do_soft_delete(it), do: Repo.update(CommonsPub.Repo.Changeset.soft_delete_changeset(it))
 
   @spec hard_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}
   @doc "Actually deletes an entry from the database"

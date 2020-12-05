@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Taggable do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
   use Pointers.Mixin,
     otp_app: :my_app,

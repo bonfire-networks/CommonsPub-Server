@@ -71,7 +71,7 @@ defmodule Bonfire.Quantities.Measures.GraphQL do
     })
   end
 
-  def has_unit_edge(_, _, info) do
+  def has_unit_edge(_, _, _info) do
     {:ok, nil}
   end
 

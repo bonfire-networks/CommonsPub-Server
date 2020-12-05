@@ -4,7 +4,7 @@ defmodule CommonsPub.Profiles.Queries do
   alias CommonsPub.Profiles.Profile
   # alias CommonsPub.Follows.{Follow, FollowerCount}
   alias CommonsPub.Users.User
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Profile) do

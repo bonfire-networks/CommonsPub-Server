@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Users.ResetPasswordToken do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
   alias Ecto.Changeset
   alias CommonsPub.Users.LocalUser
@@ -26,7 +26,7 @@ defmodule CommonsPub.Users.ResetPasswordToken do
   end
 
   def claim_changeset(%__MODULE__{} = token),
-    do: CommonsPub.Common.Changeset.claim_changeset(token, :reset_at)
+    do: CommonsPub.Repo.Changeset.claim_changeset(token, :reset_at)
 
   defp expires_at({count, unit}) when is_integer(count) and count > 0,
     do: DateTime.add(DateTime.utc_now(), count, unit)

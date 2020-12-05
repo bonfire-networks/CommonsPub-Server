@@ -4,7 +4,7 @@ defmodule CommonsPub.Characters.Character do
     otp_app: :commons_pub,
     source: "character"
 
-  import(CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1])
+  import(CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1])
 
   alias Ecto.Changeset
   # alias CommonsPub.Characters.Character

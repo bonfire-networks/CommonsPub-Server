@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Uploads.ContentMirror do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
-  import CommonsPub.Common.Changeset, only: [validate_http_url: 2]
+  import CommonsPub.Repo.Changeset, only: [validate_http_url: 2]
   alias Ecto.Changeset
 
   @type t :: %__MODULE__{}

@@ -3,8 +3,8 @@ defmodule CommonsPub.Users.LocalUser do
   @moduledoc """
   User model
   """
-  use CommonsPub.Common.Schema
-  import CommonsPub.Common.Changeset, only: [change_public: 1]
+  use CommonsPub.Repo.Schema
+  import CommonsPub.Repo.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
   alias CommonsPub.Users.{LocalUser, User, EmailConfirmToken}
 

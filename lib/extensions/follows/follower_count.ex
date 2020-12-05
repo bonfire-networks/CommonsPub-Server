@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Follows.FollowerCount do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
   alias Pointers.Pointer
 
   view_schema "mn_follower_count" do

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Common.Changeset do
+defmodule CommonsPub.Repo.Changeset do
   @moduledoc "Helper functions for changesets"
 
   alias Ecto.Changeset

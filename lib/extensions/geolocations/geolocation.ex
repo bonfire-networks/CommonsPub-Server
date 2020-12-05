@@ -4,9 +4,9 @@ defmodule Geolocation do
     source: "geolocation",
     table_id: "AP1ACEW1THGE0010CAT10NMARK"
 
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
-  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User

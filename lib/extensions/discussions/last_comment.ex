@@ -3,7 +3,7 @@ defmodule CommonsPub.Threads.LastComment do
   @moduledoc """
   The most recently created comment for a thread
   """
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
   alias CommonsPub.Threads.{Comment, Thread}
 
   view_schema "mn_thread_last_comment" do

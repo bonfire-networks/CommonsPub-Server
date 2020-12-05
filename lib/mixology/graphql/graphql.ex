@@ -3,7 +3,7 @@ defmodule CommonsPub.GraphQL do
   alias Absinthe.Resolution
   alias CommonsPub.GraphQL.Page
   alias CommonsPub.Common.Enums
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
 
   def reverse_path(info) do
     Enum.reverse(Resolution.path(info))

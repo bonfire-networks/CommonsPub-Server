@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Likes.LikerCount do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
   alias Pointers.Pointer
 
   view_schema "mn_liker_count" do

@@ -9,7 +9,7 @@
 #   no changeset functions in here!
 #   """
 
-#   use CommonsPub.Common.Schema
+#   use CommonsPub.Repo.Schema
 
 #   @type t :: %__MODULE__{}
 

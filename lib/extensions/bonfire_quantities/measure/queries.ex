@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Quantities.Measures.Queries do
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   alias CommonsPub.Repo
   alias CommonsPub.Users.User

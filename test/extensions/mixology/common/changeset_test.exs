@@ -2,11 +2,11 @@
 defmodule CommonsPub.Common.ChangesetTest do
   use ExUnit.Case, async: true
 
-  import CommonsPub.Common.Changeset
+  import CommonsPub.Repo.Changeset
   alias Ecto.Changeset
 
   defmodule Dummy do
-    use CommonsPub.Common.Schema
+    use CommonsPub.Repo.Schema
 
     table_schema "dummy" do
       field(:url, :string)

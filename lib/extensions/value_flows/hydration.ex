@@ -1,7 +1,7 @@
 defmodule ValueFlows.Hydration do
   alias CommonsPub.Web.GraphQL.{
-    CommonResolver,
-    UploadResolver,
+    # CommonResolver,
+    # UploadResolver,
     UsersResolver
   }
 

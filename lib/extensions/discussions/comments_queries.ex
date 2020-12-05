@@ -2,7 +2,7 @@
 defmodule CommonsPub.Threads.CommentsQueries do
   alias CommonsPub.Threads.Comment
   alias CommonsPub.Users.User
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
 
   import Ecto.Query
 

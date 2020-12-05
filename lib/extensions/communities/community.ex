@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Communities.Community do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
-  import CommonsPub.Common.Changeset,
+  import CommonsPub.Repo.Changeset,
     only: [
       change_public: 1,
       change_disabled: 1

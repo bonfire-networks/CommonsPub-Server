@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Feeds.Feed do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
   alias Ecto.Changeset
   alias CommonsPub.Feeds
 

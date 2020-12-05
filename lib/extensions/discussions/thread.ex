@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Threads.Thread do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
-  import CommonsPub.Common.Changeset, only: [change_synced_timestamp: 3]
+  import CommonsPub.Repo.Changeset, only: [change_synced_timestamp: 3]
 
   alias Ecto.Changeset
   alias CommonsPub.Follows.FollowerCount

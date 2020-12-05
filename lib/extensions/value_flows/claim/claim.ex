@@ -5,7 +5,7 @@ defmodule ValueFlows.Claim do
     source: "vf_claim",
     table_id: "C0MM0NSPVBVA1VEF10WSC1A1MS"
 
-  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User

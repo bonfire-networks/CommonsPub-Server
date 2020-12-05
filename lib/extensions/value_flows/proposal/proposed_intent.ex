@@ -1,5 +1,5 @@
 defmodule ValueFlows.Proposal.ProposedIntent do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
   alias Ecto.Changeset
   alias ValueFlows.Proposal

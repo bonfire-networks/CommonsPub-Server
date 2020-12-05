@@ -4,7 +4,7 @@ defmodule CommonsPub.Likes.Queries do
   alias CommonsPub.Meta.TableService
   alias CommonsPub.Users.User
   import Ecto.Query
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
 
   def query(Like), do: from(l in Like, as: :like)
 

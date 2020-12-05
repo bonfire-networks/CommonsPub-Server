@@ -4,9 +4,9 @@ defmodule CommonsPub.Collections.Queries do
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Follows.{Follow, FollowerCount}
   alias CommonsPub.Users.User
-  alias CommonsPub.Communities.Community
+  # alias CommonsPub.Communities.Community
 
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Collection), do: from(c in Collection, as: :collection)

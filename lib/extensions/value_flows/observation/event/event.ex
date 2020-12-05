@@ -4,7 +4,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
     source: "vf_event",
     table_id: "ACTVA10BSERVEDF10WS0FVA1VE"
 
-  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User

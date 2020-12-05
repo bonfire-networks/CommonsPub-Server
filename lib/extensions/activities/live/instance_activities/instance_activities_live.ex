@@ -15,9 +15,7 @@ defmodule CommonsPub.Web.InstanceLive.InstanceActivitiesLive do
   def update(%{activity: activity}, socket),
     do: CommonsPub.Activities.Web.ActivitiesHelper.pubsub_receive(activity, socket)
 
-  @doc """
-  Load initial activities
-  """
+  # Load initial activities
   def update(assigns, socket) do
     # IO.inspect(update_assigns: assigns)
 

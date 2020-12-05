@@ -3,9 +3,9 @@ defmodule CommonsPub.Users.User do
   @moduledoc """
   User model
   """
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
-  import CommonsPub.Common.Changeset,
+  import CommonsPub.Repo.Changeset,
     only: [change_synced_timestamp: 3, change_public: 1]
 
   alias Ecto.Changeset

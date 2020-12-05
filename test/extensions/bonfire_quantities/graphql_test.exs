@@ -7,7 +7,7 @@ defmodule Bonfire.Quantities.GraphQLTest do
   import CommonsPub.Utils.Trendy
 
   import Bonfire.Quantities.Simulate
-  alias Bonfire.Quantities.Measures
+  # alias Bonfire.Quantities.Measures
   alias Bonfire.Quantities.Units
 
   describe "unit" do

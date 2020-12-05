@@ -1,12 +1,12 @@
 defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
-  import Logger
+  # import Logger
 
-  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Repo
 
   alias ValueFlows.Observation.EconomicEvent
-  alias ValueFlows.Observation.EconomicEvent.EconomicEvents
+  # alias ValueFlows.Observation.EconomicEvent.EconomicEvents
   alias ValueFlows.Observation.EconomicResource.EconomicResources
-  alias ValueFlows.Observation.EconomicEvent.Queries
+  # alias ValueFlows.Observation.EconomicEvent.Queries
 
   def event_side_effects(
         %EconomicEvent{
@@ -92,8 +92,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   def quantity_effect(
         :onhand_quantity,
         %{
-          onhand_quantity: %{unit_id: onhand_unit} = onhand_quantity
-        } = resource,
+          onhand_quantity: %{unit_id: onhand_unit} = _onhand_quantity
+        } = _resource,
         %{unit_id: event_unit},
         _
       )
@@ -105,8 +105,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   def quantity_effect(
         :accounting_quantity,
         %{
-          accounting_quantity: %{unit_id: accounting_unit} = accounting_quantity
-        } = resource,
+          accounting_quantity: %{unit_id: accounting_unit} = _accounting_quantity
+        } = _resource,
         %{unit_id: event_unit},
         _
       )
@@ -116,7 +116,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   end
 
   def quantity_effect(
-        :onhand_quantity = field,
+        :onhand_quantity = _field,
         %{
           onhand_quantity: %{unit_id: onhand_unit} = onhand_quantity
         } = resource,
@@ -130,7 +130,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   end
 
   def quantity_effect(
-        :accounting_quantity = field,
+        :accounting_quantity = _field,
         %{
           accounting_quantity: %{unit_id: accounting_unit} = accounting_quantity
         } = resource,
@@ -144,7 +144,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   end
 
   def quantity_effect(
-        :onhand_quantity = field,
+        :onhand_quantity = _field,
         %{
           onhand_quantity_id: existing_quantity
         } = resource,
@@ -161,7 +161,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   end
 
   def quantity_effect(
-        :accounting_quantity = field,
+        :accounting_quantity = _field,
         %{
           accounting_quantity_id: existing_quantity
         } = resource,
@@ -193,7 +193,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
     measurement
   end
 
-  def return_updated_event(event, {:error, e}) do
+  def return_updated_event(_event, {:error, e}) do
     {:error, e}
   end
 
@@ -201,11 +201,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
     {:ok, %{event | resource_inventoried_as: resource}}
   end
 
-  def return_updated_event(event, {:error, e}, _) do
+  def return_updated_event(_event, {:error, e}, _) do
     {:error, e}
   end
 
-  def return_updated_event(event, _, {:error, e}) do
+  def return_updated_event(_event, _, {:error, e}) do
     {:error, e}
   end
 

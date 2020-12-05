@@ -1,4 +1,4 @@
-defmodule CommonsPub.Common.Ectil do
+defmodule CommonsPub.Repo.Ectil do
   require Ecto.Query
   alias Ecto.Query
 

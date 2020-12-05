@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Threads.Comment do
-  use CommonsPub.Common.Schema
+  use CommonsPub.Repo.Schema
 
-  import CommonsPub.Common.Changeset,
+  import CommonsPub.Repo.Changeset,
     only: [change_public: 1, change_synced_timestamp: 3, cast_object: 1]
 
   alias Ecto.Changeset

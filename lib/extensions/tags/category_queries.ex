@@ -3,7 +3,7 @@ defmodule CommonsPub.Tag.Category.Queries do
   import Ecto.Query
 
   alias CommonsPub.Tag.Category
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
 
   def query(Category) do
     from(t in Category,

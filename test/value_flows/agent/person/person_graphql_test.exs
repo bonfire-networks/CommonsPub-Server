@@ -52,7 +52,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
       pspec = fake_process_specification!(user)
       process = fake_process!(user, %{based_on: pspec.id})
 
-      event =
+      _event =
         fake_economic_event!(
           user,
           %{

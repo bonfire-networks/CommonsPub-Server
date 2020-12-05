@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Common.Revision do
+defmodule CommonsPub.Repo.Revision do
   alias CommonsPub.Repo
   import Ecto.Query, only: [from: 2]
 

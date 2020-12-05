@@ -6,8 +6,8 @@ defmodule CommonsPub.Users.EmailConfirmToken do
   TheActors ID of the token is the token itself, since UUID V4 is generated
   via cryptographically strong means and has 122 usable bits of secret.
   """
-  use CommonsPub.Common.Schema
-  import CommonsPub.Common.Changeset, only: [soft_delete_changeset: 2]
+  use CommonsPub.Repo.Schema
+  import CommonsPub.Repo.Changeset, only: [soft_delete_changeset: 2]
   alias Ecto.Changeset
   alias CommonsPub.Users.{EmailConfirmToken, LocalUser}
 

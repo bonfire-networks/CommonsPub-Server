@@ -4,7 +4,7 @@ defmodule CommonsPub.Feeds.FeedActivitiesQueries do
   alias CommonsPub.Activities
   alias CommonsPub.Feeds.FeedActivity
   alias CommonsPub.Meta.TableService
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(FeedActivity), do: from(f in FeedActivity, as: :feed_activity)

@@ -21,7 +21,7 @@ defmodule Valueflows.Knowledge.Action.GraphQLTest do
     end
 
     test "fetches an existing action by label (via Absinthe.run)" do
-      user = fake_user!()
+      # user = fake_user!()
       action = action()
 
       assert queried =
@@ -41,7 +41,7 @@ defmodule Valueflows.Knowledge.Action.GraphQLTest do
   describe "actions" do
     test "fetches all actions" do
       user = fake_user!()
-      actions = actions()
+      _actions = actions()
       q = actions_query()
       conn = user_conn(user)
 

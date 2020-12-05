@@ -5,7 +5,7 @@ defmodule Bonfire.Quantities.Measure do
     source: "measurement_measure",
     table_id: "MEASVRES0RQVANT1T1ES0FVN1T"
 
-  import CommonsPub.Common.Changeset, only: [change_public: 1, change_disabled: 1]
+  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User

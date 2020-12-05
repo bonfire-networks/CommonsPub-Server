@@ -4,7 +4,7 @@ defmodule CommonsPub.Flags.Queries do
   alias CommonsPub.Meta.TableService
   alias CommonsPub.Users.User
   import Ecto.Query
-  import CommonsPub.Common.Query, only: [match_admin: 0]
+  import CommonsPub.Repo.Query, only: [match_admin: 0]
 
   def query(Flag), do: from(f in Flag, as: :flag)
 

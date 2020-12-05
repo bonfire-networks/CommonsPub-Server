@@ -5,7 +5,7 @@ defmodule ValueFlows.Proposal.Proposals do
   alias CommonsPub.{Activities, Common, Feeds}
   alias CommonsPub.Repo
   alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Contexts
+  # alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
 
