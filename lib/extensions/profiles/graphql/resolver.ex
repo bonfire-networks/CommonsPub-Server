@@ -21,7 +21,7 @@ defmodule CommonsPub.Profiles.GraphQL.Resolver do
   alias CommonsPub.Profiles
 
   alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
+  # alias Bonfire.Common.Enums
   alias Pointers
 
   ## resolvers

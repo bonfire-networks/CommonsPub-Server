@@ -23,7 +23,7 @@ defmodule Geolocation.GraphQL do
   }
 
   # alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
+  # alias Bonfire.Common.Enums
 
   alias Geolocation
   alias Geolocation.Geolocations

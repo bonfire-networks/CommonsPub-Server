@@ -22,7 +22,7 @@ defmodule Organisation.GraphQL.Resolver do
   }
 
   # alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
+  # alias Bonfire.Common.Enums
   alias Pointers
 
   ## resolvers

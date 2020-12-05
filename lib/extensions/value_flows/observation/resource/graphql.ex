@@ -19,7 +19,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   }
 
   # alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
+  # alias Bonfire.Common.Enums
   # alias Bonfire.Common.Pointers
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.Web.GraphQL.CommunitiesResolver

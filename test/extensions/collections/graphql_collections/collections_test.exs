@@ -7,7 +7,7 @@ defmodule CommonsPub.Web.GraphQL.Collections.CollectionsTest do
   import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Web.Test.Orderings
   import CommonsPub.Web.Test.Automaton
-  # import CommonsPub.Common.Enums
+  # import Bonfire.Common.Enums
   import Grumble
   import Zest
 

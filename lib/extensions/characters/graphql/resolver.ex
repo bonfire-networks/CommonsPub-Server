@@ -22,7 +22,7 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
   alias CommonsPub.Characters.Character
 
   alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
+  # alias Bonfire.Common.Enums
   alias Pointers
 
   ## resolvers
