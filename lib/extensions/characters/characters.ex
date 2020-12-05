@@ -355,7 +355,7 @@ defmodule CommonsPub.Characters do
 
   def soft_delete(%Character{} = character) do
     Repo.transact_with(fn ->
-      with {:ok, character} <- Common.Deletion.soft_delete(character),
+      with {:ok, character} <- Bonfire.Repo.Delete.soft_delete(character),
            %{character: chars, feed: feeds} = deleted_ids(character),
            :ok <- chase_delete(%User{}, chars, feeds) do
         {:ok, character}

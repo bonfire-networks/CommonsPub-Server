@@ -46,7 +46,7 @@ defmodule ValueFlows.Claim.Claims do
   end
 
   def soft_delete(%Claim{} = claim) do
-    CommonsPub.Common.Deletion.soft_delete(claim)
+    Bonfire.Repo.Delete.soft_delete(claim)
   end
 
   defp prepare_attrs(attrs) do

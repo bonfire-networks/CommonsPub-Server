@@ -97,7 +97,7 @@ defmodule CommonsPub.Blocks do
 
   @spec soft_delete(User.t(), Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def soft_delete(%User{}, %Block{} = block) do
-    Common.Deletion.soft_delete(block)
+    Bonfire.Repo.Delete.soft_delete(block)
   end
 
   def soft_delete_by(%User{} = user, filters) do

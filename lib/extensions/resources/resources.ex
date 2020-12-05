@@ -132,7 +132,7 @@ defmodule CommonsPub.Resources do
     Repo.transact_with(fn ->
       resource = Repo.preload(resource, context: [:character])
 
-      with {:ok, deleted} <- Common.Deletion.soft_delete(resource),
+      with {:ok, deleted} <- Bonfire.Repo.Delete.soft_delete(resource),
            :ok <- chase_delete(user, deleted.id),
            :ok <- ap_publish("delete", resource) do
         {:ok, deleted}

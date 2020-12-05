@@ -4,9 +4,7 @@ defmodule CommonsPub.Application do
   CommonsPub Application
   """
   use Application
-  alias CommonsPub.Repo
   # alias CommonsPub.Locales.{CountryService, LanguageService}
-  alias Bonfire.Common.Pointers.TableService
   alias CommonsPub.Web.Endpoint
   import Supervisor.Spec, only: [supervisor: 2, worker: 2]
 
@@ -40,8 +38,8 @@ defmodule CommonsPub.Application do
     # and does not need it to start up
     children = [
       CommonsPub.Utils.Metrics,
-      supervisor(Repo, []),
-      worker(TableService, []),
+      supervisor(CommonsPub.Repo, []),
+      worker(Bonfire.Common.Pointers.TableService, []),
       {Phoenix.PubSub, [name: CommonsPub.PubSub, adapter: Phoenix.PubSub.PG2]},
       supervisor(Endpoint, []),
       {Oban, CommonsPub.Config.get(Oban)}

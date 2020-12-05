@@ -189,7 +189,7 @@ defmodule Geolocation.Geolocations do
   @spec soft_delete(User.t(), Geolocation.t()) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user, %Geolocation{} = geo) do
     Repo.transact_with(fn ->
-      with {:ok, geo} <- Common.Deletion.soft_delete(geo),
+      with {:ok, geo} <- Bonfire.Repo.Delete.soft_delete(geo),
            :ok <- ap_publish("delete", geo.id, user.id) do
         {:ok, geo}
       end

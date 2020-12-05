@@ -179,7 +179,7 @@ defmodule CommonsPub.Profiles do
 
   def soft_delete(%CommonsPub.Profiles.Profile{} = profile) do
     Repo.transact_with(fn ->
-      with {:ok, profile} <- Common.Deletion.soft_delete(profile) do
+      with {:ok, profile} <- Bonfire.Repo.Delete.soft_delete(profile) do
         {:ok, profile}
       end
     end)

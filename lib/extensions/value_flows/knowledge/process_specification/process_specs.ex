@@ -150,7 +150,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   def soft_delete(%ProcessSpecification{} = process_spec) do
     Repo.transact_with(fn ->
-      with {:ok, process_spec} <- Common.Deletion.soft_delete(process_spec),
+      with {:ok, process_spec} <- Bonfire.Repo.Delete.soft_delete(process_spec),
            :ok <- publish(process_spec, :deleted) do
         {:ok, process_spec}
       end

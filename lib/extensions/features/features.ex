@@ -33,7 +33,7 @@ defmodule CommonsPub.Features do
 
   def soft_delete(%User{} = user, %Feature{} = feature) do
     Repo.transact_with(fn ->
-      with {:ok, feature} <- Common.Deletion.soft_delete(feature),
+      with {:ok, feature} <- Bonfire.Repo.Delete.soft_delete(feature),
            :ok <- chase_delete(user, feature.id) do
         # :ok <- ap_publish(feature) do
         {:ok, feature}

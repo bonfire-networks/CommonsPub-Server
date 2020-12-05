@@ -168,7 +168,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   def soft_delete(%ResourceSpecification{} = resource_spec) do
     Repo.transact_with(fn ->
-      with {:ok, resource_spec} <- Common.Deletion.soft_delete(resource_spec),
+      with {:ok, resource_spec} <- Bonfire.Repo.Delete.soft_delete(resource_spec),
            :ok <- publish(resource_spec, :deleted) do
         {:ok, resource_spec}
       end

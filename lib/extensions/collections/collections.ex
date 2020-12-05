@@ -141,7 +141,7 @@ defmodule CommonsPub.Collections do
     collection = Repo.preload(collection, context: [:character])
 
     Repo.transact_with(fn ->
-      with {:ok, collection} <- Common.Deletion.soft_delete(collection),
+      with {:ok, collection} <- Bonfire.Repo.Delete.soft_delete(collection),
            :ok <- CommonsPub.Characters.soft_delete(collection),
            :ok <- ap_publish("delete", collection) do
         {:ok, collection}

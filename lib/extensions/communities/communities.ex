@@ -135,7 +135,7 @@ defmodule CommonsPub.Communities do
     Repo.transact_with(fn ->
       community = Repo.preload(community, [:creator, :character])
 
-      with {:ok, community} <- Common.Deletion.soft_delete(community),
+      with {:ok, community} <- Bonfire.Repo.Delete.soft_delete(community),
            :ok <- CommonsPub.Characters.soft_delete(community),
            :ok <- ap_publish("delete", community) do
         {:ok, community}

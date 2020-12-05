@@ -478,7 +478,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   def soft_delete(%EconomicEvent{} = event) do
     Repo.transact_with(fn ->
-      with {:ok, event} <- Common.Deletion.soft_delete(event),
+      with {:ok, event} <- Bonfire.Repo.Delete.soft_delete(event),
            :ok <- publish(event, :deleted) do
         {:ok, event}
       end

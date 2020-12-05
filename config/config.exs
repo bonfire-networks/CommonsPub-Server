@@ -139,7 +139,7 @@ activity_modules = %{
   "Like" => CommonsPub.Likes,
   "Flag" => CommonsPub.Flags,
   "Block" => CommonsPub.Blocks,
-  "Delete" => CommonsPub.Common.Deletion,
+  "Delete" => CommonsPub.Contexts.Deletion,
   fallback: CommonsPub.Activities
 }
 
@@ -232,7 +232,7 @@ config :commons_pub, Threads, valid_contexts: types_all_contexts
 
 config :commons_pub, Resources, valid_contexts: types_all_contexts
 
-config :commons_pub, Units, valid_contexts: types_all_contexts
+config :bonfire_quantify, Bonfire.Quantify.Units, valid_contexts: types_all_contexts
 
 config :commons_pub, ValueFlows.Proposal.Proposals, valid_agent_contexts: types_agents
 

@@ -296,7 +296,7 @@ defmodule CommonsPub.Users do
   # remote user
   def soft_delete(_deleter, %User{local_user_id: nil} = user) do
     Repo.transact_with(fn ->
-      with {:ok, user2} <- Common.Deletion.soft_delete(user) do
+      with {:ok, user2} <- Bonfire.Repo.Delete.soft_delete(user) do
         # ap_publish("delete", user)
         chase_delete(user, user2)
         {:ok, user2}
@@ -307,8 +307,8 @@ defmodule CommonsPub.Users do
   # local user
   def soft_delete(deleter, %User{} = user) do
     Repo.transact_with(fn ->
-      with {:ok, user2} <- Common.Deletion.soft_delete(user),
-           {:ok, local_user} <- Common.Deletion.soft_delete(user.local_user) do
+      with {:ok, user2} <- Bonfire.Repo.Delete.soft_delete(user),
+           {:ok, local_user} <- Bonfire.Repo.Delete.soft_delete(user.local_user) do
         chase_delete(deleter, user2)
         ap_publish("delete", user)
         {:ok, %{user2 | local_user: local_user}}

@@ -131,7 +131,7 @@ defmodule CommonsPub.Likes do
   @spec soft_delete(User.t(), Like.t()) :: {:ok, Like.t()} | {:error, any}
   def soft_delete(%User{} = user, %Like{} = like) do
     Repo.transact_with(fn ->
-      with {:ok, like} <- Common.Deletion.soft_delete(like),
+      with {:ok, like} <- Bonfire.Repo.Delete.soft_delete(like),
            :ok <- chase_delete(user, like.id),
            :ok <- ap_publish("delete", like) do
         {:ok, like}

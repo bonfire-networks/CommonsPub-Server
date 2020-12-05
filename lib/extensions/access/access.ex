@@ -54,15 +54,15 @@ defmodule CommonsPub.Access do
 
   @spec hard_delete(access | token) :: {:ok, access} | {:error, Changeset.t()}
   @doc "Removes an access entry or token from the database"
-  def hard_delete(%RegisterEmailDomainAccess{} = w), do: Common.Deletion.hard_delete(w)
-  def hard_delete(%RegisterEmailAccess{} = w), do: Common.Deletion.hard_delete(w)
-  def hard_delete(%Token{} = token), do: Common.Deletion.hard_delete(token)
+  def hard_delete(%RegisterEmailDomainAccess{} = w), do: Bonfire.Repo.Delete.hard_delete(w)
+  def hard_delete(%RegisterEmailAccess{} = w), do: Bonfire.Repo.Delete.hard_delete(w)
+  def hard_delete(%Token{} = token), do: Bonfire.Repo.Delete.hard_delete(token)
 
   @spec hard_delete!(access | token) :: access
   @doc "Removes an access entry or token from the database or throws DeletionError"
-  def hard_delete!(%RegisterEmailDomainAccess{} = w), do: Common.Deletion.hard_delete!(w)
-  def hard_delete!(%RegisterEmailAccess{} = w), do: Common.Deletion.hard_delete!(w)
-  def hard_delete!(%Token{} = token), do: Common.Deletion.hard_delete(token)
+  def hard_delete!(%RegisterEmailDomainAccess{} = w), do: Bonfire.Repo.Delete.hard_delete!(w)
+  def hard_delete!(%RegisterEmailAccess{} = w), do: Bonfire.Repo.Delete.hard_delete!(w)
+  def hard_delete!(%Token{} = token), do: Bonfire.Repo.Delete.hard_delete(token)
 
   @spec find_register_email(email :: binary()) ::
           {:ok, RegisterEmailAccess.t()} | {:error, NotFoundError.t()}
