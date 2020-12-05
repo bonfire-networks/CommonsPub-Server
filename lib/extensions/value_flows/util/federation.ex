@@ -26,7 +26,7 @@ defmodule ValueFlows.Util.Federation do
     field_filters = @graphql_ignore_fields ++ extra_field_filters
 
     with obj <-
-           CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+           CommonsPub.GraphQL.QueryHelper.run_query_id(
              id,
              @schema,
              schema_type,

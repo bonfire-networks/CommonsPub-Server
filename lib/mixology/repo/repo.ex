@@ -10,7 +10,7 @@ defmodule CommonsPub.Repo do
     adapter: Ecto.Adapters.Postgres
 
   import Ecto.Query
-  alias CommonsPub.Common.NotFoundError
+  alias CommonsPub.Common.Errors.NotFoundError
 
   @doc """
   Dynamically loads the repository url from the

@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.GraphQL.QueryHelper do
+defmodule CommonsPub.GraphQL.QueryHelper do
   @moduledoc """
   Helpful functions for preparing to query or test Absinthe applications.
 

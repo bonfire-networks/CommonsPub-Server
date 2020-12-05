@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Access.MalformedAuthorizationHeaderError do
+defmodule CommonsPub.Common.Errors.UserEmailNotConfirmedError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
@@ -9,13 +9,13 @@ defmodule CommonsPub.Access.MalformedAuthorizationHeaderError do
           status: integer
         }
 
+  @doc "Create a new UserEmailNotConfirmedError"
   @spec new() :: t
-  @doc "Create a new MalformedAuthorizationHeaderError"
   def new() do
     %__MODULE__{
-      message: "Bad request - malformed Authorization header",
-      code: "bad_request",
-      status: 400
+      message: "You must confirm your email address first.",
+      code: "email_not_confirmed",
+      status: 403
     }
   end
 end

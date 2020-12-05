@@ -9,7 +9,7 @@ defmodule CommonsPub.GraphQL.FetchFields do
     filters: []
   ]
 
-  alias CommonsPub.Repo
+  @repo CommonsPub.Repo
   alias CommonsPub.GraphQL.{Fields, FetchFields}
 
   @type t :: %FetchFields{
@@ -28,7 +28,7 @@ defmodule CommonsPub.GraphQL.FetchFields do
         filters: filters
       }) do
     apply(queries, :query, [query, filters])
-    |> Repo.all()
+    |> @repo.all()
     |> Fields.new(group_fn, map_fn)
   end
 end

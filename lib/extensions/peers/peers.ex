@@ -9,7 +9,7 @@ defmodule CommonsPub.Peers do
 
   """
   alias CommonsPub.{Common, Repo}
-  alias CommonsPub.Common.NotFoundError
+  alias CommonsPub.Common.Errors.NotFoundError
   alias CommonsPub.Peers.{Peer, Queries}
 
   # Querying

@@ -50,7 +50,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
       end)
 
       assert proposal_queried =
-               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+               CommonsPub.GraphQL.QueryHelper.run_query_id(
                  proposal.id,
                  @schema,
                  :proposal,

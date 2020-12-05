@@ -54,7 +54,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       fake_proposed_intent!(proposal, intent)
 
       assert intent_queried =
-               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+               CommonsPub.GraphQL.QueryHelper.run_query_id(
                  intent.id,
                  @schema,
                  :intent,

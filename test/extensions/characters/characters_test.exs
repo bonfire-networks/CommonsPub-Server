@@ -9,7 +9,7 @@ defmodule CommonsPub.CharactersTest do
 
   # alias CommonsPub.Users
 
-  alias CommonsPub.Common.NotFoundError
+  alias CommonsPub.Common.Errors.NotFoundError
   alias CommonsPub.Utils.Simulation
 
   defp assert_character_equal(character, attrs) do

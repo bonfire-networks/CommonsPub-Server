@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Common.InvalidLimitError do
+defmodule CommonsPub.Common.Errors.InvalidLimitError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 

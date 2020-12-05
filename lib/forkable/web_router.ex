@@ -11,6 +11,8 @@ defmodule CommonsPub.Web.Router do
   use ActivityPubWeb.Router
   use NodeinfoWeb.Router
 
+  @schema CommonsPub.Web.GraphQL.Schema
+
   if Mix.env() == :dev do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end
@@ -65,21 +67,21 @@ defmodule CommonsPub.Web.Router do
       pipe_through :graphql
 
       get "/simple", Absinthe.Plug.GraphiQL,
-        schema: CommonsPub.Web.GraphQL.Schema,
+        schema: @schema,
         interface: :simple,
         json_codec: Jason,
         pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
 
       get "/playground", Absinthe.Plug.GraphiQL,
-        schema: CommonsPub.Web.GraphQL.Schema,
+        schema: @schema,
         interface: :playground,
         json_codec: Jason,
         pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
 
       forward "/", Absinthe.Plug.GraphiQL,
-        schema: CommonsPub.Web.GraphQL.Schema,
+        schema: @schema,
         interface: :advanced,
         json_codec: Jason,
         pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
@@ -90,7 +92,7 @@ defmodule CommonsPub.Web.Router do
       pipe_through :graphql
 
       forward "/", Absinthe.Plug,
-        schema: CommonsPub.Web.GraphQL.Schema,
+        schema: @schema,
         interface: :playground,
         json_codec: Jason,
         pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline}

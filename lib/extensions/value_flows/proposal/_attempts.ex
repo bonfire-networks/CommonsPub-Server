@@ -53,16 +53,16 @@
 
 # def graphql_document_for(schema, type, nesting, override_fun \\ []) do
   #   schema
-  #   |> CommonsPub.Web.GraphQL.QueryHelper.fields_for(type, nesting)
+  #   |> CommonsPub.GraphQL.QueryHelper.fields_for(type, nesting)
   #   # |> IO.inspect()
-  #   |> CommonsPub.Web.GraphQL.QueryHelper.apply_overrides(override_fun)
-  #   |> CommonsPub.Web.GraphQL.QueryHelper.format_fields(type, 10, schema)
+  #   |> CommonsPub.GraphQL.QueryHelper.apply_overrides(override_fun)
+  #   |> CommonsPub.GraphQL.QueryHelper.format_fields(type, 10, schema)
   #   |> List.to_string()
   # end
 
 
 # def graphql_get_proposal_attempt3(id) do
-  #   query = CommonsPub.Web.GraphQL.QueryHelper.document_for(@schema, :proposal, 4, &fields_filter/1)
+  #   query = CommonsPub.GraphQL.QueryHelper.document_for(@schema, :proposal, 4, &fields_filter/1)
   #   IO.inspect(query)
 
   #   with {:ok, g} <-

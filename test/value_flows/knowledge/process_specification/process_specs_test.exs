@@ -25,7 +25,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
       user = fake_user!()
       spec = fake_process_specification!(user)
       assert {:ok, spec} = ProcessSpecifications.soft_delete(spec)
-      assert {:error, %CommonsPub.Common.NotFoundError{}} =
+      assert {:error, %CommonsPub.Common.Errors.NotFoundError{}} =
               ProcessSpecifications.one([:deleted, id: spec.id])
     end
   end

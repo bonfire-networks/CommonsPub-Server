@@ -25,7 +25,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
       user = fake_user!()
       spec = fake_resource_specification!(user)
       assert {:ok, spec} = ResourceSpecifications.soft_delete(spec)
-      assert {:error, %CommonsPub.Common.NotFoundError{}} =
+      assert {:error, %CommonsPub.Common.Errors.NotFoundError{}} =
               ResourceSpecifications.one([:deleted, id: spec.id])
     end
   end

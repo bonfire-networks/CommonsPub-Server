@@ -16,7 +16,7 @@ defmodule CommonsPub.GraphQL.FetchPages do
     map_counts_fn: nil
   ]
 
-  alias CommonsPub.Repo
+  @repo CommonsPub.Repo
   alias CommonsPub.GraphQL.{Pages, FetchPages}
 
   @doc false
@@ -46,7 +46,7 @@ defmodule CommonsPub.GraphQL.FetchPages do
         map_fn: map_fn,
         map_counts_fn: map_counts_fn
       }) do
-    {:ok, [data, counts]} = Repo.transact_many(all: data_query, all: count_query)
+    {:ok, [data, counts]} = @repo.transact_many(all: data_query, all: count_query)
     data = group_data(data, group_fn, map_fn)
     counts = group_counts(counts, map_counts_fn)
     Pages.new(data, counts, cursor_fn, page_opts)

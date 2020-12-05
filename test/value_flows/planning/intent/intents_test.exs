@@ -126,7 +126,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
       intent = fake_intent!(user)
 
       # FIXME: doesn't actually check as it isn't a foreign key
-      assert {:error, %CommonsPub.Common.NotFoundError{}} =
+      assert {:error, %CommonsPub.Common.Errors.NotFoundError{}} =
                Intents.update(intent, intent(%{action: "sleeping"}))
     end
   end

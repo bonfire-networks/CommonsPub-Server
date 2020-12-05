@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Access.UserEmailNotConfirmedError do
+defmodule CommonsPub.Common.Errors.TokenExpiredError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
@@ -9,12 +9,12 @@ defmodule CommonsPub.Access.UserEmailNotConfirmedError do
           status: integer
         }
 
-  @doc "Create a new UserEmailNotConfirmedError"
   @spec new() :: t
+  @doc "Create a new TokenExpiredError"
   def new() do
     %__MODULE__{
-      message: "You must confirm your email address first.",
-      code: "email_not_confirmed",
+      message: "This access token has expired, please generate a fresh one.",
+      code: "token_expired",
       status: 403
     }
   end

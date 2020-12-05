@@ -1,5 +1,5 @@
 defmodule CommonsPub.GraphQL.Pagination do
-  alias CommonsPub.Repo
+  @repo CommonsPub.Repo
 
   def page(
         queries,
@@ -21,7 +21,7 @@ defmodule CommonsPub.GraphQL.Pagination do
     data_q = apply(queries, :filter, [base_q, data_filters])
     count_q = apply(queries, :filter, [base_q, count_filters])
 
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
       {:ok, CommonsPub.GraphQL.Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -44,7 +44,7 @@ defmodule CommonsPub.GraphQL.Pagination do
     queries_args = [schema, page_opts, base_filters, data_filters, count_filters]
     {data_q, count_q} = apply(queries, :queries, queries_args)
 
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
+    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, all: count_q) do
       {:ok, CommonsPub.GraphQL.Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -69,7 +69,7 @@ defmodule CommonsPub.GraphQL.Pagination do
     queries_args = [schema, page_opts, base_filters, data_filters, count_filters]
     {data_q, count_q} = apply(queries, :queries, queries_args)
 
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
+    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, all: count_q) do
       {:ok, CommonsPub.GraphQL.Pages.new(data, counts, cursor_fn, group_fn, page_opts)}
     end
   end

@@ -73,7 +73,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
       # IO.inspect(event: event)
 
       assert queried =
-               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+               CommonsPub.GraphQL.QueryHelper.run_query_id(
                  user.id,
                  @schema,
                  :person,

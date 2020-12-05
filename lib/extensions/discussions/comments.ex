@@ -2,7 +2,7 @@
 defmodule CommonsPub.Threads.Comments do
   import Ecto.Query
   alias CommonsPub.{Activities, Common, Feeds, Flags, Repo}
-  alias CommonsPub.Access.NotPermittedError
+  alias CommonsPub.Common.Errors.NotPermittedError
   # alias CommonsPub.Collections.Collection
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.FeedPublisher

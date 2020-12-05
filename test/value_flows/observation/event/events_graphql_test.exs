@@ -80,7 +80,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
       # IO.inspect(created: event)
 
       assert queried =
-               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+               CommonsPub.GraphQL.QueryHelper.run_query_id(
                  event.id,
                  @schema,
                  :economic_event,

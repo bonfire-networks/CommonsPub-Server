@@ -25,7 +25,7 @@ defmodule Valueflows.Knowledge.Action.GraphQLTest do
       action = action()
 
       assert queried =
-               CommonsPub.Web.GraphQL.QueryHelper.run_query_id(
+               CommonsPub.GraphQL.QueryHelper.run_query_id(
                  action.label,
                  @schema,
                  :action,

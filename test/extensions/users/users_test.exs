@@ -5,8 +5,8 @@ defmodule CommonsPub.UsersTest do
   import CommonsPub.Utils.Simulation
   alias Ecto.Changeset
   alias CommonsPub.{Users, Access}
-  alias CommonsPub.Access.NoAccessError
-  alias CommonsPub.Common.NotFoundError
+  alias CommonsPub.Common.Errors.NoAccessError
+  alias CommonsPub.Common.Errors.NotFoundError
 
   alias CommonsPub.Users.{
     TokenAlreadyClaimedError,

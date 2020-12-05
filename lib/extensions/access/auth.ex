@@ -29,8 +29,11 @@ defmodule CommonsPub.Web.Plugs.Auth do
   alias CommonsPub.Access
 
   alias CommonsPub.Access.{
-    MalformedAuthorizationHeaderError,
     Token,
+  }
+
+  alias CommonsPub.Common.Errors.{
+    MalformedAuthorizationHeaderError,
     TokenNotFoundError
   }
 

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Access.TokenExpiredError do
+defmodule CommonsPub.Common.Errors.MalformedAuthorizationHeaderError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
@@ -10,12 +10,12 @@ defmodule CommonsPub.Access.TokenExpiredError do
         }
 
   @spec new() :: t
-  @doc "Create a new TokenExpiredError"
+  @doc "Create a new MalformedAuthorizationHeaderError"
   def new() do
     %__MODULE__{
-      message: "This access token has expired, please generate a fresh one.",
-      code: "token_expired",
-      status: 403
+      message: "Bad request - malformed Authorization header",
+      code: "bad_request",
+      status: 400
     }
   end
 end

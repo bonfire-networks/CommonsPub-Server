@@ -8,14 +8,16 @@ defmodule CommonsPub.Access do
 
   alias Ecto.{Changeset, UUID}
   alias CommonsPub.{Common, Repo}
-  alias CommonsPub.Common.NotFoundError
-
   alias CommonsPub.Access.{
-    InvalidCredentialError,
-    NoAccessError,
     RegisterEmailAccess,
     RegisterEmailDomainAccess,
     Token,
+  }
+
+  alias CommonsPub.Common.Errors.{
+    NotFoundError,
+    InvalidCredentialError,
+    NoAccessError,
     TokenExpiredError,
     TokenNotFoundError,
     UserDisabledError,

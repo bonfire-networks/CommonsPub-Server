@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Access.TokenNotFoundError do
+defmodule CommonsPub.Common.Errors.NoAccessError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
@@ -9,12 +9,13 @@ defmodule CommonsPub.Access.TokenNotFoundError do
           status: integer
         }
 
-  @doc "Create a new TokenNotFoundError"
+  @doc "Create a new NoAccessError"
   @spec new() :: t
+
   def new() do
     %__MODULE__{
-      message: "This token was not found, please generate a fresh one.",
-      code: "token_not_found",
+      message: "Registration is currently by invitation only",
+      code: "no_access",
       status: 403
     }
   end

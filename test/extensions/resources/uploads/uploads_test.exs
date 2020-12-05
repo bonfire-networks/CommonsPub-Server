@@ -33,7 +33,7 @@ defmodule CommonsPub.UploadsTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %CommonsPub.Common.NotFoundError{}} = Uploads.one(id: Simulation.ulid())
+      assert {:error, %CommonsPub.Common.Errors.NotFoundError{}} = Uploads.one(id: Simulation.ulid())
     end
   end
 

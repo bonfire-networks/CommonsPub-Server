@@ -5,6 +5,14 @@ defmodule CommonsPub.GraphQL do
   alias CommonsPub.Common.Enums
   import CommonsPub.Repo.Query, only: [match_admin: 0]
 
+  alias CommonsPub.Common.Errors.{
+    NotFoundError,
+    InvalidCredentialError,
+    NotLoggedInError,
+    NotPermittedError
+  }
+
+
   def reverse_path(info) do
     Enum.reverse(Resolution.path(info))
   end
@@ -13,14 +21,14 @@ defmodule CommonsPub.GraphQL do
   def in_list?(%{context: %{schema: _schema}} = info),
     do: Enum.any?(Resolution.path(info), &is_integer/1)
 
-  @doc "If we're not actually going through Absinthe, assume not"
+  # "If we're not actually going through Absinthe, assume not"
   def in_list?(_), do: false
 
   @doc "How many lists are we in (recursively)?"
   def list_depth(%{context: %{schema: _schema}} = info),
     do: Enums.count_where(Resolution.path(info), &is_integer/1)
 
-  @doc "If we're not actually going through Absinthe, assume top level"
+  # "If we're not actually going through Absinthe, assume top level"
   def list_depth(_), do: 0
 
   def parent_name(resolution) do
@@ -137,14 +145,6 @@ defmodule CommonsPub.GraphQL do
   end
 
   def empty_page(), do: Page.new([], 0, & &1, %{})
-
-  alias CommonsPub.Access.{
-    InvalidCredentialError,
-    NotLoggedInError,
-    NotPermittedError
-  }
-
-  alias CommonsPub.Common.NotFoundError
 
   def invalid_credential(), do: {:error, InvalidCredentialError.new()}
 
