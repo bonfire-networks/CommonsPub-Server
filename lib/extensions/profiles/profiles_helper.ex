@@ -5,16 +5,16 @@ defmodule CommonsPub.Profiles.Web.ProfilesHelper do
 
   def fetch_users_from_context(user) do
     # IO.inspect(user.context_id, label: "ContextId")
-    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: user.context_id)
+    {:ok, pointer} = Bonfire.Common.Pointers.one(id: user.context_id)
     # IO.inspect(pointer, label: "POINTER:")
-    CommonsPub.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, character: true})
+    Bonfire.Common.Pointers.follow!(pointer) |> prepare(%{icon: true, character: true})
   end
 
   def fetch_users_from_creator(user) do
     # IO.inspect(user.context_id, label: "ContextId")
-    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: user.creator_id)
+    {:ok, pointer} = Bonfire.Common.Pointers.one(id: user.creator_id)
     # IO.inspect(pointer, label: "POINTER:")
-    CommonsPub.Meta.Pointers.follow!(pointer) |> prepare(%{icon: true, character: true})
+    Bonfire.Common.Pointers.follow!(pointer) |> prepare(%{icon: true, character: true})
   end
 
   def is_followed_by(current_user, profile_id) when not is_nil(current_user) do
@@ -76,7 +76,7 @@ defmodule CommonsPub.Profiles.Web.ProfilesHelper do
           {preload, included} = field
 
           if(included) do
-            Map.merge(profile, CommonsPub.Repo.maybe_preload(profile, preload))
+            Map.merge(profile, Bonfire.Repo.maybe_preload(profile, preload))
           else
             profile
           end

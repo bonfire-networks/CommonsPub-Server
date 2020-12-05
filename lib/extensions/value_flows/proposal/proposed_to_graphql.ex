@@ -1,11 +1,11 @@
 defmodule ValueFlows.Proposal.ProposedToGraphQL do
   use Absinthe.Schema.Notation
 
-  alias CommonsPub.GraphQL
-  alias CommonsPub.Meta.Pointers
+  alias Bonfire.GraphQL
+  alias Bonfire.Common.Pointers
   alias ValueFlows.Proposal.Proposals
 
-  alias CommonsPub.GraphQL.ResolveField
+  alias Bonfire.GraphQL.ResolveField
 
   def proposed_to(%{id: id}, info) do
     ResolveField.run(%ResolveField{
@@ -37,7 +37,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
 
   def fetch_proposed_edge(%{proposed_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = CommonsPub.Repo.preload(thing, :proposed)
+    thing = Bonfire.Repo.preload(thing, :proposed)
     {:ok, Map.get(thing, :proposed)}
   end
 

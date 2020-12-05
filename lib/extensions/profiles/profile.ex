@@ -4,7 +4,7 @@ defmodule CommonsPub.Profiles.Profile do
     otp_app: :commons_pub,
     source: "profile"
 
-  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   # alias CommonsPub.Profiles.Profile

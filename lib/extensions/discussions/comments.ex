@@ -128,7 +128,7 @@ defmodule CommonsPub.Threads.Comments do
   def save_attached_tags(creator, comment, attrs) do
     with {:ok, _taggable} <-
            CommonsPub.Tag.TagThings.thing_attach_tags(creator, comment, attrs.mentions) do
-      # {:ok, CommonsPub.Repo.preload(comment, :tags)}
+      # {:ok, Bonfire.Repo.preload(comment, :tags)}
       {:ok, nil}
     end
   end
@@ -158,7 +158,7 @@ defmodule CommonsPub.Threads.Comments do
 
   def follow_ctx(thread, pointer) do
     # FIXME, causes protocol Enumerable not implemented for %Pointers.Pointer
-    context = CommonsPub.Meta.Pointers.follow!(pointer)
+    context = Bonfire.Common.Pointers.follow!(pointer)
     %{thread | context: %{thread.context | pointed: context}}
   end
 
@@ -245,7 +245,7 @@ defmodule CommonsPub.Threads.Comments do
   defp ap_publish(_, _), do: :ok
 
   def ap_publish_activity("create", comment) do
-    comment = CommonsPub.Repo.preload(comment, thread: :context)
+    comment = Bonfire.Repo.preload(comment, thread: :context)
 
     # IO.inspect(publish_comment: comment)
 
@@ -253,7 +253,7 @@ defmodule CommonsPub.Threads.Comments do
 
     context =
       if(comment.thread.context) do
-        CommonsPub.Meta.Pointers.follow!(comment.thread.context)
+        Bonfire.Common.Pointers.follow!(comment.thread.context)
       end
 
     context_ap_id =
@@ -291,7 +291,7 @@ defmodule CommonsPub.Threads.Comments do
          {:ok, activity} <-
            ActivityPub.create(params, comment.id) do
       Ecto.Changeset.change(comment, %{canonical_url: activity.object.data["id"]})
-      |> CommonsPub.Repo.update()
+      |> Bonfire.Repo.update()
 
       {:ok, activity}
     else
@@ -332,8 +332,8 @@ defmodule CommonsPub.Threads.Comments do
       ) do
     # TODO: dedup with prev function
     with pointer_id <- CommonsPub.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
-         {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id),
-         parent = CommonsPub.Meta.Pointers.follow!(pointer),
+         {:ok, pointer} <- Bonfire.Common.Pointers.one(id: pointer_id),
+         parent = Bonfire.Common.Pointers.follow!(pointer),
          {:ok, actor} <-
            CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(object.data["actor"]),
          {:ok, thread} <-
@@ -353,8 +353,8 @@ defmodule CommonsPub.Threads.Comments do
   end
 
   def indexing_object_format(comment) do
-    thread = CommonsPub.Repo.maybe_preload(comment.thread, :context)
-    context = CommonsPub.Repo.maybe_preload(thread.context, :character)
+    thread = Bonfire.Repo.maybe_preload(comment.thread, :context)
+    context = Bonfire.Repo.maybe_preload(thread.context, :character)
 
     # follower_count =
     #   case CommonsPub.Follows.FollowerCounts.one(context: comment.id) do

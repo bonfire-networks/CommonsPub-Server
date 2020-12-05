@@ -233,7 +233,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
       claim = fake_claim!(fake_user!())
 
       assert {:ok, claim} = Claims.soft_delete(claim)
-      assert {:error, %CommonsPub.Common.DeletionError{}} = Claims.soft_delete(claim)
+      assert {:error, %Bonfire.Common.Errors.DeletionError{}} = Claims.soft_delete(claim)
     end
   end
 end

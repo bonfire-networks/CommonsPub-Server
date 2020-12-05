@@ -40,7 +40,7 @@ defmodule CommonsPub.Tag.TagThings do
   """
   def things_add_tags(user, thing, taggables) do
     with {:ok, _taggable} <- thing_attach_tags(user, thing, taggables) do
-      {:ok, CommonsPub.Repo.maybe_preload(thing, :tags)}
+      {:ok, Bonfire.Repo.maybe_preload(thing, :tags)}
     end
   end
 
@@ -123,8 +123,8 @@ defmodule CommonsPub.Tag.TagThings do
   Load thing as Pointer
   """
   defp thing_to_pointer(pointer_id) when is_binary(pointer_id) do
-    with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id) do
-      # thing = CommonsPub.Meta.Pointers.follow!(pointer)
+    with {:ok, pointer} <- Bonfire.Common.Pointers.one(id: pointer_id) do
+      # thing = Bonfire.Common.Pointers.follow!(pointer)
       pointer
     end
   end
@@ -139,7 +139,7 @@ defmodule CommonsPub.Tag.TagThings do
 
   # def tag_things(user, tag, pointer_ids) when is_list(pointer_ids) do
   #   # requires a list of Pointer IDs
-  #   with {:ok, pointers} <- CommonsPub.Meta.Pointers.many(ids: pointer_ids) do
+  #   with {:ok, pointers} <- Bonfire.Common.Pointers.many(ids: pointer_ids) do
   #     tag_pointers(user, tag, pointers)
   #   end
   # end

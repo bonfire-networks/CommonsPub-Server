@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Resources.Queries do
   import Ecto.Query
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  import CommonsPub.Repo, only: [match_admin: 0]
   alias CommonsPub.Follows.Follow
   alias CommonsPub.Resources.Resource
   alias CommonsPub.Users.User

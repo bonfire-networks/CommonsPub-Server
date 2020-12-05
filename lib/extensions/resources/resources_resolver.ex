@@ -3,7 +3,8 @@ defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
   alias CommonsPub.{Collections, GraphQL, Repo, Resources}
   # alias CommonsPub.Characters.Character
   alias CommonsPub.Collections.Collection
-  alias CommonsPub.GraphQL.{FetchFields, ResolveFields, ResolvePages, FetchPage}
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{FetchFields, ResolveFields, ResolvePages, FetchPage}
   alias CommonsPub.Resources.Resource
   alias CommonsPub.Web.GraphQL.UploadResolver
 
@@ -181,9 +182,9 @@ defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
   def create_resource(%{resource: res_attrs, context_id: context_id} = input_attrs, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id),
+        with {:ok, pointer} = Bonfire.Common.Pointers.one(id: context_id),
              :ok <- validate_context(pointer),
-             context = CommonsPub.Meta.Pointers.follow!(pointer),
+             context = Bonfire.Common.Pointers.follow!(pointer),
              {:ok, uploads} <- UploadResolver.upload(user, input_attrs, info),
              res_attrs = Map.merge(res_attrs, uploads),
              {:ok, resource} <- Resources.create(user, context, res_attrs) do
@@ -245,7 +246,7 @@ defmodule CommonsPub.Web.GraphQL.ResourcesResolver do
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
 
   defp validate_context(pointer) do
-    if CommonsPub.Meta.Pointers.table!(pointer).schema in valid_contexts() do
+    if Bonfire.Common.Pointers.table!(pointer).schema in valid_contexts() do
       :ok
     else
       GraphQL.not_permitted()

@@ -33,7 +33,7 @@ defmodule ValueFlows.Claim.GraphQLTest do
       })
 
       assert queried =
-        CommonsPub.GraphQL.QueryHelper.run_query_id(
+        Bonfire.GraphQL.QueryHelper.run_query_id(
           claim.id,
           @schema,
           :claim,

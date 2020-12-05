@@ -28,7 +28,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
       spec = fake_resource_specification!(user)
 
       assert queried =
-               CommonsPub.GraphQL.QueryHelper.run_query_id(
+               Bonfire.GraphQL.QueryHelper.run_query_id(
                  spec.id,
                  @schema,
                  :resource_specification,

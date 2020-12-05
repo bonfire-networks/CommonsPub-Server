@@ -7,7 +7,8 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
 
   alias CommonsPub.{GraphQL, Repo}
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     ResolveField,
     ResolvePages,
     ResolveRootPage,

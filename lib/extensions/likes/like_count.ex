@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Likes.LikeCount do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
   alias CommonsPub.Users.User
 
   view_schema "mn_like_count" do

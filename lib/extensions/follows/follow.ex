@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Follows.Follow do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
 
-  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_muted: 1]
+  import Bonfire.Repo.Changeset, only: [change_public: 1, change_muted: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Follows

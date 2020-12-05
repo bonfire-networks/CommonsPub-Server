@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Feeds.FeedSubscriptionsQueries do
   alias CommonsPub.Feeds.FeedSubscription
-  alias CommonsPub.Meta.TableService
+  alias Bonfire.Common.Pointers.TableService
   import Ecto.Query
 
   def query(FeedSubscription), do: from(fs in FeedSubscription, as: :subscription)

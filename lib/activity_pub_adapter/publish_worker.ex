@@ -25,17 +25,17 @@ defmodule CommonsPub.Workers.APPublishWorker do
   @impl Worker
   def perform(%{args: %{"op" => "delete", "context_id" => context_id}}) do
     # filter for deleted objects
-    CommonsPub.Meta.Pointers.one!(id: context_id)
-    |> CommonsPub.Meta.Pointers.follow!(deleted: true)
-    |> CommonsPub.Repo.maybe_preload(:character)
+    Bonfire.Common.Pointers.one!(id: context_id)
+    |> Bonfire.Common.Pointers.follow!(deleted: true)
+    |> Bonfire.Repo.maybe_preload(:character)
     |> only_local("delete", &CommonsPub.ActivityPub.Publisher.publish/2)
   end
 
   def perform(%{args: %{"context_id" => context_id, "op" => verb}}) do
-    CommonsPub.Meta.Pointers.one!(id: context_id)
-    |> CommonsPub.Meta.Pointers.follow!()
-    |> CommonsPub.Repo.maybe_preload(:character)
-    |> CommonsPub.Repo.maybe_preload(creator: [:character])
+    Bonfire.Common.Pointers.one!(id: context_id)
+    |> Bonfire.Common.Pointers.follow!()
+    |> Bonfire.Repo.maybe_preload(:character)
+    |> Bonfire.Repo.maybe_preload(creator: [:character])
     |> only_local(verb, &CommonsPub.ActivityPub.Publisher.publish/2)
   end
 

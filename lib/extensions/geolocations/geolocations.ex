@@ -10,8 +10,9 @@ defmodule Geolocation.Geolocations do
 
   alias CommonsPub.Characters
 
-  alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Contexts
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{Fields, Page}
+  # alias CommonsPub.Contexts
   alias Geolocation
   alias Geolocation.Queries
   alias CommonsPub.Feeds.FeedActivities
@@ -77,7 +78,7 @@ defmodule Geolocation.Geolocations do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    CommonsPub.GraphQL.Pagination.pages(
+    Bonfire.GraphQL.Pagination.pages(
       Queries,
       Geolocation,
       cursor_fn,

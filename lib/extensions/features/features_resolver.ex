@@ -4,8 +4,9 @@ defmodule CommonsPub.Web.GraphQL.FeaturesResolver do
   Performs the GraphQL Community queries.
   """
   alias CommonsPub.{Features, GraphQL}
-  alias CommonsPub.GraphQL.{FetchFields, ResolveFields, ResolveRootPage, FetchPage}
-  alias CommonsPub.Meta.Pointers
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{FetchFields, ResolveFields, ResolveRootPage, FetchPage}
+  alias Bonfire.Common.Pointers
 
   def feature(%{feature_id: id}, _info), do: Features.one(id: id)
 

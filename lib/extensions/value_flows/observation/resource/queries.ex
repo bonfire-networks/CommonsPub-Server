@@ -4,7 +4,7 @@ defmodule ValueFlows.Observation.EconomicResource.Queries do
   # alias ValueFlows.Observation.EconomicResources
   alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  import CommonsPub.Repo, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
 

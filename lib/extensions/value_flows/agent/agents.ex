@@ -29,7 +29,7 @@ defmodule ValueFlows.Agent.Agents do
   end
 
   def character_to_agent(a) do
-    # a = CommonsPub.Repo.maybe_preload(a, [icon: [:content], image: [:content]])
+    # a = Bonfire.Repo.maybe_preload(a, [icon: [:content], image: [:content]])
 
     a
     |> Map.put(:image, ValueFlows.Util.image_url(a))
@@ -41,13 +41,13 @@ defmodule ValueFlows.Agent.Agents do
   end
 
   def agent_location(%{profile_id: profile_id} = a) when not is_nil(profile_id) do
-    CommonsPub.Repo.maybe_preload(a, profile: [:geolocation])
+    Bonfire.Repo.maybe_preload(a, profile: [:geolocation])
     |> Map.get(:profile)
     |> agent_location()
   end
 
   def agent_location(%{geolocation_id: geolocation_id} = a) when not is_nil(geolocation_id) do
-    CommonsPub.Repo.maybe_preload(a, :geolocation)
+    Bonfire.Repo.maybe_preload(a, :geolocation)
     |> Map.get(:geolocation)
   end
 

@@ -5,8 +5,8 @@ defmodule CommonsPub.Access.RegisterEmailDomainAccess do
   domains are permitted to register a CommonsPub account while public
   signup is disabled.
   """
-  use CommonsPub.Repo.Schema
-  import CommonsPub.Repo.Changeset, only: [validate_email_domain: 2]
+  use Bonfire.Repo.Schema
+  import Bonfire.Repo.Changeset, only: [validate_email_domain: 2]
   alias Ecto.Changeset
 
   @type t :: %__MODULE__{}

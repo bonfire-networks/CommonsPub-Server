@@ -4,7 +4,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     source: "vf_resource_spec",
     table_id: "SPEC1F1CAT10NK1ND0FRES0VRC"
 
-  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User

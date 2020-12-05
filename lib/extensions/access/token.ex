@@ -2,7 +2,7 @@
 defmodule CommonsPub.Access.Token do
   @moduledoc "A session token identified by its uuid id"
 
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
   alias CommonsPub.Users.User
   alias __MODULE__
   alias Ecto.Changeset

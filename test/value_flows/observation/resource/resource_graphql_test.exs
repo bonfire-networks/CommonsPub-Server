@@ -52,7 +52,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
       # IO.inspect(created: resource)
 
       assert queried =
-               CommonsPub.GraphQL.QueryHelper.run_query_id(
+               Bonfire.GraphQL.QueryHelper.run_query_id(
                  resource.id,
                  @schema,
                  :economic_resource,

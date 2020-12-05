@@ -87,7 +87,7 @@ defmodule CommonsPub.Locales.Language.Service do
       {:ok, []}
     rescue
       e ->
-        IO.inspect("INFO: TableService could not init because:")
+        IO.inspect("INFO: LanguageService could not init because:")
         IO.inspect(e)
         {:ok, []}
     end

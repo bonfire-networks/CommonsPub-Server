@@ -48,7 +48,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
       assert %ActivityPub.Object{} =
                object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
 
-      assert {:ok, %Pointers.Pointer{}} = CommonsPub.Meta.Pointers.one(id: object.pointer_id)
+      assert {:ok, %Pointers.Pointer{}} = Bonfire.Common.Pointers.one(id: object.pointer_id)
     end
   end
 

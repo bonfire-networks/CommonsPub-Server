@@ -26,7 +26,7 @@ defmodule CommonsPub.Follows do
   def create(follower, followed, fields, opts \\ [])
 
   def create(%User{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
-    create(follower, CommonsPub.Meta.Pointers.follow!(followed), fields, opts)
+    create(follower, Bonfire.Common.Pointers.follow!(followed), fields, opts)
   end
 
   def create(%User{} = follower, %{character: %{outbox_id: _} = followed}, fields, opts) do
@@ -89,12 +89,12 @@ defmodule CommonsPub.Follows do
     ## that are only reflected in the host database upon receiving an Accept activity in response. in this case
     ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
     ## For now we just delete the folow and return an error if the followed account is private.
-    follow = CommonsPub.Repo.preload(follow, creator: :character, context: [:table])
+    follow = Bonfire.Repo.preload(follow, creator: :character, context: [:table])
 
     with {:ok, follower} <-
            ActivityPub.Actor.get_cached_by_username(follow.creator.character.preferred_username),
-         followed = CommonsPub.Meta.Pointers.follow!(follow.context),
-         followed = CommonsPub.Repo.preload(followed, :character),
+         followed = Bonfire.Common.Pointers.follow!(follow.context),
+         followed = Bonfire.Repo.preload(followed, :character),
          {:ok, followed} <-
            ActivityPub.Actor.get_or_fetch_by_username(followed.character.preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
@@ -110,11 +110,11 @@ defmodule CommonsPub.Follows do
   end
 
   def ap_publish_activity("delete", %Follow{} = follow) do
-    follow = CommonsPub.Repo.preload(follow, creator: :character, context: [])
+    follow = Bonfire.Repo.preload(follow, creator: :character, context: [])
 
     with {:ok, follower} <-
            ActivityPub.Actor.get_cached_by_username(follow.creator.character.preferred_username),
-         followed = CommonsPub.Meta.Pointers.follow!(follow.context),
+         followed = Bonfire.Common.Pointers.follow!(follow.context),
          {:ok, followed} <-
            ActivityPub.Actor.get_or_fetch_by_username(followed.character.preferred_username) do
       ActivityPub.unfollow(follower, followed)
@@ -201,8 +201,8 @@ defmodule CommonsPub.Follows do
   end
 
   defp chase_delete(user, follows, contexts) do
-    with {:ok, pointers} <- CommonsPub.Meta.Pointers.many(id: contexts),
-         contexts = CommonsPub.Meta.Pointers.follow!(pointers),
+    with {:ok, pointers} <- Bonfire.Common.Pointers.many(id: contexts),
+         contexts = Bonfire.Common.Pointers.follow!(pointers),
          feeds = get_outbox_ids(contexts, []),
          :ok <- Activities.soft_delete_by(user, context: follows),
          :ok <- FeedSubscriptions.soft_delete_by(user, feed: feeds) do
@@ -232,7 +232,7 @@ defmodule CommonsPub.Follows do
   defp subscribe(_, _, _), do: :ok
 
   # defp unsubscribe(%{creator_id: creator_id, is_local: true, muted_at: nil}=follow) do
-  #   context = CommonsPub.Meta.Pointers.follow!(Repo.preload(follow, :context).context)
+  #   context = Bonfire.Common.Pointers.follow!(Repo.preload(follow, :context).context)
   #   case FeedSubscriptions.one(deleted: false, subscriber: creator_id, feed: context.outbox_id) do
   #     {:ok, sub} -> Common.Deletion.soft_delete(sub)
   #     _ -> {:ok, []} # shouldn't be here

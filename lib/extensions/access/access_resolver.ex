@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Web.GraphQL.AccessResolver do
   alias CommonsPub.{Access, GraphQL}
-  alias CommonsPub.GraphQL.{ResolveRootPage, FetchPage}
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{ResolveRootPage, FetchPage}
   alias CommonsPub.Users.User
 
   def register_email_accesses(page_opts, info) do

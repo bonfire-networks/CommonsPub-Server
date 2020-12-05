@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Likes.LikeCounts do
   alias CommonsPub.Repo
-  alias CommonsPub.GraphQL.Fields
+  alias Bonfire.GraphQL.Fields
   alias CommonsPub.Likes.{LikeCount, LikeCountsQueries}
 
   def one(filters), do: Repo.single(LikeCountsQueries.query(LikeCount, filters))

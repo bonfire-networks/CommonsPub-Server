@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Feeds.FeedActivity do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
   alias CommonsPub.Activities.Activity
   alias CommonsPub.Feeds.Feed
 

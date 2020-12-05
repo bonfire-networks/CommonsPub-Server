@@ -16,7 +16,8 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
 
   alias CommonsPub.Characters
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -340,7 +341,7 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
     })
   end
 
-  def creator_edge(_, _, info), do: {:ok, nil}
+  def creator_edge(_, _, _info), do: {:ok, nil}
 
   def fetch_creator_edge(info, ids) do
     user = GraphQL.current_user(info)

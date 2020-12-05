@@ -6,10 +6,9 @@ defmodule CommonsPub.Meta.PointersTest do
   import CommonsPub.Utils.Simulation
   alias CommonsPub.{Access, Repo}
 
-  alias CommonsPub.Meta.{
-    Pointers,
-    TableNotFoundError
-  }
+  alias Bonfire.Common.Pointers
+  alias Bonfire.Common.Erros.TableNotFoundError
+
 
   alias CommonsPub.Peers.Peer
 

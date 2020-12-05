@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util.GraphQL do
-  alias CommonsPub.{
-    GraphQL,
-    Repo
-  }
+  alias CommonsPub.Repo
+  alias Bonfire.GraphQL
 
   require Logger
 
@@ -129,7 +127,7 @@ defmodule ValueFlows.Util.GraphQL do
 
   def onhand_quantity_edge(_, _, _), do: {:ok, nil}
 
-  def image_content_url(%{image_id: id} = thing, _, info) when not is_nil(id) do
+  def image_content_url(%{image_id: id} = thing, _, _info) when not is_nil(id) do
     {:ok, ValueFlows.Util.image_url(thing)}
   end
 

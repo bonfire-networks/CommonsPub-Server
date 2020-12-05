@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Profiles do
   alias CommonsPub.{Common, Repo}
-  alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Contexts
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{Fields, Page}
+  # alias CommonsPub.Contexts
 
   alias CommonsPub.Profiles.Profile
   alias CommonsPub.Profiles.Queries
@@ -69,7 +70,7 @@ defmodule CommonsPub.Profiles do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    CommonsPub.GraphQL.Pagination.pages(
+    Bonfire.GraphQL.Pagination.pages(
       Queries,
       CommonsPub.Profiles.Profile,
       cursor_fn,
@@ -105,7 +106,7 @@ defmodule CommonsPub.Profiles do
 
   @doc "Takes a Pointer to something and creates a profile based on it"
   def add_profile_to(user, %Pointer{} = pointer) do
-    thing = CommonsPub.Meta.Pointers.follow!(pointer)
+    thing = Bonfire.Common.Pointers.follow!(pointer)
 
     if(is_nil(thing.profile_id)) do
       add_profile_to(user, thing)
@@ -115,7 +116,7 @@ defmodule CommonsPub.Profiles do
   end
 
   def add_profile_to(user, pointer_id) when is_binary(pointer_id) do
-    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: pointer_id)
+    {:ok, pointer} = Bonfire.Common.Pointers.one(id: pointer_id)
     add_profile_to(user, pointer)
   end
 

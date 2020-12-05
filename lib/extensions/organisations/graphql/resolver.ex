@@ -1,13 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.GraphQL.Resolver do
-  alias CommonsPub.{
-    # Activities,
-    GraphQL,
-    Repo
-    # Resources
-  }
+  alias CommonsPub.Repo
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     # CommonResolver,
     # FetchFields,
     FetchPage,
@@ -100,9 +96,9 @@ defmodule Organisation.GraphQL.Resolver do
   def create_organisation(%{organisation: attrs, context_id: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
+           {:ok, pointer} <- Bonfire.Common.Pointers.one(id: context_id),
            :ok <- validate_organisation_context(pointer) do
-        context = CommonsPub.Meta.Pointers.follow!(pointer)
+        context = Bonfire.Common.Pointers.follow!(pointer)
         Organisations.create(user, context, attrs)
       end
     end)

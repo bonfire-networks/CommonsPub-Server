@@ -2,7 +2,8 @@
 defmodule CommonsPub.Locales.GraphQL.Resolver do
   @moduledoc "GraphQL Language and Country queries"
   # alias CommonsPub.{GraphQL}
-  alias CommonsPub.GraphQL.{
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     # CommonResolver,
     # Flow,
     # FetchFields,

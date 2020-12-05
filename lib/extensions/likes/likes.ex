@@ -21,7 +21,7 @@ defmodule CommonsPub.Likes do
   def create(liker, liked, fields)
 
   def create(%User{} = liker, %Pointers.Pointer{} = liked, fields) do
-    create(liker, CommonsPub.Meta.Pointers.follow!(liked), fields)
+    create(liker, Bonfire.Common.Pointers.follow!(liked), fields)
   end
 
   def create(%User{} = liker, %{__struct__: ctx} = liked, fields) do
@@ -81,11 +81,11 @@ defmodule CommonsPub.Likes do
   defp ap_publish(_, _), do: :ok
 
   def ap_publish_activity("create", %Like{} = like) do
-    like = CommonsPub.Repo.preload(like, [:context, creator: :character])
+    like = Bonfire.Repo.preload(like, [:context, creator: :character])
     # IO.inspect(pub_like: like)
 
     with {:ok, liker} <- ActivityPub.Actor.get_cached_by_local_id(like.creator_id) do
-      liked = CommonsPub.Meta.Pointers.follow!(like.context)
+      liked = Bonfire.Common.Pointers.follow!(like.context)
       # IO.inspect(pub_like_context: liked)
 
       object = CommonsPub.ActivityPub.Utils.get_object(liked)
@@ -98,10 +98,10 @@ defmodule CommonsPub.Likes do
   end
 
   def ap_publish_activity("delete", %Like{} = like) do
-    like = CommonsPub.Repo.preload(like, creator: :character, context: [])
+    like = Bonfire.Repo.preload(like, creator: :character, context: [])
 
     with {:ok, liker} <- ActivityPub.Actor.get_cached_by_local_id(like.creator_id) do
-      liked = CommonsPub.Meta.Pointers.follow!(like.context)
+      liked = Bonfire.Common.Pointers.follow!(like.context)
       object = CommonsPub.ActivityPub.Utils.get_object(liked)
       ActivityPub.unlike(liker, object)
     else
@@ -114,8 +114,8 @@ defmodule CommonsPub.Likes do
     with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
          {:ok, actor} <-
            CommonsPub.ActivityPub.Utils.get_raw_character_by_username(ap_actor.username),
-         {:ok, liked} <- CommonsPub.Meta.Pointers.one(id: object.pointer_id),
-         liked = CommonsPub.Meta.Pointers.follow!(liked),
+         {:ok, liked} <- Bonfire.Common.Pointers.one(id: object.pointer_id),
+         liked = Bonfire.Common.Pointers.follow!(liked),
          {:ok, _} <-
            CommonsPub.Likes.create(actor, liked, %{
              is_public: true,

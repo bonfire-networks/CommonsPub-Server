@@ -25,7 +25,7 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def maybe_indexable_object(%Pointers.Pointer{} = pointer) do
-    pointed_object = CommonsPub.Meta.Pointers.follow!(pointer)
+    pointed_object = Bonfire.Common.Pointers.follow!(pointer)
     maybe_indexable_object(pointed_object)
   end
 
@@ -160,7 +160,7 @@ defmodule CommonsPub.Search.Indexer do
   end
 
   def format_creator(%{creator: %{id: id}} = obj) when not is_nil(id) do
-    creator = CommonsPub.Repo.maybe_preload(obj, :creator).creator
+    creator = Bonfire.Repo.maybe_preload(obj, :creator).creator
 
     %{
       "id" => creator.id,

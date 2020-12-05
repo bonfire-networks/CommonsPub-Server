@@ -4,7 +4,7 @@ defmodule ValueFlows.Observation.EconomicResource do
     source: "vf_resource",
     table_id: "AN0BSERVEDANDVSEFV1RES0VRC"
 
-  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
 
   alias CommonsPub.Users.User

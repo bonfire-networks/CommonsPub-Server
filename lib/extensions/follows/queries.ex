@@ -4,9 +4,9 @@ defmodule CommonsPub.Follows.Queries do
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Communities.Community
   alias CommonsPub.Follows.Follow
-  alias CommonsPub.Meta.TableService
+  alias Bonfire.Common.Pointers.TableService
   alias CommonsPub.Users.User
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  import CommonsPub.Repo, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Follow), do: from(f in Follow, as: :follow)

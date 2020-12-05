@@ -10,7 +10,8 @@ defmodule CommonsPub.Web.GraphQL.InstanceResolver do
 
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Communities.Community
-  alias CommonsPub.GraphQL.{ResolveRootPage, FetchPage}
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{ResolveRootPage, FetchPage}
 
   def instance(_, _info) do
     {:ok,

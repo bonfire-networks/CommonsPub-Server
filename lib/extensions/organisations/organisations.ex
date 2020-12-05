@@ -9,8 +9,9 @@ defmodule Organisation.Organisations do
     Repo
   }
 
-  alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Contexts
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{Fields, Page}
+  # alias CommonsPub.Contexts
   alias Organisation
   alias Organisation.Queries
   # alias CommonsPub.Feeds.FeedActivities
@@ -80,7 +81,7 @@ defmodule Organisation.Organisations do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    CommonsPub.GraphQL.Pagination.pages(
+    Bonfire.GraphQL.Pagination.pages(
       Queries,
       Organisation,
       cursor_fn,

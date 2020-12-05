@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
 
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "organisation",
     table_id: "C1RC1E0FPE0P1EAND0RC1RC1ES"
 
-  import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias Organisation

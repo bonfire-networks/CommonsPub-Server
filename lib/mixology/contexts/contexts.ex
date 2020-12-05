@@ -62,14 +62,14 @@ defmodule CommonsPub.Contexts do
 
   def contexts_fetch!(ids) do
     with {:ok, ptrs} <-
-           CommonsPub.Meta.Pointers.many(id: List.flatten(ids)) do
-      CommonsPub.Meta.Pointers.follow!(ptrs)
+           Bonfire.Common.Pointers.many(id: List.flatten(ids)) do
+      Bonfire.Common.Pointers.follow!(ptrs)
     end
   end
 
   def context_fetch(id) do
-    with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
-      CommonsPub.Meta.Pointers.follow!(pointer)
+    with {:ok, pointer} <- Bonfire.Common.Pointers.one(id: id) do
+      Bonfire.Common.Pointers.follow!(pointer)
     end
   end
 
@@ -79,7 +79,7 @@ defmodule CommonsPub.Contexts do
   end
 
   def prepare_context(%{context_id: context_id} = thing) when not is_nil(context_id) do
-    CommonsPub.Repo.maybe_do_preload(thing, :context) |> context_follow()
+    Bonfire.Repo.maybe_do_preload(thing, :context) |> context_follow()
   end
 
   def prepare_context(thing) do
@@ -87,7 +87,7 @@ defmodule CommonsPub.Contexts do
   end
 
   defp context_follow(%{context: %Pointers.Pointer{} = pointer} = thing) do
-    context = CommonsPub.Meta.Pointers.follow!(pointer)
+    context = Bonfire.Common.Pointers.follow!(pointer)
 
     add_context_type(
       thing
@@ -101,7 +101,7 @@ defmodule CommonsPub.Contexts do
   end
 
   defp context_follow(%{context_id: context_id} = thing) when not is_nil(context_id) do
-    {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id)
+    {:ok, pointer} = Bonfire.Common.Pointers.one(id: context_id)
 
     context_follow(
       thing

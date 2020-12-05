@@ -3,13 +3,12 @@ defmodule CommonsPub.Meta.TableServiceTest do
   use ExUnit.Case, async: true
 
   import ExUnit.Assertions
-  import CommonsPub.Meta.Introspection, only: [ecto_schema_table: 1]
+  import Bonfire.Repo.Introspection, only: [ecto_schema_table: 1]
   alias CommonsPub.Repo
 
-  alias CommonsPub.Meta.{
-    TableService,
-    TableNotFoundError
-  }
+  alias Bonfire.Common.Pointers.TableService
+  alias Bonfire.Common.Errors.TableNotFoundError
+
 
   alias Pointers.Table
 

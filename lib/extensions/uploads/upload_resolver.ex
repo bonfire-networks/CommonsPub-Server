@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule CommonsPub.Web.GraphQL.UploadResolver do
-  alias CommonsPub.GraphQL.{
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchFields,
     # Fields,
     ResolveFields

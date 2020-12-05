@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Activities.Activity do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
 
-  import CommonsPub.Repo.Changeset, only: [change_public: 1]
+  import Bonfire.Repo.Changeset, only: [change_public: 1]
   alias CommonsPub.Activities
   alias CommonsPub.Activities.Activity
   alias CommonsPub.Feeds.FeedActivity

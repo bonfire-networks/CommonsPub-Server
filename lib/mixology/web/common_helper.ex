@@ -71,7 +71,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
 
   def map_get(map, %Ecto.Association.NotLoaded{} = key, fallback) do
     Logger.warn("Cannot get from an unloaded key, trying to preload...")
-    map_get(map, CommonsPub.Repo.maybe_preload(map, key), fallback)
+    map_get(map, Bonfire.Repo.maybe_preload(map, key), fallback)
   end
 
   @doc """
@@ -276,7 +276,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   def image(parent, style, size) do
     parent =
       if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
-        CommonsPub.Repo.maybe_preload(parent, image: [:content_upload, :content_mirror])
+        Bonfire.Repo.maybe_preload(parent, image: [:content_upload, :content_mirror])
       end
 
     image_url(parent, :image, style, size)
@@ -285,7 +285,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   def icon(parent, style, size) do
     parent =
       if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
-        CommonsPub.Repo.maybe_preload(parent, icon: [:content_upload, :content_mirror])
+        Bonfire.Repo.maybe_preload(parent, icon: [:content_upload, :content_mirror])
       end
 
     image_url(parent, :icon, style, size)
@@ -294,10 +294,10 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   defp image_url(parent, field_name, style, size) do
     if(is_map(parent) and Map.has_key?(parent, :__struct__)) do
       # IO.inspect(image_field: field_name)
-      # parent = CommonsPub.Repo.maybe_preload(parent, field_name: [:content_upload, :content_mirror])
+      # parent = Bonfire.Repo.maybe_preload(parent, field_name: [:content_upload, :content_mirror])
       # IO.inspect(image_parent: parent)
 
-      # img = CommonsPub.Repo.maybe_preload(Map.get(parent, field_name), :content_upload)
+      # img = Bonfire.Repo.maybe_preload(Map.get(parent, field_name), :content_upload)
 
       img = e(parent, field_name, :content_upload, :path, nil)
 
@@ -306,7 +306,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
         CommonsPub.Uploads.prepend_url(img)
       else
         # otherwise try external image
-        # img = CommonsPub.Repo.maybe_preload(Map.get(parent, field_name), :content_mirror)
+        # img = Bonfire.Repo.maybe_preload(Map.get(parent, field_name), :content_mirror)
         img = e(parent, field_name, :content_mirror, :url, nil)
 
         if(!is_nil(img)) do
@@ -328,7 +328,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   def content_url(parent) do
     parent =
       if(Map.has_key?(parent, :__struct__)) do
-        CommonsPub.Repo.maybe_preload(parent, content: [:content_upload, :content_mirror])
+        Bonfire.Repo.maybe_preload(parent, content: [:content_upload, :content_mirror])
       end
 
     url = e(parent, :content, :content_upload, :path, nil)
@@ -482,7 +482,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   end
 
   def object_url(id) when is_binary(id) do
-    CommonsPub.Meta.Pointers.get(id) |> object_url()
+    Bonfire.Common.Pointers.get(id) |> object_url()
   end
 
   def object_url(activity) do

@@ -5,7 +5,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
   alias CommonsPub.{GraphQL, Repo}
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     ResolveField,
     ResolvePages,
     ResolveRootPage,

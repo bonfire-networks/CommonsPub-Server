@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Features.Queries do
   alias CommonsPub.Features.Feature
-  alias CommonsPub.Meta.TableService
+  alias Bonfire.Common.Pointers.TableService
 
   import Ecto.Query
 

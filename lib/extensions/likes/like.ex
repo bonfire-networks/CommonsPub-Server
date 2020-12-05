@@ -4,8 +4,8 @@ defmodule CommonsPub.Likes.Like do
   A Like is an indication that an user enjoyed some content or wants
   to find it again later.
   """
-  use CommonsPub.Repo.Schema
-  import CommonsPub.Repo.Changeset, only: [change_public: 1]
+  use Bonfire.Repo.Schema
+  import Bonfire.Repo.Changeset, only: [change_public: 1]
   alias CommonsPub.Likes
   alias CommonsPub.Likes.Like
   alias Pointers.Pointer

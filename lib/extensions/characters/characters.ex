@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Characters do
-  alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Contexts
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{Fields, Page}
+  # alias CommonsPub.Contexts
 
   alias CommonsPub.{Common, Feeds, Follows, Repo}
   # alias CommonsPub.Feeds.FeedActivities
@@ -104,7 +105,7 @@ defmodule CommonsPub.Characters do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    CommonsPub.GraphQL.Pagination.pages(
+    Bonfire.GraphQL.Pagination.pages(
       Queries,
       CommonsPub.Characters.Character,
       cursor_fn,
@@ -262,7 +263,7 @@ defmodule CommonsPub.Characters do
 
   @doc "Takes a Pointer to something and creates a character based on it"
   def characterise(user, %Pointer{} = pointer) do
-    thing = CommonsPub.Meta.Pointers.follow!(pointer)
+    thing = Bonfire.Common.Pointers.follow!(pointer)
 
     if(is_nil(thing.character_id)) do
       characterise(user, thing)
@@ -535,12 +536,12 @@ defmodule CommonsPub.Characters do
   end
 
   def display_username(%{character: _} = obj, full_hostname, prefix) do
-    obj = CommonsPub.Repo.maybe_preload(obj, :character)
+    obj = Bonfire.Repo.maybe_preload(obj, :character)
     display_username(Map.get(obj, :character), full_hostname, prefix)
   end
 
   def display_username(%Pointer{} = pointer, full_hostname, prefix) do
-    thing = CommonsPub.Meta.Pointers.follow!(pointer)
+    thing = Bonfire.Common.Pointers.follow!(pointer)
     display_username(thing, full_hostname, prefix)
   end
 
@@ -550,7 +551,7 @@ defmodule CommonsPub.Characters do
   end
 
   def obj_with_character(obj) do
-    CommonsPub.Repo.maybe_preload(obj, :character)
+    Bonfire.Repo.maybe_preload(obj, :character)
   end
 
   def obj_character(%{character: %Ecto.Association.NotLoaded{}} = obj) do

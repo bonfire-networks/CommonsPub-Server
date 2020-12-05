@@ -3,8 +3,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
   import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
 
   alias CommonsPub.{Activities, Common, Feeds, Repo}
-  alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Contexts
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{Fields, Page}
+  # alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
 
@@ -71,7 +72,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    CommonsPub.GraphQL.Pagination.pages(
+    Bonfire.GraphQL.Pagination.pages(
       Queries,
       Intent,
       cursor_fn,

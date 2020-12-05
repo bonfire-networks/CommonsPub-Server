@@ -2,7 +2,8 @@
 defmodule CommonsPub.Web.GraphQL.LikesResolver do
   alias CommonsPub.{GraphQL, Likes, Repo}
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -18,7 +19,7 @@ defmodule CommonsPub.Web.GraphQL.LikesResolver do
     LikerCountsQueries
   }
 
-  alias CommonsPub.Meta.Pointers
+  alias Bonfire.Common.Pointers
   alias CommonsPub.Users.User
 
   def like(%{like_id: id}, %{context: %{current_user: user}}) do

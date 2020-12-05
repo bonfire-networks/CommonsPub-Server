@@ -65,7 +65,7 @@ defmodule CommonsPub.Tag.Taggables do
         {:ok, taggable}
       else
         _e ->
-          with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: pointer_id) do
+          with {:ok, pointer} <- Bonfire.Common.Pointers.one(id: pointer_id) do
             maybe_make_taggable(user, pointer, attrs)
           end
       end
@@ -73,7 +73,7 @@ defmodule CommonsPub.Tag.Taggables do
   end
 
   def maybe_make_taggable(user, %Pointers.Pointer{} = pointer, attrs) do
-    with context = CommonsPub.Meta.Pointers.follow!(pointer) do
+    with context = Bonfire.Common.Pointers.follow!(pointer) do
       maybe_make_taggable(user, context, attrs)
     end
   end

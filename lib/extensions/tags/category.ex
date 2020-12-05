@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Category do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
 
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "category",
     table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
-  # use CommonsPub.Repo.Schema
+  # use Bonfire.Repo.Schema
 
-  # import CommonsPub.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  # import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Tag.Category

@@ -3,7 +3,8 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   @moduledoc "GraphQL tag and Country queries"
   alias CommonsPub.{GraphQL, Repo}
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     # CommonResolver,
     FetchFields,
     FetchPage,

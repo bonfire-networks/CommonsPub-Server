@@ -4,7 +4,7 @@ defmodule CommonsPub.Threads.Queries do
   alias CommonsPub.Follows.FollowerCount
   alias CommonsPub.Users.User
   import Ecto.Query
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  import CommonsPub.Repo, only: [match_admin: 0]
 
   def query(Thread), do: from(t in Thread, as: :thread)
 

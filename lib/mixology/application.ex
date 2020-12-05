@@ -6,7 +6,7 @@ defmodule CommonsPub.Application do
   use Application
   alias CommonsPub.Repo
   # alias CommonsPub.Locales.{CountryService, LanguageService}
-  alias CommonsPub.Meta.TableService
+  alias Bonfire.Common.Pointers.TableService
   alias CommonsPub.Web.Endpoint
   import Supervisor.Spec, only: [supervisor: 2, worker: 2]
 

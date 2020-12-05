@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Feeds.FeedSubscription do
-  use CommonsPub.Repo.Schema
-  import CommonsPub.Repo.Changeset, only: [change_synced_timestamps: 4]
+  use Bonfire.Repo.Schema
+  import Bonfire.Repo.Changeset, only: [change_synced_timestamps: 4]
   alias Ecto.Changeset
   alias Pointers.Pointer
   alias CommonsPub.Feeds.Feed

@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
-  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
+  import CommonsPub.Common, only: [maybe_put: 3]
 
   alias CommonsPub.{Activities, Common, Feeds, Repo}
-  alias CommonsPub.GraphQL.{Fields, Page}
-  alias CommonsPub.Contexts
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{Fields, Page}
+  # alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
 
@@ -70,7 +71,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    CommonsPub.GraphQL.Pagination.pages(
+    Bonfire.GraphQL.Pagination.pages(
       Queries,
       ResourceSpecification,
       cursor_fn,

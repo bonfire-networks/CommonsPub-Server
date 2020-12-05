@@ -2,7 +2,7 @@
 defmodule CommonsPub.Common.ChangesetTest do
   use ExUnit.Case, async: true
 
-  import CommonsPub.Repo.Changeset
+  import Bonfire.Repo.Changeset
   alias Ecto.Changeset
 
   defmodule Dummy do

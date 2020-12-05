@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Resources.Resource do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
 
-  import CommonsPub.Repo.Changeset,
+  import Bonfire.Repo.Changeset,
     only: [change_public: 1, change_disabled: 1, cast_object: 1]
 
   alias Ecto.Changeset

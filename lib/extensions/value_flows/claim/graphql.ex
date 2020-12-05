@@ -3,8 +3,9 @@ defmodule ValueFlows.Claim.GraphQL do
   require Logger
 
   alias CommonsPub.{GraphQL, Repo}
-  alias CommonsPub.Meta.Pointers
-  alias CommonsPub.GraphQL.{FetchPage, ResolveField, ResolveRootPage}
+  alias Bonfire.Common.Pointers
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{FetchPage, ResolveField, ResolveRootPage}
   alias ValueFlows.Claim.Claims
 
   def claim(%{id: id}, info) do

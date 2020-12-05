@@ -108,7 +108,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
 
     with {:ok, character} <-
            CommonsPub.ActivityPub.Utils.get_raw_character_by_id(actor_object.pointer_id),
-         creator <- CommonsPub.Repo.maybe_preload(character, :creator) |> Map.get(:creator, nil) do
+         creator <- Bonfire.Repo.maybe_preload(character, :creator) |> Map.get(:creator, nil) do
       # FIXME - support other types
       params = %{
         name: data["name"],

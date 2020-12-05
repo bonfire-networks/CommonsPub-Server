@@ -28,7 +28,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
       spec = fake_process_specification!(user)
 
       assert queried =
-               CommonsPub.GraphQL.QueryHelper.run_query_id(
+               Bonfire.GraphQL.QueryHelper.run_query_id(
                  spec.id,
                  @schema,
                  :process_specification,

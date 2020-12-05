@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Uploads.Content do
-  use CommonsPub.Repo.Schema
-  import CommonsPub.Repo.Changeset, only: [change_public: 1]
+  use Bonfire.Repo.Schema
+  import Bonfire.Repo.Changeset, only: [change_public: 1]
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User

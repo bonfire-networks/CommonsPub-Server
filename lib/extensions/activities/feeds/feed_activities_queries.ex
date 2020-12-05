@@ -3,8 +3,8 @@ defmodule CommonsPub.Feeds.FeedActivitiesQueries do
   use CommonsPub.Common.Metadata
   alias CommonsPub.Activities
   alias CommonsPub.Feeds.FeedActivity
-  alias CommonsPub.Meta.TableService
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  alias Bonfire.Common.Pointers.TableService
+  import CommonsPub.Repo, only: [match_admin: 0]
   import Ecto.Query
 
   def query(FeedActivity), do: from(f in FeedActivity, as: :feed_activity)

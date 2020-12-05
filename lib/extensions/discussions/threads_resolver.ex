@@ -2,7 +2,8 @@
 defmodule CommonsPub.Web.GraphQL.ThreadsResolver do
   alias CommonsPub.{GraphQL, Repo, Threads}
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchPage,
     # FetchPages,
     ResolveField,
@@ -117,9 +118,9 @@ defmodule CommonsPub.Web.GraphQL.ThreadsResolver do
       attrs = Map.put(attrs, :is_local, true)
 
       Repo.transact_with(fn ->
-        with {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id),
+        with {:ok, pointer} = Bonfire.Common.Pointers.one(id: context_id),
              :ok <- validate_thread_context(pointer),
-             context = CommonsPub.Meta.Pointers.follow!(pointer),
+             context = Bonfire.Common.Pointers.follow!(pointer),
              {:ok, thread} <- Threads.create(user, attrs, context) do
           Comments.create(user, thread, attrs)
         end
@@ -137,7 +138,7 @@ defmodule CommonsPub.Web.GraphQL.ThreadsResolver do
   end
 
   defp validate_thread_context(pointer) do
-    schema = CommonsPub.Meta.Pointers.table!(pointer).schema
+    schema = Bonfire.Common.Pointers.table!(pointer).schema
 
     if schema in valid_contexts() do
       :ok

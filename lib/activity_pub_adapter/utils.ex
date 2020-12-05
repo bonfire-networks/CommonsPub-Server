@@ -39,7 +39,7 @@ defmodule CommonsPub.ActivityPub.Utils do
     do: u
 
   def get_actor_username(%{character: %Ecto.Association.NotLoaded{}} = obj) do
-    get_actor_username(Map.get(CommonsPub.Repo.maybe_preload(obj, :character), :character))
+    get_actor_username(Map.get(Bonfire.Repo.maybe_preload(obj, :character), :character))
   end
 
   def get_actor_username(u) when is_binary(u),
@@ -76,7 +76,7 @@ defmodule CommonsPub.ActivityPub.Utils do
   end
 
   def get_actor_canonical_url(%{character: %Ecto.Association.NotLoaded{}} = obj) do
-    get_actor_canonical_url(Map.get(CommonsPub.Repo.maybe_preload(obj, :character), :character))
+    get_actor_canonical_url(Map.get(Bonfire.Repo.maybe_preload(obj, :character), :character))
   end
 
   def get_actor_canonical_url(actor) do

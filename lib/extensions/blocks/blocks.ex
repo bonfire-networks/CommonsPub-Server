@@ -30,11 +30,11 @@ defmodule CommonsPub.Blocks do
 
 
   def ap_publish_activity("create", %Block{} = block) do
-    block = CommonsPub.Repo.preload(block, creator: :character, context: [])
+    block = Bonfire.Repo.preload(block, creator: :character, context: [])
 
     with {:ok, blocker} <-
            ActivityPub.Actor.get_cached_by_username(block.creator.character.preferred_username),
-         blocked = CommonsPub.Meta.Pointers.follow!(block.context),
+         blocked = Bonfire.Common.Pointers.follow!(block.context),
          {:ok, blocked} <-
            ActivityPub.Actor.get_or_fetch_by_username(blocked.character.preferred_username) do
       # FIXME: insert pointer in AP database, insert cannonical URL in MN database
@@ -45,11 +45,11 @@ defmodule CommonsPub.Blocks do
   end
 
   def ap_publish_activity("delete", %Block{} = block) do
-    block = CommonsPub.Repo.preload(block, creator: :character, context: [])
+    block = Bonfire.Repo.preload(block, creator: :character, context: [])
 
     with {:ok, blocker} <-
            ActivityPub.Actor.get_cached_by_username(block.creator.character.preferred_username),
-         blocked = CommonsPub.Meta.Pointers.follow!(block.context),
+         blocked = Bonfire.Common.Pointers.follow!(block.context),
          {:ok, blocked} <-
            ActivityPub.Actor.get_or_fetch_by_username(blocked.character.preferred_username) do
       ActivityPub.unblock(blocker, blocked)

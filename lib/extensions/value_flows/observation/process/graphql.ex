@@ -2,15 +2,10 @@
 defmodule ValueFlows.Observation.Process.GraphQL do
   require Logger
 
-  alias CommonsPub.{
-    # Activities,
-    # Communities,
-    GraphQL,
-    Repo
-    # User
-  }
+  alias CommonsPub.Repo
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     ResolveField,
     # ResolveFields,
     # ResolvePage,
@@ -23,7 +18,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
 
   # alias CommonsPub.Resources.Resource
   # alias CommonsPub.Common.Enums
-  # alias CommonsPub.Meta.Pointers
+  # alias Bonfire.Common.Pointers
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 

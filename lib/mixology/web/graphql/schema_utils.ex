@@ -10,7 +10,7 @@ defmodule CommonsPub.Web.GraphQL.SchemaUtils do
   end
 
   def context_types() do
-    schemas = CommonsPub.Meta.TableService.list_pointable_schemas()
+    schemas = Bonfire.Common.Pointers.TableService.list_pointable_schemas()
 
     Enum.reduce(schemas, [], fn schema, acc ->
       if CommonsPub.Config.module_enabled?(schema) and function_exported?(schema, :type, 0) and

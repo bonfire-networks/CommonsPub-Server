@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Agent.GraphQL do
-  alias CommonsPub.GraphQL
+  alias Bonfire.GraphQL
 
   # alias CommonsPub.Utils.Simulation
   # alias ValueFlows.Simulate
@@ -43,11 +43,11 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # TODO: pagination
   def all_people(%{}, info) do
-    {:ok, ValueFlows.Agent.People.people(CommonsPub.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.People.people(Bonfire.GraphQL.current_user(info))}
   end
 
   def person(%{id: id}, info) do
-    {:ok, ValueFlows.Agent.People.person(id, CommonsPub.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.People.person(id, Bonfire.GraphQL.current_user(info))}
   end
 
   # with pagination
@@ -72,23 +72,23 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # without pagination
   def all_organizations(%{}, info) do
-    {:ok, ValueFlows.Agent.Organizations.organizations(CommonsPub.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.Organizations.organizations(Bonfire.GraphQL.current_user(info))}
   end
 
   def organization(%{id: id}, info) do
     {:ok,
      ValueFlows.Agent.Organizations.organization(
        id,
-       CommonsPub.GraphQL.current_user(info)
+       Bonfire.GraphQL.current_user(info)
      )}
   end
 
   def all_agents(%{}, info) do
-    {:ok, ValueFlows.Agent.Agents.agents(CommonsPub.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.Agents.agents(Bonfire.GraphQL.current_user(info))}
   end
 
   def agent(%{id: id}, info) do
-    {:ok, ValueFlows.Agent.Agents.agent(id, CommonsPub.GraphQL.current_user(info))}
+    {:ok, ValueFlows.Agent.Agents.agent(id, Bonfire.GraphQL.current_user(info))}
   end
 
   def my_agent(_, info) do

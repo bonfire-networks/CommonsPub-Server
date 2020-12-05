@@ -7,9 +7,9 @@ defmodule CommonsPub.Peers.Peer do
 
   Peers participate in the meta system and must be created from a Pointer
   """
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
 
-  import CommonsPub.Repo.Changeset,
+  import Bonfire.Repo.Changeset,
     only: [validate_http_url: 2, change_synced_timestamp: 3]
 
   alias Ecto.Changeset

@@ -14,7 +14,7 @@ defmodule CommonsPub.Web.Component.ResourcePreviewLive do
 
     resource = prepare_common(assigns.resource)
 
-    resource = CommonsPub.Repo.maybe_preload(resource, tags: [:profile])
+    resource = Bonfire.Repo.maybe_preload(resource, tags: [:profile])
 
     IO.inspect(resource_post_prep: resource)
 

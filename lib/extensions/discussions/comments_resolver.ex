@@ -4,8 +4,9 @@ defmodule CommonsPub.Web.GraphQL.CommentsResolver do
   # alias CommonsPub.Collections.Collection
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.Flags.Flag
-  alias CommonsPub.GraphQL.{FetchFields, FetchPage, ResolveFields, ResolvePages}
-  # alias CommonsPub.Meta.Pointers
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{FetchFields, FetchPage, ResolveFields, ResolvePages}
+  # alias Bonfire.Common.Pointers
   # alias CommonsPub.Resources.Resource
   alias CommonsPub.Threads.{Comment, Comments, Thread}
 

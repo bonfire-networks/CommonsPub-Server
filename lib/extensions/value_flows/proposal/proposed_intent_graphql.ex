@@ -2,9 +2,10 @@
 defmodule ValueFlows.Proposal.ProposedIntentGraphQL do
   use Absinthe.Schema.Notation
 
-  alias CommonsPub.GraphQL
+  alias Bonfire.GraphQL
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     ResolveField
   }
 

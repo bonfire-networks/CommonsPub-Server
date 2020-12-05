@@ -7,7 +7,7 @@ defmodule ValueFlows.Proposal do
     source: "vf_proposal",
     table_id: "PR0P0SA11SMADE0FTW01NTENTS"
 
-  import CommonsPub.Repo.Changeset, only: [change_public: 1]
+  import Bonfire.Repo.Changeset, only: [change_public: 1]
   alias Ecto.Changeset
   alias CommonsPub.Users.User
   #

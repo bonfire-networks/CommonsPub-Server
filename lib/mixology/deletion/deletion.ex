@@ -1,20 +1,20 @@
 defmodule CommonsPub.Common.Deletion do
   alias CommonsPub.Repo
 
-  alias CommonsPub.Common.DeletionError
+  alias Bonfire.Common.Errors.DeletionError
   alias CommonsPub.Users.User
 
   require Logger
 
   @doc "Find and runs the soft_delete function in the context module based on object type. "
   def trigger_soft_delete(id, current_user) when is_binary(id) do
-    with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
+    with {:ok, pointer} <- Bonfire.Common.Pointers.one(id: id) do
       trigger_soft_delete(pointer, current_user)
     end
   end
 
   def trigger_soft_delete(%Pointers.Pointer{} = pointer, current_user) do
-    context = CommonsPub.Meta.Pointers.follow!(pointer)
+    context = Bonfire.Common.Pointers.follow!(pointer)
     trigger_soft_delete(context, current_user)
   end
 
@@ -61,7 +61,7 @@ defmodule CommonsPub.Common.Deletion do
   @doc "Marks an entry as deleted in the database or throws a DeletionError"
   def soft_delete!(it), do: deletion_result!(do_soft_delete(it))
 
-  defp do_soft_delete(it), do: Repo.update(CommonsPub.Repo.Changeset.soft_delete_changeset(it))
+  defp do_soft_delete(it), do: Repo.update(Bonfire.Repo.Changeset.soft_delete_changeset(it))
 
   @spec hard_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}
   @doc "Actually deletes an entry from the database"

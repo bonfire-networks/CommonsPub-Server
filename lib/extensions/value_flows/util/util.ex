@@ -19,13 +19,13 @@ defmodule ValueFlows.Util do
   end
 
   def image_url(%{profile_id: profile_id} = thing) when not is_nil(profile_id) do
-    CommonsPub.Repo.maybe_preload(thing, :profile)
+    Bonfire.Repo.maybe_preload(thing, :profile)
     |> Map.get(:profile)
     |> image_url()
   end
 
   def image_url(%{icon_id: icon_id} = thing) when not is_nil(icon_id) do
-    CommonsPub.Repo.maybe_preload(thing, [icon: [:content_upload, :content_mirror]])
+    Bonfire.Repo.maybe_preload(thing, [icon: [:content_upload, :content_mirror]])
     # |> IO.inspect()
     |> Map.get(:icon)
     |> content_url_or_path()
@@ -33,7 +33,7 @@ defmodule ValueFlows.Util do
 
   def image_url(%{image_id: image_id} = thing) when not is_nil(image_id) do
     # IO.inspect(thing)
-    CommonsPub.Repo.maybe_preload(thing, [image: [:content_upload, :content_mirror]])
+    Bonfire.Repo.maybe_preload(thing, [image: [:content_upload, :content_mirror]])
     |> Map.get(:image)
     |> content_url_or_path()
   end

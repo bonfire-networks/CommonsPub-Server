@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Taxonomy.TaxonomyTag do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
 
   alias Ecto.Changeset
   alias Taxonomy.TaxonomyTag

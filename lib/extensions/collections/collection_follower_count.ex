@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Collections.CollectionFollowerCount do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
   alias CommonsPub.Collections.Collection
 
   view_schema "mn_collection_follower_count" do

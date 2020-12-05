@@ -3,13 +3,14 @@ defmodule CommonsPub.Features do
   alias CommonsPub.{Activities, Common, Features, GraphQL, Repo}
   alias CommonsPub.Features.{Feature, Queries}
   alias CommonsPub.Users.User
+  alias Bonfire.GraphQL
 
   def one(filters), do: Repo.single(Queries.query(Feature, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Feature, filters))}
 
   def create(%User{} = creator, %Pointers.Pointer{} = context, attrs) do
-    target_table = CommonsPub.Meta.Pointers.table!(context)
+    target_table = Bonfire.Common.Pointers.table!(context)
 
     if target_table.schema in get_valid_contexts() do
       Repo.insert(Feature.create_changeset(creator, context, attrs))

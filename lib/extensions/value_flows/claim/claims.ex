@@ -8,7 +8,7 @@ defmodule ValueFlows.Claim.Claims do
   alias ValueFlows.Claim
   alias ValueFlows.Claim.Queries
 
-  alias CommonsPub.Meta.Pointers
+  alias Bonfire.Common.Pointers
 
   def one(filters), do: Repo.single(Queries.query(Claim, filters))
 

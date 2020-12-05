@@ -6,7 +6,7 @@ defmodule CommonsPub.Web.GraphQL.Schema do
   require Logger
 
   alias CommonsPub.Web.GraphQL.SchemaUtils
-  alias CommonsPub.GraphQL.Middleware.CollapseErrors
+  alias Bonfire.GraphQL.Middleware.CollapseErrors
   alias Absinthe.Middleware.{Async, Batch}
 
   # @pipeline_modifier OverridePhase
@@ -14,7 +14,7 @@ defmodule CommonsPub.Web.GraphQL.Schema do
   def plugins, do: [Async, Batch]
 
   def middleware(middleware, _field, _object) do
-    # [{CommonsPub.GraphQL.Middleware.Debug, :start}] ++
+    # [{Bonfire.GraphQL.Middleware.Debug, :start}] ++
     middleware ++ [CollapseErrors]
   end
 
@@ -26,12 +26,12 @@ defmodule CommonsPub.Web.GraphQL.Schema do
   import_types(CommonsPub.Web.GraphQL.CommentsSchema)
   import_types(CommonsPub.Web.GraphQL.CommonSchema)
   import_types(CommonsPub.Web.GraphQL.CommunitiesSchema)
-  import_types(CommonsPub.GraphQL.Cursor)
+  import_types(Bonfire.GraphQL.Cursor)
   import_types(CommonsPub.Web.GraphQL.FeaturesSchema)
   import_types(CommonsPub.Web.GraphQL.FlagsSchema)
   import_types(CommonsPub.Web.GraphQL.FollowsSchema)
   import_types(CommonsPub.Web.GraphQL.InstanceSchema)
-  import_types(CommonsPub.GraphQL.JSON)
+  import_types(Bonfire.GraphQL.JSON)
   import_types(CommonsPub.Web.GraphQL.LikesSchema)
   import_types(CommonsPub.Web.GraphQL.MiscSchema)
   import_types(CommonsPub.Web.GraphQL.ResourcesSchema)

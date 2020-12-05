@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Common.Tagging do
-  # use CommonsPub.Repo.Schema
+  # use Bonfire.Repo.Schema
 
-  # import CommonsPub.Repo.Changeset, only: [change_public: 1]
+  # import Bonfire.Repo.Changeset, only: [change_public: 1]
   # alias Ecto.Changeset
   # alias CommonsPub.Users.User
   # alias Pointers.Pointer

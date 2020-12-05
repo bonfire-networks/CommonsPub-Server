@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Web.GraphQL.CommonResolver do
   alias Ecto.ULID
-  alias CommonsPub.GraphQL
+  alias Bonfire.GraphQL
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     Fields,
     # Pages,
     # FetchFields,
@@ -16,7 +17,7 @@ defmodule CommonsPub.Web.GraphQL.CommonResolver do
   # alias CommonsPub.Follows.Follow
   # alias CommonsPub.Flags.Flag
   # alias CommonsPub.Threads.Comment
-  alias CommonsPub.Meta.Pointers
+  alias Bonfire.Common.Pointers
   # alias CommonsPub.Common
 
   def resolve_context_type(%CommonsPub.Communities.Community{}, _), do: :community

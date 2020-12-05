@@ -9,8 +9,8 @@ defmodule CommonsPub.ActivityPub.Types do
         _ -> "CommonsPub:Character"
       end
 
-    character = CommonsPub.Repo.maybe_preload(character, [:character])
-    character = CommonsPub.Repo.maybe_preload(character, [:profile])
+    character = Bonfire.Repo.maybe_preload(character, [:character])
+    character = Bonfire.Repo.maybe_preload(character, [:profile])
 
     context = CommonsPub.ActivityPub.Utils.get_context_ap_id(character)
 

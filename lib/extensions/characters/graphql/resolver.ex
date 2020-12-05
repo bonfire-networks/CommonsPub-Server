@@ -2,12 +2,12 @@
 defmodule CommonsPub.Characters.GraphQL.Resolver do
   alias CommonsPub.{
     Activities,
-    GraphQL,
     Repo,
     Resources
   }
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     # Flow,
     FetchFields,
     FetchPage,
@@ -147,7 +147,7 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
   def characterise(%{context_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: id) do
+           {:ok, pointer} <- Bonfire.Common.Pointers.one(id: id) do
         Characters.characterise(me, pointer)
       end
     end)

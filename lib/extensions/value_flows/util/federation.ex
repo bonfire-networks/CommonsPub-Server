@@ -26,7 +26,7 @@ defmodule ValueFlows.Util.Federation do
     field_filters = @graphql_ignore_fields ++ extra_field_filters
 
     with obj <-
-           CommonsPub.GraphQL.QueryHelper.run_query_id(
+           Bonfire.GraphQL.QueryHelper.run_query_id(
              id,
              @schema,
              schema_type,
@@ -63,7 +63,7 @@ defmodule ValueFlows.Util.Federation do
 
       if is_map_key(thing, :canonical_url) do
         Ecto.Changeset.change(thing, %{canonical_url: activity_object_id(activity)})
-        |> CommonsPub.Repo.update()
+        |> Bonfire.Repo.update()
       end
 
       {:ok, activity}

@@ -15,7 +15,7 @@ defmodule CommonsPub.DataCase do
   """
 
   use ExUnit.CaseTemplate
-  alias CommonsPub.Common.DeletionError
+  alias Bonfire.Common.Errors.DeletionError
 
   using do
     quote do

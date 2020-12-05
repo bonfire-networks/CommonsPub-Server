@@ -2,10 +2,12 @@
 defmodule CommonsPub.Web.GraphQL.ActivitiesResolver do
   alias CommonsPub.Activities
   alias CommonsPub.Activities.Activity
-  alias CommonsPub.GraphQL.{Fields, ResolveFields}
-  alias CommonsPub.Meta.Pointers
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{Fields, ResolveFields}
+  alias Bonfire.Common.Pointers
 
-  alias CommonsPub.GraphQL.{FetchPage}
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{FetchPage}
 
   def activity(%{activity_id: id}, %{context: %{current_user: user}}) do
     Activities.one(id: id, user: user)

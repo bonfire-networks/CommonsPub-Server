@@ -9,7 +9,8 @@ defmodule Geolocation.GraphQL do
     Repo
   }
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     # ResolvePage,
     # ResolvePages,
     ResolveField,
@@ -125,8 +126,8 @@ defmodule Geolocation.GraphQL do
   def create_geolocation(%{spatial_thing: attrs, in_scope_of: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
-           context = CommonsPub.Meta.Pointers.follow!(pointer),
+           {:ok, pointer} <- Bonfire.Common.Pointers.one(id: context_id),
+           context = Bonfire.Common.Pointers.follow!(pointer),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, g} <- Geolocations.create(user, context, attrs) do
         {:ok, %{spatial_thing: g}}

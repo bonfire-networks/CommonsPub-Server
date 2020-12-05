@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Flags.Queries do
   alias CommonsPub.Flags.Flag
-  alias CommonsPub.Meta.TableService
+  alias Bonfire.Common.Pointers.TableService
   alias CommonsPub.Users.User
   import Ecto.Query
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  import CommonsPub.Repo, only: [match_admin: 0]
 
   def query(Flag), do: from(f in Flag, as: :flag)
 

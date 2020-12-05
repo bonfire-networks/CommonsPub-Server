@@ -73,7 +73,7 @@ defmodule CommonsPub.Tag.Categories do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    CommonsPub.GraphQL.Pagination.pages(
+    Bonfire.GraphQL.Pagination.pages(
       Queries,
       Category,
       cursor_fn,

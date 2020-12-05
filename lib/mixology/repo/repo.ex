@@ -113,7 +113,7 @@ defmodule CommonsPub.Repo do
   def maybe_do_preload(%Ecto.Association.NotLoaded{}, _), do: nil
 
   def maybe_do_preload(obj, preloads) when is_struct(obj) do
-    CommonsPub.Repo.preload(obj, preloads)
+    Bonfire.Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
       obj
@@ -123,4 +123,12 @@ defmodule CommonsPub.Repo do
   end
 
   def maybe_do_preload(obj, _), do: obj
+
+  defmacro match_admin() do
+    quote do
+      %CommonsPub.Users.User{
+        local_user: %CommonsPub.Users.LocalUser{is_instance_admin: true}
+      }
+    end
+  end
 end

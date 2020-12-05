@@ -4,7 +4,8 @@ defmodule ValueFlows.Proposal.Proposals do
 
   alias CommonsPub.{Activities, Common, Feeds}
   alias CommonsPub.Repo
-  alias CommonsPub.GraphQL.{Fields, Page}
+  # alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{Fields, Page}
   # alias CommonsPub.Contexts
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
@@ -98,7 +99,7 @@ defmodule ValueFlows.Proposal.Proposals do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    CommonsPub.GraphQL.Pagination.pages(
+    Bonfire.GraphQL.Pagination.pages(
       Queries,
       Proposal,
       cursor_fn,

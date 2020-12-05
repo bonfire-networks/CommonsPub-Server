@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.GraphQL.CommonTest do
+defmodule Bonfire.GraphQL.CommonTest do
   # use CommonsPub.Web.ConnCase, async: true
   # alias CommonsPub.Utils.Simulation
 

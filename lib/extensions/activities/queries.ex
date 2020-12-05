@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Activities.Queries do
   alias CommonsPub.Activities.Activity
-  alias CommonsPub.Meta.TableService
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  alias Bonfire.Common.Pointers.TableService
+  import CommonsPub.Repo, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Activity), do: from(a in Activity, as: :activity)

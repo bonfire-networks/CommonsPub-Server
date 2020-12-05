@@ -118,7 +118,7 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
   end
 
   def prepare(%{:__struct__ => _} = activity, current_user) do
-    activity = CommonsPub.Repo.maybe_preload(activity, [:creator, :context])
+    activity = Bonfire.Repo.maybe_preload(activity, [:creator, :context])
 
     prepare_activity(activity, current_user)
   end
@@ -129,7 +129,7 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
 
   defp prepare_parent_context(%{context: %{thread_id: thread_id} = _context} = activity)
        when not is_nil(thread_id) do
-    activity = CommonsPub.Repo.maybe_preload(activity, context: [:thread])
+    activity = Bonfire.Repo.maybe_preload(activity, context: [:thread])
 
     activity
     |> Map.merge(%{
@@ -189,7 +189,7 @@ defmodule CommonsPub.Activities.Web.ActivitiesHelper do
           context: %Ecto.Association.NotLoaded{}
         } = activity
       ) do
-    activity = CommonsPub.Repo.maybe_preload(activity, :context)
+    activity = Bonfire.Repo.maybe_preload(activity, :context)
     activity_url(activity)
   end
 

@@ -192,7 +192,7 @@ defmodule CommonsPub.ReleaseTasks do
   end
 
   def check_schema_config do
-    pointable_schemas = CommonsPub.Meta.TableService.list_pointable_schemas()
+    pointable_schemas = Bonfire.Common.Pointers.TableService.list_pointable_schemas()
     configured_types = CommonsPub.Config.get([CommonsPub.Instance, :types_all])
     IO.inspect(types_missing_from_config: pointable_schemas -- configured_types)
     IO.inspect(types_in_config_not_pointable_in_db: configured_types -- pointable_schemas)

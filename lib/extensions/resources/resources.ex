@@ -34,7 +34,7 @@ defmodule CommonsPub.Resources do
           {:ok, Resource.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = collection_or_context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      collection_or_context = CommonsPub.Repo.maybe_preload(collection_or_context, :character)
+      collection_or_context = Bonfire.Repo.maybe_preload(collection_or_context, :character)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
            {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
@@ -97,7 +97,7 @@ defmodule CommonsPub.Resources do
   def save_attached_tags(creator, obj, attrs) do
     with {:ok, _taggable} <-
            CommonsPub.Tag.TagThings.thing_attach_tags(creator, obj, attrs.mentions) do
-      # {:ok, CommonsPub.Repo.preload(comment, :tags)}
+      # {:ok, Bonfire.Repo.preload(comment, :tags)}
       {:ok, nil}
     end
   end
@@ -231,7 +231,7 @@ defmodule CommonsPub.Resources do
          },
          {:ok, activity} <- ActivityPub.create(params, resource.id) do
       Ecto.Changeset.change(resource, %{canonical_url: activity.object.data["id"]})
-      |> CommonsPub.Repo.update()
+      |> Bonfire.Repo.update()
 
       {:ok, activity}
     else
@@ -281,11 +281,11 @@ defmodule CommonsPub.Resources do
   end
 
   def indexing_object_format(%CommonsPub.Resources.Resource{} = resource) do
-    resource = CommonsPub.Repo.maybe_preload(resource, :creator)
-    resource = CommonsPub.Repo.maybe_preload(resource, :context)
-    context = CommonsPub.Repo.maybe_preload(Map.get(resource, :context), :character)
+    resource = Bonfire.Repo.maybe_preload(resource, :creator)
+    resource = Bonfire.Repo.maybe_preload(resource, :context)
+    context = Bonfire.Repo.maybe_preload(Map.get(resource, :context), :character)
 
-    resource = CommonsPub.Repo.maybe_preload(resource, :content)
+    resource = Bonfire.Repo.maybe_preload(resource, :content)
 
     likes_count =
       case CommonsPub.Likes.LikerCounts.one(context: resource.id) do

@@ -6,7 +6,8 @@ defmodule CommonsPub.Web.GraphQL.CommunitiesResolver do
   alias CommonsPub.{Activities, Communities, GraphQL, Repo}
   alias CommonsPub.Communities.Community
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchFields,
     Page,
     FetchPage,
@@ -148,9 +149,9 @@ defmodule CommonsPub.Web.GraphQL.CommunitiesResolver do
 
   def create_community(%{community: attrs, context_id: context_id} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id),
+         {:ok, pointer} = Bonfire.Common.Pointers.one(id: context_id),
          #  :ok <- validate_context(pointer),
-         context = CommonsPub.Meta.Pointers.follow!(pointer),
+         context = Bonfire.Common.Pointers.follow!(pointer),
          {:ok, uploads} <- UploadResolver.upload(user, params, info) do
       Communities.create(user, context, Map.merge(attrs, uploads))
     end

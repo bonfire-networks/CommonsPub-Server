@@ -3,7 +3,8 @@ defmodule CommonsPub.Web.GraphQL.FlagsResolver do
   alias CommonsPub.{Flags, GraphQL, Repo}
   alias CommonsPub.Flags.Flag
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -12,7 +13,7 @@ defmodule CommonsPub.Web.GraphQL.FlagsResolver do
     ResolvePages
   }
 
-  alias CommonsPub.Meta.Pointers
+  alias Bonfire.Common.Pointers
   alias CommonsPub.Users.User
 
   def flag(%{flag_id: id}, info) do

@@ -10,7 +10,8 @@ defmodule CommonsPub.Web.GraphQL.FollowsResolver do
     FollowerCountsQueries
   }
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -18,7 +19,7 @@ defmodule CommonsPub.Web.GraphQL.FollowsResolver do
     ResolvePages
   }
 
-  alias CommonsPub.Meta.Pointers
+  alias Bonfire.Common.Pointers
   alias CommonsPub.Users.User
 
   def follow(%{follow_id: id}, info) do

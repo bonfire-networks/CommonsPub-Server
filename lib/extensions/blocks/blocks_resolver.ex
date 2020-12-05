@@ -3,7 +3,8 @@ defmodule CommonsPub.Web.GraphQL.BlocksResolver do
   alias CommonsPub.{Blocks, GraphQL, Repo}
   alias CommonsPub.Blocks.Block
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchFields,
     FetchPage,
     # FetchPages,
@@ -12,7 +13,7 @@ defmodule CommonsPub.Web.GraphQL.BlocksResolver do
     ResolvePages
   }
 
-  alias CommonsPub.Meta.Pointers
+  alias Bonfire.Common.Pointers
   alias CommonsPub.Users.User
 
   def block(%{block_id: id}, info) do

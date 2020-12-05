@@ -31,7 +31,7 @@ defmodule CommonsPub.Discussions.Web.DiscussionsHelper do
   def prepare_comment(comment, _current_user \\ nil)
 
   def prepare_comment(%CommonsPub.Threads.Comment{} = comment, _current_user) do
-    comment = CommonsPub.Repo.maybe_preload(comment, :creator)
+    comment = Bonfire.Repo.maybe_preload(comment, :creator)
 
     creator = ProfilesHelper.prepare(comment.creator, %{icon: true, character: true})
 
@@ -53,8 +53,8 @@ defmodule CommonsPub.Discussions.Web.DiscussionsHelper do
   def prepare_thread(thread, _with_context) do
     thread =
       if(!is_nil(thread.context_id)) do
-        {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: thread.context_id)
-        context = CommonsPub.Meta.Pointers.follow!(pointer)
+        {:ok, pointer} = Bonfire.Common.Pointers.one(id: thread.context_id)
+        context = Bonfire.Common.Pointers.follow!(pointer)
         IO.inspect(context, label: "COPNTEXT")
 
         context =
@@ -79,8 +79,8 @@ defmodule CommonsPub.Discussions.Web.DiscussionsHelper do
   def prepare_thread(thread) do
     thread =
       if(!is_nil(thread.context_id)) do
-        {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: thread.context_id)
-        context = CommonsPub.Meta.Pointers.follow!(pointer)
+        {:ok, pointer} = Bonfire.Common.Pointers.one(id: thread.context_id)
+        context = Bonfire.Common.Pointers.follow!(pointer)
 
         thread
         |> Map.merge(%{context: context})
@@ -88,7 +88,7 @@ defmodule CommonsPub.Discussions.Web.DiscussionsHelper do
         thread
       end
 
-    thread = CommonsPub.Repo.maybe_preload(thread, :creator)
+    thread = Bonfire.Repo.maybe_preload(thread, :creator)
 
     creator = ProfilesHelper.prepare(thread.creator, %{icon: true, character: true})
 

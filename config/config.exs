@@ -2,8 +2,13 @@
 import Config
 
 import_config "bonfire_quantify.exs"
-config :bonfire_quantify,
-  otp_app: :bonfire
+
+config :bonfire_common,
+  otp_app: :bonfire,
+  repo_module: CommonsPub.Repo
+
+config :bonfire_api_graphql,
+  repo_module: CommonsPub.Repo
 
 alias CommonsPub.{
   Blocks,

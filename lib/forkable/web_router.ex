@@ -53,13 +53,13 @@ defmodule CommonsPub.Web.Router do
     plug :fetch_session
     plug CommonsPub.Web.Plugs.Auth
     plug CommonsPub.Web.Plugs.SetLocale
-    plug CommonsPub.GraphQL.Plugs.GraphQLContext
+    plug Bonfire.GraphQL.Plugs.GraphQLContext
   end
 
   scope "/api" do
     get "/", CommonsPub.Web.PageController, :api
 
-    get "/schema", CommonsPub.GraphQL.DevTools, :schema
+    get "/schema", Bonfire.GraphQL.DevTools, :schema
 
     scope "/explore" do
       pipe_through :browser
@@ -70,21 +70,21 @@ defmodule CommonsPub.Web.Router do
         schema: @schema,
         interface: :simple,
         json_codec: Jason,
-        pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {Bonfire.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
 
       get "/playground", Absinthe.Plug.GraphiQL,
         schema: @schema,
         interface: :playground,
         json_codec: Jason,
-        pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {Bonfire.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
 
       forward "/", Absinthe.Plug.GraphiQL,
         schema: @schema,
         interface: :advanced,
         json_codec: Jason,
-        pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {Bonfire.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
     end
 
@@ -95,7 +95,7 @@ defmodule CommonsPub.Web.Router do
         schema: @schema,
         interface: :playground,
         json_codec: Jason,
-        pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline}
+        pipeline: {Bonfire.GraphQL.Pipeline, :default_pipeline}
     end
   end
 

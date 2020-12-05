@@ -28,7 +28,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
       process = fake_process!(user)
 
       assert queried =
-               CommonsPub.GraphQL.QueryHelper.run_query_id(
+               Bonfire.GraphQL.QueryHelper.run_query_id(
                  process.id,
                  @schema,
                  :process,

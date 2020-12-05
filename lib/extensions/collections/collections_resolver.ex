@@ -3,13 +3,13 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
   alias CommonsPub.{
     Activities,
     Collections,
-    Communities,
-    GraphQL,
+    # Communities,
     Repo
     # Resources
   }
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     FetchFields,
     FetchPage,
     ResolveField,
@@ -19,7 +19,7 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
     ResolveRootPage
   }
 
-  alias CommonsPub.Communities.Community
+  # alias CommonsPub.Communities.Community
   alias CommonsPub.Collections.Collection
   # alias CommonsPub.Resources.Resource
   alias CommonsPub.Web.GraphQL.UploadResolver
@@ -184,9 +184,9 @@ defmodule CommonsPub.Web.GraphQL.CollectionsResolver do
   def create_collection(%{collection: attrs, context_id: context_id} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} = CommonsPub.Meta.Pointers.one(id: context_id),
+           {:ok, pointer} = Bonfire.Common.Pointers.one(id: context_id),
            #  :ok <- validate_context(pointer),
-           context = CommonsPub.Meta.Pointers.follow!(pointer),
+           context = Bonfire.Common.Pointers.follow!(pointer),
            {:ok, uploads} <- UploadResolver.upload(user, params, info) do
         attrs =
           attrs

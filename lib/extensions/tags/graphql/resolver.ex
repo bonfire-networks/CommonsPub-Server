@@ -3,7 +3,8 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   @moduledoc "GraphQL tag/category queries"
   alias CommonsPub.{GraphQL, Repo}
 
-  alias CommonsPub.GraphQL.{
+  alias Bonfire.GraphQL
+  alias Bonfire.GraphQL.{
     # CommonResolver,
     FetchFields,
     FetchPage,
@@ -240,8 +241,8 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   #     when is_nil(name) and not is_nil(context_id) do
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
-  #   with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
-  #        context = CommonsPub.Meta.Pointers.follow!(pointer) do
+  #   with {:ok, pointer} <- Bonfire.Common.Pointers.one(id: context_id),
+  #        context = Bonfire.Common.Pointers.follow!(pointer) do
   #     name = if Map.has_key?(context, :name), do: context.name
   #     {:ok, name}
   #   end
@@ -263,8 +264,8 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   #     when is_nil(summary) and not is_nil(context_id) do
 
   #   # TODO: optimise so it doesn't repeat these queries (for context and summary fields)
-  #   with {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
-  #        context = CommonsPub.Meta.Pointers.follow!(pointer) do
+  #   with {:ok, pointer} <- Bonfire.Common.Pointers.one(id: context_id),
+  #        context = Bonfire.Common.Pointers.follow!(pointer) do
   #     summary = if Map.has_key?(context, :summary), do: context.summary
   #     {:ok, summary}
   #   end

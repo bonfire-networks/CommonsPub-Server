@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Common.TagCategory do
-  use CommonsPub.Repo.Schema
+  use Bonfire.Repo.Schema
 
   table_schema "mn_tag_category" do
     field(:canonical_url, :string)

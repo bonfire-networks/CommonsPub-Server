@@ -5,7 +5,7 @@ defmodule Geolocation.Queries do
   alias CommonsPub.Follows.{Follow, FollowerCount}
   # alias CommonsPub.Users
   alias CommonsPub.Users.User
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  import CommonsPub.Repo, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Geolocation) do

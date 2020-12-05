@@ -194,7 +194,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
     ap_base = uri.scheme <> "://" <> uri.host
 
     peer =
-      case CommonsPub.Repo.get_by(CommonsPub.Peers.Peer, ap_url_base: ap_base) do
+      case Bonfire.Repo.get_by(CommonsPub.Peers.Peer, ap_url_base: ap_base) do
         nil ->
           {:ok, peer} = CommonsPub.Peers.create(%{ap_url_base: ap_base, domain: uri.host})
           peer

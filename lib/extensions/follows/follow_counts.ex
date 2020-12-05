@@ -2,7 +2,7 @@
 defmodule CommonsPub.Follows.FollowCounts do
   alias CommonsPub.Repo
   alias CommonsPub.Follows.{FollowCount, FollowCountsQueries}
-  alias CommonsPub.GraphQL.Fields
+  alias Bonfire.GraphQL.Fields
 
   def one(filters), do: Repo.single(FollowCountsQueries.query(FollowCount, filters))
 

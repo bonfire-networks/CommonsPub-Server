@@ -49,7 +49,7 @@ defmodule CommonsPub.Communities do
   def create(%User{} = creator, %{id: _} = community_or_context, %{} = attrs) do
     Repo.transact_with(fn ->
       # TODO: address activity to context's outbox/followers
-      community_or_context = CommonsPub.Repo.maybe_preload(community_or_context, :character)
+      community_or_context = Bonfire.Repo.maybe_preload(community_or_context, :character)
 
       # with {:ok, comm_attrs} <- create_boxes(character, attrs),
       with {:ok, comm} <- insert_community(creator, community_or_context, attrs),
@@ -218,7 +218,7 @@ defmodule CommonsPub.Communities do
          },
          {:ok, activity} <- ActivityPub.create(params) do
       Ecto.Changeset.change(community.character, %{canonical_url: community_object["id"]})
-      |> CommonsPub.Repo.update()
+      |> Bonfire.Repo.update()
 
       {:ok, activity}
     else

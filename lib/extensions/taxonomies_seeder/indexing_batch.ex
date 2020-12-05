@@ -6,7 +6,7 @@ defmodule Taxonomy.IndexingBatch do
   def batch() do
     CommonsPub.Search.Indexer.init_index(@tags_index_name)
 
-    {:ok, tags} = CommonsPub.Repo.query("WITH RECURSIVE taxonomy_tags_tree AS
+    {:ok, tags} = Bonfire.Repo.query("WITH RECURSIVE taxonomy_tags_tree AS
     (SELECT id, name, parent_tag_id, CAST(name As varchar(1000)) As name_crumbs, summary
     FROM taxonomy_tag
     WHERE parent_tag_id is null

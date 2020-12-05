@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Meta.Introspection do
+defmodule Bonfire.Repo.Introspection do
   @moduledoc """
   Utilities for introspecting our use of Ecto within CommonsPub
   """

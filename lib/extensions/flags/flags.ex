@@ -21,8 +21,8 @@ defmodule CommonsPub.Flags do
         %{is_local: is_local} = fields
       )
       when is_boolean(is_local) do
-    flagged = CommonsPub.Meta.Pointers.maybe_forge!(flagged)
-    %Pointers.Table{schema: table} = CommonsPub.Meta.Pointers.table!(flagged)
+    flagged = Bonfire.Common.Pointers.maybe_forge!(flagged)
+    %Pointers.Table{schema: table} = Bonfire.Common.Pointers.table!(flagged)
 
     if table in valid_contexts() do
       Repo.transact_with(fn ->
@@ -94,11 +94,11 @@ defmodule CommonsPub.Flags do
   defp ap_publish(_, _), do: :ok
 
   def ap_publish_activity("create", %Flag{} = flag) do
-    flag = CommonsPub.Repo.preload(flag, creator: :character, context: [])
+    flag = Bonfire.Repo.preload(flag, creator: :character, context: [])
 
     with {:ok, flagger} <-
            ActivityPub.Actor.get_cached_by_username(flag.creator.character.preferred_username) do
-      flagged = CommonsPub.Meta.Pointers.follow!(flag.context)
+      flagged = Bonfire.Common.Pointers.follow!(flag.context)
 
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
@@ -113,7 +113,7 @@ defmodule CommonsPub.Flags do
             }
 
           %{character_id: id} when not is_nil(id) ->
-            flagged = CommonsPub.Repo.preload(flagged, :character)
+            flagged = Bonfire.Repo.preload(flagged, :character)
 
             {:ok, account} =
               ActivityPub.Actor.get_or_fetch_by_username(flagged.character.preferred_username)
@@ -124,7 +124,7 @@ defmodule CommonsPub.Flags do
             }
 
           %{creator_id: id} when not is_nil(id) ->
-            flagged = CommonsPub.Repo.preload(flagged, creator: :character)
+            flagged = Bonfire.Repo.preload(flagged, creator: :character)
 
             {:ok, account} =
               ActivityPub.Actor.get_or_fetch_by_username(
@@ -168,8 +168,8 @@ defmodule CommonsPub.Flags do
       # Filter nils
       |> Enum.filter(fn pointer_id -> pointer_id end)
       |> Enum.map(fn pointer_id ->
-        CommonsPub.Meta.Pointers.one!(id: pointer_id)
-        |> CommonsPub.Meta.Pointers.follow!()
+        Bonfire.Common.Pointers.one!(id: pointer_id)
+        |> Bonfire.Common.Pointers.follow!()
       end)
       |> Enum.each(fn thing ->
         CommonsPub.Flags.create(actor, thing, %{
@@ -192,8 +192,8 @@ defmodule CommonsPub.Flags do
            CommonsPub.ActivityPub.Utils.get_raw_character_by_ap_id(activity.data["actor"]),
          pointer_id <- CommonsPub.ActivityPub.Utils.get_pointer_id_by_ap_id(object),
          thing =
-           CommonsPub.Meta.Pointers.one!(id: pointer_id)
-           |> CommonsPub.Meta.Pointers.follow!() do
+           Bonfire.Common.Pointers.one!(id: pointer_id)
+           |> Bonfire.Common.Pointers.follow!() do
       CommonsPub.Flags.create(actor, thing, %{
         message: activity.data["content"],
         is_local: false

@@ -4,7 +4,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # alias ValueFlows.Planning.Intents
   alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
-  import CommonsPub.Repo.Query, only: [match_admin: 0]
+  import CommonsPub.Repo, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
 

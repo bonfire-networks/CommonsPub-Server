@@ -58,7 +58,7 @@ The server code is broadly composed of four parts.
 
 This namespace contains the core business logic. Every `CommonsPub` object type has at least context module (e. g. `CommonsPub.Communities`), a model/schema module (`CommonsPub.Communities.Community`) and a queries module (`CommonsPub.Communities.Queries`).
 
-All `CommonsPub` objects use an ULID as their primary key. We use the pointers library (`CommonsPub.Meta.Pointers`) to reference any object by its primary key without knowing what type it is beforehand. This is very useful as we allow for example following or liking many different types of objects and this approach allows us to store the context of the like/follow by only storing its primary key (see `CommonsPub.Follows.Follow`) for an example.
+All `CommonsPub` objects use an ULID as their primary key. We use the pointers library (`Bonfire.Common.Pointers`) to reference any object by its primary key without knowing what type it is beforehand. This is very useful as we allow for example following or liking many different types of objects and this approach allows us to store the context of the like/follow by only storing its primary key (see `CommonsPub.Follows.Follow`) for an example.
 
 All context modules have a `one/1` and `many/1` function for fetching objects. These take a keyword list as filters as arguments allowing objects to be fetched by arbitrary criteria defined in the queries modules.
 
@@ -109,7 +109,7 @@ Here are the current contexts:
 - `CommonsPub.Application` (OTP application)
 - `CommonsPub.ActivityPub` (ActivityPub integration)
 - `CommonsPub.Common` (stuff that gets used everywhere)
-- `CommonsPub.GraphQL` (GraphQL abstractions)
+- `Bonfire.GraphQL` (GraphQL abstractions)
 - `CommonsPub.MediaProxy` (for fetching remote media)
 - `CommonsPub.MetadataScraper` (for scraping metadata from a URL)
 - `CommonsPub.Queries` (Helpers for making queries)
