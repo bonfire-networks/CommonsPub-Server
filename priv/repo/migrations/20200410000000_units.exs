@@ -2,6 +2,6 @@ defmodule CommonsPub.Repo.Migrations.Units do
   use Ecto.Migration
 
   def change do
-    Measurement.Migrations.change()
+    Bonfire.Quantities.Migrations.change()
   end
 end

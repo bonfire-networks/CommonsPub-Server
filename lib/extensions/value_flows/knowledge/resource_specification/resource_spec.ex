@@ -12,7 +12,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   # alias CommonsPub.Communities.Community
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
-  alias Measurement.Unit
+  alias Bonfire.Quantities.Unit
 
   @type t :: %__MODULE__{}
 

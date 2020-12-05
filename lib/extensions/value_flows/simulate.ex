@@ -6,7 +6,7 @@ defmodule ValueFlows.Simulate do
   import CommonsPub.Utils.Trendy
   # import CommonsPub.Utils.Simulation
 
-  import Measurement.Simulate
+  import Bonfire.Quantities.Simulate
 
   alias ValueFlows.Claim.Claims
   alias ValueFlows.Planning.Intent.Intents

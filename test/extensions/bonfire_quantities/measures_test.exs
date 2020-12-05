@@ -1,5 +1,5 @@
 # # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.MeasuresTest do
+defmodule Bonfire.Quantities.MeasuresTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Trendy
@@ -12,10 +12,10 @@ defmodule Measurement.MeasuresTest do
   import Zest
   alias CommonsPub.Utils.Simulation
 
-  import Measurement.Test.Faking
-  import Measurement.Simulate
-  alias Measurement.Measure
-  alias Measurement.Measure.Measures
+  import Bonfire.Quantities.Test.Faking
+  import Bonfire.Quantities.Simulate
+  alias Bonfire.Quantities.Measure
+  alias Bonfire.Quantities.Measures
 
   describe "one" do
     test "fetches an existing measure" do

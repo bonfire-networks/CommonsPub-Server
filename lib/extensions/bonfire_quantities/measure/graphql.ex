@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.Measure.GraphQL do
+defmodule Bonfire.Quantities.Measures.GraphQL do
   use Absinthe.Schema.Notation
 
-  alias CommonsPub.{GraphQL, Repo}
+  alias CommonsPub.GraphQL
 
   alias CommonsPub.GraphQL.{
     ResolveField,
@@ -15,8 +15,10 @@ defmodule Measurement.Measure.GraphQL do
     FetchFields
   }
 
-  alias Measurement.Measure.Measures
-  alias Measurement.Unit.Units
+  alias Bonfire.Quantities.Measures
+  alias Bonfire.Quantities.Units
+
+  @repo CommonsPub.Repo
 
   # resolvers
 
@@ -51,8 +53,8 @@ defmodule Measurement.Measure.GraphQL do
 
   def fetch_measures(page_opts, info) do
     FetchPage.run(%FetchPage{
-      queries: Measurement.Measure.Queries,
-      query: Measurement.Measure,
+      queries: Bonfire.Quantities.Measures.Queries,
+      query: Bonfire.Quantities.Measure,
       cursor_fn:  & &1.id,
       page_opts: page_opts,
       base_filters: [user: GraphQL.current_user(info)],
@@ -75,8 +77,8 @@ defmodule Measurement.Measure.GraphQL do
 
   def fetch_has_unit_edge(_, ids) do
     FetchFields.run(%FetchFields{
-      queries: Measurement.Unit.Queries,
-      query: Measurement.Unit,
+      queries: Bonfire.Quantities.Units.Queries,
+      query: Bonfire.Quantities.Unit,
       group_fn: & &1.id,
       filters: [:deleted, :private, id: ids]
     })
@@ -85,7 +87,7 @@ defmodule Measurement.Measure.GraphQL do
   # mutations
 
   def create_measures(attrs, info, fields) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       attrs
       |> Map.take(fields)
       |> map_ok_error(&create_measure(&1, info))
@@ -93,7 +95,7 @@ defmodule Measurement.Measure.GraphQL do
   end
 
   def update_measures(attrs, info, fields) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       attrs
       |> Map.take(fields)
       |> map_ok_error(fn
@@ -133,7 +135,7 @@ defmodule Measurement.Measure.GraphQL do
   end
 
   def create_measure(%{has_unit: unit_id} = attrs, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, unit} <- Units.one(user: user, id: unit_id),
            {:ok, measure} <- Measures.create(user, unit, attrs) do
@@ -143,7 +145,7 @@ defmodule Measurement.Measure.GraphQL do
   end
 
   def update_measure(%{id: id} = changes, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, measure} <- measure(%{id: id}, info) do
         cond do

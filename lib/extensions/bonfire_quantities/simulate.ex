@@ -1,9 +1,9 @@
-defmodule Measurement.Simulate do
+defmodule Bonfire.Quantities.Simulate do
   import CommonsPub.Utils.Simulation
   # import CommonsPub.Utils.Trendy
 
-  alias Measurement.Unit.Units
-  alias Measurement.Measure.Measures
+  alias Bonfire.Quantities.Units
+  alias Bonfire.Quantities.Measures
 
   @doc "A unit"
   def unit_name(), do: Faker.Util.pick(["kilo", "liter"])

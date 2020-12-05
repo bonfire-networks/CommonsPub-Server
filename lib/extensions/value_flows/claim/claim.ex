@@ -10,7 +10,7 @@ defmodule ValueFlows.Claim do
   alias Ecto.Changeset
   alias CommonsPub.Users.User
 
-  alias Measurement.Measure
+  alias Bonfire.Quantities.Measure
 
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification

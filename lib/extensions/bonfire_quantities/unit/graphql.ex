@@ -1,13 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.Unit.GraphQL do
+defmodule Bonfire.Quantities.Units.GraphQL do
   use Absinthe.Schema.Notation
   require Logger
 
-  alias CommonsPub.{
-    # Activities,
-    GraphQL,
-    Repo
-  }
+  alias CommonsPub.GraphQL
 
   alias CommonsPub.GraphQL.{
     # CommonResolver,
@@ -20,17 +16,16 @@ defmodule Measurement.Unit.GraphQL do
     # FetchPages
   }
 
-  # alias CommonsPub.Resources.Resource
-  # alias CommonsPub.Common.Enums
   alias CommonsPub.Meta.Pointers
 
-  # alias ValueFlows.Simulate
-  alias Measurement.Unit
-  alias Measurement.Unit.Units
-  alias Measurement.Unit.Queries
-  alias Measurement.Measure.Measures
+  alias Bonfire.Quantities.Unit
+  alias Bonfire.Quantities.Units
+  alias Bonfire.Quantities.Units.Queries
+  alias Bonfire.Quantities.Measures
 
-  import_sdl(path: "lib/extensions/measurements/measurement.gql")
+  @repo CommonsPub.Repo
+
+  import_sdl(path: "lib/extensions/bonfire_quantities/measurement.gql")
 
   ## resolvers
 
@@ -81,7 +76,7 @@ defmodule Measurement.Unit.GraphQL do
 
 
   def create_unit(%{unit: %{in_scope_of: context_id} = attrs}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- CommonsPub.Meta.Pointers.one(id: context_id),
            :ok <- validate_unit_context(pointer),
@@ -95,7 +90,7 @@ defmodule Measurement.Unit.GraphQL do
 
   # without context/scope
   def create_unit(%{unit: attrs} = _params, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, unit} <- Units.create(user, attrs) do
@@ -105,7 +100,7 @@ defmodule Measurement.Unit.GraphQL do
   end
 
   def update_unit(%{unit: %{id: id} = changes}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, unit} <- unit(%{id: id}, info) do
         cond do
@@ -125,7 +120,7 @@ defmodule Measurement.Unit.GraphQL do
   end
 
   def delete_unit(%{id: id}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, unit} <- unit(%{id: id}, info) do
         if allow_delete?(user, unit) do

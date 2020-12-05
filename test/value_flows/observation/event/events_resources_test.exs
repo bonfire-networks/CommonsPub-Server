@@ -2,12 +2,12 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Simulation
-  import Measurement.Test.Faking
+  import Bonfire.Quantities.Test.Faking
   import CommonsPub.Tag.Simulate
 
   import CommonsPub.Utils.{Trendy, Simulation}
   import ValueFlows.Simulate
-  import Measurement.Simulate
+  import Bonfire.Quantities.Simulate
   import Geolocation.Simulate
 
   import ValueFlows.Test.Faking

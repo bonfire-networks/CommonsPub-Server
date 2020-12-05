@@ -1,5 +1,5 @@
 # # SPDX-License-Identifier: AGPL-3.0-only
-# defmodule Measurement.UnitTest do
+# defmodule Bonfire.Quantities.UnitTest do
 #   # @tag :skip
 #   use CommonsPub.Web.ConnCase, async: true
 #   import CommonsPub.Web.Test.Automaton
@@ -11,7 +11,7 @@
 #   import Grumble
 #   import Zest
 
-#   import Measurement.Test.Faking
+#   import Bonfire.Quantities.Test.Faking
 
 #   describe "unit" do
 

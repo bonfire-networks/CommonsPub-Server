@@ -68,10 +68,10 @@ if(CommonsPub.Config.module_enabled?(Geolocation.Simulate)) do
 end
 
 # define some units
-if(CommonsPub.Config.module_enabled?(Measurement.Simulate)) do
+if(CommonsPub.Config.module_enabled?(Bonfire.Quantities.Simulate)) do
   for _ <- 1..2 do
-    unit1 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_community.())
-    unit2 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
+    unit1 = Bonfire.Quantities.Simulate.fake_unit!(random_user.(), maybe_random_community.())
+    unit2 = Bonfire.Quantities.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
   end
 end
 
@@ -144,9 +144,9 @@ random_place = fn -> Faker.Util.pick(places) end
       end
     end
 
-    if(CommonsPub.Config.module_enabled?(Measurement.Simulate)) do
-      unit1 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_community.())
-      unit2 = Measurement.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
+    if(CommonsPub.Config.module_enabled?(Bonfire.Quantities.Simulate)) do
+      unit1 = Bonfire.Quantities.Simulate.fake_unit!(random_user.(), maybe_random_community.())
+      unit2 = Bonfire.Quantities.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
 
       for _ <- 1..2 do
         # define some intents with measurements

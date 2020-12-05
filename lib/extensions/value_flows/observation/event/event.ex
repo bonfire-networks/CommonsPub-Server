@@ -16,7 +16,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.Process
 
-  alias Measurement.Measure
+  alias Bonfire.Quantities.Measure
 
   @type t :: %__MODULE__{}
 

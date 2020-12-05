@@ -33,8 +33,8 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
 
       add(:resource_conforms_to_id, weak_pointer(ResourceSpecification), null: true)
 
-      add(:resource_quantity_id, weak_pointer(Measurement.Measure), null: true)
-      add(:effort_quantity_id, weak_pointer(Measurement.Measure), null: true)
+      add(:resource_quantity_id, weak_pointer(Bonfire.Quantities.Measure), null: true)
+      add(:effort_quantity_id, weak_pointer(Bonfire.Quantities.Measure), null: true)
 
       add(:has_beginning, :timestamptz)
       add(:has_end, :timestamptz)

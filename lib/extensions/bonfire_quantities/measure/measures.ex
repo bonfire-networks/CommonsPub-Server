@@ -1,17 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.Measure.Measures do
-  alias CommonsPub.{
-    # Activities, Actors, Common, Feeds, Follows,
-    Repo
-  }
+defmodule Bonfire.Quantities.Measures do
 
-  alias CommonsPub.GraphQL.{Fields, Page}
+  alias CommonsPub.GraphQL.{Fields, Page, Pagination}
   alias CommonsPub.Contexts
-  alias Measurement.{Measure, Unit}
-  alias Measurement.Measure.Queries
-  # alias CommonsPub.Communities.Community
-  # alias CommonsPub.Feeds.FeedActivities
-  alias CommonsPub.Users.User
+
+  alias Bonfire.Quantities.{Measure, Unit}
+  alias Bonfire.Quantities.Measures.Queries
+
+  @user CommonsPub.Users.User
+  @repo CommonsPub.Repo
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -23,14 +20,14 @@ defmodule Measurement.Measure.Measures do
   * ActivityPub integration
   * Various parts of the codebase that need to query for collections (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(Measure, filters))
+  def one(filters), do: @repo.single(Queries.query(Measure, filters))
 
   @doc """
   Retrieves a list of collections by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for collections (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Measure, filters))}
+  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(Measure, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -51,7 +48,7 @@ defmodule Measurement.Measure.Measures do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -72,7 +69,7 @@ defmodule Measurement.Measure.Measures do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages(
+    Pagination.pages(
       Queries,
       Measure,
       cursor_fn,
@@ -86,9 +83,9 @@ defmodule Measurement.Measure.Measures do
 
   ## mutations
 
-  @spec create(User.t(), Unit.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Unit{} = unit, attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
+  @spec create(@user.t(), Unit.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
+  def create(%@user{} = creator, %Unit{} = unit, attrs) when is_map(attrs) do
+    @repo.transact_with(fn ->
       with {:ok, item} <- insert_measure(creator, unit, attrs) do
         #  act_attrs = %{verb: "created", is_local: true},
         #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
@@ -102,7 +99,7 @@ defmodule Measurement.Measure.Measures do
   defp insert_measure(creator, unit, attrs) do
     # TODO: use upsert?
     # TODO: should we re-use the same measurement instead of storing duplicates? (but would have to be careful to insert a new measurement rather than update)
-    Repo.insert(Measurement.Measure.create_changeset(creator, unit, attrs)
+    @repo.insert(Bonfire.Quantities.Measure.create_changeset(creator, unit, attrs)
       # on_conflict: [set: [has_numerical_value: attrs.has_numerical_value]]
     )
   end
@@ -134,8 +131,8 @@ defmodule Measurement.Measure.Measures do
   # TODO: take the user who is performing the update
   @spec update(Measure.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
   def update(%Measure{} = measure, attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, measure} <- Repo.update(Measure.update_changeset(measure, attrs)) do
+    @repo.transact_with(fn ->
+      with {:ok, measure} <- @repo.update(Measure.update_changeset(measure, attrs)) do
         #  :ok <- publish(measure, :updated) do
         {:ok, measure}
       end
@@ -143,7 +140,7 @@ defmodule Measurement.Measure.Measures do
   end
 
   # def soft_delete(%Measure{} = measure) do
-  #   Repo.transact_with(fn ->
+  #   @repo.transact_with(fn ->
   #     with {:ok, measure} <- Common.Deletion.soft_delete(measure),
   #          :ok <- publish(measure, :deleted) do
   #       {:ok, measure}

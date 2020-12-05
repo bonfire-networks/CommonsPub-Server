@@ -8,8 +8,8 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   import Geolocation.Simulate
 
-  import Measurement.Simulate
-  import Measurement.Test.Faking
+  import Bonfire.Quantities.Simulate
+  import Bonfire.Quantities.Test.Faking
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

@@ -28,7 +28,7 @@ alias CommonsPub.Users.User
 
 alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
 
-alias Measurement.Unit.Units
+alias Bonfire.Quantities.Units
 alias CommonsPub.Tag.Taggable
 
 alias CommonsPub.Workers.GarbageCollector
@@ -79,7 +79,7 @@ types_inventory = [
   CommonsPub.Threads.Thread,
   CommonsPub.Threads.Comment,
   CommonsPub.Resources.Resource,
-  Measurement.Unit,
+  Bonfire.Quantities.Unit,
   CommonsPub.Tag.Category,
   ValueFlows.Planning.Intent,
   ValueFlows.Proposal,
@@ -101,7 +101,7 @@ types_actions = [
 types_others = [
   Instance,
   Uploads.Upload,
-  Measurement.Measure,
+  Bonfire.Quantities.Measure,
   CommonsPub.Tag.Taggable,
   CommonsPub.Activities.Activity,
   CommonsPub.Feeds.Feed,

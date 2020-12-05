@@ -4,8 +4,8 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Utils.Simulation
 
-  import Measurement.Simulate
-  import Measurement.Test.Faking
+  import Bonfire.Quantities.Simulate
+  import Bonfire.Quantities.Test.Faking
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

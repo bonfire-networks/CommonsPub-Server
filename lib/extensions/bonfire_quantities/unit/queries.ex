@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.Unit.Queries do
+defmodule Bonfire.Quantities.Units.Queries do
   import CommonsPub.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  # alias Measurement.Unit.Units
-  alias CommonsPub.Follows.{
-    Follow
-    # FollowerCount
-  }
+  # alias Bonfire.Quantities.Units
+  # alias CommonsPub.Follows.{
+  #   Follow
+  #   # FollowerCount
+  # }
 
   # alias CommonsPub.Users
   alias CommonsPub.Users.User
-  alias Measurement.Unit
+  alias Bonfire.Quantities.Unit
 
   def query(Unit) do
     from(c in Unit, as: :unit)
@@ -40,19 +40,19 @@ defmodule Measurement.Unit.Queries do
     join(q, jq, [unit: c], c2 in assoc(c, :context), as: :context)
   end
 
-  def join_to(q, {:context_follow, follower_id}, jq) do
-    join(q, jq, [context: c], f in Follow,
-      as: :context_follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
-  end
+  # def join_to(q, {:context_follow, follower_id}, jq) do
+  #   join(q, jq, [context: c], f in Follow,
+  #     as: :context_follow,
+  #     on: c.id == f.context_id and f.creator_id == ^follower_id
+  #   )
+  # end
 
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [unit: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
-  end
+  # def join_to(q, {:follow, follower_id}, jq) do
+  #   join(q, jq, [unit: c], f in Follow,
+  #     as: :follow,
+  #     on: c.id == f.context_id and f.creator_id == ^follower_id
+  #   )
+  # end
 
   # def join_to(q, :follower_count, jq) do
   #   join q, jq, [unit: c],
@@ -84,12 +84,19 @@ defmodule Measurement.Unit.Queries do
   def filter(q, {:user, match_admin()}), do: q
   def filter(q, {:user, nil}), do: filter(q, ~w(disabled private)a)
 
+  # def filter(q, {:user, %User{id: id}}) do
+  #   q
+  #   |> join_to(follow: id)
+  #   |> where([unit: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+  #   |> filter(~w(disabled)a)
+  # end
+
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to(follow: id)
-    |> where([unit: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([unit: c], not is_nil(c.published_at))
     |> filter(~w(disabled)a)
   end
+
 
   ## by status
 

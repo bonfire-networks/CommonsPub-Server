@@ -69,7 +69,7 @@ defmodule CommonsPub.Profiles do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages(
+    CommonsPub.GraphQL.Pagination.pages(
       Queries,
       CommonsPub.Profiles.Profile,
       cursor_fn,

@@ -1,4 +1,4 @@
-defmodule Measurement.Unit do
+defmodule Bonfire.Quantities.Unit do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "measurement_unit",
@@ -11,7 +11,7 @@ defmodule Measurement.Unit do
   alias Pointers.Pointer
   alias CommonsPub.Users.User
 
-  # alias Measurement.Unit
+  # alias Bonfire.Quantities.Unit
 
   @type t :: %__MODULE__{}
 
@@ -38,7 +38,7 @@ defmodule Measurement.Unit do
         %User{} = creator,
         attrs
       ) do
-    %Measurement.Unit{}
+    %Bonfire.Quantities.Unit{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -53,7 +53,7 @@ defmodule Measurement.Unit do
         %{id: _} = context,
         attrs
       ) do
-    %Measurement.Unit{}
+    %Bonfire.Quantities.Unit{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -64,7 +64,7 @@ defmodule Measurement.Unit do
     |> common_changeset()
   end
 
-  def update_changeset(%Measurement.Unit{} = unit, attrs) do
+  def update_changeset(%Bonfire.Quantities.Unit{} = unit, attrs) do
     unit
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()

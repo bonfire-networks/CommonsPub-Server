@@ -232,3 +232,8 @@ db-pre-migrations:
 manual-db: init db-pre-migrations ## Create or reset the DB (without Docker)
 	mix ecto.reset
 
+mix-%: ## Run a specific mix command, eg: `make mix-deps.get` or make mix-deps.update args="pointers"
+	docker-compose  -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE)  run web mix $* $(args)
+
+%: ## Run a specific mix command, eg: `make messclt` or `make "messctl help"` or make `messctl args="help"`
+	docker-compose  -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE)  run web $* $(args)

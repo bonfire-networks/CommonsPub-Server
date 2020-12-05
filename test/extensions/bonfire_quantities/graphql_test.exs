@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.GraphQLTest do
+defmodule Bonfire.Quantities.GraphQLTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Simulation
-  import Measurement.Test.Faking
+  import Bonfire.Quantities.Test.Faking
   import CommonsPub.Utils.Trendy
 
-  import Measurement.Simulate
-  alias Measurement.Measure.Measures
-  alias Measurement.Unit.Units
+  import Bonfire.Quantities.Simulate
+  alias Bonfire.Quantities.Measures
+  alias Bonfire.Quantities.Units
 
   describe "unit" do
     test "fetches an existing unit by ID" do
