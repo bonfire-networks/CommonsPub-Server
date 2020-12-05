@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.GraphQL.Middleware.Debug do
+defmodule CommonsPub.GraphQL.Middleware.Debug do
   alias Absinthe.Resolution
 
   def call(resolution, :start) do

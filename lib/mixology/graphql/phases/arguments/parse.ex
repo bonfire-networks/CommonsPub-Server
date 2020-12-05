@@ -1,5 +1,5 @@
 # this code is taken from absinthe
-defmodule CommonsPub.Web.GraphQL.Phase.Arguments.Parse do
+defmodule CommonsPub.GraphQL.Phase.Arguments.Parse do
   @moduledoc false
 
   # Special handling for types that are lying about being scalar
@@ -7,7 +7,7 @@ defmodule CommonsPub.Web.GraphQL.Phase.Arguments.Parse do
   alias Absinthe.Blueprint
   alias Absinthe.Blueprint.Input.{Integer, List, Null, String, Value}
   alias Absinthe.Type.Scalar
-  alias CommonsPub.Web.GraphQL.Cursor
+  alias CommonsPub.GraphQL.Cursor
   use Absinthe.Phase
 
   def run(input, _options \\ []) do

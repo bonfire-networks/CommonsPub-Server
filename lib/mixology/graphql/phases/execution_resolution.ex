@@ -1,5 +1,5 @@
 # this code is based on Absinthe library: Absinthe.Phase.Document.Execution.Resolution
-defmodule CommonsPub.Web.GraphQL.Phase.ExecutionResolution do
+defmodule CommonsPub.GraphQL.Phase.ExecutionResolution do
   @moduledoc false
 
   # Runs resolution functions in a blueprint.

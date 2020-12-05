@@ -1,5 +1,5 @@
 # this code is taken from absinthe
-defmodule CommonsPub.Web.GraphQL.Phase.Debug do
+defmodule CommonsPub.GraphQL.Phase.Debug do
   @moduledoc false
 
   # Special handling for types that are lying about being scalar

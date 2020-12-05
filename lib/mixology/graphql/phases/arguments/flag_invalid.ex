@@ -1,5 +1,5 @@
 # Tweaked from absinthe
-defmodule CommonsPub.Web.GraphQL.Phase.Arguments.FlagInvalid do
+defmodule CommonsPub.GraphQL.Phase.Arguments.FlagInvalid do
   @moduledoc false
 
   # Marks arguments as bad if they have any invalid children.
@@ -7,7 +7,7 @@ defmodule CommonsPub.Web.GraphQL.Phase.Arguments.FlagInvalid do
   # This is later used by the ArgumentsOfCorrectType phase.
 
   alias Absinthe.{Blueprint, Phase}
-  alias CommonsPub.Web.GraphQL.Cursor
+  alias CommonsPub.GraphQL.Cursor
   use Absinthe.Phase
 
   @doc """

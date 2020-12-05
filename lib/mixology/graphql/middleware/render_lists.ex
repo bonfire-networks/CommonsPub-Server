@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Web.GraphQL.Middleware.RenderLists do
+defmodule CommonsPub.GraphQL.Middleware.RenderLists do
   @behaviour Absinthe.Middleware
 
   def call(resolution, _) do

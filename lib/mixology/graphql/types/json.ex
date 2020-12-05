@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Web.GraphQL.JSON do
+defmodule CommonsPub.GraphQL.JSON do
   @moduledoc """
   The Json scalar type allows arbitrary JSON values to be passed in and out.
   Requires `{ :jason, "~> 1.1" }` package: https://github.com/michalmuskala/jason

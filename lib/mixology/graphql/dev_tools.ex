@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.GraphQL.DevTools do
+defmodule CommonsPub.GraphQL.DevTools do
   use ActivityPubWeb, :controller
 
   def schema(conn, _params) do

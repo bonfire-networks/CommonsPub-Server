@@ -51,13 +51,13 @@ defmodule CommonsPub.Web.Router do
     plug :fetch_session
     plug CommonsPub.Web.Plugs.Auth
     plug CommonsPub.Web.Plugs.SetLocale
-    plug CommonsPub.Web.Plugs.GraphQLContext
+    plug CommonsPub.GraphQL.Plugs.GraphQLContext
   end
 
   scope "/api" do
     get "/", CommonsPub.Web.PageController, :api
 
-    get "/schema", CommonsPub.Web.GraphQL.DevTools, :schema
+    get "/schema", CommonsPub.GraphQL.DevTools, :schema
 
     scope "/explore" do
       pipe_through :browser
@@ -68,21 +68,21 @@ defmodule CommonsPub.Web.Router do
         schema: CommonsPub.Web.GraphQL.Schema,
         interface: :simple,
         json_codec: Jason,
-        pipeline: {CommonsPub.Web.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
 
       get "/playground", Absinthe.Plug.GraphiQL,
         schema: CommonsPub.Web.GraphQL.Schema,
         interface: :playground,
         json_codec: Jason,
-        pipeline: {CommonsPub.Web.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
 
       forward "/", Absinthe.Plug.GraphiQL,
         schema: CommonsPub.Web.GraphQL.Schema,
         interface: :advanced,
         json_codec: Jason,
-        pipeline: {CommonsPub.Web.GraphQL.Pipeline, :default_pipeline},
+        pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline},
         default_url: "/api/graphql"
     end
 
@@ -93,7 +93,7 @@ defmodule CommonsPub.Web.Router do
         schema: CommonsPub.Web.GraphQL.Schema,
         interface: :playground,
         json_codec: Jason,
-        pipeline: {CommonsPub.Web.GraphQL.Pipeline, :default_pipeline}
+        pipeline: {CommonsPub.GraphQL.Pipeline, :default_pipeline}
     end
   end
 
