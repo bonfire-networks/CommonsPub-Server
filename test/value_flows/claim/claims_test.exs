@@ -75,7 +75,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
       claim = fake_claim!(fake_user!())
 
       assert {:ok, claim} = Claims.soft_delete(claim)
-      assert {:error, %CommonsPub.Common.Errors.NotFoundError{}} = Claims.one([:default, id: claim.id])
+      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} = Claims.one([:default, id: claim.id])
     end
   end
 

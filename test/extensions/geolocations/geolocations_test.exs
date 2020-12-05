@@ -30,7 +30,7 @@ defmodule Geolocation.GeolocationsTest do
 
       assert {:ok, geo} = Geolocations.soft_delete(user, geo)
 
-      assert {:error, %CommonsPub.Common.Errors.NotFoundError{}} =
+      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} =
                Geolocations.one([:default, id: geo.id])
     end
   end

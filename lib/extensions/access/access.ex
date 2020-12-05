@@ -14,7 +14,7 @@ defmodule CommonsPub.Access do
     Token,
   }
 
-  alias CommonsPub.Common.Errors.{
+  alias Bonfire.Common.Errors.{
     NotFoundError,
     InvalidCredentialError,
     NoAccessError,

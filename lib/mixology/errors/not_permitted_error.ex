@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Common.Errors.NotPermittedError do
+defmodule Bonfire.Common.Errors.NotPermittedError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 

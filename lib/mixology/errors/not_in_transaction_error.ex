@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Common.Errors.NotInTransactionError do
+defmodule Bonfire.Common.Errors.NotInTransactionError do
   @enforce_keys [:cause]
   defstruct @enforce_keys
 

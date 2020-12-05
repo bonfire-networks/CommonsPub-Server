@@ -1,4 +1,4 @@
-defmodule CommonsPub.Common.Errors.InvalidCredentialError do
+defmodule Bonfire.Common.Errors.InvalidCredentialError do
   @moduledoc "The user was not found or the password was wrong"
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys

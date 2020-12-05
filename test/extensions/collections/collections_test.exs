@@ -3,7 +3,7 @@ defmodule CommonsPub.CollectionsTest do
   use CommonsPub.DataCase, async: true
 
   import CommonsPub.Utils.Simulation
-  alias CommonsPub.Common.Errors.NotFoundError
+  alias Bonfire.Common.Errors.NotFoundError
   alias CommonsPub.{Collections, Communities}
   alias CommonsPub.Utils.Simulation
 

@@ -12,7 +12,7 @@ defmodule CommonsPub.Meta.Pointers do
         get(pointer, filters)
       end
     else
-      {:error, CommonsPub.Common.Errors.NotFoundError.new()}
+      {:error, Bonfire.Common.Errors.NotFoundError.new()}
     end
   end
 

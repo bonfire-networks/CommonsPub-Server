@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Common.Errors.TokenNotFoundError do
+defmodule Bonfire.Common.Errors.TokenNotFoundError do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 

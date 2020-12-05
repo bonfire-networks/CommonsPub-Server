@@ -4,7 +4,7 @@ defmodule CommonsPub.CommunitiesTest do
 
   import CommonsPub.Utils.Simulation
   alias CommonsPub.Utils.Simulation
-  alias CommonsPub.Common.Errors.NotFoundError
+  alias Bonfire.Common.Errors.NotFoundError
   alias CommonsPub.Communities
   alias CommonsPub.Communities.Community
 

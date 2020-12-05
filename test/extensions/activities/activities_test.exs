@@ -6,7 +6,7 @@ defmodule CommonsPub.ActivitiesTest do
 
   alias CommonsPub.Activities
   alias CommonsPub.Activities.Activity
-  alias CommonsPub.Common.Errors.NotFoundError
+  alias Bonfire.Common.Errors.NotFoundError
   alias CommonsPub.Utils.Simulation
 
   setup do

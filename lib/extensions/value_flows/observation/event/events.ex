@@ -396,7 +396,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp validate_user_involvement(_creator, _event) do
-    {:error, CommonsPub.Common.Errors.NotPermittedError.message("You cannot do this if you are not receiver or provider.")}
+    {:error, Bonfire.Common.Errors.NotPermittedError.message("You cannot do this if you are not receiver or provider.")}
   end
 
   defp validate_provider_is_primary_accountable(
@@ -418,7 +418,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     if is_nil(resource.primary_accountable_id) or provider_id == resource.primary_accountable_id do
       :ok
     else
-      {:error, CommonsPub.Common.Errors.NotPermittedError.message("You cannot do this since the provider is not accountable for the resource.")}
+      {:error, Bonfire.Common.Errors.NotPermittedError.message("You cannot do this since the provider is not accountable for the resource.")}
     end
   end
 
@@ -435,7 +435,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            receiver_id == resource.primary_accountable_id do
         :ok
       else
-        {:error, CommonsPub.Common.Errors.NotPermittedError.message("You cannot do this since the receiver is not accountable for the target resource.")}
+        {:error, Bonfire.Common.Errors.NotPermittedError.message("You cannot do this since the receiver is not accountable for the target resource.")}
       end
     end
   end

@@ -4,7 +4,7 @@ defmodule CommonsPub.AccessTest do
 
   import CommonsPub.Utils.Simulation
   alias Ecto.Changeset
-  alias CommonsPub.Common.Errors.NotFoundError
+  alias Bonfire.Common.Errors.NotFoundError
   alias CommonsPub.Utils.Simulation
   alias CommonsPub.Access
 

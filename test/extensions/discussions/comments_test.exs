@@ -4,8 +4,8 @@ defmodule CommonsPub.Threads.CommentsTest do
   use Oban.Testing, repo: CommonsPub.Repo
 
   import CommonsPub.Utils.Simulation
-  alias CommonsPub.Common.Errors.NotPermittedError
-  alias CommonsPub.Common.Errors.NotFoundError
+  alias Bonfire.Common.Errors.NotPermittedError
+  alias Bonfire.Common.Errors.NotFoundError
   alias CommonsPub.Threads
   alias CommonsPub.Threads.Comments
   alias CommonsPub.Utils.Simulation

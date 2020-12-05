@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 import Config
 
+import_config "bonfire_quantify.exs"
+config :bonfire_quantify,
+  otp_app: :bonfire
+
 alias CommonsPub.{
   Blocks,
   Collections,

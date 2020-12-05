@@ -25,7 +25,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
       user = fake_user!()
       spec = fake_process!(user)
       assert {:ok, spec} = Processes.soft_delete(spec)
-      assert {:error, %CommonsPub.Common.Errors.NotFoundError{}} =
+      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} =
               Processes.one([:deleted, id: spec.id])
     end
   end

@@ -5,7 +5,7 @@ defmodule CommonsPub.GraphQL do
   alias CommonsPub.Common.Enums
   import CommonsPub.Repo.Query, only: [match_admin: 0]
 
-  alias CommonsPub.Common.Errors.{
+  alias Bonfire.Common.Errors.{
     NotFoundError,
     InvalidCredentialError,
     NotLoggedInError,

@@ -68,3 +68,5 @@ config/prod
 #Extensions development
 /extensions
 /libs
+
+/cpub_bonfire_dev

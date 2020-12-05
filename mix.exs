@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+# Code.eval_file("mess.exs")
+
 defmodule CommonsPub.Mixfile do
   use Mix.Project
 
@@ -66,8 +68,18 @@ defmodule CommonsPub.Mixfile do
   end
 
   def deps_list do
-    # graphql
+    # Mess.deps
     [
+      # graphql
+      {:bonfire_quantify,
+       git: "https://github.com/bonfire-ecosystem/bonfire_quantify",
+       branch: "main",
+       path: "cpub_bonfire_dev/bonfire_quantify"},
+      {:bonfire_common,
+       git: "https://github.com/bonfire-ecosystem/bonfire_common",
+       branch: "with_repo",
+       path: "cpub_bonfire_dev/bonfire_common"},
+      {:bonfire_api_graphql, path: "cpub_bonfire_dev/bonfire_api_graphql"},
       {
         :absinthe,
         "~> 1.5.3"
@@ -242,7 +254,7 @@ defmodule CommonsPub.Mixfile do
   end
 
   def deps() do
-    _configured_deps = Enum.map(deps_list(), &dep_process/1)
+    configured_deps = Enum.map(deps_list(), &dep_process/1)
     # IO.inspect(configured_deps, limit: :infinity)
   end
 
@@ -280,6 +292,8 @@ defmodule CommonsPub.Mixfile do
   end
 
   defp dep_params(lib, params) do
+    # IO.inspect(lib)
+    # IO.inspect(params)
     if dep_can_devmode(lib, params) do
       params
       |> Keyword.drop([:git, :github])
@@ -291,6 +305,10 @@ defmodule CommonsPub.Mixfile do
   end
 
   defp dep_can_devmode(_lib, params) do
+    # IO.inspect(Keyword.has_key?(params, :path))
+    # IO.inspect(Keyword.get(params, :path))
+    # IO.inspect(File.exists?(Keyword.get(params, :path)))
+
     @library_dev_mode and Keyword.has_key?(params, :path) and
       File.exists?(Keyword.get(params, :path))
   end

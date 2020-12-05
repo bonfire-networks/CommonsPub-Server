@@ -32,7 +32,7 @@ defmodule CommonsPub.Web.Plugs.Auth do
     Token,
   }
 
-  alias CommonsPub.Common.Errors.{
+  alias Bonfire.Common.Errors.{
     MalformedAuthorizationHeaderError,
     TokenNotFoundError
   }
