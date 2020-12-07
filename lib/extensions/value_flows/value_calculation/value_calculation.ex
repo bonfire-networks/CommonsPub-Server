@@ -20,7 +20,7 @@ defmodule ValueFlows.ValueCalculation do
   end
 
   @required ~w(formula)a
-  @cast @required ++ ~w(resource_classified_as value_unit_id)a
+  @cast @required ++ ~w(context_id value_unit_id)a
 
   def create_changeset(%User{} = creator, %{} = attrs) do
     %__MODULE__{}

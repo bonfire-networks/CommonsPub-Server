@@ -13,7 +13,6 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
       user = fake_user!()
 
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation())
-      IO.inspect(calc)
       assert_value_calculation(calc)
       assert calc.creator.id == user.id
     end
