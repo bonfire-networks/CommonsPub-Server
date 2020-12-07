@@ -48,7 +48,7 @@ testing:
           "full_page_writes=off",
         ]
   script:
-    - mix compile --force
+    - mix compile
     - mix ecto.create
     - mix ecto.migrate
     - mix coveralls --preload-modules
