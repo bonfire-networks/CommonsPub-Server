@@ -1,7 +1,7 @@
 image: elixir:1.11-alpine #update this when we switch Elixir version in Dockerfile
 
 variables:
-  POSTGRES_DB: commons_pub_test
+  POSTGRES_DB: commonspub_test
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
   DATABASE_HOST: postgres
@@ -36,7 +36,8 @@ before_script:
 testing:
   stage: test
   services:
-    - name: mdillon/postgis
+    #- name: mdillon/postgis
+    - name: postgres:9.6.6
       command:
         [
           "postgres",
