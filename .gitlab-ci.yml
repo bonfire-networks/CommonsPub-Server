@@ -22,8 +22,8 @@ stages:
 
 before_script:
   - apk add --update --no-cache build-base cmake curl git rust cargo py-pip
-	- mix local.hex --force
-	- mix local.rebar --force
+  - mix local.hex --force
+  - mix local.rebar --force
   - mix deps.get
   - pip --cache-dir=.pip install -U pip # upgrade pip
 
