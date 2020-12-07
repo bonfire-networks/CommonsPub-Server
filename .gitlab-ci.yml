@@ -18,7 +18,7 @@ cache:
 stages:
   # - build
   - test
-  #- deploy
+  - deploy
 
 before_script:
   - apk add --update --no-cache build-base cmake curl git rust cargo py-pip
