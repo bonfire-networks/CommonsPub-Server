@@ -8,7 +8,8 @@ config :bonfire_common,
   repo_module: CommonsPub.Repo
 
 config :bonfire_api_graphql,
-  repo_module: CommonsPub.Repo
+  repo_module: CommonsPub.Repo,
+  web_module: CommonsPub.Web
 
 alias CommonsPub.{
   Blocks,
