@@ -18,11 +18,13 @@ cache:
 stages:
   # - build
   - test
-  - deploy
+  #- deploy
 
 before_script:
   - apk add --update --no-cache build-base cmake curl git rust cargo py-pip
-  - make manual-deps
+	- mix local.hex --force
+	- mix local.rebar --force
+  - mix deps.get
   - pip --cache-dir=.pip install -U pip # upgrade pip
 
 # build:
@@ -52,7 +54,7 @@ unit-testing:
     - mix coveralls --preload-modules
 
 locales-and-docs:
-  stage: test # deploy documentation (stage should be changed 'deploy' when tests are fixed)
+  stage: deploy # deploy documentation (stage should be changed 'deploy' when tests are fixed)
   script:
     - if [ ! -z "$TX_TOKEN" ]; then pip --cache-dir=.pip install transifex-client ; else echo "Skipping..."; fi # install transifex cli
     - mix gettext.extract # extract strings to be localised
@@ -60,9 +62,6 @@ locales-and-docs:
     - MIX_ENV=dev mix deps.get
     - MIX_ENV=dev mix docs
     - mv doc public # serve as GitLab Pages artifact
-    - pip --cache-dir=.pip install awscli # Install the AWS SDK for pushing the docs
-    - if [ ! -z "$DOCS_STAGING_BUCKET" ]; then aws s3 sync public/ s3://${DOCS_STAGING_BUCKET}/docs/server/ --delete --exclude .git --exclude README.md --acl public-read ; else echo "Skipping..."; fi # also copy docs to S3-served website
-    - if [ ! -z "$DOCS_STAGING_DISTRIBUTION_ID" ]; then aws cloudfront create-invalidation --distribution-id ${DOCS_STAGING_DISTRIBUTION_ID} --paths '/docs/server/*' ; else echo "Skipping..."; fi # invalidate CloudFront's cache to serve the new version
   artifacts:
     paths:
       - public
@@ -81,7 +80,6 @@ staging-build-and-push:
   script:
     - make build
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push ; else echo "Push to Docker Hub or skip if login details missing..."; fi
-    - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_staging ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
     - develop
 
@@ -97,6 +95,5 @@ stable-build-and-push:
   script:
     - make build
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_stable ; else echo "Push to Docker Hub or skip if login details missing..."; fi
-    - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_stable ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
     - master

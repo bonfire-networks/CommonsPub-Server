@@ -42,7 +42,7 @@ defmodule CommonsPub.Mixfile do
       # can add test dirs to include, eg: "libs/activitypub/test" (if so, the corresponding support dir should also be added to elixirc_paths below)
       test_paths: existing_paths(["test", "libs/activitypub/test"]),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [coveralls: :test]
+      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]
     ]
   end
 
