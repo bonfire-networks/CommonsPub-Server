@@ -9,13 +9,15 @@ defmodule CommonsPub.AccessTest do
   alias CommonsPub.Access
 
   alias CommonsPub.Access.{
-    TokenExpiredError,
-    TokenNotFoundError,
-    UserEmailNotConfirmedError,
+
     RegisterEmailDomainAccess,
     RegisterEmailAccess
   }
-
+  alias Bonfire.Common.Errors.{
+        TokenExpiredError,
+    TokenNotFoundError,
+    UserEmailNotConfirmedError,
+  }
   defp strip(user),
     do:
       Map.drop(user, [

@@ -5,7 +5,7 @@ defmodule CommonsPub.Web.Plugs.AuthTest do
   import CommonsPub.Utils.Simulation
   alias Plug.Conn
 
-  alias CommonsPub.Access.{
+  alias Bonfire.Common.Errors.{
     MalformedAuthorizationHeaderError,
     TokenExpiredError,
     TokenNotFoundError

@@ -8,11 +8,10 @@ defmodule CommonsPub.UsersTest do
   alias Bonfire.Common.Errors.NoAccessError
 
 
-  alias CommonsPub.Users.{
+  alias CommonsPub.Users.User
+  alias Bonfire.Common.Errors.{
     TokenAlreadyClaimedError,
-    TokenExpiredError,
-    User
-  }
+    TokenExpiredError}
 
   alias CommonsPub.Utils.Simulation
 

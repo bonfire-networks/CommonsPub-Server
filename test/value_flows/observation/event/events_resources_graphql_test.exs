@@ -465,7 +465,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
           })
       }
 
-      assert [%{"status" => 403, "code" => "unauthorized"}] = grumble_post_errors(q, conn, vars)
+      assert [%{"status" => 403}] = grumble_post_errors(q, conn, vars)
     end
 
     test "cannot transfer custody of an economic resource when the provider does not have rights on the target resource" do

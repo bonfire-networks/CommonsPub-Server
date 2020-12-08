@@ -24,9 +24,7 @@ defmodule CommonsPub.Web.LoginForm do
   #               %{
   #                 :__struct__ =>
   #                   Ecto.Changeset
-  #                   | Bonfire.Common.Errors.InvalidCredentialError
-  #                   | Bonfire.Common.Errors.UserDisabledError
-  #                   | Bonfire.Common.Errors.UserEmailNotConfirmedError,
+  #                   | {:error, _},
   #                 optional(:action) => atom,
   #                 optional(:changes) => map,
   #                 optional(:code) => any,

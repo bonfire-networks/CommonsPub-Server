@@ -16,6 +16,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   alias ValueFlows.Observation.Process.Processes
 
+  import Bonfire.Common.Error
+
   require Logger
 
   def cursor(), do: &[&1.id]
@@ -397,7 +399,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   defp validate_user_involvement(_creator, _event) do
-    {:error, Bonfire.Common.Errors.NotPermittedError.message("You cannot do this if you are not receiver or provider.")}
+   {:error, error(403, "You cannot do this if you are not receiver or provider.")}
   end
 
   defp validate_provider_is_primary_accountable(
@@ -419,7 +421,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     if is_nil(resource.primary_accountable_id) or provider_id == resource.primary_accountable_id do
       :ok
     else
-      {:error, Bonfire.Common.Errors.NotPermittedError.message("You cannot do this since the provider is not accountable for the resource.")}
+      {:error, error(403, "You cannot do this since the provider is not accountable for the resource.")}
     end
   end
 
@@ -436,7 +438,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            receiver_id == resource.primary_accountable_id do
         :ok
       else
-        {:error, Bonfire.Common.Errors.NotPermittedError.message("You cannot do this since the receiver is not accountable for the target resource.")}
+        {:error, error(403, "You cannot do this since the receiver is not accountable for the target resource.")}
       end
     end
   end

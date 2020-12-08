@@ -15,7 +15,6 @@ defmodule CommonsPub.Access do
   }
 
   alias Bonfire.Common.Errors.{
-    InvalidCredentialError,
     NoAccessError,
     TokenExpiredError,
     TokenNotFoundError,
@@ -150,7 +149,7 @@ defmodule CommonsPub.Access do
   end
 
   @type token_create_error ::
-          %InvalidCredentialError{}
+          :invalid_credentials
           | %UserDisabledError{}
           | %UserEmailNotConfirmedError{}
           | Changeset.t({})
@@ -170,7 +169,7 @@ defmodule CommonsPub.Access do
         Repo.insert(Token.create_changeset(user))
       end
     else
-      {:error, InvalidCredentialError.new()}
+      {:error, :invalid_credentials}
     end
   end
 

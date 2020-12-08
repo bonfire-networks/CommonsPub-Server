@@ -4,7 +4,6 @@ defmodule CommonsPub.Threads.CommentsTest do
   use Oban.Testing, repo: CommonsPub.Repo
 
   import CommonsPub.Utils.Simulation
-  alias Bonfire.Common.Errors.NotPermittedError
 
   alias CommonsPub.Threads
   alias CommonsPub.Threads.Comments
@@ -158,7 +157,7 @@ defmodule CommonsPub.Threads.CommentsTest do
       thread = fake_thread!(context.user, context.parent, %{is_locked: true})
       reply_to = fake_comment!(context.user, thread)
 
-      assert {:error, %NotPermittedError{}} =
+      assert {:error, :unauthorized, _} =
                Comments.create_reply(context.user, thread, reply_to, Simulation.comment())
     end
   end

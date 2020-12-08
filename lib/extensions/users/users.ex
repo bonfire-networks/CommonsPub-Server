@@ -31,12 +31,14 @@ defmodule CommonsPub.Users do
     EmailConfirmToken,
     LocalUser,
     ResetPasswordToken,
-    TokenAlreadyClaimedError,
-    TokenExpiredError,
+
     Queries,
     User
   }
-
+  alias Bonfire.Common.Errors.{
+    TokenAlreadyClaimedError,
+    TokenExpiredError,
+  }
   alias CommonsPub.Workers.APPublishWorker
 
   alias Ecto.Changeset

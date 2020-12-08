@@ -7,13 +7,14 @@ config :bonfire_common,
   otp_app: :bonfire,
   repo_module: CommonsPub.Repo,
   common_errors: %{
-    unauthorized: {403, "You do not have permission to {verb} this."},
+    unauthorized: {403, "You do not have permission to %s this."},
+    not_found: {404, "%s Not Found."},
+    unauthenticated: {401, "You need to log in first."},
+    needs_login: {401, "You need to log in first."},
+    invalid_credentials: {401, "We couldn't find an account with the details you provided."},
     unknown_resource: {400, "Unknown resource."},
     invalid_argument: {400, "Invalid arguments passed."},
-    unauthenticated: {401, "You need to be logged in."},
     password_hash_missing: {401, "Reset your password to login."},
-    incorrect_password: {401, "Invalid credentials."},
-    not_found: {404, "Not found."},
     user_not_found: {404, "User not found."},
     unknown: {500, "Something went wrong."}
   }

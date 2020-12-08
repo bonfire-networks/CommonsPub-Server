@@ -2,7 +2,6 @@
 defmodule CommonsPub.Threads.Comments do
   import Ecto.Query
   alias CommonsPub.{Activities, Feeds, Flags, Repo}
-  alias Bonfire.Common.Errors.NotPermittedError
   # alias CommonsPub.Collections.Collection
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.FeedPublisher
@@ -45,7 +44,7 @@ defmodule CommonsPub.Threads.Comments do
   @doc """
   Create a comment in reply to another comment.
 
-  Will fail with `NotPermittedError` if the reply doesn't match the thread.
+  Will fail with 403 if the reply doesn't match the thread.
   """
   def create_reply(
         %User{} = creator,
@@ -55,7 +54,7 @@ defmodule CommonsPub.Threads.Comments do
       ) do
     cond do
       thread.id != reply_to.thread_id ->
-        {:error, NotPermittedError.new("create")}
+        {:error, :unauthorized, "reply"}
 
       true ->
         attrs = Map.put(attrs, :reply_to_id, reply_to.id)
@@ -71,7 +70,7 @@ defmodule CommonsPub.Threads.Comments do
   @doc """
   Create a comment within a thread.
 
-  Will fail with `NotPermittedError` if the parent thread is locked.
+  Will fail with 403 if the parent thread is locked.
   """
   def create_reply(
         %User{} = creator,
@@ -80,7 +79,7 @@ defmodule CommonsPub.Threads.Comments do
       ) do
     cond do
       not is_nil(thread.locked_at) ->
-        {:error, NotPermittedError.new("create")}
+        {:error, :unauthorized, "reply"}
 
       true ->
         create(creator, thread, attrs)

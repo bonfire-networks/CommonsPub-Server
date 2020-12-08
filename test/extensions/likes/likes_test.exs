@@ -5,7 +5,7 @@ defmodule CommonsPub.LikesTest do
   require Ecto.Query
   import CommonsPub.Utils.Simulation
   alias CommonsPub.Likes
-  alias CommonsPub.Common.DeletionError
+   alias Bonfire.Common.Errors.DeletionError
   alias CommonsPub.Utils.Simulation
 
   setup do
