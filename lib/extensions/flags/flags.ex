@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Flags do
-  alias CommonsPub.{Activities, Common, Repo}
+  alias CommonsPub.{Activities, Repo}
   alias CommonsPub.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
   alias CommonsPub.Users.User
   alias CommonsPub.Workers.APPublishWorker

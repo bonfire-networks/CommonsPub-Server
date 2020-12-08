@@ -1,7 +1,5 @@
 defmodule CommonsPub.Contexts.Deletion do
-  alias CommonsPub.Repo
 
-  alias Bonfire.Common.Errors.DeletionError
   alias CommonsPub.Users.User
 
   require Logger

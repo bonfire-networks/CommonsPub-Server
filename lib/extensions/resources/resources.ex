@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Resources do
   alias Ecto.Changeset
-  alias CommonsPub.{Activities, Common, Feeds, Flags, Likes, Repo, Threads}
+  alias CommonsPub.{Activities, Feeds, Flags, Likes, Repo, Threads}
   # alias CommonsPub.Collections.Collection
   # alias CommonsPub.FeedPublisher
   alias CommonsPub.Feeds.FeedActivities
@@ -10,7 +10,7 @@ defmodule CommonsPub.Resources do
   alias CommonsPub.Users.User
   alias CommonsPub.Workers.APPublishWorker
 
-  alias CommonsPub.Utils.Web.CommonHelper
+  # alias CommonsPub.Utils.Web.CommonHelper
 
   @doc """
   Retrieves a single resource by arbitrary filters.

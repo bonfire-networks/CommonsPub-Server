@@ -19,7 +19,7 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
   }
 
   alias CommonsPub.Characters
-  alias CommonsPub.Characters.Character
+  # alias CommonsPub.Characters.Character
 
   alias CommonsPub.Resources.Resource
   # alias Bonfire.Common.Enums

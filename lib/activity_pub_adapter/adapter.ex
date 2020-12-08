@@ -3,7 +3,7 @@ defmodule CommonsPub.ActivityPub.Adapter do
   @moduledoc """
   Adapter functions delegated from the `ActivityPub` Library
   """
-  alias CommonsPub.ActivityPub.Utils
+  # alias CommonsPub.ActivityPub.Utils
   alias CommonsPub.Workers.APReceiverWorker
   require Logger
 

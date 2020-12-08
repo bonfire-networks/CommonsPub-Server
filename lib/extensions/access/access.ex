@@ -7,7 +7,7 @@ defmodule CommonsPub.Access do
   """
 
   alias Ecto.{Changeset, UUID}
-  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Repo
   alias CommonsPub.Access.{
     RegisterEmailAccess,
     RegisterEmailDomainAccess,

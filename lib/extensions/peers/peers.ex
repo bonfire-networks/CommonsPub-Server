@@ -8,7 +8,7 @@ defmodule CommonsPub.Peers do
   as the `CommonsPub.Meta.Peer` participates in the Meta abstraction
 
   """
-  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Repo
   alias Bonfire.Common.Errors.NotFoundError
   alias CommonsPub.Peers.{Peer, Queries}
 

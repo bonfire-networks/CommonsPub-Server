@@ -4,7 +4,7 @@ defmodule CommonsPub.Characters do
   alias Bonfire.GraphQL.{Fields, Page}
   # alias CommonsPub.Contexts
 
-  alias CommonsPub.{Common, Feeds, Follows, Repo}
+  alias CommonsPub.{Feeds, Follows, Repo}
   # alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Users.User
 
@@ -21,7 +21,7 @@ defmodule CommonsPub.Characters do
   alias CommonsPub.{
     Activities,
     Blocks,
-    Common,
+    # Common,
     Collections,
     Features,
     Feeds,

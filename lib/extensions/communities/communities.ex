@@ -6,7 +6,7 @@ defmodule CommonsPub.Communities do
     Activities,
     # Blocks,
     # Collections,
-    Common,
+    # Common,
     # Features,
     Feeds,
     # Flags,

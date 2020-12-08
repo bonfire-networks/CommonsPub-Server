@@ -12,7 +12,7 @@ defmodule CommonsPub.Utils.Simulation do
     Likes,
     Peers,
     # Uploads,
-    Users,
+    # Users,
     Resources,
     Threads,
     Threads.Comments,

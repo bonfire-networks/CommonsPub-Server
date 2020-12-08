@@ -94,7 +94,7 @@ defmodule CommonsPub.Search.Meili do
     end
   end
 
-  def http_error(_, http_method, message, object) do
+  def http_error(_, http_method, message, _object) do
     Logger.warn("Meili - Could not #{http_method} object:")
     Logger.debug(inspect(message))
     :ok

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Blocks do
   alias Ecto.Changeset
-  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Repo
   alias CommonsPub.Blocks.{Block, Queries}
   alias CommonsPub.Users.User
 
@@ -80,7 +80,7 @@ defmodule CommonsPub.Blocks do
 
   # Unblock (Activity: Undo, Object: Block)
   def ap_receive_activity(
-        %{data: %{"type" => "Undo"}} = activity,
+        %{data: %{"type" => "Undo"}} = _activity,
         %{data:  %{"type" => "Block"}} = object
       ) do
     with {:ok, blocker} <-

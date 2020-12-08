@@ -16,7 +16,7 @@ defmodule ValueFlows.ValueCalculation do
 
     belongs_to(:creator, User)
     belongs_to(:context, Pointers.Pointer)
-    belongs_to(:value_unit, Measurement.Unit)
+    belongs_to(:value_unit, Bonfire.Quantify.Unit)
   end
 
   @required ~w(formula)a

@@ -2,7 +2,7 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   import CommonsPub.Common, only: [maybe_put: 3]
 
-  alias CommonsPub.{Activities, Common, Feeds, Repo}
+  alias CommonsPub.{Activities, Feeds, Repo}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
   # alias CommonsPub.Contexts

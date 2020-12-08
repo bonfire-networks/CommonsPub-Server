@@ -2,7 +2,7 @@
 defmodule ValueFlows.ValueCalculation.ValueCalculations do
   import CommonsPub.Common, only: [maybe_put: 3]
 
-  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Repo
   alias CommonsPub.Users.User
 
   alias ValueFlows.ValueCalculation
@@ -39,7 +39,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   end
 
   def soft_delete(%ValueCalculation{} = calculation) do
-    Common.Deletion.soft_delete(calculation)
+    Bonfire.Repo.Delete.soft_delete(calculation)
   end
 
   defp prepare_attrs(attrs) do

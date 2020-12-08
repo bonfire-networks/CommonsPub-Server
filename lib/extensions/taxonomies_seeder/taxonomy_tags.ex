@@ -6,7 +6,7 @@ defmodule Taxonomy.TaxonomyTags do
   alias CommonsPub.{
     # Common, GraphQL,
     GraphQL.Page,
-    Contexts,
+    # Contexts,
     Repo
   }
 

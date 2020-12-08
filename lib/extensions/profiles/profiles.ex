@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Profiles do
-  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Repo
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
   # alias CommonsPub.Contexts

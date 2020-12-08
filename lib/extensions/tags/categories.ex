@@ -3,11 +3,11 @@ defmodule CommonsPub.Tag.Categories do
   # alias Ecto.Changeset
 
   alias CommonsPub.{
-    Common,
+    # Common,
     # GraphQL,
     Repo,
     GraphQL.Page,
-    Contexts,
+    # Contexts,
     Activities,
     Feeds
   }

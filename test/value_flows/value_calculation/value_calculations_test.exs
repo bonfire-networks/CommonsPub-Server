@@ -1,8 +1,9 @@
 defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Test.Faking
-  import Measurement.Simulate
+  import CommonsPub.Utils.Simulation
+  import Bonfire.Quantify.Simulate
+
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 

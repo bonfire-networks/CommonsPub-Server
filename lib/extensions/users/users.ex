@@ -9,12 +9,12 @@ defmodule CommonsPub.Users do
     Access,
     Activities,
     Blocks,
-    Common,
+    # Common,
     Communities,
     Collections,
     Features,
-    Feeds,
-    Flags,
+    # Feeds,
+    # Flags,
     Follows,
     Likes,
     Repo,
@@ -416,7 +416,7 @@ defmodule CommonsPub.Users do
 
   defp ap_publish(_, _), do: :ok
 
-  def ap_receive_update(actor, data, creator \\ nil) do
+  def ap_receive_update(actor, data, _creator \\ nil) do
     with {:ok, user} <-
            CommonsPub.Users.update_remote(actor, data) do
       {:ok, user}

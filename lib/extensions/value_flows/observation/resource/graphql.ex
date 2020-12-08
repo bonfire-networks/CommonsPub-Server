@@ -362,7 +362,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     {:ok, nil}
   end
 
-  def fetch_contained_in_edge(%{contained_in_id: id} = thing, _, info)
+  def fetch_contained_in_edge(%{contained_in_id: id} = thing, _, _info)
     when is_binary(id) do
     thing = Repo.preload(thing, :contained_in)
     {:ok, Map.get(thing, :contained_in)}

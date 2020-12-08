@@ -2,7 +2,7 @@
 defmodule ValueFlows.Observation.Process.Processes do
   import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
 
-  alias CommonsPub.{Activities, Common, Feeds, Repo}
+  alias CommonsPub.{Activities, Feeds, Repo}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
   # alias CommonsPub.Contexts

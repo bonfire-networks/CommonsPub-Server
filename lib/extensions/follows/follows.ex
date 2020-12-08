@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Follows do
-  alias CommonsPub.{Activities, Common, Repo}
+  alias CommonsPub.{Activities, Repo}
   alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
 
   alias CommonsPub.Follows.{
@@ -144,7 +144,7 @@ defmodule CommonsPub.Follows do
 
   # Unfollow (Activity: Undo, Object: Follow)
   def ap_receive_activity(
-        %{data: %{"type" => "Undo"}} = activity,
+        %{data: %{"type" => "Undo"}} = _activity,
         %{data:  %{"type" => "Follow"}} = object
       ) do
     with {:ok, follower} <-

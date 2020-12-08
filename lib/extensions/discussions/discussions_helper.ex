@@ -1,5 +1,5 @@
 defmodule CommonsPub.Discussions.Web.DiscussionsHelper do
-  import CommonsPub.Utils.Web.CommonHelper
+  # import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Profiles.Web.ProfilesHelper
 

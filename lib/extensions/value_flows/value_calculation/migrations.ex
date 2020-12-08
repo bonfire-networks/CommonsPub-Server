@@ -11,7 +11,7 @@ defmodule ValueFlows.ValueCalculation.Migrations do
 
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
       add(:context_id, weak_pointer(), null: true)
-      add(:value_unit_id, weak_pointer(Measurement.Unit), null: true)
+      add(:value_unit_id, weak_pointer(Bonfire.Quantify.Unit), null: true)
     end
   end
 

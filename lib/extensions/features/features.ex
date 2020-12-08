@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Features do
-  alias CommonsPub.{Activities, Common, Features, GraphQL, Repo}
+  alias CommonsPub.{Activities, Features, GraphQL, Repo}
   alias CommonsPub.Features.{Feature, Queries}
   alias CommonsPub.Users.User
   alias Bonfire.GraphQL

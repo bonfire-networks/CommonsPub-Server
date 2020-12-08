@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Threads.Comments do
   import Ecto.Query
-  alias CommonsPub.{Activities, Common, Feeds, Flags, Repo}
+  alias CommonsPub.{Activities, Feeds, Flags, Repo}
   alias Bonfire.Common.Errors.NotPermittedError
   # alias CommonsPub.Collections.Collection
   # alias CommonsPub.Communities.Community
@@ -12,7 +12,7 @@ defmodule CommonsPub.Threads.Comments do
   alias CommonsPub.Threads.{Comment, CommentsQueries, Thread}
   alias CommonsPub.Users.User
   alias CommonsPub.Workers.APPublishWorker
-  alias CommonsPub.Utils.Web.CommonHelper
+  # alias CommonsPub.Utils.Web.CommonHelper
 
   def one(filters), do: Repo.single(CommentsQueries.query(Comment, filters))
 

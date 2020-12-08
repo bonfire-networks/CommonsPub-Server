@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Likes do
-  alias CommonsPub.{Activities, Common, Repo}
+  alias CommonsPub.{Activities, Repo}
   # alias CommonsPub.FeedPublisher
   alias CommonsPub.Feeds.FeedActivities
   alias CommonsPub.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}

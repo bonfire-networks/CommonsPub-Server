@@ -2,7 +2,7 @@
 defmodule Geolocation.Geolocations do
   alias CommonsPub.{
     Activities,
-    Common,
+    # Common,
     Feeds,
     # Follows,
     Repo

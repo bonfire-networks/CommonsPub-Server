@@ -2,7 +2,7 @@
 defmodule CommonsPub.Activities do
   alias CommonsPub.{
     # Activities,
-    Common,
+    # Common,
     Repo
   }
 

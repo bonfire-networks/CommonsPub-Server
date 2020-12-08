@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Access.RegisterEmailDomainAccesses do
-  alias CommonsPub.{Common, Repo}
+  alias CommonsPub.Repo
   alias CommonsPub.Access.{RegisterEmailDomainAccess, RegisterEmailDomainAccessesQueries}
 
   def one(filters) do

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Threads do
-  alias CommonsPub.{Common, Feeds, Follows, Repo}
+  alias CommonsPub.{Feeds, Follows, Repo}
   # alias CommonsPub.FeedPublisher
   alias CommonsPub.Threads.{Comments, Thread, Queries}
   alias CommonsPub.Users.User

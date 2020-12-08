@@ -3,7 +3,7 @@ defmodule CommonsPub.Collections do
   alias CommonsPub.{
     Activities,
     # Blocks,
-    Common,
+    # Common,
     # Features,
     Feeds,
     # Flags,
