@@ -4,7 +4,7 @@ variables:
   POSTGRES_DB: commonspub_test
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
-  DATABASE_HOST: postgres
+  DATABASE_HOST: mdillon__postgis
   MIX_ENV: test
   HOSTNAME: localhost
 
@@ -36,8 +36,8 @@ before_script:
 testing:
   stage: test
   services:
-    #- name: mdillon/postgis
-    - name: postgres:9.6.6
+    - name: mdillon/postgis:11-alpine
+    # - name: postgres:12-alpine
       command:
         [
           "postgres",
