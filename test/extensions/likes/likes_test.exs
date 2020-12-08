@@ -5,7 +5,7 @@ defmodule CommonsPub.LikesTest do
   require Ecto.Query
   import CommonsPub.Utils.Simulation
   alias CommonsPub.Likes
-  alias CommonsPub.Common.{DeletionError, NotFoundError}
+  alias CommonsPub.Common.DeletionError
   alias CommonsPub.Utils.Simulation
 
   setup do
@@ -70,7 +70,7 @@ defmodule CommonsPub.LikesTest do
       assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       assert {:ok, like} = Likes.soft_delete(liker, like)
       assert {:ok, fetched} = Likes.one(id: like.id)
-      assert {:error, %NotFoundError{}} = Likes.one(deleted: false, id: like.id)
+      assert {:error, :not_found} = Likes.one(deleted: false, id: like.id)
       assert like_equal?(like, fetched)
     end
   end

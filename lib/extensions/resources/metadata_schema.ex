@@ -27,7 +27,7 @@ defmodule CommonsPub.Web.GraphQL.MiscSchema do
 
   def fetch_web_metadata(%{url: url}, _info) do
     with {:error, _} <- CommonsPub.MetadataScraper.fetch(url) do
-      {:error, Bonfire.Common.Errors.NotFoundError.new()}
+      {:error, :not_found}
     end
   end
 

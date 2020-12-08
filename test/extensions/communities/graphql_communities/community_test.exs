@@ -11,6 +11,7 @@ defmodule CommonsPub.Web.GraphQL.CommunityTest do
   import Grumble
   import Zest
   alias CommonsPub.{Follows, Likes, Collections, Threads}
+  alias CommonsPub.Communities
 
   describe "community" do
     test "works for anyone for a public community" do
@@ -23,6 +24,17 @@ defmodule CommonsPub.Web.GraphQL.CommunityTest do
         comm2 = grumble_post_key(community_query(), conn, :community, vars)
         _comm2 = assert_community(comm, comm2)
       end
+    end
+
+    test "fails if the community has been removed" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      vars = %{community_id: comm.id}
+      assert {:ok, _} = Communities.soft_delete(user, comm)
+      r = catch_throw(grumble_post_key(community_query(), conn, :community, vars))
+
+      assert {:additional_errors, errors} = r
+      assert %{"status_code" => 404} = hd(errors)
     end
   end
 

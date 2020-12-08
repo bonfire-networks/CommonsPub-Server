@@ -20,7 +20,7 @@ defmodule CommonsPub.ResourcesTest do
     end
 
     test "returns not found if the resource is missing" do
-      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} = Resources.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Resources.one(id: Simulation.ulid())
     end
   end
 

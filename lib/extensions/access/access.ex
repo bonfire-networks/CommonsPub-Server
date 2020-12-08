@@ -15,7 +15,6 @@ defmodule CommonsPub.Access do
   }
 
   alias Bonfire.Common.Errors.{
-    NotFoundError,
     InvalidCredentialError,
     NoAccessError,
     TokenExpiredError,
@@ -65,7 +64,7 @@ defmodule CommonsPub.Access do
   def hard_delete!(%Token{} = token), do: Bonfire.Repo.Delete.hard_delete(token)
 
   @spec find_register_email(email :: binary()) ::
-          {:ok, RegisterEmailAccess.t()} | {:error, NotFoundError.t()}
+          {:ok, RegisterEmailAccess.t()} | {:error, :not_found}
   @doc "Looks up a RegisterEmailAccess by email"
   def find_register_email(email),
     do: find_response(Repo.get_by(RegisterEmailAccess, email: email))
@@ -84,12 +83,12 @@ defmodule CommonsPub.Access do
   end
 
   @spec find_register_email_domain(domain :: binary()) ::
-          {:ok, RegisterEmailDomainAccess.t()} | {:error, NotFoundError.t()}
+          {:ok, RegisterEmailDomainAccess.t()} | {:error, :not_found}
   @doc "Looks up a RegisterEmailDomainAccess by domain"
   def find_register_email_domain(domain),
     do: find_response(Repo.get_by(RegisterEmailDomainAccess, domain: domain))
 
-  defp find_response(nil), do: {:error, NotFoundError.new()}
+  defp find_response(nil), do: {:error, :not_found}
   defp find_response(val), do: {:ok, val}
 
   @spec is_register_accessed?(email :: binary()) :: boolean()

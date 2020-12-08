@@ -94,7 +94,7 @@ defmodule CommonsPub.Flags do
   defp ap_publish(_, _), do: :ok
 
   def ap_publish_activity("create", %Flag{} = flag) do
-    flag = Bonfire.Repo.preload(flag, creator: :character, context: [])
+    flag = CommonsPub.Repo.preload(flag, creator: :character, context: [])
 
     with {:ok, flagger} <-
            ActivityPub.Actor.get_cached_by_username(flag.creator.character.preferred_username) do
@@ -113,7 +113,7 @@ defmodule CommonsPub.Flags do
             }
 
           %{character_id: id} when not is_nil(id) ->
-            flagged = Bonfire.Repo.preload(flagged, :character)
+            flagged = CommonsPub.Repo.preload(flagged, :character)
 
             {:ok, account} =
               ActivityPub.Actor.get_or_fetch_by_username(flagged.character.preferred_username)
@@ -124,7 +124,7 @@ defmodule CommonsPub.Flags do
             }
 
           %{creator_id: id} when not is_nil(id) ->
-            flagged = Bonfire.Repo.preload(flagged, creator: :character)
+            flagged = CommonsPub.Repo.preload(flagged, creator: :character)
 
             {:ok, account} =
               ActivityPub.Actor.get_or_fetch_by_username(

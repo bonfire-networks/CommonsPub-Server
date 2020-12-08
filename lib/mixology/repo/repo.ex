@@ -10,7 +10,7 @@ defmodule CommonsPub.Repo do
     adapter: Ecto.Adapters.Postgres
 
   import Ecto.Query
-  alias Bonfire.Common.Errors.NotFoundError
+
 
   @doc """
   Dynamically loads the repository url from the
@@ -25,16 +25,16 @@ defmodule CommonsPub.Repo do
   """
   def single(q) do
     case one(q) do
-      nil -> {:error, NotFoundError.new()}
+      nil -> {:error, :not_found}
       other -> {:ok, other}
     end
   end
 
   @doc "Like Repo.get, but returns an ok/error tuple"
-  @spec fetch(atom, integer | binary) :: {:ok, atom} | {:error, NotFoundError.t()}
+  @spec fetch(atom, integer | binary) :: {:ok, atom} | {:error, :not_found}
   def fetch(queryable, id) do
     case get(queryable, id) do
-      nil -> {:error, NotFoundError.new()}
+      nil -> {:error, :not_found}
       thing -> {:ok, thing}
     end
   end
@@ -42,7 +42,7 @@ defmodule CommonsPub.Repo do
   @doc "Like Repo.get_by, but returns an ok/error tuple"
   def fetch_by(queryable, term) do
     case get_by(queryable, term) do
-      nil -> {:error, NotFoundError.new()}
+      nil -> {:error, :not_found}
       thing -> {:ok, thing}
     end
   end
@@ -113,7 +113,7 @@ defmodule CommonsPub.Repo do
   def maybe_do_preload(%Ecto.Association.NotLoaded{}, _), do: nil
 
   def maybe_do_preload(obj, preloads) when is_struct(obj) do
-    Bonfire.Repo.preload(obj, preloads)
+    CommonsPub.Repo.preload(obj, preloads)
   rescue
     ArgumentError ->
       obj

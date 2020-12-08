@@ -8,7 +8,6 @@ defmodule Bonfire.Quantify.UnitsTest do
   import CommonsPub.Utils.Simulation
   # import CommonsPub.Web.Test.Orderings
   # import CommonsPub.Web.Test.Automaton
-  # import CommonsPub.Common.{Enums, NotFoundError}
 
   # import Grumble
   # import Zest
@@ -34,13 +33,13 @@ defmodule Bonfire.Quantify.UnitsTest do
     end
 
     test "returns NotFound if item is missing" do
-      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} = Units.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Units.one(id: Simulation.ulid())
     end
 
     test "returns NotFound if item is deleted" do
       unit = fake_user!() |> fake_unit!()
       assert {:ok, unit} = Units.soft_delete(unit)
-      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} = Units.one([:default, id: unit.id])
+      assert {:error, :not_found} = Units.one([:default, id: unit.id])
     end
   end
 

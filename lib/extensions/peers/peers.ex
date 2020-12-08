@@ -9,12 +9,12 @@ defmodule CommonsPub.Peers do
 
   """
   alias CommonsPub.Repo
-  alias Bonfire.Common.Errors.NotFoundError
+
   alias CommonsPub.Peers.{Peer, Queries}
 
   # Querying
 
-  @spec fetch(binary()) :: {:ok, Peer.t()} | {:error, NotFoundError.t()}
+  @spec fetch(binary()) :: {:ok, Peer.t()} | {:error, :not_found}
   @doc "Looks up the Peer with the given id in the database"
   def fetch(id), do: Repo.fetch(Peer, id)
 

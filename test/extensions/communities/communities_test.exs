@@ -4,7 +4,7 @@ defmodule CommonsPub.CommunitiesTest do
 
   import CommonsPub.Utils.Simulation
   alias CommonsPub.Utils.Simulation
-  alias Bonfire.Common.Errors.NotFoundError
+
   alias CommonsPub.Communities
   alias CommonsPub.Communities.Community
 
@@ -48,18 +48,18 @@ defmodule CommonsPub.CommunitiesTest do
       user = fake_user!()
       community = fake_community!(user)
       assert {:ok, community} = Communities.soft_delete(user, community)
-      assert {:error, %NotFoundError{}} = Communities.one(deleted: false, id: community.id)
+      assert {:error, :not_found} = Communities.one(deleted: false, id: community.id)
     end
 
     # Everything is public currently
     @tag :skip
     test "fails if the community is private" do
       community = fake_user!() |> fake_community!(nil, %{is_public: false})
-      assert {:error, %NotFoundError{}} = Communities.one(id: community.id)
+      assert {:error, :not_found} = Communities.one(id: community.id)
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %NotFoundError{}} = Communities.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Communities.one(id: Simulation.ulid())
     end
   end
 

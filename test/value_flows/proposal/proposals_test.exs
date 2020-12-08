@@ -112,7 +112,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
       assert {:ok, proposed_intent} = Proposals.delete_proposed_intent(proposed_intent)
 
-      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} =
+      assert {:error, :not_found} =
                Proposals.one_proposed_intent([:default, id: proposed_intent.id])
     end
   end
@@ -184,7 +184,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
       proposed_to = fake_proposed_to!(fake_agent!(), fake_proposal!(user))
       assert {:ok, proposed_to} = Proposals.delete_proposed_to(proposed_to)
 
-      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} =
+      assert {:error, :not_found} =
                Proposals.one_proposed_to([:deleted, id: proposed_to.id])
     end
   end

@@ -33,7 +33,7 @@ defmodule CommonsPub.UploadsTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %Bonfire.Common.Errors.NotFoundError{}} = Uploads.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Uploads.one(id: Simulation.ulid())
     end
   end
 

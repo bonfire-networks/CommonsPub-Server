@@ -5,7 +5,7 @@ defmodule CommonsPub.Threads.CommentsTest do
 
   import CommonsPub.Utils.Simulation
   alias Bonfire.Common.Errors.NotPermittedError
-  alias Bonfire.Common.Errors.NotFoundError
+
   alias CommonsPub.Threads
   alias CommonsPub.Threads.Comments
   alias CommonsPub.Utils.Simulation
@@ -27,16 +27,16 @@ defmodule CommonsPub.Threads.CommentsTest do
 
     test "returns not found if the thread is hidden", %{user: user, thread: thread} do
       assert {:ok, thread} = Threads.update(user, thread, %{is_hidden: true})
-      assert {:error, %NotFoundError{}} = Threads.one(hidden: false, id: thread.id)
+      assert {:error, :not_found} = Threads.one(hidden: false, id: thread.id)
     end
 
     test "returns not found if the thread is deleted", %{user: user, thread: thread} do
       assert {:ok, thread} = Threads.soft_delete(user, thread)
-      assert {:error, %NotFoundError{}} = Threads.one(deleted: false, id: thread.id)
+      assert {:error, :not_found} = Threads.one(deleted: false, id: thread.id)
     end
 
     test "returns not found if the thread is missing" do
-      assert {:error, %NotFoundError{}} = Threads.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Threads.one(id: Simulation.ulid())
     end
 
     @tag :skip
@@ -90,34 +90,34 @@ defmodule CommonsPub.Threads.CommentsTest do
 
     test "returns not found if comment is hidden", context do
       comment = fake_comment!(context.user, context.thread, %{is_hidden: true})
-      assert {:error, %NotFoundError{}} = Comments.one(hidden: false, id: comment.id)
+      assert {:error, :not_found} = Comments.one(hidden: false, id: comment.id)
     end
 
     @tag :skip
     test "returns not found if the comment is unpublished", context do
       comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
       assert {:ok, comment} = Comments.update(context.user, comment, %{is_public: false})
-      assert {:error, %NotFoundError{}} = Comments.one(id: comment.id)
+      assert {:error, :not_found} = Comments.one(id: comment.id)
     end
 
     test "returns not found if the comment is deleted", context do
       comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
       assert {:ok, comment} = Comments.soft_delete(context.user, comment)
-      assert {:error, %NotFoundError{}} = Comments.one(deleted: false, id: comment.id)
+      assert {:error, :not_found} = Comments.one(deleted: false, id: comment.id)
     end
 
     @tag :skip
     test "returns not found if the parent thread is hidden", context do
       thread = fake_thread!(context.user, context.parent, %{is_hidden: true})
       comment = fake_comment!(context.user, thread, %{is_hidden: false})
-      assert {:error, %NotFoundError{}} = Comments.one(hidden: false, id: comment.id)
+      assert {:error, :not_found} = Comments.one(hidden: false, id: comment.id)
     end
 
     @tag :skip
     test "returns not found if the parent thread is deleted", context do
       comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
       assert {:ok, _} = Comments.soft_delete(context.user, context.thread)
-      assert {:error, %NotFoundError{}} = Comments.one(deleted: false, id: comment.id)
+      assert {:error, :not_found} = Comments.one(deleted: false, id: comment.id)
     end
   end
 

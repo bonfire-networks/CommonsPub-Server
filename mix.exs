@@ -83,7 +83,7 @@ defmodule CommonsPub.Mixfile do
        path: "cpub_bonfire_dev/bonfire_common"
        },
       {:bonfire_api_graphql, git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql", branch: "main",
-       #path: "cpub_bonfire_dev/bonfire_api_graphql"
+       path: "cpub_bonfire_dev/bonfire_api_graphql"
        },
       {
         :absinthe,

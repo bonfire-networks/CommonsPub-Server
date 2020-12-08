@@ -6,7 +6,7 @@ defmodule CommonsPub.UsersTest do
   alias Ecto.Changeset
   alias CommonsPub.{Users, Access}
   alias Bonfire.Common.Errors.NoAccessError
-  alias Bonfire.Common.Errors.NotFoundError
+
 
   alias CommonsPub.Users.{
     TokenAlreadyClaimedError,
@@ -50,7 +50,7 @@ defmodule CommonsPub.UsersTest do
     end
 
     test "fails for missing" do
-      assert {:error, %NotFoundError{}} = Users.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Users.one(id: Simulation.ulid())
     end
   end
 

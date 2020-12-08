@@ -3,7 +3,7 @@ defmodule CommonsPub.CollectionsTest do
   use CommonsPub.DataCase, async: true
 
   import CommonsPub.Utils.Simulation
-  alias Bonfire.Common.Errors.NotFoundError
+
   alias CommonsPub.{Collections, Communities}
   alias CommonsPub.Utils.Simulation
 
@@ -25,7 +25,7 @@ defmodule CommonsPub.CollectionsTest do
     test "fails when it has been deleted", context do
       assert {:ok, collection} = Collections.soft_delete(context.user, context.collection)
 
-      assert {:error, %NotFoundError{}} =
+      assert {:error, :not_found} =
                Collections.one(deleted: false, id: context.collection.id)
     end
 
@@ -34,12 +34,12 @@ defmodule CommonsPub.CollectionsTest do
       assert collection = fake_collection!(context.user, context.community)
       assert {:ok, _} = Communities.soft_delete(context.user, context.community)
 
-      assert {:error, %NotFoundError{}} =
+      assert {:error, :not_found} =
                Collections.one(deleted: false, id: context.collection.id)
     end
 
     test "fails with a missing ID" do
-      assert {:error, %NotFoundError{}} = Collections.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Collections.one(id: Simulation.ulid())
     end
   end
 

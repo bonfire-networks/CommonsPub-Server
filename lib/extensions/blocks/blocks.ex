@@ -9,7 +9,7 @@ defmodule CommonsPub.Blocks do
 
   def many(filters), do: {:ok, Repo.all(Queries.query(Block, filters))}
 
-  @spec find(User.t(), %{id: binary}) :: {:ok, Block.t()} | {:error, NotFoundError.t()}
+  @spec find(User.t(), %{id: binary}) :: {:ok, Block.t()} | {:error, :not_found}
   def find(%User{} = blocker, blocked) do
     one(deleted: false, creator: blocker.id, context: blocked.id)
   end
@@ -30,7 +30,7 @@ defmodule CommonsPub.Blocks do
 
 
   def ap_publish_activity("create", %Block{} = block) do
-    block = Bonfire.Repo.preload(block, creator: :character, context: [])
+    block = CommonsPub.Repo.preload(block, creator: :character, context: [])
 
     with {:ok, blocker} <-
            ActivityPub.Actor.get_cached_by_username(block.creator.character.preferred_username),
@@ -45,7 +45,7 @@ defmodule CommonsPub.Blocks do
   end
 
   def ap_publish_activity("delete", %Block{} = block) do
-    block = Bonfire.Repo.preload(block, creator: :character, context: [])
+    block = CommonsPub.Repo.preload(block, creator: :character, context: [])
 
     with {:ok, blocker} <-
            ActivityPub.Actor.get_cached_by_username(block.creator.character.preferred_username),

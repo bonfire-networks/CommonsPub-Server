@@ -81,7 +81,7 @@ defmodule CommonsPub.Likes do
   defp ap_publish(_, _), do: :ok
 
   def ap_publish_activity("create", %Like{} = like) do
-    like = Bonfire.Repo.preload(like, [:context, creator: :character])
+    like = CommonsPub.Repo.preload(like, [:context, creator: :character])
     # IO.inspect(pub_like: like)
 
     with {:ok, liker} <- ActivityPub.Actor.get_cached_by_local_id(like.creator_id) do
@@ -98,7 +98,7 @@ defmodule CommonsPub.Likes do
   end
 
   def ap_publish_activity("delete", %Like{} = like) do
-    like = Bonfire.Repo.preload(like, creator: :character, context: [])
+    like = CommonsPub.Repo.preload(like, creator: :character, context: [])
 
     with {:ok, liker} <- ActivityPub.Actor.get_cached_by_local_id(like.creator_id) do
       liked = Bonfire.Common.Pointers.follow!(like.context)

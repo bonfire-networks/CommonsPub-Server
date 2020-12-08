@@ -89,12 +89,12 @@ defmodule CommonsPub.Follows do
     ## that are only reflected in the host database upon receiving an Accept activity in response. in this case
     ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
     ## For now we just delete the folow and return an error if the followed account is private.
-    follow = Bonfire.Repo.preload(follow, creator: :character, context: [:table])
+    follow = CommonsPub.Repo.preload(follow, creator: :character, context: [:table])
 
     with {:ok, follower} <-
            ActivityPub.Actor.get_cached_by_username(follow.creator.character.preferred_username),
          followed = Bonfire.Common.Pointers.follow!(follow.context),
-         followed = Bonfire.Repo.preload(followed, :character),
+         followed = CommonsPub.Repo.preload(followed, :character),
          {:ok, followed} <-
            ActivityPub.Actor.get_or_fetch_by_username(followed.character.preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
@@ -110,7 +110,7 @@ defmodule CommonsPub.Follows do
   end
 
   def ap_publish_activity("delete", %Follow{} = follow) do
-    follow = Bonfire.Repo.preload(follow, creator: :character, context: [])
+    follow = CommonsPub.Repo.preload(follow, creator: :character, context: [])
 
     with {:ok, follower} <-
            ActivityPub.Actor.get_cached_by_username(follow.creator.character.preferred_username),

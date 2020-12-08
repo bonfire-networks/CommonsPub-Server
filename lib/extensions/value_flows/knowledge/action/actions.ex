@@ -16,7 +16,7 @@ defmodule ValueFlows.Knowledge.Action.Actions do
   def action(label) do
     case load_actions()[label] do
       nil ->
-        {:error, Bonfire.Common.Errors.NotFoundError.new()}
+        {:error, :not_found}
 
       action ->
         {:ok, action}

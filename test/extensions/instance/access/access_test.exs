@@ -4,7 +4,7 @@ defmodule CommonsPub.AccessTest do
 
   import CommonsPub.Utils.Simulation
   alias Ecto.Changeset
-  alias Bonfire.Common.Errors.NotFoundError
+
   alias CommonsPub.Utils.Simulation
   alias CommonsPub.Access
 
@@ -139,7 +139,7 @@ defmodule CommonsPub.AccessTest do
       Repo.transaction(fn ->
         wl = fake_register_email_domain_access!()
         assert deleted(wl) == Access.hard_delete!(wl)
-        assert {:error, %NotFoundError{} = e} = Access.find_register_email_domain(wl.domain)
+        assert {:error, :not_found = e} = Access.find_register_email_domain(wl.domain)
       end)
     end
 
@@ -147,7 +147,7 @@ defmodule CommonsPub.AccessTest do
       Repo.transaction(fn ->
         wl = fake_register_email_access!()
         assert deleted(wl) == Access.hard_delete!(wl)
-        assert {:error, %NotFoundError{} = e} = Access.find_register_email(wl.email)
+        assert {:error, :not_found = e} = Access.find_register_email(wl.email)
       end)
     end
 
@@ -198,7 +198,7 @@ defmodule CommonsPub.AccessTest do
       token = fake_token!(user)
       {:ok, token2} = Access.hard_delete(token)
       assert deleted(token) == token2
-      assert {:error, %NotFoundError{}} = Access.fetch_token_and_user(token.id)
+      assert {:error, :not_found} = Access.fetch_token_and_user(token.id)
     end
 
     # test "works with an Authorization" do

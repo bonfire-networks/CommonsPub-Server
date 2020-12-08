@@ -9,7 +9,7 @@ defmodule CommonsPub.CharactersTest do
 
   # alias CommonsPub.Users
 
-  alias Bonfire.Common.Errors.NotFoundError
+
   alias CommonsPub.Utils.Simulation
 
   defp assert_character_equal(character, attrs) do
@@ -32,7 +32,7 @@ defmodule CommonsPub.CharactersTest do
     end
 
     test "fails if item is missing" do
-      assert {:error, %NotFoundError{}} = Characters.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Characters.one(id: Simulation.ulid())
     end
   end
 

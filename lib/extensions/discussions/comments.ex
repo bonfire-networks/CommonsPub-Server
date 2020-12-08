@@ -128,7 +128,7 @@ defmodule CommonsPub.Threads.Comments do
   def save_attached_tags(creator, comment, attrs) do
     with {:ok, _taggable} <-
            CommonsPub.Tag.TagThings.thing_attach_tags(creator, comment, attrs.mentions) do
-      # {:ok, Bonfire.Repo.preload(comment, :tags)}
+      # {:ok, CommonsPub.Repo.preload(comment, :tags)}
       {:ok, nil}
     end
   end
@@ -245,7 +245,7 @@ defmodule CommonsPub.Threads.Comments do
   defp ap_publish(_, _), do: :ok
 
   def ap_publish_activity("create", comment) do
-    comment = Bonfire.Repo.preload(comment, thread: :context)
+    comment = CommonsPub.Repo.preload(comment, thread: :context)
 
     # IO.inspect(publish_comment: comment)
 

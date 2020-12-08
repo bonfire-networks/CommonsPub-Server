@@ -6,7 +6,7 @@ defmodule CommonsPub.ActivitiesTest do
 
   alias CommonsPub.Activities
   alias CommonsPub.Activities.Activity
-  alias Bonfire.Common.Errors.NotFoundError
+
   alias CommonsPub.Utils.Simulation
 
   setup do
@@ -25,13 +25,13 @@ defmodule CommonsPub.ActivitiesTest do
     test "can ignore activities that are unpublished", %{user: user, context: context} do
       activity = fake_activity!(user, context)
       assert {:ok, activity} = Activities.update(user, activity, %{is_public: false})
-      assert {:error, %NotFoundError{}} = Activities.one(published: true, id: activity.id)
+      assert {:error, :not_found} = Activities.one(published: true, id: activity.id)
     end
 
     test "can ignore activities that are deleted", %{user: user, context: context} do
       activity = fake_activity!(user, context)
       assert {:ok, activity} = Activities.soft_delete(user, activity)
-      assert {:error, %NotFoundError{}} = Activities.one(deleted: false, id: activity.id)
+      assert {:error, :not_found} = Activities.one(deleted: false, id: activity.id)
     end
 
     test "can return an activity by ID regardless of published or deleted status", %{
