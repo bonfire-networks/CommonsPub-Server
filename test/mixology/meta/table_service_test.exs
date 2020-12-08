@@ -6,8 +6,6 @@ defmodule CommonsPub.Meta.TableServiceTest do
   import Bonfire.Repo.Introspection, only: [ecto_schema_table: 1]
   alias CommonsPub.Repo
 
-  alias Bonfire.Common.Pointers.TableService
-  alias Bonfire.Common.Errors.TableNotFoundError
 
 
   alias Pointers.Table
@@ -78,19 +76,19 @@ defmodule CommonsPub.Meta.TableServiceTest do
         t2 = %{t | schema: schema}
         # There are 3 valid keys, 3 pairs of functions to check
         for key <- [schema, table, id] do
-          assert {:ok, t2} == TableService.lookup(key)
-          assert {:ok, id} == TableService.lookup_id(key)
-          assert {:ok, schema} == TableService.lookup_schema(key)
-          assert t2 == TableService.lookup!(key)
-          assert id == TableService.lookup_id!(key)
-          assert schema == TableService.lookup_schema!(key)
+          assert {:ok, t2} == Pointers.Tables.table(key)
+          assert {:ok, id} == Pointers.Tables.id(key)
+          assert {:ok, schema} == Pointers.Tables.schema(key)
+          assert t2 == Pointers.Tables.table!(key)
+          assert id == Pointers.Tables.id!(key)
+          assert schema == Pointers.Tables.schema!(key)
         end
       end
     end
 
     for t <- @bad_table_names do
-      assert {:error, %TableNotFoundError{table: t}} == TableService.lookup(t)
-      assert %TableNotFoundError{table: t} == catch_throw(TableService.lookup!(t))
+      assert {:error, %Pointers.NotFound{}} == Pointers.Tables.table(t)
+      assert %Pointers.NotFound{} == catch_throw(Pointers.Tables.table!(t))
     end
   end
 end

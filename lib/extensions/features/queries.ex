@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Features.Queries do
   alias CommonsPub.Features.Feature
-  alias Bonfire.Common.Pointers.TableService
+
 
   import Ecto.Query
 
@@ -57,10 +57,10 @@ defmodule CommonsPub.Features.Queries do
   def filter(q, {:table, id}) when is_binary(id), do: where(q, [context: c], c.table_id == ^id)
 
   def filter(q, {:table, table}) when is_atom(table),
-    do: filter(q, {:table, TableService.lookup_id!(table)})
+    do: filter(q, {:table, Pointers.Tables.id!(table)})
 
   def filter(q, {:table, tables}) when is_list(tables) do
-    ids = TableService.lookup_ids!(tables)
+    ids = Pointers.Tables.ids!(tables)
     where(q, [context: c], c.table_id in ^ids)
   end
 

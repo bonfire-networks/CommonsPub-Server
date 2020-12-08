@@ -6,7 +6,7 @@ defmodule CommonsPub.Common.ChangesetTest do
   alias Ecto.Changeset
 
   defmodule Dummy do
-    use CommonsPub.Repo.Schema
+    use Bonfire.Repo.Schema
 
     table_schema "dummy" do
       field(:url, :string)

@@ -1,6 +1,23 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 import Config
 
+#### Pointers configuration
+
+# This tells `Pointers.Tables` which apps to search for tables to
+# index. If you add another dependency with Pointables, you will want
+# to add it to the search path
+
+config :pointers,
+  search_path: [
+    # :bonfire_data_access_control,
+    # :bonfire_data_identity,
+    # :bonfire_data_social,
+    :bonfire_quantify,
+    :commons_pub,
+  ]
+
+### Bonfire modularisation
+
 import_config "bonfire_quantify.exs"
 
 config :bonfire_common,
@@ -24,6 +41,8 @@ config :bonfire_common,
 config :bonfire_api_graphql,
   repo_module: CommonsPub.Repo,
   web_module: CommonsPub.Web
+
+
 
 alias CommonsPub.{
   Blocks,

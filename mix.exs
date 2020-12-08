@@ -189,8 +189,8 @@ defmodule CommonsPub.Mixfile do
       {
         :pointers,
         # "~> 0.4"
-        git: "https://github.com/commonspub/pointers.git", branch: "main", override: true
-        # path: "uploads/pointers-main"
+        git: "https://github.com/commonspub/pointers.git", branch: "main", override: true,
+        path: "cpub_bonfire_dev/pointers"
         # git: "https://github.com/mayel/pointers.git",
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},

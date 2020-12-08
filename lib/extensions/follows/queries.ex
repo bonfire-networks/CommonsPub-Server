@@ -4,7 +4,7 @@ defmodule CommonsPub.Follows.Queries do
   alias CommonsPub.Collections.Collection
   alias CommonsPub.Communities.Community
   alias CommonsPub.Follows.Follow
-  alias Bonfire.Common.Pointers.TableService
+
   alias CommonsPub.Users.User
   import CommonsPub.Repo, only: [match_admin: 0]
   import Ecto.Query
@@ -100,10 +100,10 @@ defmodule CommonsPub.Follows.Queries do
   def filter(q, {:table, id}) when is_binary(id), do: where(q, [context: c], c.table_id == ^id)
 
   def filter(q, {:table, name}) when is_atom(name),
-    do: filter(q, {:table, TableService.lookup_id!(name)})
+    do: filter(q, {:table, Pointers.Tables.id!(name)})
 
   def filter(q, {:table, tables}) when is_list(tables) do
-    tables = TableService.lookup_ids!(tables)
+    tables = Pointers.Tables.ids!(tables)
     where(q, [context: c], c.table_id in ^tables)
   end
 

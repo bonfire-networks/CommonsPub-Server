@@ -3,7 +3,7 @@ defmodule CommonsPub.Feeds.FeedActivitiesQueries do
   use CommonsPub.Common.Metadata
   alias CommonsPub.Activities
   alias CommonsPub.Feeds.FeedActivity
-  alias Bonfire.Common.Pointers.TableService
+
   import CommonsPub.Repo, only: [match_admin: 0]
   import Ecto.Query
 
@@ -57,10 +57,10 @@ defmodule CommonsPub.Feeds.FeedActivitiesQueries do
   def filter(q, {:table, id}) when is_binary(id), do: where(q, [context: c], c.table_id == ^id)
 
   def filter(q, {:table, table}) when is_atom(table),
-    do: filter(q, {:table, TableService.lookup_id!(table)})
+    do: filter(q, {:table, Pointers.Tables.id!(table)})
 
   def filter(q, {:table, tables}) when is_list(tables) do
-    ids = TableService.lookup_ids!(tables)
+    ids = Pointers.Tables.ids!(tables)
     where(q, [context: c], c.table_id in ^ids)
   end
 

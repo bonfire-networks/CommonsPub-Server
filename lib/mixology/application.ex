@@ -38,10 +38,10 @@ defmodule CommonsPub.Application do
     # and does not need it to start up
     children = [
       CommonsPub.Utils.Metrics,
-      supervisor(CommonsPub.Repo, []),
-      worker(Bonfire.Common.Pointers.TableService, []),
+      CommonsPub.Repo,
+      Pointers.Tables,
       {Phoenix.PubSub, [name: CommonsPub.PubSub, adapter: Phoenix.PubSub.PG2]},
-      supervisor(Endpoint, []),
+      Endpoint,
       {Oban, CommonsPub.Config.get(Oban)}
     ]
 

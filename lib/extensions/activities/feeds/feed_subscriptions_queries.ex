@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Feeds.FeedSubscriptionsQueries do
   alias CommonsPub.Feeds.FeedSubscription
-  alias Bonfire.Common.Pointers.TableService
+
   import Ecto.Query
 
   def query(FeedSubscription), do: from(fs in FeedSubscription, as: :subscription)
@@ -60,10 +60,10 @@ defmodule CommonsPub.Feeds.FeedSubscriptionsQueries do
   def filter(q, {:table, id}) when is_binary(id), do: where(q, [subscriber: s], s.table_id == ^id)
 
   def filter(q, {:table, table}) when is_atom(table),
-    do: filter(q, {:table, TableService.lookup_id!(table)})
+    do: filter(q, {:table, Pointers.Tables.id!(table)})
 
   def filter(q, {:table, tables}) when is_list(tables) do
-    ids = TableService.lookup_ids!(tables)
+    ids = Pointers.Tables.ids!(tables)
     where(q, [subscriber: s], s.table_id in ^ids)
   end
 
