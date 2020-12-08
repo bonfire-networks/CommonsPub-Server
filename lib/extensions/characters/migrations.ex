@@ -81,7 +81,7 @@ defmodule CommonsPub.Characters.Migrations do
     # rename(table("character"), to: table("mn_actor"))
     # flush()
 
-    Bonfire.Repo.delete_all(table_name())
+    CommonsPub.Repo.delete_all(table_name())
 
     alter table(table_name()) do
       add(:peer_id, references("mn_peer", on_delete: :delete_all))
