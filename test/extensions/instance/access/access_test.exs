@@ -128,7 +128,7 @@ defmodule CommonsPub.AccessTest do
       end)
     end
 
-    # test "returns a DeletionError passing a deleted model" do
+    # test "returns an error passing a deleted model" do
     #   Repo.transaction(fn ->
     #     wl = fake_register_email_domain_access!()
     #     assert {:ok, deleted(wl)} == Access.hard_delete(wl)
@@ -153,7 +153,7 @@ defmodule CommonsPub.AccessTest do
       end)
     end
 
-    test "throws a DeletionError passing a deleted model" do
+    test "throws an error passing a deleted model" do
       Repo.transaction(fn ->
         wl = fake_register_email_domain_access!()
         assert {:ok, deleted(wl)} == Access.hard_delete(wl)

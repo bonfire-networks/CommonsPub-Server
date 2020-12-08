@@ -57,7 +57,7 @@ defmodule CommonsPub.Access do
   def hard_delete(%Token{} = token), do: Bonfire.Repo.Delete.hard_delete(token)
 
   @spec hard_delete!(access | token) :: access
-  @doc "Removes an access entry or token from the database or throws DeletionError"
+  @doc "Removes an access entry or token from the database or throws an error"
   def hard_delete!(%RegisterEmailDomainAccess{} = w), do: Bonfire.Repo.Delete.hard_delete!(w)
   def hard_delete!(%RegisterEmailAccess{} = w), do: Bonfire.Repo.Delete.hard_delete!(w)
   def hard_delete!(%Token{} = token), do: Bonfire.Repo.Delete.hard_delete(token)

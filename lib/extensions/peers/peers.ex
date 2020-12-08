@@ -40,12 +40,12 @@ defmodule CommonsPub.Peers do
 
   # Soft deletion
 
-  @spec soft_delete(Peer.t()) :: {:ok, Peer.t()} | {:error, DeletionError.t()}
+  @spec soft_delete(Peer.t()) :: {:ok, Peer.t()} | {:error, Error.t()}
   @doc "Marks a Peer as deleted in the database"
   def soft_delete(%Peer{} = peer), do: Bonfire.Repo.Delete.soft_delete(peer)
 
   @spec soft_delete!(Peer.t()) :: Peer.t()
-  @doc "Marks a Peer as deleted in the database or throws a DeletionError"
+  @doc "Marks a Peer as deleted in the database or throws an error"
   def soft_delete!(%Peer{} = peer), do: Bonfire.Repo.Delete.soft_delete!(peer)
 
   def soft_delete_by(filters) do

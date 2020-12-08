@@ -5,7 +5,6 @@ defmodule CommonsPub.LikesTest do
   require Ecto.Query
   import CommonsPub.Utils.Simulation
   alias CommonsPub.Likes
-   alias Bonfire.Common.Errors.DeletionError
   alias CommonsPub.Utils.Simulation
 
   setup do
@@ -157,7 +156,7 @@ defmodule CommonsPub.LikesTest do
       liked = fake_meta!()
       assert {:ok, like} = Likes.create(liker, liked, Simulation.like())
       assert {:ok, deleted} = Likes.soft_delete(liker, like)
-      assert {:error, %DeletionError{}} = Likes.soft_delete(liker, deleted)
+      assert {:error, _} = Likes.soft_delete(liker, deleted)
     end
   end
 end

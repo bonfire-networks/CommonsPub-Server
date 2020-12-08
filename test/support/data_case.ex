@@ -15,7 +15,7 @@ defmodule CommonsPub.DataCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Bonfire.Common.Errors.DeletionError
+  alias Bonfire.Common.Error
 
   using do
     quote do
@@ -67,8 +67,8 @@ defmodule CommonsPub.DataCase do
     Map.put(thing, :__meta__, meta2)
   end
 
-  @doc "Returns true if the provided is a DeletionError that was stale"
-  def was_already_deleted?(%DeletionError{message: "has already been deleted"}),
+  @doc "Returns true if the provided is an that was stale"
+  def was_already_deleted?(%Error{message: "has already been deleted"}),
     do: true
 
   def was_already_deleted?(_), do: false
