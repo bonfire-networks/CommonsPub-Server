@@ -13,6 +13,14 @@ cache:
   paths:
     - deps
     - _build
+    - ~/.mix
+    - ~/.hex
+    - ~/.cargo
+    - .mix
+    - .hex
+    - .cargo
+    - .cache
+    - .npm
     - .pip
 
 stages:
@@ -51,6 +59,7 @@ testing:
   script:
     - mix compile
     - mix ecto.create
+    - make db-pre-migrations
     - mix ecto.migrate
     - mix coveralls --preload-modules
 
