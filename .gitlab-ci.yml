@@ -1,6 +1,7 @@
 image: elixir:1.11-alpine #update this when we switch Elixir version in Dockerfile
 
 variables:
+  CI_RUN: true
   POSTGRES_DB: commonspub_test
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
