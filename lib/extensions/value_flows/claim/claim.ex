@@ -24,7 +24,7 @@ defmodule ValueFlows.Claim do
     field(:finished, :boolean)
     field(:created, :utc_datetime_usec)
     field(:due, :utc_datetime_usec)
-    field(:resource_classified_as, {:array, :string})
+    field(:resource_classified_as, {:array, :string}, virtual: true)
 
     belongs_to(:action, Action, type: :string)
     belongs_to(:provider, Pointers.Pointer)

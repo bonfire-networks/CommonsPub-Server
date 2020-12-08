@@ -26,7 +26,8 @@ defmodule ValueFlows.Test.Faking do
 
   alias ValueFlows.{
     Claim,
-    Proposal
+    Proposal,
+    ValueCalculation,
     # Proposals
   }
 
@@ -72,6 +73,17 @@ defmodule ValueFlows.Test.Faking do
       finished: assert_optional(&assert_boolean/1),
       created: assert_optional(&assert_datetime/1),
       due: assert_optional(&assert_datetime/1),
+      resource_classified_as: assert_optional(assert_list(&assert_url/1))
+    )
+  end
+
+  def assert_value_calculation(%ValueCalculation{} = calculation) do
+    assert_value_calculation(Map.from_struct(calculation))
+  end
+
+  def assert_value_calculation(calculation) do
+    assert_object(calculation, :assert_value_calculation,
+      formula: &assert_binary/1,
       resource_classified_as: assert_optional(assert_list(&assert_url/1))
     )
   end
