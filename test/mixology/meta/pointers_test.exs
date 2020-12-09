@@ -6,7 +6,6 @@ defmodule CommonsPub.Meta.PointersTest do
   import CommonsPub.Utils.Simulation
   alias CommonsPub.{Access, Repo}
 
-
   alias CommonsPub.Peers.Peer
 
   describe "forge!" do
@@ -41,8 +40,7 @@ defmodule CommonsPub.Meta.PointersTest do
     test "throws Pointers.NotFound when given a non-meta table" do
       table = %Access.Token{}
 
-      assert %Pointers.NotFound{} ==
-               catch_throw(Bonfire.Common.Pointers.forge!(table))
+      assert_raise Pointers.NotFound, Bonfire.Common.Pointers.forge!(table)
     end
   end
 

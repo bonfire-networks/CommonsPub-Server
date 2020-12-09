@@ -4,7 +4,7 @@
 defmodule CommonsPub.Mixfile do
   use Mix.Project
 
-  @library_dev_mode true
+  @library_dev_mode false
 
   # General configuration of the project
   def project do
