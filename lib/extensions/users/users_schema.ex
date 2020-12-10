@@ -3,13 +3,14 @@ defmodule CommonsPub.Web.GraphQL.UsersSchema do
   use Absinthe.Schema.Notation
 
   alias CommonsPub.Web.GraphQL.{
-    CommonResolver,
     FlagsResolver,
     FollowsResolver,
     LikesResolver,
     UsersResolver,
     UploadResolver
   }
+
+    alias Bonfire.GraphQL.CommonResolver
 
   object :users_queries do
     @desc "Check if a user exists with a username"

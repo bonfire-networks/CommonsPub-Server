@@ -4,9 +4,10 @@ defmodule CommonsPub.Web.GraphQL.ActivitiesSchema do
 
   alias CommonsPub.Web.GraphQL.{
     ActivitiesResolver,
-    CommonResolver,
     UsersResolver
   }
+
+  alias Bonfire.GraphQL.CommonResolver
 
   # alias CommonsPub.Collections.Collection
   # alias CommonsPub.Flags.Flag

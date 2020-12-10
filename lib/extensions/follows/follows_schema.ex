@@ -5,7 +5,8 @@ defmodule CommonsPub.Web.GraphQL.FollowsSchema do
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.Threads.Thread
   # alias CommonsPub.Users.User
-  alias CommonsPub.Web.GraphQL.{CommonResolver, FollowsResolver, UsersResolver}
+  alias CommonsPub.Web.GraphQL.{ FollowsResolver, UsersResolver}
+  alias Bonfire.GraphQL.CommonResolver
 
   object :follows_queries do
     @desc "Retrieves a follow by id"

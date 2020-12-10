@@ -4,10 +4,11 @@ defmodule CommonsPub.Web.GraphQL.ThreadsSchema do
 
   alias CommonsPub.Web.GraphQL.{
     CommentsResolver,
-    CommonResolver,
     FollowsResolver,
     ThreadsResolver
   }
+
+  alias Bonfire.GraphQL.CommonResolver
 
   # alias CommonsPub.Communities.Community
   # alias CommonsPub.Collections.Collection

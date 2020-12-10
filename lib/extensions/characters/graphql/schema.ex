@@ -6,7 +6,6 @@ defmodule CommonsPub.Characters.GraphQL.Schema do
   use Absinthe.Schema.Notation
 
   alias CommonsPub.Web.GraphQL.{
-    CommonResolver,
     FlagsResolver,
     FollowsResolver,
     LikesResolver,
@@ -17,6 +16,9 @@ defmodule CommonsPub.Characters.GraphQL.Schema do
     CollectionsResolver,
     ResourcesResolver
   }
+
+    alias Bonfire.GraphQL.CommonResolver
+
 
   # alias CommonsPub.Characters.GraphQL.Resolver
 

@@ -4,7 +4,7 @@ defmodule CommonsPub.Locales.GraphQL.Resolver do
   # alias CommonsPub.{GraphQL}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
-    # CommonResolver,
+
     # Flow,
     # FetchFields,
     FetchPage,

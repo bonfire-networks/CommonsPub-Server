@@ -3,7 +3,8 @@ defmodule CommonsPub.Web.GraphQL.FeaturesSchema do
   use Absinthe.Schema.Notation
   # alias CommonsPub.Collections.Collection
   # alias CommonsPub.Communities.Community
-  alias CommonsPub.Web.GraphQL.{CommonResolver, FeaturesResolver, UsersResolver}
+  alias CommonsPub.Web.GraphQL.{ FeaturesResolver, UsersResolver}
+  alias Bonfire.GraphQL.CommonResolver
 
   object :features_queries do
     field :feature, :feature do

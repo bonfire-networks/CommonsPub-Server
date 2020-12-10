@@ -6,7 +6,8 @@ defmodule CommonsPub.Web.GraphQL.FlagsSchema do
   # alias CommonsPub.Resources.Resource
   # alias CommonsPub.Threads.Comment
   # alias CommonsPub.Users.User
-  alias CommonsPub.Web.GraphQL.{CommonResolver, FlagsResolver, UsersResolver}
+  alias CommonsPub.Web.GraphQL.{FlagsResolver, UsersResolver}
+  alias Bonfire.GraphQL.CommonResolver
 
   object :flags_queries do
     field :flag, :flag do

@@ -6,7 +6,7 @@ defmodule Organisation.GraphQL.Schema do
   use Absinthe.Schema.Notation
 
   alias CommonsPub.Web.GraphQL.{
-    # CommonResolver,
+
     # FlagsResolver,
     # FollowsResolver,
     # LikesResolver,

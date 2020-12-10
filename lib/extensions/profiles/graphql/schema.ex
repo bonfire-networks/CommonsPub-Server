@@ -7,7 +7,6 @@ defmodule CommonsPub.Profiles.GraphQL.Schema do
 
   alias CommonsPub.Web.GraphQL.{
     # Profile.GraphQL.Resolver,
-    CommonResolver,
     FlagsResolver,
     # FollowsResolver,
     LikesResolver,
@@ -17,6 +16,8 @@ defmodule CommonsPub.Profiles.GraphQL.Schema do
     # CommunitiesResolver,
     # CollectionsResolver
   }
+
+    alias Bonfire.GraphQL.CommonResolver
 
   object :profile_queries do
     @desc "Get a profile by id. You usually would query for a type associated with profile, rather than profiles directly."

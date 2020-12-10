@@ -49,6 +49,9 @@ config :bonfire_api_graphql,
   repo_module: CommonsPub.Repo,
   web_module: CommonsPub.Web
 
+config :bonfire_geolocate,
+  repo_module: CommonsPub.Repo,
+  web_module: CommonsPub.Web
 
 
 alias CommonsPub.{

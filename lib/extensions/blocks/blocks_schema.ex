@@ -3,7 +3,7 @@ defmodule CommonsPub.Web.GraphQL.BlocksSchema do
   use Absinthe.Schema.Notation
   # alias CommonsPub.Collections.Collection
   # alias CommonsPub.Communities.Community
-  # alias CommonsPub.Web.GraphQL.{CommonResolver, BlocksResolver}
+  # alias CommonsPub.Web.GraphQL.BlocksResolver
 
   object :blocks_queries do
   end

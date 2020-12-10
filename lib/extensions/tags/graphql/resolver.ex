@@ -5,7 +5,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
-    # CommonResolver,
+
     FetchFields,
     FetchPage,
     # FetchPages,

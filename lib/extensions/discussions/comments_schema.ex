@@ -4,11 +4,13 @@ defmodule CommonsPub.Web.GraphQL.CommentsSchema do
 
   alias CommonsPub.Web.GraphQL.{
     CommentsResolver,
-    CommonResolver,
     FlagsResolver,
     LikesResolver,
     UsersResolver
   }
+
+    alias Bonfire.GraphQL.CommonResolver
+
 
   object :comments_queries do
     @desc "Get a comment by its id"

@@ -4,7 +4,7 @@ defmodule Organisation.GraphQL.Resolver do
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
-    # CommonResolver,
+
     # FetchFields,
     FetchPage,
     # FetchPages,

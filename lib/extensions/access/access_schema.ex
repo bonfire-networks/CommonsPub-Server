@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Web.GraphQL.AccessSchema do
   use Absinthe.Schema.Notation
-  alias CommonsPub.Web.GraphQL.{AccessResolver, CommonResolver}
+  alias CommonsPub.Web.GraphQL.AccessResolver
+  alias Bonfire.GraphQL.CommonResolver
 
   object :access_queries do
     field :register_email_accesses, non_null(:register_email_accesses_page) do

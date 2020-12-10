@@ -5,7 +5,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
-    # CommonResolver,
+
     FetchFields,
     FetchPage,
     # FetchPages,

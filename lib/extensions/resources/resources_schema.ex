@@ -6,13 +6,14 @@ defmodule CommonsPub.Web.GraphQL.ResourcesSchema do
   use Absinthe.Schema.Notation
 
   alias CommonsPub.Web.GraphQL.{
-    CommonResolver,
     FlagsResolver,
     LikesResolver,
     ResourcesResolver,
     UsersResolver,
     UploadResolver
   }
+
+    alias Bonfire.GraphQL.CommonResolver
 
   object :resources_queries do
     @desc "Get a resource"

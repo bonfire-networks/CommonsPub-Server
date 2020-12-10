@@ -13,6 +13,7 @@
   "bonfire_data_activity_pub": {:git, "https://github.com/bonfire-ecosystem/bonfire_data_activity_pub", "f94fa93a667b69207647f85afcfc349d434e41e5", [branch: "main"]},
   "bonfire_data_identity": {:git, "https://github.com/bonfire-ecosystem/bonfire_data_identity", "58bb70c1097b7d40551449253c2e4db542e0ef11", [branch: "main"]},
   "bonfire_data_social": {:git, "https://github.com/bonfire-ecosystem/bonfire_data_social", "b88eda8e324b2ceea03438d19fd528c8062cf2f9", [branch: "main"]},
+  "bonfire_geolocate": {:git, "https://github.com/bonfire-ecosystem/bonfire_geolocate", "41022b66f3a78da5aa0a1da5f2eb3e2d1cab9a72", [branch: "main"]},
   "bonfire_quantify": {:git, "https://github.com/bonfire-ecosystem/bonfire_quantify", "5c457f85fd7dbdc2ed9d1c23f0401078b71c2a17", [branch: "main"]},
   "cachex": {:hex, :cachex, "3.3.0", "6f2ebb8f27491fe39121bd207c78badc499214d76c695658b19d6079beeca5c2", [:mix], [{:eternal, "~> 1.2", [hex: :eternal, repo: "hexpm", optional: false]}, {:jumper, "~> 1.0", [hex: :jumper, repo: "hexpm", optional: false]}, {:sleeplocks, "~> 1.1", [hex: :sleeplocks, repo: "hexpm", optional: false]}, {:unsafe, "~> 1.0", [hex: :unsafe, repo: "hexpm", optional: false]}], "hexpm", "d90e5ee1dde14cef33f6b187af4335b88748b72b30c038969176cd4e6ccc31a1"},
   "castore": {:hex, :castore, "0.1.8", "1b61eaba71bb755b756ac42d4741f4122f8beddb92456a84126d6177ec0af1fc", [:mix], [], "hexpm", "23ab8305baadb057bc689adc0088309f808cb2247dc9a48b87849bb1d242bb6c"},

@@ -9,7 +9,6 @@ defmodule CommonsPub.Web.GraphQL.CollectionsSchema do
     CommunitiesResolver,
     CollectionsResolver,
     ResourcesResolver,
-    CommonResolver,
     FeaturesResolver,
     FlagsResolver,
     FollowsResolver,
@@ -18,6 +17,9 @@ defmodule CommonsPub.Web.GraphQL.CollectionsSchema do
     UsersResolver,
     UploadResolver
   }
+
+    alias Bonfire.GraphQL.CommonResolver
+
 
   object :collections_queries do
     @desc "Get a collection by id"

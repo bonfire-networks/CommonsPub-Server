@@ -63,7 +63,7 @@ testing:
     - make db-pre-migrations
     - mix ecto.migrate
     # - mix coveralls --preload-modules
-    - mix test test/value_flows/ test/extensions/bonfire_quantify test/extensions/geolocation
+    - mix test test/value_flows/ test/extensions/bonfire_quantify test/extensions/bonfire_geolocate
 
 locales-and-docs:
   stage: deploy # deploy documentation (stage should be changed 'deploy' when tests are fixed)

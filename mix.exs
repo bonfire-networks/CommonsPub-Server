@@ -84,7 +84,11 @@ defmodule CommonsPub.Mixfile do
   def deps_list do
     # Mess.deps
     [
-      # graphql
+      # modularisation for Bonfire
+      {:bonfire_geolocate,
+       git: "https://github.com/bonfire-ecosystem/bonfire_geolocate",
+       branch: "main",
+       path: "cpub_bonfire_dev/bonfire_geolocate"},
       {:bonfire_quantify,
        git: "https://github.com/bonfire-ecosystem/bonfire_quantify",
        branch: "main",
@@ -98,6 +102,7 @@ defmodule CommonsPub.Mixfile do
        git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql",
        branch: "main",
        path: "cpub_bonfire_dev/bonfire_api_graphql"},
+      # graphql
       {
         :absinthe,
         "~> 1.5.3"

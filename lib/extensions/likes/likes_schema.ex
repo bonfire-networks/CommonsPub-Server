@@ -6,7 +6,8 @@ defmodule CommonsPub.Web.GraphQL.LikesSchema do
   # alias CommonsPub.Resources.Resource
   # alias CommonsPub.Threads.Comment
   # alias CommonsPub.Users.User
-  alias CommonsPub.Web.GraphQL.{CommonResolver, LikesResolver, UsersResolver}
+  alias CommonsPub.Web.GraphQL.{ LikesResolver, UsersResolver}
+  alias Bonfire.GraphQL.CommonResolver
 
   object :likes_queries do
     @desc "Fetch a like by ID"

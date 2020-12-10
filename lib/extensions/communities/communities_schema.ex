@@ -6,7 +6,6 @@ defmodule CommonsPub.Web.GraphQL.CommunitiesSchema do
   use Absinthe.Schema.Notation
 
   alias CommonsPub.Web.GraphQL.{
-    CommonResolver,
     CommunitiesResolver,
     CollectionsResolver,
     FlagsResolver,
@@ -17,6 +16,9 @@ defmodule CommonsPub.Web.GraphQL.CommunitiesSchema do
     UsersResolver,
     UploadResolver
   }
+
+    alias Bonfire.GraphQL.CommonResolver
+
 
   object :communities_queries do
     @desc "Get list of communities, most followed first"
