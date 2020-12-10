@@ -92,7 +92,7 @@ defmodule CommonsPub.Mixfile do
       {:bonfire_common,
        override: true,
        git: "https://github.com/bonfire-ecosystem/bonfire_common",
-       branch: "with_repo",
+       branch: "with_error",
        path: "cpub_bonfire_dev/bonfire_common"},
       {:bonfire_api_graphql,
        git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql",
