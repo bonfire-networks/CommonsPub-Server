@@ -47,7 +47,7 @@ defmodule CommonsPub.Web.GraphQL.Schema do
   import_types(CommonsPub.Tag.GraphQL.TagSchema)
   import_types(Taxonomy.GraphQL.TaxonomySchema)
   import_types(Bonfire.Quantify.Units.GraphQL)
-  import_types(Geolocation.GraphQL)
+  import_types(Bonfire.Geolocate.GraphQL)
   import_types(ValueFlows.Schema)
 
   query do
@@ -130,7 +130,7 @@ defmodule CommonsPub.Web.GraphQL.Schema do
   """
   def hydrate(%Absinthe.Blueprint{}, _) do
     SchemaUtils.hydrations_merge([
-      &Geolocation.GraphQL.Hydration.hydrate/0,
+      &Bonfire.Geolocate.GraphQL.Hydration.hydrate/0,
       &Bonfire.Quantify.Hydration.hydrate/0,
       &ValueFlows.Hydration.hydrate/0
     ])
@@ -198,7 +198,7 @@ defmodule CommonsPub.Web.GraphQL.Schema do
       %Organisation{}, _ ->
         :organisation
 
-      %Geolocation{}, _ ->
+      %Bonfire.Geolocate.Geolocation{}, _ ->
         :spatial_thing
 
       %CommonsPub.Tag.Category{}, _ ->

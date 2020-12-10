@@ -176,7 +176,7 @@ defmodule CommonsPub.Web.GraphQL.UsersSchema do
 
     @desc "User's geo coordinates. See also location."
     field :geolocation, :spatial_thing do
-      resolve(&Geolocation.GraphQL.geolocation_edge/3)
+      resolve(&Bonfire.Geolocate.GraphQL.geolocation_edge/3)
     end
 
     @desc "A valid URL"

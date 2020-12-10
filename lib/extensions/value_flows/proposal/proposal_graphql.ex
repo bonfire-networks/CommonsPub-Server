@@ -48,7 +48,7 @@ defmodule ValueFlows.Proposal.GraphQL do
     location =
       proposal
       |> Map.get(:eligible_location, nil)
-      |> Geolocation.Geolocations.populate_coordinates()
+      |> Bonfire.Geolocate.Geolocations.populate_coordinates()
 
     {:ok, location}
   end

@@ -1,12 +1,12 @@
-defmodule CommonsPub.Web.Geolocation.MapLive do
+defmodule CommonsPub.Web.Bonfire.Geolocate.MapLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Utils.Web.CommonHelper
+  import Bonfire.Common.Utils
 
   @postgis_srid 4326
 
   def mount(params, session, socket) do
-    socket = init_assigns(params, session, socket)
+    # socket = init_assigns(params, session, socket) # FIXME
 
     {:ok,
      socket
@@ -64,7 +64,7 @@ defmodule CommonsPub.Web.Geolocation.MapLive do
 
   def fetch_places(socket) do
     with {:ok, places} <-
-           Geolocation.GraphQL.geolocations(%{limit: 15}, %{
+           Bonfire.Geolocate.GraphQL.geolocations(%{limit: 15}, %{
              context: %{current_user: socket.assigns.current_user}
            }) do
       # [
@@ -116,7 +116,7 @@ defmodule CommonsPub.Web.Geolocation.MapLive do
         things
         |> Enum.map(
           &Map.merge(
-            Geolocation.Geolocations.populate_coordinates(Map.get(&1, :at_location)),
+            Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(&1, :at_location)),
             &1 || %{}
           )
         )
@@ -132,7 +132,7 @@ defmodule CommonsPub.Web.Geolocation.MapLive do
 
   def fetch_place(id, socket) do
     with {:ok, place} <-
-           Geolocation.GraphQL.geolocation(%{id: id}, %{
+           Bonfire.Geolocate.GraphQL.geolocation(%{id: id}, %{
              context: %{current_user: socket.assigns.current_user}
            }) do
       mark_places(socket, [place], place)

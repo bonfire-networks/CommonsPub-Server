@@ -1,6 +1,6 @@
 ##
 #
-# Geolocation module
+# Bonfire.Geolocate.Geolocation module
 #
 # Defines a generic data structure to represent a physical location
 #
@@ -46,7 +46,7 @@ type SpatialThing {
   # commitments: [Commitment!]
   # intents: [Intent!]
 
-  ## CommonsPub-specific
+  ## Bonfire-specific
 
   canonicalUrl: String
   displayUsername: String

@@ -7,7 +7,7 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
   import CommonsPub.Utils.{Trendy, Simulation}
   import ValueFlows.Simulate
   import Bonfire.Quantify.Simulate
-  import Geolocation.Simulate
+  import Bonfire.Geolocate.Simulate
 
   import ValueFlows.Test.Faking
 

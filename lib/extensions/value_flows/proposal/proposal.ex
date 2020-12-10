@@ -39,7 +39,7 @@ defmodule ValueFlows.Proposal do
 
     belongs_to(:context, Pointers.Pointer)
 
-    belongs_to(:eligible_location, Geolocation)
+    belongs_to(:eligible_location, Bonfire.Geolocate.Geolocation)
 
     many_to_many(:publishes, Intent, join_through: ProposedIntent)
     many_to_many(:proposed_to, Pointers.Pointer, join_through: ProposedTo)

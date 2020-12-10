@@ -47,7 +47,7 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
       add(:agreed_in, :string)
       # belongs_to(:agreed_in, Agreement)
 
-      add(:at_location_id, weak_pointer(Geolocation), null: true)
+      add(:at_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
 
       add(:triggered_by_id, weak_pointer(EconomicEvent), null: true)
 

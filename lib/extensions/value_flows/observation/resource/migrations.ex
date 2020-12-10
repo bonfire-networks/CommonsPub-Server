@@ -24,7 +24,7 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
-      add(:current_location_id, weak_pointer(Geolocation), null: true)
+      add(:current_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
 
       add(:contained_in_id, weak_pointer(EconomicResource), null: true)
 

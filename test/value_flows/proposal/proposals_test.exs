@@ -5,7 +5,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
   import CommonsPub.Utils.Simulation
   import CommonsPub.Utils.Trendy, only: [some: 2]
 
-  import Geolocation.Simulate
+  import Bonfire.Geolocate.Simulate
 
   import Bonfire.Quantify.Simulate
   import Bonfire.Quantify.Test.Faking

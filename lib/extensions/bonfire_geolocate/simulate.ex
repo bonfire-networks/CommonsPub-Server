@@ -1,7 +1,16 @@
-defmodule Geolocation.Simulate do
-  import CommonsPub.Utils.Simulation
+defmodule Bonfire.Geolocate.Simulate do
+  import Bonfire.Common.Simulation
 
-  alias Geolocation.Geolocations
+  alias Bonfire.Geolocate.Geolocations
+
+  def address do
+    # avoid using because fake addresses cannot be geocoded
+    Faker.Address.street_address() <> ", " <> Faker.Address.city() <> ", " <> Faker.Address.country()
+  end
+
+  def mappable_address do
+    "6 Crescent Rd, Bromley, BR1 3PW, United Kingdom"
+  end
 
   def mappable_address do
     # avoid using because fake addresses cannot be geocoded
@@ -16,7 +25,7 @@ defmodule Geolocation.Simulate do
     |> Map.put_new_lazy(:long, &Faker.Address.longitude/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
-    |> Map.merge(character(base))
+    # |> Map.merge(character(base)) # FIXME
   end
 
   def geolocation_input(base \\ %{}) do

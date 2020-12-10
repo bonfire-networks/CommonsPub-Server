@@ -428,7 +428,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     "/++" <> id
   end
 
-  def object_url(%Geolocation{
+  def object_url(%Bonfire.Geolocate.Geolocation{
         id: id
       })
       when not is_nil(id) do

@@ -52,7 +52,7 @@ The server code is broadly composed of four parts.
 - `CommonsPub.Web` - Phoenix/Absinthe webapp + GraphQL API for `CommonsPub`.
 - `ActivityPub` - ActivityPub S2S models, logic and various helper modules (adapted Pleroma code)
 - `ActivityPubWeb` - ActivityPub S2S REST endpoints, activity ingestion and push federation facilities (adapted Pleroma code)
-- There are new namespaces being added for extensions such as Taxonomy, Geolocation, Measurements, ValueFlows, etc.
+- There are new namespaces being added for extensions such as Taxonomy, Bonfire.Geolocate, Bonfire.Quantify, ValueFlows, etc.
 
 ### `CommonsPub`
 

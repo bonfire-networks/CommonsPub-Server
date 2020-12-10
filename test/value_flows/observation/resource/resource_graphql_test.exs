@@ -12,8 +12,8 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
   alias Grumble.PP
   alias ValueFlows.Observation.EconomicResource.EconomicResources
 
-  import Geolocation.Simulate
-  import Geolocation.Test.Faking
+  import Bonfire.Geolocate.Simulate
+  import Bonfire.Geolocate.Test.Faking
 
   @debug false
   @schema CommonsPub.Web.GraphQL.Schema

@@ -1,7 +1,7 @@
 defmodule CommonsPub.Repo.Migrations.GeolocationField do
   use Ecto.Migration
 
-  defp table_name(), do: Geolocation.__schema__(:source)
+  defp table_name(), do: Bonfire.Geolocate.Geolocation.__schema__(:source)
 
   def up do
     add_geolocation()

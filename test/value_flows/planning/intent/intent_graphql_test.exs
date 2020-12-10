@@ -6,8 +6,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   import CommonsPub.Tag.Simulate
   import CommonsPub.Utils.Trendy, only: [some: 2]
 
-  import Geolocation.Simulate
-  import Geolocation.Test.Faking
+  import Bonfire.Geolocate.Simulate
+  import Bonfire.Geolocate.Test.Faking
 
   import Bonfire.Quantify.Simulate
   import Bonfire.Quantify.Test.Faking

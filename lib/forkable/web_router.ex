@@ -131,8 +131,8 @@ defmodule CommonsPub.Web.Router do
     live "/instance/search/:tab", SearchLive
     live "/instance/search/:tab/:search", SearchLive
 
-    live "/instance/map", Geolocation.MapLive
-    live "/@@:id", Geolocation.MapLive
+    live "/instance/map", Bonfire.Geolocate.MapLive
+    live "/@@:id", Bonfire.Geolocate.MapLive
 
     live "/instance/categories", InstanceLive.InstanceCategoriesPageLive
     live "/instance/:tab", InstanceLive

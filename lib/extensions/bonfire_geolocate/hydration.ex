@@ -1,12 +1,5 @@
-defmodule Geolocation.GraphQL.Hydration do
-  alias CommonsPub.Web.GraphQL.{
-    CommonResolver
-  }
-
-  # alias CommonsPub.Communities.Community
-  # alias CommonsPub.Collections.Collection
-
-  alias Organisation
+defmodule Bonfire.Geolocate.GraphQL.Hydration do
+  alias CommonsPub.Web.GraphQL.CommonResolver
 
   def hydrate() do
     %{
@@ -23,24 +16,24 @@ defmodule Geolocation.GraphQL.Hydration do
       },
       geolocation_query: %{
         spatial_thing: [
-          resolve: &Geolocation.GraphQL.geolocation/2
+          resolve: &Bonfire.Geolocate.GraphQL.geolocation/2
         ],
         spatial_things_pages: [
-          resolve: &Geolocation.GraphQL.geolocations/2
+          resolve: &Bonfire.Geolocate.GraphQL.geolocations/2
         ],
         spatial_things: [
-          resolve: &Geolocation.GraphQL.all_geolocations/2
+          resolve: &Bonfire.Geolocate.GraphQL.all_geolocations/2
         ]
       },
       geolocation_mutation: %{
         create_spatial_thing: [
-          resolve: &Geolocation.GraphQL.create_geolocation/2
+          resolve: &Bonfire.Geolocate.GraphQL.create_geolocation/2
         ],
         update_spatial_thing: [
-          resolve: &Geolocation.GraphQL.update_geolocation/2
+          resolve: &Bonfire.Geolocate.GraphQL.update_geolocation/2
         ],
         delete_spatial_thing: [
-          resolve: &Geolocation.GraphQL.delete_geolocation/2
+          resolve: &Bonfire.Geolocate.GraphQL.delete_geolocation/2
         ]
       }
       # geo_scope: [

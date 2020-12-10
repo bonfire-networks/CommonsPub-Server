@@ -1,4 +1,4 @@
-defmodule Geolocation do
+defmodule Bonfire.Geolocate.Geolocation do
   use Pointers.Pointable,
     otp_app: :commons_pub,
     source: "geolocation",
@@ -9,10 +9,8 @@ defmodule Geolocation do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
-  # alias CommonsPub.Characters.Character
   alias Pointers.Pointer
-  # alias CommonsPub.Feeds.Feed
+  @user CommonsPub.Users.User
 
   @type t :: %__MODULE__{}
 
@@ -34,15 +32,13 @@ defmodule Geolocation do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
-    # belongs_to(:actor, Character)
+    # FIXME, implement Bonfire Character
+    field(:character, :any, virtual: true)
+    # has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
 
     belongs_to(:context, Pointer)
-
-    # belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
-    # belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
 
     # because it's keyed by pointer
     field(:follower_count, :any, virtual: true)
@@ -64,7 +60,7 @@ defmodule Geolocation do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: CommonsPub.Common.maybe_get(creator, :id),
+      creator_id: Bonfire.Common.Utils.maybe_get(creator, :id),
       context_id: context.id,
       is_public: true
     )
@@ -79,7 +75,7 @@ defmodule Geolocation do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: CommonsPub.Common.maybe_get(creator, :id),
+      creator_id: Bonfire.Common.Utils.maybe_get(creator, :id),
       is_public: true
     )
     |> common_changeset()
@@ -110,9 +106,9 @@ defmodule Geolocation do
     end
   end
 
-  def context_module, do: Geolocation.Geolocations
+  def context_module, do: Bonfire.Geolocate.Geolocations
 
-  def queries_module, do: Geolocation.Queries
+  def queries_module, do: Bonfire.Geolocate.Queries
 
   def follow_filters, do: []
 end

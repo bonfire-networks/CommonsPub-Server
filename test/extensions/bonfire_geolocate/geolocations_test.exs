@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Geolocation.GeolocationsTest do
+defmodule Bonfire.Geolocate.GeolocationsTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Simulation
 
-  import Geolocation.Test.Faking
-  import Geolocation.Simulate
-  alias Geolocation.Geolocations
+  import Bonfire.Geolocate.Test.Faking
+  import Bonfire.Geolocate.Simulate
+  alias Bonfire.Geolocate.Geolocations
 
   describe "one" do
-    test "fetches an existing organisation" do
+    test "fetches an existing geolocation" do
       user = fake_user!()
       comm = fake_community!(user)
       geo = fake_geolocation!(user, comm)
@@ -18,8 +18,8 @@ defmodule Geolocation.GeolocationsTest do
       assert_geolocation(fetched)
       assert {:ok, fetched} = Geolocations.one(user: user)
       assert_geolocation(fetched)
-      assert {:ok, fetched} = Geolocations.one(username: geo.character.preferred_username)
-      assert_geolocation(fetched)
+      # assert {:ok, fetched} = Geolocations.one(username: geo.character.preferred_username)
+      # assert_geolocation(fetched)
       assert {:ok, fetched} = Geolocations.one(context_id: comm.id)
       assert_geolocation(fetched)
     end

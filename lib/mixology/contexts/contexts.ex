@@ -162,7 +162,7 @@ defmodule CommonsPub.Contexts do
 
     [
       CommonsPub.Feeds.outbox_id(r.collection),
-      CommonsPub.Feeds.outbox_id(CommonsPub.Common.maybe_get(r.collection, :community))
+      CommonsPub.Feeds.outbox_id(Bonfire.Common.Utils.maybe_get(r.collection, :community))
     ]
   end
 
@@ -172,7 +172,7 @@ defmodule CommonsPub.Contexts do
 
     [
       CommonsPub.Feeds.outbox_id(c),
-      CommonsPub.Feeds.outbox_id(CommonsPub.Common.maybe_get(c, :context))
+      CommonsPub.Feeds.outbox_id(Bonfire.Common.Utils.maybe_get(c, :context))
     ]
   end
 
@@ -182,7 +182,7 @@ defmodule CommonsPub.Contexts do
 
     [
       CommonsPub.Feeds.outbox_id(c),
-      CommonsPub.Feeds.outbox_id(CommonsPub.Common.maybe_get(c, :context))
+      CommonsPub.Feeds.outbox_id(Bonfire.Common.Utils.maybe_get(c, :context))
     ]
   end
 

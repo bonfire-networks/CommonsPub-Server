@@ -44,7 +44,7 @@ defmodule ValueFlows.Planning.Intent do
     belongs_to(:resource_conforms_to, ResourceSpecification)
     belongs_to(:resource_inventoried_as, EconomicResource)
 
-    belongs_to(:at_location, Geolocation)
+    belongs_to(:at_location, Bonfire.Geolocate.Geolocation)
 
     belongs_to(:action, Action, type: :string)
 

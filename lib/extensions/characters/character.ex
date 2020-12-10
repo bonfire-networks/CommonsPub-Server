@@ -31,7 +31,7 @@ defmodule CommonsPub.Characters.Character do
     # field(:characteristic, :any, virtual: true)
     # belongs_to(:characteristic, Pointer)
 
-    # name for the Thing this character represents (same naming as the singular object module), eg. Organisation, Geolocation, etc
+    # name for the Thing this character represents (same naming as the singular object module), eg. Organisation, Bonfire.Geolocate.Geolocation, etc
     field(:facet, :string)
 
     field(:preferred_username, :string)

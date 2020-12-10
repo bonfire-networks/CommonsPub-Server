@@ -121,7 +121,7 @@ types_characters =
     [
       Community,
       Collection,
-      Geolocation,
+      Bonfire.Geolocate.Geolocation,
       CommonsPub.Tag.Category
     ]
 

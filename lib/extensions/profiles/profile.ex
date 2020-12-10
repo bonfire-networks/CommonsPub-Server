@@ -25,7 +25,7 @@ defmodule CommonsPub.Profiles.Profile do
     belongs_to(:icon, CommonsPub.Uploads.Content)
     belongs_to(:image, CommonsPub.Uploads.Content)
 
-    belongs_to(:geolocation, Geolocation)
+    belongs_to(:geolocation, Bonfire.Geolocate.Geolocation)
 
     # belongs_to(:primary_language, Language)
 

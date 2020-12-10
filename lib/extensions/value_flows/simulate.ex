@@ -97,7 +97,7 @@ defmodule ValueFlows.Simulate do
 
   def action_id, do: action().id
   def fake_agent_id, do: fake_agent!().id
-  def fake_geolocation_id, do: Geolocation.Simulate.fake_geolocation!().id
+  def fake_geolocation_id, do: Bonfire.Geolocate.Simulate.fake_geolocation!().id
 
   def economic_event(base \\ %{}) do
     base

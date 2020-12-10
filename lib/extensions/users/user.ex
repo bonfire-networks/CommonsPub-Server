@@ -36,7 +36,7 @@ defmodule CommonsPub.Users.User do
     field(:summary, :string)
 
     field(:location, :string)
-    belongs_to(:geolocation, Geolocation)
+    belongs_to(:geolocation, Bonfire.Geolocate.Geolocation)
 
     field(:website, :string)
 

@@ -59,12 +59,12 @@ if(CommonsPub.Config.module_enabled?(CommonsPub.Tag.Simulate)) do
 end
 
 # define some geolocations
-if(CommonsPub.Config.module_enabled?(Geolocation.Simulate)) do
+if(CommonsPub.Config.module_enabled?(Bonfire.Geolocate.Simulate)) do
   for _ <- 1..2,
-      do: Geolocation.Simulate.fake_geolocation!(random_user.(), maybe_random_community.())
+      do: Bonfire.Geolocate.Simulate.fake_geolocation!(random_user.(), maybe_random_community.())
 
   for _ <- 1..2,
-      do: Geolocation.Simulate.fake_geolocation!(random_user.(), maybe_random_collection.())
+      do: Bonfire.Geolocate.Simulate.fake_geolocation!(random_user.(), maybe_random_collection.())
 end
 
 # define some units
@@ -98,9 +98,9 @@ if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
     ValueFlows.Simulate.fake_proposed_intent!(proposal, intent)
 
     # define some geolocations
-    if(CommonsPub.Config.module_enabled?(Geolocation.Simulate)) do
+    if(CommonsPub.Config.module_enabled?(Bonfire.Geolocate.Simulate)) do
 
-      places = for _ <- 1..2, do: Geolocation.Simulate.fake_geolocation!(random_user.())
+      places = for _ <- 1..2, do: Bonfire.Geolocate.Simulate.fake_geolocation!(random_user.())
 random_place = fn -> Faker.Util.pick(places) end
 
 

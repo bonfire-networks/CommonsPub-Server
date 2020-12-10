@@ -1,7 +1,7 @@
-defmodule CommonsPub.Repo.Migrations.Geolocation do
+defmodule CommonsPub.Repo.Migrations.Bonfire.Geolocate.Geolocation do
   use Ecto.Migration
 
   def change do
-    Geolocation.Migrations.change()
+    Bonfire.Geolocate.Migrations.change()
   end
 end

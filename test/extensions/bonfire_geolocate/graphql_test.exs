@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Geolocation.GraphQLTest do
+defmodule Bonfire.Geolocate.GraphQLTest do
   use CommonsPub.Web.ConnCase, async: true
 
   import CommonsPub.Utils.Simulation
   import CommonsPub.Utils.Trendy, only: [some: 2]
 
-  import Geolocation.Test.Faking
-  import Geolocation.Simulate
-  alias Geolocation.Geolocations
+  import Bonfire.Geolocate.Test.Faking
+  import Bonfire.Geolocate.Simulate
+  # alias Bonfire.Geolocate.Geolocations
 
   describe "geolocation" do
     test "fetches a geolocation by ID" do
@@ -23,7 +23,7 @@ defmodule Geolocation.GraphQLTest do
   describe "spatialThingPages" do
     test "fetches a paginated list of geolocations" do
       user = fake_user!()
-      geos = some(5, fn -> fake_geolocation!(user) end)
+      _geos = some(5, fn -> fake_geolocation!(user) end)
 
       q = geolocation_pages_query()
       conn = user_conn(user)

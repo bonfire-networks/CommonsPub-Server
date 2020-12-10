@@ -50,7 +50,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
 
     belongs_to(:context, Pointers.Pointer)
 
-    belongs_to(:at_location, Geolocation)
+    belongs_to(:at_location, Bonfire.Geolocate.Geolocation)
 
     belongs_to(:triggered_by, EconomicEvent)
 

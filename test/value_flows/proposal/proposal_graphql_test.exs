@@ -4,7 +4,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   import CommonsPub.Utils.Trendy, only: [some: 2]
   import CommonsPub.Utils.Simulation
 
-  import Geolocation.Simulate
+  import Bonfire.Geolocate.Simulate
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

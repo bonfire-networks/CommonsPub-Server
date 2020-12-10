@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Geolocation.Test.Faking do
+defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
 
   # import CommonsPub.Utils.Simulation
-  # import Geolocation.Simulate
+  # import Bonfire.Geolocate.Simulate
 
   import Grumble
   import CommonsPub.Web.Test.GraphQLFields
@@ -11,7 +11,7 @@ defmodule Geolocation.Test.Faking do
 
   ## assertions
 
-  def assert_geolocation(%Geolocation{} = geo) do
+  def assert_geolocation(%Bonfire.Geolocate.Geolocation{} = geo) do
     assert_geolocation(Map.from_struct(geo))
   end
 

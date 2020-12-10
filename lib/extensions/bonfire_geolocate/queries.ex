@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Geolocation.Queries do
-  alias Geolocation
-  # alias Geolocation.Geolocations
+defmodule Bonfire.Geolocate.Queries do
+  alias Bonfire.Geolocate.Geolocation
+  # alias Geolocate.Geolocations
   alias CommonsPub.Follows.{Follow, FollowerCount}
   # alias CommonsPub.Users
   alias CommonsPub.Users.User
@@ -9,7 +9,7 @@ defmodule Geolocation.Queries do
   import Ecto.Query
 
   def query(Geolocation) do
-    from(c in Geolocation, as: :geolocation, join: a in assoc(c, :character), as: :character)
+    from(c in Geolocation, as: :geolocation) # FIXME: join: a in assoc(c, :character), as: :character)
   end
 
   def query(:count) do
@@ -67,7 +67,8 @@ defmodule Geolocation.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter(q, [:deleted, preload: :character])
+    filter(q, [:deleted])
+    # FIXME: filter(q, [:deleted, preload: :character])
   end
 
   ## by join
@@ -138,13 +139,13 @@ defmodule Geolocation.Queries do
     where(q, [geolocation: c], c.context_id in ^ids)
   end
 
-  def filter(q, {:username, username}) when is_binary(username) do
-    where(q, [character: a], a.preferred_username == ^username)
-  end
+  # def filter(q, {:username, username}) when is_binary(username) do
+  #   where(q, [character: a], a.preferred_username == ^username)
+  # end
 
-  def filter(q, {:username, usernames}) when is_list(usernames) do
-    where(q, [character: a], a.preferred_username in ^usernames)
-  end
+  # def filter(q, {:username, usernames}) when is_list(usernames) do
+  #   where(q, [character: a], a.preferred_username in ^usernames)
+  # end
 
   ## by ordering
 
@@ -173,9 +174,10 @@ defmodule Geolocation.Queries do
     select(q, [geolocation: c], {field(c, ^key), count(c.id)})
   end
 
-  def filter(q, {:preload, :character}) do
-    preload(q, [character: a], character: a)
-  end
+  # FIXME
+  # def filter(q, {:preload, :character}) do
+  #   preload(q, [character: a], character: a)
+  # end
 
   # pagination
 
@@ -201,15 +203,16 @@ defmodule Geolocation.Queries do
     filter(q, limit: limit + 1)
   end
 
-  def filter(q, {:page, [desc: [followers: page_opts]]}) do
-    q
-    |> filter(join: :follower_count, order: [desc: :followers])
-    |> page(page_opts, desc: :followers)
-    |> select(
-      [geolocation: c, character: a, follower_count: fc],
-      %{c | follower_count: coalesce(fc.count, 0), character: a}
-    )
-  end
+  # FIXME
+  # def filter(q, {:page, [desc: [followers: page_opts]]}) do
+  #   q
+  #   |> filter(join: :follower_count, order: [desc: :followers])
+  #   |> page(page_opts, desc: :followers)
+  #   |> select(
+  #     [geolocation: c, character: a, follower_count: fc],
+  #     %{c | follower_count: coalesce(fc.count, 0), character: a}
+  #   )
+  # end
 
   def filter(q, filter_name) when is_binary(filter_name) do
     filter(q, String.to_existing_atom(filter_name))

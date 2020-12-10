@@ -19,7 +19,7 @@ defmodule ValueFlows.Proposal.Migrations do
 
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
 
-      add(:eligible_location_id, weak_pointer(Geolocation), null: true)
+      add(:eligible_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
 
       # optional context as scope
       add(:context_id, weak_pointer(), null: true)

@@ -46,7 +46,7 @@ defmodule CommonsPub.Tag.Taggables do
   ## mutations
 
   @doc """
-  Create a Taggable that makes an existing object (eg. Geolocation) taggable
+  Create a Taggable that makes an existing object (eg. Bonfire.Geolocate.Geolocation) taggable
   """
   def maybe_make_taggable(user, id, _) when is_number(id) do
     with {:ok, t} <- maybe_taxonomy_tag(user, id) do

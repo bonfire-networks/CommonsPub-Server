@@ -43,7 +43,7 @@ defmodule CommonsPub.Uploads.Content do
     |> Changeset.validate_length(:media_type, max: 256)
     |> Changeset.change(
       is_public: true,
-      uploader_id: CommonsPub.Common.maybe_get(uploader, :id)
+      uploader_id: Bonfire.Common.Utils.maybe_get(uploader, :id)
     )
     |> change_public()
   end

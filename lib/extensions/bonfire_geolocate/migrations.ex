@@ -1,4 +1,4 @@
-defmodule Geolocation.Migrations do
+defmodule Bonfire.Geolocate.Migrations do
   use Ecto.Migration
   # alias CommonsPub.Repo
   # alias Ecto.ULID
@@ -11,7 +11,7 @@ defmodule Geolocation.Migrations do
         "drop extension postgis;"
       )
 
-    create_pointable_table(Geolocation) do
+    create_pointable_table(Bonfire.Geolocate.Geolocation) do
       add(:name, :string)
       add(:note, :text)
       add(:mappable_address, :string)

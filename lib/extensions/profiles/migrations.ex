@@ -5,7 +5,7 @@ defmodule CommonsPub.Profiles.Migrations do
   alias CommonsPub.Profiles.Profile
 
   defp table_name(), do: Profile.__schema__(:source)
-  defp geo_table_name(), do: Geolocation.__schema__(:source)
+  defp geo_table_name(), do: Bonfire.Geolocate.Geolocation.__schema__(:source)
 
   def migrate(index_opts, :up) do
     # a profile is a group actor that is home to resources
