@@ -21,7 +21,7 @@ defmodule CommonsPub.Application do
     # start repos, run migrations, stop repos
     CommonsPub.ReleaseTasks.startup_migrations()
 
-    {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
+    # {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
     :ok = Oban.Telemetry.attach_default_logger(:debug)
 
     :ok =

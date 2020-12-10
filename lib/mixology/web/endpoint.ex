@@ -12,9 +12,9 @@ defmodule CommonsPub.Web.Endpoint do
     signing_salt: CommonsPub.Config.get(:signing_salt)
   ]
 
-  if is_binary(System.get_env("SENTRY_DSN")) and is_binary(System.get_env("SENTRY_ENV")) do
-    use Sentry.Phoenix.Endpoint
-  end
+  # if is_binary(System.get_env("SENTRY_DSN")) and is_binary(System.get_env("SENTRY_ENV")) do
+  #   use Sentry.Phoenix.Endpoint
+  # end
 
   # Liveview support
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]

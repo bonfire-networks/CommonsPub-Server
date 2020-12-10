@@ -13,6 +13,7 @@ APP_REL_DOCKERFILE=Dockerfile.rel
 APP_REL_DOCKERCOMPOSE=docker-compose.rel.yml
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
 APP_BUILD ?= `git rev-parse --short HEAD`
+FORKS=cpub_bonfire_dev
 
 init:
 	@echo "Running build scripts for $(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
@@ -234,6 +235,18 @@ manual-db: init db-pre-migrations ## Create or reset the DB (without Docker)
 
 mix-%: ## Run a specific mix command, eg: `make mix-deps.get` or make mix-deps.update args="pointers"
 	docker-compose  -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE)  run web mix $* $(args)
+
+deps-local-git-%: ## runs a git command (eg. `make deps-local-git-pull` pulls the latest version of all local deps from its git remote
+	sudo chown -R $$USER ./$(FORKS)
+	find ./$(FORKS)/ -maxdepth 1 -type d -exec git -C '{}' $* \;
+
+update: pull deps-local-git-pull bonfire-updates mix-updates ## Update/prepare dependencies
+
+bonfire-updates:
+	docker-compose  -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE)  run web mix bonfire.deps.update
+
+pull: 
+	git pull
 
 %: ## Run a specific mix command, eg: `make messclt` or `make "messctl help"` or make `messctl args="help"`
 	docker-compose  -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE)  run web $* $(args)

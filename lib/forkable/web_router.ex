@@ -7,7 +7,7 @@ defmodule CommonsPub.Web.Router do
 
   use CommonsPub.Web, :router
   use Plug.ErrorHandler
-  use Sentry.Plug
+  # use Sentry.Plug
   use ActivityPubWeb.Router
   use NodeinfoWeb.Router
 

@@ -65,7 +65,7 @@ defmodule Pointers.Tables do
   end
 
   # called by id!/1, ids!/1
-  defp id!(query, data), do: Map.get(data, query, %{}) |> Map.get(:id, %{}) || raise(NotFound)
+  defp id!(query, data), do: Map.get(data, query, %{}) |> Map.get(:id, nil) || raise(NotFound)
 
   @spec schema(query) :: {:ok, atom} | {:error, NotFound.t()}
   @doc "Look up a schema module by id, name or schema"

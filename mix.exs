@@ -39,20 +39,31 @@ defmodule CommonsPub.Mixfile do
         ],
         output: "docs/exdoc"
       ],
-      # can add test dirs to include, eg: "libs/activitypub/test" (if so, the corresponding support dir should also be added to elixirc_paths below)
-      test_paths: existing_paths(["test", "libs/activitypub/test"]),
+      # can add test dirs to include, eg: "cpub_bonfire_dev/activitypub/test" (if so, the corresponding support dir should also be added to elixirc_paths below)
+      test_paths: existing_paths(["test", "cpub_bonfire_dev/activitypub/test"]),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [coveralls: :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
   # Specifies which paths to compile per environment.
   #
   defp elixirc_paths(:test),
-    do: existing_paths(["lib", "test/support", "libs/activitypub/test/support"])
+    do: existing_paths(["lib", "test/support", "cpub_bonfire_dev/activitypub/test/support"])
 
   defp elixirc_paths(:dev), do: ["lib"]
   defp elixirc_paths(_), do: ["lib"]
+
+  @bonfire_deps [
+                  "pointers",
+                  "bonfire_quantify"
+                ]
+                |> Enum.join(" ")
 
   # Specifies mix commands
   defp aliases do
@@ -63,7 +74,10 @@ defmodule CommonsPub.Mixfile do
       "ecto.seeds": ["run priv/repo/seeds.exs"],
       "sentry.recompile": ["deps.compile sentry --force", "compile"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"],
-      "cpub.deps.clean": ["deps.clean pointers --build"]
+      "bonfire.deps.update": ["deps.update #{@bonfire_deps}"],
+      "bonfire.deps.clean": ["deps.clean #{@bonfire_deps} --build"],
+      "bonfire.deps": ["bonfire.deps.update", "bonfire.deps.clean"],
+      updates: ["deps.get", "bonfire.deps.clean", "ecto.migrate"]
     ]
   end
 
@@ -74,17 +88,16 @@ defmodule CommonsPub.Mixfile do
       {:bonfire_quantify,
        git: "https://github.com/bonfire-ecosystem/bonfire_quantify",
        branch: "main",
-       #path: "cpub_bonfire_dev/bonfire_quantify"
-       },
+       path: "cpub_bonfire_dev/bonfire_quantify"},
       {:bonfire_common,
        override: true,
        git: "https://github.com/bonfire-ecosystem/bonfire_common",
        branch: "with_repo",
-       path: "cpub_bonfire_dev/bonfire_common"
-       },
-      {:bonfire_api_graphql, git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql", branch: "main",
-       path: "cpub_bonfire_dev/bonfire_api_graphql"
-       },
+       path: "cpub_bonfire_dev/bonfire_common"},
+      {:bonfire_api_graphql,
+       git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql",
+       branch: "main",
+       path: "cpub_bonfire_dev/bonfire_api_graphql"},
       {
         :absinthe,
         "~> 1.5.3"
@@ -95,7 +108,7 @@ defmodule CommonsPub.Mixfile do
       # activitypub
       {
         :activity_pub,
-        # , path: "libs/activitypub"
+        # , path: "cpub_bonfire_dev/activitypub"
         git: "https://gitlab.com/CommonsPub/activitypub", branch: "tbd"
       },
       {:nodeinfo, git: "https://github.com/voxpub/nodeinfo", branch: "main"},
@@ -140,7 +153,7 @@ defmodule CommonsPub.Mixfile do
       # sending
       {:bamboo, "~> 1.5"},
       # generic smtp backend
-      {:bamboo_smtp, "~> 2.1.0"},
+      {:bamboo_smtp, "~> 3.0"},
       # checking validity
       {:email_checker, "~> 0.1"},
       # Monitoring
@@ -150,7 +163,7 @@ defmodule CommonsPub.Mixfile do
       {:telemetry_metrics, "~> 0.4"},
       {:telemetry_poller, "~> 0.4"},
       # production only
-      {:sentry, "~> 7.1", runtime: sentry?()},
+      # {:sentry, "~> 7.1", runtime: sentry?()},
       # Misc
       {:protocol_ex, "~> 0.4.3"},
       # json
@@ -189,8 +202,8 @@ defmodule CommonsPub.Mixfile do
       {
         :pointers,
         # "~> 0.4"
-        git: "https://github.com/commonspub/pointers.git", branch: "main", override: true,
-        path: "cpub_bonfire_dev/pointers"
+        git: "https://github.com/commonspub/pointers.git", branch: "main", override: true
+        # path: "cpub_bonfire_dev/pointers"
         # git: "https://github.com/mayel/pointers.git",
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
