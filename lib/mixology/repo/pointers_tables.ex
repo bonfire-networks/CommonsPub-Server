@@ -49,7 +49,7 @@ defmodule Pointers.Tables do
   @doc "Look up a Table by name or id, raise NotFound if not found."
   def table!(query), do: Map.get(data(), query) || raise(NotFound)
 
-  @spec id(query) :: {:ok, integer()} | {:error, TableNotFoundError.t()}
+  @spec id(query) :: {:ok, integer()} | {:error, NotFound}
   @doc "Look up a table id by id, name or schema."
   def id(query), do: with({:ok, val} <- table(query), do: {:ok, val.id})
 

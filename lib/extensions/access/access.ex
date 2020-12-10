@@ -14,13 +14,6 @@ defmodule CommonsPub.Access do
     Token,
   }
 
-  alias Bonfire.Common.Errors.{
-    NoAccessError,
-    TokenExpiredError,
-    TokenNotFoundError,
-    UserDisabledError,
-    UserEmailNotConfirmedError
-  }
 
   alias CommonsPub.Users.{LocalUser, User}
   import Ecto.Query
@@ -105,7 +98,7 @@ defmodule CommonsPub.Access do
   def check_register_access(email) do
     if is_register_accessed?(email),
       do: :ok,
-      else: {:error, NoAccessError.new()}
+      else: {:error, :no_access}
   end
 
   def fetch_token(id) when is_binary(id), do: Repo.fetch(Token, id)
@@ -121,19 +114,19 @@ defmodule CommonsPub.Access do
   Note: does not validate the validity of the token, you must do that afterwards.
   """
   @spec fetch_token_and_user(token :: binary) ::
-          {:ok, %Token{}} | {:error, TokenNotFoundError.t()}
+          {:ok, %Token{}} | {:error, :token_not_found}
   def fetch_token_and_user(token) when is_binary(token) do
     # IO.inspect(fetch_token_and_user: token)
 
     case UUID.cast(token) do
       {:ok, token} -> Repo.single(fetch_token_and_user_query(token))
-      :error -> {:error, TokenNotFoundError.new()}
+      :error -> {:error, :token_not_found}
     end
   end
 
   def fetch_token_and_user(token) do
     IO.inspect(fetch_token_and_user_not_binary: token)
-    {:error, TokenNotFoundError.new()}
+    {:error, :token_not_found}
   end
 
   def fetch_token_and_user_query(token) do
@@ -150,8 +143,8 @@ defmodule CommonsPub.Access do
 
   @type token_create_error ::
           :invalid_credentials
-          | %UserDisabledError{}
-          | %UserEmailNotConfirmedError{}
+          | :user_disabled
+          | :email_not_confirmed
           | Changeset.t({})
   @doc """
   Creates a token for a user if the conditions are met:
@@ -180,11 +173,11 @@ defmodule CommonsPub.Access do
   @doc false
   def verify_user(%User{disabled_at: dis})
       when not is_nil(dis),
-      do: {:error, UserDisabledError.new()}
+      do: {:error, :user_disabled}
 
   def verify_user(%User{local_user: %LocalUser{confirmed_at: confirmed}})
       when is_nil(confirmed),
-      do: {:error, UserEmailNotConfirmedError.new()}
+      do: {:error, :email_not_confirmed}
 
   def verify_user(%User{local_user: %LocalUser{}}), do: :ok
 
@@ -194,7 +187,7 @@ defmodule CommonsPub.Access do
   def verify_token(%Token{} = token, %DateTime{} = now) do
     if :gt == DateTime.compare(token.expires_at, now),
       do: :ok,
-      else: {:error, TokenExpiredError.new()}
+      else: {:error, :token_expired}
   end
 
   defp email_domain(email) do

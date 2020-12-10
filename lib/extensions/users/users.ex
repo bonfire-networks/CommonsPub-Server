@@ -35,10 +35,7 @@ defmodule CommonsPub.Users do
     Queries,
     User
   }
-  alias Bonfire.Common.Errors.{
-    TokenAlreadyClaimedError,
-    TokenExpiredError,
-  }
+
   alias CommonsPub.Workers.APPublishWorker
 
   alias Ecto.Changeset
@@ -237,10 +234,10 @@ defmodule CommonsPub.Users do
   defp validate_token(token, claim_field, now) do
     cond do
       not is_nil(Map.fetch!(token, claim_field)) ->
-        {:error, TokenAlreadyClaimedError.new()}
+        {:error, :already_claimed}
 
       :gt == DateTime.compare(now, token.expires_at) ->
-        {:error, TokenExpiredError.new()}
+        {:error, :token_expired}
 
       true ->
         :ok

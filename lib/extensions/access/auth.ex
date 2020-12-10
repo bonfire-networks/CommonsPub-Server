@@ -11,16 +11,16 @@ defmodule CommonsPub.Web.Plugs.Auth do
     1. Session `auth_token`
     2. HTTP `authorization` header
       1. if malformed, returns the connection with modified assigns
-        * `auth_error`, a MalformedAuthorizationHeaderError
+        * `auth_error`, a :bad_header
     3. else returns the connection with modified assigns
-        * `auth_error`, a TokenNotFoundError
+        * `auth_error`, a :token_not_found
   3. Pulls the token and the user it pertains to from the database
     4. Verifies the token has not expired
       1. else returns the connection with modified assigns
-        * `auth_error`, a TokenExpiredError
+        * `auth_error`, a :token_expired
     5. Verifies the user has confirmed their email address
       1. else returns the connection with modified assigns
-        * `auth_error`, a UserEmailNotConfirmedError
+        * `auth_error`, a :email_not_confirmed
     6. Returns the connection with modified assigns:
       * `current_user`, a User
       * `auth_token`, a Token
@@ -32,10 +32,6 @@ defmodule CommonsPub.Web.Plugs.Auth do
     Token,
   }
 
-  alias Bonfire.Common.Errors.{
-    MalformedAuthorizationHeaderError,
-    TokenNotFoundError
-  }
 
   alias CommonsPub.Users.User
 
@@ -121,14 +117,14 @@ defmodule CommonsPub.Web.Plugs.Auth do
     case Conn.get_req_header(conn, "authorization") do
       # take the first one if there are multiple
       ["Bearer " <> token | _] -> {:ok, token}
-      [_token] -> {:error, MalformedAuthorizationHeaderError.new()}
+      [_token] -> {:error, :bad_header}
       _ -> get_token_by_param(conn)
     end
   end
 
   defp get_token_by_param(conn) do
     case conn.params["auth_token"] do
-      nil -> {:error, TokenNotFoundError.new()}
+      nil -> {:error, :token_not_found}
       token -> {:ok, token}
     end
   end

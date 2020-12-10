@@ -5,11 +5,6 @@ defmodule CommonsPub.Web.Plugs.AuthTest do
   import CommonsPub.Utils.Simulation
   alias Plug.Conn
 
-  alias Bonfire.Common.Errors.{
-    MalformedAuthorizationHeaderError,
-    TokenExpiredError,
-    TokenNotFoundError
-  }
 
   alias CommonsPub.Web.Plugs.Auth
 
@@ -63,7 +58,7 @@ defmodule CommonsPub.Web.Plugs.AuthTest do
     assert conn.halted == false
     assert conn.assigns[:current_user] == nil
     assert conn.assigns[:auth_token] == nil
-    assert conn.assigns.auth_error == TokenNotFoundError.new()
+    assert conn.assigns.auth_error == :token_not_found
   end
 
   test "validates token is found" do
@@ -78,7 +73,7 @@ defmodule CommonsPub.Web.Plugs.AuthTest do
     assert conn.halted == false
     assert conn.assigns[:current_user] == nil
     assert conn.assigns[:auth_token] == nil
-    assert conn.assigns.auth_error == TokenNotFoundError.new()
+    assert conn.assigns.auth_error == :token_not_found
   end
 
   test "validates token format" do
@@ -90,7 +85,7 @@ defmodule CommonsPub.Web.Plugs.AuthTest do
     assert conn.halted == false
     assert conn.assigns[:current_user] == nil
     assert conn.assigns[:auth_token] == nil
-    assert conn.assigns.auth_error == MalformedAuthorizationHeaderError.new()
+    assert {:error, _} = conn.assigns.auth_error
   end
 
   test "validates token has not expired" do
@@ -106,6 +101,6 @@ defmodule CommonsPub.Web.Plugs.AuthTest do
     assert conn.halted == false
     assert conn.assigns[:current_user] == nil
     assert conn.assigns[:auth_token] == nil
-    assert conn.assigns.auth_error == TokenExpiredError.new()
+    assert conn.assigns.auth_error == :token_expired
   end
 end

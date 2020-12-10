@@ -5,13 +5,10 @@ defmodule CommonsPub.UsersTest do
   import CommonsPub.Utils.Simulation
   alias Ecto.Changeset
   alias CommonsPub.{Users, Access}
-  alias Bonfire.Common.Errors.NoAccessError
 
 
   alias CommonsPub.Users.User
-  alias Bonfire.Common.Errors.{
-    TokenAlreadyClaimedError,
-    TokenExpiredError}
+
 
   alias CommonsPub.Utils.Simulation
 
@@ -141,7 +138,7 @@ defmodule CommonsPub.UsersTest do
       Repo.transaction(fn ->
         attrs = Simulation.character(Simulation.user())
 
-        assert {:error, %NoAccessError{}} = Users.register(attrs, public_registration: false)
+        assert {:error, :no_access} = Users.register(attrs, public_registration: false)
       end)
     end
   end
@@ -159,7 +156,7 @@ defmodule CommonsPub.UsersTest do
       assert [token] = user.local_user.email_confirm_tokens
       assert then = DateTime.add(DateTime.utc_now(), 60 * 60 * 49, :second)
 
-      assert {:error, %TokenExpiredError{} = error} =
+      assert {:error, :token_expired} =
                Users.claim_email_confirm_token(token.id, then)
     end
 
@@ -168,7 +165,7 @@ defmodule CommonsPub.UsersTest do
       assert [token] = user.local_user.email_confirm_tokens
       assert {:ok, %User{} = user} = Users.claim_email_confirm_token(token.id)
 
-      assert {:error, %TokenAlreadyClaimedError{} = error} =
+      assert {:error, _} =
                Users.claim_email_confirm_token(token.id)
     end
   end

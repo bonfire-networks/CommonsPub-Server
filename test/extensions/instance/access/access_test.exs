@@ -9,15 +9,11 @@ defmodule CommonsPub.AccessTest do
   alias CommonsPub.Access
 
   alias CommonsPub.Access.{
-
     RegisterEmailDomainAccess,
     RegisterEmailAccess
   }
-  alias Bonfire.Common.Errors.{
-        TokenExpiredError,
-    TokenNotFoundError,
-    UserEmailNotConfirmedError,
-  }
+
+
   defp strip(user),
     do:
       Map.drop(user, [
@@ -171,7 +167,7 @@ defmodule CommonsPub.AccessTest do
       user = fake_user!(%{}, confirm_email: true)
       token = fake_token!(user)
       then = DateTime.add(token.created_at, 3600 * 24 * 15, :second)
-      assert {:error, %TokenExpiredError{}} = Access.verify_token(token, then)
+      assert {:error, :token_expired} = Access.verify_token(token, then)
     end
   end
 
@@ -190,7 +186,7 @@ defmodule CommonsPub.AccessTest do
       token = fake_token!(user)
       assert token.user_id == user.id
       assert {:error, error} = Access.fetch_token_and_user(token.id <> token.id)
-      assert %TokenNotFoundError{} = error
+      assert :token_not_found = error
     end
   end
 
@@ -219,7 +215,7 @@ defmodule CommonsPub.AccessTest do
 
     test "errors for a user without a confirmed email" do
       user = fake_user!(%{}, confirm_email: false)
-      assert {:error, %UserEmailNotConfirmedError{}} = Access.verify_user(user)
+      assert {:error, :email_not_confirmed} = Access.verify_user(user)
     end
   end
 end
