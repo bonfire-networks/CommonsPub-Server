@@ -1,4 +1,4 @@
-defmodule CommonsPub.Web.Bonfire.Geolocate.MapLive do
+defmodule Bonfire.Geolocate.MapLive do
   use CommonsPub.Web, :live_view
 
   import Bonfire.Common.Utils

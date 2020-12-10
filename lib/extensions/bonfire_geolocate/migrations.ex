@@ -18,16 +18,10 @@ defmodule Bonfire.Geolocate.Migrations do
       add(:geom, :geometry)
       add(:alt, :float)
 
-      add(
-        :actor_id,
-        references(CommonsPub.Characters.Character.__schema__(:source), on_delete: :delete_all)
-      )
-
-      # add :community_id, references("mn_community", on_delete: :delete_all) # replaced with context
       add(:context_id, weak_pointer(), null: true)
+
       add(:creator_id, references("mn_user", on_delete: :nilify_all))
-      add(:inbox_id, references("mn_feed", on_delete: :nilify_all))
-      add(:outbox_id, references("mn_feed", on_delete: :nilify_all))
+
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
       add(:disabled_at, :timestamptz)

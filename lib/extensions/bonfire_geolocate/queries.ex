@@ -2,10 +2,10 @@
 defmodule Bonfire.Geolocate.Queries do
   alias Bonfire.Geolocate.Geolocation
   # alias Geolocate.Geolocations
-  alias CommonsPub.Follows.{Follow, FollowerCount}
-  # alias CommonsPub.Users
-  alias CommonsPub.Users.User
-  import CommonsPub.Repo, only: [match_admin: 0]
+  # alias CommonsPub.Follows.{Follow, FollowerCount}
+  # @user CommonsPub.Users.User
+
+  import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Geolocation) do
@@ -35,26 +35,26 @@ defmodule Bonfire.Geolocate.Queries do
     join(q, jq, [geolocation: c], c2 in assoc(c, :context), as: :context)
   end
 
-  def join_to(q, {:context_follow, follower_id}, jq) do
-    join(q, jq, [context: c], f in Follow,
-      as: :context_follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
-  end
+  # def join_to(q, {:context_follow, follower_id}, jq) do
+  #   join(q, jq, [context: c], f in Follow,
+  #     as: :context_follow,
+  #     on: c.id == f.context_id and f.creator_id == ^follower_id
+  #   )
+  # end
 
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [geolocation: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
-  end
+  # def join_to(q, {:follow, follower_id}, jq) do
+  #   join(q, jq, [geolocation: c], f in Follow,
+  #     as: :follow,
+  #     on: c.id == f.context_id and f.creator_id == ^follower_id
+  #   )
+  # end
 
-  def join_to(q, :follower_count, jq) do
-    join(q, jq, [geolocation: c], f in FollowerCount,
-      on: c.id == f.context_id,
-      as: :follower_count
-    )
-  end
+  # def join_to(q, :follower_count, jq) do
+  #   join(q, jq, [geolocation: c], f in FollowerCount,
+  #     on: c.id == f.context_id,
+  #     as: :follower_count
+  #   )
+  # end
 
   ### filter/2
 
@@ -82,10 +82,17 @@ defmodule Bonfire.Geolocate.Queries do
 
   def filter(q, {:user, nil}), do: filter(q, ~w(disabled private))
 
-  def filter(q, {:user, %User{id: id}}) do
+  # FIXME
+  # def filter(q, {:user, %{id: id}}) do
+  #   q
+  #   |> join_to(follow: id)
+  #   |> where([geolocation: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+  #   |> filter(~w(disabled)a)
+  # end
+
+  def filter(q, {:user, %{id: id}}) do
     q
-    |> join_to(follow: id)
-    |> where([geolocation: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([geolocation: c], not is_nil(c.published_at))
     |> filter(~w(disabled)a)
   end
 

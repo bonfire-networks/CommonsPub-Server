@@ -4,12 +4,13 @@ defmodule Bonfire.Geolocate.GraphQL.Hydration do
   def hydrate() do
     %{
       spatial_thing: %{
-        canonical_url: [
-          resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
-        ],
-        display_username: [
-          resolve: &CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3
-        ],
+        # FIXME:
+        # canonical_url: [
+        #   resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+        # ],
+        # display_username: [
+        #   resolve: &CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3
+        # ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
         ]

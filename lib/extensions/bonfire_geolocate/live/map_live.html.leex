@@ -1,6 +1,6 @@
 <%= if @place do %>
   <%=
-  live_component(
+  if Code.ensure_loaded?(CommonsPub.Web.Component.PreviewLive), do: live_component(
       @socket,
       CommonsPub.Web.Component.PreviewLive,
       object: @place,
