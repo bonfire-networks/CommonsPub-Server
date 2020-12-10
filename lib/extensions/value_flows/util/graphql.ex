@@ -24,7 +24,7 @@ defmodule ValueFlows.Util.GraphQL do
     do: {:ok, CommonsPub.ActivityPub.Utils.get_object_canonical_url(obj)}
 
   def scope_edge(%{context_id: id}, page_opts, info),
-    do: CommonsPub.Web.GraphQL.CommonResolver.context_edges(%{context_ids: [id]}, page_opts, info)
+    do: Bonfire.GraphQL.CommonResolver.context_edges(%{context_ids: [id]}, page_opts, info)
 
   def scope_edge(_, _, _),
     do: {:ok, nil}

@@ -144,7 +144,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
     # |> Map.new()
 
-    CommonsPub.Web.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
+    Bonfire.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
   end
 
   @doc """
@@ -192,7 +192,7 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
 
   def tag_prepare(%{category_id: category_id, id: mixin_id}, page_opts, info)
       when is_nil(category_id) do
-    CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: mixin_id}, page_opts, info)
+    Bonfire.GraphQL.CommonResolver.context_edge(%{context_id: mixin_id}, page_opts, info)
   end
 
   #### MUTATIONS

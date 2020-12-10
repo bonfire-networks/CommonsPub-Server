@@ -28,7 +28,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.EconomicResource.Queries
   # alias ValueFlows.Knowledge.Action.Actions
-  # alias CommonsPub.Web.GraphQL.CommonResolver
+  # alias Bonfire.GraphQL.CommonResolver
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import

@@ -97,7 +97,7 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
 
     @desc "The caretaker of this category, if any"
     field :caretaker, :any_context do
-      # resolve(&CommonsPub.Web.GraphQL.CommonResolver.context_edge/3)
+      # resolve(&Bonfire.GraphQL.CommonResolver.context_edge/3)
     end
 
     @desc "The character that represents this category in feeds and federation"
@@ -136,7 +136,7 @@ defmodule CommonsPub.Tag.GraphQL.TagSchema do
 
     @desc "The taggable object, like a category or community"
     field :context, :any_context do
-      resolve(&CommonsPub.Web.GraphQL.CommonResolver.context_edge/3)
+      resolve(&Bonfire.GraphQL.CommonResolver.context_edge/3)
     end
 
     @desc "Things that were tagged with this tag"

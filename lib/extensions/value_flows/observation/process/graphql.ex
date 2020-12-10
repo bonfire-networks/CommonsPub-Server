@@ -25,7 +25,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Processes
   alias ValueFlows.Observation.Process.Queries
-  # alias CommonsPub.Web.GraphQL.CommonResolver
+  # alias Bonfire.GraphQL.CommonResolver
   alias CommonsPub.Web.GraphQL.UploadResolver
 
   # SDL schema import

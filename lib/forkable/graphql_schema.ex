@@ -5,7 +5,7 @@ defmodule CommonsPub.Web.GraphQL.Schema do
 
   require Logger
 
-  alias CommonsPub.Web.GraphQL.SchemaUtils
+  alias Bonfire.GraphQL.SchemaUtils
   alias Bonfire.GraphQL.Middleware.CollapseErrors
   alias Absinthe.Middleware.{Async, Batch}
 
@@ -24,7 +24,7 @@ defmodule CommonsPub.Web.GraphQL.Schema do
   import_types(CommonsPub.Web.GraphQL.BlocksSchema)
   import_types(CommonsPub.Web.GraphQL.CollectionsSchema)
   import_types(CommonsPub.Web.GraphQL.CommentsSchema)
-  import_types(CommonsPub.Web.GraphQL.CommonSchema)
+  import_types(Bonfire.GraphQL.CommonSchema)
   import_types(CommonsPub.Web.GraphQL.CommunitiesSchema)
   import_types(Bonfire.GraphQL.Cursor)
   import_types(CommonsPub.Web.GraphQL.FeaturesSchema)

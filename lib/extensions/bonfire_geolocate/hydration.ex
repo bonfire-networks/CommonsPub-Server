@@ -1,5 +1,5 @@
 defmodule Bonfire.Geolocate.GraphQL.Hydration do
-  alias CommonsPub.Web.GraphQL.CommonResolver
+  alias Bonfire.GraphQL.CommonResolver
 
   def hydrate() do
     %{

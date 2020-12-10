@@ -77,7 +77,7 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
     })
   end
 
-  # def characteristic_edge(%CommonsPub.Characters.Character{characteristic_id: id}, _, info), do: CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def characteristic_edge(%CommonsPub.Characters.Character{characteristic_id: id}, _, info), do: Bonfire.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   # def resource_count_edge(%CommonsPub.Characters.Character{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
@@ -228,7 +228,7 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
     do: CommonsPub.Web.GraphQL.UsersResolver.creator_edge(%{creator_id: id}, nil, info)
 
   def context_edge(%{character: %{context_id: id}}, _, info),
-    do: CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+    do: Bonfire.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   def is_public_edge(%{character: character}, _, _), do: {:ok, not is_nil(character.published_at)}
 

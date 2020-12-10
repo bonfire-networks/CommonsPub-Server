@@ -83,7 +83,7 @@ defmodule CommonsPub.Profiles.GraphQL.Resolver do
     })
   end
 
-  # def profileistic_edge(%CommonsPub.Profiles.Profile{profileistic_id: id}, _, info), do: CommonsPub.Web.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def profileistic_edge(%CommonsPub.Profiles.Profile{profileistic_id: id}, _, info), do: Bonfire.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   # def resource_count_edge(%CommonsPub.Profiles.Profile{id: id}, _, info) do
   #   Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
