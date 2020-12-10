@@ -98,6 +98,7 @@ defmodule CommonsPub.Activities.Queries do
 
   def filter(q, {:table, tables}) when is_list(tables) do
     ids = Pointers.Tables.ids!(tables)
+    # IO.inspect(table_ids: ids)
     where(q, [context: c], c.table_id in ^ids)
   end
 

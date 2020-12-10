@@ -61,7 +61,7 @@ defmodule Pointers.Tables do
   @doc "Look up many ids at once, raise NotFound if any of them are not found"
   def ids!(ids) do
     data = data()
-    Enum.map(ids, &id!(&1, data))
+    Enum.map(ids, &id!(&1, data)) |> Enum.filter(& !is_nil(&1))
   end
 
   # called by id!/1, ids!/1
