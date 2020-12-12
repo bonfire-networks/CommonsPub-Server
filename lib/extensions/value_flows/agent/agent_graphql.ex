@@ -2,8 +2,6 @@
 defmodule ValueFlows.Agent.GraphQL do
   alias Bonfire.GraphQL
 
-  # alias CommonsPub.Utils.Simulation
-  # alias ValueFlows.Simulate
 
   require Logger
 

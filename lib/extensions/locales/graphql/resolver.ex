@@ -102,22 +102,22 @@ defmodule CommonsPub.Locales.GraphQL.Resolver do
   end
 
   # def language(%{language_id: id}, info) do
-  #   {:ok, Simulation.language()}
+  #   {:ok, Simulate.language()}
   #   |> GraphQL.response(info)
   # end
 
   # def countries(_, info) do
-  #   {:ok, Simulation.long_node_list(&Simulation.country/0)}
+  #   {:ok, Simulate.long_node_list(&Simulate.country/0)}
   #   |> GraphQL.response(info)
   # end
 
   # def country(%{country_id: id}, info) do
-  #   {:ok, Simulation.country()}
+  #   {:ok, Simulate.country()}
   #   |> GraphQL.response(info)
   # end
 
   # def primary_language(parent, _, info) do
-  #   {:ok, Simulation.language()}
+  #   {:ok, Simulate.language()}
   #   |> GraphQL.response(info)
   # end
 end

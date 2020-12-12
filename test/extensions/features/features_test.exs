@@ -3,7 +3,8 @@ defmodule CommonsPub.FeaturesTest do
   use CommonsPub.DataCase, async: true
   use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.Features
 
   def fake_featurable!() do

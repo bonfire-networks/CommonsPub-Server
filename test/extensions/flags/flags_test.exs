@@ -3,7 +3,8 @@ defmodule CommonsPub.FlagsTest do
   use CommonsPub.DataCase, async: true
   use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.Flags
   alias CommonsPub.Utils.Simulation
 
@@ -24,7 +25,7 @@ defmodule CommonsPub.FlagsTest do
   describe "flag/3" do
     test "a user can flag any meta object", %{user: flagger} do
       flagged = fake_meta!()
-      assert {:ok, flag} = Flags.create(flagger, flagged, Simulation.flag())
+      assert {:ok, flag} = Flags.create(flagger, flagged, Simulate.flag())
       assert flag.creator_id == flagger.id
       assert flag.context_id == flagged.id
       assert flag.message
@@ -36,7 +37,7 @@ defmodule CommonsPub.FlagsTest do
       user = fake_user!()
       community = fake_community!(user)
       collection = fake_collection!(user, community)
-      assert {:ok, flag} = Flags.create(flagger, collection, community, Simulation.flag())
+      assert {:ok, flag} = Flags.create(flagger, collection, community, Simulate.flag())
       assert flag.context_id == collection.id
       assert flag.community_id == community.id
     end
@@ -45,7 +46,7 @@ defmodule CommonsPub.FlagsTest do
   describe "soft_delete/1" do
     test "soft deletes a flag", %{user: flagger} do
       thing = fake_meta!()
-      assert {:ok, flag} = Flags.create(flagger, thing, Simulation.flag())
+      assert {:ok, flag} = Flags.create(flagger, thing, Simulate.flag())
       refute flag.deleted_at
 
       assert {:ok, flag} = Flags.soft_delete(flagger, flag)

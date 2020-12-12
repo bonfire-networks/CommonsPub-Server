@@ -3,7 +3,8 @@ defmodule CommonsPub.BlocksTest do
   use CommonsPub.DataCase, async: true
   use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.Blocks
   alias CommonsPub.Utils.Simulation
 
@@ -29,7 +30,7 @@ defmodule CommonsPub.BlocksTest do
                Blocks.create(
                  blocker,
                  blocked,
-                 Simulation.block(%{is_muted: true, is_blocked: true})
+                 Simulate.block(%{is_muted: true, is_blocked: true})
                )
 
       assert block.blocked_at
@@ -42,10 +43,10 @@ defmodule CommonsPub.BlocksTest do
       blocked = fake_meta!()
 
       assert {:ok, block} =
-               Blocks.create(blocker, blocked, Simulation.block(%{is_blocked: false}))
+               Blocks.create(blocker, blocked, Simulate.block(%{is_blocked: false}))
 
       assert {:ok, updated_block} =
-               Blocks.update(blocker, block, Simulation.block(%{is_blocked: true}))
+               Blocks.update(blocker, block, Simulate.block(%{is_blocked: true}))
 
       assert block != updated_block
     end
@@ -56,7 +57,7 @@ defmodule CommonsPub.BlocksTest do
       blocked = fake_meta!()
 
       assert {:ok, block} =
-               Blocks.create(blocker, blocked, Simulation.block(%{is_blocked: false}))
+               Blocks.create(blocker, blocked, Simulate.block(%{is_blocked: false}))
 
       refute block.deleted_at
 

@@ -1,5 +1,6 @@
 defmodule CommonsPub.ActivityPub.AdapterTest do
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   use CommonsPub.DataCase
 
   describe "fetching local actors by id" do

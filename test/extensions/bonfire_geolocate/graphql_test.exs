@@ -2,8 +2,9 @@
 defmodule Bonfire.Geolocate.GraphQLTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.Trendy, only: [some: 2]
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
+
 
   import Bonfire.Geolocate.Test.Faking
   import Bonfire.Geolocate.Simulate

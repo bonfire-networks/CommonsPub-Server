@@ -3,7 +3,8 @@ defmodule Bonfire.GraphQL.CommonTest do
   # use CommonsPub.Web.ConnCase, async: true
   # alias CommonsPub.Utils.Simulation
 
-  # import CommonsPub.Utils.Simulation
+  # import Bonfire.Common.Simulation
+import CommonsPub.Utils.Simulate
   # import CommonsPub.Web.Test.ConnHelpers
   # import CommonsPub.Web.Test.GraphQLAssertions
   # import CommonsPub.Web.Test.GraphQLFields
@@ -74,7 +75,7 @@ defmodule Bonfire.GraphQL.CommonTest do
   #     assert %{"delete" => res} = gql_post_data(conn, query)
   #     assert res["id"] == like.id
 
-  #     assert {:ok, flag} = Flags.create(user, comm, Simulation.flag())
+  #     assert {:ok, flag} = Flags.create(user, comm, Simulate.flag())
   #     query = %{query: delete_q(flag.id)}
   #     assert %{"delete" => res} = gql_post_data(conn, query)
   #     assert res["id"] == flag.id
@@ -85,7 +86,7 @@ defmodule Bonfire.GraphQL.CommonTest do
   #     conn = user_conn(user)
 
   #     comm = fake_community!(user)
-  #     assert {:ok, flag} = Flags.create(user, comm, Simulation.flag())
+  #     assert {:ok, flag} = Flags.create(user, comm, Simulate.flag())
   #     query = %{query: delete_q(flag.id)}
 
   #     assert %{"delete" => res} = gql_post_data(conn, query)

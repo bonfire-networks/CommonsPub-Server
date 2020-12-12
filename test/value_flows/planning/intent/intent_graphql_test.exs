@@ -1,10 +1,12 @@
 defmodule ValueFlows.Planning.Intent.GraphQLTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import CommonsPub.Tag.Simulate
-  import CommonsPub.Utils.Trendy, only: [some: 2]
+
 
   import Bonfire.Geolocate.Simulate
   import Bonfire.Geolocate.Test.Faking

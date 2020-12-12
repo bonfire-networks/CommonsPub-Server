@@ -2,7 +2,8 @@
 defmodule CommonsPub.ActivitiesTest do
   use CommonsPub.DataCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   alias CommonsPub.Activities
   alias CommonsPub.Activities.Activity
@@ -49,7 +50,7 @@ defmodule CommonsPub.ActivitiesTest do
 
   describe "create" do
     test "creates a new activity", %{user: user, context: context} do
-      attrs = Simulation.activity()
+      attrs = Simulate.activity()
       assert {:ok, %Activity{} = activity} = Activities.create(user, context, attrs)
       assert activity.verb == attrs.verb
       assert activity.canonical_url == attrs.canonical_url
@@ -66,7 +67,7 @@ defmodule CommonsPub.ActivitiesTest do
   describe "update" do
     test "updates an activity with new attributes", %{user: user, context: context} do
       activity = fake_activity!(user, context)
-      assert attrs = Simulation.activity()
+      assert attrs = Simulate.activity()
       assert {:ok, updated_activity} = Activities.update(user, activity, attrs)
       assert updated_activity != activity
       assert updated_activity.verb == attrs.verb

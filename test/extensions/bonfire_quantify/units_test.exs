@@ -5,7 +5,8 @@ defmodule Bonfire.Quantify.UnitsTest do
   import Bonfire.Quantify.Test.Faking
 
   # import CommonsPub.Utils.Trendy
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   # import CommonsPub.Web.Test.Orderings
   # import CommonsPub.Web.Test.Automaton
 
@@ -33,7 +34,7 @@ defmodule Bonfire.Quantify.UnitsTest do
     end
 
     test "returns NotFound if item is missing" do
-      assert {:error, :not_found} = Units.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Units.one(id: ulid())
     end
 
     test "returns NotFound if item is deleted" do

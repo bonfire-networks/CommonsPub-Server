@@ -1,6 +1,7 @@
 defmodule CommonsPub.ActivityPub.ReceiverTest do
   import ActivityPub.Factory
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.ActivityPub.Adapter
   alias CommonsPub.ActivityPub.Receiver
   alias CommonsPub.ActivityPub.Utils
@@ -95,7 +96,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
 
     test "resource" do
       actor = actor()
-      collection = CommonsPub.Utils.Simulation.collection()
+      collection = CommonsPub.Utils.Simulate.collection()
 
       object = %{
         "name" => "resource",
@@ -271,14 +272,14 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
     end
 
     test "deleted community" do
-      actor = CommonsPub.Utils.Simulation.community()
+      actor = CommonsPub.Utils.Simulate.community()
       ActivityPub.delete(actor, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
     test "deleted collection" do
-      actor = CommonsPub.Utils.Simulation.collection()
+      actor = CommonsPub.Utils.Simulate.collection()
       ActivityPub.delete(actor, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
@@ -326,7 +327,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
     end
 
     test "comm updates" do
-      comm = CommonsPub.Utils.Simulation.community()
+      comm = CommonsPub.Utils.community()
       update_data = Map.put(comm.data, "name", "kawen") |> Map.put("type", "Group")
 
       data = %{
@@ -342,7 +343,7 @@ defmodule CommonsPub.ActivityPub.ReceiverTest do
     end
 
     test "coll updates" do
-      coll = CommonsPub.Utils.Simulation.collection()
+      coll = CommonsPub.Utils.Simulate.collection()
       update_data = Map.put(coll.data, "name", "kawen") |> Map.put("type", "Group")
 
       data = %{

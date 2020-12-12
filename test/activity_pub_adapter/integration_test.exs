@@ -2,7 +2,8 @@
 defmodule CommonsPub.ActivityPub.IntegrationTest do
   use CommonsPub.Web.ConnCase
   import ActivityPub.Factory
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import Tesla.Mock
   alias CommonsPub.ActivityPub.Adapter
 

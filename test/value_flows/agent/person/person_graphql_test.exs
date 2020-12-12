@@ -1,8 +1,10 @@
 defmodule Valueflows.Agent.Person.GraphQLTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import CommonsPub.Web.Test.GraphQLAssertions
 
   import Bonfire.Geolocate.Test.Faking

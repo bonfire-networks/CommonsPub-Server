@@ -3,7 +3,8 @@ defmodule CommonsPub.Meta.PointersTest do
   use ExUnit.Case, async: true
 
   import ExUnit.Assertions
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.{Access, Repo}
 
   alias CommonsPub.Peers.Peer

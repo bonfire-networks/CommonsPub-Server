@@ -4,7 +4,8 @@ defmodule CommonsPub.Mail.EmailTest do
   use CommonsPub.DataCase, async: true
 
   alias CommonsPub.Mail.Email
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.Utils.Simulation
 
   setup do
@@ -35,7 +36,7 @@ defmodule CommonsPub.Mail.EmailTest do
   end
 
   test "invite/1" do
-    address = Simulation.email()
+    address = email()
     email = Email.invite(address)
     assert email.to == address
   end

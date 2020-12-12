@@ -1,8 +1,8 @@
 defmodule ValueFlows.Proposal.FederateTest do
   use CommonsPub.DataCase, async: false
 
-  import CommonsPub.Utils.Trendy, only: [some: 2]
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   import Bonfire.Geolocate.Simulate
 

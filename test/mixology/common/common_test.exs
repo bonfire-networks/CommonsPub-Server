@@ -3,7 +3,8 @@ defmodule CommonsPub.CommonTest do
   use CommonsPub.DataCase, async: true
   use Oban.Testing, repo: CommonsPub.Repo
   require Ecto.Query
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   setup do
     {:ok, %{user: fake_user!()}}
@@ -67,7 +68,7 @@ defmodule CommonsPub.CommonTest do
   #     tagged = fake_meta!()
 
   #     assert {:ok, tag} =
-  #              Common.tag(tagger, tagged, Simulation.tag(%{is_public: true, name: "Testing"}))
+  #              Common.tag(tagger, tagged, Simulate.tag(%{is_public: true, name: "Testing"}))
 
   #     assert tag.published_at
   #     assert tag.name == "Testing"
@@ -83,7 +84,7 @@ defmodule CommonsPub.CommonTest do
   # describe "update_tag/2" do
   #   test "updates the attributes of an existing tag", %{user: tagger} do
   #     tagged = fake_meta!()
-  #     assert {:ok, tag} = Common.tag(tagger, tagged, Simulation.tag(%{name: "Testy No.1"}))
+  #     assert {:ok, tag} = Common.tag(tagger, tagged, Simulate.tag(%{name: "Testy No.1"}))
   #     assert {:ok, updated_tag} = Common.update_tag(tag, %{name: "Testy Mc.Testface"})
   #     assert tag != updated_tag
   #   end
@@ -98,7 +99,7 @@ defmodule CommonsPub.CommonTest do
   # describe "untag/1" do
   #   test "removes a tag", %{user: tagger} do
   #     tagged = fake_meta!()
-  #     assert {:ok, tag} = Common.tag(tagger, tagged, Simulation.tag())
+  #     assert {:ok, tag} = Common.tag(tagger, tagged, Simulate.tag())
   #     refute tag.deleted_at
   #     assert {:ok, tag} = Common.untag(tag)
   #     assert tag.deleted_at

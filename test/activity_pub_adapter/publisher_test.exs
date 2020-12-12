@@ -1,6 +1,7 @@
 defmodule CommonsPub.ActivityPub.PublisherTest do
   use CommonsPub.DataCase
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import ActivityPub.Factory
   alias CommonsPub.ActivityPub.Publisher
   alias CommonsPub.Follows
@@ -219,7 +220,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
 
     test "it flags a community" do
       flagger = fake_user!()
-      ap_flagged = CommonsPub.Utils.Simulation.community()
+      ap_flagged = CommonsPub.Utils.Simulate.community()
       {:ok, flagged} = CommonsPub.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =
@@ -233,7 +234,7 @@ defmodule CommonsPub.ActivityPub.PublisherTest do
 
     test "it flags a collection" do
       flagger = fake_user!()
-      ap_flagged = CommonsPub.Utils.Simulation.collection()
+      ap_flagged = CommonsPub.Utils.Simulate.collection()
       {:ok, flagged} = CommonsPub.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =

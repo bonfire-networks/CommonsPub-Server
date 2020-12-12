@@ -2,7 +2,8 @@
 defmodule CommonsPub.Web.GraphQL.UploadsTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  # import CommonsPub.Utils.Simulation
+  # import Bonfire.Common.Simulation
+import CommonsPub.Utils.Simulate
   # import CommonsPub.Web.Test.ConnHelpers
   # import CommonsPub.Web.Test.GraphQLAssertions
   # import CommonsPub.Web.Test.GraphQLFields

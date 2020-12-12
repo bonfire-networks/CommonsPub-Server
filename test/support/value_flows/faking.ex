@@ -11,7 +11,6 @@ defmodule ValueFlows.Test.Faking do
   # import Bonfire.Quantify.Test.Faking
   import Grumble
 
-  # alias CommonsPub.Utils.Simulation
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intent.Intents
   alias ValueFlows.Knowledge.Action

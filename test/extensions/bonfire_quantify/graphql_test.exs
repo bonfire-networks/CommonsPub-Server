@@ -2,7 +2,8 @@
 defmodule Bonfire.Quantify.GraphQLTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import Bonfire.Quantify.Test.Faking
   import CommonsPub.Utils.Trendy
 

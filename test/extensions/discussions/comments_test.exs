@@ -3,7 +3,8 @@ defmodule CommonsPub.Threads.CommentsTest do
   use CommonsPub.DataCase, async: true
   use Oban.Testing, repo: CommonsPub.Repo
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   alias CommonsPub.Threads
   alias CommonsPub.Threads.Comments
@@ -35,7 +36,7 @@ defmodule CommonsPub.Threads.CommentsTest do
     end
 
     test "returns not found if the thread is missing" do
-      assert {:error, :not_found} = Threads.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Threads.one(id: ulid())
     end
 
     @tag :skip
@@ -51,7 +52,7 @@ defmodule CommonsPub.Threads.CommentsTest do
 
   describe "Threads.create/3" do
     test "creates a new thread with any parent", %{user: creator, parent: parent} do
-      attrs = Simulation.thread()
+      attrs = Simulate.thread()
       assert {:ok, thread} = Threads.create(creator, attrs, parent)
       assert thread.canonical_url == attrs[:canonical_url]
     end
@@ -65,7 +66,7 @@ defmodule CommonsPub.Threads.CommentsTest do
   describe "Threads.update/2" do
     test "updates a thread with new attributes", %{user: creator, parent: parent} do
       thread = fake_thread!(creator, parent)
-      attrs = Simulation.thread()
+      attrs = Simulate.thread()
       assert {:ok, updated_thread} = Threads.update(creator, thread, attrs)
       assert updated_thread != thread
       assert updated_thread.canonical_url == attrs.canonical_url
@@ -122,7 +123,7 @@ defmodule CommonsPub.Threads.CommentsTest do
 
   describe "Comments.create/3" do
     test "creates a new comment with a thread parent", %{user: creator, thread: thread} do
-      attrs = Simulation.comment()
+      attrs = Simulate.comment()
       assert {:ok, comment} = Comments.create(creator, thread, attrs)
       assert comment.canonical_url == attrs.canonical_url
       assert comment.content == attrs.content
@@ -147,7 +148,7 @@ defmodule CommonsPub.Threads.CommentsTest do
                  context.user,
                  thread,
                  reply_to,
-                 Simulation.comment()
+                 Simulate.comment()
                )
 
       assert comment.reply_to_id == reply_to.id
@@ -158,7 +159,7 @@ defmodule CommonsPub.Threads.CommentsTest do
       reply_to = fake_comment!(context.user, thread)
 
       assert {:error, :unauthorized, _} =
-               Comments.create_reply(context.user, thread, reply_to, Simulation.comment())
+               Comments.create_reply(context.user, thread, reply_to, Simulate.comment())
     end
   end
 
@@ -166,7 +167,7 @@ defmodule CommonsPub.Threads.CommentsTest do
     test "updates a comment given valid attributes", %{user: creator, thread: thread} do
       comment = fake_comment!(creator, thread)
 
-      attrs = Simulation.comment()
+      attrs = Simulate.comment()
       assert {:ok, updated_comment} = Comments.update(creator, comment, attrs)
       assert updated_comment != comment
       assert updated_comment.canonical_url == attrs.canonical_url

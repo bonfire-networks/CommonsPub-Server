@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Web.GraphQL.Collections.MutationsTest do
   use CommonsPub.Web.ConnCase, async: true
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import CommonsPub.Web.Test.GraphQLAssertions
   import CommonsPub.Web.Test.GraphQLFields
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   describe "create_collection" do
     test "works for the community creator, randomer and instance admin" do

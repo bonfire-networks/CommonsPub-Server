@@ -3,14 +3,14 @@ defmodule Bonfire.Quantify.MeasuresTest do
   use CommonsPub.Web.ConnCase, async: true
 
   # import CommonsPub.Utils.Trendy
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   # import CommonsPub.Web.Test.Orderings
   # import CommonsPub.Web.Test.Automaton
   # import CommonsPub.Web.Test.GraphQLAssertions
   # import Bonfire.Common.Enums
   # import Grumble
   # import Zest
-  # alias CommonsPub.Utils.Simulation
 
   import Bonfire.Quantify.Test.Faking
   import Bonfire.Quantify.Simulate

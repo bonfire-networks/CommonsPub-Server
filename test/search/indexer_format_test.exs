@@ -3,7 +3,8 @@
 defmodule CommonsPub.Search.IndexerFormatTest do
   use CommonsPub.DataCase
   alias CommonsPub.Search.Indexer
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   test "format community" do
     community = fake_user!() |> fake_community!()

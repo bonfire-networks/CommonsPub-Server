@@ -276,12 +276,12 @@ defmodule CommonsPub.Tag.GraphQL.TagResolver do
   end
 
   # def tag(%{tag_id: id}, info) do
-  #   {:ok, Simulation.tag()}
+  #   {:ok, Simulate.tag()}
   #   |> GraphQL.response(info)
   # end
 
   # def search_category(%{query: id}, info) do
-  #   {:ok, Simulation.long_node_list(&Simulation.tag/0)}
+  #   {:ok, Simulate.long_node_list(&Simulate.tag/0)}
   #   |> GraphQL.response(info)
   # end
 

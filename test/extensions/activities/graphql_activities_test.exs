@@ -2,12 +2,6 @@
 defmodule CommonsPub.Web.GraphQL.ActivitiesSchemaTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  # alias CommonsPub.Utils.Simulation
-  # import CommonsPub.Web.Test.GraphQLAssertions
-  # import CommonsPub.Web.Test.GraphQLFields
-  # import CommonsPub.Utils.Simulation
-  # alias CommonsPub.Users
-  # alias CommonsPub.Activities.Activity
 
   describe "activity" do
     @tag :skip

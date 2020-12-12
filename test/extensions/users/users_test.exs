@@ -2,7 +2,8 @@
 defmodule CommonsPub.UsersTest do
   use CommonsPub.DataCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias Ecto.Changeset
   alias CommonsPub.{Users, Access}
 
@@ -46,14 +47,14 @@ defmodule CommonsPub.UsersTest do
     end
 
     test "fails for missing" do
-      assert {:error, :not_found} = Users.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Users.one(id: ulid())
     end
   end
 
   describe "register/1" do
     test "creates a user account with valid attrs when public registration is enabled" do
       Repo.transaction(fn ->
-        attrs = Simulation.user()
+        attrs = Simulate.user()
         assert {:ok, user} = Users.register(attrs, public_registration: true)
         assert_user_equal(user, attrs)
         assert [token] = user.local_user.email_confirm_tokens
@@ -63,7 +64,7 @@ defmodule CommonsPub.UsersTest do
 
     test "creates a user account with valid attrs when email allowed" do
       Repo.transaction(fn ->
-        attrs = Simulation.character(Simulation.user())
+        attrs = Simulate.character(Simulate.user())
         assert {:ok, _} = Access.create_register_email(attrs.email)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
         assert_user_equal(user, attrs)
@@ -75,7 +76,7 @@ defmodule CommonsPub.UsersTest do
 
     test "creates a user account with valid attrs when domain is denied" do
       Repo.transaction(fn ->
-        attrs = Simulation.character(Simulation.user())
+        attrs = Simulate.character(Simulate.user())
         [_, domain] = String.split(attrs.email, "@", parts: 2)
         assert {:ok, _} = Access.create_register_email_domain(domain)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
@@ -92,8 +93,8 @@ defmodule CommonsPub.UsersTest do
 
         attrs =
           %{preferred_username: user.character.preferred_username}
-          |> Simulation.user()
-          |> Simulation.character()
+          |> Simulate.user()
+          |> Simulate.character()
 
         assert {:error, "Username already taken"} =
                  Users.register(attrs, public_registration: true)
@@ -106,8 +107,8 @@ defmodule CommonsPub.UsersTest do
 
         attrs =
           %{preferred_username: String.upcase(user.character.preferred_username)}
-          |> Simulation.user()
-          |> Simulation.character()
+          |> Simulate.user()
+          |> Simulate.character()
 
         assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
       end)
@@ -119,8 +120,8 @@ defmodule CommonsPub.UsersTest do
 
         attrs =
           %{email: user.local_user.email}
-          |> Simulation.user()
-          |> Simulation.character()
+          |> Simulate.user()
+          |> Simulate.character()
 
         assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
       end)
@@ -128,7 +129,7 @@ defmodule CommonsPub.UsersTest do
 
     test "fails if given invalid attributes" do
       Repo.transaction(fn ->
-        invalid_attrs = Map.delete(Simulation.user(), :email)
+        invalid_attrs = Map.delete(Simulate.user(), :email)
         assert {:error, changeset} = Users.register(invalid_attrs, public_registration: true)
         assert Keyword.get(changeset.errors, :email)
       end)
@@ -136,7 +137,7 @@ defmodule CommonsPub.UsersTest do
 
     test "fails if the user's email is not denied - email allowed" do
       Repo.transaction(fn ->
-        attrs = Simulation.character(Simulation.user())
+        attrs = Simulate.character(Simulate.user())
 
         assert {:error, :no_access} = Users.register(attrs, public_registration: false)
       end)
@@ -221,7 +222,7 @@ defmodule CommonsPub.UsersTest do
   describe "update/2" do
     test "updates attributes of user and relations" do
       user = fake_user!()
-      attrs = Simulation.user()
+      attrs = Simulate.user()
       assert {:ok, user} = Users.update(user, attrs)
       assert user.name == attrs.name
       assert user.local_user.email == attrs.email

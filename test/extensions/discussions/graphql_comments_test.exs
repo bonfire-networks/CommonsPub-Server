@@ -2,11 +2,6 @@
 defmodule CommonsPub.Web.GraphQL.CommentsTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  # alias CommonsPub.Utils.Simulation
-  # import CommonsPub.Web.Test.GraphQLAssertions
-  # import CommonsPub.Web.Test.GraphQLFields
-  # import CommonsPub.Utils.Simulation
-  # alias CommonsPub.{Comments, Threads}
 
   describe "thread" do
     test "placeholder" do

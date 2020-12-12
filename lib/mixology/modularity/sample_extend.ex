@@ -1,6 +1,6 @@
-defmodule CommonsPub.Utils.TrendyExtended do
+defmodule CommonsPub.Utils.SimulationExtended do
    require Modularity.Module.Extend
-   Modularity.Module.Extend.extends CommonsPub.Utils.Trendy
+   Modularity.Module.Extend.extends Bonfire.Common.Simulation
 
    def some(count_or_range \\ 1, fun) do
       require Logger

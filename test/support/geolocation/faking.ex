@@ -2,7 +2,8 @@
 defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
 
-  # import CommonsPub.Utils.Simulation
+  # import Bonfire.Common.Simulation
+import CommonsPub.Utils.Simulate
   # import Bonfire.Geolocate.Simulate
 
   import Grumble

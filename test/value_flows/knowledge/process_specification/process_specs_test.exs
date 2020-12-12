@@ -1,9 +1,9 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import CommonsPub.Tag.Simulate
-  import CommonsPub.Utils.Trendy, only: [some: 2]
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
@@ -25,8 +25,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
       user = fake_user!()
       spec = fake_process_specification!(user)
       assert {:ok, spec} = ProcessSpecifications.soft_delete(spec)
-      assert {:error, :not_found} =
-              ProcessSpecifications.one([:deleted, id: spec.id])
+      assert {:error, :not_found} = ProcessSpecifications.one([:deleted, id: spec.id])
     end
   end
 
@@ -81,7 +80,5 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
       assert {:ok, spec} = ProcessSpecifications.soft_delete(spec)
       assert spec.deleted_at
     end
-
   end
-
 end

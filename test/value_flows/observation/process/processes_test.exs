@@ -1,9 +1,10 @@
 defmodule ValueFlows.Observation.Process.ProcessesTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import CommonsPub.Tag.Simulate
-  import CommonsPub.Utils.Trendy, only: [some: 2]
+
 
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking

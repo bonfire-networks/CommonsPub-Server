@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Web.GraphQL.CommunitiesTest do
   use CommonsPub.Web.ConnCase, async: true
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import CommonsPub.Web.Test.GraphQLAssertions
   import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Web.Test.Orderings

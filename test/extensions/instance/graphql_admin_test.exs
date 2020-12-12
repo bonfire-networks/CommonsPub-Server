@@ -2,7 +2,8 @@
 defmodule CommonsPub.Web.GraphQL.AdminTest do
   use CommonsPub.Web.ConnCase
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import ActivityPub.Factory
   alias CommonsPub.Utils.Simulation
   import CommonsPub.Web.Test.GraphQLFields
@@ -13,7 +14,7 @@ defmodule CommonsPub.Web.GraphQL.AdminTest do
       conn = user_conn(user)
       q = invite_mutation()
 
-      assert true == grumble_post_key(q, conn, :send_invite, %{email: Simulation.email()})
+      assert true == grumble_post_key(q, conn, :send_invite, %{email: email()})
     end
 
     test "fails if user is not an admin" do
@@ -29,7 +30,7 @@ defmodule CommonsPub.Web.GraphQL.AdminTest do
                  "path" => ["sendInvite"],
                  "status" => 403
                }
-             ] = grumble_post_errors(q, conn, %{email: Simulation.email()})
+             ] = grumble_post_errors(q, conn, %{email: email()})
     end
   end
 

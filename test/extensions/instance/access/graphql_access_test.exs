@@ -3,7 +3,8 @@
 defmodule CommonsPub.Web.GraphQL.AccessTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import CommonsPub.Web.Test.GraphQLFields
   import Grumble
   alias CommonsPub.Utils.Simulation
@@ -89,7 +90,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       conn = user_conn(user)
 
       q = register_email_mutation()
-      vars = %{email: Simulation.email()}
+      vars = %{email: email()}
       assert email_access = grumble_post_key(q, conn, :create_register_email_access, vars)
       assert email_access["email"] == vars[:email]
       assert email_access["createdAt"]
@@ -99,7 +100,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       user = fake_user!(%{is_instance_admin: true})
       conn = user_conn(user)
 
-      assert {:ok, email_access} = Access.create_register_email(Simulation.email())
+      assert {:ok, email_access} = Access.create_register_email(email())
 
       q = register_email_mutation()
 
@@ -126,14 +127,14 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
                  "path" => ["createRegisterEmailAccess"],
                  "status" => 403
                }
-             ] = grumble_post_errors(q, conn, %{email: Simulation.email()})
+             ] = grumble_post_errors(q, conn, %{email: email()})
     end
 
     test "deletes an email" do
       user = fake_admin!()
       conn = user_conn(user)
 
-      assert {:ok, email_access} = Access.create_register_email(Simulation.email())
+      assert {:ok, email_access} = Access.create_register_email(email())
 
       q = delete_email_mutation()
 
@@ -148,7 +149,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       user = fake_user!()
       conn = user_conn(user)
 
-      assert {:ok, email_access} = Access.create_register_email(Simulation.email())
+      assert {:ok, email_access} = Access.create_register_email(email())
 
       q = delete_email_mutation()
 
@@ -167,7 +168,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       user = fake_admin!()
       conn = user_conn(user)
 
-      for email <- [Simulation.email(), Simulation.email(), Simulation.email()] do
+      for email <- [email(), email(), email()] do
         Access.create_register_email(email)
       end
 
@@ -180,7 +181,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       user = fake_user!()
       conn = user_conn(user)
 
-      for email <- [Simulation.email(), Simulation.email(), Simulation.email()] do
+      for email <- [email(), email(), email()] do
         Access.create_register_email(email)
       end
 
@@ -196,7 +197,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       conn = user_conn(user)
 
       q = register_domain_mutation()
-      vars = %{domain: Simulation.domain()}
+      vars = %{domain: domain()}
       assert domain_access = grumble_post_key(q, conn, :create_register_email_domain_access, vars)
       assert domain_access["domain"] == vars[:domain]
       assert domain_access["createdAt"]
@@ -206,7 +207,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       user = fake_user!(%{is_instance_admin: true})
       conn = user_conn(user)
 
-      assert {:ok, domain_access} = Access.create_register_email_domain(Simulation.domain())
+      assert {:ok, domain_access} = Access.create_register_email_domain(domain())
 
       q = register_domain_mutation()
 
@@ -233,14 +234,14 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
                  "path" => ["createRegisterEmailDomainAccess"],
                  "status" => 403
                }
-             ] = grumble_post_errors(q, conn, %{domain: Simulation.domain()})
+             ] = grumble_post_errors(q, conn, %{domain: domain()})
     end
 
     test "deletes a domain" do
       user = fake_admin!()
       conn = user_conn(user)
 
-      assert {:ok, domain_access} = Access.create_register_email_domain(Simulation.domain())
+      assert {:ok, domain_access} = Access.create_register_email_domain(domain())
 
       q = delete_domain_mutation()
 
@@ -257,7 +258,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       user = fake_user!()
       conn = user_conn(user)
 
-      assert {:ok, domain_access} = Access.create_register_email_domain(Simulation.domain())
+      assert {:ok, domain_access} = Access.create_register_email_domain(domain())
 
       q = delete_domain_mutation()
 
@@ -276,7 +277,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       user = fake_admin!()
       conn = user_conn(user)
 
-      for domain <- [Simulation.domain(), Simulation.domain(), Simulation.domain()] do
+      for domain <- [domain(), domain(), domain()] do
         Access.create_register_email_domain(domain)
       end
 
@@ -289,7 +290,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
       user = fake_user!()
       conn = user_conn(user)
 
-      for domain <- [Simulation.domain(), Simulation.domain(), Simulation.domain()] do
+      for domain <- [domain(), domain(), domain()] do
         Access.create_register_email_domain(domain)
       end
 

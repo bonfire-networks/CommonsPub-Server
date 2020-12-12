@@ -5,7 +5,8 @@ defmodule CommonsPub.Web.GraphQL.UsersTest do
   import CommonsPub.Web.Test.GraphQLAssertions
   import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Utils.Trendy
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import Grumble
   import Zest
   alias CommonsPub.Utils.Simulation
@@ -16,7 +17,7 @@ defmodule CommonsPub.Web.GraphQL.UsersTest do
       q = username_available_query()
 
       for conn <- [json_conn(), user_conn(alice)] do
-        vars = %{username: Simulation.preferred_username()}
+        vars = %{username: preferred_username()}
         assert true == grumble_post_key(q, conn, :username_available, vars)
         vars = %{username: alice.character.preferred_username}
         assert false == grumble_post_key(q, conn, :username_available, vars)

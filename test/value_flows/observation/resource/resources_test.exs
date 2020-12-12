@@ -1,8 +1,9 @@
 defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.{Trendy, Simulation}
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
+  import CommonsPub.Utils.Trendy
   import ValueFlows.Simulate
   import Bonfire.Quantify.Simulate
   import Bonfire.Geolocate.Simulate

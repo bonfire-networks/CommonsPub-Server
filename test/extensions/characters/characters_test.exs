@@ -2,7 +2,8 @@
 defmodule CommonsPub.CharactersTest do
   use CommonsPub.DataCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.Repo
 
   alias CommonsPub.Characters
@@ -32,13 +33,13 @@ defmodule CommonsPub.CharactersTest do
     end
 
     test "fails if item is missing" do
-      assert {:error, :not_found} = Characters.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Characters.one(id: ulid())
     end
   end
 
   describe "is_username_available?" do
     test "returns true if username is unused" do
-      assert Characters.is_username_available?(Simulation.preferred_username())
+      assert Characters.is_username_available?(preferred_username())
     end
 
     test "returns false if username is used" do
@@ -50,7 +51,7 @@ defmodule CommonsPub.CharactersTest do
   describe "create" do
     test "creates a new character with a revision" do
       Repo.transaction(fn ->
-        attrs = Simulation.character()
+        attrs = character()
         character = fake_character!(attrs)
         assert_character_equal(character, attrs)
       end)
@@ -58,7 +59,7 @@ defmodule CommonsPub.CharactersTest do
 
     # test "drops invalid characters from preferred_username" do
     #  Repo.transaction(fn ->
-    #    attrs = Simulation.character(%{preferred_username: "character&name"})
+    #    attrs = character(%{preferred_username: "character&name"})
     #    assert {:ok, character} = Characters.create(attrs)
     #    assert character.preferred_username == "actorname"
     #  end)
@@ -67,7 +68,7 @@ defmodule CommonsPub.CharactersTest do
     test "doesn't drop allowed characters from preferred_username" do
       Repo.transaction(fn ->
         attrs =
-          Simulation.character(%{preferred_username: "character-name_underscore@instance.url"})
+          character(%{preferred_username: "character-name_underscore@instance.url"})
 
         peer = fake_peer!()
         character = fake_character!(Map.put(attrs, :peer_id, peer.id))
@@ -78,7 +79,7 @@ defmodule CommonsPub.CharactersTest do
 
     test "returns an error if there are missing required attributes" do
       Repo.transaction(fn ->
-        invalid_attrs = Map.merge(Simulation.user(), %{name: nil})
+        invalid_attrs = Map.merge(user(), %{name: nil})
         assert {:error, changeset} = fake_user!(invalid_attrs)
         assert Keyword.get(changeset.errors, :name)
       end)
@@ -90,7 +91,7 @@ defmodule CommonsPub.CharactersTest do
 
         assert {:error, errors} =
                  %{preferred_username: character.preferred_username}
-                 |> Simulation.user()
+                 |> user()
                  |> fake_character!()
 
         assert errors == "Username already taken"
@@ -102,14 +103,14 @@ defmodule CommonsPub.CharactersTest do
     test "updates an existing character with valid attributes" do
       Repo.transaction(fn ->
         user = fake_user!()
-        original_attrs = Simulation.character()
+        original_attrs = character()
 
         character = fake_character!(original_attrs)
 
         updated_attrs =
           original_attrs
           |> Map.take(~w(preferred_username signing_key)a)
-          |> Simulation.character()
+          |> character()
 
         assert {:ok, character} = Characters.update(user, character, updated_attrs)
         assert_character_equal(character, updated_attrs)

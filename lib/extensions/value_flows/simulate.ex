@@ -2,9 +2,12 @@
 defmodule ValueFlows.Simulate do
   @moduledoc false
 
-  import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.Trendy
-  # import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  # import Bonfire.Common.Simulation
+import CommonsPub.Utils.Simulate
+  # import CommonsPub.Utils.Trendy
+  # import Bonfire.Common.Simulation
+import CommonsPub.Utils.Simulate
 
   import Bonfire.Quantify.Simulate
 

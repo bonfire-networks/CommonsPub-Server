@@ -1,8 +1,9 @@
 defmodule ValueFlows.Observation.Process.GraphQLTest do
   use CommonsPub.Web.ConnCase, async: true
 
-  import CommonsPub.Utils.Trendy, only: [some: 2]
-  import CommonsPub.Utils.Simulation
+
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias Grumble.PP
   import Grumble
   import ValueFlows.Simulate

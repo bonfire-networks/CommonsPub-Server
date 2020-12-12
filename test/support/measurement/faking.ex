@@ -11,7 +11,6 @@ defmodule Bonfire.Quantify.Test.Faking do
 
   import Grumble
 
-  # alias CommonsPub.Utils.Simulation
   alias Bonfire.Quantify.{Measure, Unit}
   # alias Bonfire.Quantify.Measures
   # alias Bonfire.Quantify.Units

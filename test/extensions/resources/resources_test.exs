@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.ResourcesTest do
   use CommonsPub.DataCase
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.{Resources, Repo}
   alias CommonsPub.Utils.Simulation
 
@@ -20,7 +21,7 @@ defmodule CommonsPub.ResourcesTest do
     end
 
     test "returns not found if the resource is missing" do
-      assert {:error, :not_found} = Resources.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Resources.one(id: ulid())
     end
   end
 
@@ -28,7 +29,7 @@ defmodule CommonsPub.ResourcesTest do
     test "creates a new resource given valid attributes", context do
       Repo.transaction(fn ->
         content = fake_content!(context.user)
-        attrs = Simulation.resource() |> Map.put(:content_id, content.id)
+        attrs = Simulate.resource() |> Map.put(:content_id, content.id)
 
         assert {:ok, resource} =
                  Resources.create(
@@ -58,7 +59,7 @@ defmodule CommonsPub.ResourcesTest do
 
   describe "update" do
     test "updates a resource given valid attributes", context do
-      attrs = Simulation.resource()
+      attrs = Simulate.resource()
       resource = fake_resource!(context.user, context.collection)
 
       assert {:ok, updated_resource} = Resources.update(context.user, resource, attrs)

@@ -2,7 +2,8 @@
 defmodule CommonsPub.CommunitiesTest do
   use CommonsPub.DataCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.Utils.Simulation
 
   alias CommonsPub.Communities
@@ -15,7 +16,7 @@ defmodule CommonsPub.CommunitiesTest do
 
       deleted =
         Enum.reduce(all, [], fn comm, acc ->
-          if Simulation.bool() do
+          if bool() do
             {:ok, comm} = Communities.soft_delete(user, comm)
             [comm | acc]
           else
@@ -59,14 +60,14 @@ defmodule CommonsPub.CommunitiesTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, :not_found} = Communities.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Communities.one(id: ulid())
     end
   end
 
   describe "Communities.create/3" do
     test "creates a community valid attributes" do
       assert user = fake_user!()
-      attrs = Simulation.community()
+      attrs = Simulate.community()
       assert {:ok, community} = Communities.create(user, attrs)
       assert community.name == attrs.name
       assert community.creator_id == user.id

@@ -1,6 +1,7 @@
 # Generate some fake data and put it in the DB for testing/development purposes
 
-import CommonsPub.Utils.Simulation
+import Bonfire.Common.Simulation
+import CommonsPub.Utils.Simulate
 
 System.put_env("SEARCH_INDEXING_DISABLED", "true")
 

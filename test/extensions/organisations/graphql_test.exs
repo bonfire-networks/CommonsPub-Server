@@ -3,8 +3,10 @@ defmodule Organisation.GraphQLTest do
   use CommonsPub.Web.ConnCase, async: true
   import CommonsPub.Web.Test.GraphQLAssertions
   import CommonsPub.Web.Test.GraphQLFields
-  import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   import Organisation.Simulate
   import Organisation.Test.Faking

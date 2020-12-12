@@ -1,5 +1,6 @@
 defmodule Organisation.Simulate do
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   # import CommonsPub.Utils.Trendy
 
   alias Organisation.Organisations

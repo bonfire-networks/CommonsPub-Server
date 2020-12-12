@@ -5,7 +5,8 @@ defmodule CommonsPub.Web.GraphQL.Collections.CollectionTest do
   import CommonsPub.Web.Test.GraphQLAssertions
   import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Utils.Trendy
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import Grumble
   import Zest
   alias CommonsPub.{Follows, Likes, Threads}

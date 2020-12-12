@@ -2,13 +2,14 @@ defmodule CommonsPub.PeersTest do
   use CommonsPub.DataCase
   alias CommonsPub.Peers
   # alias CommonsPub.Peers.Peer
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.Utils.Simulation
 
   describe "CRUD" do
     test "insertion and retrieval" do
       Repo.transaction(fn ->
-        attrs = Simulation.peer()
+        attrs = Simulate.peer()
         assert {:ok, peer} = Peers.create(attrs)
         assert {:ok, peer2} = Peers.fetch(peer.id)
         assert Map.drop(peer, [:is_disabled]) == Map.drop(peer2, [:is_disabled])
@@ -23,7 +24,7 @@ defmodule CommonsPub.PeersTest do
           peer
           |> Map.from_struct()
           |> Map.delete(:ap_url_base)
-          |> Simulation.peer()
+          |> Simulate.peer()
 
         assert {:ok, peer2} = Peers.update(peer, attrs)
         assert peer2.id == peer.id

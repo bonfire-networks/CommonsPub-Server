@@ -2,7 +2,6 @@
 defmodule Organisation.Test.Faking do
   import CommonsPub.Web.Test.GraphQLAssertions
   import CommonsPub.Web.Test.GraphQLFields
-  # alias CommonsPub.Utils.Simulation
 
   alias Organisation
   # import Organisation.Simulate

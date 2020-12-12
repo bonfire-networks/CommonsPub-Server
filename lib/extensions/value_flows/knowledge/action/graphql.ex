@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Knowledge.Action.GraphQL do
-  # alias CommonsPub.Web.GraphQL.{CommonResolver}
 
-  # import CommonsPub.Utils.Simulation
-  # alias ValueFlows.Simulate
 
   require Logger
 

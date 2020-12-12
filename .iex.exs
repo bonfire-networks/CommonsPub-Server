@@ -1,11 +1,10 @@
-alias CommonsPub, as: MN
-alias CommonsPub.Web, as: MNW
-alias CommonsPub, as: CPub
+alias Bonfire, as: B
+alias CommonsPub, as: C
+alias CommonsPub.Web, as: CW
 alias ValueFlows, as: VF
 
 alias CommonsPub.ReleaseTasks
-import CommonsPub.ReleaseTasks
 
-alias CommonsPub.Utils.Simulation
+alias CommonsPub.Utils.Simulate
 
 IO.puts("[.iex.exs] aliased a few modules\n")

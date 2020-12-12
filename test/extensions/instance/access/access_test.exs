@@ -2,7 +2,8 @@
 defmodule CommonsPub.AccessTest do
   use CommonsPub.DataCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias Ecto.Changeset
 
   alias CommonsPub.Utils.Simulation
@@ -29,7 +30,7 @@ defmodule CommonsPub.AccessTest do
   describe "CommonsPub.Access.create_register_email_domain/1" do
     test "can be found with find_register_email_domain after success" do
       Repo.transaction(fn ->
-        domain = Simulation.domain()
+        domain = domain()
 
         assert {:ok, %RegisterEmailDomainAccess{} = wl} =
                  Access.create_register_email_domain(domain)
@@ -41,7 +42,7 @@ defmodule CommonsPub.AccessTest do
 
     test "fails helpfully with invalid data" do
       Repo.transaction(fn ->
-        invalid = Simulation.email()
+        invalid = email()
         assert {:error, %Changeset{} = cs} = Access.create_register_email_domain(invalid)
         assert [{:domain, {"is of the wrong format", [validation: :format]}}] == cs.errors
       end)
@@ -51,7 +52,7 @@ defmodule CommonsPub.AccessTest do
   describe "CommonsPub.Access.create_register_email/1" do
     test "can be found with find_register_email after success" do
       Repo.transaction(fn ->
-        email = Simulation.email()
+        email = email()
         assert {:ok, %RegisterEmailAccess{} = wl} = Access.create_register_email(email)
         assert wl.email == email
         assert {:ok, wl} == Access.find_register_email(email)
@@ -61,7 +62,7 @@ defmodule CommonsPub.AccessTest do
     # TODO: validate emails better
     test "fails helpfully with invalid data" do
       Repo.transaction(fn ->
-        invalid = Simulation.icon()
+        invalid = icon()
         assert {:error, %Changeset{} = cs} = Access.create_register_email(invalid)
         assert [email: {"is of the wrong format", [validation: :format]}] == cs.errors
       end)
@@ -98,7 +99,7 @@ defmodule CommonsPub.AccessTest do
     test "returns true when the email's domain is accessed" do
       Repo.transaction(fn ->
         domain = fake_register_email_domain_access!().domain
-        email = Simulation.email_user() <> "@" <> domain
+        email = email_user() <> "@" <> domain
         assert true == Access.is_register_accessed?(email)
       end)
     end
@@ -112,7 +113,7 @@ defmodule CommonsPub.AccessTest do
 
     test "returns false when no access pertains to the email" do
       Repo.transaction(fn ->
-        assert false == Access.is_register_accessed?(Simulation.email())
+        assert false == Access.is_register_accessed?(email())
       end)
     end
   end
@@ -120,7 +121,7 @@ defmodule CommonsPub.AccessTest do
   describe "CommonsPub.Access.hard_delete!/1" do
     test "raises :function_clause when given input of the wrong type" do
       Repo.transaction(fn ->
-        assert :function_clause = catch_error(Access.hard_delete(Simulation.ulid()))
+        assert :function_clause = catch_error(Access.hard_delete(ulid()))
       end)
     end
 

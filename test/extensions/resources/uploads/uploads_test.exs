@@ -2,7 +2,8 @@
 defmodule CommonsPub.UploadsTest do
   use CommonsPub.DataCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   alias CommonsPub.Utils.Simulation
   alias CommonsPub.Uploads
   alias CommonsPub.Uploads.{FileDenied, Storage}
@@ -33,7 +34,7 @@ defmodule CommonsPub.UploadsTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, :not_found} = Uploads.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Uploads.one(id: ulid())
     end
   end
 

@@ -2,8 +2,9 @@
 defmodule ValueFlows.Proposal.ProposalsTest do
   use CommonsPub.DataCase, async: true
 
-  import CommonsPub.Utils.Simulation
-  import CommonsPub.Utils.Trendy, only: [some: 2]
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
+
 
   import Bonfire.Geolocate.Simulate
 

@@ -2,7 +2,8 @@
 defmodule CommonsPub.Web.GraphQL.Collections.CollectionsTest do
   use CommonsPub.Web.ConnCase, async: true
   alias CommonsPub.Collections
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
   import CommonsPub.Web.Test.GraphQLAssertions
   import CommonsPub.Web.Test.GraphQLFields
   import CommonsPub.Web.Test.Orderings

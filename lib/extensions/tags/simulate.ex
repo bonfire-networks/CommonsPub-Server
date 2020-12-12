@@ -2,7 +2,8 @@
 defmodule CommonsPub.Tag.Simulate do
   @moduledoc false
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   alias CommonsPub.Tag.Categories
 

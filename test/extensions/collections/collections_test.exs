@@ -2,7 +2,8 @@
 defmodule CommonsPub.CollectionsTest do
   use CommonsPub.DataCase, async: true
 
-  import CommonsPub.Utils.Simulation
+  import Bonfire.Common.Simulation
+  import CommonsPub.Utils.Simulate
 
   alias CommonsPub.{Collections, Communities}
   alias CommonsPub.Utils.Simulation
@@ -39,13 +40,13 @@ defmodule CommonsPub.CollectionsTest do
     end
 
     test "fails with a missing ID" do
-      assert {:error, :not_found} = Collections.one(id: Simulation.ulid())
+      assert {:error, :not_found} = Collections.one(id: ulid())
     end
   end
 
   describe "create" do
     test "creates a new collection", context do
-      attrs = Simulation.collection()
+      attrs = collection()
 
       assert {:ok, collection} = Collections.create(context.user, context.community, attrs)
 
@@ -62,7 +63,7 @@ defmodule CommonsPub.CollectionsTest do
 
   describe "update" do
     test "updates a collection with the given attributes", %{user: user, collection: collection} do
-      attrs = Simulation.collection()
+      attrs = collection()
       assert {:ok, updated_collection} = Collections.update(user, collection, attrs)
       assert updated_collection.name == attrs.name
     end
