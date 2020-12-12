@@ -1,6 +1,5 @@
 defmodule ValueFlows.Planning.Intent.Migrations do
   use Ecto.Migration
-  # @repo CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 

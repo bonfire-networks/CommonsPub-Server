@@ -1,6 +1,5 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.Migrations do
   use Ecto.Migration
-  # @repo CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 

@@ -4,11 +4,9 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   @repo CommonsPub.Repo
 
-  alias CommonsPub.{Activities, Feeds}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
-  # alias CommonsPub.Contexts
-  alias CommonsPub.Feeds.FeedActivities
+
   alias CommonsPub.Users.User
 
   alias ValueFlows.Observation.Process
@@ -133,43 +131,12 @@ defmodule ValueFlows.Observation.Process.Processes do
            {:ok, process} <- ValueFlows.Util.try_tag_thing(creator, process, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, process, act_attrs),
-           :ok <- publish(creator, process, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.activity_create(creator, process, act_attrs),
+           :ok <- ValueFlows.Util.publish(creator, process, activity, :created) do
         index(process)
         {:ok, preload_all(process)}
       end
     end)
-  end
-
-  defp publish(creator, process, activity, :created) do
-    feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", process.id, creator.id)
-    end
-  end
-
-  defp publish(process, :updated) do
-    # TODO: wrong if edited by admin
-    ap_publish("update", process.id, process.creator_id)
-  end
-
-  defp publish(process, :deleted) do
-    # TODO: wrong if edited by admin
-    ap_publish("delete", process.id, process.creator_id)
-  end
-
-  # FIXME
-  defp ap_publish(verb, context_id, user_id) do
-    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id
-    })
-
-    :ok
   end
 
   # TODO: take the user who is performing the update
@@ -180,7 +147,7 @@ defmodule ValueFlows.Observation.Process.Processes do
 
       with {:ok, process} <- @repo.update(Process.update_changeset(process, attrs)),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(nil, process, attrs),
-           :ok <- publish(process, :updated) do
+           :ok <- ValueFlows.Util.publish(process, :updated) do
         {:ok, preload_all(process)}
       end
     end)
@@ -189,7 +156,7 @@ defmodule ValueFlows.Observation.Process.Processes do
   def soft_delete(%Process{} = process) do
     @repo.transact_with(fn ->
       with {:ok, process} <- Bonfire.Repo.Delete.soft_delete(process),
-           :ok <- publish(process, :deleted) do
+           :ok <- ValueFlows.Util.publish(process, :deleted) do
         {:ok, process}
       end
     end)

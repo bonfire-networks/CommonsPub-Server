@@ -4,11 +4,9 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   @repo CommonsPub.Repo
 
-  alias CommonsPub.{Activities, Feeds}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
-  # alias CommonsPub.Contexts
-  alias CommonsPub.Feeds.FeedActivities
+
   alias CommonsPub.Users.User
 
   alias ValueFlows.Knowledge.ProcessSpecification
@@ -96,8 +94,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, item, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.activity_create(creator, item, act_attrs),
+           :ok <- ValueFlows.Util.publish(creator, item, activity, :created) do
         item = %{item | creator: creator}
         index(item)
         {:ok, item}
@@ -105,36 +103,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     end)
   end
 
-  defp publish(creator, process_spec, activity, :created) do
-    feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", process_spec.id, creator.id)
-    end
-  end
-
-  defp publish(process_spec, :updated) do
-    # TODO: wrong if edited by admin
-    ap_publish("update", process_spec.id, process_spec.creator_id)
-  end
-
-  defp publish(process_spec, :deleted) do
-    # TODO: wrong if edited by admin
-    ap_publish("delete", process_spec.id, process_spec.creator_id)
-  end
-
-  # FIXME
-  defp ap_publish(verb, context_id, user_id) do
-    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id
-    })
-
-    :ok
-  end
 
   # TODO: take the user who is performing the update
   # @spec update(%ProcessSpecification{}, attrs :: map) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}
@@ -144,7 +112,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
       with {:ok, process_spec} <- @repo.update(ProcessSpecification.update_changeset(process_spec, attrs)),
            {:ok, process_spec} <- ValueFlows.Util.try_tag_thing(nil, process_spec, attrs),
-           :ok <- publish(process_spec, :updated) do
+           :ok <- ValueFlows.Util.publish(process_spec, :updated) do
         {:ok, process_spec}
       end
     end)
@@ -153,7 +121,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   def soft_delete(%ProcessSpecification{} = process_spec) do
     @repo.transact_with(fn ->
       with {:ok, process_spec} <- Bonfire.Repo.Delete.soft_delete(process_spec),
-           :ok <- publish(process_spec, :deleted) do
+           :ok <- ValueFlows.Util.publish(process_spec, :deleted) do
         {:ok, process_spec}
       end
     end)

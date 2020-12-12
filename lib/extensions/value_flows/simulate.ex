@@ -3,17 +3,17 @@ defmodule ValueFlows.Simulate do
   @moduledoc false
 
   import Bonfire.Common.Simulation
-  # import Bonfire.Common.Simulation
-import CommonsPub.Utils.Simulate
+  # import CommonsPub.Utils.Simulate
   # import CommonsPub.Utils.Trendy
-  # import Bonfire.Common.Simulation
-import CommonsPub.Utils.Simulate
 
   import Bonfire.Quantify.Simulate
 
   alias ValueFlows.Claim.Claims
+
   alias ValueFlows.Planning.Intent.Intents
+
   alias ValueFlows.Proposal.Proposals
+
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
   alias ValueFlows.Observation.EconomicResource.EconomicResources
   alias ValueFlows.Observation.Process.Processes
@@ -68,7 +68,7 @@ import CommonsPub.Utils.Simulate
 
   def fake_agent!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
     fake_agent_from_user!(
-      fake_user!(ValueFlows.Agent.Agents.agent_to_character(agent(overrides)))
+      CommonsPub.Utils.Simulate.fake_user!(ValueFlows.Agent.Agents.agent_to_character(agent(overrides)))
     )
   end
 

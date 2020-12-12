@@ -1,6 +1,5 @@
 defmodule ValueFlows.Proposal.Migrations do
   use Ecto.Migration
-  # @repo CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 
@@ -32,6 +31,7 @@ defmodule ValueFlows.Proposal.Migrations do
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
+      add(:disabled_at, :timestamptz)
 
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end

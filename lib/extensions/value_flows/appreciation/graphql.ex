@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Appreciation.GraphQL do
-  # alias CommonsPub.Web.GraphQL.{CommonResolver}
   require Logger
 
   # use Absinthe.Schema.Notation

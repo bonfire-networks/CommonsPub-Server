@@ -2,12 +2,10 @@
 defmodule ValueFlows.Proposal.Proposals do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2]
 
-  alias CommonsPub.{Activities, Feeds}
   @repo CommonsPub.Repo
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
-  # alias CommonsPub.Contexts
-  alias CommonsPub.Feeds.FeedActivities
+
   alias CommonsPub.Users.User
 
   alias ValueFlows.Proposal
@@ -130,44 +128,14 @@ defmodule ValueFlows.Proposal.Proposals do
       with {:ok, proposal} <- @repo.insert(Proposal.create_changeset(creator, attrs)),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, proposal, act_attrs),
+           {:ok, activity} <- ValueFlows.Util.activity_create(creator, proposal, act_attrs),
            :ok <- index(proposal),
-           :ok <- publish(creator, proposal, activity, :created) do
+           :ok <- ValueFlows.Util.publish(creator, proposal, activity, :created) do
         {:ok, preload_all(proposal)}
       end
     end)
   end
 
-  defp publish(creator, proposal, activity, :created) do
-    feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", proposal.id, creator.id)
-    end
-  end
-
-  defp publish(proposal, :updated) do
-    # TODO: wrong if edited by admin
-    ap_publish("update", proposal.id, proposal.creator_id)
-  end
-
-  defp publish(proposal, :deleted) do
-    # TODO: wrong if edited by admin
-    ap_publish("delete", proposal.id, proposal.creator_id)
-  end
-
-  # FIXME
-  defp ap_publish(verb, context_id, user_id) do
-    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id
-    })
-
-    :ok
-  end
 
   # TODO: take the user who is performing the update
   @spec update(%Proposal{}, attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
@@ -176,7 +144,7 @@ defmodule ValueFlows.Proposal.Proposals do
 
     @repo.transact_with(fn ->
       with {:ok, proposal} <- @repo.update(Proposal.update_changeset(proposal, attrs)),
-           :ok <- publish(proposal, :updated) do
+           :ok <- ValueFlows.Util.publish(proposal, :updated) do
         {:ok, proposal}
       end
     end)
@@ -185,7 +153,7 @@ defmodule ValueFlows.Proposal.Proposals do
   def soft_delete(%Proposal{} = proposal) do
     @repo.transact_with(fn ->
       with {:ok, proposal} <- Bonfire.Repo.Delete.soft_delete(proposal),
-           :ok <- publish(proposal, :deleted) do
+           :ok <- ValueFlows.Util.publish(proposal, :deleted) do
         {:ok, proposal}
       end
     end)

@@ -2,7 +2,6 @@
 defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   alias ValueFlows.Knowledge.ProcessSpecification
   # alias ValueFlows.Knowledge.ProcessSpecifications
-  alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -33,13 +32,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
 
   def join_to(q, :context, jq) do
     join(q, jq, [process_spec: c], c2 in assoc(c, :context), as: :context)
-  end
-
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [process_spec: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
   end
 
   def join_to(q, :tags, jq) do
@@ -74,10 +66,9 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
     filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:user, %User{id: id}}) do
+  def filter(q, {:user, %User{id: user_id}}) do
     q
-    |> join_to(follow: id)
-    |> where([process_spec: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([process_spec: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
     |> filter(~w(disabled)a)
   end
 

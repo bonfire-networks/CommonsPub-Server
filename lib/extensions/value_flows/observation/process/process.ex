@@ -8,8 +8,7 @@ defmodule ValueFlows.Observation.Process do
 
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  #
-  # alias CommonsPub.Communities.Community
+
   alias ValueFlows.Observation.Process
   # alias Bonfire.Quantify.Measure
 

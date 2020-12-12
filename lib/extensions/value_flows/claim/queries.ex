@@ -3,7 +3,6 @@ defmodule ValueFlows.Claim.Queries do
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  alias CommonsPub.Follows.Follow
   alias CommonsPub.Users.User
   alias ValueFlows.Claim
 
@@ -28,13 +27,6 @@ defmodule ValueFlows.Claim.Queries do
 
   def join_to(q, :context, jq) do
     join(q, jq, [claim: c], c2 in assoc(c, :context), as: :context)
-  end
-
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [claim: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
   end
 
   def filter(q, filters) when is_list(filters) do
@@ -70,10 +62,9 @@ defmodule ValueFlows.Claim.Queries do
     filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:creator, %User{id: id}}) do
+  def filter(q, {:creator, %User{id: user_id}}) do
     q
-    |> join_to(follow: id)
-    |> where([claim: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([claim: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
     |> filter(~w(disabled)a)
   end
 

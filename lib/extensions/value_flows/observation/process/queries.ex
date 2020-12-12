@@ -2,7 +2,6 @@
 defmodule ValueFlows.Observation.Process.Queries do
   alias ValueFlows.Observation.Process
   # alias ValueFlows.Observation.Processes
-  alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -34,13 +33,6 @@ defmodule ValueFlows.Observation.Process.Queries do
 
   def join_to(q, :context, jq) do
     join(q, jq, [process: c], c2 in assoc(c, :context), as: :context)
-  end
-
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [process: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
   end
 
   def join_to(q, :geolocation, jq) do
@@ -101,10 +93,9 @@ defmodule ValueFlows.Observation.Process.Queries do
     filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:user, %User{id: id}}) do
+  def filter(q, {:user, %User{id: user_id}}) do
     q
-    |> join_to(follow: id)
-    |> where([process: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([process: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
     |> filter(~w(disabled)a)
   end
 

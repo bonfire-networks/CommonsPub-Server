@@ -16,11 +16,8 @@ defmodule ValueFlows.Observation.Process.GraphQL do
     # CommonResolver
   }
 
-  # alias CommonsPub.Resources.Resource
   # alias Bonfire.Common.Enums
   # alias Bonfire.Common.Pointers
-  # alias CommonsPub.Communities.Community
-  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Processes

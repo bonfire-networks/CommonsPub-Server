@@ -2,7 +2,6 @@
 defmodule ValueFlows.Planning.Intent.Queries do
   alias ValueFlows.Planning.Intent
   # alias ValueFlows.Planning.Intents
-  alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -29,13 +28,6 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def join_to(q, specs, jq) when is_list(specs) do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
-  end
-
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [intent: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
   end
 
   def join_to(q, :geolocation, jq) do
@@ -95,10 +87,9 @@ defmodule ValueFlows.Planning.Intent.Queries do
     filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:user, %User{id: id}}) do
+  def filter(q, {:user, %User{id: user_id}}) do
     q
-    |> join_to(follow: id)
-    |> where([intent: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([intent: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
     |> filter(~w(disabled)a)
   end
 

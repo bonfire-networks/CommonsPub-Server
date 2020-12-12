@@ -61,7 +61,7 @@ testing:
     - mix compile
     - mix ecto.create
     - make db-pre-migrations
-    - mix ecto.migrate
+    - mix ecto.reset
     # - mix coveralls --preload-modules
     - mix test test/value_flows/ test/extensions/bonfire_quantify test/extensions/bonfire_geolocate
 

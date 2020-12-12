@@ -4,11 +4,9 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
 
   @repo CommonsPub.Repo
 
-  alias CommonsPub.{Activities, Feeds}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
-  # alias CommonsPub.Contexts
-  alias CommonsPub.Feeds.FeedActivities
+
   alias CommonsPub.Users.User
 
   alias ValueFlows.Knowledge.ResourceSpecification
@@ -96,8 +94,8 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
            {:ok, item} <- ValueFlows.Util.try_tag_thing(creator, item, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, item, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.activity_create(creator, item, act_attrs),
+           :ok <- ValueFlows.Util.publish(creator, item, activity, :created) do
         item = %{item | creator: creator}
         index(item)
         {:ok, item}
@@ -105,50 +103,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
     end)
   end
 
-  defp publish(creator, resource_spec, activity, :created) do
-    feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", resource_spec.id, creator.id)
-    end
-  end
-
-  defp publish(creator, context, resource_spec, activity, :created) do
-    feeds = [
-      context.outbox_id,
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", resource_spec.id, creator.id)
-    end
-  end
-
-  defp publish(resource_spec, :updated) do
-    # TODO: wrong if edited by admin
-    ap_publish("update", resource_spec.id, resource_spec.creator_id)
-  end
-
-  defp publish(resource_spec, :deleted) do
-    # TODO: wrong if edited by admin
-    ap_publish("delete", resource_spec.id, resource_spec.creator_id)
-  end
-
-  # FIXME
-  defp ap_publish(verb, context_id, user_id) do
-    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id
-    })
-
-    :ok
-  end
-
-  defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   # @spec update(%ResourceSpecification{}, attrs :: map) :: {:ok, ResourceSpecification.t()} | {:error, Changeset.t()}
@@ -162,7 +116,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
       attrs = prepare_attrs(attrs)
       with {:ok, resource_spec} <- @repo.update(ResourceSpecification.update_changeset(resource_spec, attrs)),
            {:ok, resource_spec} <- ValueFlows.Util.try_tag_thing(nil, resource_spec, attrs) do
-        publish(resource_spec, :updated)
+        ValueFlows.Util.publish(resource_spec, :updated)
         {:ok, resource_spec}
       end
     end)
@@ -171,7 +125,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications do
   def soft_delete(%ResourceSpecification{} = resource_spec) do
     @repo.transact_with(fn ->
       with {:ok, resource_spec} <- Bonfire.Repo.Delete.soft_delete(resource_spec),
-           :ok <- publish(resource_spec, :deleted) do
+           :ok <- ValueFlows.Util.publish(resource_spec, :deleted) do
         {:ok, resource_spec}
       end
     end)

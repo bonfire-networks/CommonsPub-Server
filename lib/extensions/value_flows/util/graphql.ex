@@ -57,7 +57,9 @@ defmodule ValueFlows.Util.GraphQL do
 
   def current_location_edge(%{current_location_id: id} = thing, _, _) when not is_nil(id) do
     thing = @repo.preload(thing, :current_location)
-    {:ok, Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(thing, :current_location, nil))}
+
+    {:ok,
+     Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(thing, :current_location, nil))}
   end
 
   def current_location_edge(_, _, _) do
@@ -82,7 +84,6 @@ defmodule ValueFlows.Util.GraphQL do
   def fetch_resource_conforms_to_edge(_, _, _) do
     {:ok, nil}
   end
-
 
   def available_quantity_edge(%{available_quantity_id: id} = thing, _, _) when not is_nil(id) do
     thing = @repo.preload(thing, available_quantity: [:unit])
@@ -132,5 +133,4 @@ defmodule ValueFlows.Util.GraphQL do
   end
 
   def image_content_url(_, _, _), do: {:ok, nil}
-
 end

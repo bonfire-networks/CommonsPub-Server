@@ -1,14 +1,12 @@
 defmodule CommonsPub.Web.MemberLive.MemberAdsLive do
   use CommonsPub.Web, :live_component
 
-  # import CommonsPub.Utils.Web.CommonHelper
 
   alias CommonsPub.Web.Component.{
     # DiscussionPreviewLive,
     AdsPreviewLive
   }
 
-  # alias CommonsPub.Profiles.Web.ProfilesHelper
 
   # def mount(socket) do
   #   {

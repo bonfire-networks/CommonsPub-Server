@@ -4,11 +4,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   @repo CommonsPub.Repo
 
-  alias CommonsPub.{Activities, Feeds}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
-  # alias CommonsPub.Contexts
-  alias CommonsPub.Feeds.FeedActivities
+
   alias CommonsPub.Users.User
 
   alias ValueFlows.Knowledge.Action.Actions
@@ -107,44 +105,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, intent, act_attrs),
-           :ok <- publish(creator, intent, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.activity_create(creator, intent, act_attrs),
+           :ok <- ValueFlows.Util.publish(creator, intent, activity, :created) do
         intent = %{intent | creator: creator}
         index(intent)
         {:ok, preload_all(intent)}
       end
     end)
-  end
-
-  defp publish(creator, intent, activity, :created) do
-    feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", intent.id, creator.id)
-    end
-  end
-
-  defp publish(intent, :updated) do
-    # TODO: wrong if edited by admin
-    ap_publish("update", intent.id, intent.creator_id)
-  end
-
-  defp publish(intent, :deleted) do
-    # TODO: wrong if edited by admin
-    ap_publish("delete", intent.id, intent.creator_id)
-  end
-
-  # FIXME
-  defp ap_publish(verb, context_id, user_id) do
-    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id
-    })
-
-    :ok
   end
 
   # TODO: take the user who is performing the update
@@ -155,7 +122,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     @repo.transact_with(fn ->
       with {:ok, intent} <- @repo.update(Intent.update_changeset(intent, attrs)),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
-           :ok <- publish(intent, :updated) do
+           :ok <- ValueFlows.Util.publish(intent, :updated) do
         {:ok, preload_all(intent)}
       end
     end)
@@ -164,7 +131,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   def soft_delete(%Intent{} = intent) do
     @repo.transact_with(fn ->
       with {:ok, intent} <- Bonfire.Repo.Delete.soft_delete(intent),
-           :ok <- publish(intent, :deleted) do
+           :ok <- ValueFlows.Util.publish(intent, :deleted) do
         {:ok, intent}
       end
     end)

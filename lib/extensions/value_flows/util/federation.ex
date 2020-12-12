@@ -209,4 +209,16 @@ defmodule ValueFlows.Util.Federation do
     id
   end
 
+    # FIXME
+  def ap_publish(verb, thing_id, user_id) do
+    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
+      "context_id" => thing_id,
+      "user_id" => user_id
+    })
+
+    :ok
+  end
+
+  def ap_publish(_, _, _), do: :ok
+
 end

@@ -6,7 +6,6 @@ defmodule ValueFlows.Knowledge.Action do
   # import Ecto.Enum
 
   # alias Ecto.Changeset
-  # alias CommonsPub.Users.User
   # alias ValueFlows.Knowledge.Action
 
   # defenum label_enum, work: 0, produce: 1, consume: 2, use: 3, consume: 4, transfer: 5

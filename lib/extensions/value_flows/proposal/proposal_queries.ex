@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Proposal.Queries do
-  # alias CommonsPub.Communities
   alias ValueFlows.Proposal
   # alias ValueFlows.Proposal.Proposals
-  alias CommonsPub.Follows.Follow
   alias CommonsPub.Users.User
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -36,13 +34,6 @@ defmodule ValueFlows.Proposal.Queries do
     join(q, jq, [proposal: c], c2 in assoc(c, :context), as: :context)
   end
 
-  def join_to(q, {:follow, follower_id}, jq) do
-    join(q, jq, [proposal: c], f in Follow,
-      as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-    )
-  end
-
   def join_to(q, :geolocation, jq) do
     join(q, jq, [proposal: c], g in assoc(c, :eligible_location), as: :geolocation)
   end
@@ -72,19 +63,23 @@ defmodule ValueFlows.Proposal.Queries do
   def filter(q, {:user, match_admin()}), do: q
 
   def filter(q, {:user, nil}) do
-    filter(q, ~w(private)a)
+    filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:user, %User{id: id}}) do
+  def filter(q, {:user, %User{id: user_id}}) do
     q
-    |> join_to(follow: id)
-    |> where([proposal: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([proposal: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
+    |> filter(~w(disabled)a)
   end
 
   ## by status
 
   def filter(q, :deleted) do
     where(q, [proposal: c], is_nil(c.deleted_at))
+  end
+
+  def filter(q, :disabled) do
+    where(q, [proposal: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do

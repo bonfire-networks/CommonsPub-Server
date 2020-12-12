@@ -4,11 +4,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
 
   @repo CommonsPub.Repo
 
-  alias CommonsPub.{Activities, Feeds}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
-  # alias CommonsPub.Contexts
-  alias CommonsPub.Feeds.FeedActivities
+
   alias CommonsPub.Users.User
 
   alias ValueFlows.Observation.EconomicEvent
@@ -303,8 +301,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            {:ok, event} <- EventSideEffects.event_side_effects(event),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
-           {:ok, activity} <- Activities.create(creator, event, act_attrs),
-           :ok <- publish(creator, event, activity, :created) do
+           {:ok, activity} <- ValueFlows.Util.activity_create(creator, event, act_attrs),
+           :ok <- ValueFlows.Util.publish(creator, event, activity, :created) do
         index(event)
         {:ok, event}
       end
@@ -344,7 +342,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            {:ok, event} <- @repo.update(EconomicEvent.update_changeset(event, attrs)),
            {:ok, event} <- maybe_transfer_resource(event),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
-           :ok <- publish(event, :updated) do
+           :ok <- ValueFlows.Util.publish(event, :updated) do
         {:ok, event}
       end
     end)
@@ -483,42 +481,13 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   def soft_delete(%EconomicEvent{} = event) do
     @repo.transact_with(fn ->
       with {:ok, event} <- Bonfire.Repo.Delete.soft_delete(event),
-           :ok <- publish(event, :deleted) do
+           :ok <- ValueFlows.Util.publish(event, :deleted) do
         {:ok, event}
       end
     end)
   end
 
-  defp publish(creator, event, activity, :created) do
-    feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      Feeds.instance_outbox_id()
-    ]
 
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish("create", event.id, creator.id)
-    end
-  end
-
-  defp publish(event, :updated) do
-    # TODO: wrong if edited by admin
-    ap_publish("update", event.id, event.creator_id)
-  end
-
-  defp publish(event, :deleted) do
-    # TODO: wrong if edited by admin
-    ap_publish("delete", event.id, event.creator_id)
-  end
-
-  # FIXME
-  defp ap_publish(verb, context_id, user_id) do
-    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id
-    })
-
-    :ok
-  end
 
   def indexing_object_format(obj) do
     %{

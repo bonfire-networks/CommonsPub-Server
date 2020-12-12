@@ -7,11 +7,10 @@ defmodule ValueFlows.Proposal do
     source: "vf_proposal",
     table_id: "PR0P0SA11SMADE0FTW01NTENTS"
 
-  import Bonfire.Repo.Changeset, only: [change_public: 1]
+  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
   alias CommonsPub.Users.User
-  #
-  # alias CommonsPub.Communities.Community
+
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal.{ProposedIntent, ProposedTo}
   alias ValueFlows.Planning.Intent
@@ -29,10 +28,13 @@ defmodule ValueFlows.Proposal do
 
     # TODO: should be the same as has_beginning?
     field(:published_at, :utc_datetime_usec)
+    field(:is_public, :boolean, virtual: true)
+
+    field(:is_disabled, :boolean, virtual: true, default: false)
+    field(:disabled_at, :utc_datetime_usec)
 
     field(:deleted_at, :utc_datetime_usec)
 
-    field(:is_public, :boolean, virtual: true)
     field(:unit_based, :boolean, default: false)
 
     belongs_to(:creator, User)

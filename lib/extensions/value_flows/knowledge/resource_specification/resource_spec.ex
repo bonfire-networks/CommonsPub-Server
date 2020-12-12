@@ -10,7 +10,6 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   alias Ecto.Changeset
   alias CommonsPub.Users.User
   #
-  # alias CommonsPub.Communities.Community
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
   alias Bonfire.Quantify.Unit
