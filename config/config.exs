@@ -22,7 +22,7 @@ import_config "bonfire_common.exs"
 import_config "bonfire_api_graphql.exs"
 import_config "bonfire_quantify.exs"
 import_config "bonfire_geolocate.exs"
-# import_config "bonfire_valueflows.exs"
+import_config "bonfire_valueflows.exs"
 
 
 alias CommonsPub.{
@@ -182,6 +182,8 @@ activity_types = Map.keys(activity_modules) ++ ["Create", "Update", "Accept", "A
 inventory_types = Map.keys(inventory_modules)
 object_types = Map.keys(object_modules)
 all_types = actor_types ++ activity_types ++ inventory_types ++ object_types
+
+config :bonfire_valueflows, :all_types, all_types
 
 config :commons_pub, CommonsPub.ActivityPub.Adapter,
   actor_modules: actor_modules,
