@@ -120,6 +120,11 @@ defmodule ValueFlows.Util do
     :ok
   end
 
+  def indexing_format_creator(obj) do
+    if Code.ensure_loaded?(CommonsPub.Search.Indexer),
+      do: CommonsPub.Search.Indexer.format_creator(obj)
+  end
+
   def canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
     canonical_url
   end
