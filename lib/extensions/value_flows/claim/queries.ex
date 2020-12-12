@@ -3,7 +3,7 @@ defmodule ValueFlows.Claim.Queries do
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
   alias ValueFlows.Claim
 
   def query(Claim) do
@@ -62,7 +62,7 @@ defmodule ValueFlows.Claim.Queries do
     filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:creator, %User{id: user_id}}) do
+  def filter(q, {:creator, %{id: user_id}}) do
     q
     |> where([claim: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
     |> filter(~w(disabled)a)

@@ -9,7 +9,7 @@ defmodule ValueFlows.Proposal do
 
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal.{ProposedIntent, ProposedTo}
@@ -37,7 +37,7 @@ defmodule ValueFlows.Proposal do
 
     field(:unit_based, :boolean, default: false)
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
 
     belongs_to(:context, Pointers.Pointer)
 
@@ -54,7 +54,7 @@ defmodule ValueFlows.Proposal do
     ~w(note has_beginning has_end unit_based eligible_location_id context_id)a
 
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         attrs
       ) do
     %Proposal{}

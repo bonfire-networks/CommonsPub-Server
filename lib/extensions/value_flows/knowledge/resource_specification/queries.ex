@@ -2,7 +2,7 @@
 defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
   alias ValueFlows.Knowledge.ResourceSpecification
   # alias ValueFlows.Knowledge.ResourceSpecifications
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   # import Geo.PostGIS
@@ -69,7 +69,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Queries do
     filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:user, %User{id: user_id}}) do
+  def filter(q, {:user, %{id: user_id}}) do
     q
     |> where([resource_spec: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
     |> filter(~w(disabled)a)

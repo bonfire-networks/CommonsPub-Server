@@ -8,7 +8,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2]
 
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
   #
   # alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
@@ -28,7 +28,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
     # TODO hook up unit to contexts/resolvers
     belongs_to(:default_unit_of_effort, Unit, on_replace: :nilify)
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
     belongs_to(:context, Pointers.Pointer)
 
     field(:is_public, :boolean, virtual: true)
@@ -55,7 +55,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   @cast @required ++ ~w(note is_disabled context_id image_id)a
 
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         %{id: _} = context,
         attrs
       ) do
@@ -72,7 +72,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification do
   end
 
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         attrs
       ) do
     %ResourceSpecification{}

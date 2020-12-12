@@ -7,7 +7,7 @@ defmodule ValueFlows.Observation.EconomicResource do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
   alias Ecto.Changeset
 
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias Bonfire.Quantify.Measure
   alias Bonfire.Quantify.Unit
@@ -49,7 +49,7 @@ defmodule ValueFlows.Observation.EconomicResource do
     # TODO relations:
     # lot: ProductBatch
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
@@ -74,7 +74,7 @@ defmodule ValueFlows.Observation.EconomicResource do
     ~w(primary_accountable_id state_id contained_in_id unit_of_effort_id conforms_to_id current_location_id)a
 
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         attrs
       ) do
     %EconomicResource{}

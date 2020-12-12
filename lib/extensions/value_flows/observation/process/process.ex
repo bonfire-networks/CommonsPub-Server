@@ -7,7 +7,7 @@ defmodule ValueFlows.Observation.Process do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Observation.Process
   # alias Bonfire.Quantify.Measure
@@ -57,7 +57,7 @@ defmodule ValueFlows.Observation.Process do
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
@@ -79,7 +79,7 @@ defmodule ValueFlows.Observation.Process do
   @cast @required ++ ~w(note has_beginning has_end finished is_disabled context_id based_on_id)a
 
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         attrs
       ) do
     %Process{}

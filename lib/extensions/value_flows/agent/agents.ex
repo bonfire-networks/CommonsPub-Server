@@ -4,6 +4,8 @@ defmodule ValueFlows.Agent.Agents do
   require Logger
   import Bonfire.Common.Utils, only: [maybe_put: 3]
 
+  @user CommonsPub.Users.User
+
   # TODO - change approach to allow pagination
   def agents(signed_in_user) do
     orgs = ValueFlows.Agent.Organizations.organizations(signed_in_user)
@@ -56,9 +58,7 @@ defmodule ValueFlows.Agent.Agents do
     nil
   end
 
-
-
-  def add_type(%CommonsPub.Users.User{} = a) do
+  def add_type(%@user{} = a) do
     a
     |> Map.put(:agent_type, :person)
   end

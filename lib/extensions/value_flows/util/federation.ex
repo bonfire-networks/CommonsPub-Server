@@ -1,5 +1,4 @@
 defmodule ValueFlows.Util.Federation do
-
   import Bonfire.Common.Utils, only: [maybe_put: 3]
 
   @schema CommonsPub.Web.GraphQL.Schema
@@ -155,7 +154,7 @@ defmodule ValueFlows.Util.Federation do
   end
 
   def ap_deep_key_rename(val, parent_key) when parent_key == "id" do
-    CommonsPub.ActivityPub.Utils.get_object_canonical_url(val)
+    ValueFlows.Util.canonical_url(val)
   end
 
   def ap_deep_key_rename(val, _parent_key) do
@@ -209,16 +208,17 @@ defmodule ValueFlows.Util.Federation do
     id
   end
 
-    # FIXME
+  # FIXME
   def ap_publish(verb, thing_id, user_id) do
-    CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
-      "context_id" => thing_id,
-      "user_id" => user_id
-    })
+    if Code.ensure_loaded?(CommonsPub.Workers.APPublishWorker) do
+      CommonsPub.Workers.APPublishWorker.enqueue(verb, %{
+        "context_id" => thing_id,
+        "user_id" => user_id
+      })
+    end
 
     :ok
   end
 
-  def ap_publish(_, _, _), do: :ok
-
+  # def ap_publish(_, _, _), do: :ok
 end

@@ -8,7 +8,7 @@ defmodule ValueFlows.Claim do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias Bonfire.Quantify.Measure
 
@@ -39,7 +39,7 @@ defmodule ValueFlows.Claim do
     belongs_to(:context, Pointers.Pointer)
 
     # not defined in spec, used internally
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true, default: false)
@@ -54,7 +54,7 @@ defmodule ValueFlows.Claim do
     ~w(note finished agreed_in created due resource_classified_as is_disabled)a ++
     ~w(context_id resource_conforms_to_id triggered_by_id)a
 
-  def create_changeset(%User{} = creator, %{id: _} = provider, %{id: _} = receiver, attrs) do
+  def create_changeset(%{} = creator, %{id: _} = provider, %{id: _} = receiver, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(

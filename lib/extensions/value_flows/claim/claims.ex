@@ -3,7 +3,7 @@ defmodule ValueFlows.Claim.Claims do
   import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_ok_error: 2]
 
   @repo CommonsPub.Repo
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Claim
   alias ValueFlows.Claim.Queries
@@ -20,7 +20,7 @@ defmodule ValueFlows.Claim.Claims do
     claim
   end
 
-  def create(%User{} = creator, %{id: _} = provider, %{id: _} = receiver, %{} = attrs) do
+  def create(%{} = creator, %{id: _} = provider, %{id: _} = receiver, %{} = attrs) do
     @repo.transact_with(fn ->
       attrs = prepare_attrs(attrs)
 

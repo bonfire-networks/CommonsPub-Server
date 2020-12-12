@@ -7,7 +7,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Knowledge.ProcessSpecification
 
@@ -21,7 +21,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
 
     belongs_to(:context, Pointers.Pointer)
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
@@ -43,7 +43,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification do
   @cast @required ++ ~w(note classified_as is_disabled context_id)a
 
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         attrs
       ) do
     %ProcessSpecification{}

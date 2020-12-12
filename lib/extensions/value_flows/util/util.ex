@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util do
   import Bonfire.Common.Utils
+  @repo CommonsPub.Repo
+
+  require Logger
 
   # def try_tag_thing(user, thing, attrs) do
   #   IO.inspect(attrs)
@@ -17,47 +20,126 @@ defmodule ValueFlows.Util do
   # end
 
   def try_tag_thing(user, thing, tags) do
-    CommonsPub.Tag.TagThings.try_tag_thing(user, thing, tags)
+    if Code.ensure_loaded?(CommonsPub.Tag.TagThings) do
+      CommonsPub.Tag.TagThings.try_tag_thing(user, thing, tags)
+    else
+      {:ok, thing}
+    end
   end
 
   def activity_create(creator, item, act_attrs) do
-    CommonsPub.Activities.create(creator, item, act_attrs)
+    if Code.ensure_loaded?(CommonsPub.Activities) do
+      CommonsPub.Activities.create(creator, item, act_attrs)
+    else
+      {:ok, nil}
+    end
   end
 
   def publish(creator, thing, activity, :created) do
-    feeds = [
-      CommonsPub.Feeds.outbox_id(creator),
-      CommonsPub.Feeds.instance_outbox_id()
-    ]
+    feeds =
+      if Code.ensure_loaded?(CommonsPub.Feeds) do
+        [
+          CommonsPub.Feeds.outbox_id(creator),
+          CommonsPub.Feeds.instance_outbox_id()
+        ]
+      end
 
-    with :ok <- CommonsPub.Feeds.FeedActivities.publish(activity, feeds) do
-      ValueFlows.Util.Federation.ap_publish("create", thing.id, creator.id)
+    do_publish_create(creator, thing, activity, feeds)
+  end
+
+  def publish(creator, %{outbox_id: context_outbox_id} = _context, thing, activity, :created) do
+    publish(creator, context_outbox_id, thing, activity, :created)
+  end
+
+  def publish(creator, %{character: _context_character} = context, thing, activity, :created) do
+    @repo.maybe_preload(context, :character)
+    publish(creator, Map.get(context, :character), thing, activity, :created)
+  end
+
+  def publish(creator, context_outbox_id, thing, activity, :created)
+      when is_binary(context_outbox_id) do
+    feeds =
+      if Code.ensure_loaded?(CommonsPub.Feeds) do
+        [
+          context_outbox_id,
+          CommonsPub.Feeds.outbox_id(creator),
+          CommonsPub.Feeds.instance_outbox_id()
+        ]
+      end
+
+    do_publish_create(creator, thing, activity, feeds)
+  end
+
+  def publish(creator, _, thing, activity, verb),
+    do: publish(creator, thing, activity, verb)
+
+  defp do_publish_create(%{id: creator_id}, %{id: thing_id}, activity, feeds) do
+    do_publish_feed_activity(activity, feeds)
+
+    ValueFlows.Util.Federation.ap_publish("create", thing_id, creator_id)
+  end
+
+  defp do_publish_create(_, _, activity, feeds) do
+    do_publish_feed_activity(activity, feeds)
+  end
+
+  defp do_publish_feed_activity(activity, feeds) do
+    if Code.ensure_loaded?(CommonsPub.Feeds) and !is_nil(activity) and is_list(feeds) and
+         length(feeds) > 0 do
+      CommonsPub.Feeds.FeedActivities.publish(activity, feeds)
+    else
+      Logger.warn("Could not publish activity")
+    end
+
+    :ok
+  end
+
+  def publish(%{creator_id: creator_id, id: thing_id}, :updated) do
+    # TODO: wrong if edited by admin
+    ValueFlows.Util.Federation.ap_publish("update", thing_id, creator_id)
+  end
+
+  def publish(%{creator_id: creator_id, id: thing_id}, :deleted) do
+    # TODO: wrong if edited by admin
+    ValueFlows.Util.Federation.ap_publish("delete", thing_id, creator_id)
+  end
+
+  def publish(_, verb) do
+    Logger.warn("Could not publish (#{verb})")
+    :ok
+  end
+
+  def index_for_search(object) do
+    if Code.ensure_loaded?(CommonsPub.Search.Indexer) do
+      CommonsPub.Search.Indexer.maybe_index_object(object)
+    end
+
+    :ok
+  end
+
+  def canonical_url(%{canonical_url: canonical_url}) when not is_nil(canonical_url) do
+    canonical_url
+  end
+
+  def canonical_url(%{character: _character} = thing) do
+    @repo.maybe_preload(thing, :character)
+    canonical_url(Map.get(thing, :character))
+  end
+
+  def canonical_url(object) do
+    if Code.ensure_loaded?(CommonsPub.ActivityPub.Utils) do
+      CommonsPub.ActivityPub.Utils.get_object_canonical_url(object)
+    else
+      generate_canonical_url(object)
     end
   end
 
-  def publish(creator, nil, thing, activity, :created),
-    do: publish(creator, thing, activity, :created)
-
-  def publish(creator, context, thing, activity, :created) do
-    feeds = [
-      context.outbox_id,
-      CommonsPub.Feeds.outbox_id(creator),
-      CommonsPub.Feeds.instance_outbox_id()
-    ]
-
-    with :ok <- CommonsPub.Feeds.FeedActivities.publish(activity, feeds) do
-      ValueFlows.Util.Federation.ap_publish("create", thing.id, creator.id)
-    end
+  defp generate_canonical_url(%{id: id}) when is_binary(id) do
+    generate_canonical_url(id)
   end
 
-  def publish(thing, :updated) do
-    # TODO: wrong if edited by admin
-    ValueFlows.Util.Federation.ap_publish("update", thing.id, thing.creator_id)
-  end
-
-  def publish(thing, :deleted) do
-    # TODO: wrong if edited by admin
-    ValueFlows.Util.Federation.ap_publish("delete", thing.id, thing.creator_id)
+  defp generate_canonical_url(id) when is_binary(id) do
+    "/" <> id
   end
 
   def image_url(%{profile_id: profile_id} = thing) when not is_nil(profile_id) do

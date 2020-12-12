@@ -7,7 +7,7 @@ defmodule ValueFlows.Planning.Intent do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias Bonfire.Quantify.Measure
 
@@ -58,7 +58,7 @@ defmodule ValueFlows.Planning.Intent do
     # inverse relationships
     # has_many(:satisfied_by, Satisfaction)
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
     belongs_to(:context, Pointers.Pointer)
 
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
@@ -84,7 +84,7 @@ defmodule ValueFlows.Planning.Intent do
     ~w(note at_location_id is_disabled image_id context_id input_of_id output_of_id)a ++
     ~w(available_quantity_id resource_quantity_id effort_quantity_id resource_conforms_to_id resource_inventoried_as_id provider_id receiver_id)a
 
-  def create_changeset(%User{} = creator, attrs) do
+  def create_changeset(%{} = creator, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)

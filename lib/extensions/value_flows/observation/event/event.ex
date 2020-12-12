@@ -7,7 +7,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
   import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Knowledge.Action
   alias ValueFlows.Knowledge.ResourceSpecification
@@ -63,7 +63,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
     # satisfies: [Satisfaction!]
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
@@ -88,7 +88,7 @@ defmodule ValueFlows.Observation.EconomicEvent do
           ~w(triggered_by_id at_location_id context_id)a
 
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         attrs
       ) do
     %EconomicEvent{}

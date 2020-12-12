@@ -2,7 +2,7 @@
 defmodule ValueFlows.Proposal.Queries do
   alias ValueFlows.Proposal
   # alias ValueFlows.Proposal.Proposals
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
@@ -66,7 +66,7 @@ defmodule ValueFlows.Proposal.Queries do
     filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:user, %User{id: user_id}}) do
+  def filter(q, {:user, %{id: user_id}}) do
     q
     |> where([proposal: c], not is_nil(c.published_at) or c.creator_id == ^user_id)
     |> filter(~w(disabled)a)

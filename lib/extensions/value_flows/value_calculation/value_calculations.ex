@@ -3,7 +3,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
   import Bonfire.Common.Utils, only: [maybe_put: 3, maybe: 2]
 
   @repo CommonsPub.Repo
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.ValueCalculation
   alias ValueFlows.ValueCalculation.Queries
@@ -18,7 +18,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculations do
     calculation
   end
 
-  def create(%User{} = user, attrs) do
+  def create(%{} = user, attrs) do
     attrs = prepare_attrs(attrs)
 
     @repo.transact_with(fn ->

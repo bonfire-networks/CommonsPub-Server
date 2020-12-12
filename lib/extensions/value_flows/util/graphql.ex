@@ -19,9 +19,9 @@ defmodule ValueFlows.Util.GraphQL do
   def serialize_cool_scalar(%{value: value}), do: value
   def serialize_cool_scalar(value), do: value
 
-  @doc "Returns the canonical url for a character"
+  @doc "Returns the canonical url for a thing or character"
   def canonical_url_edge(obj, _, _),
-    do: {:ok, CommonsPub.ActivityPub.Utils.get_object_canonical_url(obj)}
+    do: {:ok, ValueFlows.Util.canonical_url(obj)}
 
   def scope_edge(%{context_id: id}, page_opts, info),
     do: Bonfire.GraphQL.CommonResolver.context_edges(%{context_ids: [id]}, page_opts, info)

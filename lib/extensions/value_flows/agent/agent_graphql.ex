@@ -2,7 +2,6 @@
 defmodule ValueFlows.Agent.GraphQL do
   alias Bonfire.GraphQL
 
-
   require Logger
 
   # use Absinthe.Schema.Notation
@@ -21,20 +20,25 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # with pagination
   def people(page_opts, info) do
-    {:ok, users_pages} = CommonsPub.Web.GraphQL.UsersResolver.users(page_opts, info)
+    people_pages =
+      if Code.ensure_loaded?(CommonsPub.Web.GraphQL.UsersResolver) do
+        with {:ok, users_pages} <- CommonsPub.Web.GraphQL.UsersResolver.users(page_opts, info) do
+          people =
+            Enum.map(
+              users_pages.edges,
+              &(&1
+                |> ValueFlows.Agent.Agents.character_to_agent())
+            )
 
-    people =
-      Enum.map(
-        users_pages.edges,
-        &(&1
-          |> ValueFlows.Agent.Agents.character_to_agent())
-      )
-
-    people_pages = %{
-      edges: people,
-      page_info: users_pages.page_info,
-      total_count: users_pages.total_count
-    }
+          %{
+            edges: people,
+            page_info: users_pages.page_info,
+            total_count: users_pages.total_count
+          }
+        end
+      else
+        []
+      end
 
     {:ok, people_pages}
   end
@@ -50,20 +54,25 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # with pagination
   def organizations(page_opts, info) do
-    {:ok, orgs_pages} = Organisation.GraphQL.Resolver.organisations(page_opts, info)
+    orgz_pages =
+      if Code.ensure_loaded?(Organisation.GraphQL.Resolver) do
+        with {:ok, pages} <- Organisation.GraphQL.Resolver.organisations(page_opts, info) do
+          orgz =
+            Enum.map(
+              pages.edges,
+              &(&1
+                |> ValueFlows.Agent.Agents.character_to_agent())
+            )
 
-    orgz =
-      Enum.map(
-        orgs_pages.edges,
-        &(&1
-          |> ValueFlows.Agent.Agents.character_to_agent())
-      )
-
-    orgz_pages = %{
-      edges: orgz,
-      page_info: orgs_pages.page_info,
-      total_count: orgs_pages.total_count
-    }
+          %{
+            edges: orgz,
+            page_info: pages.page_info,
+            total_count: pages.total_count
+          }
+        end
+      else
+        []
+      end
 
     {:ok, orgz_pages}
   end

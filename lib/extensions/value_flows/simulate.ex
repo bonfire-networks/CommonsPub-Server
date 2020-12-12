@@ -3,8 +3,6 @@ defmodule ValueFlows.Simulate do
   @moduledoc false
 
   import Bonfire.Common.Simulation
-  # import CommonsPub.Utils.Simulate
-  # import CommonsPub.Utils.Trendy
 
   import Bonfire.Quantify.Simulate
 

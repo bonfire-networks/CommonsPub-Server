@@ -7,7 +7,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Knowledge.Action.Actions
   alias ValueFlows.Planning.Intent
@@ -96,8 +96,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
   ## mutations
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  @spec create(any(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def create(%{} = creator, attrs) when is_map(attrs) do
     attrs = prepare_attrs(attrs)
 
     @repo.transact_with(fn ->
@@ -108,7 +108,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, intent, act_attrs),
            :ok <- ValueFlows.Util.publish(creator, intent, activity, :created) do
         intent = %{intent | creator: creator}
-        index(intent)
+        indexing_object_format(intent) |> ValueFlows.Util.index_for_search()
         {:ok, preload_all(intent)}
       end
     end)
@@ -155,13 +155,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
     }
   end
 
-  defp index(obj) do
-    object = indexing_object_format(obj)
-
-    CommonsPub.Search.Indexer.maybe_index_object(object)
-
-    :ok
-  end
 
   defp prepare_attrs(attrs) do
     attrs

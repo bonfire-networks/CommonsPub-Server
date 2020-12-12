@@ -7,7 +7,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Knowledge.ProcessSpecification
   alias ValueFlows.Knowledge.ProcessSpecification.Queries
@@ -85,8 +85,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
 
   ## mutations
 
-  @spec create(User.t(), attrs :: map) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  @spec create(any(), attrs :: map) :: {:ok, ProcessSpecification.t()} | {:error, Changeset.t()}
+  def create(%{} = creator, attrs) when is_map(attrs) do
     @repo.transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
@@ -97,7 +97,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, item, act_attrs),
            :ok <- ValueFlows.Util.publish(creator, item, activity, :created) do
         item = %{item | creator: creator}
-        index(item)
+        indexing_object_format(item) |> ValueFlows.Util.index_for_search()
         {:ok, item}
       end
     end)
@@ -145,13 +145,6 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications do
     }
   end
 
-  defp index(obj) do
-    object = indexing_object_format(obj)
-
-    CommonsPub.Search.Indexer.maybe_index_object(object)
-
-    :ok
-  end
 
   defp prepare_attrs(attrs) do
     attrs

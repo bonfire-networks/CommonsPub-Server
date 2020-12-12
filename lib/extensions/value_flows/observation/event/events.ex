@@ -7,7 +7,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Observation.EconomicEvent
   alias ValueFlows.Observation.EconomicResource.EconomicResources
@@ -277,7 +277,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   @doc """
   Create an Event (with preexisting resources)
   """
-  def create(%User{} = creator, event_attrs) do
+  def create(%{} = creator, event_attrs) do
     new_event_attrs =
       event_attrs
       # fallback if none indicated
@@ -303,7 +303,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
            # FIXME
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, event, act_attrs),
            :ok <- ValueFlows.Util.publish(creator, event, activity, :created) do
-        index(event)
+        indexing_object_format(event) |> ValueFlows.Util.index_for_search()
         {:ok, event}
       end
     end)
@@ -487,8 +487,6 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     end)
   end
 
-
-
   def indexing_object_format(obj) do
     %{
       "index_type" => "EconomicEvent",
@@ -502,11 +500,5 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     }
   end
 
-  defp index(obj) do
-    object = indexing_object_format(obj)
 
-    CommonsPub.Search.Indexer.maybe_index_object(object)
-
-    :ok
-  end
 end

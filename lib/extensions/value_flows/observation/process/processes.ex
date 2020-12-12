@@ -7,7 +7,7 @@ defmodule ValueFlows.Observation.Process.Processes do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Observation.Process
   alias ValueFlows.Observation.Process.Queries
@@ -122,8 +122,8 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   ## mutations
 
-  # @spec create(User.t(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  # @spec create(any(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
+  def create(%{} = creator, attrs) when is_map(attrs) do
     @repo.transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
@@ -133,7 +133,7 @@ defmodule ValueFlows.Observation.Process.Processes do
            # FIXME
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, process, act_attrs),
            :ok <- ValueFlows.Util.publish(creator, process, activity, :created) do
-        index(process)
+        indexing_object_format(process) |> ValueFlows.Util.index_for_search()
         {:ok, preload_all(process)}
       end
     end)
@@ -177,13 +177,6 @@ defmodule ValueFlows.Observation.Process.Processes do
     }
   end
 
-  defp index(obj) do
-    object = indexing_object_format(obj)
-
-    CommonsPub.Search.Indexer.maybe_index_object(object)
-
-    :ok
-  end
 
   defp prepare_attrs(attrs) do
     attrs

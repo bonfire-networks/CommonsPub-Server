@@ -6,7 +6,7 @@ defmodule ValueFlows.Proposal.Proposals do
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
 
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   alias ValueFlows.Proposal
   alias ValueFlows.Proposal
@@ -20,7 +20,6 @@ defmodule ValueFlows.Proposal.Proposals do
   }
 
   alias ValueFlows.Planning.Intent
-
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -114,14 +113,14 @@ defmodule ValueFlows.Proposal.Proposals do
       :creator,
       :eligible_location,
       # pointers, not supported
-      :context,
+      :context
     ])
   end
 
   ## mutations
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  @spec create(any(), attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
+  def create(%{} = creator, attrs) when is_map(attrs) do
     attrs = prepare_attrs(attrs)
 
     @repo.transact_with(fn ->
@@ -129,13 +128,12 @@ defmodule ValueFlows.Proposal.Proposals do
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
            {:ok, activity} <- ValueFlows.Util.activity_create(creator, proposal, act_attrs),
-           :ok <- index(proposal),
            :ok <- ValueFlows.Util.publish(creator, proposal, activity, :created) do
+        indexing_object_format(proposal) |> ValueFlows.Util.index_for_search()
         {:ok, preload_all(proposal)}
       end
     end)
   end
-
 
   # TODO: take the user who is performing the update
   @spec update(%Proposal{}, attrs :: map) :: {:ok, Proposal.t()} | {:error, Changeset.t()}
@@ -196,21 +194,16 @@ defmodule ValueFlows.Proposal.Proposals do
     }
   end
 
-  defp index(obj) do
-    object = indexing_object_format(obj)
-
-    CommonsPub.Search.Indexer.maybe_index_object(object)
-
-    :ok
-  end
-
   def ap_publish_activity(activity_name, proposal) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :proposal, proposal, 3, [:published_in])
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :proposal, proposal, 3, [
+      :published_in
+    ])
   end
 
   defp prepare_attrs(attrs) do
     attrs
-    |> maybe_put(:context_id,
+    |> maybe_put(
+      :context_id,
       attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
     |> maybe_put(:eligible_location_id, attr_get_id(attrs, :eligible_location))

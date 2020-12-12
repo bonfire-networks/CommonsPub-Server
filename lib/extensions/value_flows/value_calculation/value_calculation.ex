@@ -6,7 +6,7 @@ defmodule ValueFlows.ValueCalculation do
     table_id: "VA1VEF10WSVA1VECA1CV1AT10N"
 
   alias Ecto.Changeset
-  alias CommonsPub.Users.User
+  @user CommonsPub.Users.User
 
   @type t :: %__MODULE__{}
 
@@ -14,7 +14,7 @@ defmodule ValueFlows.ValueCalculation do
     field(:formula, :string)
     field(:resource_classified_as, {:array, :string}, virtual: true)
 
-    belongs_to(:creator, User)
+    belongs_to(:creator, @user)
     belongs_to(:context, Pointers.Pointer)
     belongs_to(:value_unit, Bonfire.Quantify.Unit)
   end
@@ -22,7 +22,7 @@ defmodule ValueFlows.ValueCalculation do
   @required ~w(formula)a
   @cast @required ++ ~w(context_id value_unit_id)a
 
-  def create_changeset(%User{} = creator, %{} = attrs) do
+  def create_changeset(%{} = creator, %{} = attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(creator_id: creator.id)
