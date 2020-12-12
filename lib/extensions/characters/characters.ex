@@ -160,19 +160,13 @@ defmodule CommonsPub.Characters do
   end
 
   defp do_create(creator, attrs) when is_map(attrs) do
-    # IO.inspect(character_create: attrs)
 
     Repo.transact_with(fn ->
-      # with {:ok, actor} <- Actors.create(attrs),
       with :ok <- maybe_reserve_username(attrs),
            {:ok, character_attrs} <- create_boxes(attrs),
            {:ok, character} <- insert_character(creator, character_attrs) do
-        #  act_attrs = %{verb: "created", is_local: true},
-        #  {:ok, activity} <- Activities.create(creator, character, act_attrs),
-        #  :ok <- publish(creator, character, activity, :created),
-        #  {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
 
-        maybe_follow(creator, character)
+            maybe_follow(creator, character)
 
         {:ok, character}
       end
