@@ -1,6 +1,6 @@
 defmodule ValueFlows.Observation.EconomicEvent.Migrations do
   use Ecto.Migration
-  # alias CommonsPub.Repo
+  # @repo CommonsPub.Repo
   # alias Ecto.ULID
   import Pointers.Migration
 

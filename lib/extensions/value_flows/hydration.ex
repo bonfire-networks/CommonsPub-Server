@@ -1,9 +1,4 @@
 defmodule ValueFlows.Hydration do
-  alias CommonsPub.Web.GraphQL.{
-
-    # UploadResolver,
-    UsersResolver
-  }
 
   alias ValueFlows.Observation.{
     Process,
@@ -12,12 +7,12 @@ defmodule ValueFlows.Hydration do
 
   def hydrate() do
     agent_fields = %{
-      canonical_url: [
-        resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
-      ],
-      display_username: [
-        resolve: &CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3
-      ],
+      # canonical_url: [
+      #   resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
+      # ],
+      # display_username: [
+      #   resolve: &CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3
+      # ],
       proposals: [
         resolve: &ValueFlows.Proposal.GraphQL.agent_proposals/3
       ],
@@ -82,9 +77,9 @@ defmodule ValueFlows.Hydration do
         published_to: [
           resolve: &ValueFlows.Proposal.ProposedToGraphQL.published_to_edge/3
         ],
-        creator: [
-          resolve: &UsersResolver.creator_edge/3
-        ]
+        # creator: [
+        #   resolve: &UsersResolver.creator_edge/3
+        # ]
       },
       proposed_to: %{
         proposed_to: [
@@ -172,9 +167,9 @@ defmodule ValueFlows.Hydration do
         in_scope_of: [
           resolve: &ValueFlows.Util.GraphQL.scope_edge/3
         ],
-        creator: [
-          resolve: &UsersResolver.creator_edge/3
-        ]
+        # creator: [
+        #   resolve: &UsersResolver.creator_edge/3
+        # ]
       },
       economic_event: %{
         canonical_url: [

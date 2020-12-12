@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Util do
+
+  import Bonfire.Common.Utils
+
   # def try_tag_thing(user, thing, attrs) do
   #   IO.inspect(attrs)
   # end
@@ -43,11 +46,11 @@ defmodule ValueFlows.Util do
   end
 
   def content_url_or_path(content) do
-    CommonsPub.Utils.Web.CommonHelper.e(
+    e(
       content,
       :content_upload,
       :path,
-      CommonsPub.Utils.Web.CommonHelper.e(content, :content_mirror, :url, nil)
+      e(content, :content_mirror, :url, nil)
     )
   end
 

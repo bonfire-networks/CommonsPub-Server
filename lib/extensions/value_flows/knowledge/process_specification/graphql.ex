@@ -3,7 +3,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
 
   require Logger
 
-  alias CommonsPub.{GraphQL, Repo}
+  @repo CommonsPub.Repo
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -151,7 +151,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   end
 
   def create_process_spec(%{process_specification: process_spec_attrs}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, process_spec_attrs, info),
            process_spec_attrs = Map.merge(process_spec_attrs, uploads),
@@ -163,7 +163,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   end
 
   def update_process_spec(%{process_specification: %{id: id} = changes}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
           {:ok, process_spec} <- process_spec(%{id: id}, info),
           :ok <- ensure_update_permission(user, process_spec),
@@ -176,7 +176,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   end
 
   def delete_process_spec(%{id: id}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, process_spec} <- process_spec(%{id: id}, info),
            :ok <- ensure_update_permission(user, process_spec),

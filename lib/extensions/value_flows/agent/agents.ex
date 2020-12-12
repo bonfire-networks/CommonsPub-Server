@@ -2,6 +2,7 @@
 defmodule ValueFlows.Agent.Agents do
   # alias ValueFlows.{Simulate}
   require Logger
+  import Bonfire.Common.Utils, only: [maybe_put: 3]
 
   # TODO - change approach to allow pagination
   def agents(signed_in_user) do
@@ -24,8 +25,8 @@ defmodule ValueFlows.Agent.Agents do
 
   def agent_to_character(a) do
     a
-    |> CommonsPub.Common.maybe_put(:summary, Map.get(a, :note))
-    |> CommonsPub.Common.maybe_put(:geolocation, Map.get(a, :primary_location))
+    |> maybe_put(:summary, Map.get(a, :note))
+    |> maybe_put(:geolocation, Map.get(a, :primary_location))
   end
 
   def character_to_agent(a) do
@@ -33,8 +34,8 @@ defmodule ValueFlows.Agent.Agents do
 
     a
     |> Map.put(:image, ValueFlows.Util.image_url(a))
-    |> CommonsPub.Common.maybe_put(:primary_location, agent_location(a))
-    |> CommonsPub.Common.maybe_put(:note, Map.get(a, :summary))
+    |> maybe_put(:primary_location, agent_location(a))
+    |> maybe_put(:note, Map.get(a, :summary))
     |> add_type()
 
     # |> IO.inspect()

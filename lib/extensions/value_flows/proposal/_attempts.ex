@@ -10,7 +10,7 @@
   #       # "icon" => icon,
   #       "published" => obj.has_beginning
   #     },
-  #     CommonsPub.Common.keys_transform(obj, "to_string")
+  #     keys_transform(obj, "to_string")
   #   )
   # end
 

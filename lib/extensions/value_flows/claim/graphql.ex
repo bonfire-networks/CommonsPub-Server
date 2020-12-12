@@ -2,7 +2,8 @@
 defmodule ValueFlows.Claim.GraphQL do
   require Logger
 
-  alias CommonsPub.{GraphQL, Repo}
+  @repo CommonsPub.Repo
+
   alias Bonfire.Common.Pointers
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{FetchPage, ResolveField, ResolveRootPage}
@@ -45,7 +46,7 @@ defmodule ValueFlows.Claim.GraphQL do
 
 
   def fetch_triggered_by_edge(%{triggered_by_id: id} = thing, _, _) when is_binary(id) do
-    thing = Repo.preload(thing, :triggered_by)
+    thing = @repo.preload(thing, :triggered_by)
     {:ok, Map.get(thing, :triggered_by)}
   end
 

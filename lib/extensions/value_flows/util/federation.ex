@@ -1,5 +1,7 @@
 defmodule ValueFlows.Util.Federation do
 
+  import Bonfire.Common.Utils, only: [maybe_put: 3]
+
   @schema CommonsPub.Web.GraphQL.Schema
   @all_types CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :all_types])
 
@@ -86,13 +88,13 @@ defmodule ValueFlows.Util.Federation do
              "actor" => actor.ap_id,
              "attributedTo" => actor.ap_id
            })
-           |> CommonsPub.Common.maybe_put("context", context.ap_id)
-           |> CommonsPub.Common.maybe_put("name", Map.get(thing, :name, Map.get(thing, :label)))
-           #  |> CommonsPub.Common.maybe_put(
+           |> maybe_put("context", context.ap_id)
+           |> maybe_put("name", Map.get(thing, :name, Map.get(thing, :label)))
+           #  |> maybe_put(
            #    "summary",
            #    Map.get(thing, :note, Map.get(thing, :summary))
            #  )
-           |> CommonsPub.Common.maybe_put("icon", Map.get(object, "image")),
+           |> maybe_put("icon", Map.get(object, "image")),
          activity_params = %{
            actor: actor,
            to: [CommonsPub.ActivityPub.Utils.public_uri(), context.ap_id],

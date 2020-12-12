@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.Process.Processes do
-  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
+  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2]
 
-  alias CommonsPub.{Activities, Feeds, Repo}
+  @repo CommonsPub.Repo
+
+  alias CommonsPub.{Activities, Feeds}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
   # alias CommonsPub.Contexts
@@ -23,14 +25,14 @@ defmodule ValueFlows.Observation.Process.Processes do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(Process, filters))
+  def one(filters), do: @repo.single(Queries.query(Process, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Process, filters))}
+  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(Process, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -51,7 +53,7 @@ defmodule ValueFlows.Observation.Process.Processes do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -124,10 +126,10 @@ defmodule ValueFlows.Observation.Process.Processes do
 
   # @spec create(User.t(), attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, process} <- Repo.insert(Process.create_changeset(creator, attrs)),
+      with {:ok, process} <- @repo.insert(Process.create_changeset(creator, attrs)),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(creator, process, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -173,10 +175,10 @@ defmodule ValueFlows.Observation.Process.Processes do
   # TODO: take the user who is performing the update
   # @spec update(%Process{}, attrs :: map) :: {:ok, Process.t()} | {:error, Changeset.t()}
   def update(%Process{} = process, attrs) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       attrs = prepare_attrs(attrs)
 
-      with {:ok, process} <- Repo.update(Process.update_changeset(process, attrs)),
+      with {:ok, process} <- @repo.update(Process.update_changeset(process, attrs)),
            {:ok, process} <- ValueFlows.Util.try_tag_thing(nil, process, attrs),
            :ok <- publish(process, :updated) do
         {:ok, preload_all(process)}
@@ -185,7 +187,7 @@ defmodule ValueFlows.Observation.Process.Processes do
   end
 
   def soft_delete(%Process{} = process) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, process} <- Bonfire.Repo.Delete.soft_delete(process),
            :ok <- publish(process, :deleted) do
         {:ok, process}
@@ -220,7 +222,7 @@ defmodule ValueFlows.Observation.Process.Processes do
     attrs
     |> maybe_put(:based_on_id, attr_get_id(attrs, :based_on))
     |> maybe_put(:context_id,
-      attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
+      attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
   end
 end

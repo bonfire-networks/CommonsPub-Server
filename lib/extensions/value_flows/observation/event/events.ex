@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
-  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
+  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, maybe_append: 2, map_key_replace: 3]
 
-  alias CommonsPub.{Activities, Feeds, Repo}
+  @repo CommonsPub.Repo
+
+  alias CommonsPub.{Activities, Feeds}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
   # alias CommonsPub.Contexts
@@ -30,14 +32,14 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(EconomicEvent, filters))
+  def one(filters), do: @repo.single(Queries.query(EconomicEvent, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(EconomicEvent, filters))}
+  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(EconomicEvent, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -58,7 +60,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -108,8 +110,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       {
         :ok,
         resources
-        |> CommonsPub.Common.maybe_append(process)
-        |> CommonsPub.Common.maybe_append(to_resource)
+        |> maybe_append(process)
+        |> maybe_append(to_resource)
       }
     end
   end
@@ -149,8 +151,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
       {
         :ok,
         resources
-        |> CommonsPub.Common.maybe_append(resource_inventoried_as)
-        |> CommonsPub.Common.maybe_append(process)
+        |> maybe_append(resource_inventoried_as)
+        |> maybe_append(process)
       }
     end
   end
@@ -290,11 +292,11 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     # IO.inspect(creator: creator)
     # IO.inspect(new_event_attrs: new_event_attrs)
 
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with :ok <- validate_user_involvement(creator, new_event_attrs),
            :ok <- validate_provider_is_primary_accountable(new_event_attrs),
            :ok <- validate_receiver_is_primary_accountable(new_event_attrs),
-           {:ok, event} <- Repo.insert(cs |> EconomicEvent.create_changeset_validate()),
+           {:ok, event} <- @repo.insert(cs |> EconomicEvent.create_changeset_validate()),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(creator, event, new_event_attrs),
            event = preload_all(event),
            {:ok, event} <- maybe_transfer_resource(event),
@@ -334,12 +336,12 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   # TODO: take the user who is performing the update
   # @spec update(%EconomicEvent{}, attrs :: map) :: {:ok, EconomicEvent.t()} | {:error, Changeset.t()}
   def update(user, %EconomicEvent{} = event, attrs) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       event = preload_all(event)
       attrs = prepare_attrs(attrs)
 
       with :ok <- validate_user_involvement(user, event),
-           {:ok, event} <- Repo.update(EconomicEvent.update_changeset(event, attrs)),
+           {:ok, event} <- @repo.update(EconomicEvent.update_changeset(event, attrs)),
            {:ok, event} <- maybe_transfer_resource(event),
            {:ok, event} <- ValueFlows.Util.try_tag_thing(nil, event, attrs),
            :ok <- publish(event, :updated) do
@@ -452,7 +454,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
     |> maybe_put(:action_id, attr_get_id(attrs, :action))
     |> maybe_put(
       :context_id,
-      attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
+      attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
     |> maybe_put(:provider_id, attr_get_id(attrs, :provider))
     |> maybe_put(:receiver_id, attr_get_id(attrs, :receiver))
@@ -469,7 +471,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   defp parse_measurement_attrs(attrs) do
     Enum.reduce(attrs, %{}, fn {k, v}, acc ->
       if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = CommonsPub.Common.map_key_replace(v, :has_unit, :unit_id)
+        v = map_key_replace(v, :has_unit, :unit_id)
         # I have no idea why the numerical value isn't auto converted
         Map.put(acc, k, v)
       else
@@ -479,7 +481,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEvents do
   end
 
   def soft_delete(%EconomicEvent{} = event) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, event} <- Bonfire.Repo.Delete.soft_delete(event),
            :ok <- publish(event, :deleted) do
         {:ok, event}

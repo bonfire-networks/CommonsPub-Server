@@ -7,6 +7,8 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
 
   alias Bonfire.GraphQL.ResolveField
 
+  @repo CommonsPub.Repo
+
   def proposed_to(%{id: id}, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
@@ -37,7 +39,7 @@ defmodule ValueFlows.Proposal.ProposedToGraphQL do
 
   def fetch_proposed_edge(%{proposed_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = CommonsPub.Repo.preload(thing, :proposed)
+    thing = @repo.preload(thing, :proposed)
     {:ok, Map.get(thing, :proposed)}
   end
 

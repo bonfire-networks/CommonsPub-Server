@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Planning.Intent.Intents do
-  import CommonsPub.Common, only: [maybe_put: 3, attr_get_id: 2]
+  import Bonfire.Common.Utils, only: [maybe_put: 3, attr_get_id: 2, maybe: 2, map_key_replace: 3]
 
-  alias CommonsPub.{Activities, Feeds, Repo}
+  @repo CommonsPub.Repo
+
+  alias CommonsPub.{Activities, Feeds}
   # alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{Fields, Page}
   # alias CommonsPub.Contexts
@@ -23,14 +25,14 @@ defmodule ValueFlows.Planning.Intent.Intents do
   * ActivityPub integration
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(Intent, filters))
+  def one(filters), do: @repo.single(Queries.query(Intent, filters))
 
   @doc """
   Retrieves a list of them by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for this (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Intent, filters))}
+  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(Intent, filters))}
 
   def fields(group_fn, filters \\ [])
       when is_function(group_fn, 1) do
@@ -51,7 +53,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -100,8 +102,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
   def create(%User{} = creator, attrs) when is_map(attrs) do
     attrs = prepare_attrs(attrs)
 
-    Repo.transact_with(fn ->
-      with {:ok, intent} <- Repo.insert(Intent.create_changeset(creator, attrs)),
+    @repo.transact_with(fn ->
+      with {:ok, intent} <- @repo.insert(Intent.create_changeset(creator, attrs)),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            act_attrs = %{verb: "created", is_local: true},
            # FIXME
@@ -150,8 +152,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
   def update(%Intent{} = intent, attrs) do
     attrs = prepare_attrs(attrs)
 
-    Repo.transact_with(fn ->
-      with {:ok, intent} <- Repo.update(Intent.update_changeset(intent, attrs)),
+    @repo.transact_with(fn ->
+      with {:ok, intent} <- @repo.update(Intent.update_changeset(intent, attrs)),
            {:ok, intent} <- ValueFlows.Util.try_tag_thing(nil, intent, attrs),
            :ok <- publish(intent, :updated) do
         {:ok, preload_all(intent)}
@@ -160,7 +162,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   def soft_delete(%Intent{} = intent) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, intent} <- Bonfire.Repo.Delete.soft_delete(intent),
            :ok <- publish(intent, :deleted) do
         {:ok, intent}
@@ -198,7 +200,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     attrs
     |> maybe_put(:action_id, attr_get_id(attrs, :action))
     |> maybe_put(:context_id,
-      attrs |> Map.get(:in_scope_of) |> CommonsPub.Common.maybe(&List.first/1)
+      attrs |> Map.get(:in_scope_of) |> maybe(&List.first/1)
     )
     |> maybe_put(:at_location_id, attr_get_id(attrs, :at_location))
     |> maybe_put(:provider_id, attr_get_id(attrs, :provider))
@@ -213,7 +215,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   defp parse_measurement_attrs(attrs) do
     Enum.reduce(attrs, %{}, fn {k, v}, acc ->
       if is_map(v) and Map.has_key?(v, :has_unit) do
-        v = CommonsPub.Common.map_key_replace(v, :has_unit, :unit_id)
+        v = map_key_replace(v, :has_unit, :unit_id)
         # I have no idea why the numerical value isn't auto converted
         Map.put(acc, k, v)
       else

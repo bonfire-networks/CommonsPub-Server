@@ -5,7 +5,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   require Logger
 
-  alias CommonsPub.Repo
+  @repo CommonsPub.Repo
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -354,7 +354,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   def fetch_unit_of_effort_edge(%{unit_of_effort_id: id} = thing, _, info)
     when is_binary(id) do
-      thing = Repo.preload(thing, :unit_of_effort)
+      thing = @repo.preload(thing, :unit_of_effort)
       {:ok, Map.get(thing, :unit_of_effort)}
   end
 
@@ -364,7 +364,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
 
   def fetch_contained_in_edge(%{contained_in_id: id} = thing, _, _info)
     when is_binary(id) do
-    thing = Repo.preload(thing, :contained_in)
+    thing = @repo.preload(thing, :contained_in)
     {:ok, Map.get(thing, :contained_in)}
   end
 
@@ -373,7 +373,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
   def fetch_conforms_to_edge(%{conforms_to_id: id} = thing, _, _) when is_binary(id) do
-    thing = Repo.preload(thing, :conforms_to)
+    thing = @repo.preload(thing, :conforms_to)
     {:ok, Map.get(thing, :conforms_to)}
   end
 
@@ -401,7 +401,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
   def create_resource(%{economic_resource: resource_attrs}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, resource_attrs, info),
            resource_attrs = Map.merge(resource_attrs, uploads),
@@ -413,7 +413,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
   def update_resource(%{resource: changes}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       do_update(changes, info, fn resource, changes ->
         EconomicResources.update(resource, changes)
       end)
@@ -432,7 +432,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
   def delete_resource(%{id: id}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, resource} <- resource(%{id: id}, info),
            :ok <- ensure_update_permission(user, resource),

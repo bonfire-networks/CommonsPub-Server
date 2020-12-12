@@ -2,7 +2,7 @@
 defmodule ValueFlows.Observation.Process.GraphQL do
   require Logger
 
-  alias CommonsPub.Repo
+  @repo CommonsPub.Repo
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -204,7 +204,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
 
   def fetch_based_on_edge(%{based_on_id: id} = thing, _, _)
       when is_binary(id) do
-    thing = Repo.preload(thing, :based_on)
+    thing = @repo.preload(thing, :based_on)
     {:ok, Map.get(thing, :based_on)}
   end
 
@@ -241,7 +241,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   end
 
   def create_process(%{process: process_attrs}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, uploads} <- UploadResolver.upload(user, process_attrs, info),
            process_attrs = Map.merge(process_attrs, uploads),
@@ -264,7 +264,7 @@ defmodule ValueFlows.Observation.Process.GraphQL do
   end
 
   def delete_process(%{id: id}, info) do
-    Repo.transact_with(fn ->
+    @repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, process} <- process(%{id: id}, info),
            :ok <- ensure_update_permission(user, process),

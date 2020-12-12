@@ -1,7 +1,7 @@
 defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
   # import Logger
 
-  alias CommonsPub.Repo
+  @repo CommonsPub.Repo
 
   alias ValueFlows.Observation.EconomicEvent
   # alias ValueFlows.Observation.EconomicEvent.EconomicEvents
@@ -15,7 +15,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventSideEffects do
         } = event
       ) do
     event =
-      Repo.preload(event,
+      @repo.preload(event,
         resource_inventoried_as: [:accounting_quantity, :onhand_quantity],
         to_resource_inventoried_as: [:accounting_quantity, :onhand_quantity]
       )

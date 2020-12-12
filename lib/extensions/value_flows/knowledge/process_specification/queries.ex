@@ -4,7 +4,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.Queries do
   # alias ValueFlows.Knowledge.ProcessSpecifications
   alias CommonsPub.Follows.{Follow}
   alias CommonsPub.Users.User
-  import CommonsPub.Repo, only: [match_admin: 0]
+  import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
   # import Geo.PostGIS
 
