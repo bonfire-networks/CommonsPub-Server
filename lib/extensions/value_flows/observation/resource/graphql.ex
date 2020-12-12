@@ -18,11 +18,6 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
     # CommonResolver
   }
 
-  # alias CommonsPub.Resources.Resource
-  # alias Bonfire.Common.Enums
-  # alias Bonfire.Common.Pointers
-  # alias CommonsPub.Communities.Community
-  # alias CommonsPub.Web.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Observation.EconomicResource
   alias ValueFlows.Observation.EconomicResource.EconomicResources
@@ -42,7 +37,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQL do
   end
 
   def simulate(_, _) do
-    {:ok, CommonsPub.Utils.Trendy.some(1..5, &ValueFlows.Simulate.economic_resource/0)}
+    {:ok, Bonfire.Common.Simulation.some(1..5, &ValueFlows.Simulate.economic_resource/0)}
   end
 
   def resource(%{id: id}, info) do

@@ -25,7 +25,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQL do
   end
 
   def simulate(_, _) do
-    {:ok, CommonsPub.Utils.Trendy.some(1..5, &ValueFlows.Simulate.process_specification/0)}
+    {:ok, Bonfire.Common.Simulation.some(1..5, &ValueFlows.Simulate.process_specification/0)}
   end
 
   def process_spec(%{id: id}, info) do

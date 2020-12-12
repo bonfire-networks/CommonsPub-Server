@@ -27,7 +27,7 @@ defmodule ValueFlows.Observation.EconomicEvent.GraphQL do
   end
 
   def simulate(_, _) do
-    {:ok, CommonsPub.Utils.Trendy.some(1..5, &ValueFlows.Simulate.economic_event/0)}
+    {:ok, Bonfire.Common.Simulation.some(1..5, &ValueFlows.Simulate.economic_event/0)}
   end
 
   def event(%{id: id}, info) do
