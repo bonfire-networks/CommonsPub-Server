@@ -2,6 +2,9 @@
 defmodule ValueFlows.Util do
   import Bonfire.Common.Utils
   @repo CommonsPub.Repo
+  # @user Application.get_env(:bonfire_valueflows, :user_schema)
+  @user CommonsPub.Users.User
+  @image_schema CommonsPub.Uploads.Content
 
   require Logger
 
@@ -185,6 +188,22 @@ defmodule ValueFlows.Util do
     |> case do
       {:error, _} = e -> e
       cs -> {:ok, cs}
+    end
+  end
+
+  def user_schema() do
+    if Code.ensure_loaded?(@user) do
+      @user
+    else
+      Pointers.Pointer
+    end
+  end
+
+  def image_schema() do
+    if Code.ensure_loaded?(@image_schema) do
+      @image_schema
+    else
+      Pointers.Pointer
     end
   end
 end

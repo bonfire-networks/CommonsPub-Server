@@ -13,7 +13,7 @@ defmodule ValueFlows.Observation.Process.Migrations do
       add(:name, :string)
       add(:note, :text)
 
-      # add(:image_id, references(:mn_content))
+      # add(:image_id, weak_pointer(ValueFlows.Util.image_schema()), null: true)
 
       add(:has_beginning, :timestamptz)
       add(:has_end, :timestamptz)
@@ -27,7 +27,7 @@ defmodule ValueFlows.Observation.Process.Migrations do
       # optional context as in_scope_of
       add(:context_id, weak_pointer(), null: true)
 
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

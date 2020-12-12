@@ -155,6 +155,7 @@ dev-deps-clean: init ## Upgrade a dep, eg: `make dev-dep-update lib=plug`
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix cpub.deps.clean
 
 dev-deps-update-all: init ## Upgrade all deps
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web rm -rf deps/bonfire*
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.update --all
 	make dev-licenses
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm update --prefix assets && npm outdated --prefix assets

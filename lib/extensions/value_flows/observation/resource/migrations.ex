@@ -17,7 +17,7 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
       add(:note, :text)
       add(:tracking_identifier, :text)
 
-      add(:image_id, references(:mn_content))
+      add(:image_id, weak_pointer(ValueFlows.Util.image_schema()), null: true)
 
       add(:conforms_to_id, weak_pointer(ResourceSpecification), null: true)
 
@@ -34,14 +34,14 @@ defmodule ValueFlows.Observation.EconomicResource.Migrations do
 
       add(:accounting_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
       add(:onhand_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
-      add(:unit_of_effort_id, references("measurement_unit", on_delete: :nilify_all))
+      add(:unit_of_effort_id, weak_pointer(Bonfire.Quantify.Unit), null: true)
 
       add(:stage_id, weak_pointer(ProcessSpecification), null: true)
 
       # optional context as in_scope_of
       add(:context_id, weak_pointer(), null: true)
 
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

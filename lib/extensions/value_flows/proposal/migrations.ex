@@ -3,7 +3,7 @@ defmodule ValueFlows.Proposal.Migrations do
   # alias Ecto.ULID
   import Pointers.Migration
 
-  defp proposal_table(), do: ValueFlows.Proposal.__schema__(:source)
+  # defp proposal_table(), do: ValueFlows.Proposal.__schema__(:source)
 
   defp proposed_intent_table(),
     do: ValueFlows.Proposal.ProposedIntent.__schema__(:source)
@@ -16,7 +16,7 @@ defmodule ValueFlows.Proposal.Migrations do
       add(:name, :string)
       add(:note, :text)
 
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
 
       add(:eligible_location_id, weak_pointer(Bonfire.Geolocate.Geolocation), null: true)
 
@@ -40,8 +40,8 @@ defmodule ValueFlows.Proposal.Migrations do
       # Note: null allowed
       add(:reciprocal, :boolean, null: true)
       add(:deleted_at, :timestamptz)
-      add(:publishes_id, references("vf_intent", on_delete: :delete_all), null: false)
-      add(:published_in_id, references(proposal_table(), on_delete: :delete_all), null: false)
+      add(:publishes_id, strong_pointer(ValueFlows.Planning.Intent), null: false)
+      add(:published_in_id, strong_pointer(ValueFlows.Proposal), null: false)
     end
 
     create table(proposed_to_table()) do

@@ -15,7 +15,7 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
       # add(:name, :string)
       add(:note, :text)
 
-      # add(:image_id, references(:mn_content))
+      # add(:image_id, weak_pointer(ValueFlows.Util.image_schema()), null: true)
 
       add(:action_id, :string)
 
@@ -50,7 +50,7 @@ defmodule ValueFlows.Observation.EconomicEvent.Migrations do
 
       add(:triggered_by_id, weak_pointer(EconomicEvent), null: true)
 
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

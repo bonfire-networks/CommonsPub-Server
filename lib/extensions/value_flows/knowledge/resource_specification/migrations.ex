@@ -14,16 +14,16 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.Migrations do
       add(:name, :string)
       add(:note, :text)
 
-      add(:image_id, references(:mn_content))
+      add(:image_id, weak_pointer(ValueFlows.Util.image_schema()), null: true)
 
       # add(:resource_classified_as, {:array, :string}, virtual: true)
 
-      add(:default_unit_of_effort_id, references("measurement_unit", on_delete: :nilify_all))
+      add(:default_unit_of_effort_id, weak_pointer(Bonfire.Quantify.Unit), null: true)
 
       # optional context as in_scope_of
       add(:context_id, weak_pointer(), null: true)
 
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)

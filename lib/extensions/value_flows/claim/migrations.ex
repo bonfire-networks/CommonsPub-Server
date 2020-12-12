@@ -24,7 +24,7 @@ defmodule ValueFlows.Claim.Migrations do
       add(:resource_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
       add(:effort_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
 
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
       add(:context_id, weak_pointer(), null: true)
 
       add(:published_at, :timestamptz)

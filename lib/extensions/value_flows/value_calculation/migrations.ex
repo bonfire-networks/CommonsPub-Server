@@ -9,7 +9,7 @@ defmodule ValueFlows.ValueCalculation.Migrations do
       # TODO: consider max size
       add(:formula, :string, length: 5000, null: false)
 
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
       add(:context_id, weak_pointer(), null: true)
       add(:value_unit_id, weak_pointer(Bonfire.Quantify.Unit), null: true)
     end

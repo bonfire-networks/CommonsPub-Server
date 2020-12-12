@@ -20,7 +20,7 @@ defmodule ValueFlows.Planning.Intent.Migrations do
 
       add(:action_id, :string)
 
-      add(:image_id, references(:mn_content))
+      add(:image_id, weak_pointer(ValueFlows.Util.image_schema()), null: true)
 
       add(:provider_id, weak_pointer(), null: true)
       add(:receiver_id, weak_pointer(), null: true)
@@ -31,7 +31,7 @@ defmodule ValueFlows.Planning.Intent.Migrations do
       add(:resource_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
       add(:effort_quantity_id, weak_pointer(Bonfire.Quantify.Measure), null: true)
 
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(ValueFlows.Util.user_schema()), null: true)
 
       # optional context as scope
       add(:context_id, weak_pointer(), null: true)
