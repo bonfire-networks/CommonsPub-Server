@@ -11,7 +11,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "proposal" do
     test "fetches a proposal by ID (via GraphQL HTTP)" do

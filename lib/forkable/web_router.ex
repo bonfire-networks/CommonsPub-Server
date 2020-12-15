@@ -11,7 +11,7 @@ defmodule CommonsPub.Web.Router do
   use ActivityPubWeb.Router
   use NodeinfoWeb.Router
 
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   if Mix.env() == :dev do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug

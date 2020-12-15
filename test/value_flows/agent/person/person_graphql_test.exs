@@ -14,7 +14,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "person" do
     test "fetches an existing person by id (via HTTP)" do

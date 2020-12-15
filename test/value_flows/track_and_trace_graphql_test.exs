@@ -15,7 +15,7 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
   alias ValueFlows.Observation.EconomicEvent.EconomicEvents
   alias ValueFlows.Observation.EconomicResource.EconomicResources
 
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "Trace" do
     test "3 level nesting" do

@@ -17,7 +17,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
   import Bonfire.Geolocate.Test.Faking
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "EconomicResource" do
     test "fetches a basic economic resource by ID" do

@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Web.GraphQL.Schema do
+defmodule Bonfire.GraphQL.Schema do
   @moduledoc "Root GraphQL Schema"
   use Absinthe.Schema
+
+  import Bonfire.GraphQL.SchemaUtils
 
   require Logger
 
@@ -18,22 +20,24 @@ defmodule CommonsPub.Web.GraphQL.Schema do
     middleware ++ [CollapseErrors]
   end
 
+  import_types(Bonfire.GraphQL.JSON)
+  import_types(Bonfire.GraphQL.Cursor)
+  import_types(Bonfire.GraphQL.CommonSchema)
+
+  import_types(CommonsPub.Web.GraphQL.MiscSchema)
+
   import_types(CommonsPub.Web.GraphQL.AccessSchema)
   import_types(CommonsPub.Web.GraphQL.ActivitiesSchema)
   import_types(CommonsPub.Web.GraphQL.AdminSchema)
   import_types(CommonsPub.Web.GraphQL.BlocksSchema)
   import_types(CommonsPub.Web.GraphQL.CollectionsSchema)
   import_types(CommonsPub.Web.GraphQL.CommentsSchema)
-  import_types(Bonfire.GraphQL.CommonSchema)
   import_types(CommonsPub.Web.GraphQL.CommunitiesSchema)
-  import_types(Bonfire.GraphQL.Cursor)
   import_types(CommonsPub.Web.GraphQL.FeaturesSchema)
   import_types(CommonsPub.Web.GraphQL.FlagsSchema)
   import_types(CommonsPub.Web.GraphQL.FollowsSchema)
   import_types(CommonsPub.Web.GraphQL.InstanceSchema)
-  import_types(Bonfire.GraphQL.JSON)
   import_types(CommonsPub.Web.GraphQL.LikesSchema)
-  import_types(CommonsPub.Web.GraphQL.MiscSchema)
   import_types(CommonsPub.Web.GraphQL.ResourcesSchema)
   import_types(CommonsPub.Web.GraphQL.ThreadsSchema)
   import_types(CommonsPub.Web.GraphQL.UsersSchema)
@@ -42,13 +46,19 @@ defmodule CommonsPub.Web.GraphQL.Schema do
   # Extension Modules
   import_types(CommonsPub.Profiles.GraphQL.Schema)
   import_types(CommonsPub.Characters.GraphQL.Schema)
+
   import_types(Organisation.GraphQL.Schema)
+
   import_types(CommonsPub.Locales.GraphQL.Schema)
+
   import_types(CommonsPub.Tag.GraphQL.TagSchema)
   import_types(Taxonomy.GraphQL.TaxonomySchema)
+
   import_types(Bonfire.Quantify.Units.GraphQL)
   import_types(Bonfire.Geolocate.GraphQL)
+
   import_types(ValueFlows.Schema)
+
 
   query do
     import_fields(:access_queries)
@@ -70,27 +80,31 @@ defmodule CommonsPub.Web.GraphQL.Schema do
     # Extension Modules
     import_fields(:profile_queries)
     import_fields(:character_queries)
-    import_fields(:organisations_queries)
-    import_fields(:tag_queries)
 
-    # Taxonomy
-    import_fields(:locales_queries)
+    import_fields(:organisations_queries)
+
+    import_fields(:tag_queries)
     import_fields(:taxonomy_queries)
 
-    # ValueFlows
+    import_fields(:locales_queries)
+
     import_fields(:measurement_query)
+
     import_fields(:geolocation_query)
+
+    # ValueFlows
     import_fields(:value_flows_query)
     # import_fields(:value_flows_extra_queries)
   end
 
   mutation do
+    import_fields(:common_mutations)
+
     import_fields(:access_mutations)
     import_fields(:admin_mutations)
     import_fields(:blocks_mutations)
     import_fields(:collections_mutations)
     import_fields(:comments_mutations)
-    import_fields(:common_mutations)
     import_fields(:communities_mutations)
     import_fields(:features_mutations)
     import_fields(:flags_mutations)
@@ -103,12 +117,17 @@ defmodule CommonsPub.Web.GraphQL.Schema do
     # Extension Modules
     import_fields(:profile_mutations)
     import_fields(:character_mutations)
+
     import_fields(:organisations_mutations)
+
     import_fields(:tag_mutations)
     import_fields(:taxonomy_mutations)
-    # ValueFlows
+
     import_fields(:geolocation_mutation)
     import_fields(:measurement_mutation)
+
+    # ValueFlows
+
     import_fields(:value_flows_mutation)
 
     @desc "Fetch metadata from webpage"

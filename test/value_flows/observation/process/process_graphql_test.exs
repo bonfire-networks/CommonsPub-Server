@@ -12,7 +12,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
   alias ValueFlows.Observation.Process.Processes
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "Process" do
     test "fetches a basic process by ID (via HTTP)" do

@@ -11,7 +11,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.GraphQLTest do
   alias ValueFlows.Knowledge.ResourceSpecification.ResourceSpecifications
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "resourceSpecification" do
     test "fetches a resource specification by ID" do

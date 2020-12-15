@@ -118,7 +118,8 @@ defmodule CommonsPub.Mixfile do
       {
         :activity_pub,
         # , path: "cpub_bonfire_dev/activitypub"
-        git: "https://gitlab.com/CommonsPub/activitypub", branch: "tbd"
+        git: "https://gitlab.com/CommonsPub/activitypub", branch: "tbd",
+        override: true
       },
       {:nodeinfo, git: "https://github.com/voxpub/nodeinfo", branch: "main"},
       # webserver

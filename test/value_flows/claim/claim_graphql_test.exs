@@ -8,7 +8,7 @@ defmodule ValueFlows.Claim.GraphQLTest do
   import ValueFlows.Simulate
   import ValueFlows.Test.Faking
 
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "Claim" do
     test "fetches a claim by ID (via HTTP)" do

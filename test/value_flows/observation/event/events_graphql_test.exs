@@ -21,7 +21,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
   import Bonfire.Geolocate.Test.Faking
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "EconomicEvent" do
     test "fetches an economic event by ID (via HTTP)" do

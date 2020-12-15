@@ -10,7 +10,7 @@ defmodule Valueflows.Knowledge.Action.GraphQLTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "action" do
     test "fetches an existing action by label (via HTTP)" do

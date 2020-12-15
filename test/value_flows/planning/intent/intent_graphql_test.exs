@@ -19,7 +19,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   alias ValueFlows.Planning.Intent.Intents
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "intent" do
     test "fetches an existing intent by ID (via Graphql/HTTP)" do

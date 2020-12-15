@@ -10,7 +10,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
   alias ValueFlows.Knowledge.ProcessSpecification.ProcessSpecifications
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "processSpecification" do
     test "fetches a process specification by ID (via HTTP)" do

@@ -12,7 +12,7 @@ defmodule ValueFlows.Proposal.FederateTest do
   import ValueFlows.Test.Faking
 
   @debug false
-  @schema CommonsPub.Web.GraphQL.Schema
+  @schema Bonfire.GraphQL.Schema
 
   describe "proposal" do
     test "federates/publishes a proposal" do
