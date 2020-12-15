@@ -67,3 +67,5 @@ config :commons_pub, CommonsPub.Uploads,
   directory: File.cwd!() <> "/test_uploads",
   path: "/uploads",
   base_url: "http://localhost:4001/uploads/"
+
+config :bonfire_search, disable_indexing: true

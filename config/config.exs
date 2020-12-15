@@ -23,6 +23,7 @@ import_config "bonfire_api_graphql.exs"
 import_config "bonfire_quantify.exs"
 import_config "bonfire_geolocate.exs"
 import_config "bonfire_valueflows.exs"
+import_config "bonfire_search.exs"
 
 
 alias CommonsPub.{
