@@ -2,11 +2,12 @@
 
 defmodule Bonfire.Search.Indexer do
   require Logger
-  # alias CommonsPub.Utils.Web.CommonHelper
 
   @public_index "public"
-  @public_facets ["username", "index_type", "index_instance"] # TODO: put in config
-  @adapter Bonfire.Search.Meili # Application.get_env(:bonfire_search, :adapter)
+  # TODO: put in config
+  @public_facets ["username", "index_type", "index_instance"]
+  # Application.get_env(:bonfire_search, :adapter)
+  @adapter Bonfire.Search.Meili
 
   def maybe_index_object(object) do
     indexable_object = maybe_indexable_object(object)
@@ -32,41 +33,16 @@ defmodule Bonfire.Search.Indexer do
   end
 
   def maybe_indexable_object(%{__struct__: object_type} = object) do
-    # already formatted indexable object
-    # object_type = Map.get(object, :__struct__)
-
-    if(
-      !is_nil(object_type) and
-        CommonsPub.Config.module_enabled?(object_type) and
-        Kernel.function_exported?(object_type, :context_module, 0)
-    ) do
-      object_context_module = apply(object_type, :context_module, [])
-
-      if(
-        CommonsPub.Config.module_enabled?(object_context_module) and
-          Kernel.function_exported?(object_context_module, :indexing_object_format, 1)
-      ) do
-        # IO.inspect(function_exists_in: object_context_module)
-        indexable_object = apply(object_context_module, :indexing_object_format, [object])
-        indexable_object
-      else
-        Logger.warn(
-          "Could not index #{object_type} object (no context module with indexing_object_format/1)"
-        )
-
-        nil
-      end
-    else
-      Logger.warn(
-        "Could not index #{object_type} object (not a known type or context_module undefined)"
-      )
-
-      nil
-    end
+    Bonfire.Contexts.run_context_function(
+      object_type,
+      :indexing_object_format,
+      object
+    )
   end
 
+
   def maybe_indexable_object(obj) do
-    Logger.warn("Could not index object (not formated for indexing or not a struct)")
+    Logger.warn("Could not index object (not pre-formated for indexing or not a struct)")
     IO.inspect(obj)
     nil
   end
@@ -82,7 +58,7 @@ defmodule Bonfire.Search.Indexer do
 
   def index_objects(objects, index_name, init_index_first) when is_list(objects) do
     # IO.inspect(objects)
-    if System.get_env("SEARCH_INDEXING_DISABLED") !="true" do
+    if System.get_env("SEARCH_INDEXING_DISABLED") != "true" do
       # FIXME - should create the index only once
       if init_index_first, do: init_index(index_name, true)
       @adapter.put(objects, index_name <> "/documents")
@@ -120,7 +96,7 @@ defmodule Bonfire.Search.Indexer do
 
   defp delete_object(_object_id) do
     # TODO
-    #@adapter.delete(object_id)
+    # @adapter.delete(object_id)
   end
 
   def host(url) when is_binary(url) do
@@ -142,12 +118,12 @@ defmodule Bonfire.Search.Indexer do
   end
 
   def format_creator(%{id: id} = creator) when not is_nil(id) do
-
     %{
       "id" => creator.id,
-      "name" => creator.name,
-      "username" => CommonsPub.Characters.display_username(creator),
-      "canonical_url" => CommonsPub.ActivityPub.Utils.get_actor_canonical_url(creator)
+      "name" => creator.name
+      # FIXME
+      # "username" => CommonsPub.Characters.display_username(creator),
+      # "canonical_url" => CommonsPub.ActivityPub.Utils.get_actor_canonical_url(creator)
     }
   end
 

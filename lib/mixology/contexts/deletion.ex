@@ -28,16 +28,16 @@ defmodule CommonsPub.Contexts.Deletion do
 
   defp do_trigger_soft_delete(%{__struct__: object_type} = context, current_user) do
     with {:error, _e} <-
-           CommonsPub.Contexts.run_context_function(
+           Bonfire.Contexts.run_context_function(
              object_type,
              :soft_delete,
              [current_user, context],
              &log_unable/2
            ) do
-      CommonsPub.Contexts.run_context_function(
+      Bonfire.Contexts.run_context_function(
         object_type,
         :soft_delete,
-        [context],
+        context,
         &log_unable/2
       )
     end

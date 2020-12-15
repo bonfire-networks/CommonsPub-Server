@@ -1,7 +1,5 @@
 defmodule Bonfire.Search.Web.FormLive do
-  use CommonsPub.Web, :live_component
-
-  #
+  use Bonfire.Web, :live_component
 
   def handle_event("search", params, %{assigns: _assigns} = socket) do
     IO.inspect(search: params)

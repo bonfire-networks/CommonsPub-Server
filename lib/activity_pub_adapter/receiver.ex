@@ -181,7 +181,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
   end
 
   def handle_activity_with(module, activity, object) do
-    CommonsPub.Contexts.run_context_function(
+    Bonfire.Contexts.run_context_function(
       module,
       :ap_receive_activity,
       [activity, object]

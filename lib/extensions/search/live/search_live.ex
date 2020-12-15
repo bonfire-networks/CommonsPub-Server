@@ -1,16 +1,11 @@
 defmodule Bonfire.Search.Web.SearchLive do
-  use CommonsPub.Web, :live_view
+  use Bonfire.Web, :live_view
 
-
-
-  # alias CommonsPub.Web.Component.{
-  #   TabNotFoundLive
-  # }
 
   alias Bonfire.Search.Web.ResultsLive
 
   def mount(params, session, socket) do
-    socket = init_assigns(params, session, socket)
+    # socket = init_assigns(params, session, socket)
     IO.inspect(params, label: "PARAMS")
 
     {:ok,
