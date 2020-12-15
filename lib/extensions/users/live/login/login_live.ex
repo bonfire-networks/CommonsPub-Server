@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.LoginLive do
   use CommonsPub.Web, :live_view
-  import CommonsPub.Utils.Web.CommonHelper
+
   alias CommonsPub.Web.LoginForm
 
   def mount(params, session, socket) do

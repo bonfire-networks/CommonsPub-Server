@@ -69,7 +69,7 @@ defmodule CommonsPub.Users do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.insert(User.register_changeset(attrs)),
            {:ok, character} <- CommonsPub.Characters.create(user, attrs, user) do
-        CommonsPub.Search.Indexer.maybe_index_object(user)
+        Bonfire.Search.Indexer.maybe_index_object(user)
 
         {:ok, %{user | character: character}}
       end
@@ -111,7 +111,7 @@ defmodule CommonsPub.Users do
         |> Email.welcome(token)
         |> MailService.maybe_deliver_later()
 
-        CommonsPub.Search.Indexer.maybe_index_object(user)
+        Bonfire.Search.Indexer.maybe_index_object(user)
 
         {:ok, user}
       end
@@ -271,7 +271,7 @@ defmodule CommonsPub.Users do
            :ok <- ap_publish("update", user) do
         user = %{user | local_user: local_user, character: character}
 
-        CommonsPub.Search.Indexer.maybe_index_object(user)
+        Bonfire.Search.Indexer.maybe_index_object(user)
 
         {:ok, user}
       end
@@ -285,7 +285,7 @@ defmodule CommonsPub.Users do
            {:ok, character} <- Characters.update(user, user.character, attrs) do
         user = %{user | character: character}
 
-        CommonsPub.Search.Indexer.maybe_index_object(user)
+        Bonfire.Search.Indexer.maybe_index_object(user)
 
         {:ok, user}
       end
@@ -460,7 +460,7 @@ defmodule CommonsPub.Users do
       "published_at" => user.published_at,
       "username" => CommonsPub.Characters.display_username(user),
       "summary" => Map.get(user, :summary),
-      "index_instance" => CommonsPub.Search.Indexer.host(url)
+      "index_instance" => Bonfire.Search.Indexer.host(url)
     }
   end
 end

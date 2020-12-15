@@ -1,5 +1,5 @@
 defmodule CommonsPub.Web.Component.StoryPreviewLive do
-  use Phoenix.LiveComponent
+  use CommonsPub.Web, :live_component
 
   def render(assigns) do
     ~L"""

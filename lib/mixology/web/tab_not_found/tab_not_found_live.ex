@@ -1,5 +1,5 @@
 defmodule CommonsPub.Web.Component.TabNotFoundLive do
-  use Phoenix.LiveComponent
+  use CommonsPub.Web, :live_component
 
   def render(assigns) do
     ~L"""

@@ -4,7 +4,7 @@ defmodule Taxonomy.IndexingBatch do
   @tags_index_name "taxonomy_tags"
 
   def batch() do
-    CommonsPub.Search.Indexer.init_index(@tags_index_name)
+    Bonfire.Search.Indexer.init_index(@tags_index_name)
 
     {:ok, tags} = Bonfire.Repo.query("WITH RECURSIVE taxonomy_tags_tree AS
     (SELECT id, name, parent_tag_id, CAST(name As varchar(1000)) As name_crumbs, summary
@@ -31,7 +31,7 @@ defmodule Taxonomy.IndexingBatch do
       # obj = %{id: id, name: name, name_crumbs: name_crumbs, summary: summary}
 
       ## add to search index as is
-      # CommonsPub.Search.Indexer.index_objects(obj, @tags_index_name, false)
+      # Bonfire.Search.Indexer.index_objects(obj, @tags_index_name, false)
 
       ## import into Categories
       Taxonomy.TaxonomyTags.maybe_make_category(nil, id)

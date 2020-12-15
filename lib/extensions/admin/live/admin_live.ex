@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.AdminLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   alias CommonsPub.Web.AdminLive.{
     AdminNavigationLive,

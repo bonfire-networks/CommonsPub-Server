@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.Component.LikePreviewLive do
-  use Phoenix.LiveComponent
-  import CommonsPub.Utils.Web.CommonHelper
+  use CommonsPub.Web, :live_component
+
   alias CommonsPub.Web.Component.ActivityLive
 
   def mount(_, _session, socket) do

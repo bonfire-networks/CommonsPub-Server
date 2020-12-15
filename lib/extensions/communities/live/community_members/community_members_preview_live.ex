@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.CommunityLive.CommunityMembersPreviewLive do
   use CommonsPub.Web, :live_component
   alias CommonsPub.Profiles.Web.ProfilesHelper
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   def update(assigns, socket) do
     # IO.inspect(assigns, label: "ASSIGNS:")

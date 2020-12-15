@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Component.TagAutocomplete do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   # TODO: consolidate CommonsPub.Tag.Autocomplete and CommonsPub.Web.Component.TagAutocomplete
 
@@ -179,7 +179,7 @@ defmodule CommonsPub.Web.Component.TagAutocomplete do
   end
 
   def search_from_index(tag_search, index, facets \\ nil) do
-    search = CommonsPub.Search.search(tag_search, index, false, facets)
+    search = Bonfire.Search.search(tag_search, index, false, facets)
     IO.inspect(searched: search)
 
     if(Map.has_key?(search, "hits") and length(search["hits"])) do

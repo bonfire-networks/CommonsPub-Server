@@ -13,7 +13,7 @@
       <% end %>
       <%= live_component(
           @socket,
-          CommonsPub.Web.SearchLive.Form,
+          Bonfire.Search.Web.FormLive,
           id: :search_form,
           search: @search,
           current_user: @current_user

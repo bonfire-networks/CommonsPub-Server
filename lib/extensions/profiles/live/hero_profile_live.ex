@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.MemberLive.HeroProfileLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   def render(assigns) do
     ~L"""

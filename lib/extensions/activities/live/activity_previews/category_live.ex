@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Component.CategoryPreviewLive do
-  use Phoenix.LiveComponent
+  use CommonsPub.Web, :live_component
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   def category_link(category) do
     id = e(category, :character, :preferred_username, nil) || e(category, :id, "#no-parent")

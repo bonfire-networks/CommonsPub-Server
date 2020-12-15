@@ -24,6 +24,8 @@ defmodule CommonsPub.Web do
 
       alias CommonsPub.Web.Plugs.ScrubParams
 
+      import CommonsPub.Utils.Web.CommonHelper
+
       action_fallback(CommonsPub.Web.FallbackController)
     end
   end
@@ -86,6 +88,8 @@ defmodule CommonsPub.Web do
       import CommonsPub.Web.ErrorHelpers
       import CommonsPub.Web.Gettext
       alias CommonsPub.Web.Router.Helpers, as: Routes
+
+      import CommonsPub.Utils.Web.CommonHelper
     end
   end
 

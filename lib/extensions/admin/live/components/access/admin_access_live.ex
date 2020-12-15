@@ -2,7 +2,7 @@ defmodule CommonsPub.Web.AdminLive.AdminAccessLive do
   use CommonsPub.Web, :live_component
   alias CommonsPub.Web.GraphQL.{AccessResolver, UsersResolver}
   alias CommonsPub.Profiles.Web.ProfilesHelper
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   def update(assigns, socket) do
     {:ok, users} =

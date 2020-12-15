@@ -344,7 +344,7 @@ defmodule CommonsPub.Tag.Categories do
       # "summary" => character.summary,
       "createdAt" => obj.published_at,
       # home instance of object
-      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url)
+      "index_instance" => Bonfire.Search.Indexer.host(canonical_url)
     }
   end
 
@@ -353,7 +353,7 @@ defmodule CommonsPub.Tag.Categories do
   defp index(obj) do
     object = indexing_object_format(obj)
 
-    CommonsPub.Search.Indexer.maybe_index_object(object)
+    Bonfire.Search.Indexer.maybe_index_object(object)
 
     :ok
   end

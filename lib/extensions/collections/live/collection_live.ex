@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.CollectionLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   alias CommonsPub.Collections.Web.CollectionsHelper
   alias CommonsPub.Profiles.Web.ProfilesHelper

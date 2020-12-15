@@ -1,8 +1,6 @@
 defmodule CommonsPub.Tag.Autocomplete do
   use CommonsPub.Web, :controller
 
-  import CommonsPub.Utils.Web.CommonHelper
-
   # TODO: consolidate CommonsPub.Tag.Autocomplete and CommonsPub.Web.Component.TagAutocomplete
 
   def get(conn, %{"prefix" => prefix, "search" => search, "consumer" => consumer}) do
@@ -30,7 +28,7 @@ defmodule CommonsPub.Tag.Autocomplete do
   end
 
   def tag_lookup_public(tag_search, prefix, consumer, index_type) do
-    search = CommonsPub.Search.search(tag_search, nil, false, %{"index_type" => index_type})
+    search = Bonfire.Search.search(tag_search, nil, false, %{"index_type" => index_type})
     IO.inspect(search)
     tag_lookup_process(tag_search, search, prefix, consumer)
   end

@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.Component.AdsPreviewLive do
-  use Phoenix.LiveComponent
-  import CommonsPub.Utils.Web.CommonHelper
+  use CommonsPub.Web, :live_component
+
   # import CommonsPub.Profiles.Web.ProfilesHelper
   # def mount(_, _session, socket) do
   #   {:ok, assign(socket, current_user: socket.assigns.current_user)}

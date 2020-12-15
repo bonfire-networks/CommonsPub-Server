@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Component.ActivityLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   alias CommonsPub.Web.Component.{PreviewLive, PreviewActionsLive, PreviewActionsAdminLive}
 

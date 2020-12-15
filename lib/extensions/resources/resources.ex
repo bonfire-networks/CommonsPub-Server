@@ -53,7 +53,7 @@ defmodule CommonsPub.Resources do
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection_or_context, resource, activity),
            :ok <- ap_publish("create", resource) do
-        CommonsPub.Search.Indexer.maybe_index_object(resource)
+        Bonfire.Search.Indexer.maybe_index_object(resource)
         {:ok, %Resource{resource | creator: creator}}
       end
     end)
@@ -74,7 +74,7 @@ defmodule CommonsPub.Resources do
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, resource, activity),
            :ok <- ap_publish("create", resource) do
-        CommonsPub.Search.Indexer.maybe_index_object(resource)
+        Bonfire.Search.Indexer.maybe_index_object(resource)
 
         {:ok, %Resource{resource | creator: creator}}
       end
@@ -311,7 +311,7 @@ defmodule CommonsPub.Resources do
       "summary" => Map.get(resource, :summary),
       "updated_at" => resource.updated_at,
       "index_type" => "Resource",
-      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url),
+      "index_instance" => Bonfire.Search.Indexer.host(canonical_url),
       "url" => resource_url,
       "author" => Map.get(resource, :author),
       "media_type" => resource.content.media_type,
@@ -321,8 +321,8 @@ defmodule CommonsPub.Resources do
       "public_access" => Map.get(resource, :public_access),
       "free_access" => Map.get(resource, :free_access),
       "accessibility_feature" => Map.get(resource, :accessibility_feature),
-      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context),
-      "creator" => CommonsPub.Search.Indexer.format_creator(resource)
+      "context" => Bonfire.Search.Indexer.maybe_indexable_object(context),
+      "creator" => Bonfire.Search.Indexer.format_creator(resource)
     }
   end
 end

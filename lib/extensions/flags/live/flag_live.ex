@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Component.FlagLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   def handle_event("flag", %{"message" => message} = _args, socket) do
     {:ok, flag} =

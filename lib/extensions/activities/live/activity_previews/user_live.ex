@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.Component.UserPreviewLive do
-  use Phoenix.LiveComponent
-  import CommonsPub.Utils.Web.CommonHelper
+  use CommonsPub.Web, :live_component
+
 
   # alias CommonsPub.Profiles.Web.ProfilesHelper
 

@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.MemberLive.MemberFollowingLive do
   use CommonsPub.Web, :live_component
 
-  # import CommonsPub.Utils.Web.CommonHelper
+  #
   alias CommonsPub.Profiles.Web.ProfilesHelper
 
   alias CommonsPub.Web.Component.UserPreviewLive

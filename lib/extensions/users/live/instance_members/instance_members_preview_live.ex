@@ -2,7 +2,7 @@ defmodule CommonsPub.Web.InstanceLive.InstanceMembersPreviewLive do
   use CommonsPub.Web, :live_component
 
   alias CommonsPub.Profiles.Web.ProfilesHelper
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   # alias CommonsPub.Web.Component.{
   #   UserPreviewLive

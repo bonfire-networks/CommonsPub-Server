@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Page.Category do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   alias CommonsPub.Web.Page.Category.SubcategoriesLive
   alias CommonsPub.Web.CommunityLive.CommunityCollectionsLive

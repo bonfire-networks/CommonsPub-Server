@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.InstanceLive do
   use CommonsPub.Web, :live_view
   # alias CommonsPub.Profiles.Web.ProfilesHelper
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   alias CommonsPub.Web.InstanceLive.{
     # InstanceActivitiesLive,

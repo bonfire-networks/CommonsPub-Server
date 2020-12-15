@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.Component.ContextLive do
   use CommonsPub.Web, :live_component
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   def update(assigns, socket) do
     object = Bonfire.Repo.maybe_preload(assigns.object, :context)

@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.Component.PreviewLive do
-  use Phoenix.LiveComponent
-  # import CommonsPub.Utils.Web.CommonHelper
+  use CommonsPub.Web, :live_component
+  #
 
   alias CommonsPub.Web.Component.StoryPreviewLive
   alias CommonsPub.Web.Component.CommentPreviewLive

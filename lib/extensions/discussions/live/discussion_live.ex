@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.DiscussionLive do
   use CommonsPub.Web, :live_view
-  import CommonsPub.Utils.Web.CommonHelper
+
   alias CommonsPub.Web.GraphQL.{ThreadsResolver, CommentsResolver}
 
   alias CommonsPub.Discussions.Web.DiscussionsHelper

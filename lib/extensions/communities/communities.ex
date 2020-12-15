@@ -59,7 +59,7 @@ defmodule CommonsPub.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, community_or_context, comm, activity),
            :ok <- ap_publish("create", comm) do
-        CommonsPub.Search.Indexer.maybe_index_object(comm)
+        Bonfire.Search.Indexer.maybe_index_object(comm)
         {:ok, %{comm | character: character}}
       end
     end)
@@ -79,7 +79,7 @@ defmodule CommonsPub.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity),
            :ok <- ap_publish("create", comm) do
-        CommonsPub.Search.Indexer.maybe_index_object(comm)
+        Bonfire.Search.Indexer.maybe_index_object(comm)
         {:ok, %{comm | character: character}}
       end
     end)
@@ -93,7 +93,7 @@ defmodule CommonsPub.Communities do
            act_attrs = %{verb: "created", is_local: is_nil(character.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            :ok <- publish(creator, comm, activity) do
-        CommonsPub.Search.Indexer.maybe_index_object(comm)
+        Bonfire.Search.Indexer.maybe_index_object(comm)
         {:ok, %{comm | character: character}}
       end
     end)
@@ -260,10 +260,10 @@ defmodule CommonsPub.Communities do
       "username" => CommonsPub.Characters.display_username(community),
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
-      "index_instance" => CommonsPub.Search.Indexer.host(url),
+      "index_instance" => Bonfire.Search.Indexer.host(url),
       "published_at" => community.published_at,
-      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context),
-      "creator" => CommonsPub.Search.Indexer.format_creator(community)
+      "context" => Bonfire.Search.Indexer.maybe_indexable_object(context),
+      "creator" => Bonfire.Search.Indexer.format_creator(community)
     }
   end
 end

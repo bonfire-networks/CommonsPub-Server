@@ -1,6 +1,6 @@
 defmodule CommonsPub.Web.Component.CommentPreviewLive do
-  use Phoenix.LiveComponent
-  import CommonsPub.Utils.Web.CommonHelper
+  use CommonsPub.Web, :live_component
+
   # alias CommonsPub.Discussions.Web.DiscussionsHelper
 
   # def update(%{comment: _} = assigns, socket) do

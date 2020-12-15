@@ -374,7 +374,7 @@ defmodule CommonsPub.Threads.Comments do
         "id" => comment.thread_id,
         "name" => thread.name
       },
-      "creator" => CommonsPub.Search.Indexer.format_creator(comment),
+      "creator" => Bonfire.Search.Indexer.format_creator(comment),
       "canonical_url" => canonical_url,
       # "followers" => %{
       #   "totalCount" => follower_count
@@ -385,15 +385,15 @@ defmodule CommonsPub.Threads.Comments do
       "content" => comment.content,
       "published_at" => comment.published_at,
       # home instance of object:
-      "index_instance" => CommonsPub.Search.Indexer.host(canonical_url),
-      "context" => CommonsPub.Search.Indexer.maybe_indexable_object(context)
+      "index_instance" => Bonfire.Search.Indexer.host(canonical_url),
+      "context" => Bonfire.Search.Indexer.maybe_indexable_object(context)
     }
   end
 
   def index(comment) do
     object = indexing_object_format(comment)
 
-    CommonsPub.Search.Indexer.maybe_index_object(object)
+    Bonfire.Search.Indexer.maybe_index_object(object)
 
     :ok
   end

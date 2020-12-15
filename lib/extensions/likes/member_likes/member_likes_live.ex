@@ -1,7 +1,7 @@
 defmodule CommonsPub.Web.MemberLive.MemberLikesLive do
   use CommonsPub.Web, :live_component
 
-  # import CommonsPub.Utils.Web.CommonHelper
+  #
 
   alias CommonsPub.Web.GraphQL.{
     LikesResolver
