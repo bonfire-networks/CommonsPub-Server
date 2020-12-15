@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule CommonsPub.Search do
+defmodule Bonfire.Search do
   require Logger
 
   @public_index "public"
+  @adapter Bonfire.Search.Meili # Application.get_env(:bonfire_search, :adapter)
 
   def search(string, index, calculate_facets, facets) when is_binary(string) and is_map(facets) do
     search(
@@ -59,7 +60,7 @@ defmodule CommonsPub.Search do
   end
 
   def search(object, index) when is_map(object) and is_binary(index) do
-    CommonsPub.Search.Meili.search_meili(object, index)
+    @adapter.search(object, index)
   end
 
   def search(params, _) do

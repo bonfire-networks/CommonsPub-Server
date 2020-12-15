@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule CommonsPub.Search.Indexer do
+defmodule Bonfire.Search.Indexer do
   require Logger
   # alias CommonsPub.Utils.Web.CommonHelper
 
   @public_index "public"
+  @public_facets ["username", "index_type", "index_instance"] # TODO: put in config
+  @adapter Bonfire.Search.Meili # Application.get_env(:bonfire_search, :adapter)
 
   def maybe_index_object(object) do
     indexable_object = maybe_indexable_object(object)
@@ -83,7 +85,7 @@ defmodule CommonsPub.Search.Indexer do
     if System.get_env("SEARCH_INDEXING_DISABLED") !="true" do
       # FIXME - should create the index only once
       if init_index_first, do: init_index(index_name, true)
-      CommonsPub.Search.Meili.put(objects, index_name <> "/documents")
+      @adapter.put(objects, index_name <> "/documents")
     end
   end
 
@@ -97,45 +99,14 @@ defmodule CommonsPub.Search.Indexer do
   def init_index(index_name \\ "public", fail_silently \\ false)
 
   def init_index("public" = index_name, fail_silently) do
-    create_index(index_name, fail_silently)
-    set_facets(index_name, ["username", "index_type", "index_instance"])
+    @adapter.create_index(index_name, fail_silently)
+
+    # define facets to be used for filtering main search index
+    @adapter.set_facets(index_name, @public_facets)
   end
 
   def init_index(index_name, fail_silently) do
-    create_index(index_name, fail_silently)
-  end
-
-  def create_index(index_name, fail_silently \\ false) do
-    CommonsPub.Search.Meili.post(%{uid: index_name}, "", fail_silently)
-  end
-
-  def index_exists(index_name) do
-    with {:ok, _index} <- CommonsPub.Search.Meili.get(nil, index_name) do
-      true
-    else
-      _e ->
-        false
-    end
-  end
-
-  # def set_attributes(attrs, index) do
-  #   settings(%{attributesForFaceting: attrs}, index)
-  # end
-
-  def set_facets(index_name, facets) when is_list(facets) do
-    CommonsPub.Search.Meili.post(
-      facets,
-      index_name <> "/settings/attributes-for-faceting",
-      false
-    )
-  end
-
-  def set_facets(index_name, facet) do
-    set_facets(index_name, [facet])
-  end
-
-  def list_facets(index_name \\ "public") do
-    CommonsPub.Search.Meili.get(nil, index_name <> "/settings/attributes-for-faceting")
+    @adapter.create_index(index_name, fail_silently)
   end
 
   def maybe_delete_object(object) do
@@ -149,6 +120,7 @@ defmodule CommonsPub.Search.Indexer do
 
   defp delete_object(_object_id) do
     # TODO
+    #@adapter.delete(object_id)
   end
 
   def host(url) when is_binary(url) do

@@ -117,7 +117,7 @@ Here are the current contexts:
 - `CommonsPub.ReleaseTasks` (OTP release tasks)
 - `CommonsPub.Repo` (Ecto repository)
 - `CommonsPub.Workers` (background tasks)
-- `CommonsPub.Search` (local search indexing and search API, powered by Meili)
+- `Bonfire.Search` (local search indexing and search API, powered by Meili)
 
 ### `CommonsPub.Web`
 

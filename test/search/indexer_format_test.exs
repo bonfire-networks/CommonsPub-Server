@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule CommonsPub.Search.IndexerFormatTest do
+defmodule Bonfire.Search.IndexerFormatTest do
   use CommonsPub.DataCase
-  alias CommonsPub.Search.Indexer
+  alias Bonfire.Search.Indexer
   import Bonfire.Common.Simulation
   import CommonsPub.Utils.Simulate
 

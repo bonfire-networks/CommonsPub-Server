@@ -4,7 +4,7 @@
 defmodule CommonsPub.Mixfile do
   use Mix.Project
 
-  @library_dev_mode false
+  @library_dev_mode true
 
   # General configuration of the project
   def project do
@@ -106,6 +106,11 @@ defmodule CommonsPub.Mixfile do
        git: "https://github.com/bonfire-ecosystem/bonfire_valueflows",
        branch: "main",
        path: "cpub_bonfire_dev/bonfire_valueflows"},
+       {:bonfire_search,
+       git: "https://github.com/bonfire-ecosystem/bonfire_search",
+       branch: "main",
+       path: "cpub_bonfire_dev/bonfire_search"},
+
       # graphql
       {
         :absinthe,

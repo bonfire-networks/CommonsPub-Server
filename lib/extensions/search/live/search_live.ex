@@ -1,13 +1,13 @@
-defmodule CommonsPub.Web.SearchLive do
+defmodule Bonfire.Search.Web.SearchLive do
   use CommonsPub.Web, :live_view
 
-  import CommonsPub.Utils.Web.CommonHelper
+
 
   # alias CommonsPub.Web.Component.{
   #   TabNotFoundLive
   # }
 
-  alias CommonsPub.Web.SearchLive.ResultsLive
+  alias Bonfire.Search.Web.ResultsLive
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
@@ -37,7 +37,7 @@ defmodule CommonsPub.Web.SearchLive do
         %{"index_type" => tab}
       end
 
-    search = CommonsPub.Search.search(q, nil, ["index_type"], facet_filters)
+    search = Bonfire.Search.search(q, nil, ["index_type"], facet_filters)
 
     IO.inspect(search: search)
 

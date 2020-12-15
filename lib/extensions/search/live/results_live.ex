@@ -1,8 +1,6 @@
-defmodule CommonsPub.Web.SearchLive.ResultsLive do
+defmodule Bonfire.Search.Web.ResultsLive do
   use CommonsPub.Web, :live_component
   alias CommonsPub.Web.Component.{ActivityLive, PreviewLive}
-
-  import CommonsPub.Utils.Web.CommonHelper
 
   def render(assigns) do
     ~L"""

@@ -1,11 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule CommonsPub.Search.Meili do
+defmodule Bonfire.Search.Meili do
   require Logger
 
-  alias ActivityPub.HTTP
-
-  def search_meili(%{} = params, index) when is_binary(index) do
+  def search(%{} = params, index) when is_binary(index) do
     IO.inspect(search_params: params)
 
     with {:ok, req} <- api(:post, params, index <> "/search") do
@@ -18,6 +16,35 @@ defmodule CommonsPub.Search.Meili do
         Logger.debug(inspect(e))
         nil
     end
+  end
+
+  def index_exists(index_name) do
+    with {:ok, _index} <- get(nil, index_name) do
+      true
+    else
+      _e ->
+        false
+    end
+  end
+
+  def create_index(index_name, fail_silently \\ false) do
+    post(%{uid: index_name}, "", fail_silently)
+  end
+
+  def list_facets(index_name \\ "public") do
+    @adapter.get(nil, index_name <> "/settings/attributes-for-faceting")
+  end
+
+  def set_facets(index_name, facets) when is_list(facets) do
+    post(
+      facets,
+      index_name <> "/settings/attributes-for-faceting",
+      false
+    )
+  end
+
+  def set_facets(index_name, facet) do
+    set_facets(index_name, [facet])
   end
 
   def get(object) do
@@ -65,55 +92,12 @@ defmodule CommonsPub.Search.Meili do
     # end
 
     with {:ok, %{status: code} = ret} when code == 200 or code == 201 or code == 202 <-
-           http_request(http_method, url, headers, object) do
+           Bonfire.Search.HTTP.http_request(http_method, url, headers, object) do
       # IO.inspect(ret)
       {:ok, ret}
     else
       {_, message} ->
-        http_error(fail_silently, http_method, message, object)
-    end
-  end
-
-  def http_error(true, _http_method, _message, _object) do
-    nil
-  end
-
-  if Mix.env() == :test do
-    def http_error(_, http_method, message, _object) do
-      Logger.info("Meili - Could not #{http_method} objects")
-      Logger.debug(inspect(message))
-    end
-  end
-
-  if Mix.env() == :dev do
-    def http_error(_, http_method, message, object) do
-      Logger.error("Meili - Could not #{http_method} objects:")
-      Logger.debug(inspect(message))
-      Logger.debug(inspect(object))
-      {:error, message}
-    end
-  end
-
-  def http_error(_, http_method, message, _object) do
-    Logger.warn("Meili - Could not #{http_method} object:")
-    Logger.debug(inspect(message))
-    :ok
-  end
-
-  def http_request(http_method, url, headers, nil) do
-    http_request(http_method, url, headers, %{})
-  end
-
-  def http_request(http_method, url, headers, object) do
-    if(http_method == :get) do
-      query_str = URI.encode_query(object)
-      get_url = url <> "?" <> query_str
-      apply(HTTP, http_method, [get_url, headers])
-    else
-      # IO.inspect(object)
-      json = Jason.encode!(object)
-      # IO.inspect(json: json)
-      apply(HTTP, http_method, [url, json, headers])
+        Bonfire.Search.HTTP.http_error(fail_silently, http_method, message, object)
     end
   end
 end

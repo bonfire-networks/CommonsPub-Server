@@ -1,6 +1,6 @@
 defmodule CommonsPub.ActivityPub.Receiver do
   require Logger
-  alias CommonsPub.Search.Indexer
+  alias Bonfire.Search.Indexer
 
   # the following constants are derived from config, so please make any changes/additions there
 
