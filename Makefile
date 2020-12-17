@@ -244,7 +244,7 @@ deps-local-git-%: ## runs a git command (eg. `make deps-local-git-pull` pulls th
 update: pull deps-local-git-pull bonfire-updates mix-updates ## Update/prepare dependencies
 
 bonfire-updates:
-	docker-compose  -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE)  run web mix bonfire.deps.update
+	docker-compose  -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE)  run web mix bonfire.deps
 
 pull: 
 	git pull

@@ -61,7 +61,9 @@ defmodule CommonsPub.Mixfile do
 
   @bonfire_deps [
                   "pointers",
-                  "bonfire_quantify"
+                  "bonfire_quantify",
+                  "bonfire_geolocate",
+                  "bonfire_valueflows"
                 ]
                 |> Enum.join(" ")
 
