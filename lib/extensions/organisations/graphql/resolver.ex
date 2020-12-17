@@ -161,6 +161,6 @@ defmodule Organisation.GraphQL.Resolver do
   end
 
   defp valid_contexts do
-    Keyword.fetch!(CommonsPub.Config.get(Organisation), :valid_contexts)
+    Keyword.fetch!(Bonfire.Common.Config.get(Organisation), :valid_contexts)
   end
 end

@@ -1,6 +1,7 @@
 use Mix.Config
 
 config :bonfire_valueflows,
+  otp_app: :commons_pub,
   web_module: CommonsPub.Web,
   repo_module: CommonsPub.Repo,
   user_schema: Pointers.Pointer, # FIXME

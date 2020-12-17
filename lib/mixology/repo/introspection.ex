@@ -16,7 +16,7 @@ defmodule Bonfire.Repo.Introspection do
   Lists all modules in the CommonsPub OTP application
   """
   def app_modules() do
-    otp_app = Application.get_env(:bonfire_common, :otp_app)
+    otp_app = Bonfire.Common.Config.get_ext(:bonfire_common, :otp_app)
     Application.spec(otp_app, :modules) || all_modules()
   end
 

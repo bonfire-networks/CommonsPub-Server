@@ -150,7 +150,7 @@ defmodule CommonsPub.Web.GraphQL.ThreadsResolver do
   end
 
   defp valid_contexts() do
-    CommonsPub.Config.get([Threads, :valid_contexts])
+    Bonfire.Common.Config.get([Threads, :valid_contexts])
   end
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}

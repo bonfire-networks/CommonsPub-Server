@@ -11,14 +11,14 @@ defmodule CommonsPub.Workers.GargageCollector do
 
   @impl Worker
   def perform(override_opts, _job) do
-    opts = Map.new(CommonsPub.Config.get!(__MODULE__))
+    opts = Map.new(Bonfire.Common.Config.get!(__MODULE__))
     opts = Enum.reduce(override_opts, opts, &option/2)
     _stats = %{mark: mark(opts), sweep: sweep(opts)}
     :ok
   end
 
   # def perform(override_opts, _job) do
-  #   opts = Map.new(CommonsPub.Config.get!(__MODULE__))
+  #   opts = Map.new(Bonfire.Common.Config.get!(__MODULE__))
   #   opts = Enum.reduce(override_opts, opts, &option/2)
   #   _stats = %{mark: mark(opts), sweep: sweep(opts)}
   #   :ok

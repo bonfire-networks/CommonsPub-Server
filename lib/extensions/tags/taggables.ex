@@ -140,7 +140,7 @@ defmodule CommonsPub.Tag.Taggables do
 
 
   def maybe_taxonomy_tag(user, id) do
-    if CommonsPub.Config.module_enabled?(Taxonomy.TaxonomyTags) do
+    if Bonfire.Common.Config.extension_enabled?(Taxonomy.TaxonomyTags) do
       Taxonomy.TaxonomyTags.maybe_make_category(user, id)
     end
   end

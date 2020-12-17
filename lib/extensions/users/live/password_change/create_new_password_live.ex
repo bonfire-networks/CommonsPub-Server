@@ -7,7 +7,7 @@ defmodule CommonsPub.Web.CreateNewPasswordLive do
     {:ok,
      socket
      |> assign(
-       app_name: CommonsPub.Config.get(:app_name),
+       app_name: Bonfire.Common.Config.get(:app_name),
        token: token
      )}
   end

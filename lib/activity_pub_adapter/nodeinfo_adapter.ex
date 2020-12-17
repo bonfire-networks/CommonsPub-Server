@@ -1,6 +1,6 @@
 defmodule CommonsPub.NodeinfoAdapter do
   @behaviour Nodeinfo.Adapter
-  alias CommonsPub.Config
+  alias Bonfire.Common.Config
 
   def base_url() do
     CommonsPub.Web.Endpoint.url()

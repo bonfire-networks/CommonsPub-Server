@@ -1,5 +1,5 @@
 defmodule CommonsPub.HTML do
-  alias CommonsPub.Config
+  alias Bonfire.Common.Config
 
   alias CommonsPub.HTML.Formatter
 

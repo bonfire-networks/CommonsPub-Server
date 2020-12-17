@@ -3,12 +3,12 @@ defmodule CommonsPub.Pointers.Tables do
   alias Pointers.Table
   alias Bonfire.Repo.Introspection
 
-  @repo Application.get_env(:bonfire_common, :repo_module)
+  import Bonfire.Common.Config, only: [repo: 0]
   @init_query_name __MODULE__
 
   def fetch_list() do
     Table
-    |> @repo.all(telemetry_event: @init_query_name)
+    |> repo().all(telemetry_event: @init_query_name)
     # |> IO.inspect
     |> pair_schemata()
   end

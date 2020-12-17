@@ -29,7 +29,7 @@ defmodule CommonsPub.HTML.Scrubber do
   defp get_scrubbers(_), do: [@default_scrubber]
 
   def get_scrubbers do
-    CommonsPub.Config.get([:markup, :scrub_policy], [
+    Bonfire.Common.Config.get([:markup, :scrub_policy], [
       @default_scrubber
       # CommonsPub.HTML.Transform.MediaProxy
     ])

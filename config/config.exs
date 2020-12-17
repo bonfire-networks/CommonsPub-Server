@@ -70,6 +70,7 @@ signing_salt = System.get_env("SIGNING_SALT", "CqAoopA2")
 # stuff you might need to change to be viable
 
 config :commons_pub, :app_name, System.get_env("APP_NAME", "CommonsPub")
+config :commons_pub, :repo_module, CommonsPub.Repo
 
 config :commons_pub,
        :frontend_base_url,
@@ -574,7 +575,7 @@ config :pointers, Pointers.Pointer,
   ],
   many_to_many: [
     tags: {
-      # if(CommonsPub.Config.module_enabled?(Taggable), do: Taggable, else: :taggable),
+      # if(Bonfire.Common.Config.extension_enabled?(Taggable), do: Taggable, else: :taggable),
       Taggable,
       join_through: "tags_things",
       unique: true,

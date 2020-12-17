@@ -59,7 +59,7 @@ defmodule CommonsPub.Features do
   end
 
   defp get_valid_contexts() do
-    CommonsPub.Config.get!(Features)
+    Bonfire.Common.Config.get!(Features)
     |> Keyword.fetch!(:valid_contexts)
   end
 

@@ -16,7 +16,7 @@ defmodule CommonsPub.Web.Plugs.Static do
   end
 
   def call(conn, opts) do
-    config = CommonsPub.Config.get!(CommonsPub.Uploads)
+    config = Bonfire.Common.Config.get!(CommonsPub.Uploads)
     from = Keyword.fetch!(config, :directory)
     at = Plug.Router.Utils.split(Keyword.fetch!(config, :path))
     opts = Map.merge(opts, %{from: from, at: at})

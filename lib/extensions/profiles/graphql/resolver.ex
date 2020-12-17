@@ -146,7 +146,7 @@ defmodule CommonsPub.Profiles.GraphQL.Resolver do
   # end
 
   # defp valid_contexts do
-  #   Keyword.fetch!(CommonsPub.Config.get(Profiles), :valid_contexts)
+  #   Keyword.fetch!(Bonfire.Common.Config.get(Profiles), :valid_contexts)
   # end
 
   # def creator_edge(%{profile: %{creator_id: id}}, _, info) do

@@ -9,8 +9,8 @@ defmodule CommonsPub.Web.SignupLive do
      socket
      |> assign(
        email: "",
-       app_name: CommonsPub.Config.get(:app_name),
-       app_icon: CommonsPub.Config.get(:app_icon, "/images/sun_face.png")
+       app_name: Bonfire.Common.Config.get(:app_name),
+       app_icon: Bonfire.Common.Config.get(:app_icon, "/images/sun_face.png")
      )}
   end
 

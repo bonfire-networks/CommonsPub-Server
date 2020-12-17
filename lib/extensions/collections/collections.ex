@@ -165,7 +165,7 @@ defmodule CommonsPub.Collections do
 
   @doc false
   def default_outbox_query_contexts() do
-    CommonsPub.Config.get!(__MODULE__)
+    Bonfire.Common.Config.get!(__MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 

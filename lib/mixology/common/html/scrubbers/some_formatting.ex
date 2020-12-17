@@ -4,7 +4,7 @@ defmodule CommonsPub.HTML.Scrubber.SomeFormatting do
   require HtmlSanitizeEx.Scrubber.Meta
   alias HtmlSanitizeEx.Scrubber.Meta
 
-  @valid_schemes CommonsPub.Config.get([:uri_schemes, :valid_schemes], ["http", "https"])
+  @valid_schemes Bonfire.Common.Config.get([:uri_schemes, :valid_schemes], ["http", "https"])
 
   def before_scrub(html), do: html
 
@@ -52,7 +52,7 @@ defmodule CommonsPub.HTML.Scrubber.SomeFormatting do
   Meta.allow_tag_with_this_attribute_values(:span, "class", ["h-card"])
   Meta.allow_tag_with_these_attributes(:span, [])
 
-  @allow_inline_images CommonsPub.Config.get([:markup, :allow_inline_images], true)
+  @allow_inline_images Bonfire.Common.Config.get([:markup, :allow_inline_images], true)
 
   if @allow_inline_images do
     # restrict img tags to http/https only, because of MediaProxy.
@@ -67,7 +67,7 @@ defmodule CommonsPub.HTML.Scrubber.SomeFormatting do
     ])
   end
 
-  if CommonsPub.Config.get([:markup, :allow_tables]) do
+  if Bonfire.Common.Config.get([:markup, :allow_tables]) do
     Meta.allow_tag_with_these_attributes(:table, [])
     Meta.allow_tag_with_these_attributes(:tbody, [])
     Meta.allow_tag_with_these_attributes(:td, [])
@@ -76,7 +76,7 @@ defmodule CommonsPub.HTML.Scrubber.SomeFormatting do
     Meta.allow_tag_with_these_attributes(:tr, [])
   end
 
-  if CommonsPub.Config.get([:markup, :allow_headings]) do
+  if Bonfire.Common.Config.get([:markup, :allow_headings]) do
     Meta.allow_tag_with_these_attributes(:h1, [])
     Meta.allow_tag_with_these_attributes(:h2, [])
     Meta.allow_tag_with_these_attributes(:h3, [])
@@ -84,7 +84,7 @@ defmodule CommonsPub.HTML.Scrubber.SomeFormatting do
     Meta.allow_tag_with_these_attributes(:h5, [])
   end
 
-  if CommonsPub.Config.get([:markup, :allow_fonts]) do
+  if Bonfire.Common.Config.get([:markup, :allow_fonts]) do
     Meta.allow_tag_with_these_attributes(:font, ["face"])
   end
 

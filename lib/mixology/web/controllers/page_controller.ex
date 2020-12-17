@@ -8,7 +8,7 @@ defmodule CommonsPub.Web.PageController do
       if System.get_env("LIVEVIEW_ENABLED", "true") == "true" do
         "/instance"
       else
-        CommonsPub.Config.get!(:frontend_base_url)
+        Bonfire.Common.Config.get!(:frontend_base_url)
       end
 
     conn

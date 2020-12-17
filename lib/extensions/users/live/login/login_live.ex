@@ -10,8 +10,8 @@ defmodule CommonsPub.Web.LoginLive do
     {:ok,
      socket
      |> assign(
-       app_name: CommonsPub.Config.get(:app_name),
-       app_icon: CommonsPub.Config.get(:app_icon, "/images/sun_face.png"),
+       app_name: Bonfire.Common.Config.get(:app_name),
+       app_icon: Bonfire.Common.Config.get(:app_icon, "/images/sun_face.png"),
        instance_image: "https://i.ytimg.com/vi/_qzacv8dtb4/maxresdefault.jpg",
        app_summary: CommonsPub.Instance.description(),
        changeset: changeset

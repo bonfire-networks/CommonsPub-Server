@@ -33,5 +33,5 @@ defmodule CommonsPub.Mail.Checker do
     end
   end
 
-  defp config(), do: CommonsPub.Config.get(__MODULE__, [])
+  defp config(), do: Bonfire.Common.Config.get(__MODULE__, [])
 end

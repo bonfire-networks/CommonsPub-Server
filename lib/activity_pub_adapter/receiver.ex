@@ -4,13 +4,13 @@ defmodule CommonsPub.ActivityPub.Receiver do
 
   # the following constants are derived from config, so please make any changes/additions there
 
-  @actor_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :actor_modules])
-  @activity_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :activity_modules])
-  @object_modules CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :object_modules])
+  @actor_modules Bonfire.Common.Config.get([CommonsPub.ActivityPub.Adapter, :actor_modules])
+  @activity_modules Bonfire.Common.Config.get([CommonsPub.ActivityPub.Adapter, :activity_modules])
+  @object_modules Bonfire.Common.Config.get([CommonsPub.ActivityPub.Adapter, :object_modules])
 
-  @actor_types CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :actor_types])
-  @activity_types CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :activity_types])
-  @object_types CommonsPub.Config.get([CommonsPub.ActivityPub.Adapter, :object_types])
+  @actor_types Bonfire.Common.Config.get([CommonsPub.ActivityPub.Adapter, :actor_types])
+  @activity_types Bonfire.Common.Config.get([CommonsPub.ActivityPub.Adapter, :activity_types])
+  @object_types Bonfire.Common.Config.get([CommonsPub.ActivityPub.Adapter, :object_types])
 
   @doc """
   load the activity data
@@ -279,7 +279,7 @@ defmodule CommonsPub.ActivityPub.Receiver do
   end
 
   def log(l) do
-    if(CommonsPub.Config.get([:logging, :tests_output_ap])) do
+    if(Bonfire.Common.Config.get([:logging, :tests_output_ap])) do
       Logger.warn(l)
     end
   end

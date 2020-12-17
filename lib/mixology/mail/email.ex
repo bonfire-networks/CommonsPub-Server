@@ -49,7 +49,7 @@ defmodule CommonsPub.Mail.Email do
   defp email_confirmation_url(_id, token),
     do: frontend_url("confirm-email/#{token}")
 
-  defp app_name(), do: CommonsPub.Config.get(:app_name)
+  defp app_name(), do: Bonfire.Common.Config.get(:app_name)
 
   defp reset_password_url(token), do: frontend_url("~/password/change/#{token}")
 
@@ -58,10 +58,10 @@ defmodule CommonsPub.Mail.Email do
   # Note that the base url is expected to end without a slash (/)
   defp frontend_url(path), do: "#{frontend_base_url()}/#{path}"
 
-  defp frontend_base_url(), do: CommonsPub.Config.get!(:frontend_base_url)
+  defp frontend_base_url(), do: Bonfire.Common.Config.get!(:frontend_base_url)
 
   defp reply_to_email do
-    CommonsPub.Config.get!(CommonsPub.Mail.MailService)
+    Bonfire.Common.Config.get!(CommonsPub.Mail.MailService)
     |> Keyword.get(:reply_to, "no-reply@moodle.net")
   end
 end

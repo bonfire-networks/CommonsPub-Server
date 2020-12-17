@@ -1,6 +1,8 @@
 use Mix.Config
 
 config :bonfire_search,
+  otp_app: :commons_pub,
+  disabled: false, # disable this extension?
   disable_indexing: System.get_env("SEARCH_INDEXING_DISABLED", "false"),
   env: Mix.env(),
   web_module: Bonfire.Web,

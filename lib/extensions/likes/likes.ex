@@ -159,7 +159,7 @@ defmodule CommonsPub.Likes do
   end
 
   defp valid_contexts() do
-    CommonsPub.Config.get!(__MODULE__)
+    Bonfire.Common.Config.get!(__MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
 end

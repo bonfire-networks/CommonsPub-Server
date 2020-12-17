@@ -64,7 +64,7 @@ defmodule CommonsPub.Web.Test.ConnHelpers do
     # IO.inspect(graphql_query: query)
     with %{status: status} = go <- ConnTest.post(conn, "/api/graphql", query) do
       if status != code || show_output ||
-           CommonsPub.Config.get([:logging, :tests_output_graphql]),
+           Bonfire.Common.Config.get([:logging, :tests_output_graphql]),
          do: IO.inspect(graphql_query: query)
 
       go
@@ -91,7 +91,7 @@ defmodule CommonsPub.Web.Test.ConnHelpers do
         throw({:unexpected_errors, errors})
 
       %{"data" => data} ->
-        if(show_output || CommonsPub.Config.get([:logging, :tests_output_graphql])) do
+        if(show_output || Bonfire.Common.Config.get([:logging, :tests_output_graphql])) do
           # IO.inspect(graphql_query: query)
           IO.inspect(graphql_response: data)
         end

@@ -52,7 +52,7 @@ for _ <- 1..2, do: fake_resource!(random_user.(), maybe_random_community.())
 for _ <- 1..2, do: fake_resource!(random_user.(), maybe_random_collection.())
 
 # define some tags/categories
-if(CommonsPub.Config.module_enabled?(CommonsPub.Tag.Simulate)) do
+if(Bonfire.Common.Config.extension_enabled?(CommonsPub.Tag.Simulate)) do
   for _ <- 1..2 do
     category = CommonsPub.Tag.Simulate.fake_category!(random_user.())
     _subcategory = CommonsPub.Tag.Simulate.fake_category!(random_user.(), category)
@@ -60,7 +60,7 @@ if(CommonsPub.Config.module_enabled?(CommonsPub.Tag.Simulate)) do
 end
 
 # define some geolocations
-if(CommonsPub.Config.module_enabled?(Bonfire.Geolocate.Simulate)) do
+if(Bonfire.Common.Config.extension_enabled?(Bonfire.Geolocate.Simulate)) do
   for _ <- 1..2,
       do: Bonfire.Geolocate.Simulate.fake_geolocation!(random_user.(), maybe_random_community.())
 
@@ -69,7 +69,7 @@ if(CommonsPub.Config.module_enabled?(Bonfire.Geolocate.Simulate)) do
 end
 
 # define some units
-if(CommonsPub.Config.module_enabled?(Bonfire.Quantify.Simulate)) do
+if(Bonfire.Common.Config.extension_enabled?(Bonfire.Quantify.Simulate)) do
   for _ <- 1..2 do
     unit1 = Bonfire.Quantify.Simulate.fake_unit!(random_user.(), maybe_random_community.())
     unit2 = Bonfire.Quantify.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
@@ -77,7 +77,7 @@ if(CommonsPub.Config.module_enabled?(Bonfire.Quantify.Simulate)) do
 end
 
 # conduct some fake economic activities
-if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
+if(Bonfire.Common.Config.extension_enabled?(ValueFlows.Simulate)) do
   for _ <- 1..2 do
     user = random_user.()
 
@@ -99,7 +99,7 @@ if(CommonsPub.Config.module_enabled?(ValueFlows.Simulate)) do
     ValueFlows.Simulate.fake_proposed_intent!(proposal, intent)
 
     # define some geolocations
-    if(CommonsPub.Config.module_enabled?(Bonfire.Geolocate.Simulate)) do
+    if(Bonfire.Common.Config.extension_enabled?(Bonfire.Geolocate.Simulate)) do
 
       places = for _ <- 1..2, do: Bonfire.Geolocate.Simulate.fake_geolocation!(random_user.())
 random_place = fn -> Faker.Util.pick(places) end
@@ -145,7 +145,7 @@ random_place = fn -> Faker.Util.pick(places) end
       end
     end
 
-    if(CommonsPub.Config.module_enabled?(Bonfire.Quantify.Simulate)) do
+    if(Bonfire.Common.Config.extension_enabled?(Bonfire.Quantify.Simulate)) do
       unit1 = Bonfire.Quantify.Simulate.fake_unit!(random_user.(), maybe_random_community.())
       unit2 = Bonfire.Quantify.Simulate.fake_unit!(random_user.(), maybe_random_collection.())
 

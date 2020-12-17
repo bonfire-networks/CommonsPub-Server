@@ -95,6 +95,7 @@ defmodule Pointers.Tables do
     rescue
       e ->
         Logger.warn("TableService could not init because: #{inspect(e, pretty: true)}")
+        Logger.debug(System.stacktrace)
         :ignore
     end
   end

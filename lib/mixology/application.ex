@@ -42,7 +42,7 @@ defmodule CommonsPub.Application do
       Pointers.Tables,
       {Phoenix.PubSub, [name: CommonsPub.PubSub, adapter: Phoenix.PubSub.PG2]},
       Endpoint,
-      {Oban, CommonsPub.Config.get(Oban)}
+      {Oban, Bonfire.Common.Config.get(Oban)}
     ]
 
     opts = [strategy: :one_for_one, name: CommonsPub.Supervisor]

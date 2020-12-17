@@ -4,7 +4,7 @@
 
 defmodule CommonsPub.HTML.Formatter do
   alias CommonsPub.HTML.Scrubber
-  alias CommonsPub.Config
+  alias Bonfire.Common.Config
   # alias CommonsPub.Repo
   alias CommonsPub.Users.User
   alias CommonsPub.Users
@@ -79,7 +79,7 @@ defmodule CommonsPub.HTML.Formatter do
     # TODO, link to Collection and Taggable
 
     if CommonsPub.Utils.Web.CommonHelper.is_numeric(nickname) and
-         CommonsPub.Config.module_enabled?(Taxonomy.TaxonomyTags) do
+         Bonfire.Common.Config.extension_enabled?(Taxonomy.TaxonomyTags) do
       with {:ok, category} <- Taxonomy.TaxonomyTags.maybe_make_category(nil, nickname) do
         mention_process(opts, category, acc, content_type)
       end

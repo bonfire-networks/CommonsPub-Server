@@ -118,6 +118,6 @@ defmodule CommonsPub.Web do
   end
 
   def base_url do
-    CommonsPub.Config.get(:base_url) || CommonsPub.Web.Endpoint.url()
+    Bonfire.Common.Config.get(:base_url) || CommonsPub.Web.Endpoint.url()
   end
 end

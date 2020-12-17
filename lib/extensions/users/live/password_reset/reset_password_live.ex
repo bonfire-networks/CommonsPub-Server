@@ -7,7 +7,7 @@ defmodule CommonsPub.Web.ResetPasswordLive do
 
     {:ok,
      socket
-     |> assign(app_name: CommonsPub.Config.get(:app_name))}
+     |> assign(app_name: Bonfire.Common.Config.get(:app_name))}
   end
 
   def handle_event("reset", %{"email" => mail} = _data, socket) do

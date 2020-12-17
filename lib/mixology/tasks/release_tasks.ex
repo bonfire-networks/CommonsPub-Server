@@ -4,7 +4,7 @@ defmodule CommonsPub.ReleaseTasks do
   require Logger
 
   @start_apps [:commons_pub]
-  @repos CommonsPub.Config.get(:ecto_repos, [])
+  @repos Bonfire.Common.Config.get(:ecto_repos, [])
   alias CommonsPub.{Communities, Repo, Users}
   alias CommonsPub.Users.User
 
@@ -193,7 +193,7 @@ defmodule CommonsPub.ReleaseTasks do
 
   def check_schema_config do
     pointable_schemas = Bonfire.Common.Pointers.list_pointable_schemas()
-    configured_types = CommonsPub.Config.get([CommonsPub.Instance, :types_all])
+    configured_types = Bonfire.Common.Config.get([CommonsPub.Instance, :types_all])
     IO.inspect(types_missing_from_config: pointable_schemas -- configured_types)
     IO.inspect(types_in_config_not_pointable_in_db: configured_types -- pointable_schemas)
     :ok

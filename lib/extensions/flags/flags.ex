@@ -10,7 +10,7 @@ defmodule CommonsPub.Flags do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Flag, filters))}
 
   defp valid_contexts() do
-    CommonsPub.Config.get!(__MODULE__)
+    Bonfire.Common.Config.get!(__MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
 

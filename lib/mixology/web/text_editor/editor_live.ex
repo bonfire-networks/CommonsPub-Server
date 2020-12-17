@@ -4,6 +4,6 @@ defmodule CommonsPub.Web.EditorLive do
   #
 
   def mount(socket) do
-    {:ok, assign(socket, :editor, CommonsPub.Config.get(:ux)[:editor])}
+    {:ok, assign(socket, :editor, Bonfire.Common.Config.get(:ux)[:editor])}
   end
 end

@@ -241,9 +241,19 @@ deps-local-git-%: ## runs a git command (eg. `make deps-local-git-pull` pulls th
 	sudo chown -R $$USER ./$(FORKS)
 	find ./$(FORKS)/ -maxdepth 1 -type d -exec git -C '{}' $* \;
 
+deps-local-commit-push:
+	make deps-local-git-"add ."
+	make deps-local-git-commit
+	make deps-local-git-pull
+	make deps-local-git-push
+
 update: pull deps-local-git-pull bonfire-updates mix-updates ## Update/prepare dependencies
 
 bonfire-updates:
+	sudo rm -rf deps/pointers*
+	sudo rm -rf deps/bonfire*
+	sudo rm -rf deps/cpub*
+	sudo rm -rf deps/activity_pu*
 	docker-compose  -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE)  run web mix bonfire.deps
 
 pull: 

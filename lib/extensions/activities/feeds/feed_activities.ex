@@ -54,7 +54,7 @@ defmodule CommonsPub.Feeds.FeedActivities do
   end
 
   def default_query_contexts() do
-    CommonsPub.Config.get!(Feeds)
+    Bonfire.Common.Config.get!(Feeds)
     |> Map.fetch!(:default_query_contexts)
   end
 end
