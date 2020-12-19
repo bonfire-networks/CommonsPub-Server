@@ -19,6 +19,7 @@ config :pointers,
 ### Bonfire modularisation
 
 import_config "bonfire_common.exs"
+import_config "bonfire_fail.exs"
 import_config "bonfire_api_graphql.exs"
 import_config "bonfire_quantify.exs"
 import_config "bonfire_geolocate.exs"

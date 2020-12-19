@@ -39,8 +39,8 @@ defmodule CommonsPub.Mixfile do
         ],
         output: "docs/exdoc"
       ],
-      # can add test dirs to include, eg: "cpub_bonfire_dev/activitypub/test" (if so, the corresponding support dir should also be added to elixirc_paths below)
-      test_paths: existing_paths(["test", "cpub_bonfire_dev/activitypub/test"]),
+      # can add test dirs to include, eg: "forks/activitypub/test" (if so, the corresponding support dir should also be added to elixirc_paths below)
+      test_paths: existing_paths(["test", "forks/activitypub/test"]),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -54,7 +54,7 @@ defmodule CommonsPub.Mixfile do
   # Specifies which paths to compile per environment.
   #
   defp elixirc_paths(:test),
-    do: existing_paths(["lib", "test/support", "cpub_bonfire_dev/activitypub/test/support"])
+    do: existing_paths(["lib", "test/support", "forks/activitypub/test/support"])
 
   defp elixirc_paths(:dev), do: ["lib"]
   defp elixirc_paths(_), do: ["lib"]
@@ -90,28 +90,28 @@ defmodule CommonsPub.Mixfile do
       {:bonfire_geolocate,
        git: "https://github.com/bonfire-ecosystem/bonfire_geolocate",
        branch: "main",
-       path: "cpub_bonfire_dev/bonfire_geolocate"},
+       path: "forks/bonfire_geolocate"},
       {:bonfire_quantify,
        git: "https://github.com/bonfire-ecosystem/bonfire_quantify",
        branch: "main",
-       path: "cpub_bonfire_dev/bonfire_quantify"},
+       path: "forks/bonfire_quantify"},
       {:bonfire_common,
        override: true,
        git: "https://github.com/bonfire-ecosystem/bonfire_common",
-       branch: "with_error",
-       path: "cpub_bonfire_dev/bonfire_common"},
+       branch: "main",
+       path: "forks/bonfire_common"},
       {:bonfire_api_graphql,
        git: "https://github.com/bonfire-ecosystem/bonfire_api_graphql",
        branch: "main",
-       path: "cpub_bonfire_dev/bonfire_api_graphql"},
+       path: "forks/bonfire_api_graphql"},
       {:bonfire_valueflows,
        git: "https://github.com/bonfire-ecosystem/bonfire_valueflows",
        branch: "main",
-       path: "cpub_bonfire_dev/bonfire_valueflows"},
+       path: "forks/bonfire_valueflows"},
        {:bonfire_search,
        git: "https://github.com/bonfire-ecosystem/bonfire_search",
        branch: "main",
-       path: "cpub_bonfire_dev/bonfire_search"},
+       path: "forks/bonfire_search"},
 
       # graphql
       {
@@ -124,7 +124,7 @@ defmodule CommonsPub.Mixfile do
       # activitypub
       {
         :activity_pub,
-        # , path: "cpub_bonfire_dev/activitypub"
+        # , path: "forks/activitypub"
         git: "https://gitlab.com/CommonsPub/activitypub", branch: "tbd",
         override: true
       },
@@ -220,7 +220,7 @@ defmodule CommonsPub.Mixfile do
         :pointers,
         # "~> 0.4"
         git: "https://github.com/commonspub/pointers.git", branch: "main", override: true
-        # path: "cpub_bonfire_dev/pointers"
+        # path: "forks/pointers"
         # git: "https://github.com/mayel/pointers.git",
       },
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},

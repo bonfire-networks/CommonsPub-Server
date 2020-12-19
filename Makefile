@@ -13,7 +13,7 @@ APP_REL_DOCKERFILE=Dockerfile.rel
 APP_REL_DOCKERCOMPOSE=docker-compose.rel.yml
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
 APP_BUILD ?= `git rev-parse --short HEAD`
-FORKS=cpub_bonfire_dev
+FORKS=forks
 
 init:
 	@echo "Running build scripts for $(APP_NAME):$(APP_VSN)-$(APP_BUILD)"

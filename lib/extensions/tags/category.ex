@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Tag.Category do
-  use Bonfire.Repo.Schema
+  # use Bonfire.Repo.Schema
 
   use Pointers.Pointable,
     otp_app: :commons_pub,

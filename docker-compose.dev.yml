@@ -20,6 +20,9 @@ services:
       - type: bind
         source: .
         target: /opt/app
+      - type: bind
+        source: ../bonfire/forks
+        target: /opt/app/forks
       # - type: bind
       #   source: /usr/share/dict/words
       #   target: /usr/share/dict/words
