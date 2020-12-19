@@ -13,7 +13,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
 
   describe "one" do
     test "fetches an existing process by ID" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process!(user)
 
       assert {:ok, fetched} = Processes.one(id: spec.id)
@@ -23,7 +23,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
     end
 
     test "cannot fetch a deleted process" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process!(user)
       assert {:ok, spec} = Processes.soft_delete(spec)
       assert {:error, :not_found} =
@@ -33,7 +33,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
 
   describe "track" do
     test "Returns EconomicEvents that are outputs" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
       _input_events = some(3, fn -> fake_economic_event!(user, %{
         input_of: process.id,
@@ -50,7 +50,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
 
   describe "trace" do
     test "Return EconomicEvents that are inputs" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
       input_events = some(3, fn -> fake_economic_event!(user, %{
         input_of: process.id,
@@ -67,7 +67,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
 
   describe "inputs" do
     test "return EconomicEvents that are inputs" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
       input_events = some(3, fn -> fake_economic_event!(user, %{
         input_of: process.id,
@@ -82,7 +82,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
     end
 
     test "return EconomicEvents that are inputs and with action consume" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
       input_events = some(3, fn -> fake_economic_event!(user, %{
         input_of: process.id,
@@ -99,7 +99,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
 
   describe "outputs" do
     test "return EconomicEvents that are ouputs" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
       _input_events = some(3, fn -> fake_economic_event!(user, %{
         input_of: process.id,
@@ -114,7 +114,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
     end
 
     test "return EconomicEvents that are ouputs and with action produce" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
       _other_output_events = some(3, fn -> fake_economic_event!(user, %{
         output_of: process.id,
@@ -131,15 +131,15 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
 
   describe "create" do
     test "can create a process" do
-      user = fake_user!()
+      user = fake_agent!()
 
       assert {:ok, process} = Processes.create(user, process())
       assert_process(process)
     end
 
     test "can create a process with context" do
-      user = fake_user!()
-      parent = fake_user!()
+      user = fake_agent!()
+      parent = fake_agent!()
 
       attrs = %{in_scope_of: [parent.id]}
       assert {:ok, process} = Processes.create(user, process(attrs))
@@ -148,7 +148,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
     end
 
     test "can create a process with tags" do
-      user = fake_user!()
+      user = fake_agent!()
       tags = some(5, fn -> fake_category!(user).id end)
 
       attrs = process(%{tags: tags})
@@ -162,7 +162,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
 
   describe "update" do
     test "can update an existing process" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process!(user)
 
       assert {:ok, updated} = Processes.update(spec, process())
@@ -173,7 +173,7 @@ defmodule ValueFlows.Observation.Process.ProcessesTest do
 
   describe "soft delete" do
     test "delete an existing process" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process!(user)
 
       refute spec.deleted_at

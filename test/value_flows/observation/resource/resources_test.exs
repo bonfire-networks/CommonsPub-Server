@@ -14,7 +14,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   describe "one" do
     test "fetches an existing economic resource by ID" do
-     user = fake_user!()
+     user = fake_agent!()
      resource = fake_economic_resource!(user)
      assert {:ok, fetched} = EconomicResources.one(id: resource.id)
      assert_economic_resource(fetched)
@@ -26,7 +26,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   describe "EconomicResources.track" do
     test "Returns a list of EconomicEvents affecting it that are inputs to Processes " do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
       input_events = some(3, fn -> fake_economic_event!(user, %{
@@ -44,7 +44,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
     end
 
     test "Returns a list of transfer/move EconomicEvents with the resource defined as the resourceInventoriedAs" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)
@@ -59,7 +59,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   describe "EconomicResources.trace" do
     test "Returns a list of EconomicEvents affecting it that are outputs from Processes" do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
       input_events = some(3, fn -> fake_economic_event!(user, %{
@@ -77,7 +77,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
     end
 
     test "Returns a list of transfer/move EconomicEvents with the resource defined as the toResourceInventoriedAs" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource = fake_economic_resource!(user, %{}, unit)
       input_events = some(3, fn -> fake_economic_event!(user, %{
@@ -93,13 +93,13 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   describe "create" do
     test "can create an economic resource" do
-      user = fake_user!()
+      user = fake_agent!()
       assert {:ok, resource} = EconomicResources.create(user, economic_resource())
       assert_economic_resource(resource)
     end
 
     test "can create an economic resource with current_location" do
-      user = fake_user!()
+      user = fake_agent!()
       location = fake_geolocation!(user)
       attrs = %{
         current_location: location.id
@@ -110,7 +110,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
     end
 
     test "can create an economic resource with conforms_to" do
-      user = fake_user!()
+      user = fake_agent!()
       attrs = %{
         conforms_to: fake_resource_specification!(user).id,
       }
@@ -120,7 +120,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
     end
 
     test "can create an economic resource with contained_in" do
-      user = fake_user!()
+      user = fake_agent!()
       attrs = %{
         contained_in: fake_economic_resource!(user).id,
       }
@@ -130,7 +130,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
     end
 
     test "can create an economic resource with primary_accountable" do
-      user = fake_user!()
+      user = fake_agent!()
       owner = fake_agent!()
       attrs = %{
         primary_accountable: owner.id
@@ -141,7 +141,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
     end
 
     test "can create an economic resource with accounting_quantity and onhand_quantity" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       attrs = %{
         accounting_quantity: measure(%{unit_id: unit.id}),
@@ -155,7 +155,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
     end
 
     test "can create an economic resource with unit_of_effort" do
-      user = fake_user!()
+      user = fake_agent!()
       attrs = %{
         unit_of_effort: fake_unit!(user).id,
       }
@@ -169,7 +169,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   describe "update" do
     test "update an existing resource" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource = fake_economic_resource!(user)
       attrs = %{
@@ -186,7 +186,7 @@ defmodule ValueFlows.Observation.EconomicResource.EconomicResourcesTest do
 
   describe "soft delete" do
     test "delete an existing resource" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_economic_resource!(user)
 
       refute spec.deleted_at

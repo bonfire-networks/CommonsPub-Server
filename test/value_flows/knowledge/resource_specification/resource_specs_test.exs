@@ -13,7 +13,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
 
   describe "one" do
     test "fetches an existing resource specification by ID" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_resource_specification!(user)
 
       assert {:ok, fetched} = ResourceSpecifications.one(id: spec.id)
@@ -23,7 +23,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
     end
 
     test "cannot fetch a deleted resource specification" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_resource_specification!(user)
       assert {:ok, spec} = ResourceSpecifications.soft_delete(spec)
       assert {:error, :not_found} =
@@ -33,15 +33,15 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
 
   describe "create" do
     test "can create a resource specification" do
-      user = fake_user!()
+      user = fake_agent!()
 
       assert {:ok, spec} = ResourceSpecifications.create(user, resource_specification())
       assert_resource_specification(spec)
     end
 
     test "can create a resource specification with context" do
-      user = fake_user!()
-      parent = fake_user!()
+      user = fake_agent!()
+      parent = fake_agent!()
 
       attrs = %{in_scope_of: [parent.id]}
 
@@ -51,7 +51,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
     end
 
     test "can create a resource_specification with tags" do
-      user = fake_user!()
+      user = fake_agent!()
       tags = some(5, fn -> fake_category!(user).id end)
 
       attrs = resource_specification(%{tags: tags})
@@ -65,7 +65,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
 
   describe "update" do
     test "can update an existing resource specification" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_resource_specification!(user)
 
       assert {:ok, updated} = ResourceSpecifications.update(spec, resource_specification())
@@ -76,7 +76,7 @@ defmodule ValueFlows.Knowledge.ResourceSpecification.ResourceSpecificationsTest 
 
   describe "soft delete" do
     test "delete an existing resource specification" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_resource_specification!(user)
 
       refute spec.deleted_at

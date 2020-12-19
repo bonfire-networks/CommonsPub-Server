@@ -96,7 +96,7 @@ defmodule Valueflows.Agent.Person.GraphQLTest do
 
   describe "persons" do
     test "fetches all" do
-      user = fake_user!()
+      user = fake_agent!()
       people = ValueFlows.Agent.People.people(user)
       num_people = Enum.count(people)
 

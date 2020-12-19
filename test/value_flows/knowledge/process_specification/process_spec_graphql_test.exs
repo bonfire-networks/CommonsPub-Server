@@ -14,7 +14,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
   describe "processSpecification" do
     test "fetches a process specification by ID (via HTTP)" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       q = process_specification_query()
@@ -24,7 +24,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
     end
 
     test "fetches a nested process specification by ID (via Absinthe.run)" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       assert queried =
@@ -41,7 +41,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
     end
 
     test "fails if has been deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       q = process_specification_query()
@@ -55,7 +55,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
   describe "processSpecifications" do
     test "returns a list of processSpecifications" do
-      # users = some_fake_users!(3)
+      # users = some_fake_agents!(3)
       # # 9
       # process_specs = some_fake_process_specifications!(3, users)
 
@@ -77,7 +77,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
   describe "createProcessSpecification" do
     test "create a new process specification" do
-      user = fake_user!()
+      user = fake_agent!()
       q = create_process_specification_mutation()
       conn = user_conn(user)
       vars = %{process_specification: process_specification_input()}
@@ -91,8 +91,8 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
     end
 
     # test "create a new process specification with a scope" do
-    #   user = fake_user!()
-    #   parent = fake_user!()
+    #   user = fake_agent!()
+    #   parent = fake_agent!()
 
     #   q = create_process_specification_mutation()
     #   conn = user_conn(user)
@@ -104,7 +104,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
   describe "updateProcessSpecification" do
     test "update an existing process specification" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       q = update_process_specification_mutation()
@@ -120,7 +120,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
     end
 
     test "fail if has been deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       q = update_process_specification_mutation()
@@ -135,7 +135,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.GraphQLTest do
 
   describe "deleteProcessSpecification" do
     test "deletes an existing process specification" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       q = delete_process_specification_mutation()

@@ -16,7 +16,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
   describe "one" do
     test "fetches an existing economic event by ID" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       event =
@@ -41,7 +41,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
   describe "track" do
     test "Return the process to which it is an input" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
 
       event =
@@ -55,7 +55,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "return an economic Resource which it affected as the output of a process" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)
@@ -102,7 +102,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "if it is a transfer or move event, the EconomicResource labelled toResourceInventoriedAs" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)
@@ -124,7 +124,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "if it is a transfer or move event part of a process, the distinct EconomicResource labelled toResourceInventoriedAs" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)
@@ -151,7 +151,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
   describe "trace" do
     test "Return the process to which it is an output" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
 
       event =
@@ -166,7 +166,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "return an economic Resource which it affected as the input of a process" do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
       another_resource = fake_economic_resource!(user)
       process = fake_process!(user)
@@ -197,7 +197,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     test "if it is a transfer or move event, then the previous
           EconomicResource is the resourceInventoriedAs" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)
@@ -221,7 +221,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
   describe "create" do
     test "can create an economic event" do
-      user = fake_user!()
+      user = fake_agent!()
       provider = fake_agent_from_user!(user)
       receiver = fake_agent!()
       action = action()
@@ -244,7 +244,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "cannot create an economic event as someone else" do
-      user = fake_user!()
+      user = fake_agent!()
       provider = fake_agent!()
       receiver = fake_agent!()
       action = action()
@@ -263,10 +263,10 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with context" do
-      user = fake_user!()
+      user = fake_agent!()
 
       attrs = %{
-        in_scope_of: [fake_community!(user).id]
+        in_scope_of: [fake_agent!().id]
       }
 
       assert {:ok, event} = EconomicEvents.create(user, economic_event(attrs))
@@ -276,7 +276,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with tags" do
-      user = fake_user!()
+      user = fake_agent!()
 
       tags = some(5, fn -> fake_category!(user).id end)
       attrs = %{tags: tags}
@@ -290,7 +290,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with input_of and output_of" do
-      user = fake_user!()
+      user = fake_agent!()
 
       attrs = %{
         input_of: fake_process!(user).id,
@@ -305,7 +305,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with resource_inventoried_as" do
-      user = fake_user!()
+      user = fake_agent!()
 
       attrs = %{
         resource_inventoried_as: fake_economic_resource!(user).id
@@ -318,7 +318,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with to_resource_inventoried_as" do
-      user = fake_user!()
+      user = fake_agent!()
 
       attrs = %{
         to_resource_inventoried_as: fake_economic_resource!(user).id
@@ -331,7 +331,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with resource_inventoried_as and to_resource_inventoried_as" do
-      user = fake_user!()
+      user = fake_agent!()
 
       attrs = %{
         resource_inventoried_as: fake_economic_resource!(user).id,
@@ -346,7 +346,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with resource_conforms_to" do
-      user = fake_user!()
+      user = fake_agent!()
 
       attrs = %{
         resource_conforms_to: fake_resource_specification!(user).id
@@ -360,7 +360,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
     @tag :skip
     test "can create an economic event with resource_classified_as" do
-      user = fake_user!()
+      user = fake_agent!()
 
       attrs = %{
         resource_classified_as: some(1..5, &url/0)
@@ -373,7 +373,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with resource_quantity and effort_quantity" do
-      user = fake_user!()
+      user = fake_agent!()
 
       unit = fake_unit!(user)
 
@@ -390,7 +390,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event with location" do
-      user = fake_user!()
+      user = fake_agent!()
 
       location = fake_geolocation!(user)
 
@@ -405,7 +405,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "can create an economic event triggered_by another event" do
-      user = fake_user!()
+      user = fake_agent!()
 
       triggered_by = fake_economic_event!(user)
 
@@ -422,7 +422,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
   describe "update" do
     test "updates an existing event" do
-      user = fake_user!()
+      user = fake_agent!()
       economic_event = fake_economic_event!(user)
 
       assert {:ok, updated} =
@@ -433,8 +433,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
     end
 
     test "cannot update somebody else's event" do
-      alice = fake_user!()
-      bob = fake_user!()
+      alice = fake_agent!()
+      bob = fake_agent!()
       economic_event = fake_economic_event!(alice)
 
       assert {:error, _e} =
@@ -444,7 +444,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsTest do
 
   describe "soft delete" do
     test "delete an existing event" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_economic_event!(user)
 
       refute spec.deleted_at

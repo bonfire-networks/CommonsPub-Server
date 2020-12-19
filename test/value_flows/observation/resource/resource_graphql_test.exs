@@ -21,7 +21,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
 
   describe "EconomicResource" do
     test "fetches a basic economic resource by ID" do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
 
       q = economic_resource_query()
@@ -31,7 +31,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
     end
 
     test "fetches a full nested economic resource by ID (via Absinthe.run)" do
-      user = fake_user!()
+      user = fake_agent!()
 
       location = fake_geolocation!(user)
       owner = fake_agent!()
@@ -66,7 +66,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
     end
 
     test "fail if has been deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
 
       q = economic_resource_query()
@@ -81,7 +81,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
 
   describe "EconomicResources" do
     test "return a list of economicResources" do
-      user = fake_user!()
+      user = fake_agent!()
       resources = some(5, fn -> fake_economic_resource!(user) end)
       # deleted
       some(2, fn ->
@@ -100,7 +100,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
 
   describe "EconomicResourcesPages" do
     test "return a list of economicResources" do
-      user = fake_user!()
+      user = fake_agent!()
       resources = some(5, fn -> fake_economic_resource!(user) end)
       # deleted
       some(2, fn ->
@@ -123,7 +123,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
 
   describe "EconomicResources.track" do
     test "Returns a list of EconomicEvents that are inputs to Processes " do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
 
@@ -153,7 +153,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
     end
 
     test "Returns a list of transfer/move EconomicEvents with the resource defined as the resourceInventoriedAs" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)
@@ -184,7 +184,7 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
 
   describe "EconomicResources.trace" do
     test "Returns a list of EconomicEvents affecting it that are outputs to Processes " do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)
@@ -216,8 +216,8 @@ defmodule ValueFlows.Observation.EconomicResource.GraphQLTest do
     end
 
     test "Returns a list of transfer/move EconomicEvents with the resource defined as the toResourceInventoriedAs" do
-      alice = fake_user!()
-      bob = fake_user!()
+      alice = fake_agent!()
+      bob = fake_agent!()
 
       unit = fake_unit!(alice)
 

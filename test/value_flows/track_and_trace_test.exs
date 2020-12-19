@@ -18,7 +18,7 @@ defmodule ValueFlows.TrackAndTraceTest do
   describe "Track" do
 
    test "starting from a resource we track the chain until the second level" do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
       input_events = some(3, fn -> fake_economic_event!(user, %{
@@ -33,7 +33,7 @@ defmodule ValueFlows.TrackAndTraceTest do
       end
     end
     test "starting from a resource we track the chain until the third level" do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
       process = fake_process!(user)
       input_events = some(3, fn -> fake_economic_event!(user, %{
@@ -52,7 +52,7 @@ defmodule ValueFlows.TrackAndTraceTest do
 
   describe "Trace" do
     test "return an economic event that is not part of a process from tracing a resource" do
-      user = fake_user!()
+      user = fake_agent!()
       resource = fake_economic_resource!(user)
       event = fake_economic_event!(user, %{
         resource_inventoried_as: resource.id,

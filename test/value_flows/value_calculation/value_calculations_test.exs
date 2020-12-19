@@ -12,7 +12,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
 
   describe "create" do
     test "with only required parameters" do
-      user = fake_user!()
+      user = fake_agent!()
 
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation())
       assert_value_calculation(calc)
@@ -28,8 +28,8 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     end
 
     test "with a context" do
-      user = fake_user!()
-      context = fake_community!(user)
+      user = fake_agent!()
+      context = fake_agent!()
 
       attrs = %{in_scope_of: [context.id]}
       assert {:ok, calc} = ValueCalculations.create(user, value_calculation(attrs))
@@ -38,7 +38,7 @@ defmodule ValueFlows.ValueCalculation.ValueCalculationsTest do
     end
 
     test "with a value unit" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       attrs = %{value_unit: unit.id}

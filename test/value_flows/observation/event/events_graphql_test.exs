@@ -25,7 +25,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
   describe "EconomicEvent" do
     test "fetches an economic event by ID (via HTTP)" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       provider = fake_agent_from_user!(user)
@@ -52,7 +52,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "fetches a full nested economic event by ID (via Absinthe.run)" do
-      user = fake_user!()
+      user = fake_agent!()
 
       location = fake_geolocation!(user)
 
@@ -66,7 +66,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
       event =
         fake_economic_event!(user, %{
-          in_scope_of: [fake_community!(user).id],
+          in_scope_of: [fake_agent!().id],
           provider: provider.id,
           receiver: receiver.id,
           action: action.id,
@@ -95,7 +95,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "fails if has been deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       event =
@@ -119,9 +119,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
   describe "economicEvent.inScopeOf" do
     test "return the scope of the intent" do
-      user = fake_user!()
+      user = fake_agent!()
 
-      parent = fake_user!()
+      parent = fake_agent!()
 
       event =
         fake_economic_event!(user, %{
@@ -137,7 +137,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
   describe "EconomicEvents" do
     test "return a list of economicEvents" do
-      user = fake_user!()
+      user = fake_agent!()
 
       events =
         some(5, fn ->
@@ -161,7 +161,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
   describe "EconomicEventsPages" do
     test "fetches all items that are not deleted" do
-      user = fake_user!()
+      user = fake_agent!()
 
       events =
         some(5, fn ->
@@ -188,7 +188,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
   describe "EconomicEvent.track" do
     test "Returns a list of EconomicResources or Processes" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       process = fake_process!(user)
@@ -220,7 +220,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
   describe "EconomicEvent.trace" do
     test "Returns a list of economic events that are outputs" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       process = fake_process!(user)
@@ -252,7 +252,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
 
   describe "createEconomicEvent" do
     test "create a new economic event" do
-      user = fake_user!()
+      user = fake_agent!()
 
       q = create_economic_event_mutation()
       conn = user_conn(user)
@@ -266,9 +266,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "creates a new economic event with a scope" do
-      user = fake_user!()
+      user = fake_agent!()
 
-      parent = fake_user!()
+      parent = fake_agent!()
 
       q = create_economic_event_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
@@ -286,7 +286,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "create an economic event with an input and an output" do
-      user = fake_user!()
+      user = fake_agent!()
 
       process = fake_process!(user)
 
@@ -308,7 +308,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "create an economic event with a resourceInventoriedAs" do
-      user = fake_user!()
+      user = fake_agent!()
 
       resource_inventoried_as = fake_economic_resource!(user)
 
@@ -328,7 +328,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "create an economic event with toResourceInventoriedAs" do
-      user = fake_user!()
+      user = fake_agent!()
 
       resource_inventoried_as = fake_economic_resource!(user)
 
@@ -348,7 +348,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "create an economic event with resource conforms to" do
-      user = fake_user!()
+      user = fake_agent!()
 
       resource_conforms_to = fake_resource_specification!(user)
 
@@ -371,7 +371,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "create an economic event with location" do
-      user = fake_user!()
+      user = fake_agent!()
 
       geo = fake_geolocation!(user)
 
@@ -391,7 +391,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "create an economic event triggered by another economic event" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       trigger = fake_economic_event!(user, %{}, unit)
@@ -411,7 +411,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsGraphQLTest do
     end
 
     test "create an economic event with tags" do
-      user = fake_user!()
+      user = fake_agent!()
 
       tags = some(5, fn -> fake_category!(user).id end)
 

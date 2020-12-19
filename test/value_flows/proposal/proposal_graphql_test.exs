@@ -15,7 +15,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "proposal" do
     test "fetches a proposal by ID (via GraphQL HTTP)" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
 
       q = proposal_query()
@@ -30,8 +30,8 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
 
     test "fetches a full nested proposal by ID (via Absinthe.run)" do
-      user = fake_user!()
-      parent = fake_user!()
+      user = fake_agent!()
+      parent = fake_agent!()
       location = fake_geolocation!(user)
 
       proposal =
@@ -66,7 +66,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "proposal.publishes" do
     test "fetches all proposed intents for a proposal" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
 
@@ -83,7 +83,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "proposal.publishes.publishedIn" do
     test "lists the proposals for a proposed intent" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
 
@@ -104,7 +104,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "proposal.publishedTo" do
     test "fetches all proposed to items for a proposal" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
 
       some(5, fn ->
@@ -120,7 +120,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "proposal.eligibleLocation" do
     test "fetches an associated eligible location" do
-      user = fake_user!()
+      user = fake_agent!()
       location = fake_geolocation!(user)
       proposal = fake_proposal!(user, %{eligible_location_id: location.id})
 
@@ -133,8 +133,8 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "proposal.inScopeOf" do
     test "returns the scope of the proposal" do
-      user = fake_user!()
-      parent = fake_user!()
+      user = fake_agent!()
+      parent = fake_agent!()
       proposal = fake_proposal!(user, %{in_scope_of: [parent.id]})
 
       q = proposal_query(fields: [in_scope_of: [:__typename]])
@@ -146,7 +146,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "proposalPages" do
     test "fetches a page of proposals" do
-      user = fake_user!()
+      user = fake_agent!()
       proposals = some(5, fn -> fake_proposal!(user) end)
       after_proposal = List.first(proposals)
 
@@ -159,7 +159,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
 
     test "fetches several pages of proposals" do
-      user = fake_user!()
+      user = fake_agent!()
       proposals = some(6, fn -> fake_proposal!(user) end)
 
       q = proposals_pages_query()
@@ -185,7 +185,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "createProposal" do
     test "creates a new proposal" do
-      user = fake_user!()
+      user = fake_agent!()
       q = create_proposal_mutation()
       conn = user_conn(user)
       vars = %{proposal: proposal_input()}
@@ -194,8 +194,8 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
 
     test "creates a new proposal with a scope" do
-      user = fake_user!()
-      parent = fake_user!()
+      user = fake_agent!()
+      parent = fake_agent!()
 
       q = create_proposal_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
@@ -206,7 +206,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
 
     test "creates a new proposal with an eligible location" do
-      user = fake_user!()
+      user = fake_agent!()
       location = fake_geolocation!(user)
 
       q = create_proposal_mutation(fields: [eligible_location: [:id]])
@@ -219,7 +219,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "updateProposal" do
     test "updates an existing proposal" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
 
       q = update_proposal_mutation()
@@ -230,11 +230,11 @@ defmodule ValueFlows.Proposal.GraphQLTest do
     end
 
     test "updates an existing proposal with a new scope" do
-      user = fake_user!()
-      scope = fake_community!(user)
+      user = fake_agent!()
+      scope = fake_agent!()
       proposal = fake_proposal!(user, %{in_scope_of: [scope.id]})
 
-      new_scope = fake_community!(user)
+      new_scope = fake_agent!()
       q = update_proposal_mutation()
       conn = user_conn(user)
 
@@ -249,7 +249,7 @@ defmodule ValueFlows.Proposal.GraphQLTest do
 
   describe "deleteProposal" do
     test "deletes an existing proposal" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
 
       q = delete_proposal_mutation()

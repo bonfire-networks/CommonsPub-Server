@@ -28,7 +28,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
 
   describe "noEffect" do
     test "passing an action with noEffect does not modify quantities" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource_inventoried_as = fake_economic_resource!(user)
       to_resource_inventoried_as = fake_economic_resource!(user)
@@ -66,7 +66,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
 
   describe "Increment or decrement" do
     test "If resource inventoried as is not set, measures are not decremented" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       to_resource_inventoried_as = fake_economic_resource!(user)
 
@@ -90,7 +90,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "If resource inventoried as is not set, measures are not incremented" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       to_resource_inventoried_as = fake_economic_resource!(user)
 
@@ -114,7 +114,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "If resource inventoried is set, measures are incremented as expected" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -147,7 +147,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "If resource inventoried is set, measures are decremented as expected" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -182,7 +182,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
 
   describe "DecrementIncrement with transfer/move" do
     test "if resources are not set, the measures should not change" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       event =
@@ -200,7 +200,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if to_resource_inventoried_as is not set, resource inventoried as decrement as expected" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
 
@@ -226,7 +226,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if resource_inventoried_as is not set, to resource inventoried as should increment as expected" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
 
@@ -252,7 +252,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if both resources are set, the measures should change accordingly" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -290,7 +290,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
 
   describe "DecrementIncrement with transfer-custody" do
     test "if resources are not set, the measures should not change" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       event =
@@ -308,7 +308,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if to_resource_inventoried_as is not set, resource inventoried as decrement as expected" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
 
@@ -335,7 +335,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if resource_inventoried_as is not set, to resource inventoried as should increment as expected" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
 
@@ -357,7 +357,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if both resources are set, the measures should change accordingly" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -396,7 +396,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if both resources are set, but with different measures, it should refuse to go ahead" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       unit2 = fake_unit!(user)
 
@@ -416,9 +416,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if a third party tries transfering a resource without consent, stop" do
-      alice = fake_user!()
-      bob = fake_user!()
-      conan = fake_user!()
+      alice = fake_agent!()
+      bob = fake_agent!()
+      conan = fake_agent!()
 
       unit = fake_unit!(alice)
 
@@ -440,8 +440,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if a receiver tries transfering a resource to themselves without consent, stop" do
-      alice = fake_user!()
-      bob = fake_user!()
+      alice = fake_agent!()
+      bob = fake_agent!()
 
       unit = fake_unit!(alice)
 
@@ -462,8 +462,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if a provider tries transfering a resource, succeed" do
-      alice = fake_user!()
-      bob = fake_user!()
+      alice = fake_agent!()
+      bob = fake_agent!()
 
       unit = fake_unit!(alice)
 
@@ -486,7 +486,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
 
   describe "DecrementIncrement with transfer-all-rights" do
     test "if resources are not set, the measures should not change" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       event =
@@ -504,7 +504,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if to_resource_inventoried_as is not set, resource inventoried as decrement as expected" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
 
@@ -531,7 +531,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if resource_inventoried_as is not set, to resource inventoried as should increment as expected" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
 
@@ -553,7 +553,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EconomicEventsResourcesTest do
     end
 
     test "if both resources are set, the measures should change accordingly" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)

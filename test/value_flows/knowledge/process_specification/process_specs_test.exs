@@ -12,7 +12,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
 
   describe "one" do
     test "fetches an existing process specification by ID" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       assert {:ok, fetched} = ProcessSpecifications.one(id: spec.id)
@@ -22,7 +22,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
     end
 
     test "cannot fetch a deleted process specification" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
       assert {:ok, spec} = ProcessSpecifications.soft_delete(spec)
       assert {:error, :not_found} = ProcessSpecifications.one([:deleted, id: spec.id])
@@ -31,16 +31,16 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
 
   describe "create" do
     test "can create a process specification" do
-      user = fake_user!()
+      user = fake_agent!()
 
       assert {:ok, spec} = ProcessSpecifications.create(user, process_specification())
       assert_process_specification(spec)
     end
 
     test "can create a process specification with context" do
-      user = fake_user!()
+      user = fake_agent!()
 
-      attrs = %{in_scope_of: [fake_user!().id]}
+      attrs = %{in_scope_of: [fake_agent!().id]}
 
       assert {:ok, spec} = ProcessSpecifications.create(user, process_specification(attrs))
       assert_process_specification(spec)
@@ -48,7 +48,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
     end
 
     test "can create a process_specification with tags" do
-      user = fake_user!()
+      user = fake_agent!()
       tags = some(5, fn -> fake_category!(user).id end)
 
       attrs = process_specification(%{tags: tags})
@@ -62,7 +62,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
 
   describe "update" do
     test "can update an existing process specification" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       assert {:ok, updated} = ProcessSpecifications.update(spec, process_specification())
@@ -73,7 +73,7 @@ defmodule ValueFlows.Knowledge.ProcessSpecification.ProcessSpecificationsTest do
 
   describe "soft delete" do
     test "delete an existing process specification" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process_specification!(user)
 
       refute spec.deleted_at

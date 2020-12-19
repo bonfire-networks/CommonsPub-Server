@@ -25,7 +25,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
 
   describe "EconomicEventsResourcesMutations" do
     test "create an economic resource produced by an economic event" do
-      user = fake_user!()
+      user = fake_agent!()
 
       q = create_economic_event_mutation([fields: [provider: [:id]]], fields: [:id])
 
@@ -48,7 +48,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "increment an existing resource" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -86,7 +86,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "decrement an existing resource" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -124,7 +124,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "fails if trying to increment a resource with a different unit" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource_inventoried_as = fake_economic_resource!(user)
@@ -148,7 +148,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "transfer an existing economic resource" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
       to_resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -197,8 +197,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "create an economic resource produced by an economic event, and then transfer part of it" do
-      alice = fake_user!()
-      bob = fake_user!()
+      alice = fake_agent!()
+      bob = fake_agent!()
 
       unit = fake_unit!(alice)
 
@@ -298,7 +298,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "create an economic event that consumes an existing resource" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource_inventoried_as = fake_economic_resource!(user, %{}, unit)
@@ -336,7 +336,7 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "fails if the economic event consumes an economic resource that does not exist" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       q =
@@ -368,8 +368,8 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "create an economic event that transfers an existing resource from a provider to a receiver" do
-      alice = fake_user!()
-      bob = fake_user!()
+      alice = fake_agent!()
+      bob = fake_agent!()
 
       unit = fake_unit!(alice)
 
@@ -425,9 +425,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "fails to transfer an economic resource if the provider does not have rights to transfer it" do
-      alice = fake_user!()
+      alice = fake_agent!()
       unit = fake_unit!(alice)
-      bob = fake_user!()
+      bob = fake_agent!()
 
       resource_inventoried_as =
         fake_economic_resource!(alice, %{primary_accountable: bob.id}, unit)
@@ -471,9 +471,9 @@ defmodule ValueFlows.Observation.EconomicEvent.EventsResourcesGraphQLTest do
     end
 
     test "cannot transfer custody of an economic resource when the provider does not have rights on the target resource" do
-      user_provider = fake_user!()
-      user_receiver = fake_user!()
-      user_resource_to = fake_user!()
+      user_provider = fake_agent!()
+      user_receiver = fake_agent!()
+      user_resource_to = fake_agent!()
 
       unit = fake_unit!(user_provider)
 

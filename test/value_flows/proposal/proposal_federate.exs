@@ -16,11 +16,11 @@ defmodule ValueFlows.Proposal.FederateTest do
 
   describe "proposal" do
     test "federates/publishes a proposal" do
-      user = fake_user!()
+      user = fake_agent!()
 
       unit = fake_unit!(user)
 
-      parent = fake_user!()
+      parent = fake_agent!()
 
       location = fake_geolocation!(user)
 

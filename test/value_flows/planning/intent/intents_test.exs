@@ -16,7 +16,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
 
   describe "one" do
     test "fetches an existing intent by ID" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
 
       assert {:ok, fetched} = Intents.one(id: intent.id)
@@ -30,14 +30,14 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
 
   describe "create" do
     test "can create an intent" do
-      user = fake_user!()
+      user = fake_agent!()
 
       assert {:ok, intent} = Intents.create(user, intent())
       assert_intent(intent)
     end
 
     test "can create an intent with measure" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       measures = %{
@@ -51,7 +51,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
     end
 
     test "can create an intent with provider and receiver" do
-      user = fake_user!()
+      user = fake_agent!()
 
       attrs = %{
         provider: fake_agent!().id
@@ -78,8 +78,8 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
     end
 
     test "can create an intent with a context" do
-      user = fake_user!()
-      context = fake_community!(user)
+      user = fake_agent!()
+      context = fake_agent!()
 
       attrs = %{in_scope_of: [context.id]}
 
@@ -89,7 +89,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
     end
 
     test "can create an intent with tags" do
-      user = fake_user!()
+      user = fake_agent!()
       tags = some(5, fn -> fake_category!(user).id end)
 
       attrs = intent(%{tags: tags})
@@ -102,7 +102,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
 
   describe "update" do
     test "updates an existing intent" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       intent = fake_intent!(user)
 
@@ -123,7 +123,7 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
 
     @tag :skip
     test "fails if invalid action is given" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
 
       # FIXME: doesn't actually check as it isn't a foreign key

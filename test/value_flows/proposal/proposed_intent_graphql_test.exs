@@ -9,7 +9,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQLTest do
 
   describe "propose_intent" do
     test "creates a new proposed intent" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
 
@@ -32,7 +32,7 @@ defmodule ValueFlows.Proposal.ProposedIntentGraphQLTest do
 
   describe "delete_proposed_intent" do
     test "deletes a proposed intent" do
-      user = fake_user!()
+      user = fake_agent!()
 
       proposed_intent =
         fake_proposed_intent!(

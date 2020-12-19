@@ -23,7 +23,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "intent" do
     test "fetches an existing intent by ID (via Graphql/HTTP)" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
 
       q = intent_query()
@@ -32,13 +32,13 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "fetches a full nested intent by ID (via Absinthe.run)" do
-      user = fake_user!()
+      user = fake_agent!()
 
       location = fake_geolocation!(user)
 
       unit = fake_unit!(user)
 
-      parent = fake_user!()
+      parent = fake_agent!()
 
       intent = fake_intent!(user, %{
         provider: user.id,
@@ -76,7 +76,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "fails for deleted intent" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
       assert {:ok, intent} = Intents.soft_delete(intent)
 
@@ -88,7 +88,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "intent.publishedIn" do
     test "lists proposed intents for an intent" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
 
@@ -103,7 +103,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "intent.publishedIn.publishes" do
     test "lists the intents for a proposed intent" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
 
@@ -124,8 +124,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "intent.inScopeOf" do
     test "returns the scope of the intent" do
-      user = fake_user!()
-      parent = fake_user!()
+      user = fake_agent!()
+      parent = fake_agent!()
       intent = fake_intent!(user, %{in_scope_of: [parent.id]})
 
       q = intent_query(fields: [in_scope_of: [:__typename]])
@@ -137,7 +137,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "intents" do
     test "fetches all items that are not deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       intents = some(5, fn -> fake_intent!(user) end)
       # deleted
       some(2, fn ->
@@ -155,7 +155,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "intentsPages" do
     test "fetches all items that are not deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       intents = some(5, fn -> fake_intent!(user) end)
       # deleted
       some(2, fn ->
@@ -173,7 +173,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "create_intent" do
     test "creates a new intent given valid attributes" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       q =
@@ -195,7 +195,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "creates a new offer given valid attributes" do
-      user = fake_user!()
+      user = fake_agent!()
       q = create_offer_mutation(fields: [provider: [:id]])
       conn = user_conn(user)
       vars = %{intent: intent_input()}
@@ -205,7 +205,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "create a new need given valid attributes" do
-      user = fake_user!()
+      user = fake_agent!()
       q = create_need_mutation(fields: [receiver: [:id]])
       conn = user_conn(user)
       vars = %{intent: intent_input()}
@@ -215,8 +215,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "creates a new intent given a scope" do
-      user = fake_user!()
-      another_user = fake_user!()
+      user = fake_agent!()
+      another_user = fake_agent!()
 
       q = create_intent_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
@@ -228,7 +228,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "creates a new intent with a location" do
-      user = fake_user!()
+      user = fake_agent!()
       geo = fake_geolocation!(user)
 
       q = create_intent_mutation(fields: [at_location: [:id]])
@@ -240,7 +240,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "creates a new intent with an action" do
-      user = fake_user!()
+      user = fake_agent!()
       action = action()
 
       q = create_intent_mutation(fields: [action: [:id]])
@@ -252,7 +252,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "creates a new intent with a provider" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       provider = fake_agent!()
 
@@ -265,7 +265,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "creates a new intent with a receiver" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       receiver = fake_agent!()
 
@@ -278,7 +278,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "creates a new intent with a provider and a receiver" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       provider = fake_agent!()
       receiver = fake_agent!()
@@ -297,7 +297,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "creates a new intent with a url image" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       q = create_intent_mutation(fields: [:image])
@@ -314,7 +314,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "create an intent with tags" do
-      user = fake_user!()
+      user = fake_agent!()
 
       tags = some(5, fn -> fake_category!(user).id end)
 
@@ -335,7 +335,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "fail if given an invalid action" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       action = action()
 
@@ -348,7 +348,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "update_intent" do
     test "updates an existing intent" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
       intent = fake_intent!(user)
 
@@ -368,8 +368,8 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "updates an existing intent with a scope" do
-      user = fake_user!()
-      another_user = fake_user!()
+      user = fake_agent!()
+      another_user = fake_agent!()
       intent = fake_intent!(user)
 
       q = update_intent_mutation(fields: [in_scope_of: [:__typename]])
@@ -389,7 +389,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "updates an existing intent with a location" do
-      user = fake_user!()
+      user = fake_agent!()
       geo = fake_geolocation!(user)
       intent = fake_intent!(user)
 
@@ -409,7 +409,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "updates an existing intent with a url image" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
       q = update_intent_mutation(fields: [:image])
       conn = user_conn(user)
@@ -427,7 +427,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
     end
 
     test "updates an existing intent with an action" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
 
       q = update_intent_mutation(fields: [action: [:id]])
@@ -448,7 +448,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
     @tag :skip
     test "fail if given an invalid action" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
       action = action()
 
@@ -469,7 +469,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
   describe "delete_intent" do
     test "deletes an item that is not deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
 
       q = delete_intent_mutation()

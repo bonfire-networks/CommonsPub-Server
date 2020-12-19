@@ -16,7 +16,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "Process" do
     test "fetches a basic process by ID (via HTTP)" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
       q = process_query()
       conn = user_conn(user)
@@ -24,7 +24,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     end
 
     test "fetches a full nested process by ID (via Absinthe.run)" do
-      user = fake_user!()
+      user = fake_agent!()
 
       process = fake_process!(user)
 
@@ -42,7 +42,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     end
 
     test "fails if has been deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process!(user)
 
       q = process_query()
@@ -57,7 +57,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "Processes" do
     test "returns a list of Processes" do
-      user = fake_user!()
+      user = fake_agent!()
       processes = some(5, fn -> fake_process!(user) end)
       # deleted
       some(2, fn ->
@@ -75,7 +75,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "processesPages" do
     test "fetches all items that are not deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       processes = some(5, fn -> fake_process!(user) end)
       after_process = List.first(processes)
       # deleted
@@ -95,7 +95,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "Process.track" do
     test "Returns a list of economic events that are outputs" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
 
       output_events =
@@ -116,7 +116,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "Process.trace" do
     test "Returns a list of economic events that are outputs" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
 
       input_events =
@@ -137,7 +137,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "Process.inputs" do
     test "Returns a list of economic events that are inputs" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
 
       input_events =
@@ -156,7 +156,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     end
 
     test "Returns a list of economic events that are inputs and with an action consume" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
 
       input_events =
@@ -187,7 +187,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "Process.outputs" do
     test "Returns a list of economic events that are outputs" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
 
       output_events =
@@ -206,7 +206,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     end
 
     test "Returns a list of economic events that are outputs and with an action consume" do
-      user = fake_user!()
+      user = fake_agent!()
       process = fake_process!(user)
 
       output_events =
@@ -237,7 +237,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "createProcess" do
     test "create a new process" do
-      user = fake_user!()
+      user = fake_agent!()
       q = create_process_mutation()
       conn = user_conn(user)
       vars = %{process: process_input()}
@@ -246,8 +246,8 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     end
 
     test "create a new process with a scope" do
-      user = fake_user!()
-      parent = fake_user!()
+      user = fake_agent!()
+      parent = fake_agent!()
 
       q = create_process_mutation()
       conn = user_conn(user)
@@ -259,7 +259,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "updateProcess" do
     test "update an existing process" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process!(user)
 
       q = update_process_mutation()
@@ -270,7 +270,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
     end
 
     test "fail if has been deleted" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process!(user)
 
       q = update_process_mutation()
@@ -285,7 +285,7 @@ defmodule ValueFlows.Observation.Process.GraphQLTest do
 
   describe "deleteProcess" do
     test "deletes an existing process" do
-      user = fake_user!()
+      user = fake_agent!()
       spec = fake_process!(user)
 
       q = delete_process_mutation()

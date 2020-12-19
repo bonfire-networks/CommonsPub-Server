@@ -18,7 +18,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "one" do
     test "fetches an existing proposal by ID" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
 
       assert {:ok, fetched} = Proposals.one(id: proposal.id)
@@ -32,7 +32,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "create" do
     test "can create a proposal" do
-      user = fake_user!()
+      user = fake_agent!()
       attrs = proposal()
 
       assert {:ok, proposal} = Proposals.create(user, attrs)
@@ -41,8 +41,8 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     end
 
     test "can create a proposal with a scope" do
-      user = fake_user!()
-      parent = fake_user!()
+      user = fake_agent!()
+      parent = fake_agent!()
 
       assert {:ok, proposal} = Proposals.create(user, proposal(%{in_scope_of: [parent.id]}))
       assert_proposal_full(proposal)
@@ -50,7 +50,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     end
 
     test "can create a proposal with an eligible location" do
-      user = fake_user!()
+      user = fake_agent!()
       location = fake_geolocation!(user)
 
       attrs = proposal(%{eligible_location_id: location.id})
@@ -61,7 +61,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "update" do
     test "can update an existing proposal" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       new_attrs = proposal()
 
@@ -72,11 +72,11 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     end
 
     test "can update an existing proposal with a new context" do
-      user = fake_user!()
-      context = fake_community!(user)
+      user = fake_agent!()
+      context = fake_agent!()
       proposal = fake_proposal!(user, %{in_scope_of: [context.id]})
 
-      new_context = fake_community!(user)
+      new_context = fake_agent!()
       assert {:ok, updated} = Proposals.update(proposal, proposal(%{in_scope_of: [new_context.id]}))
       assert_proposal_full(updated)
       assert updated.updated_at != proposal.updated_at
@@ -86,7 +86,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "one_proposed_intent" do
     test "fetches an existing proposed intent" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
 
@@ -103,7 +103,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     end
 
     test "default filter ignores removed items" do
-      user = fake_user!()
+      user = fake_agent!()
 
       proposed_intent =
         fake_proposed_intent!(
@@ -120,7 +120,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "many_proposed_intent" do
     test "returns a list of items matching criteria" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       intent = fake_intent!(user)
 
@@ -138,7 +138,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "propose_intent" do
     test "creates a new proposed intent" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
       proposal = fake_proposal!(user)
 
@@ -151,7 +151,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "delete_proposed_intent" do
     test "deletes an existing proposed intent" do
-      user = fake_user!()
+      user = fake_agent!()
       intent = fake_intent!(user)
       proposal = fake_proposal!(user)
       proposed_intent = fake_proposed_intent!(proposal, intent)
@@ -162,7 +162,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "one_proposed_to" do
     test "fetches an existing item" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       agent = fake_agent!()
       proposed_to = fake_proposed_to!(agent, proposal)
@@ -181,7 +181,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
     end
 
     test "ignores deleted items when using :deleted filter" do
-      user = fake_user!()
+      user = fake_agent!()
       proposed_to = fake_proposed_to!(fake_agent!(), fake_proposal!(user))
       assert {:ok, proposed_to} = Proposals.delete_proposed_to(proposed_to)
 
@@ -192,7 +192,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "propose_to" do
     test "creates a new proposed to thing" do
-      user = fake_user!()
+      user = fake_agent!()
       proposal = fake_proposal!(user)
       agent = fake_agent!()
       assert {:ok, proposed_to} = Proposals.propose_to(agent, proposal)
@@ -202,7 +202,7 @@ defmodule ValueFlows.Proposal.ProposalsTest do
 
   describe "delete_proposed_to" do
     test "deletes an existing proposed to" do
-      user = fake_user!()
+      user = fake_agent!()
       proposed_to = fake_proposed_to!(fake_agent!(), fake_proposal!(user))
 
       refute proposed_to.deleted_at

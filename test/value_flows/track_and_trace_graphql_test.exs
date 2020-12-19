@@ -19,7 +19,7 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
 
   describe "Trace" do
     test "3 level nesting" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)
@@ -80,7 +80,7 @@ defmodule ValueFlows.TrackAndTraceGraphQLTest do
 
   describe "Track" do
     test "3 level nesting" do
-      user = fake_user!()
+      user = fake_agent!()
       unit = fake_unit!(user)
 
       resource = fake_economic_resource!(user, %{}, unit)

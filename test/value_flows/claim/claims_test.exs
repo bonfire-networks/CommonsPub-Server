@@ -11,7 +11,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
 
   describe "one" do
     test "by id" do
-      claim = fake_claim!(fake_user!())
+      claim = fake_claim!(fake_agent!())
 
       assert {:ok, fetched} = Claims.one(id: claim.id)
       assert_claim(fetched)
@@ -20,7 +20,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
 
     test "by action" do
       action_id = action_id()
-      claim = fake_claim!(fake_user!(), %{action: action_id})
+      claim = fake_claim!(fake_agent!(), %{action: action_id})
 
       assert {:ok, fetched} = Claims.one(action_id: action_id)
       assert_claim(fetched)
@@ -28,7 +28,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "by user" do
-      user = fake_user!()
+      user = fake_agent!()
       claim = fake_claim!(user)
 
       assert {:ok, fetched} = Claims.one(creator: user)
@@ -38,9 +38,9 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "by provider" do
-      user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      user = fake_agent!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
       claim = fake_claim!(user, provider, receiver)
 
       assert {:ok, fetched} = Claims.one(provider_id: provider.id)
@@ -50,9 +50,9 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "by receiver" do
-      user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      user = fake_agent!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
       claim = fake_claim!(user, provider, receiver)
 
       assert {:ok, fetched} = Claims.one(receiver_id: receiver.id)
@@ -62,8 +62,8 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "by context" do
-      user = fake_user!()
-      context = fake_community!(user)
+      user = fake_agent!()
+      context = fake_agent!()
       claim = fake_claim!(user, %{in_scope_of: [context.id]})
 
       assert {:ok, fetched} = Claims.one(context_id: context.id)
@@ -73,7 +73,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "default filter handles deleted items" do
-      claim = fake_claim!(fake_user!())
+      claim = fake_claim!(fake_agent!())
 
       assert {:ok, claim} = Claims.soft_delete(claim)
       assert {:error, :not_found} = Claims.one([:default, id: claim.id])
@@ -86,9 +86,9 @@ defmodule ValueFlows.Claim.ClaimsTest do
 
   describe "create" do
     test "with only required parameters" do
-      user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      user = fake_agent!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
 
       assert {:ok, claim} = Claims.create(user, provider, receiver, claim())
       assert_claim(claim)
@@ -98,12 +98,12 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "with a context" do
-      user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      user = fake_agent!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
 
       attrs = %{
-        in_scope_of: [fake_community!(user).id]
+        in_scope_of: [fake_agent!().id]
       }
 
       assert {:ok, claim} = Claims.create(user, provider, receiver, claim(attrs))
@@ -112,9 +112,9 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "with measure quantities" do
-      user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      user = fake_agent!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
 
       unit = fake_unit!(user)
       attrs = %{
@@ -129,9 +129,9 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "with a resource specification" do
-      user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      user = fake_agent!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
 
       attrs = %{
         resource_conforms_to: fake_resource_specification!(user).id
@@ -143,9 +143,9 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "with a triggered by event" do
-      user = fake_user!()
-      provider = fake_user!()
-      receiver = fake_user!()
+      user = fake_agent!()
+      provider = fake_agent!()
+      receiver = fake_agent!()
 
       attrs = %{
         triggered_by: fake_economic_event!(user).id
@@ -159,7 +159,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
 
   describe "update" do
     test "can update an existing claim" do
-      user = fake_user!()
+      user = fake_agent!()
       claim = fake_claim!(user)
 
       assert {:ok, updated} = Claims.update(claim, claim())
@@ -169,9 +169,9 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "with a context" do
-      user = fake_user!()
+      user = fake_agent!()
       claim = fake_claim!(user)
-      context = fake_community!(user)
+      context = fake_agent!()
 
       assert {:ok, updated} = Claims.update(claim, %{in_scope_of: [context.id]})
       assert_claim(updated)
@@ -179,7 +179,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "with measure quantities" do
-      user = fake_user!()
+      user = fake_agent!()
       claim = fake_claim!(user)
 
       unit = fake_unit!(user)
@@ -195,7 +195,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "with a resource specification" do
-      user = fake_user!()
+      user = fake_agent!()
       claim = fake_claim!(user)
 
       attrs = %{
@@ -208,7 +208,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "with a triggered by event" do
-      user = fake_user!()
+      user = fake_agent!()
       claim = fake_claim!(user)
 
       attrs = %{
@@ -223,7 +223,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
 
   describe "soft_delete" do
     test "can delete an existing claim" do
-      claim = fake_claim!(fake_user!())
+      claim = fake_claim!(fake_agent!())
 
       refute claim.deleted_at
       assert {:ok, claim} = Claims.soft_delete(claim)
@@ -231,7 +231,7 @@ defmodule ValueFlows.Claim.ClaimsTest do
     end
 
     test "fails if the claim doesn't exist" do
-      claim = fake_claim!(fake_user!())
+      claim = fake_claim!(fake_agent!())
 
       assert {:ok, claim} = Claims.soft_delete(claim)
       assert {:error, _} = Claims.soft_delete(claim)
