@@ -2,9 +2,9 @@
 
 ## About the project
 
-[CommonsPub](http://commonspub.org) is a federated app ecosystem based on the `ActivityPub` and `ActivityStreams` web standards).
+The [CommonsPub](http://commonspub.org) server is currently being refactored into the [Bonfire](http://bonfire.cafe) federated app ecosystem/
 
-This is the main repository, written in Elixir (running on Erlang/OTP).
+This was the main repository, written in Elixir (running on Erlang/OTP).
 
 The federation API uses [ActivityPub](http://activitypub.rocks/) and the client API uses [GraphQL](https://graphql.org/).
 
