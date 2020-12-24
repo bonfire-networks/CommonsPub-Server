@@ -29,7 +29,7 @@ defmodule CommonsPub.Web.GraphQL.FollowsResolver do
   def follow(parent, _, _info), do: {:ok, parent.follow}
 
   def my_follow_edge(%{id: id}, _, info) do
-    with {:ok, %User{}} <- GraphQL.current_user_or(info, nil) do
+    with {:ok, %{}} <- GraphQL.current_user_or(info, nil) do
       ResolveFields.run(%ResolveFields{
         module: __MODULE__,
         fetcher: :fetch_my_follow_edge,

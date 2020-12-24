@@ -17,7 +17,7 @@ defmodule CommonsPub.Web.Test.ConnHelpers do
 
   def with_params(conn, %{} = params), do: %{conn | params: params}
 
-  def with_user(conn, %User{} = user), do: Conn.assign(conn, :current_user, user)
+  def with_user(conn, %{} = user), do: Conn.assign(conn, :current_user, user)
 
   def with_accept_json(conn),
     do: Conn.put_req_header(conn, "accept", "application/json")

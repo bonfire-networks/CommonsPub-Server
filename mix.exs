@@ -4,7 +4,7 @@
 defmodule CommonsPub.Mixfile do
   use Mix.Project
 
-  @library_dev_mode false
+  @library_dev_mode true
 
   # General configuration of the project
   def project do
@@ -60,12 +60,17 @@ defmodule CommonsPub.Mixfile do
   defp elixirc_paths(_), do: ["lib"]
 
   @bonfire_deps [
-                  "pointers",
-                  "bonfire_quantify",
-                  "bonfire_geolocate",
-                  "bonfire_valueflows"
-                ]
-                |> Enum.join(" ")
+    "pointers",
+    "bonfire_common",
+    "bonfire_data_access_control",
+    "bonfire_data_identity",
+    "bonfire_data_social",
+    "bonfire_data_activity_pub",
+    # "bonfire_me",
+    "bonfire_geolocate",
+    "bonfire_quantify",
+    "bonfire_valueflows",
+  ] |> Enum.join(" ")
 
   # Specifies mix commands
   defp aliases do

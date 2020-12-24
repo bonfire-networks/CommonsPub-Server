@@ -97,7 +97,7 @@ defmodule Organisation.Organisations do
 
   @spec create(User.t(), context :: any, attrs :: map) ::
           {:ok, Organisation.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, context, attrs) when is_map(attrs) do
+  def create(%{} = creator, context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       attrs = Map.put(attrs, :facet, @facet_name)
 
@@ -112,7 +112,7 @@ defmodule Organisation.Organisations do
   end
 
   @spec create(User.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  def create(%{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       attrs = Map.put(attrs, :facet, @facet_name)
 
@@ -146,7 +146,7 @@ defmodule Organisation.Organisations do
   # TODO: take the user who is performing the update
   @spec update(User.t(), Organisation.t(), attrs :: map) ::
           {:ok, Organisation.t()} | {:error, Changeset.t()}
-  def update(%User{} = user, %Organisation{} = organisation, attrs) do
+  def update(%{} = user, %Organisation{} = organisation, attrs) do
     Repo.transact_with(fn ->
       with {:ok, organisation} <- Repo.update(Organisation.update_changeset(organisation, attrs)),
            # update linked character too

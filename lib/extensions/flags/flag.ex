@@ -31,7 +31,7 @@ defmodule CommonsPub.Flags.Flag do
   @required ~w(message is_local)a
   @cast @required ++ ~w(canonical_url is_resolved)a
 
-  def create_changeset(%User{id: creator_id}, community, %{id: context_id}, attrs) do
+  def create_changeset(%{id: creator_id}, community, %{id: context_id}, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)

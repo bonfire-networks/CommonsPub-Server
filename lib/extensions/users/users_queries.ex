@@ -52,7 +52,7 @@ defmodule CommonsPub.Users.Queries do
   def filter(q, {:user, match_admin()}), do: filter(q, deleted: false)
   def filter(q, {:user, nil}), do: filter(q, deleted: false, disabled: false, published: true)
 
-  def filter(q, {:user, %User{id: id}}) do
+  def filter(q, {:user, %{id: id} = _user}) do
     filter(q, join: {:follow, id}, disabled: false)
     |> where([follow: f, user: u], not is_nil(u.published_at) or not is_nil(f.id))
   end

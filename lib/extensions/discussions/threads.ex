@@ -41,7 +41,7 @@ defmodule CommonsPub.Threads do
   @spec create(User.t(), map, context :: any) :: {:ok, Thread.t()} | {:error, Changeset.t()}
   def create(creator, attrs, context \\ nil)
 
-  def create(%User{} = creator, attrs, context) when not is_nil(context) do
+  def create(%{} = creator, attrs, context) when not is_nil(context) do
     Repo.transact_with(fn ->
       with {:ok, feed} <- Feeds.create(),
            attrs = Map.put(attrs, :outbox_id, feed.id),
@@ -52,7 +52,7 @@ defmodule CommonsPub.Threads do
   end
 
   @spec create(User.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs, _) do
+  def create(%{} = creator, attrs, _) do
     Repo.transact_with(fn ->
       with {:ok, feed} <- Feeds.create(),
            attrs = Map.put(attrs, :outbox_id, feed.id),
@@ -74,7 +74,7 @@ defmodule CommonsPub.Threads do
   Update the attributes of a thread.
   """
   @spec update(User.t(), Thread.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def update(%User{}, %Thread{} = thread, attrs) do
+  def update(%{}, %Thread{} = thread, attrs) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- Repo.update(Thread.update_changeset(thread, attrs)) do
         {:ok, thread}
@@ -82,12 +82,12 @@ defmodule CommonsPub.Threads do
     end)
   end
 
-  def update_by(%User{}, filters, updates) do
+  def update_by(%{}, filters, updates) do
     Repo.update_all(Queries.query(Thread, filters), set: updates)
   end
 
   @spec soft_delete(User.t(), Thread.t()) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def soft_delete(%User{} = user, %Thread{} = thread) do
+  def soft_delete(%{} = user, %Thread{} = thread) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- Bonfire.Repo.Delete.soft_delete(thread),
            :ok <- chase_delete(user, thread.id) do
@@ -96,7 +96,7 @@ defmodule CommonsPub.Threads do
     end)
   end
 
-  def soft_delete_by(%User{} = user, filters) do
+  def soft_delete_by(%{} = user, filters) do
     with {:ok, _} <-
            Repo.transact_with(fn ->
              {_, ids} =

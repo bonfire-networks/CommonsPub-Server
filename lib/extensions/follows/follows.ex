@@ -25,15 +25,15 @@ defmodule CommonsPub.Follows do
 
   def create(follower, followed, fields, opts \\ [])
 
-  def create(%User{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
+  def create(%{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
     create(follower, Bonfire.Common.Pointers.follow!(followed), fields, opts)
   end
 
-  def create(%User{} = follower, %{character: %{outbox_id: _} = followed}, fields, opts) do
+  def create(%{} = follower, %{character: %{outbox_id: _} = followed}, fields, opts) do
     create(follower, followed, fields, opts)
   end
 
-  def create(%User{} = follower, %_struct{outbox_id: _} = followed, fields, _opts) do
+  def create(%{} = follower, %_struct{outbox_id: _} = followed, fields, _opts) do
     # if struct in valid_contexts() do
     Repo.transact_with(fn ->
       case one(deleted: false, creator: follower.id, context: followed.id) do
@@ -161,7 +161,7 @@ defmodule CommonsPub.Follows do
   end
 
   @spec update(User.t(), Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
-  def update(%User{}, %Follow{} = follow, fields) do
+  def update(%{}, %Follow{} = follow, fields) do
     Repo.transact_with(fn ->
       with {:ok, follow} <- Repo.update(Follow.update_changeset(follow, fields)),
            :ok <- ap_publish("update", follow) do
@@ -170,12 +170,12 @@ defmodule CommonsPub.Follows do
     end)
   end
 
-  def update_by(%User{}, filters, updates) do
+  def update_by(%{}, filters, updates) do
     Repo.update_all(Queries.query(Follow, filters), set: updates)
   end
 
   @spec soft_delete(User.t(), Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
-  def soft_delete(%User{} = user, %Follow{} = follow) do
+  def soft_delete(%{} = user, %Follow{} = follow) do
     Repo.transact_with(fn ->
       with {:ok, follow} <- Bonfire.Repo.Delete.soft_delete(follow),
            :ok <- chase_delete(user, [follow.id], [follow.context_id]),
@@ -185,7 +185,7 @@ defmodule CommonsPub.Follows do
     end)
   end
 
-  def soft_delete_by(%User{} = user, filters) do
+  def soft_delete_by(%{} = user, filters) do
     with {:ok, _} <-
            Repo.transact_with(fn ->
              {_, ids} =

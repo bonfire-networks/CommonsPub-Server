@@ -11,7 +11,7 @@ defmodule CommonsPub.Likes do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Like, filters))}
 
-  def insert(%User{} = liker, liked, fields) do
+  def insert(%{} = liker, liked, fields) do
     Repo.insert(Like.create_changeset(liker, liked, fields))
   end
 
@@ -20,11 +20,11 @@ defmodule CommonsPub.Likes do
   """
   def create(liker, liked, fields)
 
-  def create(%User{} = liker, %Pointers.Pointer{} = liked, fields) do
+  def create(%{} = liker, %Pointers.Pointer{} = liked, fields) do
     create(liker, Bonfire.Common.Pointers.follow!(liked), fields)
   end
 
-  def create(%User{} = liker, %{__struct__: ctx} = liked, fields) do
+  def create(%{} = liker, %{__struct__: ctx} = liked, fields) do
     if ctx in valid_contexts() do
       Repo.transact_with(fn ->
         case one(deleted: false, context: liked.id, creator: liker.id) do
@@ -129,7 +129,7 @@ defmodule CommonsPub.Likes do
   end
 
   @spec soft_delete(User.t(), Like.t()) :: {:ok, Like.t()} | {:error, any}
-  def soft_delete(%User{} = user, %Like{} = like) do
+  def soft_delete(%{} = user, %Like{} = like) do
     Repo.transact_with(fn ->
       with {:ok, like} <- Bonfire.Repo.Delete.soft_delete(like),
            :ok <- chase_delete(user, like.id),
@@ -139,7 +139,7 @@ defmodule CommonsPub.Likes do
     end)
   end
 
-  def soft_delete_by(%User{} = user, filters) do
+  def soft_delete_by(%{} = user, filters) do
     with {:ok, _} <-
            Repo.transact_with(fn ->
              {_, ids} =

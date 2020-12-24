@@ -47,7 +47,7 @@ defmodule CommonsPub.Threads.Comments do
   Will fail with 403 if the reply doesn't match the thread.
   """
   def create_reply(
-        %User{} = creator,
+        %{} = creator,
         %Thread{} = thread,
         %Comment{} = reply_to,
         attrs
@@ -73,7 +73,7 @@ defmodule CommonsPub.Threads.Comments do
   Will fail with 403 if the parent thread is locked.
   """
   def create_reply(
-        %User{} = creator,
+        %{} = creator,
         %Thread{} = thread,
         attrs
       ) do
@@ -92,7 +92,7 @@ defmodule CommonsPub.Threads.Comments do
 
   Or if you a comment and a new thread together, use `Threads.create_with_comment/3`
   "
-  def create(%User{} = creator, %Thread{} = thread, attrs) when is_map(attrs) do
+  def create(%{} = creator, %Thread{} = thread, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       attrs = clean_and_prepare_tags(attrs)
       thread = preload_ctx(thread)
@@ -162,19 +162,19 @@ defmodule CommonsPub.Threads.Comments do
   end
 
   @spec update(User.t(), Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def update(%User{}, %Comment{} = comment, attrs) do
+  def update(%{}, %Comment{} = comment, attrs) do
     with {:ok, updated} <- Repo.update(Comment.update_changeset(comment, attrs)),
          :ok <- ap_publish("update", comment) do
       {:ok, updated}
     end
   end
 
-  def update_by(%User{}, filters, updates) do
+  def update_by(%{}, filters, updates) do
     Repo.update_all(CommentsQueries.query(Comment, filters), set: updates)
   end
 
   @spec soft_delete(User.t(), Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def soft_delete(%User{} = user, %Comment{} = comment) do
+  def soft_delete(%{} = user, %Comment{} = comment) do
     Repo.transact_with(fn ->
       with {:ok, deleted} <- Bonfire.Repo.Delete.soft_delete(comment),
            :ok <- chase_delete(user, comment.id),
@@ -184,7 +184,7 @@ defmodule CommonsPub.Threads.Comments do
     end)
   end
 
-  def soft_delete_by(%User{} = user, filters) do
+  def soft_delete_by(%{} = user, filters) do
     with {:ok, _} <-
            Repo.transact_with(fn ->
              {_, ids} =

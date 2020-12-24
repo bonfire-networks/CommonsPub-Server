@@ -25,7 +25,7 @@ defmodule CommonsPub.Common.Tagging do
   # @create_cast ~w(is_public name)a
   # @create_required @create_cast
 
-  # def create_changeset(%User{} = tagger, %Pointer{} = tagged, fields) do
+  # def create_changeset(%{} = tagger, %Pointer{} = tagged, fields) do
   #   %__MODULE__{}
   #   |> Changeset.cast(fields, @create_cast)
   #   |> Changeset.validate_required(@create_required)

@@ -46,11 +46,11 @@ defmodule CommonsPub.Feeds do
 
   def create(), do: Repo.insert(Feed.create_changeset())
 
-  def update_by(%User{}, filters, updates) do
+  def update_by(%{}, filters, updates) do
     Repo.update_all(Queries.query(Feed, filters), set: updates)
   end
 
-  def soft_delete_by(%User{} = user, filters) do
+  def soft_delete_by(%{} = user, filters) do
     with {:ok, _} <-
            Repo.transact_with(fn ->
              {_, ids} =

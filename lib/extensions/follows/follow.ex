@@ -28,7 +28,7 @@ defmodule CommonsPub.Follows.Follow do
   @create_required ~w(is_local)a
   @create_cast @create_required ++ ~w(canonical_url is_muted is_public)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id}, fields) do
+  def create_changeset(%{id: creator_id}, %{id: context_id}, fields) do
     %__MODULE__{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.change(

@@ -406,13 +406,13 @@ defmodule CommonsPub.Utils.Simulate do
     end
   end
 
-  def fake_token!(%User{} = user) do
+  def fake_token!(%{} = user) do
     {:ok, token} = Access.unsafe_put_token(user)
     maybe_assert(token.user_id == user.id)
     token
   end
 
-  def fake_content!(%User{} = user, overrides \\ %{}) do
+  def fake_content!(%{} = user, overrides \\ %{}) do
     {:ok, content} =
       CommonsPub.Uploads.upload(
         CommonsPub.Uploads.ResourceUploader,

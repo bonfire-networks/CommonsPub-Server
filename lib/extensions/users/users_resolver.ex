@@ -405,7 +405,7 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
         user_create_session(user, password)
 
       e ->
-        IO.inspect(e)
+        # IO.inspect(e)
         case Users.one([:default, email: login]) do
           {:ok, user} ->
             user_create_session(user, password)

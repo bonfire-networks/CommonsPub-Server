@@ -16,7 +16,7 @@ defmodule CommonsPub.Access.Token do
     timestamps()
   end
 
-  def create_changeset(%User{id: user_id}, validity \\ @default_validity) do
+  def create_changeset(%{id: user_id}, validity \\ @default_validity) do
     %Token{}
     |> Changeset.cast(%{}, [])
     |> Changeset.change(

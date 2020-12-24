@@ -39,7 +39,7 @@ defmodule CommonsPub.Threads.Thread do
 
   def create_changeset(creator, attrs, context \\ nil)
 
-  def create_changeset(%User{id: creator_id}, attrs, %{id: context_id}) do
+  def create_changeset(%{id: creator_id}, attrs, %{id: context_id}) do
     %Thread{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
@@ -51,7 +51,7 @@ defmodule CommonsPub.Threads.Thread do
     |> common_changeset()
   end
 
-  def create_changeset(%User{id: creator_id}, attrs, _) do
+  def create_changeset(%{id: creator_id}, attrs, _) do
     %Thread{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(

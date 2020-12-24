@@ -39,17 +39,17 @@ defmodule CommonsPub.Activities do
   Update an already existing activity with the given attributes.
   """
   @spec update(User.t(), Activity.t(), map) :: {:ok, Activity.t()} | {:error, Changeset.t()}
-  def update(%User{}, %Activity{} = activity, %{} = attrs),
+  def update(%{}, %Activity{} = activity, %{} = attrs),
     do: Repo.update(Activity.update_changeset(activity, attrs))
 
-  def update_by(%User{} = _user, filters, updates) do
+  def update_by(%{} = _user, filters, updates) do
     Repo.update_all(Queries.query(Activity, filters), set: updates)
   end
 
   @spec soft_delete(User.t(), Activity.t()) :: {:ok, Activity.t()} | {:error, Changeset.t()}
-  def soft_delete(%User{}, %Activity{} = activity), do: Bonfire.Repo.Delete.soft_delete(activity)
+  def soft_delete(%{}, %Activity{} = activity), do: Bonfire.Repo.Delete.soft_delete(activity)
 
-  def soft_delete_by(%User{} = user, filters) do
+  def soft_delete_by(%{} = user, filters) do
     update_by(user, [{:deleted, false} | filters], deleted_at: DateTime.utc_now())
     :ok
   end

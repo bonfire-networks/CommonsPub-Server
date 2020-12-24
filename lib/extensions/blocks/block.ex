@@ -31,7 +31,7 @@ defmodule CommonsPub.Blocks.Block do
   @create_cast ~w(canonical_url is_local is_public is_blocked)a
   @required_cast ~w(is_local is_public is_blocked)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id}, fields) do
+  def create_changeset(%{id: creator_id}, %{id: context_id}, fields) do
     %Block{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@required_cast)

@@ -29,7 +29,7 @@ defmodule CommonsPub.Web.GraphQL.LikesResolver do
   def like_edge(parent, _, _info), do: {:ok, Map.get(parent, :like)}
 
   def my_like_edge(%{id: id}, _, info) do
-    with {:ok, %User{}} <- GraphQL.current_user_or(info, nil) do
+    with {:ok, %{}} <- GraphQL.current_user_or(info, nil) do
       ResolveFields.run(%ResolveFields{
         module: __MODULE__,
         fetcher: :fetch_my_like_edge,

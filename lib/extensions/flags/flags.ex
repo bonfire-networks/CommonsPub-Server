@@ -15,7 +15,7 @@ defmodule CommonsPub.Flags do
   end
 
   def create(
-        %User{} = flagger,
+        %{} = flagger,
         flagged,
         community \\ nil,
         %{is_local: is_local} = fields
@@ -45,11 +45,11 @@ defmodule CommonsPub.Flags do
     end
   end
 
-  def update_by(%User{}, filters, updates) do
+  def update_by(%{}, filters, updates) do
     Repo.update_all(Queries.query(Flag, filters), set: updates)
   end
 
-  def soft_delete(%User{} = user, %Flag{} = flag) do
+  def soft_delete(%{} = user, %Flag{} = flag) do
     Repo.transact_with(fn ->
       with {:ok, flag} <- Bonfire.Repo.Delete.soft_delete(flag),
            :ok <- chase_delete(user, flag.id),
@@ -59,7 +59,7 @@ defmodule CommonsPub.Flags do
     end)
   end
 
-  def soft_delete_by(%User{} = user, filters) do
+  def soft_delete_by(%{} = user, filters) do
     with {:ok, _} <-
            Repo.transact_with(fn ->
              {_, ids} =

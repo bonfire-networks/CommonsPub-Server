@@ -19,11 +19,11 @@ defmodule CommonsPub.Feeds.FeedSubscriptions do
     |> Repo.insert()
   end
 
-  def update_by(%User{}, filters, updates) do
+  def update_by(%{}, filters, updates) do
     Repo.delete_all(FeedSubscriptionsQueries.query(FeedSubscription, filters), set: updates)
   end
 
-  def soft_delete_by(%User{} = user, filters) do
+  def soft_delete_by(%{} = user, filters) do
     update_by(user, [{:deleted, false}, filters], deleted_at: DateTime.utc_now())
     :ok
   end

@@ -55,7 +55,7 @@ defmodule CommonsPub.Profiles.Profile do
   end
 
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         attrs
       ) do
     %CommonsPub.Profiles.Profile{}

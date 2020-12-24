@@ -28,7 +28,7 @@ defmodule CommonsPub.Activities.Activity do
   @required ~w(verb is_local)a
   @cast @required ++ ~w(canonical_url is_public)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id}, %{} = attrs)
+  def create_changeset(%{id: creator_id}, %{id: context_id}, %{} = attrs)
       when is_binary(creator_id) and is_binary(context_id) do
     %Activity{}
     |> Changeset.cast(attrs, @cast)

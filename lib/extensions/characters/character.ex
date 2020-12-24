@@ -92,7 +92,7 @@ defmodule CommonsPub.Characters.Character do
   Create a character
   """
   def create_changeset(
-        %User{} = creator,
+        %{} = creator,
         # %{id: _} = characteristic,
         # %Actor{} = actor,
         attrs
@@ -120,7 +120,7 @@ defmodule CommonsPub.Characters.Character do
   end
 
   # def create_changeset(
-  #       %User{} = creator,
+  #       %{} = creator,
   #       # %{id: _} = characteristic,
   #       %Actor{} = actor,
   #       %{id: _} = context,
