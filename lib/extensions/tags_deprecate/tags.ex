@@ -1,4 +1,4 @@
-# defmodule Bonfire.Tags do
+# defmodule Bonfire.Tag.Tags do
 #   # @spec tag(User.t, any, map) :: {:ok, Tag.t} | {:error, Changeset.t()}
 #   # def tag(%{} = tagger, tagged, fields) do
 #   #   Repo.transact_with(fn ->

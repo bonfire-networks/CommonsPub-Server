@@ -25,6 +25,7 @@ import_config "bonfire_quantify.exs"
 import_config "bonfire_geolocate.exs"
 import_config "bonfire_valueflows.exs"
 import_config "bonfire_search.exs"
+import_config "bonfire_tag.exs"
 
 
 alias CommonsPub.{

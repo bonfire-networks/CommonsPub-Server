@@ -96,7 +96,7 @@ defmodule CommonsPub.Resources do
 
   def save_attached_tags(creator, obj, attrs) do
     with {:ok, _tag} <-
-           Bonfire.Tags.tag_something(creator, obj, attrs.mentions) do
+           Bonfire.Tag.Tags.tag_something(creator, obj, attrs.mentions) do
       # {:ok, CommonsPub.Repo.preload(comment, :tags)}
       {:ok, nil}
     end
