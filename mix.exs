@@ -4,7 +4,7 @@
 defmodule CommonsPub.Mixfile do
   use Mix.Project
 
-  @library_dev_mode true
+  @library_dev_mode false
 
   # General configuration of the project
   def project do
@@ -239,7 +239,7 @@ defmodule CommonsPub.Mixfile do
       # {:assertions, "~> 0.10"}, # for graphql tests
       # dev/test only:
       {:dbg, "~> 1.0", only: [:dev, :test]},
-      {:grumble, "~> 0.1.3", only: [:dev, :test]},
+      {:grumble, "~> 0.1.3"},
       # fake app data generation, also used in prototype API endponts
       {:faker, "~> 0.12"},
       # required by CommonsPub.Utils.Simulation

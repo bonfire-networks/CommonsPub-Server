@@ -3,12 +3,12 @@ defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
 
   # import Bonfire.Common.Simulation
-import CommonsPub.Utils.Simulate
+  import CommonsPub.Utils.Simulate
   # import Bonfire.Geolocate.Simulate
 
   import Grumble
-  import CommonsPub.Web.Test.GraphQLFields
-  import CommonsPub.Web.Test.GraphQLAssertions
+  import Bonfire.GraphQL.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLAssertions
 
   ## assertions
 

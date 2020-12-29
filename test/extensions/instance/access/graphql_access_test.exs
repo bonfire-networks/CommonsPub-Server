@@ -5,7 +5,7 @@ defmodule CommonsPub.Web.GraphQL.AccessTest do
 
   import Bonfire.Common.Simulation
   import CommonsPub.Utils.Simulate
-  import CommonsPub.Web.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLFields
   import Grumble
   alias CommonsPub.Utils.Simulation
   alias CommonsPub.Access

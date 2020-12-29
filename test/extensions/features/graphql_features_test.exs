@@ -5,8 +5,8 @@ defmodule CommonsPub.Web.GraphQL.FeaturesTest do
   import Bonfire.Common.Simulation
   import CommonsPub.Utils.Simulate
   import CommonsPub.Web.Test.ConnHelpers
-  import CommonsPub.Web.Test.GraphQLAssertions
-  import CommonsPub.Web.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLAssertions
+  import Bonfire.GraphQL.Test.GraphQLFields
 
   describe "feature" do
     test "works for anyone for a community feature" do

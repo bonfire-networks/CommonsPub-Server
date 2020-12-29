@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.Test.Faking do
-  import CommonsPub.Web.Test.GraphQLAssertions
-  import CommonsPub.Web.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLAssertions
+  import Bonfire.GraphQL.Test.GraphQLFields
 
   alias Organisation
   # import Organisation.Simulate

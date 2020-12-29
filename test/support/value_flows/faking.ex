@@ -2,8 +2,8 @@
 defmodule ValueFlows.Test.Faking do
   # import ExUnit.Assertions
 
-  import CommonsPub.Web.Test.GraphQLAssertions
-  import CommonsPub.Web.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLAssertions
+  import Bonfire.GraphQL.Test.GraphQLFields
 
   # import CommonsPub.Utils.Trendy
 

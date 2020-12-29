@@ -3,8 +3,8 @@ defmodule CommonsPub.Web.GraphQL.CommunitiesTest do
   use CommonsPub.Web.ConnCase, async: true
   import Bonfire.Common.Simulation
   import CommonsPub.Utils.Simulate
-  import CommonsPub.Web.Test.GraphQLAssertions
-  import CommonsPub.Web.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLAssertions
+  import Bonfire.GraphQL.Test.GraphQLFields
   import CommonsPub.Web.Test.Orderings
   import CommonsPub.Web.Test.ConnHelpers
   import CommonsPub.Web.Test.Automaton

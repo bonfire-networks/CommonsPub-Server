@@ -7,7 +7,7 @@ defmodule Bonfire.Quantify.MeasuresTest do
   import CommonsPub.Utils.Simulate
   # import CommonsPub.Web.Test.Orderings
   # import CommonsPub.Web.Test.Automaton
-  # import CommonsPub.Web.Test.GraphQLAssertions
+  # import Bonfire.GraphQL.Test.GraphQLAssertions
   # import Bonfire.Common.Enums
   # import Grumble
   # import Zest

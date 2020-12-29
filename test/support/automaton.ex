@@ -7,7 +7,7 @@ defmodule CommonsPub.Web.Test.Automaton do
   import ExUnit.Assertions
   import Zest
 
-  import CommonsPub.Web.Test.GraphQLAssertions
+  import Bonfire.GraphQL.Test.GraphQLAssertions
   import CommonsPub.Web.Test.ConnHelpers
 
   def root_page_test(

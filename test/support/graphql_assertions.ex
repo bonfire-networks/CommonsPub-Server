@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule CommonsPub.Web.Test.GraphQLAssertions do
+defmodule Bonfire.GraphQL.Test.GraphQLAssertions do
   alias CommonsPub.Web.Test.ConnHelpers
   alias CommonsPub.Activities.Activity
   alias CommonsPub.Collections.Collection

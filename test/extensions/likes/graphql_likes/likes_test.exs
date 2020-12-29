@@ -6,8 +6,8 @@ defmodule CommonsPub.Web.GraphQL.LikesTest do
   import Bonfire.Common.Simulation
   import CommonsPub.Utils.Simulate
   import CommonsPub.Web.Test.ConnHelpers
-  import CommonsPub.Web.Test.GraphQLAssertions
-  import CommonsPub.Web.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLAssertions
+  import Bonfire.GraphQL.Test.GraphQLFields
 
   describe "like" do
     test "works for guest for a like of a user" do

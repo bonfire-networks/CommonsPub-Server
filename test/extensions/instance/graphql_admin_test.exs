@@ -6,7 +6,7 @@ defmodule CommonsPub.Web.GraphQL.AdminTest do
   import CommonsPub.Utils.Simulate
   import ActivityPub.Factory
   alias CommonsPub.Utils.Simulation
-  import CommonsPub.Web.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLFields
 
   describe "invites" do
     test "sends an invite" do

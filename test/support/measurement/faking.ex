@@ -5,8 +5,8 @@ defmodule Bonfire.Quantify.Test.Faking do
   import Bonfire.Quantify.Simulate
 
   # import ExUnit.Assertions
-  import CommonsPub.Web.Test.GraphQLAssertions
-  import CommonsPub.Web.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLAssertions
+  import Bonfire.GraphQL.Test.GraphQLFields
   import CommonsPub.Utils.Trendy
 
   import Grumble
