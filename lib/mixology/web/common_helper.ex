@@ -421,7 +421,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     "/++" <> id
   end
 
-  def object_url(%Bonfire.Tag.Taggable{
+  def object_url(%Bonfire.Tag{
         id: id
       })
       when not is_nil(id) do

@@ -16,7 +16,7 @@ defmodule Bonfire.Tag.Autocomplete do
   end
 
   def tag_lookup(tag_search, "+" = prefix, consumer) do
-    tag_lookup_public(tag_search, prefix, consumer, ["Collection", "Category", "Taggable"])
+    tag_lookup_public(tag_search, prefix, consumer, ["Collection", "Category", "Tag"])
   end
 
   def tag_lookup(tag_search, "@" = prefix, consumer) do

@@ -37,7 +37,7 @@ defmodule CommonsPub.Resources do
       collection_or_context = Bonfire.Repo.maybe_preload(collection_or_context, :character)
 
       with {:ok, resource} <- insert_resource(creator, collection_or_context, attrs),
-           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
+           {:ok, resource} <- ValueFlows.Util.maybe_tag(creator, resource, attrs),
            act_attrs = %{
              verb: "created",
              is_local:
@@ -66,7 +66,7 @@ defmodule CommonsPub.Resources do
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, resource} <- insert_resource(creator, attrs),
-           {:ok, resource} <- ValueFlows.Util.try_tag_thing(creator, resource, attrs),
+           {:ok, resource} <- ValueFlows.Util.maybe_tag(creator, resource, attrs),
            act_attrs = %{
              verb: "created",
              is_local: is_nil(Map.get(creator.character, :peer_id, nil))
@@ -95,8 +95,8 @@ defmodule CommonsPub.Resources do
   def clean_and_prepare_tags(attrs), do: attrs
 
   def save_attached_tags(creator, obj, attrs) do
-    with {:ok, _taggable} <-
-           Bonfire.Tag.TagThings.thing_attach_tags(creator, obj, attrs.mentions) do
+    with {:ok, _tag} <-
+           Bonfire.Tags.tag_something(creator, obj, attrs.mentions) do
       # {:ok, CommonsPub.Repo.preload(comment, :tags)}
       {:ok, nil}
     end

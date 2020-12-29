@@ -125,8 +125,8 @@ defmodule CommonsPub.Threads.Comments do
   def clean_and_prepare_tags(attrs), do: attrs
 
   def save_attached_tags(creator, comment, attrs) do
-    with {:ok, _taggable} <-
-           Bonfire.Tag.TagThings.thing_attach_tags(creator, comment, attrs.mentions) do
+    with {:ok, _tag} <-
+           Bonfire.Tags.tag_something(creator, comment, attrs.mentions) do
       # {:ok, CommonsPub.Repo.preload(comment, :tags)}
       {:ok, nil}
     end

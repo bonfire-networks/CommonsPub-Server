@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Tag.Taggable do
+defmodule Bonfire.Tag do
   # use Bonfire.Repo.Schema
 
   use Pointers.Mixin,
     otp_app: :my_app,
-    source: "taggable"
+    source: "bonfire_tag"
 
   # use Pointers.Pointable,
   #   otp_app: :commons_pub,
@@ -12,7 +12,7 @@ defmodule Bonfire.Tag.Taggable do
   #   table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
   alias Ecto.Changeset
-  alias Bonfire.Tag.Taggable
+  alias Bonfire.Tag
   alias CommonsPub.Repo
 
   @type t :: %__MODULE__{}
@@ -36,7 +36,7 @@ defmodule Bonfire.Tag.Taggable do
     has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
 
     many_to_many(:things, Pointers.Pointer,
-      join_through: "tags_things",
+      join_through: "bonfire_tagged",
       unique: true,
       join_keys: [tag_id: :id, pointer_id: :id],
       on_replace: :delete
@@ -44,13 +44,13 @@ defmodule Bonfire.Tag.Taggable do
   end
 
   def create_changeset(attrs) do
-    %Taggable{}
+    %Tag{}
     |> Changeset.cast(attrs, @required)
     |> common_changeset()
   end
 
   def update_changeset(
-        %Taggable{} = tag,
+        %Tag{} = tag,
         attrs
       ) do
     tag
@@ -69,7 +69,7 @@ defmodule Bonfire.Tag.Taggable do
   Add things (Pointer objects) to a tag. You usually want to add tags to a thing instead, see `thing_tags_changeset`
   """
   def tag_things_changeset(
-        %Taggable{} = tag,
+        %Tag{} = tag,
         things
       ) do
     tag
@@ -81,7 +81,7 @@ defmodule Bonfire.Tag.Taggable do
   end
 
   @doc """
-  Add tags to a thing (any Pointer object which defines a many_to_many relation to taggable). This function applies to your object schema but is here for convenience.
+  Add tags to a thing (any Pointer object which defines a many_to_many relation to tag). This function applies to your object schema but is here for convenience.
   """
   def thing_tags_changeset(
         %{} = thing,
@@ -95,9 +95,9 @@ defmodule Bonfire.Tag.Taggable do
     |> common_changeset()
   end
 
-  def context_module, do: Bonfire.Tag.Taggables
+  def context_module, do: Bonfire.Tags
 
-  def queries_module, do: Bonfire.Tag.Taggable.Queries
+  def queries_module, do: Bonfire.Tag.Queries
 
   def follow_filters, do: [:default]
 end

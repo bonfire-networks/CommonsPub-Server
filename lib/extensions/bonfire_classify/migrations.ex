@@ -2,46 +2,26 @@ defmodule Bonfire.Classify.Migrations do
   import Ecto.Migration
   import Pointers.Migration
 
-  alias Bonfire.Tag.Taggable
-
-  def category_table(), do: Bonfire.Classify.Category.__schema__(:source)
-  def category_id(), do: Bonfire.Classify.Category.__schema__(:table_id)
-
-  def taggable_table(), do: Taggable.__schema__(:source)
+  alias Bonfire.Tag
 
   def up() do
 
     create_pointable_table(Bonfire.Classify.Category) do
-      add(:creator_id, references("mn_user", on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(CommonsPub.Users.User), null: true)
 
       add(:caretaker_id, weak_pointer(), null: true)
 
       # eg. Mamals is a parent of Cat
-      add(
-        :parent_category_id,
-        references(category_table(), on_update: :update_all, on_delete: :nilify_all)
-      )
+      add(:parent_category_id, weak_pointer(Bonfire.Classify.Category), null: true)
 
       # eg. Olive Oil is the same as Huile d'olive
-      add(
-        :same_as_category_id,
-        references(category_table(), on_update: :update_all, on_delete: :nilify_all)
-      )
+      add(:same_as_category_id, weak_pointer(Bonfire.Classify.Category), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
       add(:disabled_at, :timestamptz)
     end
 
-    flush()
-
-    create_if_not_exists table(:tags_things, primary_key: false) do
-      add(:pointer_id, strong_pointer(), null: false)
-
-      add(:tag_id, strong_pointer(Bonfire.Tag.Taggable), null: false)
-    end
-
-    create(unique_index(:tags_things, [:pointer_id, :tag_id]))
   end
 
   def down() do

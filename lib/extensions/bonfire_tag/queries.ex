@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Tag.Taggable.Queries do
+defmodule Bonfire.Tag.Queries do
   import Ecto.Query
 
-  alias Bonfire.Tag.Taggable
+  alias Bonfire.Tag
 
-  def query(Taggable) do
-    from(t in Taggable,
+  def query(Tag) do
+    from(t in Tag,
       as: :tag,
       left_join: c in assoc(t, :character),
       as: :character
@@ -13,7 +13,7 @@ defmodule Bonfire.Tag.Taggable.Queries do
   end
 
   def query(:count) do
-    from(c in Taggable, as: :tag)
+    from(c in Tag, as: :tag)
   end
 
   def query(q, filters), do: filter(query(q), filters)

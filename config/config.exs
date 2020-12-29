@@ -55,7 +55,7 @@ alias CommonsPub.Users.User
 alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
 
 alias Bonfire.Quantify.Units
-alias Bonfire.Tag.Taggable
+alias Bonfire.Tag
 
 alias CommonsPub.Workers.GarbageCollector
 
@@ -129,7 +129,7 @@ types_others = [
   Instance,
   Uploads.Upload,
   Bonfire.Quantify.Measure,
-  Bonfire.Tag.Taggable,
+  Bonfire.Tag,
   CommonsPub.Activities.Activity,
   CommonsPub.Feeds.Feed,
   CommonsPub.Peers.Peer,
@@ -576,9 +576,9 @@ config :pointers, Pointers.Pointer,
   ],
   many_to_many: [
     tags: {
-      # if(Bonfire.Common.Config.extension_enabled?(Taggable), do: Taggable, else: :taggable),
-      Taggable,
-      join_through: "tags_things",
+      # if(Bonfire.Common.Config.extension_enabled?(Tag), do: Tag, else: :tag),
+      Tag,
+      join_through: "bonfire_tagged",
       unique: true,
       join_keys: [pointer_id: :id, tag_id: :id],
       on_replace: :delete

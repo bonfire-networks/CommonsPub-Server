@@ -6,7 +6,7 @@ defmodule Bonfire.TaxonomySeeder.Migrations do
   # alias Ecto.ULID
   alias CommonsPub.Repo
 
-  @extension_path "lib/extensions/taxonomies_seeder"
+  @extension_path "lib/extensions/bonfire_taxonomy_seeder"
   @table "taxonomy_tag"
 
   def try_dotsql_execute(filename, mode) do

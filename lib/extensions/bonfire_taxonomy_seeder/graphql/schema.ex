@@ -24,7 +24,7 @@ defmodule Bonfire.TaxonomySeeder.GraphQL.TaxonomySchema do
 
   object :taxonomy_mutations do
     @desc "Create a Category to represents this taxonomy_tag in feeds and federation"
-    field :ingest_taxonomy_tag, :taggable do
+    field :ingest_taxonomy_tag, :tag do
       arg(:taxonomy_tag_id, :integer)
       resolve(&TaxonomyResolver.ingest_taxonomy_tag/2)
     end
@@ -52,7 +52,7 @@ defmodule Bonfire.TaxonomySeeder.GraphQL.TaxonomySchema do
       resolve(&TaxonomyResolver.tag_children/3)
     end
 
-    @desc "The taggable Category that we can use in items, feeds and federation"
+    @desc "The tag Category that we can use in items, feeds and federation"
     field(:category, :category)
   end
 

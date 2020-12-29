@@ -76,7 +76,7 @@ defmodule CommonsPub.HTML.Formatter do
   def tag_handler("+" <> nickname, buffer, opts, acc) do
     content_type = Map.get(opts, :content_type)
 
-    # TODO, link to Collection and Taggable
+    # TODO, link to Collection and Tag
 
     if CommonsPub.Utils.Web.CommonHelper.is_numeric(nickname) and
          Bonfire.Common.Config.extension_enabled?(Bonfire.TaxonomySeeder.TaxonomyTags) do

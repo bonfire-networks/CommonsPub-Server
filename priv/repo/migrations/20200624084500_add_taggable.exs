@@ -1,4 +1,4 @@
-defmodule CommonsPub.Repo.Migrations.AddTaggable do
+defmodule CommonsPub.Repo.Migrations.AddTag do
   use Ecto.Migration
 
   def up do

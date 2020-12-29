@@ -181,7 +181,7 @@ defmodule Bonfire.GraphQL.Schema do
       :user,
       :organisation,
       :category,
-      :taggable,
+      :tag,
       :spatial_thing,
       :intent
     ])
@@ -226,8 +226,8 @@ defmodule Bonfire.GraphQL.Schema do
       %Bonfire.Classify.Category{}, _ ->
         :category
 
-      %Bonfire.Tag.Taggable{}, _ ->
-        :taggable
+      %Bonfire.Tag{}, _ ->
+        :tag
 
       # %ValueFlows.Agent.Agents{}, _ -> :agent
       # %ValueFlows.Agent.People{}, _ -> :person

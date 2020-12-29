@@ -6,35 +6,35 @@ defmodule Bonfire.Tag.GraphQL.TagSchema do
 
   object :tag_queries do
 
-    @desc "Get a taggable by ID "
-    field :taggable, :taggable do
+    @desc "Get a tag by ID "
+    field :tag, :tag do
       arg(:id, :string)
       # arg :find, :category_find
-      resolve(&TagResolver.taggable/2)
+      resolve(&TagResolver.tag/2)
     end
   end
 
   object :tag_mutations do
 
-    @desc "Create a Taggable out of something else. You can also directly use the tag() mutation with a pointer ID instead."
-    field :make_taggable, :taggable do
+    @desc "Create a Tag out of something else. You can also directly use the tag() mutation with a pointer ID instead."
+    field :make_tag, :tag do
       arg(:context_id, :string)
-      resolve(&TagResolver.make_pointer_taggable/2)
+      resolve(&TagResolver.make_pointer_tag/2)
     end
 
-    @desc "Tag a thing (using a Pointer) with one or more Taggables (or Categories, or even Pointers to anything that can become taggable)"
+    @desc "Tag a thing (using a Pointer) with one or more Tags (or Categories, or even Pointers to anything that can become tag)"
     field :tag, :boolean do
       arg(:thing, non_null(:string))
-      arg(:taggables, non_null(list_of(:string)))
-      resolve(&TagResolver.thing_attach_tags/2)
+      arg(:tags, non_null(list_of(:string)))
+      resolve(&TagResolver.tag_something/2)
     end
 
   end
 
 
-  @desc "A taggable could be a category or hashtag or user or community or etc"
-  object :taggable do
-    @desc "The numeric primary key of the taggable"
+  @desc "A tag could be a category or hashtag or user or community or etc"
+  object :tag do
+    @desc "The numeric primary key of the tag"
     field(:id, :string)
 
     field(:prefix, :string)
@@ -50,7 +50,7 @@ defmodule Bonfire.Tag.GraphQL.TagSchema do
       resolve(&TagResolver.summary/3)
     end
 
-    @desc "The taggable object, like a category or community"
+    @desc "The tag object, like a category or community"
     field :context, :any_context do
       resolve(&Bonfire.GraphQL.CommonResolver.context_edge/3)
     end

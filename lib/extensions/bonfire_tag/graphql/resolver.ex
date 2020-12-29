@@ -15,13 +15,14 @@ defmodule Bonfire.Tag.GraphQL.TagResolver do
     ResolveRootPage
   }
 
-  alias Bonfire.Tag.{Taggable, Taggables}
+  alias Bonfire.Tag
+  alias Bonfire.Tag.Tags
 
 
-  def taggable(%{id: id}, info) do
+  def tag(%{id: id}, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
-      fetcher: :fetch_taggable,
+      fetcher: :fetch_tag,
       context: id,
       info: info
     })
@@ -29,19 +30,19 @@ defmodule Bonfire.Tag.GraphQL.TagResolver do
 
   ## fetchers
 
-  def fetch_taggable(_info, id) do
-    Taggables.one(id: id)
+  def fetch_tag(_info, id) do
+    Tags.one(id: id)
   end
 
 
   @doc """
   Things associated with a Tag
   """
-  def tagged_things_edges(%Taggable{things: _things} = taggable, %{} = page_opts, info) do
-    taggable = Repo.preload(taggable, :things)
+  def tagged_things_edges(%Tag{things: _things} = tag, %{} = page_opts, info) do
+    tag = Repo.preload(tag, :things)
     # pointers = for %{id: tid} <- tag.things, do: tid
     pointers =
-      taggable.things
+      tag.things
       |> Enum.map(fn a -> a.id end)
 
     # |> Map.new()
@@ -101,20 +102,20 @@ defmodule Bonfire.Tag.GraphQL.TagResolver do
 
 
   @doc """
-  Turn a Pointer into a Taggable. You can use `thing_attach_tags/2` to tag something with Pointers directly instead.
+  Turn a Pointer into a Tag. You can use `tag_something/2` to tag something with Pointers directly instead.
   """
-  def make_pointer_taggable(%{context_id: pointer_id}, info) do
+  def make_pointer_tag(%{context_id: pointer_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, taggable} <- Bonfire.Tag.Taggables.maybe_make_taggable(me, pointer_id, %{}) do
-        {:ok, taggable}
+           {:ok, tag} <- Bonfire.Tags.maybe_make_tag(me, pointer_id, %{}) do
+        {:ok, tag}
       end
     end)
   end
 
-  def thing_attach_tags(%{thing: thing_id, taggables: taggables}, info) do
+  def tag_something(%{thing: thing_id, tags: tags}, info) do
     with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, _tagged} = Bonfire.Tag.TagThings.thing_attach_tags(me, thing_id, taggables) do
+         {:ok, _tagged} = Bonfire.Tags.tag_something(me, thing_id, tags) do
       {:ok, true}
     end
   end

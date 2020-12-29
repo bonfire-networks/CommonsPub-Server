@@ -104,12 +104,12 @@ defmodule Bonfire.Classify.Categories do
       with attrs <- attrs_prepare(attrs),
            {:ok, category} <- insert_category(creator, attrs),
            attrs <- attrs_mixins_with_id(attrs, category),
-           {:ok, taggable} <-
-             Bonfire.Tag.Taggables.make_taggable(creator, category, attrs),
+           {:ok, tag} <-
+             Bonfire.Tags.make_tag(creator, category, attrs),
            {:ok, profile} <- CommonsPub.Profiles.create(creator, attrs),
            {:ok, character} <-
              CommonsPub.Characters.create(creator, attrs) do
-        category = %{category | taggable: taggable, character: character, profile: profile}
+        category = %{category | tag: tag, character: character, profile: profile}
 
         # add to search index
         index(category)

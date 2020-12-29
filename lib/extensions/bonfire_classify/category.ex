@@ -30,8 +30,8 @@ defmodule Bonfire.Classify.Category do
     # which community/collection/organisation/etc this category belongs to, if any
     belongs_to(:caretaker, Pointers.Pointer, type: Ecto.ULID)
 
-    # of course, category is usually a taggable
-    has_one(:taggable, Bonfire.Tag.Taggable, foreign_key: :id)
+    # of course, category is usually a tag
+    has_one(:tag, Bonfire.Tag, foreign_key: :id)
 
     # Profile and/or character mixins
     ## to store common fields like name/description
