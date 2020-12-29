@@ -51,8 +51,9 @@ defmodule Bonfire.GraphQL.Schema do
 
   import_types(CommonsPub.Locales.GraphQL.Schema)
 
-  import_types(CommonsPub.Tag.GraphQL.TagSchema)
-  import_types(Taxonomy.GraphQL.TaxonomySchema)
+  import_types(Bonfire.Tag.GraphQL.TagSchema)
+  import_types(Bonfire.Classify.GraphQL.ClassifySchema)
+  import_types(Bonfire.TaxonomySeeder.GraphQL.TaxonomySchema)
 
   import_types(Bonfire.Quantify.Units.GraphQL)
   import_types(Bonfire.Geolocate.GraphQL)
@@ -83,6 +84,7 @@ defmodule Bonfire.GraphQL.Schema do
 
     import_fields(:organisations_queries)
 
+    import_fields(:classify_queries)
     import_fields(:tag_queries)
     import_fields(:taxonomy_queries)
 
@@ -120,6 +122,7 @@ defmodule Bonfire.GraphQL.Schema do
 
     import_fields(:organisations_mutations)
 
+    import_fields(:classify_mutations)
     import_fields(:tag_mutations)
     import_fields(:taxonomy_mutations)
 
@@ -220,10 +223,10 @@ defmodule Bonfire.GraphQL.Schema do
       %Bonfire.Geolocate.Geolocation{}, _ ->
         :spatial_thing
 
-      %CommonsPub.Tag.Category{}, _ ->
+      %Bonfire.Classify.Category{}, _ ->
         :category
 
-      %CommonsPub.Tag.Taggable{}, _ ->
+      %Bonfire.Tag.Taggable{}, _ ->
         :taggable
 
       # %ValueFlows.Agent.Agents{}, _ -> :agent

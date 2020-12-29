@@ -182,9 +182,9 @@ defmodule CommonsPub.Web.Router do
 
     pipe_through :protect_forgery
 
-    get "/api/tag/autocomplete/:prefix/:search", CommonsPub.Tag.Autocomplete, :get
-    get "/api/tag/autocomplete/:consumer/:prefix/:search", CommonsPub.Tag.Autocomplete, :get
-    get "/api/taxonomy/test", Taxonomy.Utils, :get
+    get "/api/tag/autocomplete/:prefix/:search", Bonfire.Tag.Autocomplete, :get
+    get "/api/tag/autocomplete/:consumer/:prefix/:search", Bonfire.Tag.Autocomplete, :get
+    get "/api/taxonomy/test", Bonfire.TaxonomySeeder.Utils, :get
   end
 
   # Enables LiveDashboard only for development

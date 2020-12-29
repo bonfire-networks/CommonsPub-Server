@@ -79,8 +79,8 @@ defmodule CommonsPub.HTML.Formatter do
     # TODO, link to Collection and Taggable
 
     if CommonsPub.Utils.Web.CommonHelper.is_numeric(nickname) and
-         Bonfire.Common.Config.extension_enabled?(Taxonomy.TaxonomyTags) do
-      with {:ok, category} <- Taxonomy.TaxonomyTags.maybe_make_category(nil, nickname) do
+         Bonfire.Common.Config.extension_enabled?(Bonfire.TaxonomySeeder.TaxonomyTags) do
+      with {:ok, category} <- Bonfire.TaxonomySeeder.TaxonomyTags.maybe_make_category(nil, nickname) do
         mention_process(opts, category, acc, content_type)
       end
     else
@@ -90,7 +90,7 @@ defmodule CommonsPub.HTML.Formatter do
 
         _ ->
           # TODO after the character/actor refactor so we can easily query by category by username
-          # case CommonsPub.Tag.Categories.get(nickname) do
+          # case Bonfire.Classify.Categories.get(nickname) do
           #   %{id: id} = category ->
           #     mention_process(opts, category, acc, content_type)
 

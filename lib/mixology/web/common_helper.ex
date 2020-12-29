@@ -414,14 +414,14 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
     "/+++" <> id
   end
 
-  def object_url(%CommonsPub.Tag.Category{
+  def object_url(%Bonfire.Classify.Category{
         id: id
       })
       when not is_nil(id) do
     "/++" <> id
   end
 
-  def object_url(%CommonsPub.Tag.Taggable{
+  def object_url(%Bonfire.Tag.Taggable{
         id: id
       })
       when not is_nil(id) do
@@ -482,7 +482,7 @@ defmodule CommonsPub.Utils.Web.CommonHelper do
   end
 
   def object_url(id) when is_binary(id) do
-    Bonfire.Common.Pointers.get(id) |> object_url()
+    Bonfire.Common.Pointers.get!(id) |> object_url()
   end
 
   def object_url(activity) do

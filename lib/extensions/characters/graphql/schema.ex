@@ -220,7 +220,7 @@ defmodule CommonsPub.Characters.GraphQL.Schema do
     #   arg(:limit, :integer)
     #   arg(:before, list_of(non_null(:cursor)))
     #   arg(:after, list_of(non_null(:cursor)))
-    #   resolve(&Taxonomy.GraphQL.TaxonomyResolver.character_tags_edge/3)
+    #   resolve(&Bonfire.TaxonomySeeder.GraphQL.TaxonomyResolver.character_tags_edge/3)
     # end
 
     @desc "Total number of followers, including those we can't see"

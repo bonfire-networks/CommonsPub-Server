@@ -55,7 +55,7 @@ alias CommonsPub.Users.User
 alias CommonsPub.Feeds.{FeedActivities, FeedSubscriptions}
 
 alias Bonfire.Quantify.Units
-alias CommonsPub.Tag.Taggable
+alias Bonfire.Tag.Taggable
 
 alias CommonsPub.Workers.GarbageCollector
 
@@ -99,7 +99,7 @@ types_characters =
       Community,
       Collection,
       Bonfire.Geolocate.Geolocation,
-      CommonsPub.Tag.Category
+      Bonfire.Classify.Category
     ]
 
 types_inventory = [
@@ -107,7 +107,7 @@ types_inventory = [
   CommonsPub.Threads.Comment,
   CommonsPub.Resources.Resource,
   Bonfire.Quantify.Unit,
-  CommonsPub.Tag.Category,
+  Bonfire.Classify.Category,
   ValueFlows.Planning.Intent,
   ValueFlows.Proposal,
   ValueFlows.Observation.EconomicEvent,
@@ -129,7 +129,7 @@ types_others = [
   Instance,
   Uploads.Upload,
   Bonfire.Quantify.Measure,
-  CommonsPub.Tag.Taggable,
+  Bonfire.Tag.Taggable,
   CommonsPub.Activities.Activity,
   CommonsPub.Feeds.Feed,
   CommonsPub.Peers.Peer,

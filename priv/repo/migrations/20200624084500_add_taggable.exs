@@ -4,12 +4,14 @@ defmodule CommonsPub.Repo.Migrations.AddTaggable do
   def up do
     # Pointers.Migration.create_main_pointer_trigger_function()
     # flush()
-    # Taxonomy.Migrations.up()
+    # Bonfire.TaxonomySeeder.Migrations.up()
     # flush()
-    Tag.Migrations.up()
+    Bonfire.Tag.Migrations.up()
+    Bonfire.Classify.Migrations.up()
   end
 
   def down do
-    Tag.Migrations.down()
+    Bonfire.Tag.Migrations.down()
+    Bonfire.Classify.Migrations.down()
   end
 end

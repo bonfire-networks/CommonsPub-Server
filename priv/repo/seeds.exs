@@ -52,10 +52,10 @@ for _ <- 1..2, do: fake_resource!(random_user.(), maybe_random_community.())
 for _ <- 1..2, do: fake_resource!(random_user.(), maybe_random_collection.())
 
 # define some tags/categories
-if(Bonfire.Common.Config.extension_enabled?(CommonsPub.Tag.Simulate)) do
+if(Bonfire.Common.Config.extension_enabled?(Bonfire.Tag.Simulate)) do
   for _ <- 1..2 do
-    category = CommonsPub.Tag.Simulate.fake_category!(random_user.())
-    _subcategory = CommonsPub.Tag.Simulate.fake_category!(random_user.(), category)
+    category = Bonfire.Tag.Simulate.fake_category!(random_user.())
+    _subcategory = Bonfire.Tag.Simulate.fake_category!(random_user.(), category)
   end
 end
 

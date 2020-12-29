@@ -463,11 +463,11 @@ defmodule CommonsPub.Characters do
     display_username(obj, full_hostname, "+")
   end
 
-  def display_username(%CommonsPub.Tag.Taggable{} = obj, full_hostname) do
+  def display_username(%Bonfire.Tag.Taggable{} = obj, full_hostname) do
     display_username(obj, full_hostname, "+")
   end
 
-  def display_username(%CommonsPub.Tag.Category{} = obj, full_hostname) do
+  def display_username(%Bonfire.Classify.Category{} = obj, full_hostname) do
     display_username(obj, full_hostname, "+")
   end
 
