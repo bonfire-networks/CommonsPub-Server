@@ -9,7 +9,8 @@ config :bonfire_data_identity, Bonfire.Data.Identity.Credential,
 
 config :bonfire_common,
   repo_module: CommonsPub.Repo,
-  otp_app: :commons_pub
+  otp_app: :commons_pub,
+  default_layout_module: CommonsPub.Web.LayoutView
 
 config :bonfire_data_identity, Bonfire.Data.Identity.Account,
   # has_one: [credential:     {Credential,    foreign_key: :id}],

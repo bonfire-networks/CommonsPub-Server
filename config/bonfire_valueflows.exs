@@ -6,5 +6,6 @@ config :bonfire_valueflows,
   repo_module: CommonsPub.Repo,
   user_schema: Pointers.Pointer, # FIXME
   org_schema: Pointers.Pointer, # FIXME
+  graphql_schema_module: Bonfire.GraphQL.Schema,
   valid_agent_schemas: [Bonfire.Data.Identity.User, CommonsPub.Users.User, Pointers.Pointer]
   # all_types: []
