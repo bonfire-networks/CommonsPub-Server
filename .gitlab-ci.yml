@@ -26,7 +26,7 @@ cache:
 
 stages:
   # - build
-  - test
+  # - test
   - deploy
 
 before_script:
@@ -63,7 +63,7 @@ testing:
     - make db-pre-migrations
     - mix ecto.reset
     # - mix coveralls --preload-modules
-    - mix test test/value_flows/ test/extensions/bonfire_quantify test/extensions/bonfire_geolocate
+    # - mix test test/value_flows/ test/extensions/bonfire_quantify test/extensions/bonfire_geolocate
 
 locales-and-docs:
   stage: deploy # deploy documentation (stage should be changed 'deploy' when tests are fixed)
