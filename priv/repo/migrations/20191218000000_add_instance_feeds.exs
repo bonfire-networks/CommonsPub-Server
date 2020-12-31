@@ -4,9 +4,9 @@ defmodule CommonsPub.Repo.Migrations.AddInstanceFeeds do
   @instance_outbox_id "10CA11NSTANCE00TB0XFEED1D0"
   @instance_inbox_id "10CA11NSTANCE1NB0XFEED1D00"
   def up do
-    {:ok, outbox} = Ecto.ULID.dump(@instance_outbox_id)
+    {:ok, outbox} = Pointers.ULID.dump(@instance_outbox_id)
     {:ok, outbox} = Ecto.UUID.cast(outbox)
-    {:ok, inbox} = Ecto.ULID.dump(@instance_inbox_id)
+    {:ok, inbox} = Pointers.ULID.dump(@instance_inbox_id)
     {:ok, inbox} = Ecto.UUID.cast(inbox)
 
     :ok =

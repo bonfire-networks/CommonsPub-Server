@@ -27,7 +27,7 @@ defmodule CommonsPub.Characters.Character do
 
     # belongs_to(:context, Pointer) # points to the parent Thing of this character
 
-    # field(:characteristic_id, Ecto.ULID) # points to the Thing that this character represents
+    # field(:characteristic_id, Pointers.ULID) # points to the Thing that this character represents
     # field(:characteristic, :any, virtual: true)
     # belongs_to(:characteristic, Pointer)
 

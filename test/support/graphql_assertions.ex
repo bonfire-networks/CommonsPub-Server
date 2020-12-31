@@ -13,7 +13,7 @@ defmodule Bonfire.GraphQL.Test.GraphQLAssertions do
   alias CommonsPub.Threads.{Comment, Thread}
   alias CommonsPub.Users.User
 
-  alias Ecto.ULID
+  alias Pointers.ULID
   import ExUnit.Assertions
   import Zest
 
@@ -47,7 +47,7 @@ defmodule Bonfire.GraphQL.Test.GraphQLAssertions do
 
   def assert_ulid(ulid) do
     assert is_binary(ulid)
-    assert {:ok, val} = Ecto.ULID.cast(ulid)
+    assert {:ok, val} = Pointers.ULID.cast(ulid)
     val
   end
 

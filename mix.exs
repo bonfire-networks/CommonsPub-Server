@@ -172,7 +172,6 @@ defmodule CommonsPub.Mixfile do
       {:ecto, "~> 3.4", override: true},
       {:ecto_sql, "~> 3.4", override: true},
       {:postgrex, "~> 0.15"},
-      {:ecto_ulid, git: "https://github.com/irresponsible/ecto-ulid", branch: "moodlenet"},
       # crypto
       {:castore, "~> 0.1"},
       # Username reservation

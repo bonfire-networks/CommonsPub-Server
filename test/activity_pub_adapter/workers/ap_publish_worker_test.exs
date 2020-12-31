@@ -257,7 +257,7 @@ defmodule CommonsPub.Workers.APPpublishWorkerTest do
   describe "batch enqueue" do
     test "works" do
       require Ecto.Query
-      ids = [Ecto.ULID.generate(), Ecto.ULID.generate(), Ecto.ULID.generate()]
+      ids = [Pointers.ULID.generate(), Pointers.ULID.generate(), Pointers.ULID.generate()]
       APPublishWorker.batch_enqueue("create", ids)
       res = CommonsPub.Repo.all(Ecto.Query.from(Oban.Job))
       assert length(res) == 3

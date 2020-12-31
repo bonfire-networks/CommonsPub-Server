@@ -13,6 +13,10 @@ config :pointers,
     # :bonfire_data_identity,
     # :bonfire_data_social,
     :bonfire_quantify,
+    :bonfire_geolocate,
+    :bonfire_valueflows,
+    :bonfire_tag,
+    :bonfire_classify,
     :commons_pub,
   ]
 
@@ -26,6 +30,7 @@ import_config "bonfire_geolocate.exs"
 import_config "bonfire_valueflows.exs"
 import_config "bonfire_search.exs"
 import_config "bonfire_tag.exs"
+import_config "bonfire_classify.exs"
 
 
 alias CommonsPub.{
@@ -72,7 +77,18 @@ signing_salt = System.get_env("SIGNING_SALT", "CqAoopA2")
 # stuff you might need to change to be viable
 
 config :commons_pub, :app_name, System.get_env("APP_NAME", "CommonsPub")
-config :commons_pub, :repo_module, CommonsPub.Repo
+config :commons_pub,
+  otp_app: :commons_pub,
+  env: config_env(),
+  repo_module: CommonsPub.Repo,
+  web_module: CommonsPub.Web,
+  endpoint_module: CommonsPub.Web.Endpoint,
+  mailer_module: Bonfire.Mailer,
+  default_layout_module: CommonsPub.Web.LayoutView,
+  graphql_schema_module: CommonsPub.GraphQL.Schema,
+  user_schema: CommonsPub.Users.User,
+  org_schema: CommonsPub.Users.User,
+  ap_base_path: System.get_env("AP_BASE_PATH", "/pub")
 
 config :commons_pub,
        :frontend_base_url,
@@ -187,7 +203,7 @@ inventory_types = Map.keys(inventory_modules)
 object_types = Map.keys(object_modules)
 all_types = actor_types ++ activity_types ++ inventory_types ++ object_types
 
-config :bonfire_valueflows, :all_types, all_types
+config :commons_pub, :all_types, all_types
 
 config :commons_pub, CommonsPub.ActivityPub.Adapter,
   actor_modules: actor_modules,

@@ -2,7 +2,7 @@
 defmodule CommonsPub.Repo.Migrations.BigRefactor do
   use Ecto.Migration
   alias CommonsPub.Repo
-  alias Ecto.ULID
+  alias Pointers.ULID
   import Pointers.Migration
 
   @meta_tables [] ++
@@ -560,7 +560,7 @@ defmodule CommonsPub.Repo.Migrations.BigRefactor do
 
     # Repo.insert_all("mn_language", langs)
 
-    # country_pointers = Enum.map(@countries, fn _ -> Ecto.ULID.bingenerate() end)
+    # country_pointers = Enum.map(@countries, fn _ -> Pointers.ULID.bingenerate() end)
 
     # {_, _} =
     #   Repo.insert_all(

@@ -69,7 +69,7 @@ defmodule CommonsPub.Web.GraphQL.UsersResolver do
       page_opts: page_opts,
       info: info,
       # followers
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Pointers.ULID.cast/1]
     })
   end
 

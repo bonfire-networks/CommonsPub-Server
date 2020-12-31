@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule CommonsPub.Common do
   def is_ulid(str) when is_binary(str) do
-    with :error <- Ecto.ULID.cast(str) do
+    with :error <- Pointers.ULID.cast(str) do
       false
     else
       _ -> true

@@ -52,7 +52,7 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
       page_opts: page_opts,
       info: info,
       # popularity
-      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Pointers.ULID.cast/1]
     })
   end
 
@@ -203,10 +203,6 @@ defmodule CommonsPub.Characters.GraphQL.Resolver do
 
   # defp valid_contexts do
   #   Keyword.fetch!(Bonfire.Common.Config.get(Characters), :valid_contexts)
-  # end
-
-  # def creator_edge(%{character: %{creator_id: id}}, _, info) do
-  #   CommonsPub.Characters.GraphQL.Resolver.creator_edge(%{creator_id: id}, nil, info)
   # end
 
   @doc "Returns the canonical url for a character"

@@ -5,7 +5,7 @@ defmodule CommonsPub.Feeds.FeedActivities do
   """
   alias CommonsPub.{Repo, Feeds}
   alias CommonsPub.Feeds.{FeedActivity, FeedActivitiesQueries}
-  alias Ecto.ULID
+  alias Pointers.ULID
 
   @doc """
   Retrieves a single feed activity by arbitrary filters.
