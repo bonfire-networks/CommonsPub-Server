@@ -21,10 +21,10 @@
 @import "../extensions/profiles/live/hero";
 @import "../extensions/profiles/live/member";
 
-@import "../../deps/bonfire_search/lib/live/search.scss";
+// @import "../../deps/bonfire_search/lib/live/search.scss";
 
 @import "../extensions/resources/live/post_link/share_link.scss";
 
 @import "../mixology/web/text_editor/editors/prosemirror.scss";
 
-@import "../../deps/bonfire_valueflows/lib/planning/intent/create_intent/publish_ad_live.scss";
+@import "../extensions/vf/deprecated/publish_ad_live.scss";

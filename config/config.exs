@@ -90,6 +90,7 @@ config :commons_pub,
   org_schema: CommonsPub.Users.User,
   ap_base_path: System.get_env("AP_BASE_PATH", "/pub")
 
+
 config :commons_pub,
        :frontend_base_url,
        System.get_env("FRONTEND_BASE_URL", base_url)
